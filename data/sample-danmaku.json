@@ -1,0 +1,10 @@
+[
+  { "user": "星野", "text": "主播今天声音好可爱", "type": "chat" },
+  { "user": "Maple", "text": "你会打 osu 吗？", "type": "chat" },
+  { "user": "小白", "text": "第一次来，能自我介绍一下吗", "type": "chat" },
+  { "user": "Echo", "text": "这首歌好难啊", "type": "chat" },
+  { "user": "老粉A", "text": "还记得我上次说在练 HR 吗", "type": "chat" },
+  { "user": "Neko", "text": "送你一个小花花", "type": "gift" },
+  { "user": "路过", "text": "弹幕好多你读得过来吗", "type": "chat" },
+  { "user": "Rain", "text": "如果 miss 了你会生气吗", "type": "chat" }
+]

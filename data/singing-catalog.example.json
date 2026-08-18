@@ -1,0 +1,18 @@
+{
+  "schemaVersion": 1,
+  "notice": "复制为 singing-catalog.json 后，只登记已取得必要授权的曲目；不要保存歌词正文。",
+  "tracks": [
+    {
+      "id": "authorized-demo",
+      "title": "授权曲目名称",
+      "authorizationReference": "本地合同或许可记录编号",
+      "expiresAt": null,
+      "rights": {
+        "composition": true,
+        "lyrics": true,
+        "arrangement": true,
+        "performanceOutput": true
+      }
+    }
+  ]
+}

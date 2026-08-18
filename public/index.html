@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>AI 主播直播台</title>
+    <link rel="stylesheet" href="/stream.css" />
+  </head>
+  <body>
+    <main class="stream-stage">
+      <div class="stream-topbar"><span class="status-dot">● Live2D streamer preview</span><nav><a href="/debug.html">调试直播台</a><a href="/studio.html">导演工作台</a></nav></div>
+      <div id="live2d-stage" aria-label="Live2D streamer"></div>
+      <div id="avatarFallback" class="avatar-fallback"><div class="fallback-silhouette"></div></div>
+      <div id="danmakuLayer" class="danmaku-layer" aria-live="polite"></div>
+      <p id="modelError" class="model-error"></p>
+      <section class="subtitles"><span id="speaker">AI 主播</span><p id="subtitle">直播间准备中。</p></section>
+      <form id="danmakuComposer" class="danmaku-composer">
+        <div class="composer-head"><span>本地弹幕测试</span><span id="brainStatus">大脑连接中</span></div>
+        <label class="sr-only" for="viewerName">观众昵称</label>
+        <input id="viewerName" name="viewerName" maxlength="20" value="测试观众" autocomplete="off" aria-label="观众昵称" />
+        <label class="sr-only" for="danmakuInput">弹幕内容</label>
+        <div class="composer-row">
+          <input id="danmakuInput" name="danmakuInput" maxlength="120" autocomplete="off" placeholder="发一条弹幕试试" aria-label="弹幕内容" required />
+          <button id="sendDanmaku" type="submit">发送</button>
+        </div>
+        <label class="training-toggle" for="trainingMemory"><input id="trainingMemory" type="checkbox" checked /><span>将本条加入本场训练素材</span></label>
+        <label class="chat-toggle" for="chatModeToggle"><span id="chatModeLabel">主动陪聊</span><input id="chatModeToggle" type="checkbox" checked /><i aria-hidden="true"></i></label>
+        <label class="chat-toggle" for="speechOutputToggle"><span id="speechOutputLabel">主播语音输出</span><input id="speechOutputToggle" type="checkbox" checked /><i aria-hidden="true"></i></label>
+        <button id="voiceButton" class="voice-button" type="button" aria-pressed="false">开始说话</button>
+        <label class="sr-only" for="microphoneSelect">麦克风设备</label>
+        <select id="microphoneSelect" class="microphone-select" aria-label="麦克风设备"><option value="">系统默认麦克风</option></select>
+        <div class="mic-meter" aria-label="麦克风输入音量"><span id="micMeterFill"></span></div>
+        <p id="voiceStatus" class="voice-status" aria-live="polite">语音功能版本 v6 准备中</p>
+        <p id="composerStatus" class="composer-status" aria-live="polite"></p>
+      </form>
+    </main>
+    <script src="/vendor/pixi8.min.js"></script>
+    <script src="/vendor/live2dcubismcore-v5.min.js"></script>
+    <script src="/vendor/live2d-cubism5.min.js"></script>
+    <script type="module" src="/stream.js"></script>
+  </body>
+</html>

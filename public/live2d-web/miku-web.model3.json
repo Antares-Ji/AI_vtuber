@@ -1,0 +1,23 @@
+{
+  "Version": 3,
+  "FileReferences": {
+    "Moc": "../live2d/miku.moc3",
+    "Textures": [
+      "../live2d/miku.4096/texture_00.png",
+      "../live2d/miku.4096/texture_01.png",
+      "../live2d/miku.4096/texture_02.png",
+      "../live2d/miku.4096/texture_03.png",
+      "../live2d/miku.4096/texture_04.png",
+      "../live2d/miku.4096/texture_05.png"
+    ],
+    "Physics": "../live2d/miku.physics3.json",
+    "DisplayInfo": "../live2d/miku.cdi3.json",
+    "Expressions": [
+      { "Name": "watermark-off", "File": "../live2d/水印.exp3.json" }
+    ]
+  },
+  "Groups": [
+    { "Target": "Parameter", "Name": "LipSync", "Ids": [] },
+    { "Target": "Parameter", "Name": "EyeBlink", "Ids": ["ParamEyeROpen", "ParamEyeLOpen"] }
+  ]
+}

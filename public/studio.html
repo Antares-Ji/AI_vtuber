@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI 主播导演工作台</title>
+  <link rel="stylesheet" href="/studio.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div><strong>AI 主播导演工作台</strong><span id="health">正在连接</span></div>
+    <nav><a href="/">直播主屏</a><a href="/debug.html">调试直播台</a><button id="refresh" type="button" title="刷新状态">刷新</button></nav>
+  </header>
+  <main>
+    <nav class="tabs" aria-label="工作台模块">
+      <button class="active" data-tab="memory">记忆训练</button><button data-tab="brain">大脑诊断</button><button data-tab="story">连续经历</button><button data-tab="vision">osu! 视觉</button><button data-tab="live">直播运行</button>
+    </nav>
+
+    <section id="memory" class="view active">
+      <div class="section-head"><div><h1>分层记忆</h1><p>审阅、纠错与灌输长期记忆。修改会写入 SQLite 和审计记录。</p></div><div><span id="memoryCount">0 条</span><small id="memoryQualityAlert" class="meta"></small></div></div>
+      <section class="candidate-workbench">
+        <div class="candidate-head"><div><h2>会话提炼与归档</h2><p id="candidateMeta">本场对话先作为临时记忆，只有确认后的候选才会永久保存。</p></div><div class="candidate-tools"><select id="sessionSelect" aria-label="选择会话"></select><button id="generateCandidates" type="button">重新提炼所选会话</button><button id="archiveSession" class="secondary" type="button">结束并自动提炼本场</button></div></div>
+        <div id="candidateList" class="candidate-list"></div>
+        <div id="candidateActions" class="candidate-actions" hidden><span>取消勾选代表拒绝保存；文字可以直接修改。</span><button id="selectAllCandidates" class="secondary" type="button">全选</button><button id="selectNoCandidates" class="secondary" type="button">全不选</button><button id="commitCandidates" type="button">确认选中记忆</button></div>
+      </section>
+      <div class="split">
+        <div class="pane"><div class="filters"><select id="memoryScope"><option value="">全部范围</option><option value="quality">建议整理</option><option value="user">用户</option><option value="character">角色</option><option value="session">会话</option></select><input id="memorySearch" placeholder="搜索内容或用户" /></div><div id="memoryList" class="memory-list"></div></div>
+        <form id="memoryEditor" class="pane form"><h2>编辑选中记忆</h2><input id="memoryId" type="hidden" /><label>内容<textarea id="memoryContent" rows="7" required></textarea></label><div class="two"><label>可信度<input id="memoryConfidence" type="number" min="0" max="1" step="0.05" /></label><label>重要度<input id="memoryImportance" type="number" min="0" max="1" step="0.05" /></label></div><label>状态<select id="memoryStatus"><option value="active">有效</option><option value="stale">待确认</option><option value="forgotten">遗忘</option></select></label><button type="submit">保存修改</button></form>
+      </div>
+      <form id="trainingForm" class="inline-form"><h2>手动写入</h2><input id="trainingUser" value="训练者" placeholder="关联用户" /><select id="trainingScope"><option value="user">用户经历</option><option value="character">角色经历</option></select><input id="trainingText" placeholder="仅用于你确定必须永久保存的记忆" required /><button type="submit">直接写入</button></form>
+      <form id="forgetUserForm" class="inline-form privacy-form"><h2>隐私删除</h2><input id="forgetUserName" placeholder="输入要忘记的用户昵称" required /><span>删除该用户的长期记忆、会话与关系记录</span><button class="danger" type="submit">忘记用户</button></form>
+    </section>
+
+    <section id="brain" class="view">
+      <div class="section-head"><div><h1>大脑与情绪诊断</h1><p>观察内部状态、计划和记忆健康。数值用于调试，不会直接作为主播台词。</p></div><span id="brainSummary">读取中</span></div>
+      <div class="diagnostic-grid">
+        <section class="pane"><h2>当前状态</h2><dl id="brainState" class="facts"></dl></section>
+        <section class="pane"><h2>认知计划</h2><div id="cognitionState" class="diagnostic-copy"></div></section>
+        <section class="pane wide"><h2>本轮情绪形成路径</h2><div id="emotionPath" class="diagnostic-copy"></div></section>
+        <section class="pane wide"><h2>本轮人格表达</h2><div id="personalityExpression" class="health-grid"></div><p id="personalityExpressionReason" class="meta"></p></section>
+        <section class="pane wide"><h2>训练员反馈</h2><form id="replyFeedbackForm" class="inline-form"><select id="replyFeedbackCategory"><option value="good">自然，保留这种方式</option><option value="too_robotic">太像机器或模板</option><option value="emotion_mismatch">情绪不贴合</option><option value="memory_error">记忆引用错误</option><option value="boundary_error">边界处理不合适</option></select><input id="replyFeedbackNote" placeholder="可选：下次应该怎样回应" /><button type="submit">评价最后一句</button></form><p id="replyFeedbackSummary" class="meta">尚无反馈</p><div id="replyFeedbackList" class="feedback-list"></div></section>
+        <section class="pane wide"><h2>内部需求压力</h2><div id="needsState" class="health-grid"></div></section>
+        <section class="pane wide"><h2>质量门禁</h2><div id="qualityGates" class="health-grid"></div></section>
+        <section class="pane wide"><h2>34 维稳定人格</h2><div id="personalityGroups" class="affect-groups"></div></section>
+        <section class="pane wide"><h2>63 维情绪观测</h2><div id="affectGroups" class="affect-groups"></div></section>
+        <section class="pane wide"><div class="pane-heading"><h2>记忆健康</h2><div><button id="scanDuplicates" class="secondary" type="button">扫描完全重复</button><button id="mergeDuplicates" type="button">合并完全重复</button></div></div><div id="memoryHealth" class="health-grid"></div><pre id="maintenanceResult" hidden></pre></section>
+      </div>
+    </section>
+
+    <section id="story" class="view">
+      <div class="section-head"><div><h1>连续经历与计划</h1><p>让角色知道自己正在经历什么、想完成什么，以及下一次该延续什么。</p></div></div>
+      <div class="grid-2"><form id="arcForm" class="pane form"><h2>当前篇章</h2><label>标题<input id="arcTitle" required /></label><label>背景<textarea id="arcSummary" rows="5"></textarea></label><button type="submit">更新篇章</button></form><div class="pane"><h2>目标</h2><form id="goalForm" class="row"><input id="goalText" placeholder="新增角色目标" required /><button type="submit">添加</button></form><div id="goalList" class="stack"></div></div><div class="pane"><h2>经历时间线</h2><form id="beatForm" class="form"><input id="beatTitle" placeholder="事件标题" required /><textarea id="beatDetail" rows="3" placeholder="发生了什么"></textarea><button type="submit">记录经历</button></form><div id="beatList" class="stack"></div></div><div class="pane"><h2>待办与约定</h2><form id="scheduleForm" class="form"><input id="scheduleTitle" placeholder="例如：下次继续测试识别" required /><input id="scheduleDue" type="datetime-local" required /><button type="submit">加入计划</button></form><div id="scheduleList" class="stack"></div></div></div>
+    </section>
+
+    <section id="vision" class="view">
+      <div class="section-head"><div><h1>osu! 视觉训练</h1><p>共享 osu! 窗口后，本地 OpenCV 每三秒分析一次画面；图像不会保留。</p></div><span id="visionReady">检查中</span></div>
+      <div class="grid-2"><div class="pane"><h2>屏幕识别</h2><div class="row"><button id="captureStart" type="button">选择 osu! 窗口</button><button id="captureStop" class="secondary" type="button" disabled>停止</button></div><video id="captureVideo" muted autoplay playsinline></video><canvas id="captureCanvas" hidden></canvas><pre id="visionResult">等待画面</pre></div><form id="telemetryForm" class="pane form"><h2>结算数据记录</h2><label>谱面<input id="mapTitle" required /></label><div class="three"><label>准确率<input id="accuracy" type="number" min="0" max="100" step="0.01" /></label><label>Miss<input id="misses" type="number" min="0" /></label><label>最大连击<input id="combo" type="number" min="0" /></label></div><label>Mods<input id="mods" placeholder="HR, DT" /></label><button type="submit">分析并记入经历</button><div id="telemetryResult" class="result"></div></form></div>
+    </section>
+
+    <section id="live" class="view">
+      <div class="section-head"><div><h1>直播运行</h1><p>OBS 可直接控制；B站官方凭据未配置时使用适配器事件进行联调。</p></div></div>
+      <div class="grid-2"><div class="pane"><h2>运行状态</h2><pre id="liveStatus">读取中</pre></div><form id="biliForm" class="pane form"><h2>B站事件联调</h2><label>类型<select id="biliType"><option value="DANMU_MSG">弹幕</option><option value="SUPER_CHAT_MESSAGE">SC</option><option value="SEND_GIFT">礼物</option><option value="GUARD_BUY">舰长</option></select></label><label>用户<input id="biliUser" value="测试观众" /></label><label>内容<input id="biliText" value="直播联调成功了吗？" /></label><button type="submit">发送模拟事件</button></form><form id="obsForm" class="pane form"><h2>OBS 场景</h2><label>场景名称<input id="obsScene" placeholder="例如：直播主场景" required /></label><button type="submit">切换场景</button></form></div>
+    </section>
+    <output id="toast" aria-live="polite"></output>
+  </main>
+  <script type="module" src="/studio.js"></script>
+</body>
+</html>

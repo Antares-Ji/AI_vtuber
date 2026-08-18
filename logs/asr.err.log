@@ -1,0 +1,15 @@
+E:\GPT-SoVITS-v2pro-20250604-nvidia50\GPT-SoVITS-v2pro-20250604-nvidia50\runtime\lib\site-packages\pydub\utils.py:170: RuntimeWarning: Couldn't find ffmpeg or avconv - defaulting to ffmpeg, but may not work
+  warn("Couldn't find ffmpeg or avconv - defaulting to ffmpeg, but may not work", RuntimeWarning)
+WARNING:root:Key Conformer already exists in model_classes, re-register
+WARNING:root:Key Linear already exists in adaptor_classes, re-register
+WARNING:root:Key TransformerDecoder already exists in decoder_classes, re-register
+WARNING:root:Key LightweightConvolutionTransformerDecoder already exists in decoder_classes, re-register
+WARNING:root:Key LightweightConvolution2DTransformerDecoder already exists in decoder_classes, re-register
+WARNING:root:Key DynamicConvolutionTransformerDecoder already exists in decoder_classes, re-register
+WARNING:root:Key DynamicConvolution2DTransformerDecoder already exists in decoder_classes, re-register
+INFO:     Started server process [91200]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+ERROR:    [Errno 10048] error while attempting to bind on address ('127.0.0.1', 10095): 通常每个套接字地址(协议/网络地址/端口)只允许使用一次。
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.

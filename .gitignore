@@ -1,0 +1,33 @@
+.env
+.env.local
+
+# Local user data and runtime state
+runtime/
+data/memory.db*
+data/memories.json
+data/memories.pre-sqlite.json
+data/brain-runtime.json
+data/training-memories.json
+data/story-state.json
+data/osu-observations.json
+data/runtime-settings.json
+data/singing-catalog.json
+
+# Voice references may contain licensed or personally identifiable audio.
+assets/tts/*.wav
+assets/tts/*.mp3
+assets/tts/*.m4a
+assets/tts/*.flac
+
+# Node modules and third-party clones (not project source)
+node_modules/
+third_party/
+
+# Python build artifacts
+__pycache__/
+*.pyc
+.venv/
+
+# Vision runtime artifacts (generated images are fixtures and stay tracked)
+runtime/vision/incoming/
+runtime/vision-env/
