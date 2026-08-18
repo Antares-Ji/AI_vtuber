@@ -60,11 +60,13 @@ class TestAnalyzer(unittest.TestCase):
                 if value is not None:
                     self.assertNotIsInstance(value, bool, name)
 
-    def test_null_not_zero_for_unrecognized(self):
-        # OCR 未就绪时，results 字段必须为 null，不能用 0 冒充
+    def test_results_fields_published_when_recognized(self):
+        # OCR 就绪后，结算页字段应发布可信值；OCR 原文只进 debug
         result = analyze(self._fixture("rs-1280-a.png"))
-        self.assertEqual(result["results"]["accuracy"]["value"], None)
-        self.assertIn("ocr-unavailable-fields-null", result["warnings"])
+        self.assertEqual(result["scene"]["name"], "results")
+        self.assertAlmostEqual(result["results"]["accuracy"]["value"], 95.28, places=2)
+        self.assertEqual(result["results"]["misses"]["value"], 3)
+        self.assertNotIn("ocr-unavailable-fields-null", result["warnings"])
 
     # ---------- 错误路径 ----------
     def test_empty_file(self):

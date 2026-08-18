@@ -59,7 +59,7 @@ def gameplay(width, height, n_circles, bright, combo_text="123x", seed=42):
 
 
 def results(width, height, acc="95.28", misses=3, combo=412, score="2,341,567", grade="S", seed=7):
-    """结算页：中央卡片 + 大号 acc + miss/combo/score + grade。"""
+    """结算页：中央卡片 + 大号绿色 acc + 右侧数字列（标签左、数字右，贴近真实布局）。"""
     rng = np.random.default_rng(seed)
     img = np.full((height, width, 3), (48, 28, 24), np.uint8)
     for _ in range(6):
@@ -68,11 +68,16 @@ def results(width, height, acc="95.28", misses=3, combo=412, score="2,341,567", 
     x0, y0 = int(width * 0.15), int(height * 0.15)
     cw, ch = int(width * 0.7), int(height * 0.7)
     cv2.rectangle(img, (x0, y0), (x0 + cw, y0 + ch), CARD_BLUE, -1)
-    render_text(img, "ACCURACY", (x0 + int(width * 0.06), y0 + int(height * 0.09)), 0.7, TITLE_WHITE, 2)
-    render_text(img, f"{acc}%", (x0 + int(width * 0.06), y0 + int(height * 0.20)), 2.2, GREEN_HEALTH, 6)
-    render_text(img, f"miss {misses}", (x0 + int(width * 0.06), y0 + int(height * 0.32)), 1.0, MISS_RED, 3)
-    render_text(img, f"combo {combo}", (x0 + int(width * 0.06), y0 + int(height * 0.42)), 1.0, ORANGE_TEXT, 3)
-    render_text(img, f"score {score}", (x0 + int(width * 0.06), y0 + int(height * 0.52)), 1.0, TITLE_WHITE, 3)
+    label_x = x0 + int(width * 0.06)
+    num_x = x0 + int(width * 0.36)   # 数字右对齐列起点
+    render_text(img, "ACCURACY", (label_x, y0 + int(height * 0.09)), 0.7, TITLE_WHITE, 2)
+    render_text(img, f"{acc}%", (num_x, y0 + int(height * 0.20)), 2.2, GREEN_HEALTH, 6)
+    render_text(img, "miss", (label_x, y0 + int(height * 0.32)), 1.0, MISS_RED, 3)
+    render_text(img, f"{misses}", (num_x, y0 + int(height * 0.32)), 1.0, MISS_RED, 3)
+    render_text(img, "combo", (label_x, y0 + int(height * 0.42)), 1.0, ORANGE_TEXT, 3)
+    render_text(img, f"{combo}", (num_x, y0 + int(height * 0.42)), 1.0, ORANGE_TEXT, 3)
+    render_text(img, "score", (label_x, y0 + int(height * 0.52)), 1.0, TITLE_WHITE, 3)
+    render_text(img, f"{score}", (num_x, y0 + int(height * 0.52)), 1.0, TITLE_WHITE, 3)
     render_text(img, grade, (x0 + int(width * 0.60), y0 + int(height * 0.09)), 1.6, YELLOW_GRADE, 5)
     return img
 

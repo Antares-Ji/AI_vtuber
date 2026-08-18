@@ -30,6 +30,7 @@ def compute_features(image):
         "circles": features.circle_candidates(gray, width, height),
         "edgeDensity": features.edge_density(gray),
         "brightness": features.brightness(gray),
+        "blur": float(cv2.Laplacian(gray, cv2.CV_64F).var()),
         "saturated": features.saturated_ratio(image),
         "stripes": features.horizontal_stripes(image),
         "boxes": features.layout_box_count(image),
@@ -61,10 +62,11 @@ def score_results(image, gray, feats):
     card_brightness = roi.relative_center_brightness(gray, 0.15, 0.15, 0.85, 0.85)
     if card_brightness > 0.02:
         evidence.append("centered-card-region")
-    acc_green = roi.green_ratio(image, 0.20, 0.18, 0.50, 0.42)
+    # 结算页 acc 大号绿字（数字右对齐列，x≈0.51 起）
+    acc_green = roi.green_ratio(image, 0.40, 0.25, 0.75, 0.40)
     if acc_green > 0.02:
         evidence.append("large-green-accuracy-digits")
-    grade_yellow = roi.yellow_ratio(image, 0.58, 0.12, 0.88, 0.32)
+    grade_yellow = roi.yellow_ratio(image, 0.53, 0.18, 0.88, 0.27)
     if grade_yellow > 0.01:
         evidence.append("grade-region")
     low_playfield = feats["circles"] < 3
@@ -108,7 +110,7 @@ def score_pause(image, gray, feats):
     low_activity = feats["circles"] < 3 and feats["edgeDensity"] < 0.10
     if low_activity:
         evidence.append("low-motion-layout")
-    has_green_digits = roi.green_ratio(image, 0.20, 0.18, 0.50, 0.42) > 0.02
+    has_green_digits = roi.green_ratio(image, 0.40, 0.25, 0.75, 0.40) > 0.02
     score = (0.40 * roi.normalize(center_block, 0.0, 0.10)
              + 0.35 * (1.0 if dark else 0.0)
              + 0.25 * (1.0 if low_activity else 0.0))
@@ -131,7 +133,7 @@ def score_fail(image, gray, feats):
     low_activity = feats["circles"] < 3 and feats["edgeDensity"] < 0.10
     if low_activity:
         evidence.append("low-motion-layout")
-    has_green_digits = roi.green_ratio(image, 0.20, 0.18, 0.50, 0.42) > 0.02
+    has_green_digits = roi.green_ratio(image, 0.40, 0.25, 0.75, 0.40) > 0.02
     score = 0.55 * min(1.0, center_red * 12) + 0.25 * (1.0 if dark else 0.0) + 0.20 * (1.0 if low_activity else 0.0)
     if not dark:
         score *= 0.7
@@ -168,8 +170,9 @@ def classify(image):
     feats = compute_features(image)
     candidates = {}
 
-    # 质量护栏：极端亮度/超高边缘密度（噪声）直接判 unknown，不做场景竞争
-    if feats["brightness"] < 0.04 or feats["brightness"] > 0.97 or feats["edgeDensity"] > 0.55:
+    # 质量护栏：极端亮度/超高边缘密度（噪声）/高频噪声直接判 unknown
+    if (feats["brightness"] < 0.04 or feats["brightness"] > 0.97
+            or feats["edgeDensity"] > 0.55 or feats["blur"] > 800.0):
         guard_evidence = []
         if feats["brightness"] < 0.04:
             guard_evidence.append("black-screen")
@@ -177,6 +180,8 @@ def classify(image):
             guard_evidence.append("overexposed")
         if feats["edgeDensity"] > 0.55:
             guard_evidence.append("high-edge-noise")
+        if feats["blur"] > 800.0:
+            guard_evidence.append("high-frequency-noise")
         candidates = {name: 0.0 for name in SCENE_NAMES}
         candidates["unknown"] = 0.6
         return {"name": "unknown", "confidence": 0.6, "candidates": candidates, "evidence": guard_evidence}

@@ -17,6 +17,9 @@
     "test:external": "node src/external-evaluation.js",
     "train:auto": "node scripts/auto-train.js",
     "train:clean": "node scripts/clean-duplicate-memories.js",
+    "vision:fixtures": "runtime\\vision-env\\Scripts\\python.exe tests/vision/generate-fixtures.py",
+    "test:vision:py": "runtime\\vision-env\\Scripts\\python.exe -m unittest discover -s tests/vision -p \"test_*.py\"",
+    "test:vision": "npm run test:vision:py && node tests/vision/run-baseline.js",
     "test:all": "npm test && npm run test:advanced && npm run test:curriculum && npm run test:emotion && npm run test:character && npm run test:memory && npm run test:runtime && npm run test:robustness"
   },
   "keywords": [],
