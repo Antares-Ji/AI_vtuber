@@ -83,8 +83,12 @@ OBS_WEBSOCKET_PASSWORD=你的密码
 ## B站与 osu! 当前边界
 
 - B站已经有事件标准化、优先级队列和联调 API；正式长连接仍需要开放平台凭据与项目权限。
-- osu! 视觉 v1 会识别候选圆、画面亮度与边缘密度；它是训练数据底座，不是自动代打系统。
-- 结算数据会写入 `data/osu-observations.json`，并同步成为角色的连续经历。
+- osu! 视觉 v2：场景分类（游戏/结算/选歌/暂停/失败/未知，多证据 + evidence）、
+  结算字段提取（自研模板 OCR + 格式/置信度三重校验）、一局状态机聚合、
+  有证据的训练建议。它是训练数据底座，不是自动代打系统；真实截图样本未评估，
+  能力声明保持 `limited`。架构见 `docs/vision-architecture.md`。
+- 结算数据会写入 `data/osu-observations.json`（仅结构化结果，不保存原始画面），
+  并同步成为角色的连续经历。
 
 ## 后续模块
 
@@ -98,7 +102,7 @@ OBS_WEBSOCKET_PASSWORD=你的密码
 - `src/tts/provider.js`：TTS provider 预留接口。
 - `public/stream.js`：直播页交互、TTS、嘴型、语音输入与唯一播放队列。
 - `src/story/store.js`：连续经历、目标和约定。
-- `src/vision/`：OpenCV 视觉 provider 与分析器。
+- `src/vision/`：OpenCV 视觉 provider、Python 分析器、session 状态机与训练建议。
 - `src/live/runtime.js`：OBS 连接与 B站事件适配。
 - `src/api/studio.js`：导演工作台 API。
 
@@ -108,7 +112,13 @@ OBS_WEBSOCKET_PASSWORD=你的密码
 npm run test:all
 ```
 
-该命令连续运行核心冒烟、26 项高级行为、32 项行为课程、77 项情绪标定、通用角色包独立性、1000 次记忆写入、运行恢复和 600 轮情绪压力测试。真实 DeepSeek 隔离评测单独运行：
+该命令连续运行核心冒烟、26 项高级行为、32 项行为课程、77 项情绪标定、通用角色包独立性、1000 次记忆写入、运行恢复和 600 轮情绪压力测试。osu! 视觉测试单独运行：
+
+```powershell
+npm run test:vision
+```
+
+真实 DeepSeek 隔离评测单独运行：
 
 ```powershell
 npm run test:external
