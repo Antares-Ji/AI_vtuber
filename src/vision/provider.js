@@ -62,19 +62,44 @@ function trainingSuggestions(input) {
   return suggestions;
 }
 
+const ANALYZER_TIMEOUT_MS = 15_000;
+const MAX_ANALYZER_OUTPUT = 64 * 1024;
+
 function runAnalyzer(filePath) {
   return new Promise((resolve, reject) => {
     const child = spawn(PYTHON, [ANALYZER, filePath], { windowsHide: true });
     let output = "";
     let error = "";
+    let settled = false;
+    const timeout = setTimeout(() => {
+      if (settled) return;
+      settled = true;
+      child.kill();
+      reject(new Error("vision analyzer timed out"));
+    }, ANALYZER_TIMEOUT_MS);
+    const finish = (fn, value) => {
+      if (settled) return;
+      settled = true;
+      clearTimeout(timeout);
+      fn(value);
+    };
     child.stdout.setEncoding("utf8");
     child.stderr.setEncoding("utf8");
-    child.stdout.on("data", chunk => { output += chunk; });
-    child.stderr.on("data", chunk => { error += chunk; });
-    child.on("error", reject);
+    child.stdout.on("data", chunk => {
+      output += chunk;
+      if (output.length > MAX_ANALYZER_OUTPUT) {
+        child.kill();
+        finish(reject, new Error("vision analyzer stdout too large"));
+      }
+    });
+    child.stderr.on("data", chunk => {
+      error += chunk;
+      if (error.length > MAX_ANALYZER_OUTPUT) error = error.slice(-MAX_ANALYZER_OUTPUT);
+    });
+    child.on("error", err => finish(reject, err));
     child.on("close", code => {
-      if (code !== 0) return reject(new Error(error || output || `vision exited ${code}`));
-      try { resolve(JSON.parse(output)); } catch { reject(new Error(`invalid vision output: ${output.slice(0, 200)}`)); }
+      if (code !== 0) return finish(reject, new Error(error || output || `vision exited ${code}`));
+      try { finish(resolve, JSON.parse(output)); } catch { finish(reject, new Error(`invalid vision output: ${output.slice(0, 200)}`)); }
     });
   });
 }

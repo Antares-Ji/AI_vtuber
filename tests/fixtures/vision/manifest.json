@@ -1,0 +1,223 @@
+{
+  "schemaVersion": 1,
+  "note": "程序生成的合成测试图：用于数据契约、分辨率、错误路径与场景分类测试；不得用于宣称真实识别准确率。",
+  "fixtures": [
+    {
+      "id": "gp-1280-a",
+      "file": "gp-1280-a.png",
+      "source": "synthetic",
+      "resolution": "1280x720",
+      "expectedScene": "gameplay",
+      "allowedFields": [
+        "circleCandidates",
+        "combo",
+        "health"
+      ],
+      "expectedValues": {
+        "circleCandidates": 9
+      }
+    },
+    {
+      "id": "gp-1280-b",
+      "file": "gp-1280-b.png",
+      "source": "synthetic",
+      "resolution": "1280x720",
+      "expectedScene": "gameplay",
+      "allowedFields": [
+        "circleCandidates",
+        "combo",
+        "health"
+      ],
+      "expectedValues": {
+        "circleCandidates": 5
+      }
+    },
+    {
+      "id": "gp-1080-a",
+      "file": "gp-1080-a.png",
+      "source": "synthetic",
+      "resolution": "1920x1080",
+      "expectedScene": "gameplay",
+      "allowedFields": [
+        "circleCandidates",
+        "combo",
+        "health"
+      ],
+      "expectedValues": {
+        "circleCandidates": 12
+      }
+    },
+    {
+      "id": "gp-1024-a",
+      "file": "gp-1024-a.png",
+      "source": "synthetic",
+      "resolution": "1024x600",
+      "expectedScene": "gameplay",
+      "allowedFields": [
+        "circleCandidates",
+        "combo",
+        "health"
+      ],
+      "expectedValues": {
+        "circleCandidates": 6
+      }
+    },
+    {
+      "id": "rs-1280-a",
+      "file": "rs-1280-a.png",
+      "source": "synthetic",
+      "resolution": "1280x720",
+      "expectedScene": "results",
+      "allowedFields": [
+        "accuracy",
+        "misses",
+        "maxCombo",
+        "score",
+        "grade"
+      ],
+      "expectedValues": {
+        "accuracy": "95.28",
+        "misses": "3",
+        "maxCombo": "412",
+        "score": "2341567",
+        "grade": "S"
+      }
+    },
+    {
+      "id": "rs-1280-b",
+      "file": "rs-1280-b.png",
+      "source": "synthetic",
+      "resolution": "1280x720",
+      "expectedScene": "results",
+      "allowedFields": [
+        "accuracy",
+        "misses",
+        "maxCombo",
+        "score",
+        "grade"
+      ],
+      "expectedValues": {
+        "accuracy": "87.45",
+        "misses": "12",
+        "maxCombo": "98",
+        "score": "1023410",
+        "grade": "A"
+      }
+    },
+    {
+      "id": "rs-1080-a",
+      "file": "rs-1080-a.png",
+      "source": "synthetic",
+      "resolution": "1920x1080",
+      "expectedScene": "results",
+      "allowedFields": [
+        "accuracy",
+        "misses",
+        "maxCombo",
+        "score",
+        "grade"
+      ],
+      "expectedValues": {
+        "accuracy": "99.12",
+        "misses": "0",
+        "maxCombo": "1234",
+        "score": "3000000",
+        "grade": "SS"
+      }
+    },
+    {
+      "id": "ss-1280-a",
+      "file": "ss-1280-a.png",
+      "source": "synthetic",
+      "resolution": "1280x720",
+      "expectedScene": "songSelect",
+      "allowedFields": [
+        "title"
+      ],
+      "expectedValues": {}
+    },
+    {
+      "id": "ss-1080-a",
+      "file": "ss-1080-a.png",
+      "source": "synthetic",
+      "resolution": "1920x1080",
+      "expectedScene": "songSelect",
+      "allowedFields": [
+        "title"
+      ],
+      "expectedValues": {}
+    },
+    {
+      "id": "ps-1280-a",
+      "file": "ps-1280-a.png",
+      "source": "synthetic",
+      "resolution": "1280x720",
+      "expectedScene": "pause",
+      "allowedFields": [],
+      "expectedValues": {}
+    },
+    {
+      "id": "ps-1024-a",
+      "file": "ps-1024-a.png",
+      "source": "synthetic",
+      "resolution": "1024x600",
+      "expectedScene": "pause",
+      "allowedFields": [],
+      "expectedValues": {}
+    },
+    {
+      "id": "fl-1280-a",
+      "file": "fl-1280-a.png",
+      "source": "synthetic",
+      "resolution": "1280x720",
+      "expectedScene": "fail",
+      "allowedFields": [],
+      "expectedValues": {}
+    },
+    {
+      "id": "fl-1080-a",
+      "file": "fl-1080-a.png",
+      "source": "synthetic",
+      "resolution": "1920x1080",
+      "expectedScene": "fail",
+      "allowedFields": [],
+      "expectedValues": {}
+    },
+    {
+      "id": "uk-black",
+      "file": "uk-black.png",
+      "source": "synthetic",
+      "resolution": "1280x720",
+      "expectedScene": "unknown",
+      "allowedFields": [],
+      "expectedValues": {}
+    },
+    {
+      "id": "uk-noise",
+      "file": "uk-noise.png",
+      "source": "synthetic",
+      "resolution": "1280x720",
+      "expectedScene": "unknown",
+      "allowedFields": [],
+      "expectedValues": {}
+    },
+    {
+      "id": "uk-gradient",
+      "file": "uk-gradient.png",
+      "source": "synthetic",
+      "resolution": "1024x600",
+      "expectedScene": "unknown",
+      "allowedFields": [],
+      "expectedValues": {}
+    },
+    {
+      "id": "uk-desktop",
+      "file": "uk-desktop.png",
+      "source": "synthetic",
+      "resolution": "1280x720",
+      "expectedScene": "unknown",
+      "allowedFields": [],
+      "expectedValues": {}
+    }
+  ]
+}

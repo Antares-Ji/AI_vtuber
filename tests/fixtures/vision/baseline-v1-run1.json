@@ -1,0 +1,278 @@
+{
+  "generatedAt": "2026-08-18T07:38:13.499Z",
+  "analyzer": "src/vision/osu_analyzer.py (v1)",
+  "results": [
+    {
+      "fixture": "gp-1280-a",
+      "resolution": "1280x720",
+      "expectedScene": "gameplay",
+      "ok": true,
+      "value": {
+        "scene": "osu-gameplay",
+        "confidence": 1,
+        "width": 1280,
+        "height": 720,
+        "circleCandidates": 9,
+        "brightness": 0.829,
+        "edgeDensity": 0.002,
+        "note": "第一版使用圆形候选与边缘密度判断；结算数据请配合 telemetry 接口。"
+      }
+    },
+    {
+      "fixture": "gp-1280-b",
+      "resolution": "1280x720",
+      "expectedScene": "gameplay",
+      "ok": true,
+      "value": {
+        "scene": "osu-gameplay",
+        "confidence": 0.63,
+        "width": 1280,
+        "height": 720,
+        "circleCandidates": 5,
+        "brightness": 0.098,
+        "edgeDensity": 0.003,
+        "note": "第一版使用圆形候选与边缘密度判断；结算数据请配合 telemetry 接口。"
+      }
+    },
+    {
+      "fixture": "gp-1080-a",
+      "resolution": "1920x1080",
+      "expectedScene": "gameplay",
+      "ok": true,
+      "value": {
+        "scene": "osu-gameplay",
+        "confidence": 1,
+        "width": 1920,
+        "height": 1080,
+        "circleCandidates": 12,
+        "brightness": 0.101,
+        "edgeDensity": 0.003,
+        "note": "第一版使用圆形候选与边缘密度判断；结算数据请配合 telemetry 接口。"
+      }
+    },
+    {
+      "fixture": "gp-1024-a",
+      "resolution": "1024x600",
+      "expectedScene": "gameplay",
+      "ok": true,
+      "value": {
+        "scene": "osu-gameplay",
+        "confidence": 0.753,
+        "width": 1024,
+        "height": 600,
+        "circleCandidates": 6,
+        "brightness": 0.833,
+        "edgeDensity": 0.002,
+        "note": "第一版使用圆形候选与边缘密度判断；结算数据请配合 telemetry 接口。"
+      }
+    },
+    {
+      "fixture": "rs-1280-a",
+      "resolution": "1280x720",
+      "expectedScene": "results",
+      "ok": true,
+      "value": {
+        "scene": "osu-gameplay",
+        "confidence": 1,
+        "width": 1280,
+        "height": 720,
+        "circleCandidates": 9,
+        "brightness": 0.167,
+        "edgeDensity": 0.005,
+        "note": "第一版使用圆形候选与边缘密度判断；结算数据请配合 telemetry 接口。"
+      }
+    },
+    {
+      "fixture": "rs-1280-b",
+      "resolution": "1280x720",
+      "expectedScene": "results",
+      "ok": true,
+      "value": {
+        "scene": "osu-gameplay",
+        "confidence": 0.632,
+        "width": 1280,
+        "height": 720,
+        "circleCandidates": 5,
+        "brightness": 0.167,
+        "edgeDensity": 0.005,
+        "note": "第一版使用圆形候选与边缘密度判断；结算数据请配合 telemetry 接口。"
+      }
+    },
+    {
+      "fixture": "rs-1080-a",
+      "resolution": "1920x1080",
+      "expectedScene": "results",
+      "ok": true,
+      "value": {
+        "scene": "osu-gameplay",
+        "confidence": 1,
+        "width": 1920,
+        "height": 1080,
+        "circleCandidates": 16,
+        "brightness": 0.168,
+        "edgeDensity": 0.003,
+        "note": "第一版使用圆形候选与边缘密度判断；结算数据请配合 telemetry 接口。"
+      }
+    },
+    {
+      "fixture": "ss-1280-a",
+      "resolution": "1280x720",
+      "expectedScene": "songSelect",
+      "ok": true,
+      "value": {
+        "scene": "unknown-or-menu",
+        "confidence": 0.003,
+        "width": 1280,
+        "height": 720,
+        "circleCandidates": 0,
+        "brightness": 0.162,
+        "edgeDensity": 0.002,
+        "note": "第一版使用圆形候选与边缘密度判断；结算数据请配合 telemetry 接口。"
+      }
+    },
+    {
+      "fixture": "ss-1080-a",
+      "resolution": "1920x1080",
+      "expectedScene": "songSelect",
+      "ok": true,
+      "value": {
+        "scene": "unknown-or-menu",
+        "confidence": 0.502,
+        "width": 1920,
+        "height": 1080,
+        "circleCandidates": 4,
+        "brightness": 0.162,
+        "edgeDensity": 0.002,
+        "note": "第一版使用圆形候选与边缘密度判断；结算数据请配合 telemetry 接口。"
+      }
+    },
+    {
+      "fixture": "ps-1280-a",
+      "resolution": "1280x720",
+      "expectedScene": "pause",
+      "ok": true,
+      "value": {
+        "scene": "osu-gameplay",
+        "confidence": 0.754,
+        "width": 1280,
+        "height": 720,
+        "circleCandidates": 6,
+        "brightness": 0.062,
+        "edgeDensity": 0.003,
+        "note": "第一版使用圆形候选与边缘密度判断；结算数据请配合 telemetry 接口。"
+      }
+    },
+    {
+      "fixture": "ps-1024-a",
+      "resolution": "1024x600",
+      "expectedScene": "pause",
+      "ok": true,
+      "value": {
+        "scene": "unknown-or-menu",
+        "confidence": 0.38,
+        "width": 1024,
+        "height": 600,
+        "circleCandidates": 3,
+        "brightness": 0.062,
+        "edgeDensity": 0.003,
+        "note": "第一版使用圆形候选与边缘密度判断；结算数据请配合 telemetry 接口。"
+      }
+    },
+    {
+      "fixture": "fl-1280-a",
+      "resolution": "1280x720",
+      "expectedScene": "fail",
+      "ok": true,
+      "value": {
+        "scene": "osu-gameplay",
+        "confidence": 0.632,
+        "width": 1280,
+        "height": 720,
+        "circleCandidates": 5,
+        "brightness": 0.069,
+        "edgeDensity": 0.004,
+        "note": "第一版使用圆形候选与边缘密度判断；结算数据请配合 telemetry 接口。"
+      }
+    },
+    {
+      "fixture": "fl-1080-a",
+      "resolution": "1920x1080",
+      "expectedScene": "fail",
+      "ok": true,
+      "value": {
+        "scene": "osu-gameplay",
+        "confidence": 1,
+        "width": 1920,
+        "height": 1080,
+        "circleCandidates": 8,
+        "brightness": 0.069,
+        "edgeDensity": 0.003,
+        "note": "第一版使用圆形候选与边缘密度判断；结算数据请配合 telemetry 接口。"
+      }
+    },
+    {
+      "fixture": "uk-black",
+      "resolution": "1280x720",
+      "expectedScene": "unknown",
+      "ok": true,
+      "value": {
+        "scene": "unknown-or-menu",
+        "confidence": 0,
+        "width": 1280,
+        "height": 720,
+        "circleCandidates": 0,
+        "brightness": 0,
+        "edgeDensity": 0,
+        "note": "第一版使用圆形候选与边缘密度判断；结算数据请配合 telemetry 接口。"
+      }
+    },
+    {
+      "fixture": "uk-noise",
+      "resolution": "1280x720",
+      "expectedScene": "unknown",
+      "ok": true,
+      "value": {
+        "scene": "osu-gameplay",
+        "confidence": 1,
+        "width": 1280,
+        "height": 720,
+        "circleCandidates": 100,
+        "brightness": 0.5,
+        "edgeDensity": 0.036,
+        "note": "第一版使用圆形候选与边缘密度判断；结算数据请配合 telemetry 接口。"
+      }
+    },
+    {
+      "fixture": "uk-gradient",
+      "resolution": "1024x600",
+      "expectedScene": "unknown",
+      "ok": true,
+      "value": {
+        "scene": "unknown-or-menu",
+        "confidence": 0,
+        "width": 1024,
+        "height": 600,
+        "circleCandidates": 0,
+        "brightness": 0.39,
+        "edgeDensity": 0,
+        "note": "第一版使用圆形候选与边缘密度判断；结算数据请配合 telemetry 接口。"
+      }
+    },
+    {
+      "fixture": "uk-desktop",
+      "resolution": "1280x720",
+      "expectedScene": "unknown",
+      "ok": true,
+      "value": {
+        "scene": "unknown-or-menu",
+        "confidence": 0.001,
+        "width": 1280,
+        "height": 720,
+        "circleCandidates": 0,
+        "brightness": 0.362,
+        "edgeDensity": 0.001,
+        "note": "第一版使用圆形候选与边缘密度判断；结算数据请配合 telemetry 接口。"
+      }
+    }
+  ]
+}
