@@ -19,7 +19,9 @@
     "train:clean": "node scripts/clean-duplicate-memories.js",
     "vision:fixtures": "runtime\\vision-env\\Scripts\\python.exe tests/vision/generate-fixtures.py",
     "test:vision:py": "runtime\\vision-env\\Scripts\\python.exe -m unittest discover -s tests/vision -p \"test_*.py\"",
-    "test:vision": "npm run test:vision:py && node tests/vision/run-baseline.js",
+    "test:vision:node": "node tests/vision/test_session_tracker.js && node tests/vision/test_training_analyzer.js && node tests/vision/test_provider.js",
+    "test:vision:perf": "node tests/vision/perf-analyze.js",
+    "test:vision": "npm run test:vision:py && npm run test:vision:node",
     "test:all": "npm test && npm run test:advanced && npm run test:curriculum && npm run test:emotion && npm run test:character && npm run test:memory && npm run test:runtime && npm run test:robustness"
   },
   "keywords": [],
