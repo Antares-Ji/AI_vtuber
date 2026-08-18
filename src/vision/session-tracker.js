@@ -167,8 +167,8 @@ class SessionTracker {
           this._recordFrame(sceneName, confidence);
           this.lastFrameAt = now;
           if (this.possibleCount >= this.config.resultsDebounce) {
-            this.state = STATE.RESULTS;
-            return { state: this.state, sessionId: this.session.id, event: "session-complete", session: this._finishSession(now, normalizeResult(results)) };
+            const session = this._finishSession(now, normalizeResult(results));
+            return { state: this.state, sessionId: null, event: "session-complete", session };
           }
           return { state: this.state, sessionId: this.session.id, event: "none", session: this._snapshot() };
         }

@@ -31,3 +31,6 @@ __pycache__/
 # Vision runtime artifacts (generated images are fixtures and stay tracked)
 runtime/vision/incoming/
 runtime/vision-env/
+
+# Runtime logs (not source)
+logs/

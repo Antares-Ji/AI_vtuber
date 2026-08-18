@@ -69,9 +69,44 @@ run("字段置信度越界被拒绝", () => {
   assert.throws(() => validateFrame(bad, "x"), /bad confidence/);
 });
 
-run("grade 类型校验", () => {
+run("accuracy 越界降级为 null 并附 warning", () => {
+  const bad = { ...validFrame, scene: { name: "results", confidence: 0.9 }, results: { accuracy: { value: 999, confidence: 0.9 } } };
+  const out = validateFrame(bad, "x");
+  assert.strictEqual(out.results.accuracy.value, null);
+  assert.ok(out.warnings.includes("accuracy-out-of-range"), "应记录越界 warning");
+});
+
+run("misses 负数降级为 null", () => {
+  const bad = { ...validFrame, scene: { name: "results", confidence: 0.9 }, results: { misses: { value: -5, confidence: 0.9 } } };
+  const out = validateFrame(bad, "x");
+  assert.strictEqual(out.results.misses.value, null);
+  assert.ok(out.warnings.includes("misses-out-of-range"));
+});
+
+run("grade 非枚举降级为 null 并附 warning", () => {
+  const bad = { ...validFrame, scene: { name: "results", confidence: 0.9 }, results: { grade: { value: "XXX", confidence: 0.9 } } };
+  const out = validateFrame(bad, "x");
+  assert.strictEqual(out.results.grade.value, null);
+  assert.ok(out.warnings.includes("grade-out-of-enum"));
+});
+
+run("grade 类型非字符串降级为 null", () => {
   const bad = { ...validFrame, scene: { name: "results", confidence: 0.9 }, results: { grade: { value: 123, confidence: 0.9 } } };
-  assert.throws(() => validateFrame(bad, "x"), /grade must be a string/);
+  const out = validateFrame(bad, "x");
+  assert.strictEqual(out.results.grade.value, null);
+});
+
+run("宽度非法（-1/0）被拒绝", () => {
+  const bad = { ...validFrame, frame: { width: -1, height: 720 } };
+  assert.throws(() => validateFrame(bad, "x"), /dimensions/);
+  const zero = { ...validFrame, frame: { width: 0, height: 720 } };
+  assert.throws(() => validateFrame(zero, "x"), /dimensions/);
+});
+
+run("合法 grade 值（S）保留", () => {
+  const good = { ...validFrame, scene: { name: "results", confidence: 0.9 }, results: { grade: { value: "S", confidence: 0.9 } } };
+  const out = validateFrame(good, "x");
+  assert.strictEqual(out.results.grade.value, "S");
 });
 
 console.log("\nPhase G: provider status structure");

@@ -57,7 +57,8 @@
 - 置信度限定 `[0,1]`；`scene.name` 只取固定枚举
   `gameplay/results/songSelect/pause/fail/unknown`。
 - 输出必须含 evidence 与 warnings，方便验收误判。
-- Node 侧 `validateFrame()` 校验并归一化，不无条件信任子进程 JSON。
+- Node 侧 `validateFrame()` 严格校验：schema/场景/置信度/尺寸为**结构错误（throw）**；
+  结算字段业务范围非法（accuracy 越界、miss 负数、grade 非枚举）**降级为 null 并附 warning**。
 
 ## 4. 模块职责
 
@@ -71,8 +72,8 @@
 | `src/vision/python/ocr.py` | 可替换 OCR provider（自研模板匹配 + 格式/置信度校验） |
 | `src/vision/osu_analyzer.py` | v1 兼容入口（保留，避免失效路径） |
 | `src/vision/provider.js` | Node provider：spawn 超时/输出上限、schema 校验、单飞行并发、串行 observation 写入、状态指标 |
-| `src/vision/session-tracker.js` | 一局状态机 `idle->possibleGameplay->gameplay->possibleResults->results->idle`，去抖/单次完成/超时中断 |
-| `src/vision/training-analyzer.js` | 基于结构化 observation 的建议：evidence、不武断归因、单局仅初步、≥3 局谈趋势 |
+| `src/vision/session-tracker.js` | 一局状态机 `idle->possibleGameplay->gameplay->possibleResults->results->idle`，去抖/单次完成/超时中断；**已接入 provider 生产链路**（自动形成"开始→结算→一局完成"事件） |
+| `src/vision/training-analyzer.js` | 基于结构化 observation 的建议：evidence、不武断归因、单局仅初步、≥3 局谈趋势；**telemetry 读取同谱面历史后聚合** |
 | `src/api/studio.js` | `/api/vision/analyze`（v2）、`/api/vision/telemetry`（兼容）、状态入 `/api/studio/state` |
 | `public/studio.js/html/css` | 调试页：场景/置信度/质量/延迟/OCR 字段（null 显示"未识别"）、evidence、建议、采样状态 |
 
@@ -84,7 +85,7 @@
 # 生成合成测试图（17 张，6 类场景 + 负样本，3 种分辨率）
 npm run vision:fixtures
 
-# 视觉测试（Python 21 项 + Node 32 项）
+# 视觉测试（Python 21 项 + Node 状态机/建议/校验 16+ 项 + session 集成 + 多局趋势 + 并发）
 npm run test:vision
 
 # 性能基准（1280 宽 JPEG 单帧延迟 P50/P95）

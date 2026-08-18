@@ -1,14 +1,16 @@
 /**
- * provider.js —— Phase G：osu! 视觉 Node provider（schema v2）
+ * provider.js —— Phase G（返修）：osu! 视觉 Node provider（schema v2）
  *
  * 职责：
- *  - 调用本地 Python 分析器（src/vision/python/analyzer.py，schemaVersion 2）
- *  - 校验并归一化子进程 JSON 输出（不无条件信任）
- *  - 同一客户端单飞行请求：新帧优先，过期帧丢弃，不堆积
- *  - Python 子进程超时/输出上限/临时图清理
- *  - observation 串行安全写入（限制容量）
- *  - 状态：provider/version、Python/OpenCV/OCR、队列、延迟、丢帧、脱敏错误
- *  - telemetry 兼容入口，但建议逻辑统一走 training-analyzer.js
+ *  - 调用本地 Python 分析器（schemaVersion 2）
+ *  - validateFrame 严格校验：schema/场景/置信度/尺寸为结构错误（throw），
+ *    结算字段业务范围非法（accuracy 越界、miss 负数、grade 非枚举）降级为 null
+ *  - 单飞行并发：新帧优先，过期帧丢弃，不堆积
+ *  - 子进程超时/输出上限/临时图清理
+ *  - observation 串行安全写入（限容量）
+ *  - **session-tracker 接入生产链路**：自动形成 开始→结算→一局完成 事件
+ *  - **多局趋势**：telemetry 读取同谱面历史 observation 后聚合分析
+ *  - 状态：provider/version、Python/OpenCV/OCR、队列、延迟、丢帧、session、脱敏错误
  */
 const fs = require("fs/promises");
 const syncFs = require("fs");
@@ -17,6 +19,7 @@ const { spawn } = require("child_process");
 const { randomUUID } = require("crypto");
 
 const { analyzeObservations, normalizeObservation } = require("./training-analyzer");
+const { SessionTracker, STATE } = require("./session-tracker");
 const { sanitizeErrorMessage } = require("../runtime/redaction");
 
 const ROOT = path.join(__dirname, "..", "..");
@@ -29,10 +32,12 @@ const ANALYZER_TIMEOUT_MS = 15_000;
 const MAX_ANALYZER_OUTPUT = 64 * 1024;
 const MAX_OBSERVATIONS = 500;
 const SCENE_ENUM = new Set(["gameplay", "results", "songSelect", "pause", "fail", "unknown"]);
+const GRADE_ENUM = new Set(["SS", "S", "A", "B", "C", "D", "X"]);
 const RESULT_FIELDS = ["accuracy", "misses", "maxCombo", "score", "grade"];
 
 class VisionProvider {
-  constructor() {
+  constructor({ observationsPath = OBSERVATIONS } = {}) {
+    this.observationsPath = observationsPath;
     this.status = {
       provider: "opencv-local-v2",
       version: 2,
@@ -47,11 +52,17 @@ class VisionProvider {
       droppedFrames: 0,
       lastError: null,
       lastObservation: null,
+      session: { state: STATE.IDLE, sessionId: null },
     };
     this.inFlight = false;
     this.pendingFrame = null;
     this.latencies = [];
     this.writeQueue = Promise.resolve();
+    this.tracker = new SessionTracker({
+      gameplayDebounce: 2,
+      resultsDebounce: 2,
+      sessionTimeoutMs: 15 * 60 * 1000,
+    });
     void this.inspectEnvironment();
   }
 
@@ -83,7 +94,6 @@ class VisionProvider {
     if (!this.status.ready) throw new Error("osu vision runtime is not ready");
 
     if (this.inFlight) {
-      // 已在分析：保留最新帧，丢弃旧帧，不堆积
       this.status.droppedFrames += 1;
       this.pendingFrame = { buffer, contentType };
       return { queued: true, droppedFrames: this.status.droppedFrames };
@@ -91,7 +101,6 @@ class VisionProvider {
 
     this.inFlight = true;
     try {
-      // 循环处理：当前帧完成后若有更新的待处理帧则继续（只保留最新）
       let frame = { buffer, contentType };
       let result = null;
       for (;;) {
@@ -123,10 +132,32 @@ class VisionProvider {
       const raw = await runPython([ANALYZER, filePath]);
       const parsed = JSON.parse(raw);
       const frame = validateFrame(parsed, filePath);
-      const observation = { ...frame, at: new Date().toISOString(), source: "screen" };
+
+      // 接入一局状态机：单帧 -> 状态转换 -> 可能触发一局完成
+      const track = this.tracker.ingest(frame);
+      this.status.session = { state: track.state, sessionId: track.sessionId || null };
+
+      const observation = {
+        ...frame,
+        at: new Date().toISOString(),
+        source: "screen",
+        tracker: { state: track.state, event: track.event },
+      };
       this.status.lastObservation = observation;
       void this.enqueueObservationWrite(observation);
-      return observation;
+
+      // 一局完成：生成一次性结算 observation + 训练分析（不读原始图）
+      let sessionResult = null;
+      let sessionAnalysis = null;
+      if (track.event === "session-complete" && track.session) {
+        sessionResult = this.persistSessionComplete(track.session);
+        const flat = sessionResult.flat;
+        if (flat && typeof flat.accuracy === "number") {
+          sessionAnalysis = analyzeObservations([normalizeObservation(flat)]);
+        }
+      }
+
+      return { ...observation, sessionEvent: track.event, session: track.session, sessionResult, sessionAnalysis };
     } catch (error) {
       this.status.lastError = sanitizeErrorMessage(error, "vision analyze failed");
       throw error;
@@ -135,7 +166,27 @@ class VisionProvider {
     }
   }
 
-  /** telemetry 兼容入口：手工录入结算，建议逻辑统一走 training-analyzer。 */
+  /** 一局完成的结算事件：规范化字段 + 写入 observation（仅一次）。 */
+  persistSessionComplete(session) {
+    const flat = flattenResult(session.result);
+    const observation = {
+      at: new Date().toISOString(),
+      source: "session-complete",
+      scene: "osu-session",
+      sessionId: session.id,
+      startedAt: session.startedAt,
+      endedAt: session.endedAt,
+      frames: session.frames,
+      averageConfidence: session.averageConfidence,
+      mapTitle: null, // 屏幕截图无法自动识别谱面名；趋势需结合 telemetry 谱面记录
+      ...flat,
+    };
+    this.status.lastObservation = observation;
+    void this.enqueueObservationWrite(observation);
+    return { observation, flat };
+  }
+
+  /** telemetry 兼容入口：读取同谱面历史后做多局趋势分析。 */
   async recordTelemetry(input) {
     const normalized = normalizeObservation({
       mapTitle: input.mapTitle,
@@ -145,7 +196,9 @@ class VisionProvider {
       score: input.score,
       mods: input.mods,
     });
-    const analysis = analyzeObservations([normalized]);
+    // 多局趋势：同谱面历史 + 当前局
+    const history = await this.readHistoryForMap(normalized.mapTitle);
+    const analysis = analyzeObservations([...history, normalized]);
     const observation = {
       at: new Date().toISOString(),
       source: "telemetry",
@@ -159,8 +212,29 @@ class VisionProvider {
       suggestions: analysis.suggestions.map(item => item.text),
     };
     this.status.lastObservation = observation;
-    void this.enqueueObservationWrite(observation);
-    return { ...observation, analysis };
+    await this.enqueueObservationWrite(observation);
+    return { ...observation, analysis, historyCount: history.length };
+  }
+
+  /** 读取同谱面历史 observation（仅 telemetry 中带明确谱面名且有 accuracy 的记录）。 */
+  async readHistoryForMap(mapTitle) {
+    if (!mapTitle) return [];
+    let data = [];
+    try {
+      data = JSON.parse(await fs.readFile(this.observationsPath, "utf8"));
+      if (!Array.isArray(data)) data = [];
+    } catch { return []; }
+    return data
+      .filter(item => item && item.mapTitle === mapTitle && typeof item.accuracy === "number")
+      .slice(-10)
+      .map(item => normalizeObservation({
+        mapTitle: item.mapTitle,
+        accuracy: item.accuracy,
+        misses: item.misses,
+        maxCombo: item.combo ?? item.maxCombo,
+        score: item.score,
+        mods: item.mods,
+      }));
   }
 
   /** observation 写入串行化：避免并发损坏；tmp+rename 原子替换；限制容量。 */
@@ -168,19 +242,31 @@ class VisionProvider {
     this.writeQueue = this.writeQueue.then(async () => {
       let data = [];
       try {
-        data = JSON.parse(await fs.readFile(OBSERVATIONS, "utf8"));
+        data = JSON.parse(await fs.readFile(this.observationsPath, "utf8"));
         if (!Array.isArray(data)) data = [];
       } catch { /* 文件缺失或损坏则从空开始 */ }
       data.push(observation);
       const trimmed = data.slice(-MAX_OBSERVATIONS);
-      const temporary = `${OBSERVATIONS}.tmp`;
+      const temporary = `${this.observationsPath}.tmp`;
       await fs.writeFile(temporary, JSON.stringify(trimmed, null, 2), "utf8");
-      await fs.rename(temporary, OBSERVATIONS);
+      await fs.rename(temporary, this.observationsPath);
     }).catch(error => {
       this.status.lastError = sanitizeErrorMessage(error, "observation write failed");
     });
     return this.writeQueue;
   }
+}
+
+/** 把 session.result {accuracy:{value,confidence},...} 拍平成顶层字段。 */
+function flattenResult(result = {}) {
+  const flat = {};
+  for (const key of RESULT_FIELDS) {
+    const field = result[key];
+    if (field && field.value !== null && field.value !== undefined) {
+      flat[key] = field.value;
+    }
+  }
+  return flat;
 }
 
 /** 校验并归一化 Python 输出（不无条件信任子进程 JSON）。 */
@@ -194,24 +280,28 @@ function validateFrame(raw, filePath) {
   if (!Number.isFinite(confidence) || confidence < 0 || confidence > 1) throw new Error("scene confidence out of bounds");
 
   const frame = raw.frame || {};
+  const width = Number(frame.width);
+  const height = Number(frame.height);
+  if (!Number.isFinite(width) || width <= 0 || !Number.isFinite(height) || height <= 0) {
+    throw new Error("invalid frame dimensions");
+  }
+
   const results = {};
+  const warnings = Array.isArray(raw.warnings) ? [...raw.warnings] : [];
   for (const key of RESULT_FIELDS) {
     const field = raw.results?.[key] || {};
     const value = field.value ?? null;
     const fieldConfidence = Number(field.confidence ?? 0);
-    if (value !== null) {
-      // 数值/枚举类型校验；不允许 0 冒充 null
-      if (key === "grade" && typeof value !== "string") throw new Error(`grade must be a string: ${key}`);
-      if (key !== "grade" && !["number", "string"].includes(typeof value)) throw new Error(`bad value type: ${key}`);
-    }
     if (!Number.isFinite(fieldConfidence) || fieldConfidence < 0 || fieldConfidence > 1) throw new Error(`bad confidence: ${key}`);
-    results[key] = { value, confidence: fieldConfidence };
+    const sanitized = sanitizeResultValue(key, value, warnings);
+    results[key] = { value: sanitized, confidence: sanitized === null ? 0.0 : fieldConfidence };
   }
+
   return {
     schemaVersion: 2,
     frame: {
-      width: Number(frame.width) || 0,
-      height: Number(frame.height) || 0,
+      width,
+      height,
       quality: frame.quality || {},
     },
     scene: {
@@ -222,10 +312,31 @@ function validateFrame(raw, filePath) {
     },
     results,
     timingMs: raw.timingMs || {},
-    warnings: Array.isArray(raw.warnings) ? raw.warnings : [],
+    warnings,
     ocr: raw.ocr || null,
     analyzerSource: filePath ? path.basename(filePath) : null,
   };
+}
+
+/** 结算字段业务范围校验：非法值降级为 null（不允许非法值以原样通过）。 */
+function sanitizeResultValue(key, value, warnings) {
+  if (value === null || value === undefined) return null;
+  if (key === "grade") {
+    if (typeof value === "string" && GRADE_ENUM.has(value)) return value;
+    warnings.push(`grade-out-of-enum`);
+    return null;
+  }
+  if (key === "accuracy") {
+    const number = Number(value);
+    if (Number.isFinite(number) && number >= 0 && number <= 100) return number;
+    warnings.push(`accuracy-out-of-range`);
+    return null;
+  }
+  // misses / maxCombo / score：非负整数
+  const number = Number(value);
+  if (Number.isFinite(number) && number >= 0 && Number.isInteger(number)) return number;
+  warnings.push(`${key}-out-of-range`);
+  return null;
 }
 
 /** 运行 Python，返回 stdout；超时/输出上限/清理由调用方负责。 */
