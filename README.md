@@ -1,3 +1,7 @@
+# AI_vtuber
+
+ai主播项目
+
 # Live2D AI Streamer MVP
 
 一个本地可跑的 AI 虚拟主播原型：Live2D、人格情绪、分层记忆、主动陪聊、GPT-SoVITS、SenseVoice、osu! 视觉分析和直播运行工作台。
