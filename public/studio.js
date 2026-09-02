@@ -54,6 +54,30 @@ $("#goalForm").onsubmit=async event=>{ event.preventDefault(); await jsonPost("/
 $("#beatForm").onsubmit=async event=>{ event.preventDefault(); await jsonPost("/api/story/beat",{title:$("#beatTitle").value,detail:$("#beatDetail").value,importance:.8}); event.target.reset(); toast("经历已记录"); await load(); };
 $("#scheduleForm").onsubmit=async event=>{ event.preventDefault(); await jsonPost("/api/story/schedule",{title:$("#scheduleTitle").value,dueAt:new Date($("#scheduleDue").value).toISOString()}); event.target.reset(); toast("计划已添加"); await load(); };
 
+const CAPTURE_SCENES={
+  arknights:[["main-menu","主界面"],["stage-select","选关"],["base","基建"],["battle","战斗进行"],["results-win","结算-胜利"],["results-fail","结算-失败"],["gacha","抽卡"],["shop","商店"],["event","活动/公告"]],
+  osu:[["gameplay","游戏进行"],["results","结算页"],["songSelect","选歌"],["pause","暂停"],["fail","失败"],["unknown","未知"]],
+  other:[["unknown","未分类"]]
+};
+function populateCaptureScenes(){ const sel=$("#captureScene"); const list=CAPTURE_SCENES[$("#captureGame").value]||CAPTURE_SCENES.other; sel.innerHTML=list.map(([v,l])=>`<option value="${v}">${l}</option>`).join(""); }
+function captureCurrentFrame(){
+  if(!state.stream) return toast("请先选择游戏窗口",true);
+  const video=$("#captureVideo"),canvas=$("#captureCanvas");
+  if(!video.videoWidth) return toast("画面尚未就绪",true);
+  const scale=Math.min(1,1280/video.videoWidth);
+  canvas.width=Math.round(video.videoWidth*scale); canvas.height=Math.round(video.videoHeight*scale);
+  canvas.getContext("2d").drawImage(video,0,0,canvas.width,canvas.height);
+  canvas.toBlob(async blob=>{
+    const game=$("#captureGame").value, scene=$("#captureScene").value, note=$("#captureNote").value.trim();
+    const url=`/api/vision/capture?game=${encodeURIComponent(game)}&scene=${encodeURIComponent(scene)}&note=${encodeURIComponent(note)}`;
+    try { const result=await api(url,{method:"POST",headers:{"content-type":"image/jpeg"},body:blob}); toast(`已保存样本：${result.game}/${result.file}`); $("#captureNote").value=""; }
+    catch(error){ toast("保存失败："+error.message,true); }
+  },"image/jpeg",0.92);
+}
+$("#captureGame").onchange=populateCaptureScenes;
+$("#captureFrame").onclick=captureCurrentFrame;
+populateCaptureScenes();
+
 $("#captureStart").onclick=async()=>{ try { state.stream=await navigator.mediaDevices.getDisplayMedia({video:{frameRate:5},audio:false}); $("#captureVideo").srcObject=state.stream; $("#captureStart").disabled=true; $("#captureStop").disabled=false; $("#visionStatusText").textContent="采样中…"; state.stream.getVideoTracks()[0].onended=stopCapture; await new Promise(resolve=>$("#captureVideo").onloadedmetadata=resolve); analyzeFrame(); state.timer=setInterval(analyzeFrame,3000); } catch(error){ $("#visionStatusText").textContent="未开始采样（需要屏幕共享权限）"; toast(error.message,true); } };
 $("#captureStop").onclick=stopCapture;
 function stopCapture(){ clearInterval(state.timer); state.timer=null; state.stream?.getTracks().forEach(track=>track.stop()); state.stream=null; $("#captureVideo").srcObject=null; $("#captureStart").disabled=false; $("#captureStop").disabled=true; if(!state.stream)$("#visionStatusText").textContent="已停止采样"; }

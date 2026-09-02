@@ -18,6 +18,7 @@
     "train:auto": "node scripts/auto-train.js",
     "train:clean": "node scripts/clean-duplicate-memories.js",
     "vision:fixtures": "runtime\\vision-env\\Scripts\\python.exe tests/vision/generate-fixtures.py",
+    "vision:arknights:text": "node scripts/arknights-text-click.js",
     "test:vision:py": "runtime\\vision-env\\Scripts\\python.exe -m unittest discover -s tests/vision -p \"test_*.py\"",
     "test:vision:node": "node tests/vision/test_session_tracker.js && node tests/vision/test_training_analyzer.js && node tests/vision/test_provider.js",
     "test:vision:integration": "node tests/vision/test_session_integration.js && node tests/vision/test_multi_session_trend.js",

@@ -13,6 +13,9 @@
 const CATEGORIES = Object.freeze(["accuracy", "consistency", "aim", "reading", "speed", "insufficient-data"]);
 
 function clampNumber(value, min, max) {
+  // 明确把 null/undefined/空字符串判为缺失：Number(null) 和 Number("") 都会得到 0，
+  // 若不拦截会把未知数据误写成 0。缺失值返回 null（不发布）。
+  if (value === null || value === undefined || value === "") return null;
   const number = Number(value);
   return Number.isFinite(number) ? Math.min(max, Math.max(min, number)) : null;
 }

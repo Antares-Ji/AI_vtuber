@@ -49,6 +49,16 @@ run("越界值被规范化（acc=150 -> 不发布）", () => {
   assert.strictEqual(normalized.misses, 0);      // 裁剪到下限
 });
 
+run("null/undefined/空字符串视为缺失（不发布为 0）", () => {
+  const normalized = normalizeObservation({ mapTitle: "test", accuracy: null, misses: undefined, maxCombo: "" });
+  assert.strictEqual(normalized.accuracy, undefined, "null 不得变 0");
+  assert.strictEqual(normalized.misses, undefined, "undefined 不得变 0");
+  assert.strictEqual(normalized.maxCombo, undefined, "空字符串不得变 0");
+  // 全缺失时不得触发"降速"建议（不能把未知当 0%）
+  const result = analyzeObservations([{ mapTitle: "test" }]);
+  assert.ok(result.suggestions.every(s => !s.text.includes("降速")), "未知数据不应触发降速建议");
+});
+
 run("缺失字段不产生虚假建议", () => {
   const result = analyzeObservations([{ mapTitle: "test" }]);
   // 只有谱面名：不发布任何数值型建议

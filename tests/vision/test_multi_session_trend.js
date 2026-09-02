@@ -11,8 +11,10 @@ const path = require("path");
 const assert = require("assert");
 
 const { VisionProvider } = require(path.join(__dirname, "..", "..", "src", "vision", "provider.js"));
+const { readProdObservations, assertProdUnchanged, cleanupTmp } = require("./helpers");
 
 async function main() {
+  const prodBefore = readProdObservations();
   const tmp = path.join(os.tmpdir(), `vision-trend-test-${Date.now()}.json`);
   const history = [
     { at: new Date().toISOString(), source: "telemetry", mapTitle: "mapA", accuracy: 90, misses: 8, combo: 200 },
@@ -35,7 +37,9 @@ async function main() {
   const saved = JSON.parse(await fs.readFile(tmp, "utf8"));
   assert.strictEqual(saved.length, 4, "observation 文件应追加当前局");
 
+  assertProdUnchanged(prodBefore);
   await fs.unlink(tmp);
+  cleanupTmp(tmp);
   console.log("PASSED");
   process.exit(0);
 }

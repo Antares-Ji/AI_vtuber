@@ -387,4 +387,5 @@ module.exports = {
   recordTelemetry: input => provider.recordTelemetry(input),
   validateFrame,
   VisionProvider,
+  OBSERVATIONS_PATH: OBSERVATIONS,
 };

@@ -1,4 +1,5 @@
 const { getVisionStatus, analyzeScreenshot, recordTelemetry } = require("../vision/provider");
+const { saveCapture } = require("../vision/capture-store");
 const { generateMemoryCandidates } = require("../brain/memory-candidates");
 const { analyzeMemoryHealth, consolidateExactDuplicates } = require("../brain/memory-maintenance");
 const { AFFECT_GROUPS, AFFECT_LABELS } = require("../brain/affect-schema");
@@ -104,6 +105,16 @@ async function handleStudioApi(req, res, url, dependencies) {
     const observation = await recordTelemetry(await parseBody(req));
     brain.storyStore.addBeat({ title: `osu! 训练：${observation.mapTitle}`, detail: `准确率 ${observation.accuracy}%，miss ${observation.misses}，建议：${observation.suggestions.join("；")}`, importance: 0.82 });
     return handled(send(res, 200, observation));
+  }
+  if (req.method === "POST" && url.pathname === "/api/vision/capture") {
+    const image = await parseBinaryBody(req, 12_000_000);
+    const saved = await saveCapture(image, {
+      game: url.searchParams.get("game") || "unknown",
+      scene: url.searchParams.get("scene") || "unknown",
+      note: url.searchParams.get("note") || "",
+      contentType: req.headers["content-type"] || "image/png",
+    });
+    return handled(send(res, 200, { ok: true, ...saved }));
   }
 
   if (req.method === "POST" && url.pathname === "/api/live/bilibili-event") {
