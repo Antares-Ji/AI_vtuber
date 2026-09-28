@@ -1,0 +1,22 @@
+{
+  "ok": true,
+  "stage": "0-7",
+  "deployed": [
+    "伊内丝",
+    "风笛",
+    "琴柳",
+    "维什戴尔"
+  ],
+  "resumed": true,
+  "saileach_tile": [
+    0.41375,
+    0.5205078125
+  ],
+  "deployment_complete": true,
+  "outcome": {
+    "phase": "result",
+    "victory": true,
+    "stars": 3
+  },
+  "paused_on_exit": false
+}

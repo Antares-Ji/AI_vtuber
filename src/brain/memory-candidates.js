@@ -1,5 +1,4 @@
 const { getLlmConfig } = require("./llm");
-const { BRAIN_THRESHOLDS } = require("./thresholds");
 const { containsMemoryInstructionInjection } = require("./memory-safety");
 
 async function generateMemoryCandidates(memoryStore, { disableExternal = false, sessionId = null } = {}) {
@@ -58,7 +57,7 @@ function fallbackCandidates(messages, primaryUser) {
   const candidates = [];
   for (const item of ranked) {
     const normalized = item.text.replace(/\s+/g, "");
-    if (candidates.some(candidate => similar(candidate.content, normalized))) continue;
+    if (candidates.some(candidate => candidate.user === (item.user || primaryUser) && similar(candidate.content, normalized))) continue;
     candidates.push({ scope: "user", user: item.user || primaryUser, content: item.text, reason: "本场对话中的明确身份、目标或约定", evidenceMessageIds: [item.id], evidenceExcerpt: item.text, confidence: 0.72, importance: Math.min(0.95, 0.68 + item.score * 0.04) });
     if (candidates.length >= 5) break;
   }
@@ -66,21 +65,25 @@ function fallbackCandidates(messages, primaryUser) {
 }
 
 function normalizeCandidates(candidates, primaryUser, messages = []) {
-  const humanMessages = new Map(messages.map(message => [Number(message.id), String(message.text || "").trim()]));
+  const humanMessages = new Map(messages.map(message => [Number(message.id), { user: String(message.user || ""), text: String(message.text || "").trim() }]));
   const output = [];
   for (const raw of candidates) {
     const content = String(raw.content || "").replace(/\s+/g, " ").trim().slice(0, 500);
-    if (content.length < 4 || isSensitive(content) || containsMemoryInstructionInjection(content) || output.some(item => similar(item.content, content))) continue;
+    if (content.length < 4 || isSensitive(content) || containsMemoryInstructionInjection(content)) continue;
     const evidenceMessageIds = [...new Set((Array.isArray(raw.evidenceMessageIds) ? raw.evidenceMessageIds : [])
       .map(Number).filter(id => Number.isInteger(id) && humanMessages.has(id)))].slice(0, 8);
     if (!evidenceMessageIds.length) continue;
-    const evidence = evidenceMessageIds.map(id => humanMessages.get(id)).filter(Boolean);
-    if (!isSupportedByHumanEvidence(content, evidence)) continue;
     const scope = raw.scope === "character" ? "character" : "user";
+    const user = String(raw.user || primaryUser).slice(0, 40);
+    if (output.some(item => item.scope === scope && item.user === (scope === "user" ? user : null) && similar(item.content, content))) continue;
+    const evidenceRows = evidenceMessageIds.map(id => humanMessages.get(id));
+    if (scope === "user" && evidenceRows.some(message => message.user !== user)) continue;
+    const evidence = evidenceRows.map(message => message.text);
+    if (!isSupportedByHumanEvidence(content, evidence, scope === "user" ? user : null)) continue;
     output.push({
-      scope, user: scope === "user" ? String(raw.user || primaryUser).slice(0, 40) : null, content,
+      scope, user: scope === "user" ? user : null, content,
       reason: String(raw.reason || "从本场对话提炼").slice(0, 300), evidenceMessageIds,
-      evidenceExcerpt: evidence.join("；").slice(0, 700), confidence: number(raw.confidence, 0.82), importance: number(raw.importance, 0.82)
+      evidenceExcerpt: evidenceRows.map(message => `[观众:${message.user}] ${message.text}`).join("；").slice(0, 700), confidence: number(raw.confidence, 0.82), importance: number(raw.importance, 0.82)
     });
     if (output.length >= 5) break;
   }
@@ -102,16 +105,26 @@ function similar(left, right) {
   return a.includes(b) || b.includes(a);
 }
 
-function isSupportedByHumanEvidence(content, evidence) {
-  const source = evidence.join(" ");
-  const a = [...new Set(String(content).replace(/[\s，。！？、：；]/g, ""))];
-  if (!a.length) return false;
-  const sourceChars = new Set(String(source).replace(/[\s，。！？、：；]/g, ""));
-  const characterSupport = a.filter(char => sourceChars.has(char)).length / a.length;
-  const anchors = String(content).match(/[A-Za-z][A-Za-z0-9 !+-]{1,24}|[\u4e00-\u9fff]{2,8}/g) || [];
-  const anchorSupport = anchors.filter(anchor => source.toLowerCase().includes(anchor.toLowerCase())).length / Math.max(1, anchors.length);
-  return characterSupport >= BRAIN_THRESHOLDS.memory.candidateCharacterSupport
-    || (characterSupport >= BRAIN_THRESHOLDS.memory.candidateMixedSupport && anchorSupport >= 0.35);
+function isSupportedByHumanEvidence(content, evidence, user = null) {
+  // Require each factual clause to occur in one human utterance. Character-set
+  // overlap loses word order and negation, and cannot establish a fact.
+  const canonical = value => String(value).toLowerCase().replace(/[\s，,：:、]/g, "")
+    .replace(/^(?:请记住|记住|训练记忆)[：:]?/, "")
+    .replace(/^我叫/, "自称").replace(/^我是/, "是").replace(/^我的?/, "")
+    .replace(/目标是(?:做一个|制作)/g, "目标是制作");
+  const clauses = String(content).split(/[。！？!?；;\n]+/).map(canonical).filter(Boolean);
+  const sources = evidence.filter(text => !/[？?]|如果|假如|可能|也许|是否/.test(String(text)))
+    .flatMap(text => String(text).split(/[。！？!?；;\n]+/)).map(canonical);
+  return clauses.length > 0 && clauses.every(clause => {
+    const claim = user && clause.startsWith(canonical(user)) ? clause.slice(canonical(user).length).replace(/^的/, "") : clause;
+    return claim.length >= 2 && sources.some(source => {
+      if (source === claim) return true;
+      const index = source.indexOf(claim);
+      if (index !== 0) return false;
+      // A positive substring inside a negated or hypothetical statement is not evidence.
+      return !/(?:不|没|未|不是|并非|从未|如果|假如|是否|可能)$/.test(source.slice(0, index));
+    });
+  });
 }
 
 function isSensitive(text) { return /(?:手机号|电话|微信|QQ|住在|地址|身份证|银行卡|密码)/.test(text); }

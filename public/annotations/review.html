@@ -1,0 +1,5 @@
+<!doctype html><html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>多图选择、拼接与改框</title>
+<style>body{font:16px system-ui;background:#111827;color:#eee;margin:24px}button,select{font:inherit;padding:8px;margin:4px}a{color:#93c5fd}#gallery{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px}article{border:1px solid #475569;padding:10px}img{width:100%;display:block}p{line-height:1.6}</style>
+<h1>多图选择 → 滚动拼接 → 逐图改框 → 逻辑链</h1><p>从已有记录选几张图。点击“逐图预框／修改”会生成候选框，你可以像主界面一样移动、缩放、命名；每个框可写它通向哪张图或哪个状态。不同标签页不要强行拼接。</p>
+<select id="session" aria-label="采集记录"></select><button id="all">全选／取消</button><button id="stitch">拼接选中的原图</button><button id="export">导出所选图片标注与逻辑链</button><p id="status"></p><a id="flow">查看本记录流程候选</a><div id="gallery"></div>
+<script type="module" src="/annotations/review.js"></script></html>

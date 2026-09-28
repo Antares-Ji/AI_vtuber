@@ -1,0 +1,130 @@
+{
+  "schema_version": 1,
+  "campaign": "arknights-20260926",
+  "stage_order": [
+    "0-1",
+    "0-2",
+    "0-3",
+    "0-4",
+    "0-5",
+    "0-6",
+    "0-7",
+    "0-8",
+    "0-9",
+    "0-10",
+    "0-11"
+  ],
+  "excluded_stage_prefixes": [
+    "TR-"
+  ],
+  "current_stage": "0-11",
+  "status": "running",
+  "verified_wins": [
+    {
+      "stage": "0-1",
+      "stars": 3,
+      "evidence": "E:/Github/AI_vtuber/runtime/vision/stage-0-7/1790363670549021500/outcome.png",
+      "model_summary": "E:/Github/AI_vtuber/runtime/vision/stage-0-7/1790363670549021500/summary.json",
+      "deployment_run": "1790363605956"
+    },
+    {
+      "stage": "0-2",
+      "stars": 3,
+      "evidence": "E:\\Github\\AI_vtuber\\runtime\\vision\\campaign-20260926\\0-2\\1790365440671\\result.png",
+      "model_summary": "E:\\Github\\AI_vtuber\\runtime\\vision\\campaign-20260926\\0-2\\1790365440671\\summary.json",
+      "verification": "Local settlement confirmation plus separate GPT screenshot audit",
+      "raw_model_stars": 3
+    },
+    {
+      "stage": "0-3",
+      "stars": 3,
+      "evidence": "E:\\Github\\AI_vtuber\\runtime\\vision\\campaign-20260926\\0-3\\1790366075400\\result.png",
+      "model_summary": "E:\\Github\\AI_vtuber\\runtime\\vision\\campaign-20260926\\0-3\\1790366075400\\summary.json",
+      "verification": "Local settlement confirmation plus separate GPT screenshot audit",
+      "raw_model_stars": 3
+    },
+    {
+      "stage": "0-4",
+      "stars": 3,
+      "evidence": "E:\\Github\\AI_vtuber\\runtime\\vision\\campaign-20260926\\0-4\\1790368943110\\result.png",
+      "model_summary": "E:\\Github\\AI_vtuber\\runtime\\vision\\campaign-20260926\\0-4\\1790368943110\\summary.json",
+      "verification": "Local settlement confirmation plus separate GPT screenshot audit",
+      "raw_model_stars": 0
+    },
+    {
+      "stage": "0-5",
+      "stars": 2,
+      "evidence": "E:\\Github\\AI_vtuber\\runtime\\vision\\campaign-20260926\\0-5\\settlement-1790369852887321900\\result.png",
+      "model_summary": "E:\\Github\\AI_vtuber\\runtime\\vision\\campaign-20260926\\0-5\\settlement-1790369852887321900\\summary.json",
+      "verification": "Local settlement confirmation plus separate GPT screenshot audit",
+      "raw_model_stars": 2
+    },
+    {
+      "stage": "0-6",
+      "stars": 2,
+      "evidence": "E:\\Github\\AI_vtuber\\runtime\\vision\\campaign-20260926\\0-6\\1790370177130\\result.png",
+      "model_summary": "E:\\Github\\AI_vtuber\\runtime\\vision\\campaign-20260926\\0-6\\1790370177130\\summary.json",
+      "verification": "Local settlement confirmation plus separate GPT screenshot audit",
+      "raw_model_stars": 2
+    },
+    {
+      "stage": "0-7",
+      "stars": 3,
+      "evidence": "E:\\Github\\AI_vtuber\\runtime\\vision\\campaign-20260926\\0-7\\1790370904371\\result.png",
+      "model_summary": "E:\\Github\\AI_vtuber\\runtime\\vision\\campaign-20260926\\0-7\\1790370904371\\summary.json",
+      "verification": "Local settlement confirmation plus separate GPT screenshot audit",
+      "raw_model_stars": 3
+    },
+    {
+      "stage": "0-8",
+      "stars": 3,
+      "evidence": "E:\\Github\\AI_vtuber\\runtime\\vision\\campaign-20260926\\0-8\\1790371252830\\result.png",
+      "model_summary": "E:\\Github\\AI_vtuber\\runtime\\vision\\campaign-20260926\\0-8\\1790371252830\\summary.json",
+      "verification": "Local settlement confirmation plus separate GPT screenshot audit",
+      "raw_model_stars": 3
+    },
+    {
+      "stage": "0-9",
+      "stars": 3,
+      "evidence": "E:\\Github\\AI_vtuber\\runtime\\vision\\campaign-20260926\\0-9\\1790371889536\\result.png",
+      "model_summary": "E:\\Github\\AI_vtuber\\runtime\\vision\\campaign-20260926\\0-9\\1790371889536\\summary.json",
+      "verification": "Local settlement confirmation plus separate GPT screenshot audit",
+      "raw_model_stars": 3
+    },
+    {
+      "stage": "0-10",
+      "stars": 2,
+      "evidence": "E:\\Github\\AI_vtuber\\runtime\\vision\\campaign-20260926\\0-10\\settlement-1790373922799408000\\result.png",
+      "model_summary": "E:\\Github\\AI_vtuber\\runtime\\vision\\campaign-20260926\\0-10\\settlement-1790373922799408000\\summary.json",
+      "verification": "Local settlement confirmation plus separate GPT screenshot audit",
+      "raw_model_stars": 3
+    },
+    {
+      "stage": "0-11",
+      "stars": 3,
+      "evidence": "E:\\Github\\AI_vtuber\\runtime\\vision\\campaign-20260926\\0-11\\settlement-1790374660136263400\\result.png",
+      "model_summary": "E:\\Github\\AI_vtuber\\runtime\\vision\\campaign-20260926\\0-11\\settlement-1790374660136263400\\summary.json",
+      "verification": "Local settlement confirmation plus separate GPT screenshot audit",
+      "raw_model_stars": 3
+    }
+  ],
+  "completed_battles": 11,
+  "navigation_failures_are_battles": false,
+  "new_model_training_completed": false,
+  "progression_requires": "current battle settlement evidence confirming victory",
+  "retry_policy": "analyze failure, record changed approach, retry same stage; unknown input outcome requires fresh observation",
+  "historical_labels": "labels.json",
+  "report": "GPT训练复盘.md",
+  "continue_after_0_8": true,
+  "stop_condition": "User stop, actual usage limit or external blocker; checkpoint package before ending",
+  "updated_at": "2026-09-26 06:18:30 +0800",
+  "verified_defeats": [
+    {
+      "stage": "0-10",
+      "run": "1790372130701",
+      "evidence": "runtime/vision/campaign-20260926/0-10/1790372130701/failure.png",
+      "reason": "风笛卡片已经可用，但当前YOLO置信度0.352低于固定0.65阈值，程序持续等卡60秒，没有部署，生命被耗尽"
+    }
+  ],
+  "confirmed_battle_count": 12
+}

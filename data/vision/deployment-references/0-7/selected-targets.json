@@ -1,0 +1,38 @@
+{
+  "伊内丝": {
+    "image": "伊内丝-selected.png",
+    "point": [
+      0.5,
+      0.4814453125
+    ],
+    "source_run": "1789207190304689900",
+    "reprojection_required": true
+  },
+  "风笛": {
+    "image": "风笛-selected.png",
+    "point": [
+      0.585625,
+      0.48046875
+    ],
+    "source_run": "1789207324408483000",
+    "reprojection_required": true
+  },
+  "琴柳": {
+    "image": "琴柳-selected.png",
+    "point": [
+      0.41375,
+      0.5205078125
+    ],
+    "source_run": "1789207324408483000",
+    "reprojection_required": true
+  },
+  "维什戴尔": {
+    "image": "维什戴尔-selected.png",
+    "point": [
+      0.5275,
+      0.3779296875
+    ],
+    "source_run": "1789207324408483000",
+    "reprojection_required": true
+  }
+}

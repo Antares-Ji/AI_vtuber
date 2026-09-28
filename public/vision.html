@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="zh-CN">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>明日方舟 · 只读视觉</title>
+<style>body{font:16px system-ui;background:#111827;color:#e5e7eb;max-width:1000px;margin:32px auto;padding:0 20px}button,select{font:inherit;padding:10px;margin:4px}video{width:100%;max-height:65vh;background:#000}a{color:#93c5fd}p{line-height:1.6}button:disabled{opacity:.5}</style>
+<h1>明日方舟 · 只读视觉</h1>
+<p><a href="/annotations/review.html">打开多图选择、滚动拼接与逐图改框</a></p>
+<p><a href="/annotations/video.html">打开录像关键页面：入口逻辑、长图和文字／按钮精修</a></p>
+<p>选择电脑客户端窗口，只获取画面，不控制键鼠、不上传云端。点击识别使用本机 Windows OCR；场景描述基于文字规则，不是游戏专用视觉模型。</p>
+<button id="start">选择游戏窗口</button><button id="stop" disabled>停止共享</button>
+<p id="status" role="status">尚未共享。请在弹窗中选择“窗口 → 明日方舟”，不要选整个屏幕。</p>
+<video id="preview" autoplay muted playsinline></video>
+<section style="border:1px solid #475569;padding:16px;margin-top:16px">
+<h2>入口页面 · 自动采集与拼接</h2>
+<p>先选择共享窗口和主界面入口，再开始采集。你手动进入该入口、慢慢向下滚动，每次停留约一秒。无需逐张截图或填写层级。</p>
+<label>从主界面进入 <select id="page-entry" disabled><option>正在读取已修正入口…</option></select></label>
+<button id="page-start" disabled>开始自动采集</button><button id="page-end" disabled>结束采集并查看拼接</button>
+<p id="page-status" role="status">开始自动采集会同时开启鼠标、键盘、滚轮记录与连拍。停稳样本最多40张；交互连拍另存，不受40张限制。</p>
+<div id="page-results"></div>
+<h3>鼠标／键盘／滚轮交互记录（随自动采集开启）</h3>
+<p>必须在真正的明日方舟客户端内操作。这里的视频预览只用于观看，不会把点击或键盘输入转发给游戏。</p>
+<p>记录游戏窗口内鼠标左右键、中键、侧键、双向滚轮，以及键盘按下、重复、抬起。按下／抬起／滚轮触发截图，持续按住期间目标30帧/秒。只读，不注入操作；不要在录制期间输入账号密码。只有不能自动匹配共享窗口时，才需在下面手动确认。</p>
+<button id="mouse-refresh">查找明日方舟窗口</button><select id="mouse-window" aria-label="鼠标观察目标窗口"><option value="">请先查找窗口</option></select>
+<label><input type="checkbox" id="mouse-confirm">已确认与共享窗口相同</label>
+<button id="mouse-start">开启交互连拍</button><button id="mouse-stop" disabled>停止交互连拍</button>
+<p id="mouse-status" role="status">随自动采集开启，单次最多10分钟／18000帧，写入本项目E盘目录。停止共享或页面失联后停止监听。</p>
+<p>目标30帧/秒，不保证实际帧率；后台限速和编码速度可能降低采样。事件时间与图像非硬同步。按键组合分别保留，系统保留键和硬件专用键可能无法被 Windows 钩子获取，不承诺所有硬件键零遗漏。</p>
+<div id="mouse-results"></div>
+<p id="capture-meter" role="status">实测落盘帧数：尚未开始。配置目标不是实测结果。</p>
+<p>只处理纵向滚动。结束时自动判断哪些帧可拼接：固定栏保留在原图参考中，长图仅显示滚动内容。对不准则分开保存。结果需人工核验，不代表按钮已完整识别。截图仅存本机，可能包含账号信息。</p>
+</section>
+<p><button id="analyze" disabled>识别当前画面（本机 OCR）</button></p>
+<pre id="analysis" style="white-space:pre-wrap;overflow-wrap:anywhere" role="status"></pre>
+<p><label>手工标注场景 <select id="scene"><option value="unknown">不确定</option><option value="home">主界面</option><option value="battle">战斗</option><option value="results">结算</option><option value="stage-select">关卡选择</option></select></label><button id="save" disabled>保存当前画面为本地测试样本</button></p>
+<p id="saved" role="status"></p>
+<p>单张样本只在点击保存时写入本机；自动采集由上方按钮单独开启。场景标签是你的标注，不是模型识别结果。</p>
+<a href="/">返回直播台</a>
+<script type="module" src="/vision.js"></script>
+<script type="module" src="/page-capture.js"></script>
+<script type="module" src="/interaction-capture.js"></script>
+</html>

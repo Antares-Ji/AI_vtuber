@@ -33,7 +33,7 @@ const { sanitizeErrorMessage, redactPersonalValues } = require("./runtime/redact
   fs.rmSync(testStory, { force: true });
   fs.rmSync(testLedger, { force: true });
   fs.rmSync(testQueue, { force: true });
-  const brain = new StreamerBrain({ memoryOptions: { databasePath: testDatabase, legacyPath: path.join(__dirname, "..", "runtime", "missing-legacy.json") }, storyOptions: { filePath: testStory } });
+  const brain = new StreamerBrain({ llmEnabled: false, memoryOptions: { databasePath: testDatabase, legacyPath: path.join(__dirname, "..", "runtime", "missing-legacy.json") }, storyOptions: { filePath: testStory } });
   const queue = [
     { user: "A", text: "普通弹幕", type: "chat" },
     { user: "B", text: "送你礼物", type: "gift" },
@@ -169,7 +169,7 @@ const { sanitizeErrorMessage, redactPersonalValues } = require("./runtime/redact
   assert.throws(() => assertPublicStateSafe({ persona: { worldBook: [] } }), /worldBook/);
   assert.deepEqual(Object.keys(publicEmotion(brain.emotion)).sort(), ["intensity", "name"]);
   assert.equal("text" in publicSpeech(brain.lastSpeech).item, false);
-  assert.deepEqual(Object.keys(publicAsrStatus({ provider: "local", model: "test", ffmpegPath: "private.exe", baseUrl: "http://private", backendReady: true })).sort(), ["backend", "backendReady", "model", "provider"]);
+  assert.deepEqual(Object.keys(publicAsrStatus({ provider: "local", model: "test", ffmpegPath: "private.exe", baseUrl: "http://private", backendReady: true })).sort(), ["backend", "backendReady", "model", "provider", "streaming"]);
   const redactedError = sanitizeErrorMessage(new Error("failed E:\\private\\voice.wav with sk-this-is-a-fake-test-secret"));
   assert.equal(redactedError.includes("E:\\private"), false);
   assert.equal(redactedError.includes("sk-this"), false);

@@ -1,0 +1,26 @@
+{
+  "stage": "0-7",
+  "title": "感染",
+  "verified_stars": 3,
+  "enemies_defeated": 20,
+  "remaining_lives": 15,
+  "deployed": [
+    "伊内丝",
+    "风笛",
+    "琴柳",
+    "维什戴尔"
+  ],
+  "paused_assistance": true,
+  "resumed_after_debugging": true,
+  "automatic_coordinate_replay_allowed": false,
+  "new_model_training": false,
+  "skill_activation_tested_this_battle": false,
+  "reviewed_evidence": [
+    "actual direction frames",
+    "deployment count 8 to 4",
+    "final sprites",
+    "final 3-star screen",
+    "independent timestamped video"
+  ],
+  "report": "docs/stage-0-7-local-clear-20260912.md"
+}

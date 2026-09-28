@@ -1,0 +1,73 @@
+{"event": "ocr", "utc_ns": 1789207326808171800, "label": "resume-name", "text": "00 × 风 笛 v90 攻 击 746 防 御 382 法 抗 0 阻 挡 1 攻 击 范 围 飞 命"}
+{"event": "ocr", "utc_ns": 1789207327288471200, "label": "resume-count", "text": "剩 余 可 放 置 角 色 ： 7"}
+{"event": "ocr", "utc_ns": 1789207327795513000, "label": "resume-pause", "text": "PAUSE 哲 停 中 ．"}
+{"event": "local_analysis", "utc_ns": 1789207328900192200, "label": "resume-card", "parsed": {"target_visible": false, "target_point": null}, "errors": [], "vlm_ms": 897.3238000180572, "yolo_ms": 77.59939995594323}
+{"event": "local_analysis", "utc_ns": 1789207329828586300, "label": "resume-card-vlm", "parsed": {"target_visible": false, "target_point": null}, "errors": [], "vlm_ms": 888.7875999789685, "yolo_ms": null}
+{"event": "local_analysis", "utc_ns": 1789207331203546100, "label": "resume-card-spatial", "parsed": {"x": 120, "y": 920}, "errors": [], "vlm_ms": 1247.1239001024514, "yolo_ms": null}
+{"event": "ocr", "utc_ns": 1789207331715636100, "label": "风笛-before-count", "text": "剩 余 可 放 置 角 色 ： 7"}
+{"event": "ocr", "utc_ns": 1789207332290334000, "label": "风笛-identity", "text": "00 × 风 笛 v90 攻 击 746 防 御 382 法 抗 0 阻 挡 1 攻 击 范 围 飞 命"}
+{"event": "local_analysis", "utc_ns": 1789207333444503900, "label": "风笛-tile", "parsed": {"target_visible": false, "target_point": null}, "errors": [], "vlm_ms": 1030.0412999931723, "yolo_ms": 12.794499984011054}
+{"event": "local_analysis", "utc_ns": 1789207334591393400, "label": "风笛-tile-vlm", "parsed": {"target_visible": false, "target_point": null}, "errors": [], "vlm_ms": 1036.603600019589, "yolo_ms": null}
+{"event": "local_analysis", "utc_ns": 1789207335952930200, "label": "风笛-tile-spatial", "parsed": {"x": 550, "y": 550}, "errors": [], "vlm_ms": 1233.1034999806434, "yolo_ms": null}
+{"event": "green_projection", "utc_ns": 1789207336024052900, "t": 11.615307800006121, "proposal": [0.55, 0.55], "distance_px": 91.20548229136226, "point": [0.585625, 0.48046875]}
+{"event": "drop", "utc_ns": 1789207336274517100, "t": 11.865665999939665, "name": "风笛", "card": [0.12, 0.92], "tile": [0.585625, 0.48046875], "releaseMethod": "mouse_event", "leftButtonReleased": true}
+{"event": "ocr", "utc_ns": 1789207337069403800, "label": "风笛-pending-identity", "text": "风 笛 v90 攻 击 746 防 御 382 阻 挡 1 攻 击 范 围"}
+{"event": "ocr", "utc_ns": 1789207338107350500, "label": "风笛-after-count", "text": "剩 余 可 放 置 角 色 ： 6"}
+{"event": "landed", "utc_ns": 1789207338111715600, "t": 13.702320599928498, "name": "风笛", "remaining": 6, "facing": "down"}
+{"event": "pause", "utc_ns": 1789207338420061900, "t": 14.010728699970059, "value": false}
+{"event": "card_yolo", "utc_ns": 1789207349103991900, "t": 24.695349699934013, "name": "琴柳", "score": 0.9669420719146729, "confidence": 0.8766393065452576}
+{"event": "pause", "utc_ns": 1789207349418678400, "t": 25.009578899946064, "value": true}
+{"event": "ocr", "utc_ns": 1789207349961269000, "label": "琴柳-before-count", "text": "剩 余 可 放 置 角 色 ： 6"}
+{"event": "ocr", "utc_ns": 1789207350878534400, "label": "琴柳-identity", "text": "琴 柳 70 攻 击 5 防 御 394 法 抗 0 阻 挡 1 攻 击 范 围"}
+{"event": "local_analysis", "utc_ns": 1789207352061589000, "label": "琴柳-tile", "parsed": {"target_visible": false, "target_point": null}, "errors": [], "vlm_ms": 1062.286900007166, "yolo_ms": 12.484400067478418}
+{"event": "local_analysis", "utc_ns": 1789207353206652400, "label": "琴柳-tile-vlm", "parsed": {"target_visible": false, "target_point": null}, "errors": [], "vlm_ms": 1044.5806999923661, "yolo_ms": null}
+{"event": "local_analysis", "utc_ns": 1789207354615026900, "label": "琴柳-tile-spatial", "parsed": {"x": 450, "y": 550}, "errors": [], "vlm_ms": 1306.5791999688372, "yolo_ms": null}
+{"event": "green_projection", "utc_ns": 1789207354692250400, "t": 30.28300739999395, "proposal": [0.45, 0.55], "distance_px": 65.39143674824712, "point": [0.41375, 0.5205078125]}
+{"event": "drop", "utc_ns": 1789207354930303700, "t": 30.521400399971753, "name": "琴柳", "card": [0.206417236328125, 0.9310071431100368], "tile": [0.41375, 0.5205078125], "releaseMethod": "mouse_event", "leftButtonReleased": true}
+{"event": "ocr", "utc_ns": 1789207355772641200, "label": "琴柳-pending-identity", "text": "0 琴 柳 v70 攻 击 566 防 御 394 阻 挡 1 攻 击 范 围 点 击 、 生 命"}
+{"event": "ocr", "utc_ns": 1789207356895772400, "label": "琴柳-after-count", "text": "剩 余 可 放 置 角 色 ： 5"}
+{"event": "landed", "utc_ns": 1789207356899282900, "t": 32.49014519993216, "name": "琴柳", "remaining": 5, "facing": "right"}
+{"event": "pause", "utc_ns": 1789207357215212100, "t": 32.80657809996046, "value": false}
+{"event": "ocr", "utc_ns": 1789207357742012600, "label": "维什戴尔-dp", "text": ""}
+{"event": "ocr", "utc_ns": 1789207359132482800, "label": "维什戴尔-dp", "text": ""}
+{"event": "ocr", "utc_ns": 1789207360531570600, "label": "维什戴尔-dp", "text": ""}
+{"event": "ocr", "utc_ns": 1789207361910443400, "label": "维什戴尔-dp", "text": ""}
+{"event": "ocr", "utc_ns": 1789207363293841800, "label": "维什戴尔-dp", "text": ""}
+{"event": "ocr", "utc_ns": 1789207364691323500, "label": "维什戴尔-dp", "text": ""}
+{"event": "ocr", "utc_ns": 1789207366091427600, "label": "维什戴尔-dp", "text": ""}
+{"event": "ocr", "utc_ns": 1789207367481064100, "label": "维什戴尔-dp", "text": ""}
+{"event": "ocr", "utc_ns": 1789207368872279500, "label": "维什戴尔-dp", "text": ""}
+{"event": "ocr", "utc_ns": 1789207370299156900, "label": "维什戴尔-dp", "text": "的 3"}
+{"event": "ocr", "utc_ns": 1789207371735322900, "label": "维什戴尔-dp", "text": "的 4"}
+{"event": "ocr", "utc_ns": 1789207373136176300, "label": "维什戴尔-dp", "text": "的 5"}
+{"event": "ocr", "utc_ns": 1789207374538438500, "label": "维什戴尔-dp", "text": "17"}
+{"event": "ocr", "utc_ns": 1789207375942916600, "label": "维什戴尔-dp", "text": "的 8"}
+{"event": "ocr", "utc_ns": 1789207377355373600, "label": "维什戴尔-dp", "text": "卜 20"}
+{"event": "ocr", "utc_ns": 1789207378774783900, "label": "维什戴尔-dp", "text": ""}
+{"event": "ocr", "utc_ns": 1789207380188417200, "label": "维什戴尔-dp", "text": "卜 22"}
+{"event": "ocr", "utc_ns": 1789207381619251400, "label": "维什戴尔-dp", "text": "卜 24"}
+{"event": "local_analysis", "utc_ns": 1789207382452055100, "label": "维什戴尔-card", "parsed": {"target_visible": false, "target_point": null}, "errors": [], "vlm_ms": 771.1154000135139, "yolo_ms": 13.209700002335012}
+{"event": "local_analysis", "utc_ns": 1789207383412668400, "label": "维什戴尔-card-vlm", "parsed": {"target_visible": false, "target_point": null}, "errors": [], "vlm_ms": 905.1247000461444, "yolo_ms": null}
+{"event": "local_analysis", "utc_ns": 1789207384835253800, "label": "维什戴尔-card-spatial", "parsed": {"x": 860, "y": 930}, "errors": [], "vlm_ms": 1295.5832000588998, "yolo_ms": null}
+{"event": "pause", "utc_ns": 1789207385153321200, "t": 60.74432199995499, "value": true}
+{"event": "ocr", "utc_ns": 1789207385706409700, "label": "维什戴尔-before-count", "text": "剩 余 可 放 置 角 色 ： 5"}
+{"event": "ocr", "utc_ns": 1789207386674185000, "label": "维什戴尔-identity", "text": "维 什 戴 尔 v90 攻 击 842 防 御 256 氵 去 抗 15 阻 挡 1 攻 击 范 围"}
+{"event": "local_analysis", "utc_ns": 1789207387899833600, "label": "维什戴尔-tile", "parsed": {"target_visible": false, "target_point": null}, "errors": [], "vlm_ms": 1103.7017999915406, "yolo_ms": 15.265799942426383}
+{"event": "local_analysis", "utc_ns": 1789207389749857100, "label": "维什戴尔-tile-vlm", "parsed": {"target_visible": true, "target_point": [538, 377]}, "errors": [], "vlm_ms": 1737.219600006938, "yolo_ms": null}
+{"event": "green_projection", "utc_ns": 1789207389816981100, "t": 65.40753679990303, "proposal": [0.538, 0.377], "distance_px": 16.826951714437236, "point": [0.5275, 0.3779296875]}
+{"event": "drop", "utc_ns": 1789207390061344400, "t": 65.65262019995134, "name": "维什戴尔", "card": [0.86, 0.93], "tile": [0.5275, 0.3779296875], "releaseMethod": "mouse_event", "leftButtonReleased": true}
+{"event": "ocr", "utc_ns": 1789207390874626500, "label": "维什戴尔-pending-identity", "text": "维 什 戴 尔 v90 攻 击 842 防 御 256 阻 挡 1 攻 击 范 围"}
+{"event": "ocr", "utc_ns": 1789207391929279500, "label": "维什戴尔-after-count", "text": "剩 余 可 放 置 角 色 ： 4"}
+{"event": "landed", "utc_ns": 1789207391932640100, "t": 67.52393049991224, "name": "维什戴尔", "remaining": 4, "facing": "left"}
+{"event": "pause", "utc_ns": 1789207392249707700, "t": 67.84109589993022, "value": false}
+{"event": "local_analysis", "utc_ns": 1789207398969519600, "label": "outcome", "parsed": {"phase": "battle", "victory": null, "stars": null}, "errors": [], "vlm_ms": 1434.9488000152633, "yolo_ms": null}
+{"event": "local_analysis", "utc_ns": 1789207405549014900, "label": "outcome", "parsed": {"phase": "battle", "victory": null, "stars": null}, "errors": [], "vlm_ms": 1381.2504999805242, "yolo_ms": null}
+{"event": "local_analysis", "utc_ns": 1789207412193835200, "label": "outcome", "parsed": {"phase": "battle", "victory": null, "stars": null}, "errors": [], "vlm_ms": 1429.6194999478757, "yolo_ms": null}
+{"event": "local_analysis", "utc_ns": 1789207418773834600, "label": "outcome", "parsed": {"phase": "battle", "victory": null, "stars": null}, "errors": [], "vlm_ms": 1377.0743000786752, "yolo_ms": null}
+{"event": "local_analysis", "utc_ns": 1789207425372566300, "label": "outcome", "parsed": {"phase": "battle", "victory": null, "stars": null}, "errors": [], "vlm_ms": 1419.0314000006765, "yolo_ms": null}
+{"event": "local_analysis", "utc_ns": 1789207432014554900, "label": "outcome", "parsed": {"phase": "battle", "victory": null, "stars": null}, "errors": [], "vlm_ms": 1391.5395999792963, "yolo_ms": null}
+{"event": "local_analysis", "utc_ns": 1789207438553979400, "label": "outcome", "parsed": {"phase": "battle", "victory": null, "stars": null}, "errors": [], "vlm_ms": 1359.1901999898255, "yolo_ms": null}
+{"event": "local_analysis", "utc_ns": 1789207445116976300, "label": "outcome", "parsed": {"phase": "battle", "victory": null, "stars": null}, "errors": [], "vlm_ms": 1357.253500027582, "yolo_ms": null}
+{"event": "local_analysis", "utc_ns": 1789207451730376900, "label": "outcome", "parsed": {"phase": "battle", "victory": null, "stars": null}, "errors": [], "vlm_ms": 1410.8864000299945, "yolo_ms": null}
+{"event": "local_analysis", "utc_ns": 1789207458428248400, "label": "outcome", "parsed": {"phase": "battle", "victory": true, "stars": null}, "errors": [], "vlm_ms": 1485.1272000232711, "yolo_ms": null}
+{"event": "local_analysis", "utc_ns": 1789207465099245300, "label": "outcome", "parsed": {"phase": "result", "victory": true, "stars": 3}, "errors": [], "vlm_ms": 1433.1419999944046, "yolo_ms": null}

@@ -15,13 +15,22 @@ const { handleStudioApi } = require("./api/studio");
 const { QueueStore } = require("./runtime/queue-store");
 const { sanitizeTtsStyle } = require("./tts/style");
 const { RuntimeMetrics } = require("./runtime/metrics");
+const { workerNodeRegistry } = require("./runtime/node-registry");
 const { deleteFeedbackForUser } = require("./brain/feedback");
 const { assertPublicStateSafe, publicEmotion, publicSpeech, publicAsrStatus } = require("./api/public-state");
 const { sanitizeErrorMessage } = require("./runtime/redaction");
+const { classifyComplexity } = require("./brain/local-llm");
+const { runDualBrainDiagnostics } = require("./brain/dual-brain-diagnostics");
+const { getModuleRegistry } = require("./runtime/module-registry");
+const { streamRoutedReply, openAiTokenStream, selectThinkingPreface } = require("./brain/streaming-router");
+const { getLlmConfig } = require("./brain/llm");
+const { responseAbortController } = require("./runtime/request-lifecycle");
+const { createVoiceCallRoutes } = require("./api/voice-call-routes");
 
 const PORT = Number(process.env.PORT || 3000);
 const HOST = process.env.HOST || "127.0.0.1";
 const BUILD_ID = "studio-v3";
+const INSTANCE_ID = process.env.AI_VTUBER_INSTANCE_ID || require("node:crypto").randomUUID();
 const PUBLIC_DIR = path.join(__dirname, "..", "public");
 const LIVE2D_DIR = path.join(__dirname, "..", "miku_live2d", "miku", "miku");
 const VENDOR_FILES = {
@@ -37,6 +46,13 @@ const seenDanmaku = new Map();
 const REPEAT_WINDOW_MS = 90_000;
 let runtimeSettings = loadRuntimeSettings();
 let nextInFlight = false;
+let cloudReplyInFlight = null;
+let deferredReply = null;
+const handleVoiceCall = createVoiceCallRoutes({ brain, streamRoutedReply, parseBody, send, acquire: () => {
+  if (nextInFlight || cloudReplyInFlight) return null;
+  nextInFlight = true;
+  return () => { nextInFlight = false; };
+} });
 const runtimeMetrics = new RuntimeMetrics();
 const liveRuntime = new LiveRuntime({ onDanmaku: item => enqueueDanmaku(item) });
 void liveRuntime.start();
@@ -45,6 +61,7 @@ const mime = {
   ".html": "text/html; charset=utf-8",
   ".css": "text/css; charset=utf-8",
   ".js": "application/javascript; charset=utf-8",
+  ".mjs": "application/javascript; charset=utf-8",
   ".json": "application/json; charset=utf-8",
   ".png": "image/png",
   ".svg": "image/svg+xml"
@@ -76,6 +93,7 @@ function createSilentWav(durationMs = 40, sampleRate = 16_000) {
 }
 
 function send(res, code, data, type = "application/json; charset=utf-8") {
+  if (res.destroyed || res.writableEnded) return;
   res.writeHead(code, { "content-type": type, "x-content-type-options": "nosniff", "referrer-policy": "no-referrer", "cache-control": type.startsWith("application/json") ? "no-store" : "no-cache" });
   res.end(typeof data === "string" ? data : JSON.stringify(data));
 }
@@ -103,6 +121,8 @@ function parseBody(req) {
       }
     });
     req.on("error", error => finish(reject, error));
+    req.on("aborted", () => finish(reject, new DOMException("Request upload cancelled", "AbortError")));
+    if (req.aborted) finish(reject, new DOMException("Request upload cancelled", "AbortError"));
   });
 }
 
@@ -125,6 +145,8 @@ function parseBinaryBody(req, limit = 15_000_000) {
     });
     req.on("end", () => finish(resolve, Buffer.concat(chunks)));
     req.on("error", error => finish(reject, error));
+    req.on("aborted", () => finish(reject, new DOMException("Audio upload cancelled", "AbortError")));
+    if (req.aborted) finish(reject, new DOMException("Audio upload cancelled", "AbortError"));
   });
 }
 
@@ -162,6 +184,8 @@ function safeFilePath(root, relative) {
 async function handleApi(req, res) {
   const url = new URL(req.url, `http://${req.headers.host}`);
 
+  if (url.pathname.startsWith("/api/voice-calls/")) return handleVoiceCall(req, res, url);
+
   if (await handleStudioApi(req, res, url, { brain, liveRuntime, runtimeMetrics, parseBody, parseBinaryBody, send })) return;
 
   if (req.method === "GET" && url.pathname === "/api/state") {
@@ -174,10 +198,11 @@ async function handleApi(req, res) {
       scene: { chatEnabled: brain.sceneState.chatEnabled, chatSuspended: brain.sceneState.chatSuspended },
       latestSpeech: publicSpeech(brain.lastSpeech),
       persona: { id: PERSONA.id, name: PERSONA.name, displayName: PERSONA.displayName },
-      llm: { enabled: brain.llmStatus.enabled, model: brain.llmStatus.model, lastMode: brain.llmStatus.lastMode, lastLatencyMs: brain.llmStatus.lastLatencyMs },
+      llm: { enabled: brain.llmStatus.enabled, provider: brain.llmStatus.provider, model: brain.llmStatus.model, lastMode: brain.llmStatus.lastMode, lastLatencyMs: brain.llmStatus.lastLatencyMs, route: brain.llmStatus.route, routeReason: brain.llmStatus.routeReason },
       asr: publicAsrStatus(asrStatus),
       audioOutput: { enabled: runtimeSettings.audioOutputEnabled },
       build: BUILD_ID,
+      instance: { id: INSTANCE_ID, pid: process.pid },
       avatar: {
         renderer: "live2d-local-preview",
         live2dModelPath,
@@ -190,7 +215,7 @@ async function handleApi(req, res) {
   }
 
   if (req.method === "GET" && url.pathname === "/api/health") {
-    return send(res, 200, { ok: true, ...runtimeMetrics.status(), uptimeSeconds: Math.floor((Date.now() - Date.parse(runtimeMetrics.startedAt)) / 1000), queue: queueStore.status(), replyInFlight: nextInFlight, memoryIntegrity: brain.memoryStore.integrityCheck() });
+    return send(res, 200, { ok: true, ...runtimeMetrics.status(), instance: { id: INSTANCE_ID, pid: process.pid }, uptimeSeconds: Math.floor((Date.now() - Date.parse(runtimeMetrics.startedAt)) / 1000), queue: queueStore.status(), replyInFlight: nextInFlight, memoryIntegrity: brain.memoryStore.integrityCheck() });
   }
 
   if (req.method === "GET" && url.pathname === "/api/sample-danmaku") {
@@ -211,7 +236,8 @@ async function handleApi(req, res) {
       text: String(body.text || "").trim().slice(0, 300),
       type: normalizeDanmakuType(body.type),
       training: Boolean(body.training),
-      timestamp: body.timestamp || new Date().toISOString()
+      timestamp: body.timestamp || new Date().toISOString(),
+      delivery: body.delivery === "stream" ? "stream" : "poll"
     });
     if (result.error) return send(res, 400, { error: result.error });
     return send(res, 200, result);
@@ -221,7 +247,9 @@ async function handleApi(req, res) {
     const body = await parseBody(req);
     const user = String(body.user || "").trim().slice(0, 40);
     if (!user) return send(res, 400, { error: "user is required" });
-    brain.memoryStore.deleteUserMemories(user);
+    brain.forgetUser(user);
+    queueStore.prune(item => item.user === user);
+    if (deferredReply?.item?.user === user) deferredReply = null;
     deleteFeedbackForUser(user);
     brain.shortTerm = brain.memoryStore.shortTerm;
     brain.memory = brain.memoryStore.data;
@@ -240,6 +268,8 @@ async function handleApi(req, res) {
 
   if (req.method === "POST" && url.pathname === "/api/session/end") {
     const ended = brain.memoryStore.endCurrentSession();
+    deferredReply = null;
+    queueStore.prune(() => true);
     brain.shortTerm = brain.memoryStore.shortTerm;
     brain.memory = brain.memoryStore.data;
     return send(res, 200, { ok: true, ended, memoryStatus: brain.memoryStore.getStatus() });
@@ -260,14 +290,46 @@ async function handleApi(req, res) {
   }
 
   if (req.method === "POST" && url.pathname === "/api/next") {
+    if (deferredReply) {
+      const completed = deferredReply;
+      deferredReply = null;
+      return send(res, 200, completed);
+    }
+    if (cloudReplyInFlight) return send(res, 200, { idle: true, busy: true, thinking: true, queueSize: queue.length });
     if (nextInFlight) return send(res, 200, { idle: true, busy: true, queueSize: queue.length });
     nextInFlight = true;
     try {
       const body = await parseBody(req);
       const highTraffic = queue.length >= 3;
-      let item = brain.pickDanmaku(queue, { preferFresh: highTraffic || Boolean(body.preferFresh) });
+      let item = brain.pickDanmaku(queue.filter(candidate => candidate.delivery !== "stream"), { preferFresh: highTraffic || Boolean(body.preferFresh) });
       if (!item) item = brain.maybeInitiate();
       if (!item) return send(res, 200, { idle: true });
+      const routing = classifyComplexity(item);
+      if (routing.route === "cloud" && item.type !== "proactive") {
+        if (queue.includes(item)) queueStore.remove(item);
+        const thinkingReply = {
+          text: selectThinkingPreface(item),
+          performance: { cues: [], profile: brain.emotion.performance },
+          emotion: brain.visibleEmotion(),
+          persona: { id: PERSONA.id, name: PERSONA.name, displayName: PERSONA.displayName },
+          llm: { lastMode: "cloud-thinking", route: "cloud", routeReason: routing.reason },
+          routing
+        };
+        const replyStarted = Date.now();
+        cloudReplyInFlight = brain.reply(item)
+          .then(reply => {
+            runtimeMetrics.recordLatency("reply", Date.now() - replyStarted);
+            runtimeMetrics.replies += 1;
+            runtimeMetrics.lastReplyAt = new Date().toISOString();
+            deferredReply = { idle: false, deferred: true, item, reply, queueSize: queue.length, highTraffic, dropped: 0 };
+          })
+          .catch(error => {
+            if (error.code === "STALE_REPLY") return;
+            deferredReply = { idle: false, deferred: true, item, reply: { ...thinkingReply, text: "刚才思路断了一下，你再问我一次好吗？", llm: { ...thinkingReply.llm, lastMode: "cloud-error", lastError: sanitizeErrorMessage(error) } }, queueSize: queue.length };
+          })
+          .finally(() => { cloudReplyInFlight = null; });
+        return send(res, 200, { idle: false, thinking: true, item, reply: thinkingReply, queueSize: queue.length, highTraffic, dropped: 0 });
+      }
       const replyStarted = Date.now();
       const reply = await brain.reply(item);
       runtimeMetrics.recordLatency("reply", Date.now() - replyStarted);
@@ -285,9 +347,155 @@ async function handleApi(req, res) {
     }
   }
 
+  if (req.method === "POST" && url.pathname === "/api/next-stream") {
+    if (nextInFlight || cloudReplyInFlight) return send(res, 409, { error: "reply is busy" });
+    const streamStarted = Date.now();
+    let firstTokenMs = null;
+    nextInFlight = true;
+    const controller = responseAbortController(res);
+    try {
+      const body = await parseBody(req);
+      controller.signal.throwIfAborted();
+      let item = body.expectedItemId
+        ? queue.find(candidate => candidate.id === body.expectedItemId)
+        : brain.pickDanmaku(queue.filter(candidate => candidate.delivery === "stream"), { preferFresh: Boolean(body.preferFresh) });
+      if (!item) return send(res, 204, {});
+      if (queue.includes(item)) queueStore.remove(item);
+      const prepared = brain.prepareStreamReply(item);
+      item = prepared.item;
+      const context = prepared.context;
+      res.writeHead(200, { "content-type": "application/x-ndjson; charset=utf-8", "cache-control": "no-store", "x-accel-buffering": "no" });
+      res.write(`${JSON.stringify({ type: "start", item, emotion: brain.visibleEmotion(), persona: { id: PERSONA.id, name: PERSONA.name, displayName: PERSONA.displayName }, timing: { acceptedMs: Date.now() - streamStarted } })}\n`);
+      let text = "";
+      let route = null;
+      let model = null;
+      let mode = null;
+      for await (const event of streamRoutedReply(item, context, controller.signal)) {
+        controller.signal.throwIfAborted();
+        if (event.type === "preface") res.write(`${JSON.stringify({ ...event, timing: { serverElapsedMs: Date.now() - streamStarted } })}\n`);
+        else {
+          const isFirstToken = firstTokenMs === null;
+          if (isFirstToken) {
+            firstTokenMs = Date.now() - streamStarted;
+            runtimeMetrics.recordLatency("llm_ttft", firstTokenMs);
+            runtimeMetrics.recordLatency(event.mode === "local-stream" ? "llm_ttft_local" : "llm_ttft_cloud", firstTokenMs);
+          }
+          text += event.text;
+          route = event.routing;
+          model = event.model;
+          mode = event.mode;
+          // Hold model drafts until reply policy and speech normalization have
+          // produced the exact text that will also be committed to memory.
+        }
+      }
+      controller.signal.throwIfAborted();
+      if (!text.trim()) throw new Error("Stream completed without reply text");
+      brain.llmStatus = { ...brain.llmStatus, enabled: true, model, lastMode: mode, route: route?.route, routeReason: route?.reason, lastError: null };
+      const reply = brain.commitStreamReply(item, context, text.trim());
+      const approvedDeltaMs = Date.now() - streamStarted;
+      runtimeMetrics.recordLatency("reply_approved_delta", approvedDeltaMs);
+      res.write(`${JSON.stringify({ type: "delta", text: reply.text, routing: route, model, mode, reviewed: true, timing: { serverElapsedMs: approvedDeltaMs, upstreamFirstTokenMs: firstTokenMs } })}\n`);
+      const totalMs = Date.now() - streamStarted;
+      runtimeMetrics.recordLatency("reply_stream_total", totalMs);
+      runtimeMetrics.replies += 1;
+      runtimeMetrics.lastReplyAt = new Date().toISOString();
+      res.end(`${JSON.stringify({ type: "done", text: reply.text, routing: route, model, mode, reviewed: true, timing: { firstTokenMs, approvedDeltaMs, totalMs } })}\n`);
+    } catch (error) {
+      if (controller.signal.aborted || res.destroyed) return;
+      if (!res.headersSent) return send(res, 503, { error: sanitizeErrorMessage(error) });
+      res.end(`${JSON.stringify({ type: "error", error: sanitizeErrorMessage(error) })}\n`);
+    } finally {
+      nextInFlight = false;
+    }
+    return;
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/modules") {
+    return send(res, 200, { ok: true, modules: await getModuleRegistry() });
+  }
+
+  if (req.method === "POST" && url.pathname === "/api/metrics/client") {
+    const body = await parseBody(req);
+    const allowed = new Set(["tts_request_headers", "tts_queue_wait", "tts_first_pcm", "tts_playback_end", "barge_in_abort"]);
+    const name = String(body.name || "");
+    const valueMs = Number(body.valueMs);
+    if (!allowed.has(name) || !Number.isFinite(valueMs) || valueMs < 0 || valueMs > 300_000) {
+      return send(res, 400, { error: "invalid client metric" });
+    }
+    runtimeMetrics.recordLatency(`client_${name}`, Math.round(valueMs));
+    return send(res, 202, { ok: true });
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/nodes") {
+    return send(res, 200, { ok: true, main: { id: "5080-main", online: true }, workers: workerNodeRegistry.status() });
+  }
+
+  if (req.method === "POST" && (url.pathname === "/api/nodes/register" || url.pathname === "/api/nodes/heartbeat")) {
+    try {
+      const body = await parseBody(req);
+      const token = req.headers["x-worker-token"];
+      const node = url.pathname.endsWith("register")
+        ? workerNodeRegistry.register(body, token)
+        : workerNodeRegistry.heartbeat(body, token);
+      return send(res, 200, { ok: true, node });
+    } catch (error) {
+      return send(res, error.statusCode || 400, { error: sanitizeErrorMessage(error, "worker node request failed") });
+    }
+  }
+
+  if (req.method === "POST" && url.pathname === "/api/diagnostics/dual-brain") {
+    const result = await runDualBrainDiagnostics();
+    return send(res, result.ok ? 200 : 503, result);
+  }
+
+  if (req.method === "POST" && url.pathname === "/api/diagnostics/compare-brains") {
+    const body = await parseBody(req);
+    const prompt = String(body.prompt || "请用两句话说明为什么流式交互能降低等待感。不要使用 Markdown。").trim().slice(0, 300);
+    const item = { id: `compare-${Date.now()}`, user: "架构验收", text: prompt, type: "chat", timestamp: new Date().toISOString() };
+    const config = getLlmConfig();
+    const directRun = async () => {
+      const started = Date.now();
+      let firstTokenMs = null;
+      let text = "";
+      for await (const token of openAiTokenStream(`${config.baseUrl.replace(/\/$/, "")}/chat/completions`, { authorization: `Bearer ${process.env.OPENAI_API_KEY}` }, { model: config.model, messages: [{ role: "user", content: prompt }], temperature: 0.7, max_tokens: 180 }, AbortSignal.timeout(30_000))) {
+        firstTokenMs ??= Date.now() - started;
+        text += token;
+      }
+      return { firstTokenMs, totalMs: Date.now() - started, model: config.model, text: text.trim() };
+    };
+    const dualRun = async () => {
+      const started = Date.now();
+      let firstTokenMs = null;
+      let preface = null;
+      let text = "";
+      let route = null;
+      let model = null;
+      for await (const event of streamRoutedReply(item, brain.buildContext(item), AbortSignal.timeout(30_000))) {
+        if (event.type === "preface") preface = event.text;
+        if (event.type === "delta") {
+          firstTokenMs ??= Date.now() - started;
+          text += event.text;
+          route = event.routing?.route;
+          model = event.model;
+        }
+      }
+      return { acknowledgementMs: preface ? 0 : null, firstTokenMs, totalMs: Date.now() - started, route, model, preface, text: text.trim() };
+    };
+    const [directDeepSeek, dualLayer] = await Promise.all([directRun(), dualRun()]);
+    return send(res, 200, {
+      ok: true,
+      prompt,
+      methodology: "parallel-same-prompt-same-token-budget",
+      directDeepSeek,
+      dualLayer
+    });
+  }
+
   if (req.method === "POST" && url.pathname === "/api/tts") {
     const ttsStarted = Date.now();
+    const ttsController = responseAbortController(res);
     const body = await parseBody(req);
+    if (ttsController.signal.aborted) return;
     const text = String(body.text || "").trim().slice(0, 500);
     const style = sanitizeTtsStyle(body.style);
     if (!text) return send(res, 400, { error: "text is required" });
@@ -296,29 +504,49 @@ async function handleApi(req, res) {
       return res.end(createSilentWav());
     }
     try {
-      const audio = await synthesizeWithGptSovits(text, style);
-      runtimeMetrics.recordLatency("tts", Date.now() - ttsStarted);
+      const audio = await synthesizeWithGptSovits(text, style, ttsController.signal);
+      if (ttsController.signal.aborted) {
+        await audio.body?.cancel().catch(() => {});
+        return;
+      }
+      const ttsFirstByteMs = Date.now() - ttsStarted;
+      runtimeMetrics.recordLatency("tts", ttsFirstByteMs);
+      runtimeMetrics.recordLatency("tts_first_byte", ttsFirstByteMs);
       if (!runtimeSettings.audioOutputEnabled) {
+        await audio.body?.cancel().catch(() => {});
         res.writeHead(200, { "content-type": "audio/wav", "cache-control": "no-store" });
         return res.end(createSilentWav());
       }
       res.writeHead(200, { "content-type": audio.headers.get("content-type") || "audio/wav" });
-      return Readable.fromWeb(audio.body).pipe(res);
+      const audioStream = Readable.fromWeb(audio.body);
+      audioStream.on("error", error => {
+        if (error?.name !== "AbortError" && !res.destroyed) res.destroy(error);
+      });
+      res.on("close", () => audioStream.destroy());
+      return audioStream.pipe(res);
     } catch (error) {
+      if (ttsController.signal.aborted || res.destroyed) return;
       runtimeMetrics.recordLatency("tts", Date.now() - ttsStarted);
+      if (res.headersSent) return res.destroy(error);
       return send(res, 503, { error: sanitizeErrorMessage(error, "TTS 暂时不可用"), tts: getTtsStatus() });
     }
   }
 
   if (req.method === "POST" && url.pathname === "/api/asr") {
     const asrStarted = Date.now();
+    const asrController = responseAbortController(res);
     const audio = await parseBinaryBody(req);
+    if (asrController.signal.aborted) return;
     if (!audio.length) return send(res, 400, { error: "audio is required" });
     try {
-      const result = await transcribeAudio(audio);
-      runtimeMetrics.recordLatency("asr", Date.now() - asrStarted);
+      const result = await transcribeAudio(audio, asrController.signal);
+      if (asrController.signal.aborted) return;
+      const asrTotalMs = Date.now() - asrStarted;
+      runtimeMetrics.recordLatency("asr", asrTotalMs);
+      runtimeMetrics.recordLatency("asr_total", asrTotalMs);
       return send(res, 200, result);
     } catch (error) {
+      if (asrController.signal.aborted || res.destroyed) return;
       runtimeMetrics.recordLatency("asr", Date.now() - asrStarted);
       return send(res, 503, { error: sanitizeErrorMessage(error, "ASR 暂时不可用"), asr: publicAsrStatus(await getAsrStatus()) });
     }
@@ -347,9 +575,10 @@ function isLive2dModelReady(modelPath) {
 
 function enqueueDanmaku(input) {
   const item = {
+    id: input.id || `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
     user: String(input.user || "匿名观众").slice(0, 40), text: String(input.text || "").trim().slice(0, 300),
     type: normalizeDanmakuType(input.type), training: Boolean(input.training), source: input.source || "local",
-    timestamp: input.timestamp || new Date().toISOString()
+    timestamp: input.timestamp || new Date().toISOString(), delivery: input.delivery === "stream" ? "stream" : "poll"
   };
   if (!item.text) return { error: "text is required" };
   const normalizedText = item.text.toLowerCase().replace(/[\s\p{P}]/gu, "");

@@ -1,0 +1,60 @@
+const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const os = require("node:os");
+const path = require("node:path");
+const { MemoryStore } = require("../src/brain/memory");
+const { VoiceCallStore } = require("../src/runtime/voice-call-store");
+const { normalizeCandidates, isSupportedByHumanEvidence, generateMemoryCandidates } = require("../src/brain/memory-candidates");
+
+async function main() {
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), "memory-grounding-"));
+  const store = new MemoryStore({ databasePath: path.join(dir, "test.db"), legacyPath: path.join(dir, "absent.json") });
+  try {
+    const oldId = store.insertMemory({ scope: "user", userName: "乙", kind: "fact", content: "喜欢研究海王星冰层光谱", source: "test", confidence: 0.75, importance: 0.7, createdAt: "2020-01-01T00:00:00Z", lastConfirmedAt: "2020-01-01T00:00:00Z" });
+    for (let i = 0; i < 160; i++) store.insertMemory({ scope: "user", userName: "乙", kind: "fact", content: "偏好观测样本编号" + i, confidence: 0.99, importance: 0.9, createdAt: new Date().toISOString() });
+    assert.equal(store.getUserFacts("乙").length, 161);
+    assert.equal(store.retrieveForReply({ user: "乙", text: "海王星冰层光谱" }, { factLimit: 1 }).userFacts[0].id, oldId, "low confidence old fact beyond row 80 must remain reachable");
+    const trainingId = store.saveTrainingMemory("甲", "我们约定每周共同研究海王星冰层光谱", { scope: "character" });
+    const context = store.retrieveForReply({ user: "新观众", text: "海王星冰层光谱" });
+    assert.ok(context.characterTrainingMemories.some(memory => memory.id === trainingId));
+    assert.equal(context.userFacts.length, 0, "character history must not become viewer history");
+    assert.equal(store.db.prepare("SELECT access_count AS count FROM memories WHERE id = ?").get(trainingId).count, 1);
+    const messages = [{ id: 1, user: "甲", text: "我不喜欢下雨天散步", reply: "你喜欢下雨天散步" }, { id: 2, user: "乙", text: "我喜欢晴天散步", reply: "收到" }];
+    const candidate = (user, content, ids) => ({ scope: "user", user, content, evidenceMessageIds: ids });
+    assert.equal(normalizeCandidates([candidate("乙", "喜欢下雨天散步", [1])], "乙", messages).length, 0, "cross-author evidence rejected");
+    assert.equal(normalizeCandidates([candidate("甲", "喜欢下雨天散步", [1])], "甲", messages).length, 0, "negation cannot support positive preference");
+    assert.equal(normalizeCandidates([candidate("乙", "我喜欢散步晴天", [2])], "乙", messages).length, 0, "bag of matching characters is not factual support");
+    assert.equal(normalizeCandidates([candidate("乙", "我喜欢晴天散步", [99])], "乙", messages).length, 0);
+    const supported = normalizeCandidates([candidate("甲", "不喜欢下雨天散步", [1])], "乙", messages);
+    assert.equal(supported.length, 1);
+    assert.match(supported[0].evidenceExcerpt, /观众:甲/);
+    assert.equal(isSupportedByHumanEvidence("喜欢下雨天散步", ["如果我喜欢下雨天散步"]), false);
+    assert.equal(isSupportedByHumanEvidence("喜欢下雨天散步", ["我喜欢下雨天散步吗？"]), false);
+    store.remember({ user: "甲", text: "我不喜欢下雨天散步", type: "chat", training: true }, "收到");
+    const generated = await generateMemoryCandidates(store, { disableExternal: true });
+    assert.ok(generated.candidates.length > 0);
+    assert.ok(generated.candidates.every(memory => memory.status === "pending"));
+    assert.equal(store.listMemories({ user: "甲" }).length, 0, "candidates still require human review");
+    const calls = new VoiceCallStore(store);
+    const forgottenCall = calls.start({ user: "甲" });
+    const keptCall = calls.start({ user: "乙" });
+    calls.record(forgottenCall.id, { sequence: 1, status: "completed", text: "需遗忘的通话内容", reply: "需遗忘的回复" });
+    calls.record(keptCall.id, { sequence: 1, status: "completed", text: "保留的通话内容", reply: "保留的回复" });
+    store.deleteUserMemories("甲");
+    assert.equal(calls.get(forgottenCall.id), null);
+    assert.equal(store.db.prepare("SELECT COUNT(*) AS count FROM voice_call_turns WHERE call_id = ?").get(forgottenCall.id).count, 0);
+    assert.ok(calls.get(keptCall.id));
+    const sessionId = store.ensureActiveSession();
+    const before = store.getStatus().counts;
+    store.remember({ user: "乙", text: "今天我们聊音乐项目", type: "chat", voiceCallId: "call-a", sessionId }, "好的");
+    const after = store.getStatus().counts;
+    assert.equal(after.sessionMessages, before.sessionMessages);
+    assert.equal(after.streamEvents, before.streamEvents);
+    assert.equal(store.getSessionMessagesForUser("乙").length, 0);
+    store.db.prepare("UPDATE stream_sessions SET status = 'ended' WHERE id = ?").run(sessionId);
+    assert.equal(store.remember({ user: "甲", text: "旧场迟到的回复", sessionId }, "迟到"), false);
+    assert.equal(store.db.prepare("SELECT COUNT(*) AS count FROM session_messages WHERE text = ?").get("旧场迟到的回复").count, 0);
+    console.log("Memory grounding/retrieval passed: 161 facts, character training recall, author/negation/factual support, pending review, voice/session isolation.");
+  } finally { store.close(); fs.rmSync(dir, { recursive: true, force: true }); }
+}
+main().catch(error => { console.error(error); process.exitCode = 1; });

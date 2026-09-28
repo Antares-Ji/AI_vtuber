@@ -1,5 +1,11 @@
 const { getVisionStatus, analyzeScreenshot, recordTelemetry } = require("../vision/provider");
 const { saveCapture } = require("../vision/capture-store");
+const { handlePageSessions } = require("../vision/page-sessions");
+const { handleInteractions } = require("../vision/interaction-recorder");
+const { handleReview } = require("../vision/review-routes");
+const { handleVideoReview } = require("../vision/video-review");
+const { analyzeArknights } = require("../vision/arknights");
+const { responseAbortController } = require("../runtime/request-lifecycle");
 const { generateMemoryCandidates } = require("../brain/memory-candidates");
 const { analyzeMemoryHealth, consolidateExactDuplicates } = require("../brain/memory-maintenance");
 const { AFFECT_GROUPS, AFFECT_LABELS } = require("../brain/affect-schema");
@@ -15,6 +21,10 @@ const RUNTIME_DIR = path.join(__dirname, "..", "..", "runtime");
 
 async function handleStudioApi(req, res, url, dependencies) {
   const { brain, liveRuntime, runtimeMetrics, parseBody, parseBinaryBody, send } = dependencies;
+  if (await handlePageSessions(req, res, url, dependencies)) return true;
+  if (await handleInteractions(req, res, url, dependencies)) return true;
+  if (await handleReview(req, res, url, dependencies)) return true;
+  if (await handleVideoReview(req, res, url, dependencies)) return true;
 
   if (req.method === "GET" && url.pathname === "/api/studio/state") {
     return handled(send(res, 200, {
@@ -97,6 +107,17 @@ async function handleStudioApi(req, res, url, dependencies) {
     return handled(send(res, 200, { ok: true, story: body.completeId ? brain.storyStore.markScheduleDone(body.completeId) : brain.storyStore.addSchedule(body) }));
   }
 
+  if (req.method === "POST" && url.pathname === "/api/vision/arknights") {
+    const controller = responseAbortController(res);
+    try {
+      const image = await parseBinaryBody(req, 12_000_000);
+      const result = await analyzeArknights(image, controller.signal);
+      if (!res.destroyed) send(res, 200, result);
+    } catch (error) {
+      if (!res.destroyed && !controller.signal.aborted) send(res, error.statusCode || 500, { error: "本地识别失败，请确认图片有效、系统 OCR 可用且没有另一帧正在识别。" });
+    }
+    return true;
+  }
   if (req.method === "POST" && url.pathname === "/api/vision/analyze") {
     const image = await parseBinaryBody(req, 12_000_000);
     return handled(send(res, 200, await analyzeScreenshot(image, req.headers["content-type"] || "image/png")));

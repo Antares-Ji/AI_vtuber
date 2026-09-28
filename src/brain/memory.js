@@ -417,8 +417,8 @@ class MemoryStore {
     return this.db.prepare(`SELECT id, kind, content AS text, source, created_at AS at, last_confirmed_at AS lastConfirmedAt,
       confidence, importance, expires_at AS expiresAt, access_count AS accessCount, last_accessed_at AS lastAccessedAt,
       (SELECT COUNT(*) FROM memory_evidence evidence WHERE evidence.memory_id = memories.id) AS evidenceCount
-      FROM memories WHERE scope = 'user' AND user_name = ? AND status = 'active' AND (expires_at IS NULL OR expires_at > ?)
-      ORDER BY confidence DESC, importance DESC, last_confirmed_at DESC LIMIT 80`).all(userName, now);
+      FROM memories WHERE scope = 'user' AND user_name = ? AND status = 'active' AND sensitivity = 'normal' AND (expires_at IS NULL OR expires_at > ?)
+      ORDER BY confidence DESC, importance DESC, last_confirmed_at DESC`).all(userName, now);
   }
 
   saveTrainingMemory(userName, text, { scope = "user", title = null, evidence = [] } = {}) {
@@ -593,20 +593,27 @@ class MemoryStore {
 
   retrieveForReply(item, { factLimit = 5, sessionLimit = 4, worldLimit = 2 } = {}) {
     const allUserFacts = this.getUserFacts(item.user);
+    const characterTraining = this.db.prepare(`SELECT id, scope, kind, content AS text, source, confidence, importance,
+      created_at AS at, last_confirmed_at AS lastConfirmedAt, access_count AS accessCount,
+      (SELECT COUNT(*) FROM memory_evidence evidence WHERE evidence.memory_id = memories.id) AS evidenceCount
+      FROM memories WHERE scope = 'character' AND kind = 'training' AND status = 'active'
+      AND sensitivity = 'normal' AND (expires_at IS NULL OR expires_at > ?)`).all(new Date().toISOString());
+    const characterTrainingMemories = semanticRank(item.text, characterTraining.filter(fact => assessMemoryQuality(fact).length === 0), factLimit);
     const eligibleFacts = allUserFacts.filter(fact => assessMemoryQuality(fact).length === 0);
     const userFacts = semanticRank(item.text, eligibleFacts, factLimit);
-    if (userFacts.length) {
+    if (userFacts.length || characterTrainingMemories.length) {
       const now = new Date().toISOString();
       const touch = this.db.prepare("UPDATE memories SET access_count = access_count + 1, last_accessed_at = ? WHERE id = ?");
-      for (const fact of userFacts) touch.run(now, fact.id);
+      for (const fact of [...userFacts, ...characterTrainingMemories]) touch.run(now, fact.id);
     }
     const sessionMessages = this.getSessionMessagesForUser(item.user, sessionLimit);
     const worldBook = selectWorldBook(item.text, worldLimit);
-    const topics = this.getRecentTopics(3);
+    const topics = [...new Set(this.getSessionMessagesForUser(item.user, 12).map(message => extractTopic(message.text)).filter(Boolean))].slice(-3);
     const relationship = this.getRelationship(item.user);
     const characterReflections = this.getCharacterReflections(3);
     return {
       userFacts,
+      characterTrainingMemories,
       sessionMessages,
       worldBook,
       topics,
@@ -629,14 +636,15 @@ class MemoryStore {
 
   remember(item, reply, emotionalContext = {}) {
     const now = new Date().toISOString();
-    const sessionId = this.ensureActiveSession();
+    const sessionId = item.sessionId || this.ensureActiveSession();
+    if (item.sessionId && !this.db.prepare("SELECT id FROM stream_sessions WHERE id = ? AND status = 'active'").get(sessionId)) return false;
     const storedText = redactSensitiveText(item.text);
     this.expireMemories(now);
     let seenCount = 0;
     let extracted = [];
     this.withTransaction(() => {
       const emotion = emotionalContext.emotion || {};
-      this.db.prepare(`INSERT INTO session_messages(session_id, at, user_name, text, reply, training_hint,
+      if (!item.voiceCallId) this.db.prepare(`INSERT INTO session_messages(session_id, at, user_name, text, reply, training_hint,
         emotion_name, emotion_intensity, affect_json, appraisal_json) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`).run(
         sessionId, now, item.user, storedText, reply, item.training ? 1 : 0,
         emotion.name || null, Number.isFinite(Number(emotion.intensity)) ? Number(emotion.intensity) : null,
@@ -657,9 +665,9 @@ class MemoryStore {
         this.addEvidence(memoryId, item.text, now, memory.confidence);
         this.audit("memory-observed", memoryId, item.user, memory.content);
       }
-      this.db.prepare("INSERT INTO stream_events(session_id, at, type, user_name, text) VALUES (?, ?, ?, ?, ?)").run(sessionId, now, item.type || "chat", item.user, storedText);
+      if (!item.voiceCallId) this.db.prepare("INSERT INTO stream_events(session_id, at, type, user_name, text) VALUES (?, ?, ?, ?, ?)").run(sessionId, now, item.type || "chat", item.user, storedText);
       const topic = extractTopic(item.text);
-      if (topic) this.db.prepare("INSERT INTO stream_topics(session_id, at, text) VALUES (?, ?, ?)").run(sessionId, now, topic);
+      if (topic && !item.voiceCallId) this.db.prepare("INSERT INTO stream_topics(session_id, at, text) VALUES (?, ?, ?)").run(sessionId, now, topic);
       const updatedUser = this.db.prepare("SELECT seen_count FROM users WHERE user_name = ?").get(item.user);
       seenCount = Number(updatedUser?.seen_count || 0);
       this.updateRelationship(item, updatedUser);
@@ -667,7 +675,7 @@ class MemoryStore {
     });
     this.refreshSnapshot();
     if (extracted.some(memory => memory.kind === "training")) this.exportTrainingLedger();
-    if (seenCount > 0 && seenCount % 8 === 0) this.recordUserEpisode(item.user);
+    if (!item.voiceCallId && seenCount > 0 && seenCount % 8 === 0) this.recordUserEpisode(item.user);
   }
 
   trimTables() {
@@ -688,6 +696,10 @@ class MemoryStore {
       this.db.prepare("DELETE FROM memory_audit WHERE user_name = ?").run(userName);
       this.db.prepare("DELETE FROM user_relationships WHERE user_name = ?").run(userName);
       this.db.prepare("DELETE FROM users WHERE user_name = ?").run(userName);
+      // Voice schemas are optional for standalone MemoryStore consumers.
+      if (this.db.prepare("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'voice_calls'").get()) {
+        this.db.prepare("DELETE FROM voice_calls WHERE user_name = ?").run(userName);
+      }
       this.audit("user-forgotten", null, null, "one user requested complete local deletion");
     });
     this.refreshSnapshot();

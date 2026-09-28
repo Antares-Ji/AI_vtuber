@@ -1,0 +1,21 @@
+{
+  "stage": "0-1",
+  "reviewer": "GPT / Codex",
+  "outcome": "victory",
+  "stars": 3,
+  "battle_count": 1,
+  "navigation_failures_excluded_from_battle_count": true,
+  "deployment": {"operators": ["风笛", "伊内丝", "琴柳"], "remaining": 5, "verified": true},
+  "skill": {"operator":"风笛","key":"E","verified":true,"attack_after":1641,"defense_after":840,"block_after":2,"charge_after":"0/40","note":"Original program marked effect unverified because OCR split 法 into 氵去; keep original result unchanged and attach this separate visual audit."},
+  "program_timing_s": {"battle_seen_to_first_landing":3.3337713,"card_ready_to_first_landing":0.834957,"independent_frame_precise_timing_reviewed":false},
+  "tags": ["local_qwen_navigation","specialized_yolo_card_detection","reference_gated_deployment","three_operators_verified","skill_effect_verified","three_star_settlement","no_new_weight_training"],
+  "evidence": {
+    "recording":"E:/Github/AI_vtuber/runtime/vision/timing-recordings/1790363468929608300/recording.avi",
+    "recording_audit":"E:/Github/AI_vtuber/runtime/vision/timing-recordings/1790363468929608300/stage01-audit.jpg",
+    "skill":"E:/Github/AI_vtuber/runtime/vision/realtime-deployment/1790363605956/skill-active-panel.png",
+    "settlement":"E:/Github/AI_vtuber/runtime/vision/stage-0-7/1790363670549021500/outcome.png",
+    "local_settlement":"E:/Github/AI_vtuber/runtime/vision/stage-0-7/1790363670549021500/summary.json"
+  },
+  "training_eligible": false,
+  "reason": "Semantic audit only, no reviewed object bounding boxes or updated independent training split."
+}

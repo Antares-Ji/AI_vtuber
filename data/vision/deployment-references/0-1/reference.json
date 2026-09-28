@@ -1,0 +1,49 @@
+{
+  "stage": "0-1",
+  "client_size": [
+    1600,
+    1024
+  ],
+  "source_session": "runtime/vision/local-deployment/1789189001769",
+  "selected_image": "selected.png",
+  "direction_image": "direction.png",
+  "landed_image": "landed.png",
+  "successful_drop_in_selected_image": [
+    0.675,
+    0.425
+  ],
+  "operator": "风笛",
+  "facing": "right",
+  "input": "hold left, move, release; then a separate direction drag and release",
+  "verification": "Direction diamond must appear; deployment counter must change from 8 to 7 after direction confirmation.",
+  "scope": "Reviewed three-operator 0-1 plan for current team; reproject map, verify readiness/green tile/direction/count. No raw-coordinate replay on unmatched scenes.",
+  "training_status": "Two specialized YOLO11n card models trained and gated; Qwen3-VL-4B remains original full BF16, no newly accepted finetune.",
+  "multi": {
+    "operators": [
+      "风笛",
+      "伊内丝",
+      "琴柳"
+    ],
+    "counter_sequence": [
+      8,
+      7,
+      6,
+      5
+    ],
+    "tile_references": [
+      "selected.png",
+      "multi-2-green.png",
+      "multi-3-green.png"
+    ],
+    "skill_reference": "skill-ready.png",
+    "speed_reference": "speed-2x.png",
+    "keys": {
+      "speed": "F",
+      "selected_skill": "E"
+    },
+    "profile_dismiss": "Map-aligned empty platform click, verify profile closes. Esc pauses battle.",
+    "verified_session": "1789200230113",
+    "outcome": "three_stars"
+  },
+  "latest_audit": "runtime\\vision\\local-deployment\\1789200215234\\verification-audit.json"
+}

@@ -27,11 +27,11 @@ function numberEnv(name, fallback) {
   return Number.isFinite(value) ? value : fallback;
 }
 
-async function synthesizeWithGptSovits(text, style = {}) {
+async function synthesizeWithGptSovits(text, style = {}, signal = null) {
   const status = getTtsStatus();
   if (status.provider !== "gpt-sovits") throw new Error("TTS provider is not gpt-sovits");
   if (!status.backendReady) throw new Error("GPT-SoVITS 配置不完整：需要参考音频路径和参考文本");
-  if (!ttsCircuit.canRequest()) throw new Error("GPT-SoVITS 连续失败，正在短暂冷却并使用浏览器语音");
+  if (!ttsCircuit.canRequest()) throw new Error("GPT-SoVITS 连续失败，正在短暂冷却；未切换系统语音");
 
   const baseUrl = process.env.GPT_SOVITS_BASE_URL.replace(/\/$/, "");
   const emotionSampling = samplingForStyle(style);
@@ -54,10 +54,13 @@ async function synthesizeWithGptSovits(text, style = {}) {
       temperature: Math.min(1, Math.max(0.25, numberEnv("GPT_SOVITS_TEMPERATURE", 0.65) + emotionSampling.temperatureDelta)),
       repetition_penalty: numberEnv("GPT_SOVITS_REPETITION_PENALTY", 1.2),
       speed_factor: Math.min(1.16, Math.max(0.84, numberEnv("GPT_SOVITS_SPEED", 0.96) * Number(style.speechRate || 1))),
-      fragment_interval: numberEnv("GPT_SOVITS_FRAGMENT_INTERVAL", 0.22),
+      fragment_interval: numberEnv("GPT_SOVITS_FRAGMENT_INTERVAL", 0.04),
+      streaming_mode: numberEnv("GPT_SOVITS_STREAMING_MODE", 3),
+      fixed_length_chunk: /^(1|true|yes|on)$/i.test(process.env.GPT_SOVITS_FIXED_LENGTH_CHUNK || "true"),
+      min_chunk_length: numberEnv("GPT_SOVITS_MIN_CHUNK_LENGTH", 12),
       seed: numberEnv("GPT_SOVITS_SEED", -1)
       }),
-      signal: AbortSignal.timeout(45_000)
+      signal: signal ? AbortSignal.any([signal, AbortSignal.timeout(45_000)]) : AbortSignal.timeout(45_000)
     });
   } catch (error) {
     ttsCircuit.failure(error);

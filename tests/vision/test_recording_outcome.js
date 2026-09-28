@@ -1,0 +1,12 @@
+const assert=require('node:assert/strict');
+const {recordingOutcome}=require('../../src/vision/observer-health');
+const empty=recordingOutcome({stopReason:'user'},[],[],[]);
+assert.equal(empty.status,'needs-attention');assert.equal(empty.verified,false);
+assert(empty.message.includes('没有收到输入事件'));
+const stalled=recordingOutcome({stopReason:'observer-unresponsive'},[{}],[{}],[{kind:'short-click',frames:[{}]}]);
+assert(stalled.message.includes('observer-unresponsive'));
+const missing=recordingOutcome({stopReason:'user'},[{}],[],[{kind:'incomplete',frames:[]}]);
+assert(missing.message.includes('缺少截图'));assert(missing.message.includes('缺少抬起'));
+const saved=recordingOutcome({stopReason:'user'},[{}],[{}],[{kind:'short-click',frames:[{}]}]);
+assert.equal(saved.status,'awaiting-review');assert.equal(saved.verified,false);
+console.log('Recording outcomes: empty, stalled, missing frames, incomplete and unverified success passed.');

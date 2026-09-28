@@ -2,6 +2,10 @@
 
 ai主播项目
 
+## 项目交接入口
+
+新接手的开发者或 AI 请先阅读 [PROJECT_HANDOFF.md](PROJECT_HANDOFF.md)。人格需求、源码地图、硬件/模型依赖、美术设计缺口和当前未确认事项均从这里进入。
+
 # Live2D AI Streamer MVP
 
 一个本地可跑的 AI 虚拟主播原型：Live2D、人格情绪、分层记忆、主动陪聊、GPT-SoVITS、SenseVoice、osu! 视觉分析和直播运行工作台。

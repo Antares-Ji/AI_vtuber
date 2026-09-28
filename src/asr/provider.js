@@ -5,11 +5,11 @@ const { randomUUID } = require("crypto");
 
 const ROOT = path.join(__dirname, "..", "..");
 const INCOMING_DIR = path.join(ROOT, "runtime", "asr", "incoming");
-const DEFAULT_FFMPEG = "E:\\GPT-SoVITS-v2pro-20250604-nvidia50\\GPT-SoVITS-v2pro-20250604-nvidia50\\runtime\\ffmpeg.exe";
+const LOCAL_ASR_ENV = path.join(ROOT, "runtime", "asr-env");
 
 function getAsrConfig() {
   const baseUrl = process.env.ASR_BASE_URL || "http://127.0.0.1:10095";
-  const ffmpegPath = process.env.ASR_FFMPEG_PATH || DEFAULT_FFMPEG;
+  const ffmpegPath = resolveFfmpegPath();
   return {
     provider: process.env.ASR_PROVIDER || "funasr-local",
     baseUrl,
@@ -19,34 +19,53 @@ function getAsrConfig() {
   };
 }
 
+function resolveFfmpegPath() {
+  const configured = process.env.ASR_FFMPEG_PATH;
+  if (configured && require("fs").existsSync(configured)) return configured;
+  const candidates = [
+    path.join(LOCAL_ASR_ENV, "Scripts", "ffmpeg.exe"),
+    path.join(ROOT, "runtime", "ffmpeg.exe")
+  ];
+  for (const candidate of candidates) if (require("fs").existsSync(candidate)) return candidate;
+  const binaries = path.join(LOCAL_ASR_ENV, "Lib", "site-packages", "imageio_ffmpeg", "binaries");
+  try {
+    const match = require("fs").readdirSync(binaries).find(name => /^ffmpeg-.*\.exe$/i.test(name));
+    if (match) return path.join(binaries, match);
+  } catch {}
+  return configured || "ffmpeg";
+}
+
 async function getAsrStatus() {
   const config = getAsrConfig();
   try {
     const response = await fetch(`${config.baseUrl.replace(/\/$/, "")}/health`, { signal: AbortSignal.timeout(800) });
     const health = response.ok ? await response.json() : null;
-    return { ...config, backendReady: Boolean(health), backend: health };
+    return { ...config, backendReady: health?.ready === true, backend: health };
   } catch {
     return { ...config, backendReady: false, backend: null };
   }
 }
 
-async function transcribeAudio(audioBuffer) {
+async function transcribeAudio(audioBuffer, signal = undefined) {
   const config = getAsrConfig();
   if (!config.ffmpegReady) throw new Error("ASR ffmpeg is missing");
+  throwIfAborted(signal);
   await fs.mkdir(INCOMING_DIR, { recursive: true });
   const id = randomUUID();
   const sourcePath = path.join(INCOMING_DIR, `${id}.webm`);
   const wavPath = path.join(INCOMING_DIR, `${id}.wav`);
   try {
     await fs.writeFile(sourcePath, audioBuffer);
-    await convertToWav(config.ffmpegPath, sourcePath, wavPath);
+    throwIfAborted(signal);
+    await convertToWav(config.ffmpegPath, sourcePath, wavPath, signal);
+    throwIfAborted(signal);
     const wav = await fs.readFile(wavPath);
     const audio = analyzeWav(wav);
     const response = await fetch(`${config.baseUrl.replace(/\/$/, "")}/transcribe`, {
       method: "POST",
       headers: { "content-type": "audio/wav" },
       body: wav,
-      signal: AbortSignal.timeout(30_000)
+      signal: requestSignal(signal, 30_000)
     });
     if (!response.ok) throw new Error(`ASR HTTP ${response.status}: ${(await response.text()).slice(0, 180)}`);
     return { ...(await response.json()), audio };
@@ -93,14 +112,57 @@ function analyzeWav(wav) {
   };
 }
 
-function convertToWav(ffmpegPath, sourcePath, wavPath) {
+function convertToWav(ffmpegPath, sourcePath, wavPath, signal = undefined) {
   return new Promise((resolve, reject) => {
-    const process = spawn(ffmpegPath, ["-y", "-i", sourcePath, "-ac", "1", "-ar", "16000", "-f", "wav", wavPath], { windowsHide: true });
+    let child;
     let error = "";
-    process.stderr.on("data", chunk => { error += chunk; });
-    process.on("error", reject);
-    process.on("close", code => code === 0 ? resolve() : reject(new Error(`ffmpeg failed (${code}): ${error.slice(-240)}`)));
+    let settled = false;
+    let abortRequested = false;
+    const finish = (callback, value) => {
+      if (settled) return;
+      settled = true;
+      signal?.removeEventListener("abort", onAbort);
+      callback(value);
+    };
+    const onAbort = () => {
+      abortRequested = true;
+      // Do not reject yet: on Windows an ffmpeg handle can still hold the
+      // temporary source/destination files until its close event fires.
+      try { child?.kill(); } catch {}
+    };
+    try {
+      child = spawn(ffmpegPath, ["-y", "-i", sourcePath, "-ac", "1", "-ar", "16000", "-f", "wav", wavPath], { windowsHide: true });
+    } catch (failure) {
+      finish(reject, failure);
+      return;
+    }
+    child.stderr.on("data", chunk => { error += chunk; });
+    child.on("error", failure => {
+      // A process that could not be spawned has no files to release. A killed
+      // child instead reaches close, which is deliberately awaited below.
+      if (!abortRequested) finish(reject, failure);
+    });
+    child.on("close", code => {
+      if (abortRequested || signal?.aborted) return finish(reject, abortError());
+      if (code === 0) return finish(resolve);
+      return finish(reject, new Error(`ffmpeg failed (${code}): ${error.slice(-240)}`));
+    });
+    signal?.addEventListener("abort", onAbort, { once: true });
+    if (signal?.aborted) onAbort();
   });
 }
 
-module.exports = { getAsrConfig, getAsrStatus, transcribeAudio };
+function requestSignal(signal, timeoutMs) {
+  const timeout = AbortSignal.timeout(timeoutMs);
+  return signal ? AbortSignal.any([signal, timeout]) : timeout;
+}
+
+function throwIfAborted(signal) {
+  if (signal?.aborted) throw abortError();
+}
+
+function abortError() {
+  return new DOMException("ASR transcription cancelled", "AbortError");
+}
+
+module.exports = { getAsrConfig, getAsrStatus, transcribeAudio, resolveFfmpegPath, convertToWav };

@@ -5,6 +5,11 @@ const { retrieveBehaviorLessons } = require("./experience");
 function buildContext(memoryStore, emotion, item) {
   const retrieved = memoryStore.retrieveForReply(item);
   const facts = retrieved.userFacts.map(fact => fact.text);
+  if (item.voiceCallId) {
+    retrieved.sessionMessages = memoryStore.db.prepare("SELECT input_text AS text, CASE WHEN status = 'completed' THEN reply_text ELSE NULL END AS reply FROM voice_call_turns WHERE call_id = ? AND sequence < ? ORDER BY sequence DESC LIMIT 4").all(item.voiceCallId, item.voiceSequence).reverse();
+    retrieved.topics = [];
+    retrieved.characterReflections = [];
+  }
   const capabilityRequest = evaluateCapabilityRequest(item.text);
   return {
     persona: PERSONA.systemPrompt,
@@ -18,6 +23,7 @@ function buildContext(memoryStore, emotion, item) {
     viewerName: retrieved.relationship.preferredName || item.user,
     sessionTopics: retrieved.topics,
     characterReflections: retrieved.characterReflections,
+    characterTrainingMemories: retrieved.characterTrainingMemories || [],
     recent: retrieved.sessionMessages,
     retrieval: retrieved.debug,
     scene: item.scene || null,

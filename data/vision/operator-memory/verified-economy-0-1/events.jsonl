@@ -1,0 +1,25 @@
+{"event": "qwen", "t": 3.6166202999884263, "utc_ns": 1789205817621579700, "label": "start", "result": {"target_visible": true, "target_point": [820, 677]}, "errors": []}
+{"event": "battle_requested", "t": 3.68212490004953, "utc_ns": 1789205817687441800}
+{"event": "ocr", "t": 18.48084450000897, "utc_ns": 1789205832486416200, "label": "琴柳-identity", "text": "琴 柳 v70 攻 击 566 防 御 394 法 抗 O 阻 挡 1 攻 击 范 围"}
+{"event": "drop", "t": 18.866323600057513, "utc_ns": 1789205832872032500, "name": "琴柳", "card": [0.20865032196044922, 0.931368924677372], "tile": [0.5762776732444763, 0.4335300922393799], "releaseMethod": "mouse_event", "leftButtonReleased": true}
+{"event": "ocr", "t": 20.134994300082326, "utc_ns": 1789205834140439000, "label": "琴柳-counter", "text": "剩 余 可 放 置 角 色 ： 7"}
+{"event": "landed", "t": 20.1566407000646, "utc_ns": 1789205834161659100, "name": "琴柳", "remaining": 7}
+{"event": "ocr", "t": 23.612928900052793, "utc_ns": 1789205837618084500, "label": "skill-name", "text": "琴 柳 v70 攻 击 566 防 御 394 法 抗 O 阻 挡 1 攻 击 范 围"}
+{"event": "ocr", "t": 24.4240509000374, "utc_ns": 1789205838429353400, "label": "skill-ready", "text": "READY 剩 余"}
+{"event": "ocr", "t": 25.040904900059104, "utc_ns": 1789205839045816200, "label": "skill-description", "text": "技 能 特 性 支 援 号 令 ． Y 型 0 ， 一 手 动 触 发 0 8 秒 · ／ 停 止 攻 击 ， 持 续 时 间 内 回 复 总 共 8 点 部 署 费 用"}
+{"event": "dp_ocr", "t": 25.544205800048076, "utc_ns": 1789205839549327200, "label": "dp-before-skill", "text": "DP6"}
+{"event": "recovery_skill_pressed", "t": 25.587437200010754, "utc_ns": 1789205839592872400, "before_dp": 6}
+{"event": "dp_ocr", "t": 29.5217796000652, "utc_ns": 1789205843526449400, "label": "dp-after-skill", "text": "DP28"}
+{"event": "recovery_verified", "t": 29.522563299979083, "utc_ns": 1789205843527953500, "confirmed": true, "before": 6, "after": 28, "elapsed_s": 3.9776634000008926, "natural_upper": 9.955326800001785}
+{"event": "ocr", "t": 30.642691600020044, "utc_ns": 1789205844647944100, "label": "伊内丝-identity", "text": "AGEY 伊 内 丝 “ 90 攻 击 674 防 御 311 法 抗 0 阻 挡 1 攻 击 范 围 房 、 、 生 命 2z"}
+{"event": "drop", "t": 30.882459999993443, "utc_ns": 1789205844886901100, "name": "伊内丝", "card": [0.20716729164123535, 0.931711670011282], "tile": [0.7492561340332031, 0.4051283001899719], "releaseMethod": "mouse_event", "leftButtonReleased": true}
+{"event": "ocr", "t": 32.18125480005983, "utc_ns": 1789205846186642400, "label": "伊内丝-counter", "text": "剩 余 可 放 置 角 色 ： 6"}
+{"event": "landed", "t": 32.199241299997084, "utc_ns": 1789205846204778400, "name": "伊内丝", "remaining": 6}
+{"event": "dp_ocr", "t": 32.75637130008545, "utc_ns": 1789205846761972000, "label": "维什戴尔-available", "text": "DP26"}
+{"event": "qwen", "t": 34.699632800067775, "utc_ns": 1789205848704874300, "label": "维什戴尔-card", "result": {"target_visible": true, "target_point": [870, 930]}, "errors": []}
+{"event": "ocr", "t": 35.785613400046714, "utc_ns": 1789205849790869100, "label": "维什戴尔-identity", "text": "0 堆 什 戴 尔 v90 攻 击 842 防 御 256 法 抗 15 阻 挡 1 冂 冂 0 囗 攻 击 范 困"}
+{"event": "qwen", "t": 36.977513700025156, "utc_ns": 1789205850982957300, "label": "维什戴尔-tile", "result": {"target_visible": false, "target_point": null}, "errors": []}
+{"event": "green_cell_fallback", "t": 37.04749410005752, "utc_ns": 1789205851052785400, "name": "维什戴尔", "anchor": [0.7489339709281921, 0.40197092294692993], "candidates": [[0.6675, 0.306640625], [0.43, 0.359375], [0.59375, 0.61328125]], "chosen": [0.6675, 0.306640625]}
+{"event": "drop", "t": 37.31170740001835, "utc_ns": 1789205851316436100, "name": "维什戴尔", "card": [0.87, 0.93], "tile": [0.6675, 0.306640625], "releaseMethod": "mouse_event", "leftButtonReleased": true}
+{"event": "ocr", "t": 38.584855500026606, "utc_ns": 1789205852590278700, "label": "维什戴尔-counter", "text": "剩 余 可 放 置 角 色 ： 5"}
+{"event": "landed", "t": 38.600494000012986, "utc_ns": 1789205852606114200, "name": "维什戴尔", "remaining": 5}

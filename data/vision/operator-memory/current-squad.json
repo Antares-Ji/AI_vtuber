@@ -1,0 +1,751 @@
+{
+  "schema_version": 1,
+  "date": "2026-09-12",
+  "squad": "高难对策",
+  "operators": [
+    {
+      "name": "伊内丝",
+      "profession": "先锋",
+      "branch": "情报官",
+      "classification_source": "Reviewed current game branch text and class icons; not raw Qwen roster predictions",
+      "name_verification": "profile OCR cross-check",
+      "detail_cost": 11,
+      "battle_cost_policy": "Read current card affordability and live DP; talents/level rules may change costs",
+      "selected_skill_text": "15 爷 20 暗 夜 无 明 自 动 回 复 1 手 动 触 发 0 12 秒 攻 击 范 围 扩 大 ， 攻 击 力 + 110 ％ ， 自 身 获 得 隐 匿 ， 每 次 攻 击 获 得 1 点 部 署 费 用 并 偷 取 目 标 7 点 攻 击 速 度 （ 最 多 70 点 ， 持 续 至 技 能 结 束 或 伊 内 丝 离 场 ）",
+      "selected_skill_clipped": false,
+      "recovery": {
+        "kind": "on_hit",
+        "evidence": "15爷20暗夜无明自动回复1手动触发012秒攻击范围扩大，攻击力+110％，自身获得隐匿，每次攻击获得1点部署费用并偷取目标7点攻击速度（最多70点，持续至技能结束或伊内丝离场）",
+        "stops_attacking": false
+      },
+      "range": {
+        "verified": false,
+        "candidate_offsets": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ]
+        ],
+        "orientation": "right",
+        "source": "UI base range diagram; skill range changes require separate observation"
+      },
+      "branch_text": "囗ORIGINAL产AGEY分支情报官再部署时间击，可使用远程攻首次撤退再部署时间额外减少35影织对每个敌人首次造成伤害后，使目标束缚5秒并偷取其110点攻击力（持续至目标被击倒或伊内丝离场）影哨攻击范围内敌人的效果失效且移动速度·30％，撤退后留下一个影哨使该效果持续生效（最多1个）",
+      "all_visible_skills": "2爷3淬影突袭1520暗夜无明0独影归途攻击回复]自动触发下次攻击使目标3秒内每秒受到相当于伊内丝攻击力70％的法术伤害（不叠加），并获得2点部署费用自动回复《手动触发012秒攻击范围扩大，攻击力+110％，自身获得隐匿，每次攻击获得1点部署费用并偷取目标7点攻击速度（最多70点，持续至技能结束或伊内丝离场）被动14秒首次部署时不消耗部署費用，放一个影哨后离场并立刻刷新再部署后攻击力+140％，立刻收回影哨对穿过的最多5名敌人造成相当于攻击力160％的物理伤害，技能期间每对一个敌人造成伤害就获得1点部署费用",
+      "source": "runtime\\vision\\roster\\1789203757939400100",
+      "reference_directory": "data\\vision\\operator-memory\\operator-01",
+      "deployment_verified": true,
+      "automatic_replay_allowed": false,
+      "deployment_verification": {
+        "stage": "0-1",
+        "run": "1789205813998314800",
+        "evidence": "data\\vision\\operator-memory\\verified-economy-0-1",
+        "scope": "This squad and map only; no arbitrary coordinate replay",
+        "outcome": "2-star clear; 1 leaked enemy"
+      }
+    },
+    {
+      "name": "风笛",
+      "profession": "先锋",
+      "branch": "冲锋手",
+      "classification_source": "Reviewed current game branch text and class icons; not raw Qwen roster predictions",
+      "name_verification": "profile OCR cross-check",
+      "detail_cost": 11,
+      "battle_cost_policy": "Read current card affordability and live DP; talents/level rules may change costs",
+      "selected_skill_text": "25 爷 40 闭 膛 连 发 自 动 回 复 1 手 动 触 发 0 20 秒 攻 击 间 隔 增 大 ， 阻 挡 数 + 1 ， 攻 击 < 力 和 防 御 力 + 120 ％ ， 攻 击 变 为 三 连 击",
+      "selected_skill_clipped": false,
+      "recovery": {
+        "kind": "none_or_unknown",
+        "evidence": "25爷40闭膛连发自动回复1手动触发020秒攻击间隔增大，阻挡数+1，攻击<力和防御力+120％，攻击变为三连击"
+      },
+      "range": {
+        "verified": false,
+        "candidate_offsets": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ]
+        ],
+        "orientation": "right",
+        "source": "UI base range diagram; skill range changes require separate observation"
+      },
+      "branch_text": "囗ORIGINAL分支冲锋手击杀敌人后获得2点部署费用，撤退时返还该次部署费用精密填弹每次攻击有28％（+3％）的概率攻击力提升至130％，且额外攻击一个目标军事传统编入队伍时所有〖先锋〗干员的初始技力+8（+2）",
+      "all_visible_skills": "自动回复唰手动触发035秒攻击力+34％，攻击速度+351039迅捷打击，Y型高效冲击2540闭膛连发自动回复1自动触发下一次的攻击力提升至200％，且额外攻击一次可充能3次自动回复《手动触发020秒攻击间隔增大，阻挡数+1，攻击力和防御力+120％，攻击变为三连击",
+      "source": "runtime\\vision\\roster\\1789203773159075800",
+      "reference_directory": "data\\vision\\operator-memory\\operator-02",
+      "deployment_verified": false,
+      "automatic_replay_allowed": false
+    },
+    {
+      "name": "维什戴尔",
+      "profession": "狙击",
+      "branch": "投掷手",
+      "classification_source": "Reviewed current game branch text and class icons; not raw Qwen roster predictions",
+      "name_verification": "profile OCR cross-check",
+      "detail_cost": 24,
+      "battle_cost_policy": "Read current card affordability and live DP; talents/level rules may change costs",
+      "selected_skill_text": "1 爆 裂 黎 明 自 动 回 复 1 手 动 触 发 立 刻 在 攻 击 范 围 内 召 唤 2 个 魂 灵 之 影 （ 最 多 存 在 3 个 ， 技 能 结 束 后 保 留 ） ， 攻 击 力 + 180 ％ ， 击 间 隔 大 幅 增 大 ， 攻 击 时 攻 击 力 < 提 升 至 220 ％ ， 溅 射 范 围 大 幅 扩 大 且 第 一 天 赋 的 发 动 概 率 提 高 至 100 ％ 攻 击 装 有 6 发 弹 药 ， 打 完 后 结 束 （ 可 随 时 停 止 技 能 ）",
+      "selected_skill_clipped": false,
+      "recovery": {
+        "kind": "none_or_unknown",
+        "evidence": "1爆裂黎明自动回复1手动触发立刻在攻击范围内召唤2个魂灵之影（最多存在3个，技能结束后保留），攻击力+180％，击间隔大幅增大，攻击时攻击力<提升至220％，溅射范围大幅扩大且第一天赋的发动概率提高至100％攻击装有6发弹药，打完后结束（可随时停止技能）"
+      },
+      "range": {
+        "verified": false,
+        "candidate_offsets": [
+          [
+            0,
+            -2
+          ],
+          [
+            1,
+            -2
+          ],
+          [
+            2,
+            -2
+          ],
+          [
+            0,
+            -1
+          ],
+          [
+            1,
+            -1
+          ],
+          [
+            2,
+            -1
+          ],
+          [
+            3,
+            -1
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            3,
+            0
+          ],
+          [
+            4,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            2,
+            1
+          ],
+          [
+            3,
+            1
+          ],
+          [
+            0,
+            2
+          ],
+          [
+            1,
+            2
+          ],
+          [
+            2,
+            2
+          ]
+        ],
+        "orientation": "right",
+        "source": "UI base range diagram; skill range changes require separate observation"
+      },
+      "branch_text": "囗ORIGINAL80MX分支投掷手攻击对小范围的也面敌人造成欠物理伤害（后两次为余震，伤害降低至攻击力的50％）好礼攻击时对主目标的攻击力提升至125％并为其附着残影，残影受到维什戴尔的余震影响时有15％概率爆炸，对周围所有敌人造成175％攻击力的物理伤害并使其辇眩1秒死魂灵的余息部署后立刻在攻击范围内召唤一个魂灵之影，在魂灵之影周围时获得迷彩",
+      "all_visible_skills": "定点清算1525饱和复仇0爆裂黎明攻击回复]自动触发下次攻击额外造成2次余震并使所有目标辇眩1秒，此次攻击的溅射范围辂微扩大且余震伤害变为攻击力的90％自动回复1手动触发025秒攻击力+35％，攻击间隔纟宿短，可同时攻击3名敌人过载：攻击改为攻击力80％的4连发，随机攻击范围内的目标该技能可随时主动关闭自动回复《手动触发立刻在攻击范围内召唤2个魂灵之影（最多存在3个，技能结束后保留），攻击力+180％，击间隔大幅增大，攻击时攻击力<提升至220％，溅射范围大幅扩大且第一天赋的发动概率提高至100％攻击装有6发弹药，打完后结束",
+      "source": "runtime\\vision\\roster\\1789203788350792300",
+      "reference_directory": "data\\vision\\operator-memory\\operator-03",
+      "deployment_verified": true,
+      "automatic_replay_allowed": false,
+      "deployment_verification": {
+        "stage": "0-1",
+        "run": "1789205813998314800",
+        "evidence": "data\\vision\\operator-memory\\verified-economy-0-1",
+        "scope": "This squad and map only; no arbitrary coordinate replay",
+        "outcome": "2-star clear; 1 leaked enemy"
+      }
+    },
+    {
+      "name": "Mon3tr",
+      "profession": "医疗",
+      "branch": "链愈师",
+      "classification_source": "Reviewed current game branch text and class icons; not raw Qwen roster predictions",
+      "name_verification": "profile OCR cross-check",
+      "detail_cost": 18,
+      "battle_cost_policy": "Read current card affordability and live DP; talents/level rules may change costs",
+      "selected_skill_text": "11 15 策 略 ： 熔 毁 攻 击 回 复 1 手 动 触 发 0 25 秒 攻 击 范 围 改 变 ， 咝 至 重 构 体 位 置 ， 攻 击 力 + 330 ％ ， 攻 击 间 隔 降 低 ， 阻 挡 数 + 2 ， 生 命 上 限 + 50 00 ， 每 秒 流 失 80 点 生 命 值 ， 同 《 时 攻 击 阻 挡 的 所 有 敌 人 ， 伤 害 类 型 变 为 真 实 ， 攻 击 治 疗 自 身 相 当 于 攻 击 力 50 ％ 的 生 命 值 技 能 结 束 或 受 到 致 命 伤 害 时 ， 返",
+      "selected_skill_clipped": false,
+      "recovery": {
+        "kind": "none_or_unknown",
+        "evidence": "1115策略：熔毁攻击回复1手动触发025秒攻击范围改变，咝至重构体位置，攻击力+330％，攻击间隔降低，阻挡数+2，生命上限+5000，每秒流失80点生命值，同《时攻击阻挡的所有敌人，伤害类型变为真实，攻击治疗自身相当于攻击力50％的生命值技能结束或受到致命伤害时，返"
+      },
+      "range": {
+        "verified": false,
+        "candidate_offsets": [
+          [
+            -1,
+            -1
+          ],
+          [
+            0,
+            -1
+          ],
+          [
+            1,
+            -1
+          ],
+          [
+            2,
+            -1
+          ],
+          [
+            -1,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            -1,
+            1
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            2,
+            1
+          ]
+        ],
+        "orientation": "right",
+        "source": "UI base range diagram; skill range changes require separate observation"
+      },
+      "branch_text": "囗ORIGINALXAHX分支链愈师恢复友方单位生命，且会在3个友方单位间跳跃，每次跳跃治疗量降低15％自我修复可以在攻击范围内的地面使用一个仅可被自身治疗的重构体，重构体周围友方单位的攻击力+25％，重构体受到自身和Mon3tr治疗时，可额外进行一次不会衰减的治疗跳跃，且下次跳跃也不衰减战术协同自身或重构体造成治疗时，使目标及自身的攻击速度+20，持续10秒（无法叠加）",
+      "all_visible_skills": "策略：超压链接Q范围915策略：超负荷0范围1115策略：熔毁攻击回复]自动触发下次治疗可以恢复相当于攻击力170％的生命，治疗的跳跃次数+1攻击回复]手动触发030秒技能期间优先治疗重构体，重构体每受到一次Mon3tr的治疗，就会进行一次跳跃治疗，第二天赋的效果提升至2，5倍攻击回复1手动触发025秒攻击范围改变，咝至重构体位置，攻击力+330％，攻击间隔降低，阻挡数+2，生命上限+5000，每秒流失80点生命值，同<时攻击阻挡的所有敌人，伤害类型变为真实，攻击治疗自身相当",
+      "source": "runtime\\vision\\roster\\1789203803544689200",
+      "reference_directory": "data\\vision\\operator-memory\\operator-04",
+      "deployment_verified": false,
+      "automatic_replay_allowed": false
+    },
+    {
+      "name": "新约能天使",
+      "profession": "特种",
+      "branch": "怪杰",
+      "classification_source": "Reviewed current game branch text and class icons; not raw Qwen roster predictions",
+      "name_verification": "profile OCR cross-check",
+      "detail_cost": 13,
+      "battle_cost_policy": "Read current card affordability and live DP; talents/level rules may change costs",
+      "selected_skill_text": "30 爷 35 自 动 回 复 1 手 动 触 发 攻 击 力 + 30 ％ ， 每 次 攻 击 变 为 相 当 于 攻 击 力 160 ％ 的 5 连 击 ， 若 在 投 递 坐 标 ， 立 即 对 该 处 造 成",
+      "selected_skill_clipped": false,
+      "recovery": {
+        "kind": "none_or_unknown",
+        "evidence": "30爷35自动回复1手动触发攻击力+30％，每次攻击变为相当于攻击力160％的5连击，若在投递坐标，立即对该处造成"
+      },
+      "range": {
+        "verified": false,
+        "candidate_offsets": [
+          [
+            0,
+            -1
+          ],
+          [
+            1,
+            -1
+          ],
+          [
+            2,
+            -1
+          ],
+          [
+            3,
+            -1
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            3,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            2,
+            1
+          ],
+          [
+            3,
+            1
+          ]
+        ],
+        "orientation": "right",
+        "source": "UI base range diagram; skill range changes require separate observation"
+      },
+      "branch_text": "囗ORIGINALGEEX分支怪杰自身生命会不断流失生命值高于80％时，技力自然回复速度+0，25/秒火力电台在场时，每当有友方干员的弹药被消耗就会回复自身6％生命值，并有35％概率立即对该干员攻击范围的敌人召唤一次轰炸，造成相当于自身攻击力185％的物理溅射伤害铳弹协约在场时，携带弹药类技能的干员攻击力+9％，对〖拉特兰〗干员的效果翻倍",
+      "all_visible_skills": "5圣12天空大扫除令0开火成瘾症自动回复唰自动触发每次攻击造成攻击力210％的物理伤害，优先攻击空中单位，主动关闭时发射剩余所有弹药攻击范围内的随机敌人攻击装有8发弹药，打完后结束（可随时停止技能）自动回复1手动触发立即偷取攻击范围内1名友方干员70点攻击速度（持续至技能结束或新约能天使离场），自身与其获得最大生命值250％的屏障，该屏障会持续衰减，攻击间隔降低，每次攻击造成攻击力300％的物理伤害攻击装有35发弹药，打完后结束（可随时停止技能），如果成功取攻击速度则额外获得5发弹自动回复1手动触发",
+      "source": "runtime\\vision\\roster\\1789203818441872600",
+      "reference_directory": "data\\vision\\operator-memory\\operator-05",
+      "deployment_verified": false,
+      "automatic_replay_allowed": false
+    },
+    {
+      "name": "圣聆初雪",
+      "profession": "术师",
+      "branch": "阵法术师",
+      "classification_source": "Reviewed current game branch text and class icons; not raw Qwen roster predictions",
+      "name_verification": "profile OCR cross-check",
+      "detail_cost": 24,
+      "battle_cost_policy": "Read current card affordability and live DP; talents/level rules may change costs",
+      "selected_skill_text": "． 一 爷 45 霜 涛 覆 岭 自 动 回 复 」 自 动 触 发 每 次 攻 击 造 成 相 当 于 攻 击 力 380 ％ 的 法 术 伤 害 ， 积 雪 超 过 5 层 时 会 向 周 围 扩 散 一 层 〈 最 多 向 外 扩 散 20 格 ） ， 处 于 积 雪 上 的 地 面 敌 人 每 秒 受 到 攻 击 力 20 ％ 的 法 术 伤 害 ， 敌 人 离 开 积 雪 时 获 得 5 秒 寒 ， 积 雪 在 目 标 点 积 累 至 5 层 时 ， 使 目 标 点 变 为 冻 结 状 态 持 续 时 间 无 限 ， 可 主 动 关 闭 技 能 （ 期 间 可 随 时 停 止 技 能 ）",
+      "selected_skill_clipped": false,
+      "recovery": {
+        "kind": "none_or_unknown",
+        "evidence": "．一爷45霜涛覆岭自动回复」自动触发每次攻击造成相当于攻击力380％的法术伤害，积雪超过5层时会向周围扩散一层〈最多向外扩散20格），处于积雪上的地面敌人每秒受到攻击力20％的法术伤害，敌人离开积雪时获得5秒寒，积雪在目标点积累至5层时，使目标点变为冻结状态持续时间无限，可主动关闭技能（期间可随时停止技能）"
+      },
+      "range": {
+        "verified": false,
+        "candidate_offsets": [
+          [
+            0,
+            -2
+          ],
+          [
+            -1,
+            -1
+          ],
+          [
+            0,
+            -1
+          ],
+          [
+            1,
+            -1
+          ],
+          [
+            -2,
+            0
+          ],
+          [
+            -1,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            -1,
+            1
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            0,
+            2
+          ]
+        ],
+        "orientation": "right",
+        "source": "UI base range diagram; skill range changes require separate observation"
+      },
+      "branch_text": "囗ORIGINAL分支0阵法术师通常时不攵击且防御力和法术抗性大幅度疋升，技能开启时攻击辶成群体氵去术伤害范围内敌人越多造成的伤害越高（最高提升15％）无垠的雪景攻击范围内的地面每隔5秒产生一层积雪，地面敌人经过时立即受到相当于攻击力100％的法术伤害，每层积雪使经过的所有敌人移动速度下降12％，最多叠加5层（首个敌人离开该地块时积雪消失），部署后立刻使攻击范围内的地面产生一层积雪圣山的祝福受到伤害时使敌人1.5秒，若受到致命伤害，仅一次立刻回复所有生命值并使自身冻结4秒",
+      "all_visible_skills": "《712铃音吹雪乓45霜涛覆岭自动回复唰手动触发立即对范围内所有敌人造成相当于攻击力480％的法术伤害及3．5秒寒冷并将其中等力度地朝部署方向推动，之后积雪向前方地面扩散（最多向前扩散5格）可充能2次自动回复1自动触发每次攻击造成相当于攻击力380的法术伤害，积雪超过5层时会向周围扩散一层（最多向外扩散20格），处于积雪上的地面敌人每秒受到攻击力20％的法术伤害，敌人离开积雪时获得5秒寒冷，积雪在目标点积累至5层时，使目标点变为冻结状态持续时间无限，可主动关闭技能（期间可随时停止技能）自动回复手动触发《035秒攻击范围扩大，立即酲攻击范",
+      "source": "runtime\\vision\\roster\\1789203833559438200",
+      "reference_directory": "data\\vision\\operator-memory\\operator-06",
+      "deployment_verified": false,
+      "automatic_replay_allowed": false
+    },
+    {
+      "name": "琴柳",
+      "profession": "先锋",
+      "branch": "执旗手",
+      "classification_source": "Reviewed current game branch text and class icons; not raw Qwen roster predictions",
+      "name_verification": "profile OCR cross-check",
+      "detail_cost": 11,
+      "battle_cost_policy": "Read current card affordability and live DP; talents/level rules may change costs",
+      "selected_skill_text": "自 动 回 复 1 手 动 触 发 ． 0 8 秒 停 止 攻 击 ， 持 续 时 间 内 回 复 总 共 18 点 部 署 费 用 15 26 支 援 号 令 ， Y 型",
+      "selected_skill_clipped": false,
+      "recovery": {
+        "kind": "over_time",
+        "evidence": "自动回复1手动触发．08秒停止攻击，持续时间内回复总共18点部署费用1526支援号令，Y型",
+        "stops_attacking": true
+      },
+      "range": {
+        "verified": false,
+        "candidate_offsets": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ]
+        ],
+        "orientation": "right",
+        "source": "UI base range diagram; skill range changes require separate observation"
+      },
+      "branch_text": "囗囹一分支ORIGINAL技能发动期间阻挡数变为0不退之旗部署时自身持有军旗；军旗周围8格的干员攻击速度+10，敌人的攻击速度·10精神感召部署后，下一名部署的干员费用",
+      "all_visible_skills": "；15》6支援号令，Y型、杨32信仰传承723光辉旗帜亠自动回复1手动触发08秒停止攻击，持续时间内回复总共18点部署费用自动回复1手动触发》015秒停止攻击，持续时间内回复总共20点部署费用；将军旗掷向范围内生命比例最低的干员所在位置，使其防御力+35％且每秒恢复相当于琴柳攻击力35％的生命值。技能结束时收回军旗。自动回复手动触发《010秒停止攻击，立即回复10点部署费用，将军旗掷向地面敌人所在位置，并对周围造成260％的物理伤害和3．5秒晕眩；期间军旗周围8格敌人受到和25％的脆弱效果。技能结束时收回军旗。",
+      "source": "runtime\\vision\\roster\\1789203848869870700",
+      "reference_directory": "data\\vision\\operator-memory\\operator-07",
+      "deployment_verified": true,
+      "automatic_replay_allowed": false,
+      "deployment_verification": {
+        "stage": "0-1",
+        "run": "1789205813998314800",
+        "evidence": "data\\vision\\operator-memory\\verified-economy-0-1",
+        "scope": "This squad and map only; no arbitrary coordinate replay",
+        "outcome": "2-star clear; 1 leaked enemy"
+      },
+      "observed_skill_recovery": {
+        "before": 6,
+        "after": 28,
+        "elapsed_s": 3.9776634000008926,
+        "natural_upper": 9.955326800001785
+      }
+    },
+    {
+      "name": "黍",
+      "profession": "重装",
+      "branch": "守护者",
+      "classification_source": "Reviewed current game branch text and class icons; not raw Qwen roster predictions",
+      "name_verification": "manual screenshot review: Shu/黍; Windows OCR abstained",
+      "detail_cost": 21,
+      "battle_cost_policy": "Read current card affordability and live DP; talents/level rules may change costs",
+      "selected_skill_text": "030 圣 45 离 离 枯 荣 自 动 回 复 1 手 动 触 发 0 30 秒 治 疗 范 围 扩 大 ， 攻 击 同 时 可 治 疗 我 方 干 员 ， 攻 击 力 + 50 ％ ， 有 地 面 敌 人 处 于 播 种 地 块 时 技 能 范 围 < 内 的 我 方 单 位 攻 击 力 + 25 ％ 、 击 速 度 + 25 ， 敌 人 经 过 播 种 地 块 时 获 得 如 下 效 果 ： 当 远 离 该 地 块 超 过 2 格 时 被 传 送 回 该 地 块",
+      "selected_skill_clipped": false,
+      "recovery": {
+        "kind": "none_or_unknown",
+        "evidence": "030圣45离离枯荣自动回复1手动触发030秒治疗范围扩大，攻击同时可治疗我方干员，攻击力+50％，有地面敌人处于播种地块时技能范围<内的我方单位攻击力+25％、击速度+25，敌人经过播种地块时获得如下效果：当远离该地块超过2格时被传送回该地块"
+      },
+      "range": {
+        "verified": false,
+        "candidate_offsets": [
+          [
+            0,
+            0
+          ]
+        ],
+        "orientation": "right",
+        "source": "UI base range diagram"
+      },
+      "branch_text": "ORIGINAL0分支守护者技能可以治疗友方单位治疗生命值低于50％的友方单位时治疗员提升15％百谷长青治疗干员时对其与周围四格地块进行播种施加如下效果：每秒恢复80生命、获得15％庇护，部署时立即给所处地块播种该效果天有四时场上有三名不同职业干员时所有干员生命上限+12％、三名相同职业干员时所有干员攻击速度+12，编队中有四名〖岁〕干员时所有干员攻击力+12％且4秒获得1点技力",
+      "all_visible_skills": "化被草木Q范围0嘉禾盈仓0范围中3045离离枯荣自动回复唰自动触发下一次攻击会为周围血量不足一半的一名友方单位恢复相当于攻击力180％的生命可充能3次自动回复手动触发《025秒止攻击专注治疗范围内至多两名我方单位，攻击力+90％，阻挡数+1，第一天赋效果提升至1.4倍自动回复1手动触发030秒治疗范围扩大，攻击同时可治疗我方干员，攻击力+50％，有地面敌人处于播种地块时技能范围<内的我方单位攻击力+25％、攻击速度+25，敌人经过播种地块时获得如下效果：当远离该地块",
+      "source": "runtime\\vision\\roster\\1789203863870180900",
+      "reference_directory": "data\\vision\\operator-memory\\operator-08",
+      "deployment_verified": false,
+      "automatic_replay_allowed": false
+    },
+    {
+      "name": "遥",
+      "profession": "辅助",
+      "branch": "护佑者",
+      "classification_source": "Reviewed current game branch text and class icons; not raw Qwen roster predictions",
+      "name_verification": "profile OCR cross-check",
+      "detail_cost": 13,
+      "battle_cost_policy": "Read current card affordability and live DP; talents/level rules may change costs",
+      "selected_skill_text": "17 幽 隙 栖 萤 自 动 回 复 手 动 触 发 0 26 秒 治 疗 目 标 数 + 1 ， 浮 光 泡 影 的 目 标 数 + 1 ； 友 方 单 位 受 到 遥 的 治 疗 效 果 时 ， 对 周 围 3 名 敌 人 造 成 相 当 于 治 疗 员 200 ％ 的 法 术 伤 害 第 二 次 及 以 后 使 用 时 攻 击 力 + 40 ％ ， 且 持 续 时 间 无 限",
+      "selected_skill_clipped": false,
+      "recovery": {
+        "kind": "none_or_unknown",
+        "evidence": "17幽隙栖萤自动回复手动触发026秒治疗目标数+1，浮光泡影的目标数+1；友方单位受到遥的治疗效果时，对周围3名敌人造成相当于治疗员200％的法术伤害第二次及以后使用时攻击力+40％，且持续时间无限"
+      },
+      "range": {
+        "verified": false,
+        "reason": "Cannot uniquely locate solid origin square"
+      },
+      "branch_text": "ORIGINAL分支护佑者攻击造成法术伤害，技能开启后改为治疗友方单位（治疗量相当于75％攻击力）浮光泡影每过一个攻击间隔，使范围内一名友方单位获得30％庇护的浮泡，浮泡在受到敌方伤害的短暂延迟后破碎扶摇花火浮泡破碎时，为所在的单位治疗相当于遥攻击力25％的生命值",
+      "all_visible_skills": "1025夜啼彩羽17幽隙栖萤4660夏末游鳞自动回复唰手动触发020秒攻击速度+45，技能期间浮泡破碎时，立即使周围8格一名没有浮泡的友方单位获得浮泡自动回复1手动触发026秒治疗目标数+1，浮光泡影的目标数+1；友方单位受到遥的治疗效果时，对周围3名敌人造成相当于治疗员200％的法术伤害第二次及以后使用时攻击力+40％，且持续时间无限自动回复手动触发》040秒攻击力+40％，攻击范围攻击间隔缩短，技能期间浮泡提供的庇护提升至1.7倍；攻击我方浮泡的敌人将4秒，在此浮空期间每秒受到相当于遥攻击力70％的法术伤害",
+      "source": "runtime\\vision\\roster\\1789203966272904700",
+      "reference_directory": "data\\vision\\operator-memory\\operator-09",
+      "deployment_verified": false,
+      "automatic_replay_allowed": false
+    },
+    {
+      "name": "酒神",
+      "profession": "辅助",
+      "branch": "巫役",
+      "classification_source": "Reviewed current game branch text and class icons; not raw Qwen roster predictions",
+      "name_verification": "profile OCR cross-check",
+      "detail_cost": 16,
+      "battle_cost_policy": "Read current card affordability and live DP; talents/level rules may change costs",
+      "selected_skill_text": "空 剧 场 攻 击 范 围 扩 大 ， 攻 击 力 + 125 ％ ， 优 先 攻 击 未 处 于 损 伤 爆 发 期 间 的 敌 人 ， 技 能 期 间 酒 神 造 成 过 （ 经 损 伤 的 敌 人 每 秒 受 到 攻 击 力 10 ，",
+      "selected_skill_clipped": false,
+      "recovery": {
+        "kind": "none_or_unknown",
+        "evidence": "空剧场攻击范围扩大，攻击力+125％，优先攻击未处于损伤爆发期间的敌人，技能期间酒神造成过（经损伤的敌人每秒受到攻击力10，"
+      },
+      "range": {
+        "verified": false,
+        "candidate_offsets": [
+          [
+            -1,
+            -1
+          ],
+          [
+            0,
+            -1
+          ],
+          [
+            1,
+            -1
+          ],
+          [
+            2,
+            -1
+          ],
+          [
+            -1,
+            0
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            -1,
+            1
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            2,
+            1
+          ]
+        ],
+        "orientation": "right",
+        "source": "UI base range diagram; skill range changes require separate observation"
+      },
+      "branch_text": "囗ORIGINALRITX奔分支巫役攻击造成法术伤害，可以造成对精英和领袖敌人造成的元素损伤提升18％形为心役攻击附带相当于攻击力30％的鋰经损伤，并对目标周围其他敌人造成一次相当于攻击力20％的鋰堕梦在场时，全场处于神经损伤爆发期间的敌人攻击速度·20；攻击范围内的敌人普通攻击时受到90占神经损伤",
+      "all_visible_skills": "暗夜回声5群体性谵妄攻击回复]自动触发下次攻击造成两次相当于攻击力的法术伤害并使目标120％3秒，该次束缚期间目标受到的神经损伤提升至1.5倍，优先攻击未处于爆发期间的敌人自动回复自动触发攻击速度+35，第一天賦溅射范围扩大；期间可以使用一个本能的召唤，部署后诱导至多4名进入范围的可达敌人（优先精英或领袖）10秒，首个目标到达后撤退并使周围所有敌人在6秒内停顿、每0，5秒受到酒神攻击力150的法术伤害和攻击力25％的经损伤捋续间无限，本能的召喚有独自动回复手动触发030秒",
+      "source": "runtime\\vision\\roster\\1789203980988612000",
+      "reference_directory": "data\\vision\\operator-memory\\operator-10",
+      "deployment_verified": false,
+      "automatic_replay_allowed": false
+    },
+    {
+      "name": "予愿安洁莉娜",
+      "profession": "特种",
+      "branch": "巡空者",
+      "classification_source": "Reviewed current game branch text and class icons; not raw Qwen roster predictions",
+      "name_verification": "profile OCR cross-check",
+      "detail_cost": 18,
+      "battle_cost_policy": "Read current card affordability and live DP; talents/level rules may change costs",
+      "selected_skill_text": "24 30 酸 橙 的 心 事 自 动 回 复 1 手 动 触 发 立 刻 起 飞 ， 攻 击 力 + 30 ％ ， 获 得 65 ％ 的 对 空 庇 护 ， 攻 击 范 围 扩 大 ， 且 周 围 8 格 视 作 予 愿 安 洁 莉 娜 的 额 外 攻 击 范 围 ， 攻 击 对 3 个 敌 人 造 成 攻 击 力 380 ％ 的 物 理 伤 害 且 额 外 攻 击 1 个 飞 行 敌 人 ； 范 围 内 飞 行 敌 人 移 动 速 度 60 ％ ， 原 技 能 范 围 内 有 未 被 阻 挡 的 可 阻 挡",
+      "selected_skill_clipped": false,
+      "recovery": {
+        "kind": "none_or_unknown",
+        "evidence": "2430酸橙的心事自动回复1手动触发立刻起飞，攻击力+30％，获得65％的对空庇护，攻击范围扩大，且周围8格视作予愿安洁莉娜的额外攻击范围，攻击对3个敌人造成攻击力380％的物理伤害且额外攻击1个飞行敌人；范围内飞行敌人移动速度60％，原技能范围内有未被阻挡的可阻挡"
+      },
+      "range": {
+        "verified": false,
+        "candidate_offsets": [
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ]
+        ],
+        "orientation": "right",
+        "source": "UI base range diagram; skill range changes require separate observation"
+      },
+      "branch_text": "分支巡空者后能够阻挡2个飞行敌人飘浮大地之上予愿安洁莉娜攻击额外造成相当于攻击力25％的法术伤害，攻击重量较轻〈小于等于3）的敌人时则额外造成相当于攻击力35％的法术伤害；处于起飞状态时使攻击范围内的敌人失重天穹间的舞步在场时，所有处于起飞状态的友方干员攻击力+13％且阻挡时每秒回复8％的最大生命值",
+      "all_visible_skills": "0极速送达Q范围2125重力自定义亠2430酸橙的心事被动1056秒部署后立刻，攻击范围，攻击力+100％，同时攻击两个目标自动回复手动触发《022秒攻击范围扩大并向前方滑翔，使掠过的攻击范围内的地面敌人12秒、飞行敌人缚地22秒，随后攻击间隔较大幅缩短，攵击力+165％，攻击变为法术伤害且同时攻击5个目标自动回复刂手动触发立刻起飞，攻击力+30％，获得65％的对空庇护，攻击范围扩大，且周围8格视作予愿安洁莉娜的额外攻击范围，攻击对3个敌人造成攻击力380％的物理伤害且额外攻击1个飞行敌人；范围",
+      "source": "runtime\\vision\\roster\\1789203995928619400",
+      "reference_directory": "data\\vision\\operator-memory\\operator-11",
+      "deployment_verified": false,
+      "automatic_replay_allowed": false
+    },
+    {
+      "name": "望",
+      "profession": "特种",
+      "branch": "陷阱师",
+      "classification_source": "Reviewed current game branch text and class icons; not raw Qwen roster predictions",
+      "name_verification": "profile OCR cross-check",
+      "detail_cost": 12,
+      "battle_cost_policy": "Read current card affordability and live DP; talents/level rules may change costs",
+      "selected_skill_text": "； 38 50 天 下 劫 亠 自 动 回 复 手 动 触 发 被 动 效 果 ： 棋 子 的 触 发 和 伤 害 范 围 扩 大 ， 造 成 相 当 于 攻 击 力 380 ％ 的 法 术 伤 害 主 动 效 果 ： 停 止 攻 击 但 攻 击 范 围 扩 大 ； 立 即 获 得 8 枚 棋 子 ， 然 后 将 超 出 上 限 的 棋 子 优 先 部 署 在 范 < 围 内 敌 人 所 在 位 置 ； 在 攻 击 范 围 内 手 动 部 署 棋 子 时 可 部 署 至 敌 人 所 在 位 置 ， 且 第 一 天 赋 额 外 至 多",
+      "selected_skill_clipped": false,
+      "recovery": {
+        "kind": "none_or_unknown",
+        "evidence": "；3850天下劫亠自动回复手动触发被动效果：棋子的触发和伤害范围扩大，造成相当于攻击力380％的法术伤害主动效果：停止攻击但攻击范围扩大；立即获得8枚棋子，然后将超出上限的棋子优先部署在范<围内敌人所在位置；在攻击范围内手动部署棋子时可部署至敌人所在位置，且第一天赋额外至多"
+      },
+      "range": {
+        "verified": false,
+        "candidate_offsets": [
+          [
+            0,
+            -1
+          ],
+          [
+            1,
+            -1
+          ],
+          [
+            2,
+            -1
+          ],
+          [
+            3,
+            -1
+          ],
+          [
+            0,
+            0
+          ],
+          [
+            1,
+            0
+          ],
+          [
+            2,
+            0
+          ],
+          [
+            3,
+            0
+          ],
+          [
+            0,
+            1
+          ],
+          [
+            1,
+            1
+          ],
+          [
+            2,
+            1
+          ],
+          [
+            3,
+            1
+          ]
+        ],
+        "orientation": "right",
+        "source": "UI base range diagram; skill range changes require separate observation"
+      },
+      "branch_text": "囗ORIGINALTRPX分支陷阱师可以使用部署费用更低的陷阱来协助作战，但陷阱无法放置于敌人已在的格子中，可同时部署的陷阱数量提升铸子可以使用6枚棋子（最多拥有7枚），棋子相连时相互激活，敌人进入激活的棋子所在地块时触发其效果；手动部署棋子时，望在相邻位置额外部署一枚棋子（最多9枚，可以且优先部署在有敌人的不可部署地块）料敌机先棋子激活时所在的连续直线上每有一枚棋子，直线上所有棋子造成伤害提升12％并无视敌人11点法术抗性（最多叠加3次）",
+      "all_visible_skills": "00取势十一ii夕15连星3850天下劫亠自动回复唰自动触发被动效果：棋子触发时使目标敌人停顿且每秒受到相当于望攻击力的120％的法术伤害，持续秒主动效果：立即获得两枚棋子自动回复自动触发被动效果：棋子触发时，对连线方向上两侧3格范围内的敌人造成相当于攻击力的580％的法术伤害，并使其6秒内移动速度降低50％主动效果：立即获得两枚棋子自动回复《手动触发被动效果：棋子的触发和伤害范围扩大，造成相当于攻击力380％的法术伤害主动效果：停止攻击但攻击范围扩大；立即获得8枚棋子，然后将超出上限的棋子优先部署在范<",
+      "source": "runtime\\vision\\roster\\1789204010834213200",
+      "reference_directory": "data\\vision\\operator-memory\\operator-12",
+      "deployment_verified": false,
+      "automatic_replay_allowed": false
+    }
+  ],
+  "limitations": [
+    "Base range only; active skill range must be inspected separately",
+    "New classes are reference annotations, not a newly trained universal YOLO",
+    "Uncertain or clipped skill text must not drive autonomous actions"
+  ],
+  "latest_battle_audit": {
+    "run": "1789205813998314800",
+    "deployed": [
+      "琴柳",
+      "伊内丝",
+      "维什戴尔"
+    ],
+    "result": "2-star clear",
+    "remaining_lives": 19,
+    "recording": "runtime/vision/timing-recordings/1789205816972364400",
+    "checks": "direction frame, released mouse, remaining placement count, final sprites, independent video reviewed",
+    "training_completed_this_run": false
+  }
+}

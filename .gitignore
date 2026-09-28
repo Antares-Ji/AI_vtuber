@@ -2,7 +2,7 @@
 .env.local
 
 # Local user data and runtime state
-runtime/
+/runtime/
 data/memory.db*
 data/memories.json
 data/memories.pre-sqlite.json
@@ -34,3 +34,9 @@ runtime/vision-env/
 
 # Runtime logs (not source)
 logs/
+
+# Generated handoff bundles and raw training recordings stay local.
+/output/*.zip
+/output/*.manifest.json
+/output/*.sha256.txt
+/video/*.mp4

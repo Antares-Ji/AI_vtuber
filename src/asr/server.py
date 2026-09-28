@@ -3,9 +3,12 @@ import re
 import tempfile
 import time
 import wave
+import threading
 
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, WebSocket
 from funasr import AutoModel
+from .streaming import FunAsrOnlineRecognizer
+from .streaming_endpoint import serve_stream
 
 MODEL = os.getenv("ASR_MODEL", "iic/SenseVoiceSmall")
 VAD_MODEL = os.getenv("ASR_VAD_MODEL", "")
@@ -15,11 +18,48 @@ DEVICE = os.getenv("ASR_DEVICE", "cuda:0")
 app = FastAPI(title="Local Chinese ASR")
 model = None
 load_error = None
+streaming_model = None
+streaming_error = None
+streaming_lock = threading.Lock()
+
+
+class LockedStreamingModel:
+    def generate(self, **options):
+        with streaming_lock:
+            return streaming_model.generate(**options)
 
 
 @app.on_event("startup")
 def load_on_startup():
     get_model()
+    load_streaming_model()
+
+
+def load_streaming_model():
+    global streaming_model, streaming_error
+    if os.getenv("ASR_STREAMING_ENABLED", "false").lower() != "true":
+        return
+    model_path = os.getenv("ASR_STREAMING_MODEL_PATH", "")
+    # Require an existing complete model directory, never a remote model ID.
+    if not os.path.isfile(os.path.join(model_path, "model.pt")) or not os.path.isfile(os.path.join(model_path, "config.yaml")):
+        streaming_error = "local streaming model.pt and config.yaml are required"
+        return
+    try:
+        streaming_model = AutoModel(model=os.path.abspath(model_path), device=DEVICE, disable_update=True)
+    except Exception:
+        streaming_error = "streaming model failed to load"
+
+
+@app.websocket("/stream")
+async def streaming(websocket: WebSocket):
+    origin = websocket.headers.get("origin")
+    if origin and origin not in {"http://localhost:3000", "http://127.0.0.1:3000"}:
+        await websocket.close(code=1008)
+        return
+    if streaming_model is None:
+        await websocket.close(code=1013)
+        return
+    await serve_stream(websocket, FunAsrOnlineRecognizer(LockedStreamingModel()))
 
 
 def get_model():
@@ -54,6 +94,7 @@ def health():
         "model": MODEL,
         "device": DEVICE,
         "error": load_error,
+        "streaming": {"ready": streaming_model is not None, "error": streaming_error, "transport": "websocket-pcm16", "endpoint": "/stream"},
     }
 
 

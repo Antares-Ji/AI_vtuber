@@ -1,0 +1,2107 @@
+[
+  {
+    "recording_id": "1789184842816428100",
+    "video": "E:\\Github\\AI_vtuber\\runtime\\vision\\timing-recordings\\1789184842816428100\\recording.avi",
+    "status": "sampled_visual_review",
+    "stage": "0-1",
+    "outcome": "unknown",
+    "training_eligible": false,
+    "sampled_frames": [
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789184842816428100-405.jpg",
+        "index": 405,
+        "elapsed_s": 20.6138363,
+        "sha256": "a38a930df608b36c7bd1a6b43ba8f401bf7dbe3c1f89d596b3645d1af69404db",
+        "phase": "formation",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789184842816428100-1630.jpg",
+        "index": 1630,
+        "elapsed_s": 82.5069396,
+        "sha256": "228a5f2fc8cae6d3c9c62362bec635ffe939d03bc3756315292dc3726da8c314",
+        "phase": "battle",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789184842816428100-2665.jpg",
+        "index": 2665,
+        "elapsed_s": 134.800273,
+        "sha256": "e7ff27a2d7dac49dbe8338b02db62a52b91d2131f413a45d51098a3d128ace7a",
+        "phase": "battle",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      }
+    ],
+    "existing_reviews": [],
+    "recording_metadata": {
+      "frames": 2720,
+      "elapsed_s": 137.5669626,
+      "fps": 20,
+      "measurement": "Use per-frame capture timestamps; AVI playback rate is not the wall clock if frames were skipped.",
+      "markers": "F8/F9 edges optional manual markers. Three-point changes require video review. No semantic inference.",
+      "input_resolution_ms": 50.0
+    },
+    "reviewer": "GPT / Codex",
+    "review_scope": "three timestamp-based samples, plus explicitly cited historical reports; not complete video review",
+    "tags": [
+      "single_operator",
+      "leaks"
+    ],
+    "stage_source": "map/layout and visible titles in samples",
+    "training_exclusion": "Sparse semantic review only; no audited bounding boxes or battle-level split."
+  },
+  {
+    "recording_id": "1789188273183555900",
+    "video": "E:\\Github\\AI_vtuber\\runtime\\vision\\timing-recordings\\1789188273183555900\\recording.avi",
+    "status": "sampled_visual_review",
+    "stage": "0-1",
+    "outcome": "unknown",
+    "training_eligible": false,
+    "sampled_frames": [
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789188273183555900-299.jpg",
+        "index": 299,
+        "elapsed_s": 15.4420311,
+        "sha256": "63b4f6c6c0de0179032b910367cd0f186f654d5dda1880312b5b2db34e4faa53",
+        "phase": "stage_map",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789188273183555900-1218.jpg",
+        "index": 1218,
+        "elapsed_s": 61.8299384,
+        "sha256": "a78b3b9810fafdc3daf97e067c1818992983adbfb36f9fcf823402133382547e",
+        "phase": "stage_map",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789188273183555900-1993.jpg",
+        "index": 1993,
+        "elapsed_s": 100.9565757,
+        "sha256": "114d53c9ffd212b97fbf18639ddbbb97865f97f2ae8a45d78f70e4b23e9602e6",
+        "phase": "stage_map",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      }
+    ],
+    "existing_reviews": [],
+    "recording_metadata": {
+      "frames": 2035,
+      "elapsed_s": 103.0613254,
+      "fps": 20,
+      "measurement": "Use per-frame capture timestamps; AVI playback rate is not the wall clock if frames were skipped.",
+      "markers": "F8/F9 edges optional manual markers. Three-point changes require video review. No semantic inference.",
+      "input_edges": 0,
+      "input_telemetry": "unverified polling; zero edges does not prove no input",
+      "input_resolution_ms": 50.0
+    },
+    "reviewer": "GPT / Codex",
+    "review_scope": "three timestamp-based samples, plus explicitly cited historical reports; not complete video review",
+    "tags": [
+      "navigation_only"
+    ],
+    "stage_source": "map/layout and visible titles in samples",
+    "training_exclusion": "Sparse semantic review only; no audited bounding boxes or battle-level split."
+  },
+  {
+    "recording_id": "1789188377481010800",
+    "video": "E:\\Github\\AI_vtuber\\runtime\\vision\\timing-recordings\\1789188377481010800\\recording.avi",
+    "status": "sampled_visual_review",
+    "stage": "0-1",
+    "outcome": "unknown",
+    "training_eligible": false,
+    "sampled_frames": [
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789188377481010800-889.jpg",
+        "index": 889,
+        "elapsed_s": 44.9742381,
+        "sha256": "df7b08aa74b8b1f4769ac8ad5d6798e8458387d568f60b831a673d50b3303989",
+        "phase": "stage_map",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789188377481010800-3563.jpg",
+        "index": 3563,
+        "elapsed_s": 179.9825536,
+        "sha256": "6fc19b88169680a6e4752a9527ea132afd387267bdd6df9cfbf4e7fc37afe3ff",
+        "phase": "selection",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789188377481010800-5820.jpg",
+        "index": 5820,
+        "elapsed_s": 293.9670016,
+        "sha256": "4b911bdce99cdc2318f003dab15a87e3a51cb1a42331784b437c23772d11fa55",
+        "phase": "selection",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      }
+    ],
+    "existing_reviews": [],
+    "recording_metadata": {
+      "frames": 5940,
+      "elapsed_s": 300.0108361,
+      "fps": 20,
+      "measurement": "Use per-frame capture timestamps; AVI playback rate is not the wall clock if frames were skipped.",
+      "markers": "F8/F9 edges optional manual markers. Three-point changes require video review. No semantic inference.",
+      "input_edges": 0,
+      "input_telemetry": "unverified polling; zero edges does not prove no input",
+      "input_resolution_ms": 50.0
+    },
+    "reviewer": "GPT / Codex",
+    "review_scope": "three timestamp-based samples, plus explicitly cited historical reports; not complete video review",
+    "tags": [
+      "selection_without_verified_landing"
+    ],
+    "stage_source": "map/layout and visible titles in samples",
+    "training_exclusion": "Sparse semantic review only; no audited bounding boxes or battle-level split."
+  },
+  {
+    "recording_id": "1789189001944222600",
+    "video": "E:\\Github\\AI_vtuber\\runtime\\vision\\timing-recordings\\1789189001944222600\\recording.avi",
+    "status": "sampled_visual_review",
+    "stage": "0-1",
+    "outcome": "unknown",
+    "training_eligible": false,
+    "sampled_frames": [
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789189001944222600-339.jpg",
+        "index": 339,
+        "elapsed_s": 17.2050597,
+        "sha256": "5c78944857e4bf880ca348d72328cb4c0908837bbc8cdeef1335338e478d8fd0",
+        "phase": "operator_profile",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789189001944222600-1359.jpg",
+        "index": 1359,
+        "elapsed_s": 68.7140523,
+        "sha256": "20d4f7a673b638995a179ddf03a288757d786b4a12dc5e198bb8323678fd832d",
+        "phase": "formation",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789189001944222600-2222.jpg",
+        "index": 2222,
+        "elapsed_s": 112.2821093,
+        "sha256": "e1bafa0def942004eecb0cd7337b260818f640fcf027b0bbabd2bc0325fe3898",
+        "phase": "battle",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      }
+    ],
+    "existing_reviews": [],
+    "recording_metadata": {
+      "frames": 2268,
+      "elapsed_s": 114.5892464,
+      "fps": 20,
+      "measurement": "Use per-frame capture timestamps; AVI playback rate is not the wall clock if frames were skipped.",
+      "markers": "F8/F9 edges optional manual markers. Three-point changes require video review. No semantic inference.",
+      "input_edges": 0,
+      "input_telemetry": "unverified polling; zero edges does not prove no input",
+      "input_resolution_ms": 50.0
+    },
+    "reviewer": "GPT / Codex",
+    "review_scope": "three timestamp-based samples, plus explicitly cited historical reports; not complete video review",
+    "tags": [
+      "multiple_attempts_possible"
+    ],
+    "stage_source": "map/layout and visible titles in samples",
+    "training_exclusion": "Sparse semantic review only; no audited bounding boxes or battle-level split."
+  },
+  {
+    "recording_id": "1789189299438116500",
+    "video": "E:\\Github\\AI_vtuber\\runtime\\vision\\timing-recordings\\1789189299438116500\\recording.avi",
+    "status": "sampled_visual_review",
+    "stage": "0-1",
+    "outcome": "result_visible_unassigned_battle",
+    "training_eligible": false,
+    "sampled_frames": [
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789189299438116500-664.jpg",
+        "index": 664,
+        "elapsed_s": 33.6421891,
+        "sha256": "94284a68a5812d75904fdf681d04bcfd858da22aba228b8ce15dd5a1738fef80",
+        "phase": "loading",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789189299438116500-2663.jpg",
+        "index": 2663,
+        "elapsed_s": 134.5820292,
+        "sha256": "5d0de34f36cecb3f6e622da9df265cfe3e7c89f3b697fbda0590b9c8aa8de56f",
+        "phase": "result",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789189299438116500-4352.jpg",
+        "index": 4352,
+        "elapsed_s": 219.8463054,
+        "sha256": "c977d50db018166b0ee65e16432e941f21511ae8b0bfd4d3ac0dfdcdc03362a8",
+        "phase": "battle",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      }
+    ],
+    "existing_reviews": [],
+    "recording_metadata": {
+      "frames": 4442,
+      "elapsed_s": 224.3774507,
+      "fps": 20,
+      "measurement": "Use per-frame capture timestamps; AVI playback rate is not the wall clock if frames were skipped.",
+      "markers": "F8/F9 edges optional manual markers. Three-point changes require video review. No semantic inference.",
+      "input_edges": 0,
+      "input_telemetry": "unverified polling; zero edges does not prove no input",
+      "input_resolution_ms": 50.0
+    },
+    "reviewer": "GPT / Codex",
+    "review_scope": "three timestamp-based samples, plus explicitly cited historical reports; not complete video review",
+    "tags": [
+      "result_visible",
+      "multiple_battles"
+    ],
+    "stage_source": "map/layout and visible titles in samples",
+    "training_exclusion": "Sparse semantic review only; no audited bounding boxes or battle-level split."
+  },
+  {
+    "recording_id": "1789190955389812100",
+    "video": "E:\\Github\\AI_vtuber\\runtime\\vision\\timing-recordings\\1789190955389812100\\recording.avi",
+    "status": "sampled_visual_review",
+    "stage": "0-1",
+    "outcome": "unknown",
+    "training_eligible": false,
+    "sampled_frames": [
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789190955389812100-191.jpg",
+        "index": 191,
+        "elapsed_s": 9.74963,
+        "sha256": "458ee56bb2385172153f6ea5e094e4699fbdcfe1ed545ce3f0dd2520fda09460",
+        "phase": "stage_map",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789190955389812100-771.jpg",
+        "index": 771,
+        "elapsed_s": 39.0202307,
+        "sha256": "ae811c9188b15761415af2f6b4231995dca299a1fc903b25ff8bf9042374623d",
+        "phase": "selection",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789190955389812100-1260.jpg",
+        "index": 1260,
+        "elapsed_s": 63.6868469,
+        "sha256": "0c443267c1866fb14614642da5b3a9aca22e0bc94c7ac7cbad3f7714a483c067",
+        "phase": "battle",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      }
+    ],
+    "existing_reviews": [],
+    "recording_metadata": {
+      "frames": 1287,
+      "elapsed_s": 65.036674,
+      "fps": 20,
+      "measurement": "Use per-frame capture timestamps; AVI playback rate is not the wall clock if frames were skipped.",
+      "markers": "F8/F9 edges optional manual markers. Three-point changes require video review. No semantic inference.",
+      "input_edges": 0,
+      "input_telemetry": "unverified polling; zero edges does not prove no input",
+      "input_resolution_ms": 50.0
+    },
+    "reviewer": "GPT / Codex",
+    "review_scope": "three timestamp-based samples, plus explicitly cited historical reports; not complete video review",
+    "tags": [
+      "landing_visible"
+    ],
+    "stage_source": "map/layout and visible titles in samples",
+    "training_exclusion": "Sparse semantic review only; no audited bounding boxes or battle-level split."
+  },
+  {
+    "recording_id": "1789191085560346200",
+    "video": "E:\\Github\\AI_vtuber\\runtime\\vision\\timing-recordings\\1789191085560346200\\recording.avi",
+    "status": "sampled_visual_review",
+    "stage": "0-1",
+    "outcome": "unknown",
+    "training_eligible": false,
+    "sampled_frames": [
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789191085560346200-509.jpg",
+        "index": 509,
+        "elapsed_s": 25.8307703,
+        "sha256": "eaba683321a00e158c6eee461a00abdc6accfe4da53fc0c719e84994ed116b06",
+        "phase": "loading",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789191085560346200-2044.jpg",
+        "index": 2044,
+        "elapsed_s": 103.2845954,
+        "sha256": "fe0b0de39e60a552c6e287a651b488669a0d5622a899d6f225df90e24b06351e",
+        "phase": "battle",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789191085560346200-3340.jpg",
+        "index": 3340,
+        "elapsed_s": 168.6726137,
+        "sha256": "a4b44877d65362947c7f63c95b097474b14156a9849d0f9d30d09882619b6a29",
+        "phase": "stage_map",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      }
+    ],
+    "existing_reviews": [
+      "E:\\Github\\AI_vtuber\\runtime\\vision\\timing-recordings\\1789191085560346200\\first-fast-review.json"
+    ],
+    "recording_metadata": {
+      "frames": 3409,
+      "elapsed_s": 172.136947,
+      "fps": 20,
+      "measurement": "Use per-frame capture timestamps; AVI playback rate is not the wall clock if frames were skipped.",
+      "markers": "F8/F9 edges optional manual markers. Three-point changes require video review. No semantic inference.",
+      "input_edges": 0,
+      "input_telemetry": "unverified polling; zero edges does not prove no input",
+      "input_resolution_ms": 50.0
+    },
+    "reviewer": "GPT / Codex",
+    "review_scope": "three timestamp-based samples, plus explicitly cited historical reports; not complete video review",
+    "tags": [
+      "landing_visible",
+      "result_not_sampled"
+    ],
+    "stage_source": "map/layout and visible titles in samples",
+    "training_exclusion": "Sparse semantic review only; no audited bounding boxes or battle-level split."
+  },
+  {
+    "recording_id": "1789191329861850200",
+    "video": "E:\\Github\\AI_vtuber\\runtime\\vision\\timing-recordings\\1789191329861850200\\recording.avi",
+    "status": "sampled_visual_review",
+    "stage": "0-1",
+    "outcome": "unknown",
+    "training_eligible": false,
+    "sampled_frames": [
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789191329861850200-225.jpg",
+        "index": 225,
+        "elapsed_s": 11.4677798,
+        "sha256": "cf27fea6a65b397edd9caa9df56f3972379d6b5ced12907cb4109530c541346e",
+        "phase": "formation",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789191329861850200-908.jpg",
+        "index": 908,
+        "elapsed_s": 45.9335609,
+        "sha256": "a54ad6e2cf81b8a139e1876fc06e89b876a6c745b866846a681650733603e059",
+        "phase": "selection",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789191329861850200-1486.jpg",
+        "index": 1486,
+        "elapsed_s": 75.0829544,
+        "sha256": "dd3ed12d65a5670f6927567c43ad346018fee68c35eaeadac7dae539e544d0ad",
+        "phase": "battle",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      }
+    ],
+    "existing_reviews": [],
+    "recording_metadata": {
+      "frames": 1517,
+      "elapsed_s": 76.6299587,
+      "fps": 20,
+      "measurement": "Use per-frame capture timestamps; AVI playback rate is not the wall clock if frames were skipped.",
+      "markers": "F8/F9 edges optional manual markers. Three-point changes require video review. No semantic inference.",
+      "input_edges": 0,
+      "input_telemetry": "unverified polling; zero edges does not prove no input",
+      "input_resolution_ms": 50.0
+    },
+    "reviewer": "GPT / Codex",
+    "review_scope": "three timestamp-based samples, plus explicitly cited historical reports; not complete video review",
+    "tags": [
+      "landing_visible"
+    ],
+    "stage_source": "map/layout and visible titles in samples",
+    "training_exclusion": "Sparse semantic review only; no audited bounding boxes or battle-level split."
+  },
+  {
+    "recording_id": "1789191508418725900",
+    "video": "E:\\Github\\AI_vtuber\\runtime\\vision\\timing-recordings\\1789191508418725900\\recording.avi",
+    "status": "sampled_visual_review",
+    "stage": "0-1",
+    "outcome": "unknown",
+    "training_eligible": false,
+    "sampled_frames": [
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789191508418725900-545.jpg",
+        "index": 545,
+        "elapsed_s": 27.6599393,
+        "sha256": "0c1a38b7cf7496c517fe8f45c9acdef4a4167d34802c66ef7fec07d939082db3",
+        "phase": "formation",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789191508418725900-2190.jpg",
+        "index": 2190,
+        "elapsed_s": 110.6364932,
+        "sha256": "3dbb0af29bd4a0d41f31f4b7b700e0e9bd1226020661f939a4c5a0a479c719f0",
+        "phase": "battle",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789191508418725900-3579.jpg",
+        "index": 3579,
+        "elapsed_s": 180.7068363,
+        "sha256": "03029b6bf04edc7dbd7a4bd021c3099558827fab556c3381e7dfa88ab4cb096d",
+        "phase": "battle",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      }
+    ],
+    "existing_reviews": [
+      "E:\\Github\\AI_vtuber\\runtime\\vision\\timing-recordings\\1789191508418725900\\round1-end-fine.json",
+      "E:\\Github\\AI_vtuber\\runtime\\vision\\timing-recordings\\1789191508418725900\\round1-review.json",
+      "E:\\Github\\AI_vtuber\\runtime\\vision\\timing-recordings\\1789191508418725900\\round1-start-fine.json",
+      "E:\\Github\\AI_vtuber\\runtime\\vision\\timing-recordings\\1789191508418725900\\round2-end-fine.json",
+      "E:\\Github\\AI_vtuber\\runtime\\vision\\timing-recordings\\1789191508418725900\\round2-review.json",
+      "E:\\Github\\AI_vtuber\\runtime\\vision\\timing-recordings\\1789191508418725900\\round2-start-fine.json"
+    ],
+    "recording_metadata": {
+      "frames": 3653,
+      "elapsed_s": 184.4285475,
+      "fps": 20,
+      "measurement": "Use per-frame capture timestamps; AVI playback rate is not the wall clock if frames were skipped.",
+      "markers": "F8/F9 edges optional manual markers. Three-point changes require video review. No semantic inference.",
+      "input_edges": 0,
+      "input_telemetry": "unverified polling; zero edges does not prove no input",
+      "input_resolution_ms": 50.0
+    },
+    "reviewer": "GPT / Codex",
+    "review_scope": "three timestamp-based samples, plus explicitly cited historical reports; not complete video review",
+    "tags": [
+      "multiple_attempts_possible",
+      "landing_visible"
+    ],
+    "stage_source": "map/layout and visible titles in samples",
+    "training_exclusion": "Sparse semantic review only; no audited bounding boxes or battle-level split."
+  },
+  {
+    "recording_id": "1789195766118489500",
+    "video": "E:\\Github\\AI_vtuber\\runtime\\vision\\timing-recordings\\1789195766118489500\\recording.avi",
+    "status": "sampled_visual_review",
+    "stage": "0-1",
+    "outcome": "result_visible_unassigned_battle",
+    "training_eligible": false,
+    "sampled_frames": [
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789195766118489500-1237.jpg",
+        "index": 1237,
+        "elapsed_s": 63.0200012,
+        "sha256": "6c5c144fb9e9f82d6677df5a37ae4e1d49791d66997e9c3f6add603f2bcc53d6",
+        "phase": "battle",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789195766118489500-4973.jpg",
+        "index": 4973,
+        "elapsed_s": 252.0087765,
+        "sha256": "4c6f71e1eb21c78383a60358d61491e6b751328599931695734bd3bb7022781c",
+        "phase": "result",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789195766118489500-8130.jpg",
+        "index": 8130,
+        "elapsed_s": 411.5911699,
+        "sha256": "8e0457bfc9ad7a5eedf37ae875d56175f087d95949c5d95ec77da125be72f0d4",
+        "phase": "result",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      }
+    ],
+    "existing_reviews": [],
+    "recording_metadata": {
+      "frames": 8297,
+      "elapsed_s": 420.0090346,
+      "fps": 20,
+      "measurement": "Use per-frame capture timestamps; AVI playback rate is not the wall clock if frames were skipped.",
+      "markers": "F8/F9 edges optional manual markers. Three-point changes require video review. No semantic inference.",
+      "input_edges": 0,
+      "input_telemetry": "unverified polling; zero edges does not prove no input",
+      "input_resolution_ms": 50.0
+    },
+    "reviewer": "GPT / Codex",
+    "review_scope": "three timestamp-based samples, plus explicitly cited historical reports; not complete video review",
+    "tags": [
+      "result_visible",
+      "leaks"
+    ],
+    "stage_source": "map/layout and visible titles in samples",
+    "training_exclusion": "Sparse semantic review only; no audited bounding boxes or battle-level split."
+  },
+  {
+    "recording_id": "1789196560969820800",
+    "video": "E:\\Github\\AI_vtuber\\runtime\\vision\\timing-recordings\\1789196560969820800\\recording.avi",
+    "status": "sampled_visual_review",
+    "stage": "0-1",
+    "outcome": "unknown",
+    "training_eligible": false,
+    "sampled_frames": [
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789196560969820800-559.jpg",
+        "index": 559,
+        "elapsed_s": 28.8348589,
+        "sha256": "945b9d41b2fe29a0d757adb3e47fbc6a9181e68f4231d4ec62f6b2d7db5bc6b2",
+        "phase": "black",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789196560969820800-2265.jpg",
+        "index": 2265,
+        "elapsed_s": 115.4402171,
+        "sha256": "1bcaa3b426cce72ce0855227ecc5865e0176cbcc9da1c9de2738c8d96b3eb18f",
+        "phase": "black",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789196560969820800-3700.jpg",
+        "index": 3700,
+        "elapsed_s": 188.5463543,
+        "sha256": "6dc67144a2cc90b416f410b61b3544faeaa374d053b847990db0f1ea4d9f127e",
+        "phase": "battle",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      }
+    ],
+    "existing_reviews": [
+      "E:\\Github\\AI_vtuber\\runtime\\vision\\timing-recordings\\1789196560969820800\\overview.json"
+    ],
+    "recording_metadata": {
+      "frames": 3777,
+      "elapsed_s": 223.2446405,
+      "fps": 20,
+      "measurement": "Use per-frame capture timestamps; AVI playback rate is not the wall clock if frames were skipped.",
+      "markers": "F8/F9 edges optional manual markers. Three-point changes require video review. No semantic inference.",
+      "input_edges": 0,
+      "input_telemetry": "unverified polling; zero edges does not prove no input",
+      "input_resolution_ms": 50.0
+    },
+    "reviewer": "GPT / Codex",
+    "review_scope": "three timestamp-based samples, plus explicitly cited historical reports; not complete video review",
+    "tags": [
+      "black_frames",
+      "landing_visible"
+    ],
+    "stage_source": "map/layout and visible titles in samples",
+    "training_exclusion": "Sparse semantic review only; no audited bounding boxes or battle-level split."
+  },
+  {
+    "recording_id": "1789196904939999900",
+    "video": "E:\\Github\\AI_vtuber\\runtime\\vision\\timing-recordings\\1789196904939999900\\recording.avi",
+    "status": "sampled_visual_review",
+    "stage": "0-1",
+    "outcome": "result_visible_unassigned_battle",
+    "training_eligible": false,
+    "sampled_frames": [
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789196904939999900-143.jpg",
+        "index": 143,
+        "elapsed_s": 10.5895077,
+        "sha256": "fbf4d0ef307693ca7d87e7d0978e02fdedcd74c1dbd51fb0bb256ca600780b88",
+        "phase": "result",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789196904939999900-760.jpg",
+        "index": 760,
+        "elapsed_s": 42.391997,
+        "sha256": "fc69def41658a522aa2edfb4d04ae25c765b4de89a48679b6d6f6bf12faf9c73",
+        "phase": "battle",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789196904939999900-1291.jpg",
+        "index": 1291,
+        "elapsed_s": 69.2403922,
+        "sha256": "5c2792c5959fdc3a0f1c77f70b7d643150d44b806614138cf6ff6fc38c8ac84c",
+        "phase": "battle",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      }
+    ],
+    "existing_reviews": [],
+    "recording_metadata": {
+      "frames": 1320,
+      "elapsed_s": 209.9250668,
+      "fps": 20,
+      "measurement": "Use per-frame capture timestamps; AVI playback rate is not the wall clock if frames were skipped.",
+      "markers": "F8/F9 edges optional manual markers. Three-point changes require video review. No semantic inference.",
+      "input_edges": 0,
+      "input_telemetry": "unverified polling; zero edges does not prove no input",
+      "input_resolution_ms": 50.0
+    },
+    "reviewer": "GPT / Codex",
+    "review_scope": "three timestamp-based samples, plus explicitly cited historical reports; not complete video review",
+    "tags": [
+      "result_visible",
+      "multiple_battles"
+    ],
+    "stage_source": "map/layout and visible titles in samples",
+    "training_exclusion": "Sparse semantic review only; no audited bounding boxes or battle-level split."
+  },
+  {
+    "recording_id": "1789197561879618200",
+    "video": "E:\\Github\\AI_vtuber\\runtime\\vision\\timing-recordings\\1789197561879618200\\recording.avi",
+    "status": "sampled_visual_review",
+    "stage": "0-1",
+    "outcome": "result_visible_unassigned_battle",
+    "training_eligible": false,
+    "sampled_frames": [
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789197561879618200-671.jpg",
+        "index": 671,
+        "elapsed_s": 35.5446781,
+        "sha256": "1d87d152ed06bf90b6d0ed09d3c0e8cf36ee1402be4d652109d0c7a5bf4d311e",
+        "phase": "battle",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789197561879618200-2773.jpg",
+        "index": 2773,
+        "elapsed_s": 142.1743083,
+        "sha256": "ee5c232383d8c6d82b0655b2c4a4b33b38a9d7b1bc3934dc5fd4e4b6661c8c09",
+        "phase": "formation",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789197561879618200-4547.jpg",
+        "index": 4547,
+        "elapsed_s": 232.2230884,
+        "sha256": "e5e950cff968705bfab802d9be7b4b12071abe31ff18a7734e96a912413b325b",
+        "phase": "result",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      }
+    ],
+    "existing_reviews": [],
+    "recording_metadata": {
+      "frames": 4642,
+      "elapsed_s": 276.4303044,
+      "fps": 20,
+      "measurement": "Use per-frame capture timestamps; AVI playback rate is not the wall clock if frames were skipped.",
+      "markers": "F8/F9 edges optional manual markers. Three-point changes require video review. No semantic inference.",
+      "input_edges": 0,
+      "input_telemetry": "unverified polling; zero edges does not prove no input",
+      "input_resolution_ms": 50.0
+    },
+    "reviewer": "GPT / Codex",
+    "review_scope": "three timestamp-based samples, plus explicitly cited historical reports; not complete video review",
+    "tags": [
+      "result_visible",
+      "multiple_attempts_possible"
+    ],
+    "stage_source": "map/layout and visible titles in samples",
+    "training_exclusion": "Sparse semantic review only; no audited bounding boxes or battle-level split."
+  },
+  {
+    "recording_id": "1789197855612015500",
+    "video": "E:\\Github\\AI_vtuber\\runtime\\vision\\timing-recordings\\1789197855612015500\\recording.avi",
+    "status": "sampled_visual_review",
+    "stage": "0-1",
+    "outcome": "unknown",
+    "training_eligible": false,
+    "sampled_frames": [
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789197855612015500-1211.jpg",
+        "index": 1211,
+        "elapsed_s": 62.9945893,
+        "sha256": "80c2946ab5d5094ff7a78dd137b710e9288a7bdba6bac8f1c34cea0ae8140931",
+        "phase": "battle",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789197855612015500-4831.jpg",
+        "index": 4831,
+        "elapsed_s": 252.017127,
+        "sha256": "c845f2cdfcf796d28d08eaacb6a48140cb7a509a3ebbb2cac651888056bbecf2",
+        "phase": "stage_map",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789197855612015500-7988.jpg",
+        "index": 7988,
+        "elapsed_s": 411.5919111,
+        "sha256": "b27a9454878a6bbf16a0c1f0c2b896ab9cd66400846b17636b745d5458c46f97",
+        "phase": "stage_map",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      }
+    ],
+    "existing_reviews": [],
+    "recording_metadata": {
+      "frames": 8155,
+      "elapsed_s": 420.0087021,
+      "fps": 20,
+      "measurement": "Use per-frame capture timestamps; AVI playback rate is not the wall clock if frames were skipped.",
+      "markers": "F8/F9 edges optional manual markers. Three-point changes require video review. No semantic inference.",
+      "input_edges": 4,
+      "input_telemetry": "unverified polling; zero edges does not prove no input",
+      "input_resolution_ms": 50.0
+    },
+    "reviewer": "GPT / Codex",
+    "review_scope": "three timestamp-based samples, plus explicitly cited historical reports; not complete video review",
+    "tags": [
+      "multiple_operators",
+      "result_not_sampled"
+    ],
+    "stage_source": "map/layout and visible titles in samples",
+    "training_exclusion": "Sparse semantic review only; no audited bounding boxes or battle-level split."
+  },
+  {
+    "recording_id": "1789198456111397300",
+    "video": "E:\\Github\\AI_vtuber\\runtime\\vision\\timing-recordings\\1789198456111397300\\recording.avi",
+    "status": "sampled_visual_review",
+    "stage": "0-1",
+    "outcome": "result_visible_unassigned_battle",
+    "training_eligible": false,
+    "sampled_frames": [
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789198456111397300-1226.jpg",
+        "index": 1226,
+        "elapsed_s": 62.9849195,
+        "sha256": "f5da7f0c662869b17ab53faa16b075bcbe06ea4e36dabcea379e6a25f29e0665",
+        "phase": "battle",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789198456111397300-4950.jpg",
+        "index": 4950,
+        "elapsed_s": 251.980536,
+        "sha256": "0590d9233e1c6d6bece8ca8e46eff69d738aefd5002737e910ab1e8c7fd5eb83",
+        "phase": "result",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789198456111397300-8108.jpg",
+        "index": 8108,
+        "elapsed_s": 411.602285,
+        "sha256": "c2b4da1c324f39693e85c91af3bea323217f1200988d4e170f5b169a36d7856d",
+        "phase": "result",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      }
+    ],
+    "existing_reviews": [],
+    "recording_metadata": {
+      "frames": 8275,
+      "elapsed_s": 420.0195815,
+      "fps": 20,
+      "measurement": "Use per-frame capture timestamps; AVI playback rate is not the wall clock if frames were skipped.",
+      "markers": "F8/F9 edges optional manual markers. Three-point changes require video review. No semantic inference.",
+      "input_edges": 0,
+      "input_telemetry": "unverified polling; zero edges does not prove no input",
+      "input_resolution_ms": 50.0
+    },
+    "reviewer": "GPT / Codex",
+    "review_scope": "three timestamp-based samples, plus explicitly cited historical reports; not complete video review",
+    "tags": [
+      "result_visible",
+      "multiple_operators"
+    ],
+    "stage_source": "map/layout and visible titles in samples",
+    "training_exclusion": "Sparse semantic review only; no audited bounding boxes or battle-level split."
+  },
+  {
+    "recording_id": "1789198913388983900",
+    "video": "E:\\Github\\AI_vtuber\\runtime\\vision\\timing-recordings\\1789198913388983900\\recording.avi",
+    "status": "sampled_visual_review",
+    "stage": "0-1",
+    "outcome": "unknown",
+    "training_eligible": false,
+    "sampled_frames": [
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789198913388983900-1085.jpg",
+        "index": 1085,
+        "elapsed_s": 55.7433998,
+        "sha256": "de8742fc6219ebd18e1a61e3cc8edbd4fdb672bb92c963a31cb70b2c3de6c8fb",
+        "phase": "battle",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789198913388983900-4386.jpg",
+        "index": 4386,
+        "elapsed_s": 222.9127026,
+        "sha256": "fa94b4282f6e5ec86f1489eca8cb4298f41394d85df0e988f2b61294c86d21e9",
+        "phase": "paused_profile",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789198913388983900-7178.jpg",
+        "index": 7178,
+        "elapsed_s": 364.0767566,
+        "sha256": "b7c73f05cff93af82d5ce58c68fd6f81a9d72a5f9ead28508efb790c54edc3e0",
+        "phase": "paused",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      }
+    ],
+    "existing_reviews": [
+      "E:\\Github\\AI_vtuber\\runtime\\vision\\timing-recordings\\1789198913388983900\\audit-overview.json"
+    ],
+    "recording_metadata": {
+      "frames": 7326,
+      "elapsed_s": 371.5343633,
+      "fps": 20,
+      "measurement": "Use per-frame capture timestamps; AVI playback rate is not the wall clock if frames were skipped.",
+      "markers": "F8/F9 edges optional manual markers. Three-point changes require video review. No semantic inference.",
+      "input_edges": 0,
+      "input_telemetry": "unverified polling; zero edges does not prove no input",
+      "input_resolution_ms": 50.0
+    },
+    "reviewer": "GPT / Codex",
+    "review_scope": "three timestamp-based samples, plus explicitly cited historical reports; not complete video review",
+    "tags": [
+      "pause_stall",
+      "multiple_operators"
+    ],
+    "stage_source": "map/layout and visible titles in samples",
+    "training_exclusion": "Sparse semantic review only; no audited bounding boxes or battle-level split."
+  },
+  {
+    "recording_id": "1789199285160462700",
+    "video": "E:\\Github\\AI_vtuber\\runtime\\vision\\timing-recordings\\1789199285160462700\\recording.avi",
+    "status": "sampled_visual_review",
+    "stage": "0-1",
+    "outcome": "result_visible_unassigned_battle",
+    "training_eligible": false,
+    "sampled_frames": [
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789199285160462700-707.jpg",
+        "index": 707,
+        "elapsed_s": 35.9786371,
+        "sha256": "a8506409e84964708dfb6ce81941256f32a1accf5ba0e2719943013d0efae221",
+        "phase": "paused",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789199285160462700-2844.jpg",
+        "index": 2844,
+        "elapsed_s": 143.9938073,
+        "sha256": "45c174a5d5511e2dc2caae62bc85ac936adf6141a661f00e179e07ddf869ed3e",
+        "phase": "paused",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789199285160462700-4649.jpg",
+        "index": 4649,
+        "elapsed_s": 235.2148178,
+        "sha256": "a6f3a892e18a6663845868fcfef5b7158516b428f8c5a60906f300e524954767",
+        "phase": "result",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      }
+    ],
+    "existing_reviews": [],
+    "recording_metadata": {
+      "frames": 4745,
+      "elapsed_s": 240.046861,
+      "fps": 20,
+      "measurement": "Use per-frame capture timestamps; AVI playback rate is not the wall clock if frames were skipped.",
+      "markers": "F8/F9 edges optional manual markers. Three-point changes require video review. No semantic inference.",
+      "input_edges": 0,
+      "input_telemetry": "unverified polling; zero edges does not prove no input",
+      "input_resolution_ms": 50.0
+    },
+    "reviewer": "GPT / Codex",
+    "review_scope": "three timestamp-based samples, plus explicitly cited historical reports; not complete video review",
+    "tags": [
+      "pause_stall",
+      "result_visible"
+    ],
+    "stage_source": "map/layout and visible titles in samples",
+    "training_exclusion": "Sparse semantic review only; no audited bounding boxes or battle-level split."
+  },
+  {
+    "recording_id": "1789199579921108000",
+    "video": "E:\\Github\\AI_vtuber\\runtime\\vision\\timing-recordings\\1789199579921108000\\recording.avi",
+    "status": "sampled_visual_review",
+    "stage": "0-1",
+    "outcome": "result_visible_unassigned_battle",
+    "training_eligible": false,
+    "sampled_frames": [
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789199579921108000-531.jpg",
+        "index": 531,
+        "elapsed_s": 26.9750987,
+        "sha256": "3037d698a14467c75dc67110e8d4f220b0478348d0041ca94d85da44962a4141",
+        "phase": "battle",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789199579921108000-2134.jpg",
+        "index": 2134,
+        "elapsed_s": 107.9660962,
+        "sha256": "d502ca7cde29814580c6de3b15c6150bdd5136495f86cdd4e64e0f4578deda98",
+        "phase": "result",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789199579921108000-3488.jpg",
+        "index": 3488,
+        "elapsed_s": 176.3982142,
+        "sha256": "a3c77c9a5165e2bf77bae0005717860f562d2d8b966bce2ffc3f2f9e480b2e11",
+        "phase": "result",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      }
+    ],
+    "existing_reviews": [],
+    "recording_metadata": {
+      "frames": 3560,
+      "elapsed_s": 180.020221,
+      "fps": 20,
+      "measurement": "Use per-frame capture timestamps; AVI playback rate is not the wall clock if frames were skipped.",
+      "markers": "F8/F9 edges optional manual markers. Three-point changes require video review. No semantic inference.",
+      "input_edges": 0,
+      "input_telemetry": "unverified polling; zero edges does not prove no input",
+      "input_resolution_ms": 50.0
+    },
+    "reviewer": "GPT / Codex",
+    "review_scope": "three timestamp-based samples, plus explicitly cited historical reports; not complete video review",
+    "tags": [
+      "result_visible",
+      "multiple_operators"
+    ],
+    "stage_source": "map/layout and visible titles in samples",
+    "training_exclusion": "Sparse semantic review only; no audited bounding boxes or battle-level split."
+  },
+  {
+    "recording_id": "1789200166568970700",
+    "video": "E:\\Github\\AI_vtuber\\runtime\\vision\\timing-recordings\\1789200166568970700\\recording.avi",
+    "status": "incomplete_recording",
+    "stage": "0-1",
+    "outcome": "unknown",
+    "training_eligible": false,
+    "sampled_frames": [],
+    "existing_reviews": [],
+    "recording_metadata": {
+      "frames": 0,
+      "elapsed_s": 0.0683343,
+      "fps": 20,
+      "measurement": "Use per-frame capture timestamps; AVI playback rate is not the wall clock if frames were skipped.",
+      "markers": "F8/F9 edges optional manual markers. Three-point changes require video review. No semantic inference.",
+      "input_edges": 0,
+      "input_telemetry": "unverified polling; zero edges does not prove no input",
+      "input_resolution_ms": 50.0
+    },
+    "reviewer": "GPT / Codex",
+    "review_scope": "three timestamp-based samples, plus explicitly cited historical reports; not complete video review",
+    "tags": [
+      "incomplete_recording"
+    ],
+    "stage_source": "map/layout and visible titles in samples",
+    "training_exclusion": "Sparse semantic review only; no audited bounding boxes or battle-level split."
+  },
+  {
+    "recording_id": "1789200188330425500",
+    "video": "E:\\Github\\AI_vtuber\\runtime\\vision\\timing-recordings\\1789200188330425500\\recording.avi",
+    "status": "sampled_visual_review",
+    "stage": "0-1",
+    "outcome": "result_visible_unassigned_battle",
+    "training_eligible": false,
+    "sampled_frames": [
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789200188330425500-532.jpg",
+        "index": 532,
+        "elapsed_s": 26.9912604,
+        "sha256": "bd17d8b12cfbbd59ced4f4e1e4aa7c582c56ab4e3e082a79abdd136b38f9839f",
+        "phase": "result",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789200188330425500-2130.jpg",
+        "index": 2130,
+        "elapsed_s": 108.0231154,
+        "sha256": "41b255c3f15a9f83dfdfd1eec2f58f64d474ae871c64a7c692b3357ad7af4dca",
+        "phase": "black",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789200188330425500-3383.jpg",
+        "index": 3383,
+        "elapsed_s": 176.4257816,
+        "sha256": "e79ca0b08e7e607e1249c13396173bafbfb7b654b6288f709be9010a4e3d656d",
+        "phase": "result",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      }
+    ],
+    "existing_reviews": [
+      "E:\\Github\\AI_vtuber\\runtime\\vision\\timing-recordings\\1789200188330425500\\multi-skill-result-audit.json",
+      "E:\\Github\\AI_vtuber\\runtime\\vision\\timing-recordings\\1789200188330425500\\opening-audit.json",
+      "E:\\Github\\AI_vtuber\\runtime\\vision\\timing-recordings\\1789200188330425500\\precise-landing-audit.json"
+    ],
+    "recording_metadata": {
+      "frames": 3455,
+      "elapsed_s": 180.0399671,
+      "fps": 20,
+      "measurement": "Use per-frame capture timestamps; AVI playback rate is not the wall clock if frames were skipped.",
+      "markers": "F8/F9 edges optional manual markers. Three-point changes require video review. No semantic inference.",
+      "input_edges": 0,
+      "input_telemetry": "unverified polling; zero edges does not prove no input",
+      "input_resolution_ms": 50.0
+    },
+    "reviewer": "GPT / Codex",
+    "review_scope": "three timestamp-based samples, plus explicitly cited historical reports; not complete video review",
+    "tags": [
+      "black_frames",
+      "result_visible",
+      "prior_audit_available"
+    ],
+    "stage_source": "map/layout and visible titles in samples",
+    "training_exclusion": "Sparse semantic review only; no audited bounding boxes or battle-level split."
+  },
+  {
+    "recording_id": "1789204077284592600",
+    "video": "E:\\Github\\AI_vtuber\\runtime\\vision\\timing-recordings\\1789204077284592600\\recording.avi",
+    "status": "sampled_visual_review",
+    "stage": "0-1",
+    "outcome": "result_visible_unassigned_battle",
+    "training_eligible": false,
+    "sampled_frames": [
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789204077284592600-532.jpg",
+        "index": 532,
+        "elapsed_s": 26.9783959,
+        "sha256": "2671fb242eb3335fa2fa4f8d5d5dafbc43cb58253edcd64c28bf667b77240dcf",
+        "phase": "formation",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789204077284592600-2135.jpg",
+        "index": 2135,
+        "elapsed_s": 107.9730409,
+        "sha256": "570211bf29664ac37797144b2e10e22b4cf3438ebbfe29a7ecb2544782a305b6",
+        "phase": "result",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789204077284592600-3490.jpg",
+        "index": 3490,
+        "elapsed_s": 176.3904585,
+        "sha256": "8ce706cd7040af424ad16c08f6f7b148825e1a0c51d2ba704445b3a9d089ed3e",
+        "phase": "formation",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      }
+    ],
+    "existing_reviews": [],
+    "recording_metadata": {
+      "frames": 3562,
+      "elapsed_s": 180.0041245,
+      "fps": 20,
+      "measurement": "Use per-frame capture timestamps; AVI playback rate is not the wall clock if frames were skipped.",
+      "markers": "F8/F9 edges optional manual markers. Three-point changes require video review. No semantic inference.",
+      "input_edges": 0,
+      "input_telemetry": "unverified polling; zero edges does not prove no input",
+      "input_resolution_ms": 50.0
+    },
+    "reviewer": "GPT / Codex",
+    "review_scope": "three timestamp-based samples, plus explicitly cited historical reports; not complete video review",
+    "tags": [
+      "result_visible",
+      "multiple_attempts_possible"
+    ],
+    "stage_source": "map/layout and visible titles in samples",
+    "training_exclusion": "Sparse semantic review only; no audited bounding boxes or battle-level split."
+  },
+  {
+    "recording_id": "1789204281186668600",
+    "video": "E:\\Github\\AI_vtuber\\runtime\\vision\\timing-recordings\\1789204281186668600\\recording.avi",
+    "status": "sampled_visual_review",
+    "stage": "0-1",
+    "outcome": "unknown",
+    "training_eligible": false,
+    "sampled_frames": [
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789204281186668600-533.jpg",
+        "index": 533,
+        "elapsed_s": 27.0135621,
+        "sha256": "84e4d5d112e4d4f6cb72c3480d9758c090ad553a7483be9d218fc11bdad75d07",
+        "phase": "formation",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789204281186668600-2137.jpg",
+        "index": 2137,
+        "elapsed_s": 108.0272638,
+        "sha256": "df6478ce552503648000abbe8a17a48d462ee3ec57585ac6adfae74583f3ca0f",
+        "phase": "skill_ready",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789204281186668600-3492.jpg",
+        "index": 3492,
+        "elapsed_s": 176.4180739,
+        "sha256": "5575c39c81fce4c4e1771bbf3304b5b4744f934fa44cdece940f01678d6571d2",
+        "phase": "skill_ready",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      }
+    ],
+    "existing_reviews": [],
+    "recording_metadata": {
+      "frames": 3564,
+      "elapsed_s": 180.0365219,
+      "fps": 20,
+      "measurement": "Use per-frame capture timestamps; AVI playback rate is not the wall clock if frames were skipped.",
+      "markers": "F8/F9 edges optional manual markers. Three-point changes require video review. No semantic inference.",
+      "input_edges": 0,
+      "input_telemetry": "unverified polling; zero edges does not prove no input",
+      "input_resolution_ms": 50.0
+    },
+    "reviewer": "GPT / Codex",
+    "review_scope": "three timestamp-based samples, plus explicitly cited historical reports; not complete video review",
+    "tags": [
+      "skill_ready_not_activation"
+    ],
+    "stage_source": "map/layout and visible titles in samples",
+    "training_exclusion": "Sparse semantic review only; no audited bounding boxes or battle-level split."
+  },
+  {
+    "recording_id": "1789204546448229000",
+    "video": "E:\\Github\\AI_vtuber\\runtime\\vision\\timing-recordings\\1789204546448229000\\recording.avi",
+    "status": "sampled_visual_review",
+    "stage": "0-1",
+    "outcome": "unknown",
+    "training_eligible": false,
+    "sampled_frames": [
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789204546448229000-326.jpg",
+        "index": 326,
+        "elapsed_s": 16.5707982,
+        "sha256": "d2ccac8eae9d55be211f891bec8e95e5c9655fd2f534cc79c9ad58e6782b2508",
+        "phase": "skill_ready",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789204546448229000-1025.jpg",
+        "index": 1025,
+        "elapsed_s": 55.3512048,
+        "sha256": "b2c3b8d346fd831661dd7afdc94844a721ba6276524d29c28ed434f616f37d21",
+        "phase": "skill_ready",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789204546448229000-1595.jpg",
+        "index": 1595,
+        "elapsed_s": 108.3356157,
+        "sha256": "4300d676002b7cd7d04c2d79c00dc7f6458962a6ee6308b908d9509b5ae35189",
+        "phase": "stage_map",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      }
+    ],
+    "existing_reviews": [],
+    "recording_metadata": {
+      "frames": 1640,
+      "elapsed_s": 120.0459773,
+      "fps": 20,
+      "measurement": "Use per-frame capture timestamps; AVI playback rate is not the wall clock if frames were skipped.",
+      "markers": "F8/F9 edges optional manual markers. Three-point changes require video review. No semantic inference.",
+      "input_edges": 0,
+      "input_telemetry": "unverified polling; zero edges does not prove no input",
+      "input_resolution_ms": 50.0
+    },
+    "reviewer": "GPT / Codex",
+    "review_scope": "three timestamp-based samples, plus explicitly cited historical reports; not complete video review",
+    "tags": [
+      "skill_ready_not_activation"
+    ],
+    "stage_source": "map/layout and visible titles in samples",
+    "training_exclusion": "Sparse semantic review only; no audited bounding boxes or battle-level split."
+  },
+  {
+    "recording_id": "1789204736207059000",
+    "video": "E:\\Github\\AI_vtuber\\runtime\\vision\\timing-recordings\\1789204736207059000\\recording.avi",
+    "status": "sampled_visual_review",
+    "stage": "0-1",
+    "outcome": "unknown",
+    "training_eligible": false,
+    "sampled_frames": [
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789204736207059000-443.jpg",
+        "index": 443,
+        "elapsed_s": 22.4902059,
+        "sha256": "32476c34cdd6a5cfc3a5d5ee36ffa3060db78e87af36fe2cad59d6329dcfd0f1",
+        "phase": "formation",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789204736207059000-1776.jpg",
+        "index": 1776,
+        "elapsed_s": 90.0181686,
+        "sha256": "dde783faca41f18a4ef43960dbcc967fb4c466af4d2145eb85b599c81c03f4c3",
+        "phase": "skill_ready",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789204736207059000-2904.jpg",
+        "index": 2904,
+        "elapsed_s": 147.0357223,
+        "sha256": "d8f7716ea6f2acfd40c42d65aaaa9b8c998bf74f4d4ec979158525080964044c",
+        "phase": "skill_ready",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      }
+    ],
+    "existing_reviews": [],
+    "recording_metadata": {
+      "frames": 2964,
+      "elapsed_s": 150.0485282,
+      "fps": 20,
+      "measurement": "Use per-frame capture timestamps; AVI playback rate is not the wall clock if frames were skipped.",
+      "markers": "F8/F9 edges optional manual markers. Three-point changes require video review. No semantic inference.",
+      "input_edges": 0,
+      "input_telemetry": "unverified polling; zero edges does not prove no input",
+      "input_resolution_ms": 50.0
+    },
+    "reviewer": "GPT / Codex",
+    "review_scope": "three timestamp-based samples, plus explicitly cited historical reports; not complete video review",
+    "tags": [
+      "skill_ready_not_activation"
+    ],
+    "stage_source": "map/layout and visible titles in samples",
+    "training_exclusion": "Sparse semantic review only; no audited bounding boxes or battle-level split."
+  },
+  {
+    "recording_id": "1789205046881017900",
+    "video": "E:\\Github\\AI_vtuber\\runtime\\vision\\timing-recordings\\1789205046881017900\\recording.avi",
+    "status": "sampled_visual_review",
+    "stage": "0-1",
+    "outcome": "result_visible_unassigned_battle",
+    "training_eligible": false,
+    "sampled_frames": [
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789205046881017900-294.jpg",
+        "index": 294,
+        "elapsed_s": 14.990524,
+        "sha256": "e5f14619fe3e2fbd7877e86b4c39a1d5306414d893452fd3acd841bf9337c42d",
+        "phase": "skill_ready",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789205046881017900-1184.jpg",
+        "index": 1184,
+        "elapsed_s": 60.00318,
+        "sha256": "be26e54212d89fcdecccc874f6772427ba0a9f7c1f2e057e48d93f501ac0446c",
+        "phase": "result",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789205046881017900-1935.jpg",
+        "index": 1935,
+        "elapsed_s": 97.9763128,
+        "sha256": "fc3bd6cc9279ff9b84740588df445b683d2329a750607c3f673368fe07462cd6",
+        "phase": "result",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      }
+    ],
+    "existing_reviews": [],
+    "recording_metadata": {
+      "frames": 1976,
+      "elapsed_s": 100.022949,
+      "fps": 20,
+      "measurement": "Use per-frame capture timestamps; AVI playback rate is not the wall clock if frames were skipped.",
+      "markers": "F8/F9 edges optional manual markers. Three-point changes require video review. No semantic inference.",
+      "input_edges": 0,
+      "input_telemetry": "unverified polling; zero edges does not prove no input",
+      "input_resolution_ms": 50.0
+    },
+    "reviewer": "GPT / Codex",
+    "review_scope": "three timestamp-based samples, plus explicitly cited historical reports; not complete video review",
+    "tags": [
+      "result_visible",
+      "skill_activation_not_proven_by_samples"
+    ],
+    "stage_source": "map/layout and visible titles in samples",
+    "training_exclusion": "Sparse semantic review only; no audited bounding boxes or battle-level split."
+  },
+  {
+    "recording_id": "1789205318840922400",
+    "video": "E:\\Github\\AI_vtuber\\runtime\\vision\\timing-recordings\\1789205318840922400\\recording.avi",
+    "status": "sampled_visual_review",
+    "stage": "0-1",
+    "outcome": "unknown",
+    "training_eligible": false,
+    "sampled_frames": [
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789205318840922400-353.jpg",
+        "index": 353,
+        "elapsed_s": 18.0014109,
+        "sha256": "e48f5e0db988d54bc27c4667589ce6b3313af2cc742b01893a13c82a32735c47",
+        "phase": "formation",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789205318840922400-1419.jpg",
+        "index": 1419,
+        "elapsed_s": 71.9869069,
+        "sha256": "14c7237281245578b0994a7072967696afeaabac898b4fc6af8c76f284de629e",
+        "phase": "selection",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789205318840922400-2321.jpg",
+        "index": 2321,
+        "elapsed_s": 117.5749898,
+        "sha256": "088b8e7bc6cc238e7428dc0058c07afa08c9ccd3a1b6bfc274b0f8dd52489411",
+        "phase": "selection",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      }
+    ],
+    "existing_reviews": [],
+    "recording_metadata": {
+      "frames": 2370,
+      "elapsed_s": 120.0219896,
+      "fps": 20,
+      "measurement": "Use per-frame capture timestamps; AVI playback rate is not the wall clock if frames were skipped.",
+      "markers": "F8/F9 edges optional manual markers. Three-point changes require video review. No semantic inference.",
+      "input_edges": 0,
+      "input_telemetry": "unverified polling; zero edges does not prove no input",
+      "input_resolution_ms": 50.0
+    },
+    "reviewer": "GPT / Codex",
+    "review_scope": "three timestamp-based samples, plus explicitly cited historical reports; not complete video review",
+    "tags": [
+      "high_ground_selection_stall"
+    ],
+    "stage_source": "map/layout and visible titles in samples",
+    "training_exclusion": "Sparse semantic review only; no audited bounding boxes or battle-level split."
+  },
+  {
+    "recording_id": "1789205816972364400",
+    "video": "E:\\Github\\AI_vtuber\\runtime\\vision\\timing-recordings\\1789205816972364400\\recording.avi",
+    "status": "sampled_visual_review",
+    "stage": "0-1",
+    "outcome": "result_visible_unassigned_battle",
+    "training_eligible": false,
+    "sampled_frames": [
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789205816972364400-264.jpg",
+        "index": 264,
+        "elapsed_s": 13.4820924,
+        "sha256": "2773b6a76d454df81228154f4b15f29bd7686505d83344140a0a9941051d87fe",
+        "phase": "battle",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789205816972364400-1064.jpg",
+        "index": 1064,
+        "elapsed_s": 54.0297577,
+        "sha256": "cc85fd804b3eeed907541e6d7d5b60f1f5f8112e841ae77eb17cc844ac9efd95",
+        "phase": "battle",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789205816972364400-1740.jpg",
+        "index": 1740,
+        "elapsed_s": 88.1873197,
+        "sha256": "33d28af8350a7289799ef2c8fcb238aa6f6c7d0b1611d86ee24f583d1d77ac8f",
+        "phase": "result",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      }
+    ],
+    "existing_reviews": [
+      "E:\\Github\\AI_vtuber\\runtime\\vision\\timing-recordings\\1789205816972364400\\economy-review.json"
+    ],
+    "recording_metadata": {
+      "frames": 1777,
+      "elapsed_s": 90.0378996,
+      "fps": 20,
+      "measurement": "Use per-frame capture timestamps; AVI playback rate is not the wall clock if frames were skipped.",
+      "markers": "F8/F9 edges optional manual markers. Three-point changes require video review. No semantic inference.",
+      "input_edges": 0,
+      "input_telemetry": "unverified polling; zero edges does not prove no input",
+      "input_resolution_ms": 50.0
+    },
+    "reviewer": "GPT / Codex",
+    "review_scope": "three timestamp-based samples, plus explicitly cited historical reports; not complete video review",
+    "tags": [
+      "result_visible",
+      "two_stars_prior_review",
+      "multiple_operators"
+    ],
+    "stage_source": "map/layout and visible titles in samples",
+    "training_exclusion": "Sparse semantic review only; no audited bounding boxes or battle-level split."
+  },
+  {
+    "recording_id": "1789207081535525300",
+    "video": "E:\\Github\\AI_vtuber\\runtime\\vision\\timing-recordings\\1789207081535525300\\recording.avi",
+    "status": "sampled_visual_review",
+    "stage": "0-7",
+    "outcome": "unknown",
+    "training_eligible": false,
+    "sampled_frames": [
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789207081535525300-534.jpg",
+        "index": 534,
+        "elapsed_s": 35.9783505,
+        "sha256": "0956f7575eb24f550a231642a91a9b428d73126ddef504f61263542c21372ba0",
+        "phase": "formation",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789207081535525300-1943.jpg",
+        "index": 1943,
+        "elapsed_s": 143.9941269,
+        "sha256": "1f0332a834817d27b8b90fd01c5b46ab67a6b3ca097c74b4d063ce8bbeb185f7",
+        "phase": "paused_selection",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789207081535525300-3300.jpg",
+        "index": 3300,
+        "elapsed_s": 235.1937176,
+        "sha256": "f088c1eed9b4440792996b2ac72f704146a0dfb9becaac625c48a14d32d9d801",
+        "phase": "paused_selection",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      }
+    ],
+    "existing_reviews": [],
+    "recording_metadata": {
+      "frames": 3372,
+      "elapsed_s": 240.0098544,
+      "fps": 15,
+      "measurement": "Use per-frame capture timestamps; AVI playback rate is not the wall clock if frames were skipped.",
+      "markers": "F8/F9 edges optional manual markers. Three-point changes require video review. No semantic inference.",
+      "input_edges": 0,
+      "input_telemetry": "unverified polling; zero edges does not prove no input",
+      "input_resolution_ms": 66.66666666666667
+    },
+    "reviewer": "GPT / Codex",
+    "review_scope": "three timestamp-based samples, plus explicitly cited historical reports; not complete video review",
+    "tags": [
+      "pause_stall",
+      "continuation"
+    ],
+    "stage_source": "map/layout and visible titles in samples",
+    "training_exclusion": "Sparse semantic review only; no audited bounding boxes or battle-level split."
+  },
+  {
+    "recording_id": "1789207355296093500",
+    "video": "E:\\Github\\AI_vtuber\\runtime\\vision\\timing-recordings\\1789207355296093500\\recording.avi",
+    "status": "sampled_visual_review",
+    "stage": "0-7",
+    "outcome": "result_visible_unassigned_battle",
+    "training_eligible": false,
+    "sampled_frames": [
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789207355296093500-294.jpg",
+        "index": 294,
+        "elapsed_s": 19.8527733,
+        "sha256": "c7b06193f72d92bbaef239f68b52fac85f599c8be17fcb972382c322d5c0beec",
+        "phase": "battle",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789207355296093500-1182.jpg",
+        "index": 1182,
+        "elapsed_s": 79.5312658,
+        "sha256": "38bcdc55b48b982607d7a1bc2aae04bc4139b2643c4f04a4aec5d3b5ebeef09f",
+        "phase": "battle",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789207355296093500-1931.jpg",
+        "index": 1931,
+        "elapsed_s": 129.8799199,
+        "sha256": "e7e25744ed0284c462924cb059bd04e270ffb7a28ba99bf84e0baf6a10eb3509",
+        "phase": "result",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      }
+    ],
+    "existing_reviews": [
+      "E:\\Github\\AI_vtuber\\runtime\\vision\\timing-recordings\\1789207355296093500\\stage07-review.json"
+    ],
+    "recording_metadata": {
+      "frames": 1971,
+      "elapsed_s": 132.544974,
+      "fps": 15,
+      "measurement": "Use per-frame capture timestamps; AVI playback rate is not the wall clock if frames were skipped.",
+      "markers": "F8/F9 edges optional manual markers. Three-point changes require video review. No semantic inference.",
+      "input_edges": 0,
+      "input_telemetry": "unverified polling; zero edges does not prove no input",
+      "input_resolution_ms": 66.66666666666667
+    },
+    "reviewer": "GPT / Codex",
+    "review_scope": "three timestamp-based samples, plus explicitly cited historical reports; not complete video review",
+    "tags": [
+      "result_visible",
+      "three_stars_prior_review",
+      "continuation"
+    ],
+    "stage_source": "map/layout and visible titles in samples",
+    "training_exclusion": "Sparse semantic review only; no audited bounding boxes or battle-level split."
+  },
+  {
+    "recording_id": "1789208126958306200",
+    "video": "E:\\Github\\AI_vtuber\\runtime\\vision\\timing-recordings\\1789208126958306200\\recording.avi",
+    "status": "sampled_visual_review",
+    "stage": "0-7",
+    "outcome": "unknown",
+    "training_eligible": false,
+    "sampled_frames": [
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789208126958306200-667.jpg",
+        "index": 667,
+        "elapsed_s": 44.9684039,
+        "sha256": "ae1e1ae05235f1ee3546a1178b68226be589815d246ecdc1945074d824453bb3",
+        "phase": "paused",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789208126958306200-2676.jpg",
+        "index": 2676,
+        "elapsed_s": 180.0017853,
+        "sha256": "a0ddd1b850f4199cde9b4f9bc97e6fba1a267348c8493046f5424f80c05704f6",
+        "phase": "paused_selection",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789208126958306200-3707.jpg",
+        "index": 3707,
+        "elapsed_s": 294.0322527,
+        "sha256": "8e77838d576d2753731bf5d829db30204c23aa3b71afb41f8cccdebea49ed103",
+        "phase": "paused",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      }
+    ],
+    "existing_reviews": [],
+    "recording_metadata": {
+      "frames": 3797,
+      "elapsed_s": 300.0602674,
+      "fps": 15,
+      "measurement": "Use per-frame capture timestamps; AVI playback rate is not the wall clock if frames were skipped.",
+      "markers": "F8/F9 edges optional manual markers. Three-point changes require video review. No semantic inference.",
+      "input_edges": 0,
+      "input_telemetry": "unverified polling; zero edges does not prove no input",
+      "input_resolution_ms": 66.66666666666667
+    },
+    "reviewer": "GPT / Codex",
+    "review_scope": "three timestamp-based samples, plus explicitly cited historical reports; not complete video review",
+    "tags": [
+      "pause_stall",
+      "continuation"
+    ],
+    "stage_source": "map/layout and visible titles in samples",
+    "training_exclusion": "Sparse semantic review only; no audited bounding boxes or battle-level split."
+  },
+  {
+    "recording_id": "1789208386628373700",
+    "video": "E:\\Github\\AI_vtuber\\runtime\\vision\\timing-recordings\\1789208386628373700\\recording.avi",
+    "status": "sampled_visual_review",
+    "stage": "0-7",
+    "outcome": "unknown",
+    "training_eligible": false,
+    "sampled_frames": [
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789208386628373700-534.jpg",
+        "index": 534,
+        "elapsed_s": 36.0360353,
+        "sha256": "4785b2c65880da9f6225ff44cb9ca523e9514d7eb45f8b24aeabbbb06a27fbe0",
+        "phase": "battle",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789208386628373700-1743.jpg",
+        "index": 1743,
+        "elapsed_s": 138.7199863,
+        "sha256": "5286daa1eab3e871faa0436ce18561728356f4a363716c22f56b8c21cd517f38",
+        "phase": "battle",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789208386628373700-2598.jpg",
+        "index": 2598,
+        "elapsed_s": 235.2292378,
+        "sha256": "f416f0205c108cec4a42fcb48d424c35d46e93264a8f022e90b9d45fbce2e60b",
+        "phase": "stage_map",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      }
+    ],
+    "existing_reviews": [
+      "E:\\Github\\AI_vtuber\\runtime\\vision\\timing-recordings\\1789208386628373700\\retrospective.json"
+    ],
+    "recording_metadata": {
+      "frames": 2670,
+      "elapsed_s": 240.0446189,
+      "fps": 15,
+      "measurement": "Use per-frame capture timestamps; AVI playback rate is not the wall clock if frames were skipped.",
+      "markers": "F8/F9 edges optional manual markers. Three-point changes require video review. No semantic inference.",
+      "input_edges": 2,
+      "input_telemetry": "unverified polling; zero edges does not prove no input",
+      "input_resolution_ms": 66.66666666666667
+    },
+    "reviewer": "GPT / Codex",
+    "review_scope": "three timestamp-based samples, plus explicitly cited historical reports; not complete video review",
+    "tags": [
+      "result_not_sampled",
+      "program_incomplete_prior_review"
+    ],
+    "stage_source": "map/layout and visible titles in samples",
+    "training_exclusion": "Sparse semantic review only; no audited bounding boxes or battle-level split."
+  },
+  {
+    "recording_id": "1789704048246665500",
+    "video": "E:\\Github\\AI_vtuber\\runtime\\vision\\timing-recordings\\1789704048246665500\\recording.avi",
+    "status": "sampled_visual_review",
+    "stage": "0-1",
+    "outcome": "unknown",
+    "training_eligible": false,
+    "sampled_frames": [
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789704048246665500-0.jpg",
+        "index": 0,
+        "elapsed_s": 3.4295886,
+        "sha256": "6eee144c156c998d2d6ff5937981e4f63ae22be1bfb98b4d82cee24eb8824e4a",
+        "phase": "formation",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789704048246665500-6.jpg",
+        "index": 6,
+        "elapsed_s": 3.7307618,
+        "sha256": "50a0948cb83e0dedb63a8fa28036c7c0c5cf91195c0e1ac03e613521ae18b2a6",
+        "phase": "formation",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789704048246665500-52.jpg",
+        "index": 52,
+        "elapsed_s": 6.058688,
+        "sha256": "00f747fa84c8302f226b4b597d3c03e35633cf7a2685a8f1ec755d34003b7832",
+        "phase": "formation",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      }
+    ],
+    "existing_reviews": [],
+    "recording_metadata": {
+      "frames": 56,
+      "elapsed_s": 6.2403505,
+      "fps": 20,
+      "measurement": "Use per-frame capture timestamps; AVI playback rate is not the wall clock if frames were skipped.",
+      "markers": "F8/F9 edges optional manual markers. Three-point changes require video review. No semantic inference.",
+      "input_edges": 0,
+      "input_telemetry": "unverified polling; zero edges does not prove no input",
+      "input_resolution_ms": 50.0
+    },
+    "reviewer": "GPT / Codex",
+    "review_scope": "three timestamp-based samples, plus explicitly cited historical reports; not complete video review",
+    "tags": [
+      "short_recording"
+    ],
+    "stage_source": "map/layout and visible titles in samples",
+    "training_exclusion": "Sparse semantic review only; no audited bounding boxes or battle-level split."
+  },
+  {
+    "recording_id": "1789704147761949200",
+    "video": "E:\\Github\\AI_vtuber\\runtime\\vision\\timing-recordings\\1789704147761949200\\recording.avi",
+    "status": "sampled_visual_review",
+    "stage": "0-1",
+    "outcome": "unknown",
+    "training_eligible": false,
+    "sampled_frames": [
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789704147761949200-197.jpg",
+        "index": 197,
+        "elapsed_s": 10.0411795,
+        "sha256": "31d9cb5b41578f5141ca3d3c878d43b4d071aef3e0566489f3b1803cef29a47b",
+        "phase": "loading",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789704147761949200-794.jpg",
+        "index": 794,
+        "elapsed_s": 40.2084787,
+        "sha256": "176410d2baa5446aa999272f2260a33a7fd8bb0d35001e75b66103bfe57a7aca",
+        "phase": "battle",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789704147761949200-1035.jpg",
+        "index": 1035,
+        "elapsed_s": 65.6758189,
+        "sha256": "d0d57dd04d5f2ddfa77e7293c9ec9464e447130a7e6825b1f1a9937ea9a48c31",
+        "phase": "battle",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      }
+    ],
+    "existing_reviews": [],
+    "recording_metadata": {
+      "frames": 1063,
+      "elapsed_s": 180.0047734,
+      "fps": 20,
+      "measurement": "Use per-frame capture timestamps; AVI playback rate is not the wall clock if frames were skipped.",
+      "markers": "F8/F9 edges optional manual markers. Three-point changes require video review. No semantic inference.",
+      "input_edges": 0,
+      "input_telemetry": "unverified polling; zero edges does not prove no input",
+      "input_resolution_ms": 50.0
+    },
+    "reviewer": "GPT / Codex",
+    "review_scope": "three timestamp-based samples, plus explicitly cited historical reports; not complete video review",
+    "tags": [
+      "practice",
+      "multiple_operators",
+      "result_not_sampled"
+    ],
+    "stage_source": "map/layout and visible titles in samples",
+    "training_exclusion": "Sparse semantic review only; no audited bounding boxes or battle-level split."
+  },
+  {
+    "recording_id": "1789705302565198100",
+    "video": "E:\\Github\\AI_vtuber\\runtime\\vision\\timing-recordings\\1789705302565198100\\recording.avi",
+    "status": "sampled_visual_review",
+    "stage": null,
+    "outcome": "unknown",
+    "training_eligible": false,
+    "sampled_frames": [
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789705302565198100-894.jpg",
+        "index": 894,
+        "elapsed_s": 90.0016021,
+        "sha256": "487f328fa5395a6c960df9eae280529bc6fea27de7b5b02c3ac40108b5ae5365",
+        "phase": "battle",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789705302565198100-3580.jpg",
+        "index": 3580,
+        "elapsed_s": 360.0285878,
+        "sha256": "57c6ff77f61e0319ec99dfa78d4f19baa71dc6df49b9d1f1531f14ee6904e90d",
+        "phase": "paused",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789705302565198100-5848.jpg",
+        "index": 5848,
+        "elapsed_s": 588.0052964,
+        "sha256": "90e2254eb203bd3af5c4e89a9f8c8173e7f30ea61353df4d9bb5cb8e9fc387a0",
+        "phase": "paused",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      }
+    ],
+    "existing_reviews": [],
+    "recording_metadata": {
+      "frames": 5968,
+      "elapsed_s": 600.0542537,
+      "fps": 10,
+      "measurement": "Use per-frame capture timestamps; AVI playback rate is not the wall clock if frames were skipped.",
+      "markers": "F8/F9 edges optional manual markers. Three-point changes require video review. No semantic inference.",
+      "input_edges": 0,
+      "input_telemetry": "unverified polling; zero edges does not prove no input",
+      "input_resolution_ms": 100.0
+    },
+    "reviewer": "GPT / Codex",
+    "review_scope": "three timestamp-based samples, plus explicitly cited historical reports; not complete video review",
+    "tags": [
+      "practice",
+      "pause_stall",
+      "stage_identity_unverified"
+    ],
+    "stage_source": "needs_title_evidence",
+    "training_exclusion": "Sparse semantic review only; no audited bounding boxes or battle-level split."
+  },
+  {
+    "recording_id": "1789706005705261900",
+    "video": "E:\\Github\\AI_vtuber\\runtime\\vision\\timing-recordings\\1789706005705261900\\recording.avi",
+    "status": "sampled_visual_review",
+    "stage": null,
+    "outcome": "unknown",
+    "training_eligible": false,
+    "sampled_frames": [
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789706005705261900-683.jpg",
+        "index": 683,
+        "elapsed_s": 89.9629089,
+        "sha256": "0535da7c9f8504e4e3cbe46af3919757557378c7ccf229d636a1c33063818380",
+        "phase": "paused",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789706005705261900-3369.jpg",
+        "index": 3369,
+        "elapsed_s": 359.982497,
+        "sha256": "563965d27e7628975f5e68aa5201d629d34448a183e876e015e56636640e0dbc",
+        "phase": "paused_selection",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789706005705261900-5637.jpg",
+        "index": 5637,
+        "elapsed_s": 588.0004392,
+        "sha256": "7966d6ae86fa8872cdef1ac5e769de8ceec79980f8f55e609d807bbb41bfbff6",
+        "phase": "paused_selection",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      }
+    ],
+    "existing_reviews": [],
+    "recording_metadata": {
+      "frames": 5757,
+      "elapsed_s": 600.052052,
+      "fps": 10,
+      "measurement": "Use per-frame capture timestamps; AVI playback rate is not the wall clock if frames were skipped.",
+      "markers": "F8/F9 edges optional manual markers. Three-point changes require video review. No semantic inference.",
+      "input_edges": 0,
+      "input_telemetry": "unverified polling; zero edges does not prove no input",
+      "input_resolution_ms": 100.0
+    },
+    "reviewer": "GPT / Codex",
+    "review_scope": "three timestamp-based samples, plus explicitly cited historical reports; not complete video review",
+    "tags": [
+      "practice",
+      "pause_stall",
+      "stage_identity_unverified"
+    ],
+    "stage_source": "needs_title_evidence",
+    "training_exclusion": "Sparse semantic review only; no audited bounding boxes or battle-level split."
+  },
+  {
+    "recording_id": "1789706929861516100",
+    "video": "E:\\Github\\AI_vtuber\\runtime\\vision\\timing-recordings\\1789706929861516100\\recording.avi",
+    "status": "sampled_visual_review",
+    "stage": null,
+    "outcome": "unknown",
+    "training_eligible": false,
+    "sampled_frames": [
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789706929861516100-894.jpg",
+        "index": 894,
+        "elapsed_s": 89.9632018,
+        "sha256": "91bc49d0f6955f22b0c2ac1bfe91769e012bee6571043a7086255c3a779553c1",
+        "phase": "paused_selection",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789706929861516100-3580.jpg",
+        "index": 3580,
+        "elapsed_s": 359.9836825,
+        "sha256": "7c0439beb589ddd81b486b048ccba027785a93d899e6a2bda4bd0e07f8007b2d",
+        "phase": "paused_selection",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789706929861516100-5848.jpg",
+        "index": 5848,
+        "elapsed_s": 587.995138,
+        "sha256": "12bdd669f2b5fa4cc7de7ac3d992f2bbaa32581cbf1c30cc14d6f41df30abbf6",
+        "phase": "paused_selection",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      }
+    ],
+    "existing_reviews": [],
+    "recording_metadata": {
+      "frames": 5968,
+      "elapsed_s": 600.048893,
+      "fps": 10,
+      "measurement": "Use per-frame capture timestamps; AVI playback rate is not the wall clock if frames were skipped.",
+      "markers": "F8/F9 edges optional manual markers. Three-point changes require video review. No semantic inference.",
+      "input_edges": 0,
+      "input_telemetry": "unverified polling; zero edges does not prove no input",
+      "input_resolution_ms": 100.0
+    },
+    "reviewer": "GPT / Codex",
+    "review_scope": "three timestamp-based samples, plus explicitly cited historical reports; not complete video review",
+    "tags": [
+      "practice",
+      "pause_stall",
+      "stage_identity_unverified"
+    ],
+    "stage_source": "needs_title_evidence",
+    "training_exclusion": "Sparse semantic review only; no audited bounding boxes or battle-level split."
+  },
+  {
+    "recording_id": "1789708672484199000",
+    "video": "E:\\Github\\AI_vtuber\\runtime\\vision\\timing-recordings\\1789708672484199000\\recording.avi",
+    "status": "sampled_visual_review",
+    "stage": null,
+    "outcome": "unknown",
+    "training_eligible": false,
+    "sampled_frames": [
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789708672484199000-894.jpg",
+        "index": 894,
+        "elapsed_s": 90.0035012,
+        "sha256": "7a2af7a6e817366b1616919ebd20abd0ded2c533f6501ea78e4e0b6e69167089",
+        "phase": "paused_direction",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789708672484199000-912.jpg",
+        "index": 912,
+        "elapsed_s": 374.9938986,
+        "sha256": "6524d2b3b9546dd8bb8298e178178a28f7e33c4113372378939273a5e61965f1",
+        "phase": "paused_direction",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\1789708672484199000-3031.jpg",
+        "index": 3031,
+        "elapsed_s": 587.9949082,
+        "sha256": "2981b69d49f2e74f2e181932d6c52fc3d4e395686cb407997ab99dbf402030f5",
+        "phase": "paused_direction",
+        "reviewer": "GPT / Codex",
+        "training_eligible": false
+      }
+    ],
+    "existing_reviews": [],
+    "recording_metadata": {
+      "frames": 3151,
+      "elapsed_s": 600.0478191,
+      "fps": 10,
+      "measurement": "Use per-frame capture timestamps; AVI playback rate is not the wall clock if frames were skipped.",
+      "markers": "F8/F9 edges optional manual markers. Three-point changes require video review. No semantic inference.",
+      "input_edges": 0,
+      "input_telemetry": "unverified polling; zero edges does not prove no input",
+      "input_resolution_ms": 100.0
+    },
+    "reviewer": "GPT / Codex",
+    "review_scope": "three timestamp-based samples, plus explicitly cited historical reports; not complete video review",
+    "tags": [
+      "practice",
+      "pause_stall",
+      "stage_identity_unverified"
+    ],
+    "stage_source": "needs_title_evidence",
+    "training_exclusion": "Sparse semantic review only; no audited bounding boxes or battle-level split."
+  },
+  {
+    "recording_id": "settings-20260910",
+    "stage": null,
+    "status": "sampled_visual_review",
+    "outcome": "not_a_battle",
+    "tags": [
+      "settings_game",
+      "settings_sound",
+      "home",
+      "duplicate_copy_excluded"
+    ],
+    "video": "E:\\Github\\AI_vtuber\\video\\2026-09-10 00-51-41.mp4",
+    "reviewer": "GPT / Codex",
+    "training_eligible": false,
+    "duplicate_path": "E:\\Github\\AI_vtuber\\runtime\\vision\\video-runs\\settings-20260910-003705\\images\\2026-09-10 00-51-41.mp4",
+    "video_sha256": "20c06dcee51c152b13153505fcd9607a096b9da129933e82a199c1058f3297c1",
+    "sampled_frames": [
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\settings-15.jpg",
+        "frame_index": 424,
+        "video_time_s": 14.133333333333333,
+        "phase": "settings_game",
+        "sha256": "8378f306df2919f827ba86ebb7f88d1442e86c279b6333c03e4a8a968dd157e3",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\settings-60.jpg",
+        "frame_index": 1698,
+        "video_time_s": 56.6,
+        "phase": "settings_sound",
+        "sha256": "4139051648cc2e9d99fd85ee21243e447238ca18e486195d57e443465e27dffc",
+        "training_eligible": false
+      },
+      {
+        "path": "E:\\Github\\AI_vtuber\\output\\arknights-review-20260926\\settings-98.jpg",
+        "frame_index": 2774,
+        "video_time_s": 92.46666666666667,
+        "phase": "home",
+        "sha256": "c1dac88c93336f3abaed123ec058d230d270cee2d0f4147ff30817cf63476cae",
+        "training_eligible": false
+      }
+    ]
+  }
+]

@@ -1,0 +1,15 @@
+{
+  "ok": true,
+  "deployed": [
+    "琴柳",
+    "伊内丝",
+    "维什戴尔"
+  ],
+  "skill_dp_confirmed": true,
+  "dp_measurement": {
+    "before": 6,
+    "after": 28,
+    "elapsed_s": 3.9776634000008926,
+    "natural_upper": 9.955326800001785
+  }
+}

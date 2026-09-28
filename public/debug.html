@@ -26,6 +26,8 @@
         <label class="training-toggle" for="trainingMemory"><input id="trainingMemory" type="checkbox" checked /><span>将本条加入本场训练素材</span></label>
         <label class="chat-toggle" for="chatModeToggle"><span id="chatModeLabel">主动陪聊</span><input id="chatModeToggle" type="checkbox" checked /><i aria-hidden="true"></i></label>
         <label class="chat-toggle" for="speechOutputToggle"><span id="speechOutputLabel">主播语音输出</span><input id="speechOutputToggle" type="checkbox" checked /><i aria-hidden="true"></i></label>
+        <label class="voice-provider-label" for="voiceProviderSelect">语音来源</label>
+        <select id="voiceProviderSelect" class="microphone-select" aria-label="语音来源"><option value="browser">系统机器声音</option><option value="gpt-sovits">希儿 GPT-SoVITS</option></select>
         <button id="voiceButton" class="voice-button" type="button" aria-pressed="false">开始说话</button>
         <label class="sr-only" for="microphoneSelect">麦克风设备</label>
         <select id="microphoneSelect" class="microphone-select" aria-label="麦克风设备"><option value="">系统默认麦克风</option></select>

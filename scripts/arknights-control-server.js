@@ -18,7 +18,9 @@ const {
 
 const HOST = "127.0.0.1";
 const PORT = Number(process.argv[2] || 17631);
-const TOKEN = process.argv[3] || "codex-arknights-local";
+const TOKEN = process.env.ARKNIGHTS_CONTROL_TOKEN_FILE
+  ? fs.readFileSync(process.env.ARKNIGHTS_CONTROL_TOKEN_FILE, "utf8").trim()
+  : process.argv[3] || "codex-arknights-local";
 const captureDir = path.join(__dirname, "..", "runtime", "vision", "captures", "arknights");
 const livePath = path.join(captureDir, "_live-control.png");
 

@@ -1,7 +1,7 @@
 $ErrorActionPreference = "Stop"
 
 $projectRoot = Split-Path -Parent $PSScriptRoot
-$officialBundle = "E:\GPT-SoVITS-v2pro-20250604-nvidia50\GPT-SoVITS-v2pro-20250604-nvidia50"
+$officialBundle = "D:\GPT-SoVITS-v2pro-20250604-nvidia50"
 $localClone = Join-Path $projectRoot "third_party\GPT-SoVITS"
 
 # Prefer the official Windows bundle when it is present. The clone remains a fallback.
@@ -21,14 +21,15 @@ $ffmpeg = if (Test-Path $bundledFfmpeg) {
 } else {
   Get-ChildItem "$env:LOCALAPPDATA\Microsoft\WinGet\Packages\Gyan.FFmpeg.Shared*" -Recurse -Filter ffmpeg.exe -ErrorAction SilentlyContinue | Select-Object -First 1
 }
+$gptModel = Get-ChildItem -LiteralPath (Join-Path $serviceRoot "GPT_weights_v4") -Filter "*-e10.ckpt" -ErrorAction SilentlyContinue | Select-Object -First 1
 $requiredModels = @(
-  (Join-Path $serviceRoot "GPT_SoVITS\pretrained_models\gsv-v2final-pretrained\s1bert25hz-5kh-longer-epoch=12-step=369668.ckpt"),
-  (Join-Path $serviceRoot "GPT_SoVITS\pretrained_models\gsv-v2final-pretrained\s2G2333k.pth")
+  $gptModel.FullName,
+  (Join-Path $serviceRoot "SoVITS_weights_v4\seele_5s_test_e10_s1000_l32.pth")
 )
 
 if (!(Test-Path $python)) { throw "GPT-SoVITS Python environment is missing." }
 if (!$ffmpeg) { throw "FFmpeg is missing." }
-if ($requiredModels | Where-Object { !(Test-Path $_) }) {
+if (!$gptModel -or ($requiredModels | Where-Object { !$_ -or !(Test-Path -LiteralPath $_) })) {
   throw "GPT-SoVITS base weights are missing. See docs/gpt-sovits-setup.md."
 }
 if (!(Test-Path $config)) {
@@ -37,7 +38,6 @@ if (!(Test-Path $config)) {
 }
 
 $env:Path = "$(Split-Path -Parent $ffmpeg.FullName);$env:Path"
-$env:NUMBA_DISABLE_JIT = "1"
 $env:HF_HOME = Join-Path $projectRoot "runtime\huggingface"
 $env:TRANSFORMERS_CACHE = Join-Path $projectRoot "runtime\huggingface"
 $env:MPLCONFIGDIR = Join-Path $projectRoot "runtime\matplotlib"

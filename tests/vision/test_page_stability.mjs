@@ -1,0 +1,17 @@
+import assert from 'node:assert/strict';
+import { StableFrames, difference } from '../../public/page-stability.mjs';
+const detector = new StableFrames();
+const frame = new Uint8Array(16000).fill(80);
+assert.equal(detector.consider(frame, 0), false);
+assert.equal(detector.consider(frame, 900), false);
+assert.equal(detector.consider(frame, 1001), true);
+detector.saved(frame);
+assert.equal(detector.consider(frame, 3000), false);
+const animation = frame.slice(); animation.fill(200, 0, 100);
+assert.equal(detector.consider(animation, 4000), false);
+const next = new Uint8Array(16000).fill(160);
+assert.equal(detector.consider(next, 5000), false);
+assert.equal(detector.consider(next, 6001), true);
+assert.equal(difference(frame, next), 1);
+assert.equal(detector.consider(frame, 7000), false);
+console.log('Page stability: settle delay, duplicate suppression, small animation, changed page passed.');

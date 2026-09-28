@@ -29,6 +29,7 @@ function createCognitionState(persona = {}, now = new Date().toISOString()) {
     reflectionPressure: 0,
     lastReflectionAt: null,
     lastDecision: null,
+    conversations: {},
     conversation: { status: "open", turnCount: 0, currentTopic: null, topicDepth: 0, momentum: 0, pendingQuestion: null, lastMemoryLookup: null, lastClosedTopic: null, closedAt: null }
   };
 }
@@ -39,15 +40,16 @@ function observeTurn(state, item, direction, emotion, topics = [], context = {})
   const now = new Date().toISOString();
   const completion = /(?:已经完成|做完了|完成了|不用继续|取消约定|不需要提醒)/.test(item.text || "");
   if (completion) {
-    const index = findResolvableLoop(openLoops, item.user, item.text);
+    const index = findResolvableLoop(openLoops, item.user, item.text, conversationKey(item));
     if (index >= 0) completedLoops.push({ ...openLoops[index], status: "resolved", resolvedAt: now, resolution: String(item.text).slice(0, 100) });
     if (index >= 0) openLoops.splice(index, 1);
   } else if (item.type !== "proactive" && isFutureCommitment(item.text)) {
     const loopText = String(item.text).slice(0, 100);
-    if (!openLoops.some(loop => loop.user === item.user && overlap(loop.text, loopText) > 0.55)) openLoops.push({ id: `loop-${Date.now()}`, text: loopText, user: item.user, createdAt: now, status: "open", priority: 0.7 });
+    if (!openLoops.some(loop => loop.user === item.user && loop.conversationKey === conversationKey(item) && overlap(loop.text, loopText) > 0.55)) openLoops.push({ id: `loop-${Date.now()}`, text: loopText, user: item.user, contextScope: item.contextScope || "danmaku", conversationKey: conversationKey(item), createdAt: now, status: "open", priority: 0.7 });
   }
   const focus = topics[topics.length - 1] || (direction.intent === "proactive_chat" ? "轻松陪伴" : "直播互动");
-  const previousConversation = state.conversation || {};
+  const key = conversationKey(item);
+  const previousConversation = state.conversations?.[key]?.conversation || {};
   const sameTopic = previousConversation.currentTopic === focus;
   const responseText = String(context.responseText || "");
   const pendingQuestion = responseText.match(/([^。！？]{2,60}[？?])(?:$|[^？?]*$)/)?.[1] || null;
@@ -62,7 +64,7 @@ function observeTurn(state, item, direction, emotion, topics = [], context = {})
       updatedAt: now
     };
   const capabilityFailures = [...(state.capabilityFailures || [])];
-  if (direction.intent === "capability_boundary") capabilityFailures.push({ capability: direction.capability?.id, at: now, request: String(item.text).slice(0, 100), handledHonestly: true });
+  if (direction.intent === "capability_boundary") capabilityFailures.push({ user: item.user, capability: direction.capability?.id, at: now, request: String(item.text).slice(0, 100), handledHonestly: true });
   const goals = (state.goals || []).map(goal => {
     let delta = 0;
     if (goal.id === "honesty" && direction.intent === "capability_boundary") delta = 0.025;
@@ -100,11 +102,14 @@ function observeTurn(state, item, direction, emotion, topics = [], context = {})
     metacognition: { responseConfidence, memoryConfidence: memoryCount ? Math.min(0.95, 0.58 + memoryCount * 0.08) : 0, uncertainty, lastReviewAt: now },
     needs,
     observations: [...(state.observations || []), { at: now, source: item.type, user: item.user, summary: String(item.text).slice(0, 120), topics: topics.slice(-3) }].slice(-30),
-    actionHistory: [...(state.actionHistory || []), { at: now, intent: direction.intent, capability: direction.capability, outcome: "reply-produced" }].slice(-30),
+    actionHistory: [...(state.actionHistory || []), { at: now, user: item.user, intent: direction.intent, capability: direction.capability, outcome: "reply-produced" }].slice(-30),
     capabilityFailures: capabilityFailures.slice(-20),
     activePlan: { focus, nextAction: nextActionFor(direction, emotion), rationale: planRationale(direction, emotion), updatedAt: now },
     lastDecision: { intent: direction.intent, capability: direction.capability, at: now },
-    conversation: { ...conversation, turnCount: Number(state.conversation?.turnCount || 0) + 1 }
+    conversations: Object.fromEntries([...Object.entries(state.conversations || {}).filter(([id]) => id !== key), [key, { user: item.user, conversation: { ...conversation, turnCount: Number(previousConversation.turnCount || 0) + 1 } }]].slice(-100)),
+    lastUser: item.user,
+    lastConversationKey: key,
+    conversation: { ...conversation, turnCount: Number(previousConversation.turnCount || 0) + 1 }
   };
 }
 
@@ -183,8 +188,8 @@ function planRationale(direction, emotion) {
   return "兼顾当前话题、关系距离与直播节奏";
 }
 
-function findResolvableLoop(loops, user, text) {
-  const own = loops.map((loop, index) => ({ loop, index })).filter(item => item.loop.user === user);
+function findResolvableLoop(loops, user, text, scope) {
+  const own = loops.map((loop, index) => ({ loop, index })).filter(item => item.loop.user === user && item.loop.conversationKey === scope);
   if (!own.length) return -1;
   const ranked = own.map(item => ({ ...item, score: overlap(item.loop.text, text) })).sort((a, b) => b.score - a.score);
   return ranked[0].index;
@@ -199,4 +204,6 @@ function overlap(left, right) {
 
 function clamp(value) { return Math.max(0, Math.min(1, Number(value) || 0)); }
 
-module.exports = { createCognitionState, observeTurn, shouldReflect, createReflection, afterReflection, updateNeeds, advanceNeeds, isFutureCommitment };
+function conversationKey(item) { return JSON.stringify([item.sessionId || "", item.contextScope || "danmaku", item.user || ""]); }
+
+module.exports = { conversationKey, createCognitionState, observeTurn, shouldReflect, createReflection, afterReflection, updateNeeds, advanceNeeds, isFutureCommitment };

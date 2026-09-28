@@ -3,10 +3,11 @@ const { MemoryStore, redactSensitiveText } = require("./brain/memory");
 const { buildContext, resolveMemoryLookup, localReply, extractPerformance } = require("./brain/reply");
 const { PERSONA } = require("./brain/persona");
 const { createLlmStatus, callExternalLlm } = require("./brain/llm");
+const { classifyComplexity, callLocalLlm } = require("./brain/local-llm");
 const { directReply } = require("./brain/director");
 const { getLiveTime, needsLiveTime } = require("./brain/time");
 const { CHAT_COMPANION, createSceneState, chooseProactive, recordHumanActivity, recordProactive, setChatEnabled, setInteractionHold, clearInteractionHold, suspendIfIgnored } = require("./brain/scenes");
-const { createCognitionState, observeTurn, shouldReflect, createReflection, afterReflection, advanceNeeds } = require("./brain/cognition");
+const { conversationKey, createCognitionState, observeTurn, shouldReflect, createReflection, afterReflection, advanceNeeds } = require("./brain/cognition");
 const { StoryStore } = require("./story/store");
 const { BrainStateStore } = require("./runtime/brain-state");
 const { applyReplyPolicy } = require("./brain/policy");
@@ -28,6 +29,7 @@ class StreamerBrain {
     this.lastTimeCheck = null;
     this.cognition = createCognitionState(PERSONA);
     this.lastSpeech = null;
+    this.userGenerations = new Map();
     this.llmEnabled = llmEnabled;
     this.storyStore = new StoryStore(storyOptions?.filePath);
     const runtimePath = runtimeOptions?.filePath === undefined ? (memoryOptions?.databasePath ? null : undefined) : runtimeOptions.filePath;
@@ -89,20 +91,21 @@ class StreamerBrain {
   }
 
   buildContext(item) {
+    item = { ...item, sessionId: item.sessionId || this.memoryStore.ensureActiveSession() };
     const context = buildContext(this.memoryStore, this.emotion, item);
     context.personality = this.personality;
     this.personalityExpression = deriveExpressedPersonality(this.personality, this.emotion, context.relationship);
     context.personalityExpression = this.personalityExpression;
     context.cognition = {
-      activePlan: this.cognition.activePlan,
-      openLoops: (this.cognition.openLoops || []).filter(loop => loop.user === item.user),
-      metacognition: this.cognition.metacognition,
+      activePlan: this.cognition.lastConversationKey === conversationKey(item) ? this.cognition.activePlan : createCognitionState(PERSONA).activePlan,
+      openLoops: (this.cognition.openLoops || []).filter(loop => loop.user === item.user && loop.conversationKey === conversationKey(item)),
+      metacognition: this.cognition.lastConversationKey === conversationKey(item) ? this.cognition.metacognition : createCognitionState(PERSONA).metacognition,
       needs: this.cognition.needs,
       selfModel: this.cognition.selfModel,
       goals: this.cognition.goals,
-      conversation: this.cognition.conversation
+      conversation: this.cognition.conversations?.[conversationKey(item)]?.conversation || createCognitionState(PERSONA).conversation
     };
-    context.memoryLookup = resolveMemoryLookup(item, context, this.cognition, this.memoryStore);
+    context.memoryLookup = resolveMemoryLookup(item, context, context.cognition, this.memoryStore);
     context.story = this.storyStore.promptContext();
     return context;
   }
@@ -156,7 +159,11 @@ class StreamerBrain {
     return this.sceneState;
   }
 
-  async reply(item) {
+  // Shared preparation keeps streaming and non-streaming replies on the same
+  // persona, memory, emotion, and director state. Do not commit this prepared
+  // turn after a cancelled stream.
+  prepareStreamReply(item) {
+    item = { ...item, sessionId: this.memoryStore.ensureActiveSession(), userGeneration: this.userGenerations.get(item.user) || 0 };
     if (item.type !== "proactive") {
       this.sceneState = recordHumanActivity(this.sceneState);
       if (isStopChatRequest(item.text)) this.sceneState = setChatEnabled(this.sceneState, false);
@@ -168,14 +175,78 @@ class StreamerBrain {
     }
     this.updateEmotion(item.text, item.type, { relationship: this.memoryStore.getRelationship(item.user) });
     this.emotion = applyRepetition(this.emotion, Number(item.repeatCount || 0));
-    const emotion = this.emotion;
     const context = this.buildContext(item);
     this.lastMemoryRetrieval = context.retrieval;
-    const direction = directReply(item, emotion, context.relationship, context);
+    const direction = directReply(item, this.emotion, context.relationship, context);
     this.lastDirection = direction;
     context.direction = direction;
     context.disableExternalLlm = !this.llmEnabled;
-    const external = await callExternalLlm(item, context);
+    context.fallbackText = this.localReply(item, context);
+    return { item, context, direction };
+  }
+
+  commitStreamReply(item, context, rawText) {
+    this.assertTurnCurrent(item);
+    const direction = context.direction || this.lastDirection;
+    const policy = applyReplyPolicy(rawText, { item, capabilityRequest: context.capabilityRequest, maxCharacters: direction?.responseBudget?.maxCharacters || 180, persona: PERSONA, memoryRetrieval: context.retrieval });
+    const performance = extractPerformance(policy.text);
+    if (item.type !== "proactive") this.remember(item, performance.spokenText);
+    context.responseText = performance.spokenText;
+    const persistedItem = { ...item, text: redactSensitiveText(item.text) };
+    this.cognition = observeTurn(this.cognition, persistedItem, direction, this.emotion, context.sessionTopics || [], context);
+    if (shouldReflect(this.cognition)) {
+      this.memoryStore.recordCharacterReflection(createReflection(this.cognition, this.memoryStore));
+      this.cognition = afterReflection(this.cognition);
+      this.memory = this.memoryStore.data;
+    }
+    const result = {
+      text: performance.spokenText,
+      rawText,
+      performance: { cues: performance.cues, emotion: this.emotion.name, repetition: this.emotion.repetition, profile: this.emotion.performance, causes: this.emotion.causes.slice(-3) },
+      emotion: this.emotion,
+      direction,
+      memory: this.memory.users[item.user],
+      memoryRetrieval: context.retrieval,
+      cognition: this.cognition,
+      persona: { id: PERSONA.id, name: PERSONA.name, displayName: PERSONA.displayName },
+      llm: this.llmStatus,
+      policy
+    };
+    this.lastSpeech = {
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+      at: new Date().toISOString(),
+      item: { user: item.user, type: item.type, text: persistedItem.text },
+      text: result.text,
+      emotion: result.emotion,
+      performance: result.performance
+    };
+    if (item.scheduleId) {
+      this.storyStore.markScheduleDone(item.scheduleId);
+      this.storyStore.addBeat({ title: "完成一次约定提醒", detail: String(item.scene?.title || item.text).slice(0, 300), importance: 0.7 });
+    }
+    this.persistRuntime();
+    return result;
+  }
+
+  async reply(item) {
+    const prepared = this.prepareStreamReply(item);
+    item = prepared.item;
+    const context = prepared.context;
+    const direction = prepared.direction;
+    const emotion = this.emotion;
+    const routing = classifyComplexity(item);
+    let external;
+    if (routing.route === "local") {
+      external = await callLocalLlm(item, context);
+      if (!external.text) {
+        external = await callExternalLlm(item, context);
+        external.status = { ...external.status, route: "cloud-fallback", routeReason: routing.reason };
+      }
+    } else {
+      external = await callExternalLlm(item, context);
+      external.status = { ...external.status, route: "cloud", routeReason: routing.reason };
+    }
+    this.assertTurnCurrent(item);
     this.llmStatus = external.status;
     if (external.socialPerception) this.emotion = applySocialPerception(this.emotion, external.socialPerception);
     if (external.liveTime) this.lastTimeCheck = external.liveTime;
@@ -188,7 +259,7 @@ class StreamerBrain {
     if (item.type !== "proactive") this.remember(item, performance.spokenText);
     context.responseText = performance.spokenText;
     const persistedItem = { ...item, text: redactSensitiveText(item.text) };
-    this.cognition = observeTurn(this.cognition, persistedItem, direction, this.emotion, this.memoryStore.getRecentTopics(3), context);
+    this.cognition = observeTurn(this.cognition, persistedItem, direction, this.emotion, context.sessionTopics || [], context);
     if (shouldReflect(this.cognition)) {
       this.memoryStore.recordCharacterReflection(createReflection(this.cognition, this.memoryStore));
       this.cognition = afterReflection(this.cognition);
@@ -205,6 +276,7 @@ class StreamerBrain {
       cognition: this.cognition,
       persona: { id: PERSONA.id, name: PERSONA.name, displayName: PERSONA.displayName },
       llm: this.llmStatus
+      ,routing
       ,policy
     };
     this.lastSpeech = {
@@ -221,6 +293,31 @@ class StreamerBrain {
     }
     this.persistRuntime();
     return result;
+  }
+
+  assertTurnCurrent(item) {
+    if (item.sessionId && item.sessionId !== this.memoryStore.getMeta("active_session_id") || (item.userGeneration || 0) !== (this.userGenerations.get(item.user) || 0)) {
+      const error = new Error("Reply context was invalidated"); error.code = "STALE_REPLY"; throw error;
+    }
+  }
+
+  forgetUser(user) {
+    this.userGenerations.set(user, (this.userGenerations.get(user) || 0) + 1);
+    this.memoryStore.deleteUserMemories(user);
+    this.shortTerm = this.memoryStore.shortTerm;
+    this.memory = this.memoryStore.data;
+    const fresh = createCognitionState(PERSONA);
+    for (const field of ["openLoops", "completedLoops", "observations", "actionHistory", "capabilityFailures"]) this.cognition[field] = (this.cognition[field] || []).filter(entry => entry.user && entry.user !== user);
+    this.cognition.conversations = Object.fromEntries(Object.entries(this.cognition.conversations || {}).filter(([, entry]) => entry.user !== user));
+    if (!this.cognition.lastUser || this.cognition.lastUser === user) {
+      for (const field of ["conversation", "workspace", "activePlan", "lastDecision", "metacognition"]) this.cognition[field] = fresh[field];
+      this.cognition.lastUser = null;
+      this.cognition.lastConversationKey = null;
+    }
+    if (this.lastSpeech?.item?.user === user) this.lastSpeech = null;
+    this.lastMemoryRetrieval = null;
+    this.lastDirection = null;
+    this.persistRuntime();
   }
 
   localReply(item, context) {

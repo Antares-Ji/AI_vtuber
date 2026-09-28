@@ -29,6 +29,7 @@ public class WinInput {
   [DllImport("user32.dll")] public static extern void mouse_event(uint flags, uint dx, uint dy, uint data, UIntPtr extraInfo);
   [DllImport("user32.dll", SetLastError=true)] public static extern uint SendInput(uint count, INPUT[] inputs, int size);
   [DllImport("user32.dll")] public static extern int GetSystemMetrics(int index);
+  [DllImport("user32.dll")] public static extern short GetAsyncKeyState(int key);
   [DllImport("user32.dll")] public static extern IntPtr SetThreadDpiAwarenessContext(IntPtr dpiContext);
   [StructLayout(LayoutKind.Sequential)] public struct POINT { public int x; public int y; }
   [StructLayout(LayoutKind.Sequential)] public struct RECT { public int left; public int top; public int right; public int bottom; }
@@ -96,6 +97,11 @@ function Get-ArknightsHandle {
   return [IntPtr]$process.MainWindowHandle
 }
 
+function Test-ArknightsWindow([IntPtr]$candidate, [IntPtr]$main) {
+  return ($candidate -ne [IntPtr]::Zero -and
+    ($candidate -eq $main -or [WinInput]::GetAncestor($candidate, 3) -eq $main))
+}
+
 function Get-ArknightsInfo {
   $handle = Get-ArknightsHandle
   if ($handle -eq [IntPtr]::Zero) { throw "Arknights window not found" }
@@ -108,6 +114,9 @@ function Get-ArknightsInfo {
   return [ordered]@{
     handle = $handle.ToInt64()
     foreground = ([WinInput]::GetForegroundWindow() -eq $handle)
+    appForeground = (Test-ArknightsWindow ([WinInput]::GetForegroundWindow()) $handle)
+    foregroundHandle = [WinInput]::GetForegroundWindow().ToInt64()
+    foregroundRootOwner = [WinInput]::GetAncestor([WinInput]::GetForegroundWindow(), 3).ToInt64()
     window = [ordered]@{
       x = $windowRect.left; y = $windowRect.top
       width = $windowRect.right - $windowRect.left
@@ -125,7 +134,7 @@ function Set-ArknightsForeground {
   $handle = Get-ArknightsHandle
   if ($handle -eq [IntPtr]::Zero) { throw "Arknights window not found" }
   [WinInput]::ShowWindow($handle, 9) | Out-Null
-  if ([WinInput]::GetForegroundWindow() -eq $handle) { return $true }
+  if (Test-ArknightsWindow ([WinInput]::GetForegroundWindow()) $handle) { return $true }
   [WinInput]::SwitchToThisWindow($handle, $true)
   $currentThread = [WinInput]::GetCurrentThreadId()
   $foregroundHandle = [WinInput]::GetForegroundWindow()
@@ -144,7 +153,29 @@ function Set-ArknightsForeground {
     }
   }
   Start-Sleep -Milliseconds 180
-  return ([WinInput]::GetForegroundWindow() -eq $handle)
+  if (-not (Test-ArknightsWindow ([WinInput]::GetForegroundWindow()) $handle)) {
+    # Shell flyouts can reject programmatic activation. Click only the exposed
+    # native title bar, after verifying the point belongs to this game window.
+    $windowRect = New-Object WinInput+RECT
+    $clientOrigin = New-Object WinInput+POINT
+    if ([WinInput]::GetWindowRect($handle,[ref]$windowRect) -and [WinInput]::ClientToScreen($handle,[ref]$clientOrigin)) {
+      $titleHeight = $clientOrigin.y - $windowRect.top
+      if ($titleHeight -ge 20 -and $titleHeight -le 80) {
+        $titlePoint = New-Object WinInput+POINT
+        $titlePoint.x = $windowRect.left + [int](($windowRect.right-$windowRect.left)*0.4)
+        $titlePoint.y = $windowRect.top + [int]($titleHeight/2)
+        if ([WinInput]::GetAncestor([WinInput]::WindowFromPoint($titlePoint),2) -eq $handle) {
+          Move-CursorVerified $titlePoint.x $titlePoint.y
+          if ([WinInput]::GetAncestor([WinInput]::WindowFromPoint($titlePoint),2) -eq $handle) {
+            try { [WinInput]::SendMouseButton(0x0002) | Out-Null; Start-Sleep -Milliseconds 30 }
+            finally { [WinInput]::mouse_event(0x0004,0,0,0,[UIntPtr]::Zero) }
+            Start-Sleep -Milliseconds 150
+          }
+        }
+      }
+    }
+  }
+  return (Test-ArknightsWindow ([WinInput]::GetForegroundWindow()) $handle)
 }
 
 
@@ -180,7 +211,19 @@ function Move-CursorVerified([int]$targetX, [int]$targetY) {
   return $actual
 }
 
-try {
+function Save-DragFrame($info, [string]$phase) {
+  $bitmap = New-Object System.Drawing.Bitmap $info.client.width, $info.client.height
+  $graphics = [System.Drawing.Graphics]::FromImage($bitmap)
+  try {
+    $graphics.CopyFromScreen($info.client.x, $info.client.y, 0, 0, $bitmap.Size)
+    $target = Join-Path $PSScriptRoot "../../runtime/vlm/controller/drag-$phase.png"
+    $bitmap.Save($target, [System.Drawing.Imaging.ImageFormat]::Png)
+  } finally { $graphics.Dispose(); $bitmap.Dispose() }
+}
+
+function Invoke-ArknightsAction {
+  param([string]$action, [int]$x = 0, [int]$y = 0, [int]$w = 0, [int]$h = 0, [string]$out = "", [string]$profile = 'reliable')
+  if ($profile -notin @('reliable', 'responsive')) { throw 'Unknown input timing profile' }
   switch ($action) {
     "activate" {
       $activated = Set-ArknightsForeground
@@ -243,7 +286,7 @@ try {
       $point = Move-CursorVerified $x $y
       $windowAtPoint = [WinInput]::WindowFromPoint($point)
       $rootAtPoint = [WinInput]::GetAncestor($windowAtPoint, 2)
-      if ($rootAtPoint -ne $handle) {
+      if (-not (Test-ArknightsWindow $rootAtPoint $handle)) {
         throw "refusing click: top-level window at cursor is $($rootAtPoint.ToInt64()), expected Arknights $($handle.ToInt64())"
       }
       $downSent = [WinInput]::SendMouseButton(0x0002)
@@ -269,7 +312,7 @@ try {
       $point = Move-CursorVerified $screenX $screenY
       $windowAtPoint = [WinInput]::WindowFromPoint($point)
       $rootAtPoint = [WinInput]::GetAncestor($windowAtPoint, 2)
-      if ($rootAtPoint -ne $handle) {
+      if (-not (Test-ArknightsWindow $rootAtPoint $handle)) {
         throw "refusing click: top-level window at cursor is $($rootAtPoint.ToInt64()), expected Arknights $($handle.ToInt64())"
       }
       $downSent = [WinInput]::SendMouseButton(0x0002)
@@ -280,6 +323,7 @@ try {
       @{ client = @{ x = $x; y = $y }; screen = @{ x = $screenX; y = $screenY }; actual = @{ x = $point.x; y = $point.y }; foreground = $foreground; sent = $sent; targetHandle = $handle.ToInt64(); rootAtPoint = $rootAtPoint.ToInt64() } | ConvertTo-Json -Compress -Depth 3
     }
     "clientdrag" {
+      $responsive = $profile -eq 'responsive'
       $info = Get-ArknightsInfo
       if ($x -lt 0 -or $y -lt 0 -or $x -ge $info.client.width -or $y -ge $info.client.height -or
           $w -lt 0 -or $h -lt 0 -or $w -ge $info.client.width -or $h -ge $info.client.height) {
@@ -295,25 +339,46 @@ try {
       $start = Move-CursorVerified $startX $startY
       $startRoot = [WinInput]::GetAncestor([WinInput]::WindowFromPoint($start), 2)
       if ($startRoot -ne $handle) { throw "refusing drag: start is outside Arknights" }
+      [WinInput]::SendAbsoluteMouseMove($startX, $startY) | Out-Null
+      Start-Sleep -Milliseconds $(if ($responsive) { 40 } else { 150 })
       $downSent = [WinInput]::SendMouseButton(0x0002)
-      Start-Sleep -Milliseconds 120
-      $segments = 12
+      if ($downSent -ne 1) { throw "SendInput drag press failed: down=$downSent" }
+      try {
+      Start-Sleep -Milliseconds $(if ($responsive) { 150 } else { 650 })
+      $segments = if ($responsive) { 16 } else { 40 }
       for ($i = 1; $i -le $segments; $i++) {
         $nextX = [Math]::Round($startX + (($endX - $startX) * $i / $segments))
         $nextY = [Math]::Round($startY + (($endY - $startY) * $i / $segments))
-        [WinInput]::SetCursorPos($nextX, $nextY) | Out-Null
-        Start-Sleep -Milliseconds 18
+        $moveSent = [WinInput]::SendAbsoluteMouseMove($nextX, $nextY)
+        if ($moveSent -ne 1) {
+          [WinInput]::SendMouseButton(0x0004) | Out-Null
+          throw "SendInput drag movement failed at segment $i"
+        }
+        Start-Sleep -Milliseconds $(if ($responsive) { 15 } else { 25 })
       }
       $end = New-Object WinInput+POINT
+      Start-Sleep -Milliseconds $(if ($responsive) { 100 } else { 350 })
+      if (-not $responsive) { Save-DragFrame $info "before-release" }
       [WinInput]::GetCursorPos([ref]$end) | Out-Null
       $endRoot = [WinInput]::GetAncestor([WinInput]::WindowFromPoint($end), 2)
       if ($endRoot -ne $handle) {
         [WinInput]::SendMouseButton(0x0004) | Out-Null
         throw "refusing drag release: end is outside Arknights"
       }
-      $upSent = [WinInput]::SendMouseButton(0x0004)
-      if ($downSent -ne 1 -or $upSent -ne 1) { throw "SendInput drag failed: down=$downSent up=$upSent" }
-      @{ clientStart = @{ x = $x; y = $y }; clientEnd = @{ x = $w; y = $h }; foreground = $foreground; sent = $downSent + $upSent; targetHandle = $handle.ToInt64(); startRoot = $startRoot.ToInt64(); endRoot = $endRoot.ToInt64() } | ConvertTo-Json -Compress -Depth 3
+      Start-Sleep -Milliseconds $(if ($responsive) { 30 } else { 120 })
+      [WinInput]::mouse_event(0x0004, 0, 0, 0, [UIntPtr]::Zero)
+      Start-Sleep -Milliseconds $(if ($responsive) { 120 } else { 350 })
+      $released = (([WinInput]::GetAsyncKeyState(1) -band 0x8000) -eq 0)
+      if (-not $released) {
+        [WinInput]::SendMouseButton(0x0004) | Out-Null
+        throw "Left mouse button remained pressed after drag release"
+      }
+      if (-not $responsive) { Save-DragFrame $info "after-release" }
+      } finally {
+        # Exceptions during movement/capture must never leave a held button.
+        [WinInput]::mouse_event(0x0004, 0, 0, 0, [UIntPtr]::Zero)
+      }
+      @{ clientStart = @{ x = $x; y = $y }; clientEnd = @{ x = $w; y = $h }; foreground = $foreground; downSent = $downSent; releaseMethod = "mouse_event"; leftButtonReleased = $released; profile = $profile; targetHandle = $handle.ToInt64(); startRoot = $startRoot.ToInt64(); endRoot = $endRoot.ToInt64() } | ConvertTo-Json -Compress -Depth 3
     }
     "clientmsgclick" {
       $info = Get-ArknightsInfo
@@ -349,6 +414,26 @@ try {
     }
     default { throw "unknown action: $action" }
   }
+}
+
+if ($action -eq 'library') { return }
+try {
+  # One-time migration through the already authorized elevated controller.
+  # The marker can only start this fixed local worker, never an arbitrary command.
+  $nativeRequest = Join-Path $PSScriptRoot '../../runtime/vlm/controller/start-native-worker.request.json'
+  if ($action -eq 'info' -and (Test-Path -LiteralPath $nativeRequest)) {
+    $principal = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
+    if ($principal.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) {
+      $request = Get-Content -LiteralPath $nativeRequest -Raw | ConvertFrom-Json
+      if ($request.port -ne 17644) { throw 'Invalid native worker port' }
+      Move-Item -LiteralPath $nativeRequest -Destination ($nativeRequest + '.started') -Force
+      $nativeScript = [IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../../scripts/arknights-native-worker.ps1'))
+      # Shell launch detaches the daemon; redirected child streams kept the old
+      # synchronous client's pipe open until its 30-second timeout.
+      Start-Process -FilePath 'powershell.exe' -ArgumentList @('-NoProfile', '-File', ('"' + $nativeScript + '"')) -WindowStyle Hidden | Out-Null
+    }
+  }
+  Invoke-ArknightsAction $action $x $y $w $h $out
 } catch {
   Write-Error $_.Exception.Message
   exit 1

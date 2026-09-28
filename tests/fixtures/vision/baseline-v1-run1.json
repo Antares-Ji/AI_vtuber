@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-08-18T07:38:13.499Z",
+  "generatedAt": "2026-09-14T03:47:21.570Z",
   "analyzer": "src/vision/osu_analyzer.py (v1)",
   "results": [
     {
@@ -89,10 +89,10 @@
       "ok": true,
       "value": {
         "scene": "osu-gameplay",
-        "confidence": 0.632,
+        "confidence": 0.757,
         "width": 1280,
         "height": 720,
-        "circleCandidates": 5,
+        "circleCandidates": 6,
         "brightness": 0.167,
         "edgeDensity": 0.005,
         "note": "第一版使用圆形候选与边缘密度判断；结算数据请配合 telemetry 接口。"
@@ -108,7 +108,7 @@
         "confidence": 1,
         "width": 1920,
         "height": 1080,
-        "circleCandidates": 16,
+        "circleCandidates": 13,
         "brightness": 0.168,
         "edgeDensity": 0.003,
         "note": "第一版使用圆形候选与边缘密度判断；结算数据请配合 telemetry 接口。"
