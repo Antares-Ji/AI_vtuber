@@ -22,6 +22,7 @@ assets/tts/*.flac
 # Node modules and third-party clones (not project source)
 node_modules/
 third_party/
+/vendor/maa/
 
 # Python build artifacts
 __pycache__/

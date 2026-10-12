@@ -23,6 +23,9 @@
           <input id="danmakuInput" name="danmakuInput" maxlength="120" autocomplete="off" placeholder="发一条弹幕试试" aria-label="弹幕内容" required />
           <button id="sendDanmaku" type="submit">发送</button>
         </div>
+        <label for="personaSelect">当前人格</label>
+        <select id="personaSelect" class="microphone-select" aria-label="当前人格"><option value="sui">姬岁歌 · 岁</option><option value="ge">姬岁歌 · 歌</option></select>
+        <button id="interruptSpeech" class="voice-button" type="button">停止当前发言</button>
         <label class="training-toggle" for="trainingMemory"><input id="trainingMemory" type="checkbox" checked /><span>将本条加入本场训练素材</span></label>
         <label class="chat-toggle" for="chatModeToggle"><span id="chatModeLabel">主动陪聊</span><input id="chatModeToggle" type="checkbox" checked /><i aria-hidden="true"></i></label>
         <label class="chat-toggle" for="speechOutputToggle"><span id="speechOutputLabel">主播语音输出</span><input id="speechOutputToggle" type="checkbox" checked /><i aria-hidden="true"></i></label>
@@ -45,6 +48,8 @@
     <script src="/vendor/pixi8.min.js"></script>
     <script src="/vendor/live2dcubismcore-v5.min.js"></script>
     <script src="/vendor/live2d-cubism5.min.js"></script>
+    <script src="/speech-output-arbiter.js"></script>
+    <script src="/persona-presentation.js"></script>
     <script type="module" src="/stream.js"></script>
   </body>
 </html>

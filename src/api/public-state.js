@@ -18,6 +18,8 @@ function publicSpeech(speech) {
   if (!speech) return null;
   return {
     id: speech.id,
+    delivery: speech.delivery,
+    persona: speech.persona,
     at: speech.at,
     item: { user: speech.item?.user || "你", type: speech.item?.type || "chat" },
     text: speech.text,

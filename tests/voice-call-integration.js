@@ -3,6 +3,7 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const vm = require("node:vm");
+const { SpeechOutputArbiter } = require("../public/speech-output-arbiter");
 
 const source = fs.readFileSync(path.join(__dirname, "..", "public", "voice-call.js"), "utf8")
   .replace("export class VoiceCallController", "class VoiceCallController");
@@ -52,6 +53,7 @@ async function main() {
   let sourceStopped = 0;
   const output = { AbortController, performance, clearInterval, clearTimeout, cancelAnimationFrame() {}, setLive2DMouth() {}, window: { speechSynthesis: { cancel() {} } }, fetch: async () => ({}), voiceStatus: {}, voiceCall: { revision: 0, ending: false, continuedText: "" } };
   output.speechSynthesis = output.window.speechSynthesis;
+  output.speechArbiter = new SpeechOutputArbiter();
   vm.createContext(output);
   vm.runInContext(`let speechEpoch = 0, activeReplyController = new AbortController(), activeAudio = null, finishActiveSpeech = null, speakingTimer, ttsLipSyncFrame;
     const activeTtsControllers = new Set(), activeStreamSources = new Set();

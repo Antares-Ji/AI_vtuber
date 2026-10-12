@@ -43,6 +43,7 @@ class MemoryStore {
     this.db.exec("PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON; PRAGMA busy_timeout = 3000;");
     this.createSchema();
     this.migrateSchema();
+    this.ensureColumn("session_messages", "persona_id", "TEXT");
     this.ensureActiveSession();
     this.migrateLegacyJsonOnce();
     this.expireMemories();
@@ -586,8 +587,10 @@ class MemoryStore {
       .run(item.user, familiarity, affinity, trust, comfort, boundaryPressure, repeatStrikes, preferredName, lastTopic, now);
   }
 
-  getSessionMessagesForUser(userName, limit = 4) {
-    return this.db.prepare(`SELECT at, user_name AS user, text, reply FROM session_messages
+  getSessionMessagesForUser(userName, limit = 4, personaId = null) {
+    if (personaId) return this.db.prepare(`SELECT at, user_name AS user, text, reply, persona_id AS personaId FROM session_messages
+      WHERE session_id = ? AND user_name = ? AND persona_id = ? ORDER BY id DESC LIMIT ?`).all(this.ensureActiveSession(), userName, personaId, limit).reverse();
+    return this.db.prepare(`SELECT at, user_name AS user, text, reply, persona_id AS personaId FROM session_messages
       WHERE session_id = ? AND user_name = ? ORDER BY id DESC LIMIT ?`).all(this.ensureActiveSession(), userName, limit).reverse();
   }
 
@@ -645,10 +648,10 @@ class MemoryStore {
     this.withTransaction(() => {
       const emotion = emotionalContext.emotion || {};
       if (!item.voiceCallId) this.db.prepare(`INSERT INTO session_messages(session_id, at, user_name, text, reply, training_hint,
-        emotion_name, emotion_intensity, affect_json, appraisal_json) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`).run(
+        emotion_name, emotion_intensity, affect_json, appraisal_json, persona_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`).run(
         sessionId, now, item.user, storedText, reply, item.training ? 1 : 0,
         emotion.name || null, Number.isFinite(Number(emotion.intensity)) ? Number(emotion.intensity) : null,
-        emotion.affect ? JSON.stringify(emotion.affect) : null, emotion.appraisal ? JSON.stringify(emotion.appraisal) : null
+        emotion.affect ? JSON.stringify(emotion.affect) : null, emotion.appraisal ? JSON.stringify(emotion.appraisal) : null, item.personaId || null
       );
       const user = this.db.prepare("SELECT seen_count, first_seen_at FROM users WHERE user_name = ?").get(item.user);
       this.upsertUser(item.user, Number(user?.seen_count || 0) + 1, user?.first_seen_at || now, now);
@@ -746,7 +749,7 @@ class MemoryStore {
       users[user.user_name] = { seen: user.seen_count, firstSeen: user.first_seen_at, lastSeen: user.last_seen_at, facts: this.getUserFacts(user.user_name) };
     }
     const session = this.getSessionStatus();
-    this.shortTerm = this.db.prepare("SELECT at, user_name AS user, text, reply FROM session_messages WHERE session_id = ? ORDER BY id DESC LIMIT 20").all(session.id).reverse();
+    this.shortTerm = this.db.prepare("SELECT at, user_name AS user, text, reply, persona_id AS personaId FROM session_messages WHERE session_id = ? ORDER BY id DESC LIMIT 20").all(session.id).reverse();
     this.data = {
       users, session: { shortTerm: this.shortTerm, startedAt: session.startedAt, id: session.id },
       stream: { events: this.db.prepare("SELECT at, type, user_name AS user, text FROM stream_events WHERE session_id = ? ORDER BY id DESC LIMIT 80").all(session.id).reverse(), topics: this.db.prepare("SELECT at, text FROM stream_topics WHERE session_id = ? ORDER BY id DESC LIMIT 12").all(session.id).reverse() },

@@ -24,21 +24,24 @@ function createVoiceCallRoutes({ brain, streamRoutedReply, parseBody, send, acqu
       }
       if (action !== "turn") return send(res, 404, { error: "unknown voice call endpoint" });
       if (call.status !== "active") return send(res, 410, { error: "voice call has ended" });
+      if (body.delivery && !brain.personaRuntime.isCurrent(body.delivery)) return send(res, 409, { error: "stale persona request" });
       const sequence = Number(body.sequence);
       const text = String(body.text || "").trim();
       if (!Number.isSafeInteger(sequence) || sequence < 1 || !text || text.length > 4000) return send(res, 400, { error: "invalid voice turn" });
-      const existing = brain.memoryStore.db.prepare("SELECT status, input_text, reply_text FROM voice_call_turns WHERE call_id = ? AND sequence = ?").get(id, sequence);
+      const existing = brain.memoryStore.db.prepare("SELECT status, input_text, reply_text, persona_id, delivery_json FROM voice_call_turns WHERE call_id = ? AND sequence = ?").get(id, sequence);
       if (existing) {
         if (existing.input_text !== text) return send(res, 422, { error: "sequence belongs to another input" });
         if (body.interrupted) return send(res, 200, { ok: true, idempotent: true });
         if (existing.status !== "completed") return send(res, 410, { error: "turn was interrupted; start a new turn" });
+        const delivery = existing.delivery_json ? JSON.parse(existing.delivery_json) : null;
+        if (brain.personaRuntime && !brain.personaRuntime.isCurrent(delivery)) return send(res, 410, { error: "reply belongs to an expired persona turn" });
         res.writeHead(200, { "content-type": "application/x-ndjson" });
-        return res.end(`${JSON.stringify({ type: "delta", text: existing.reply_text, reviewed: true })}\n${JSON.stringify({ type: "done", text: existing.reply_text })}\n`);
+        return res.end(`${JSON.stringify({ type: "delta", text: existing.reply_text, delivery, reviewed: true })}\n${JSON.stringify({ type: "done", text: existing.reply_text, delivery })}\n`);
       }
       if (body.interrupted) return send(res, 200, { turn: api.interrupt(id, { sequence, text }) });
       const release = acquire();
       if (!release) return send(res, 409, { error: "reply is busy" });
-      const controller = responseAbortController(res);
+      const controller = responseAbortController(res, brain.personaRuntime?.controller.signal);
       active.set(id, controller);
       try {
         const startedAt = Date.now();
@@ -48,12 +51,13 @@ function createVoiceCallRoutes({ brain, streamRoutedReply, parseBody, send, acqu
         // an unfinished answer into an apparently completed conversation.
         api.interrupt(id, { sequence, text });
         const prepared = brain.prepareStreamReply({ id: `call-${id}-${sequence}`, user: call.user, contextScope: `voice:${id}`, voiceCallId: id, voiceSequence: sequence, text, type: "chat", training: false, timestamp: new Date().toISOString() });
+        brain.memoryStore.db.prepare("UPDATE voice_call_turns SET persona_id = ?, delivery_json = ? WHERE call_id = ? AND sequence = ?").run(brain.persona?.id || null, JSON.stringify(prepared.item.delivery || null), id, sequence);
         if (classifyComplexity(prepared.item).route === "local" && !/详细|长一点|完整|故事|展开/.test(text)) {
           prepared.context.realtimeMaxTokens = 96;
           prepared.context.direction = { ...prepared.context.direction, responseBudget: { ...prepared.context.direction?.responseBudget, maxSentences: 2, maxCharacters: 100 }, instruction: `${prepared.context.direction?.instruction || ""}。这是语音通话，简短直接回答，不要额外追问。` };
         }
         res.writeHead(200, { "content-type": "application/x-ndjson; charset=utf-8", "cache-control": "no-store" });
-        res.write(`${JSON.stringify({ type: "start", item: prepared.item, emotion: brain.visibleEmotion() })}\n`);
+        res.write(`${JSON.stringify({ type: "start", item: prepared.item, emotion: brain.visibleEmotion(), persona: brain.persona ? { id: brain.persona.id, name: brain.persona.name, displayName: brain.persona.displayName } : undefined, personaRuntime: brain.personaStatus?.() })}\n`);
         let draft = "";
         for await (const event of streamRoutedReply(prepared.item, prepared.context, controller.signal)) {
           controller.signal.throwIfAborted();
@@ -68,7 +72,7 @@ function createVoiceCallRoutes({ brain, streamRoutedReply, parseBody, send, acqu
         const reply = brain.commitStreamReply(prepared.item, prepared.context, draft.trim());
         api.store.complete(id, sequence, reply.text);
         const timing = { firstTokenMs, approvedDeltaMs: Date.now() - startedAt };
-        res.end(`${JSON.stringify({ type: "delta", text: reply.text, reviewed: true, routing, timing })}\n${JSON.stringify({ type: "done", text: reply.text, reviewed: true, routing, timing })}\n`);
+        res.end(`${JSON.stringify({ type: "delta", text: reply.text, delivery: reply.delivery, reviewed: true, routing, timing })}\n${JSON.stringify({ type: "done", text: reply.text, delivery: reply.delivery, reviewed: true, routing, timing })}\n`);
       } catch (error) {
         if (controller.signal.aborted || res.destroyed) return;
         if (!res.headersSent) return send(res, 500, { error: "voice reply failed" });

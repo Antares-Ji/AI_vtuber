@@ -67,6 +67,17 @@ let finishActiveSpeech = null;
 const activeTtsControllers = new Set();
 let activeReplyController = null;
 let speechEpoch = 0;
+const speechArbiter = new globalThis.SpeechOutputArbiter();
+const personaSelect = document.querySelector("#personaSelect");
+const interruptSpeech = document.querySelector("#interruptSpeech");
+const personaChannel = "BroadcastChannel" in window ? new BroadcastChannel("jisui-persona") : null;
+let pollSequence = 0;
+const presentation = new globalThis.PersonaPresentation(() => {
+  stopSpeechOutput();
+  subtitle.textContent = "";
+  lastRenderedSpeechId = "";
+  setLive2DEmotion("neutral");
+});
 let audioOutputSyncUntil = 0;
 let audioOutputRequestId = 0;
 let pollFailures = 0;
@@ -137,8 +148,10 @@ async function speak(text, profile = {}) {
   clearInterval(speakingTimer);
   if (!audioOutputEnabled) return false;
   const epoch = ++speechEpoch;
-  if (voiceProvider === "browser") return browserSpeak(text, profile, epoch);
-  return playPreparedSpeech(prepareBackendSpeech(text, profile), text, profile, epoch, performance.now());
+  return speechArbiter.enqueue(() => voiceProvider === "browser"
+    ? browserSpeak(text, profile, epoch)
+    : playPreparedSpeech(prepareBackendSpeech(text, profile, epoch), text, profile, epoch, performance.now()),
+    { isValid: () => epoch === speechEpoch && audioOutputEnabled });
 }
 
 async function prepareBackendSpeech(text, profile = {}, expectedEpoch = speechEpoch) {
@@ -152,7 +165,7 @@ async function prepareBackendSpeech(text, profile = {}, expectedEpoch = speechEp
     const response = await fetch("/api/tts", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ text, style: { speechRate: profile.speechRate || 1, pitch: profile.pitch || 0, energy: profile.energy, pauseMs: profile.pauseMs, emotion: profile.expression || "neutral", regulation: profile.regulation, valence: profile.valence, arousal: profile.arousal, dominance: profile.dominance, tension: profile.tension, expressibility: profile.expressibility } }),
+      body: JSON.stringify({ text, delivery: profile.delivery, style: { speechRate: profile.speechRate || 1, pitch: profile.pitch || 0, energy: profile.energy, pauseMs: profile.pauseMs, emotion: profile.expression || "neutral", regulation: profile.regulation, valence: profile.valence, arousal: profile.arousal, dominance: profile.dominance, tension: profile.tension, expressibility: profile.expressibility } }),
       signal: controller.signal
     });
     if (!response.ok) throw new Error("backend TTS unavailable");
@@ -302,8 +315,7 @@ async function playStreamingWav(response, epoch, onFirstAudio = null) {
     const timer = setTimeout(resolve, remainingMs);
     finishActiveSpeech = () => { clearTimeout(timer); resolve(); };
   });
-  finishActiveSpeech = null;
-  setLive2DMouth(false);
+  if (epoch === speechEpoch) { finishActiveSpeech = null; setLive2DMouth(false); }
 }
 
 async function startAmplitudeLipSync(audio) {
@@ -341,18 +353,19 @@ function browserSpeak(text, profile = {}, epoch = speechEpoch) {
     utterance.rate = Math.min(1.3, Math.max(0.8, 1.08 * (profile.speechRate || 1)));
     utterance.pitch = Math.min(2, Math.max(0, 1.2 + (profile.pitch || 0)));
     clearInterval(speakingTimer);
-    speakingTimer = setInterval(() => setLive2DMouth(true), 140);
+    const ownTimer = setInterval(() => { if (epoch === speechEpoch) setLive2DMouth(true); }, 140);
+    speakingTimer = ownTimer;
     let settled = false;
     const finish = () => {
       if (settled) return;
       settled = true;
       if (finishActiveSpeech === finish) finishActiveSpeech = null;
-      clearInterval(speakingTimer);
-      setLive2DMouth(false);
-      resolve(true);
+      clearInterval(ownTimer);
+      if (epoch === speechEpoch) setLive2DMouth(false);
+      resolve(epoch === speechEpoch);
     };
     finishActiveSpeech = finish;
-    utterance.onstart = () => profile.onFirstAudio?.();
+    utterance.onstart = () => { if (epoch === speechEpoch) profile.onFirstAudio?.(); };
     utterance.onend = finish;
     utterance.onerror = finish;
     speechSynthesis.speak(utterance);
@@ -361,6 +374,7 @@ function browserSpeak(text, profile = {}, epoch = speechEpoch) {
 
 function stopSpeechOutput() {
   speechEpoch += 1;
+  speechArbiter.cancelAll();
   clearInterval(speakingTimer);
   for (const controller of activeTtsControllers) controller.abort();
   activeTtsControllers.clear();
@@ -400,12 +414,19 @@ function applyAudioOutput(enabled, announce = true) {
 }
 
 async function poll() {
+  const revision = presentation.revision;
+  const sequence = ++pollSequence;
   const state = await api("/api/state");
+  if (presentation.changing || sequence !== pollSequence || revision !== presentation.revision || !presentation.adopt(state.personaRuntime, revision)) return;
+  if (personaSelect && state.personaRuntime) {
+    personaSelect.hidden = !state.personaRuntime.enabled;
+    personaSelect.value = state.personaRuntime.personaId;
+  }
   personaName = state.persona?.displayName || state.persona?.name || personaName;
   if (!lastRenderedSpeechId) speaker.textContent = personaName;
   document.title = `${personaName}直播台`;
   state.queue.slice(0, 5).forEach(showDanmaku);
-  setLive2DEmotion(state.emotion.name);
+  if (!isReading) setLive2DEmotion(state.emotion.name);
   if (!voiceCall) renderLatestSpeech(state.latestSpeech);
   const llm = state.llm;
   chatModeToggle.checked = Boolean(state.scene?.chatEnabled);
@@ -434,6 +455,7 @@ async function pollSafely() {
 }
 
 function renderLatestSpeech(latestSpeech) {
+  if (presentation.changing || isReading || !presentation.isCurrent(latestSpeech?.delivery)) return;
   if (!latestSpeech || latestSpeech.id === lastRenderedSpeechId) return;
   lastRenderedSpeechId = latestSpeech.id;
   subtitle.textContent = latestSpeech.text;
@@ -471,31 +493,32 @@ async function releaseConversation() {
 }
 
 async function readNextOwned() {
+  const revision = presentation.revision;
   const isRecording = mediaRecorder?.state === "recording" || isAsrBusy;
   const isTyping = document.activeElement === danmakuInput && (danmakuInput.value.trim() || Date.now() < typingHoldUntil);
-  if (voiceCall || isReading || isRecording || isTyping) return;
+  if (voiceCall || isReading || isRecording || isTyping || presentation.changing) return;
   isReading = true;
   let spoke = false;
   try {
     const result = await api("/api/next", { method: "POST", body: JSON.stringify({ preferFresh: true }) });
-    if (voiceCall) return;
+    if (voiceCall || revision !== presentation.revision || presentation.changing) return;
+    if (result.reply && !presentation.isCurrent(result.reply.delivery || result.reply.personaRuntime)) return;
     if (result.idle) return;
     showDanmaku(result.item);
     subtitle.textContent = result.reply.text;
     lastRenderedSpeechId = "";
-    personaName = result.reply.persona?.name || personaName;
+    personaName = result.reply.persona?.displayName || result.reply.persona?.name || personaName;
     speaker.textContent = `${personaName} -> ${result.item.user}`;
     setLive2DEmotion(result.reply.emotion.name, result.reply.performance?.profile?.intensity);
-    const speechTimeout = setTimeout(stopSpeechOutput, 60_000);
+    const speechTimeout = setTimeout(() => { if (revision === presentation.revision) stopSpeechOutput(); }, 60_000);
     try {
-      spoke = await speak(result.reply.text, result.reply.performance?.profile);
+      spoke = await speak(result.reply.text, { ...result.reply.performance?.profile, delivery: result.reply.delivery || result.reply.personaRuntime });
     } finally {
       clearTimeout(speechTimeout);
     }
-    clearInterval(speakingTimer);
-    setLive2DMouth(false);
+    if (revision === presentation.revision) { clearInterval(speakingTimer); setLive2DMouth(false); }
   } finally {
-    isReading = false;
+    if (!activeReplyController) isReading = false;
     if (spoke) setTimeout(() => void readNextSafely(), 0);
   }
 }
@@ -529,6 +552,9 @@ async function refreshModuleStatus() {
 }
 
 async function readNextStreaming(expectedItemId = null, callRequest = null) {
+  if (presentation.changing) return;
+  const revision = presentation.revision;
+  let delivery = presentation.runtime;
   if (isReading && !callRequest) return;
   isReading = true;
   let speechChain = Promise.resolve();
@@ -539,7 +565,7 @@ async function readNextStreaming(expectedItemId = null, callRequest = null) {
   let ttsRequestGate = Promise.resolve();
   const replyController = new AbortController();
   activeReplyController = replyController;
-  const streamIsCurrent = () => !replyController.signal.aborted && speechEpoch === streamSpeechEpoch;
+  const streamIsCurrent = () => !replyController.signal.aborted && speechEpoch === streamSpeechEpoch && revision === presentation.revision && !presentation.changing;
   const cancelStreamSpeech = () => {
     // Invalidate queued work AND stop audio that was already scheduled.
     // A stale reply must never stop a newer reply's sources.
@@ -550,13 +576,14 @@ async function readNextStreaming(expectedItemId = null, callRequest = null) {
     const clean = chunk?.trim();
     if (!clean || !audioOutputEnabled || !streamIsCurrent()) return;
     const queuedAt = performance.now();
-    const profile = { onFirstAudio: () => {
+    const profile = { delivery, onFirstAudio: () => {
       if (!streamIsCurrent() || !callRequest || callRequest.firstAudio || typeof voiceCallTiming === "undefined") return;
       callRequest.firstAudio = true;
       voiceCallTiming.textContent += ` · 合成到首音 ${Math.round(performance.now() - queuedAt)}ms · 分句后到首音 ${Math.round(performance.now() - callRequest.startedAt)}ms`;
     } };
     if (voiceProvider === "browser") {
-      speechChain = speechChain.then(() => streamIsCurrent() && browserSpeak(clean, profile, streamSpeechEpoch));
+      speechChain = speechArbiter.enqueue(() => browserSpeak(clean, profile, streamSpeechEpoch), { isValid: streamIsCurrent, metadata: delivery || {} });
+      speechChain.catch(() => { if (streamIsCurrent()) cancelStreamSpeech(); });
       return;
     }
     // Keep prefetch ordered: each sentence requests TTS only after the prior
@@ -564,17 +591,18 @@ async function readNextStreaming(expectedItemId = null, callRequest = null) {
     // starting after barge-in has cancelled this reply.
     const prepared = ttsRequestGate.then(() => {
       if (!streamIsCurrent()) throw new DOMException("speech was cancelled", "AbortError");
-      return prepareBackendSpeech(clean, {}, streamSpeechEpoch);
+      return prepareBackendSpeech(clean, profile, streamSpeechEpoch);
     });
     prepared.catch(() => {});
     ttsRequestGate = prepared.then(() => undefined, () => undefined);
-    speechChain = speechChain.then(() => streamIsCurrent() && playPreparedSpeech(prepared, clean, profile, streamSpeechEpoch, queuedAt));
+    speechChain = speechArbiter.enqueue(() => playPreparedSpeech(prepared, clean, profile, streamSpeechEpoch, queuedAt), { isValid: streamIsCurrent, metadata: delivery || {} });
+    speechChain.catch(() => { if (streamIsCurrent()) cancelStreamSpeech(); });
   };
   try {
     let response;
     for (let attempt = 0; ; attempt++) {
       replyController.signal.throwIfAborted();
-      response = await fetch(callRequest?.path || "/api/next-stream", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(callRequest?.body || { preferFresh: true, expectedItemId }), signal: replyController.signal });
+      response = await fetch(callRequest?.path || "/api/next-stream", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ ...(callRequest?.body || { preferFresh: true, expectedItemId }), delivery }), signal: replyController.signal });
       if (!callRequest || response.status !== 409 || attempt >= 19) break;
       await new Promise(resolve => setTimeout(resolve, 150));
     }
@@ -605,8 +633,13 @@ async function readNextStreaming(expectedItemId = null, callRequest = null) {
         }
         const event = JSON.parse(line);
         if (event.type === "start") {
+          const token = event.item?.delivery || event.personaRuntime;
+          if (token && !presentation.isCurrent(token)) { cancelStreamSpeech(); return; }
+          delivery = token || delivery;
+        } else if (event.delivery && !presentation.isCurrent(event.delivery)) { cancelStreamSpeech(); return; }
+        if (event.type === "start") {
           if (!callRequest) showDanmaku(event.item);
-          personaName = event.persona?.name || personaName;
+          personaName = event.persona?.displayName || event.persona?.name || personaName;
           speaker.textContent = `${personaName} → ${event.item.user}`;
           setLive2DEmotion(event.emotion?.name || "neutral");
         } else if (event.type === "preface") {
@@ -653,6 +686,46 @@ async function readNextStreaming(expectedItemId = null, callRequest = null) {
     }
   }
 }
+
+async function changePersona(personaId = null) {
+  if (presentation.changing) return;
+  presentation.changing = true;
+  const expected = presentation.runtime;
+  presentation.invalidate();
+  personaSelect.disabled = true;
+  interruptSpeech.disabled = true;
+  try {
+    const result = await api(personaId ? "/api/personas/switch" : "/api/personas/interrupt", {
+      method: "POST", body: JSON.stringify({ personaId, expected })
+    });
+    if (presentation.adopt(result.runtime)) {
+      personaChannel?.postMessage(result.runtime);
+      personaSelect.value = result.runtime.personaId;
+      personaName = result.runtime.personas.find(p => p.id === result.runtime.personaId)?.displayName || personaName;
+      speaker.textContent = personaName;
+      composerStatus.textContent = personaId ? `已切换到${personaName}` : "已停止当前发言";
+    }
+  } catch {
+    composerStatus.textContent = "操作未确认，正在重新同步当前人格";
+    const state = await api("/api/personas").catch(() => null);
+    if (state) { presentation.adopt(state); personaSelect.value = state.personaId; }
+  } finally {
+    presentation.changing = false;
+    personaSelect.disabled = false;
+    interruptSpeech.disabled = false;
+  }
+}
+
+personaSelect?.addEventListener("change", () => void changePersona(personaSelect.value));
+interruptSpeech?.addEventListener("click", () => void changePersona());
+personaChannel?.addEventListener("message", event => {
+  const runtime = event.data;
+  if (runtime && Number.isSafeInteger(runtime.generationEpoch) && presentation.adopt(runtime)) {
+    personaSelect.value = runtime.personaId;
+    personaName = runtime.personas?.find(p => p.id === runtime.personaId)?.displayName || personaName;
+    speaker.textContent = personaName;
+  }
+});
 
 async function submitDanmaku(text) {
   if (voiceCall) return;
@@ -1158,7 +1231,8 @@ async function boot() {
   navigator.mediaDevices?.addEventListener?.("devicechange", refreshMicrophoneChoices);
   try {
     const state = await api("/api/state");
-    personaName = state.persona?.name || personaName;
+    presentation.adopt(state.personaRuntime);
+    personaName = state.persona?.displayName || state.persona?.name || personaName;
     speaker.textContent = personaName;
     await startLive2D({ container: document.querySelector("#live2d-stage"), modelPath: state.avatar.live2dModelPath });
     fallback.hidden = true;

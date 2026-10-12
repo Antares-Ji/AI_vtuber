@@ -29,6 +29,7 @@ function buildRealtimeMessages(item = {}, context = {}) {
   return [
     { role: "system", content: systems.join("\n\n") },
     ...(context.recent || []).slice(-3).flatMap(turn => [{ role: "user", content: turn.text }, ...(turn.reply ? [{ role: "assistant", content: turn.reply }] : [])]),
+    ...(context.partnerContext ? [{ role: "user", content: context.partnerContext }] : []),
     { role: "user", content: item.type === "proactive" ? "现在请自然地主动说一句话。" : `观众 ${item.user || "观众"} 发来弹幕：${item.text || ""}` }
   ];
 }

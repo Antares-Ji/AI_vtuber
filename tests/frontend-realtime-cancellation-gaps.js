@@ -10,10 +10,12 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const vm = require("node:vm");
+const { SpeechOutputArbiter } = require("../public/speech-output-arbiter");
+const { PersonaPresentation } = require("../public/persona-presentation");
 
 const source = fs.readFileSync(path.join(__dirname, "..", "public", "stream.js"), "utf8");
 const start = source.indexOf("async function readNextStreaming");
-const end = source.indexOf("async function submitDanmaku", start);
+const end = source.indexOf("async function changePersona", start);
 assert(start >= 0 && end > start, "readNextStreaming function is missing");
 const readFunction = source.slice(start, end);
 
@@ -28,6 +30,8 @@ function makeHarness(chunks, options = {}) {
   const secondRead = deferred();
   let readIndex = 0;
   const context = {
+    speechArbiter: new SpeechOutputArbiter(),
+    presentation: new PersonaPresentation(),
     AbortController,
     DOMException,
     JSON,

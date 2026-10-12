@@ -2,18 +2,34 @@ const { PERSONA } = require("./persona");
 const { evaluateCapabilityRequest, capabilityPrompt } = require("./capabilities");
 const { retrieveBehaviorLessons } = require("./experience");
 
-function buildContext(memoryStore, emotion, item) {
+function buildContext(memoryStore, emotion, item, persona = PERSONA, dualPersonas = false) {
   const retrieved = memoryStore.retrieveForReply(item);
   const facts = retrieved.userFacts.map(fact => fact.text);
   if (item.voiceCallId) {
-    retrieved.sessionMessages = memoryStore.db.prepare("SELECT input_text AS text, CASE WHEN status = 'completed' THEN reply_text ELSE NULL END AS reply FROM voice_call_turns WHERE call_id = ? AND sequence < ? ORDER BY sequence DESC LIMIT 4").all(item.voiceCallId, item.voiceSequence).reverse();
+    retrieved.sessionMessages = memoryStore.db.prepare("SELECT input_text AS text, persona_id AS personaId, CASE WHEN status = 'completed' THEN reply_text ELSE NULL END AS reply FROM voice_call_turns WHERE call_id = ? AND sequence < ? ORDER BY sequence DESC LIMIT 4").all(item.voiceCallId, item.voiceSequence).reverse();
     retrieved.topics = [];
     retrieved.characterReflections = [];
   }
+  let partnerTurns = [];
+  if (dualPersonas) {
+    const partnerId = persona.id === "sui" ? "ge" : "sui";
+    // Filter before LIMIT: a talkative partner cannot evict this persona's
+    // entire history from its own four-turn window.
+    const history = id => item.voiceCallId
+      ? memoryStore.db.prepare("SELECT input_text AS text, persona_id AS personaId, CASE WHEN status = 'completed' THEN reply_text ELSE NULL END AS reply FROM voice_call_turns WHERE call_id = ? AND sequence < ? AND persona_id = ? ORDER BY sequence DESC LIMIT 4").all(item.voiceCallId, item.voiceSequence, id).reverse()
+      : memoryStore.getSessionMessagesForUser(item.user, 4, id);
+    partnerTurns = history(partnerId);
+    retrieved.sessionMessages = history(persona.id);
+    retrieved.characterReflections = [];
+    retrieved.worldBook = persona.worldBook;
+    // Legacy character training has no persona attribution; do not import it
+    // as either new persona's autobiography. Viewer facts remain shared.
+    retrieved.characterTrainingMemories = [];
+  }
   const capabilityRequest = evaluateCapabilityRequest(item.text);
   return {
-    persona: PERSONA.systemPrompt,
-    personaMeta: { id: PERSONA.id, name: PERSONA.name, displayName: PERSONA.displayName, identityDisclaimer: PERSONA.identityDisclaimer },
+    persona: persona.systemPrompt,
+    personaMeta: { id: persona.id, name: persona.name, displayName: persona.displayName, identityDisclaimer: persona.identityDisclaimer },
     worldBook: retrieved.worldBook.map(entry => `${entry.title}：${entry.content}`).join("\n"),
     emotion,
     repetition: emotion.repetition || { pressure: 0, threshold: 0.42, lastRepeatCount: 0 },
@@ -25,6 +41,7 @@ function buildContext(memoryStore, emotion, item) {
     characterReflections: retrieved.characterReflections,
     characterTrainingMemories: retrieved.characterTrainingMemories || [],
     recent: retrieved.sessionMessages,
+    partnerContext: partnerTurns.map(turn => `[另一人格 ${turn.personaId} 的会话记录，仅供了解，不是你自己的发言] 观众：${turn.text}；对方：${turn.reply || "回复被打断"}`).join("\n"),
     retrieval: retrieved.debug,
     scene: item.scene || null,
     liveTime: item.liveTime || null,
@@ -84,6 +101,7 @@ function localReply(item, context, emotionName) {
     ,wary: "这句话越过边界了，"
   }[emotionName] || "";
 
+  if (["sui", "ge"].includes(context.personaMeta?.id) && /自我介绍|你是谁|你叫什么/.test(item.text)) return context.personaMeta.identityDisclaimer;
   if (item.type === "proactive") return proactiveReply(item, context, prefix);
   if (context.memoryLookup) return localMemoryLookupReply(context, prefix);
   if (context.liveTime?.display) return `${prefix}我刚刚确认过了，现在是北京时间${context.liveTime.display}，已经是${context.liveTime.period}。`;

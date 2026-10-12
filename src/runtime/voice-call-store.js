@@ -52,6 +52,10 @@ class VoiceCallStore {
       );
       CREATE INDEX IF NOT EXISTS idx_voice_call_turns_call_sequence ON voice_call_turns(call_id, sequence);
     `);
+    const columns = new Set(this.db.prepare("PRAGMA table_info(voice_call_turns)").all().map(column => column.name));
+    for (const column of ["persona_id", "delivery_json"]) {
+      if (!columns.has(column)) this.db.exec(`ALTER TABLE voice_call_turns ADD COLUMN ${column} TEXT`);
+    }
   }
 
   start({ user, source = "voice", metadata = {} } = {}) {

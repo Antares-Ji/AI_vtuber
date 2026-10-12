@@ -39,7 +39,7 @@ const VENDOR_FILES = {
 };
 const SAMPLE_DANMAKU = path.join(__dirname, "..", "data", "sample-danmaku.json");
 const RUNTIME_SETTINGS_PATH = path.join(__dirname, "..", "data", "runtime-settings.json");
-const brain = new StreamerBrain();
+const brain = new StreamerBrain({ dualPersonas: process.env.DUAL_PERSONAS !== "false" });
 const queueStore = new QueueStore();
 const queue = queueStore.items;
 const seenDanmaku = new Map();
@@ -184,6 +184,20 @@ function safeFilePath(root, relative) {
 async function handleApi(req, res) {
   const url = new URL(req.url, `http://${req.headers.host}`);
 
+  if (req.method === "GET" && url.pathname === "/api/personas") return send(res, 200, brain.personaStatus());
+  if (req.method === "POST" && ["/api/personas/switch", "/api/personas/interrupt"].includes(url.pathname)) {
+    const body = await parseBody(req);
+    if (body.expected && !brain.personaRuntime.isCurrent(body.expected)) return send(res, 409, { error: "persona state changed", runtime: brain.personaStatus() });
+    try {
+      const runtime = url.pathname.endsWith("/switch") ? brain.switchPersona(String(body.personaId || "")) : brain.interruptTurn("operator interrupted");
+      deferredReply = null;
+      return send(res, 200, { runtime });
+    } catch (error) {
+      if (error instanceof RangeError) return send(res, 400, { error: error.message });
+      throw error;
+    }
+  }
+
   if (url.pathname.startsWith("/api/voice-calls/")) return handleVoiceCall(req, res, url);
 
   if (await handleStudioApi(req, res, url, { brain, liveRuntime, runtimeMetrics, parseBody, parseBinaryBody, send })) return;
@@ -197,7 +211,7 @@ async function handleApi(req, res) {
       emotion: publicEmotion(brain.visibleEmotion()),
       scene: { chatEnabled: brain.sceneState.chatEnabled, chatSuspended: brain.sceneState.chatSuspended },
       latestSpeech: publicSpeech(brain.lastSpeech),
-      persona: { id: PERSONA.id, name: PERSONA.name, displayName: PERSONA.displayName },
+      persona: { id: (brain.persona || PERSONA).id, name: (brain.persona || PERSONA).name, displayName: (brain.persona || PERSONA).displayName }, personaRuntime: brain.personaStatus?.(),
       llm: { enabled: brain.llmStatus.enabled, provider: brain.llmStatus.provider, model: brain.llmStatus.model, lastMode: brain.llmStatus.lastMode, lastLatencyMs: brain.llmStatus.lastLatencyMs, route: brain.llmStatus.route, routeReason: brain.llmStatus.routeReason },
       asr: publicAsrStatus(asrStatus),
       audioOutput: { enabled: runtimeSettings.audioOutputEnabled },
@@ -267,6 +281,7 @@ async function handleApi(req, res) {
   }
 
   if (req.method === "POST" && url.pathname === "/api/session/end") {
+    brain.interruptTurn("session ended");
     const ended = brain.memoryStore.endCurrentSession();
     deferredReply = null;
     queueStore.prune(() => true);
@@ -311,7 +326,7 @@ async function handleApi(req, res) {
           text: selectThinkingPreface(item),
           performance: { cues: [], profile: brain.emotion.performance },
           emotion: brain.visibleEmotion(),
-          persona: { id: PERSONA.id, name: PERSONA.name, displayName: PERSONA.displayName },
+          persona: { id: (brain.persona || PERSONA).id, name: (brain.persona || PERSONA).name, displayName: (brain.persona || PERSONA).displayName }, personaRuntime: brain.personaStatus?.(),
           llm: { lastMode: "cloud-thinking", route: "cloud", routeReason: routing.reason },
           routing
         };
@@ -324,7 +339,7 @@ async function handleApi(req, res) {
             deferredReply = { idle: false, deferred: true, item, reply, queueSize: queue.length, highTraffic, dropped: 0 };
           })
           .catch(error => {
-            if (error.code === "STALE_REPLY") return;
+            if (error.code === "STALE_REPLY" || error.name === "AbortError") return;
             deferredReply = { idle: false, deferred: true, item, reply: { ...thinkingReply, text: "刚才思路断了一下，你再问我一次好吗？", llm: { ...thinkingReply.llm, lastMode: "cloud-error", lastError: sanitizeErrorMessage(error) } }, queueSize: queue.length };
           })
           .finally(() => { cloudReplyInFlight = null; });
@@ -352,10 +367,11 @@ async function handleApi(req, res) {
     const streamStarted = Date.now();
     let firstTokenMs = null;
     nextInFlight = true;
-    const controller = responseAbortController(res);
+    const controller = responseAbortController(res, brain.personaRuntime?.controller.signal);
     try {
       const body = await parseBody(req);
       controller.signal.throwIfAborted();
+      if (body.delivery && !brain.personaRuntime.isCurrent(body.delivery)) return send(res, 409, { error: "stale persona request" });
       let item = body.expectedItemId
         ? queue.find(candidate => candidate.id === body.expectedItemId)
         : brain.pickDanmaku(queue.filter(candidate => candidate.delivery === "stream"), { preferFresh: Boolean(body.preferFresh) });
@@ -365,7 +381,7 @@ async function handleApi(req, res) {
       item = prepared.item;
       const context = prepared.context;
       res.writeHead(200, { "content-type": "application/x-ndjson; charset=utf-8", "cache-control": "no-store", "x-accel-buffering": "no" });
-      res.write(`${JSON.stringify({ type: "start", item, emotion: brain.visibleEmotion(), persona: { id: PERSONA.id, name: PERSONA.name, displayName: PERSONA.displayName }, timing: { acceptedMs: Date.now() - streamStarted } })}\n`);
+      res.write(`${JSON.stringify({ type: "start", item, emotion: brain.visibleEmotion(), persona: { id: (brain.persona || PERSONA).id, name: (brain.persona || PERSONA).name, displayName: (brain.persona || PERSONA).displayName }, personaRuntime: brain.personaStatus?.(), timing: { acceptedMs: Date.now() - streamStarted } })}\n`);
       let text = "";
       let route = null;
       let model = null;
@@ -394,12 +410,12 @@ async function handleApi(req, res) {
       const reply = brain.commitStreamReply(item, context, text.trim());
       const approvedDeltaMs = Date.now() - streamStarted;
       runtimeMetrics.recordLatency("reply_approved_delta", approvedDeltaMs);
-      res.write(`${JSON.stringify({ type: "delta", text: reply.text, routing: route, model, mode, reviewed: true, timing: { serverElapsedMs: approvedDeltaMs, upstreamFirstTokenMs: firstTokenMs } })}\n`);
+      res.write(`${JSON.stringify({ type: "delta", text: reply.text, delivery: reply.delivery, routing: route, model, mode, reviewed: true, timing: { serverElapsedMs: approvedDeltaMs, upstreamFirstTokenMs: firstTokenMs } })}\n`);
       const totalMs = Date.now() - streamStarted;
       runtimeMetrics.recordLatency("reply_stream_total", totalMs);
       runtimeMetrics.replies += 1;
       runtimeMetrics.lastReplyAt = new Date().toISOString();
-      res.end(`${JSON.stringify({ type: "done", text: reply.text, routing: route, model, mode, reviewed: true, timing: { firstTokenMs, approvedDeltaMs, totalMs } })}\n`);
+      res.end(`${JSON.stringify({ type: "done", text: reply.text, delivery: reply.delivery, routing: route, model, mode, reviewed: true, timing: { firstTokenMs, approvedDeltaMs, totalMs } })}\n`);
     } catch (error) {
       if (controller.signal.aborted || res.destroyed) return;
       if (!res.headersSent) return send(res, 503, { error: sanitizeErrorMessage(error) });
@@ -493,9 +509,10 @@ async function handleApi(req, res) {
 
   if (req.method === "POST" && url.pathname === "/api/tts") {
     const ttsStarted = Date.now();
-    const ttsController = responseAbortController(res);
+    const ttsController = responseAbortController(res, brain.personaRuntime?.controller.signal);
     const body = await parseBody(req);
     if (ttsController.signal.aborted) return;
+    if (body.delivery && !brain.personaRuntime.isCurrent(body.delivery)) return send(res, 409, { error: "stale speech output" });
     const text = String(body.text || "").trim().slice(0, 500);
     const style = sanitizeTtsStyle(body.style);
     if (!text) return send(res, 400, { error: "text is required" });
@@ -534,7 +551,7 @@ async function handleApi(req, res) {
 
   if (req.method === "POST" && url.pathname === "/api/asr") {
     const asrStarted = Date.now();
-    const asrController = responseAbortController(res);
+    const asrController = responseAbortController(res, brain.personaRuntime?.controller.signal);
     const audio = await parseBinaryBody(req);
     if (asrController.signal.aborted) return;
     if (!audio.length) return send(res, 400, { error: "audio is required" });

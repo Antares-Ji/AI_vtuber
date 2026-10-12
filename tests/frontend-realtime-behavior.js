@@ -10,6 +10,8 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const vm = require("node:vm");
+const { SpeechOutputArbiter } = require("../public/speech-output-arbiter");
+const { PersonaPresentation } = require("../public/persona-presentation");
 
 const streamSource = fs.readFileSync(path.join(__dirname, "..", "public", "stream.js"), "utf8");
 
@@ -49,6 +51,8 @@ function createPlaybackHarness() {
     }
   }
   const context = {
+    speechArbiter: new SpeechOutputArbiter(),
+    presentation: new PersonaPresentation(),
     AbortController,
     AudioContext: FakeAudioContext,
     DOMException,
@@ -191,6 +195,8 @@ async function testPrefetchIsStrictlyOrdered() {
   const encoded = new TextEncoder().encode(events.map(event => JSON.stringify(event)).join("\n") + "\n");
   let sent = false;
   const context = {
+    speechArbiter: new SpeechOutputArbiter(),
+    presentation: new PersonaPresentation(),
     AbortController,
     JSON,
     Promise,
@@ -227,7 +233,7 @@ async function testPrefetchIsStrictlyOrdered() {
     },
     browserSpeak: async () => { throw new Error("test must exercise backend prefetch"); }
   };
-  const code = `${sourceBetween("async function readNextStreaming", "async function submitDanmaku")}\nglobalThis.__run = readNextStreaming;`;
+  const code = `${sourceBetween("async function readNextStreaming", "async function changePersona")}\nglobalThis.__run = readNextStreaming;`;
   vm.createContext(context);
   vm.runInContext(code, context, { filename: "stream-prefetch-harness.js" });
   await context.__run("accepted-item");
@@ -238,11 +244,35 @@ async function testPrefetchIsStrictlyOrdered() {
 }
 
 async function main() {
+  await testLateBrowserCompletionDoesNotCloseNewMouth();
   await testLatePcmCannotRestartCancelledSpeech();
   await testFirstPcmSchedulesExactlyOneSource();
   await testStartedSourceIsStoppedAfterUpstreamFailure();
   await testPrefetchIsStrictlyOrdered();
   console.log("Frontend realtime behaviour test passed: cancel, PCM scheduling, and ordered prefetch.");
+}
+
+async function testLateBrowserCompletionDoesNotCloseNewMouth() {
+  const utterances = [], mouths = [];
+  const context = {
+    Promise, setInterval: () => 1, clearInterval() {},
+    SpeechSynthesisUtterance: class { constructor(text) { this.text = text; } },
+    setLive2DMouth: value => mouths.push(value),
+    speechSynthesis: { cancel() {}, speak: value => utterances.push(value) },
+    speechEpoch: 1, audioOutputEnabled: true, speakingTimer: null, finishActiveSpeech: null
+  };
+  context.window = { speechSynthesis: context.speechSynthesis };
+  vm.createContext(context);
+  vm.runInContext(`${sourceBetween("function browserSpeak(", "function stopSpeechOutput(")}\nglobalThis.speak = browserSpeak;`, context);
+  const old = context.speak("岁旧句", {}, 1);
+  context.speechEpoch = 2;
+  const current = context.speak("歌新句", {}, 2);
+  utterances[0].onend();
+  assert.equal(await old, false);
+  assert.deepEqual(mouths, [], "old onend cannot close the current persona's mouth");
+  utterances[1].onend();
+  assert.equal(await current, true);
+  assert.deepEqual(mouths, [false]);
 }
 
 main().catch(error => { console.error(error.stack || error); process.exitCode = 1; });

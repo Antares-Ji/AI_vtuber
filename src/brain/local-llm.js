@@ -69,7 +69,7 @@ async function callLocalLlm(item, context) {
         temperature: 0.72,
         max_tokens: 120
       }),
-      signal: AbortSignal.timeout(Number(process.env.LOCAL_LLM_TIMEOUT_MS || 12_000))
+      signal: context.taskSignal ? AbortSignal.any([context.taskSignal, AbortSignal.timeout(Number(process.env.LOCAL_LLM_TIMEOUT_MS || 12_000))]) : AbortSignal.timeout(Number(process.env.LOCAL_LLM_TIMEOUT_MS || 12_000))
     });
     if (!response.ok) throw new Error(`HTTP ${response.status}: ${(await response.text()).slice(0, 120)}`);
     const payload = await response.json();
@@ -78,6 +78,7 @@ async function callLocalLlm(item, context) {
     localCircuit.success();
     return { text, performanceCues: [], socialPerception: null, status: { ...config, lastMode: "local", lastError: null, lastLatencyMs: Date.now() - started, lastStructured: false } };
   } catch (error) {
+    context.taskSignal?.throwIfAborted();
     localCircuit.failure(error.message);
     return { text: null, performanceCues: [], socialPerception: null, status: { ...config, lastMode: "local-unavailable", lastError: error.message, lastLatencyMs: Date.now() - started, lastStructured: false, circuit: localCircuit.status() } };
   }
