@@ -36,6 +36,7 @@ function wavHeader() {
 
 function createPlaybackHarness() {
   const observed = { starts: 0, stops: 0, mouths: [] };
+  const preferences = new Map();
   class FakeAudioContext {
     constructor() { this.currentTime = 0; this.destination = {}; }
     async resume() {}
@@ -67,6 +68,9 @@ function createPlaybackHarness() {
     setInterval,
     setTimeout,
     window: {},
+    localStorage: { getItem: key => preferences.get(key) || null, setItem: (key, value) => preferences.set(key, value) },
+    voiceProviderSelect: { value: 'browser' },
+    composerStatus: { textContent: '' },
     fetch: async () => ({ ok: true }),
     cancelAnimationFrame() {},
     setLive2DMouth(value) { observed.mouths.push(value); }
@@ -74,18 +78,20 @@ function createPlaybackHarness() {
   const code = `
     let speakingTimer; let activeAudio = null; let finishActiveSpeech = null;
     const activeTtsControllers = new Set(); let activeReplyController = null;
-    let speechEpoch = 0; let audioOutputEnabled = true; let ttsAudioContext; let ttsLipSyncFrame;
+    let speechEpoch = 0; let audioOutputEnabled = true; let ttsAudioContext; let ttsLipSyncFrame; let voiceProvider = 'browser';
     const activeStreamSources = new Set();
+    ${sourceBetween("async function applyOutputDevice", "const speakerDeviceSelect")}
+    ${sourceBetween("function applyVoiceProvider", "function startMicMeter")}
     ${sourceBetween("function concatBytes", "function setAudioOutput")}
     globalThis.__harness = {
-      playStreamingWav, stopSpeechOutput,
+      playStreamingWav, stopSpeechOutput, applyVoiceProvider,
       setEpoch(value) { speechEpoch = value; },
-      state() { return { speechEpoch, activeSources: activeStreamSources.size }; }
+      state() { return { speechEpoch, activeSources: activeStreamSources.size, voiceProvider }; }
     };
   `;
   vm.createContext(context);
   vm.runInContext(code, context, { filename: "stream-playback-harness.js" });
-  return { harness: context.__harness, observed };
+  return { harness: context.__harness, observed, preferences };
 }
 
 function controlledWavReader() {
@@ -244,12 +250,29 @@ async function testPrefetchIsStrictlyOrdered() {
 }
 
 async function main() {
+  await testVoiceProviderSwitchCancelsOldOutput();
   await testLateBrowserCompletionDoesNotCloseNewMouth();
   await testLatePcmCannotRestartCancelledSpeech();
   await testFirstPcmSchedulesExactlyOneSource();
   await testStartedSourceIsStoppedAfterUpstreamFailure();
   await testPrefetchIsStrictlyOrdered();
   console.log("Frontend realtime behaviour test passed: cancel, PCM scheduling, and ordered prefetch.");
+}
+
+async function testVoiceProviderSwitchCancelsOldOutput() {
+  const { harness, preferences } = createPlaybackHarness();
+  const wav = controlledWavReader();
+  const playback = harness.playStreamingWav(wav, 0);
+  await waitFor(() => wav.waiting, 'WAV reader before voice switch');
+  harness.applyVoiceProvider('gpt-sovits');
+  assert.equal(harness.state().voiceProvider, 'gpt-sovits');
+  assert.equal(preferences.get('streamer-voice-provider'), 'gpt-sovits');
+  wav.releasePcm();
+  await playback;
+  assert.equal(harness.state().activeSources, 0, 'old audio must not restart after voice switch');
+  harness.applyVoiceProvider('browser');
+  assert.equal(harness.state().voiceProvider, 'browser');
+  assert.equal(preferences.get('streamer-voice-provider'), 'browser');
 }
 
 async function testLateBrowserCompletionDoesNotCloseNewMouth() {

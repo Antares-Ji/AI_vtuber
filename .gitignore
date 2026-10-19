@@ -1,5 +1,9 @@
 .env
 .env.local
+# Private voice profiles and trained weights are delivered separately.
+config/voices/*.local.json
+*.ckpt
+*.pth
 
 # Local user data and runtime state
 /runtime/

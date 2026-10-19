@@ -1,0 +1,15 @@
+{
+  "id": "seele",
+  "version": "v4",
+  "serviceRoot": "D:/GPT-SoVITS",
+  "python": "runtime/python.exe",
+  "gptWeights": "GPT_weights_v4/希儿-e10.ckpt",
+  "sovitsWeights": "SoVITS_weights_v4/seele_5s_test_e10_s1000_l32.pth",
+  "referenceAudio": "D:/private-voice-bank/seele-reference-16k.wav",
+  "referenceText": "请填写参考音频逐字对应的原文，不要填写想让主播说的新台词",
+  "promptLanguage": "zh",
+  "device": "cuda",
+  "port": 9880,
+  "speed": 1.0,
+  "emotions": {}
+}
