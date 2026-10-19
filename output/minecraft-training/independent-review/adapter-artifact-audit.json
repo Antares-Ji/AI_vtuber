@@ -1,0 +1,2846 @@
+{
+  "generated_at": "2026-10-12T18:42:14.005015+00:00",
+  "adapter": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v1",
+  "weights_sha256": "6da5ae1bd3b583688c19dcbd4a79ba402ded431fcdfae8dff6e22f009a630445",
+  "weights_bytes": 42504600,
+  "peft_type": "LORA",
+  "rank": 8,
+  "tensor_count": 256,
+  "parameter_count": 10616832,
+  "all_finite": true,
+  "lora_b_tensor_count": 128,
+  "nonzero_lora_b_tensors": 128,
+  "health": {
+    "ok": true,
+    "model": "qwen3.5-4b",
+    "path": "E:\\Qwen3.5-4B",
+    "quantization": "nf4",
+    "adapter": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v1",
+    "adapter_loaded": true,
+    "adapter_scope": "minecraft-survival",
+    "generation_busy": false
+  },
+  "tensors": [
+    {
+      "name": "base_model.model.model.language_model.layers.0.mlp.down_proj.lora_A.weight",
+      "shape": [
+        8,
+        9216
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.012100456282496452
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.0.mlp.down_proj.lora_B.weight",
+      "shape": [
+        2560,
+        8
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.0019482813077047467
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.0.mlp.gate_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.02059393748641014
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.0.mlp.gate_proj.lora_B.weight",
+      "shape": [
+        9216,
+        8
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.002086196094751358
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.0.mlp.up_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.020874524489045143
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.0.mlp.up_proj.lora_B.weight",
+      "shape": [
+        9216,
+        8
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.0021371040493249893
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.1.mlp.down_proj.lora_A.weight",
+      "shape": [
+        8,
+        9216
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.012249138206243515
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.1.mlp.down_proj.lora_B.weight",
+      "shape": [
+        2560,
+        8
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.0019438785966485739
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.1.mlp.gate_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.02105231024324894
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.1.mlp.gate_proj.lora_B.weight",
+      "shape": [
+        9216,
+        8
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.002037659753113985
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.1.mlp.up_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.020942166447639465
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.1.mlp.up_proj.lora_B.weight",
+      "shape": [
+        9216,
+        8
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.002098432742059231
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.10.mlp.down_proj.lora_A.weight",
+      "shape": [
+        8,
+        9216
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.012083090841770172
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.10.mlp.down_proj.lora_B.weight",
+      "shape": [
+        2560,
+        8
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.002080038422718644
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.10.mlp.gate_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.020892595872282982
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.10.mlp.gate_proj.lora_B.weight",
+      "shape": [
+        9216,
+        8
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.002202334813773632
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.10.mlp.up_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.021227562800049782
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.10.mlp.up_proj.lora_B.weight",
+      "shape": [
+        9216,
+        8
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.0021665242966264486
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.11.mlp.down_proj.lora_A.weight",
+      "shape": [
+        8,
+        9216
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.01209188811480999
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.11.mlp.down_proj.lora_B.weight",
+      "shape": [
+        2560,
+        8
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.0020966101437807083
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.11.mlp.gate_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.02142091654241085
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.11.mlp.gate_proj.lora_B.weight",
+      "shape": [
+        9216,
+        8
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.0020642890594899654
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.11.mlp.up_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.021076703444123268
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.11.mlp.up_proj.lora_B.weight",
+      "shape": [
+        9216,
+        8
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.00230615446344018
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.11.self_attn.k_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.02118758298456669
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.11.self_attn.k_proj.lora_B.weight",
+      "shape": [
+        1024,
+        8
+      ],
+      "parameters": 8192,
+      "finite": true,
+      "nonzero": 8192,
+      "absolute_max": 0.0019787808414548635
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.11.self_attn.o_proj.lora_A.weight",
+      "shape": [
+        8,
+        4096
+      ],
+      "parameters": 32768,
+      "finite": true,
+      "nonzero": 32768,
+      "absolute_max": 0.017497114837169647
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.11.self_attn.o_proj.lora_B.weight",
+      "shape": [
+        2560,
+        8
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.0023010079748928547
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.11.self_attn.q_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.021360188722610474
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.11.self_attn.q_proj.lora_B.weight",
+      "shape": [
+        8192,
+        8
+      ],
+      "parameters": 65536,
+      "finite": true,
+      "nonzero": 65536,
+      "absolute_max": 0.002267297124490142
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.11.self_attn.v_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.021174604073166847
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.11.self_attn.v_proj.lora_B.weight",
+      "shape": [
+        1024,
+        8
+      ],
+      "parameters": 8192,
+      "finite": true,
+      "nonzero": 8192,
+      "absolute_max": 0.0019558174535632133
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.12.mlp.down_proj.lora_A.weight",
+      "shape": [
+        8,
+        9216
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.012227729894220829
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.12.mlp.down_proj.lora_B.weight",
+      "shape": [
+        2560,
+        8
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.002222273498773575
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.12.mlp.gate_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.02136949636042118
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.12.mlp.gate_proj.lora_B.weight",
+      "shape": [
+        9216,
+        8
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.002329382346943021
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.12.mlp.up_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.021362921223044395
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.12.mlp.up_proj.lora_B.weight",
+      "shape": [
+        9216,
+        8
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.0024031673092395067
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.13.mlp.down_proj.lora_A.weight",
+      "shape": [
+        8,
+        9216
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.012152830138802528
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.13.mlp.down_proj.lora_B.weight",
+      "shape": [
+        2560,
+        8
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.0019421271281316876
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.13.mlp.gate_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.021090857684612274
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.13.mlp.gate_proj.lora_B.weight",
+      "shape": [
+        9216,
+        8
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.002279115840792656
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.13.mlp.up_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.021314064040780067
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.13.mlp.up_proj.lora_B.weight",
+      "shape": [
+        9216,
+        8
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.002403889549896121
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.14.mlp.down_proj.lora_A.weight",
+      "shape": [
+        8,
+        9216
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.01188630610704422
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.14.mlp.down_proj.lora_B.weight",
+      "shape": [
+        2560,
+        8
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.0020933328196406364
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.14.mlp.gate_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.021091002970933914
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.14.mlp.gate_proj.lora_B.weight",
+      "shape": [
+        9216,
+        8
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.0022442189510911703
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.14.mlp.up_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.021245867013931274
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.14.mlp.up_proj.lora_B.weight",
+      "shape": [
+        9216,
+        8
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.00229486171156168
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.15.mlp.down_proj.lora_A.weight",
+      "shape": [
+        8,
+        9216
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.012099790386855602
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.15.mlp.down_proj.lora_B.weight",
+      "shape": [
+        2560,
+        8
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.0022273368667811155
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.15.mlp.gate_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.021228328347206116
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.15.mlp.gate_proj.lora_B.weight",
+      "shape": [
+        9216,
+        8
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.002120920456945896
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.15.mlp.up_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.02097151055932045
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.15.mlp.up_proj.lora_B.weight",
+      "shape": [
+        9216,
+        8
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.0022594318725168705
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.15.self_attn.k_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.021328283473849297
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.15.self_attn.k_proj.lora_B.weight",
+      "shape": [
+        1024,
+        8
+      ],
+      "parameters": 8192,
+      "finite": true,
+      "nonzero": 8192,
+      "absolute_max": 0.001993650570511818
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.15.self_attn.o_proj.lora_A.weight",
+      "shape": [
+        8,
+        4096
+      ],
+      "parameters": 32768,
+      "finite": true,
+      "nonzero": 32768,
+      "absolute_max": 0.016924545168876648
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.15.self_attn.o_proj.lora_B.weight",
+      "shape": [
+        2560,
+        8
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.0024088469799607992
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.15.self_attn.q_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.02109559066593647
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.15.self_attn.q_proj.lora_B.weight",
+      "shape": [
+        8192,
+        8
+      ],
+      "parameters": 65536,
+      "finite": true,
+      "nonzero": 65536,
+      "absolute_max": 0.002341383369639516
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.15.self_attn.v_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.021254295483231544
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.15.self_attn.v_proj.lora_B.weight",
+      "shape": [
+        1024,
+        8
+      ],
+      "parameters": 8192,
+      "finite": true,
+      "nonzero": 8192,
+      "absolute_max": 0.002060103463009
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.16.mlp.down_proj.lora_A.weight",
+      "shape": [
+        8,
+        9216
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.012354042381048203
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.16.mlp.down_proj.lora_B.weight",
+      "shape": [
+        2560,
+        8
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.002307923510670662
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.16.mlp.gate_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.021077075973153114
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.16.mlp.gate_proj.lora_B.weight",
+      "shape": [
+        9216,
+        8
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.002418413059785962
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.16.mlp.up_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.021052060648798943
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.16.mlp.up_proj.lora_B.weight",
+      "shape": [
+        9216,
+        8
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.0023313493002206087
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.17.mlp.down_proj.lora_A.weight",
+      "shape": [
+        8,
+        9216
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.012179955840110779
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.17.mlp.down_proj.lora_B.weight",
+      "shape": [
+        2560,
+        8
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.002044710097834468
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.17.mlp.gate_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.02120438776910305
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.17.mlp.gate_proj.lora_B.weight",
+      "shape": [
+        9216,
+        8
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.002380531281232834
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.17.mlp.up_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.02079404518008232
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.17.mlp.up_proj.lora_B.weight",
+      "shape": [
+        9216,
+        8
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.002350219991058111
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.18.mlp.down_proj.lora_A.weight",
+      "shape": [
+        8,
+        9216
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.011872871778905392
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.18.mlp.down_proj.lora_B.weight",
+      "shape": [
+        2560,
+        8
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.001996157690882683
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.18.mlp.gate_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.02130555734038353
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.18.mlp.gate_proj.lora_B.weight",
+      "shape": [
+        9216,
+        8
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.002152800327166915
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.18.mlp.up_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.020966723561286926
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.18.mlp.up_proj.lora_B.weight",
+      "shape": [
+        9216,
+        8
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.0024527490604668856
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.19.mlp.down_proj.lora_A.weight",
+      "shape": [
+        8,
+        9216
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.012351114302873611
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.19.mlp.down_proj.lora_B.weight",
+      "shape": [
+        2560,
+        8
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.0020864505786448717
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.19.mlp.gate_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.021061616018414497
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.19.mlp.gate_proj.lora_B.weight",
+      "shape": [
+        9216,
+        8
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.002380712889134884
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.19.mlp.up_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.021326202899217606
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.19.mlp.up_proj.lora_B.weight",
+      "shape": [
+        9216,
+        8
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.0023802698124200106
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.19.self_attn.k_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.021018197759985924
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.19.self_attn.k_proj.lora_B.weight",
+      "shape": [
+        1024,
+        8
+      ],
+      "parameters": 8192,
+      "finite": true,
+      "nonzero": 8192,
+      "absolute_max": 0.001919166767038405
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.19.self_attn.o_proj.lora_A.weight",
+      "shape": [
+        8,
+        4096
+      ],
+      "parameters": 32768,
+      "finite": true,
+      "nonzero": 32768,
+      "absolute_max": 0.016974423080682755
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.19.self_attn.o_proj.lora_B.weight",
+      "shape": [
+        2560,
+        8
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.002340470440685749
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.19.self_attn.q_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.020962944254279137
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.19.self_attn.q_proj.lora_B.weight",
+      "shape": [
+        8192,
+        8
+      ],
+      "parameters": 65536,
+      "finite": true,
+      "nonzero": 65536,
+      "absolute_max": 0.002200853545218706
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.19.self_attn.v_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.020745063200592995
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.19.self_attn.v_proj.lora_B.weight",
+      "shape": [
+        1024,
+        8
+      ],
+      "parameters": 8192,
+      "finite": true,
+      "nonzero": 8192,
+      "absolute_max": 0.0020318985916674137
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.2.mlp.down_proj.lora_A.weight",
+      "shape": [
+        8,
+        9216
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.012179950252175331
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.2.mlp.down_proj.lora_B.weight",
+      "shape": [
+        2560,
+        8
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.0018924426985904574
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.2.mlp.gate_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.021054496988654137
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.2.mlp.gate_proj.lora_B.weight",
+      "shape": [
+        9216,
+        8
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.002034525154158473
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.2.mlp.up_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.021063532680273056
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.2.mlp.up_proj.lora_B.weight",
+      "shape": [
+        9216,
+        8
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.0020331169944256544
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.20.mlp.down_proj.lora_A.weight",
+      "shape": [
+        8,
+        9216
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.01228246372193098
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.20.mlp.down_proj.lora_B.weight",
+      "shape": [
+        2560,
+        8
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.002120645483955741
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.20.mlp.gate_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.02109743095934391
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.20.mlp.gate_proj.lora_B.weight",
+      "shape": [
+        9216,
+        8
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.0022496338933706284
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.20.mlp.up_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.02117367833852768
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.20.mlp.up_proj.lora_B.weight",
+      "shape": [
+        9216,
+        8
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.002331287832930684
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.21.mlp.down_proj.lora_A.weight",
+      "shape": [
+        8,
+        9216
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.011923233978450298
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.21.mlp.down_proj.lora_B.weight",
+      "shape": [
+        2560,
+        8
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.0023792434949427843
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.21.mlp.gate_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.021036585792899132
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.21.mlp.gate_proj.lora_B.weight",
+      "shape": [
+        9216,
+        8
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.002441397635266185
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.21.mlp.up_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.021061399951577187
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.21.mlp.up_proj.lora_B.weight",
+      "shape": [
+        9216,
+        8
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.002297944389283657
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.22.mlp.down_proj.lora_A.weight",
+      "shape": [
+        8,
+        9216
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.011921411380171776
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.22.mlp.down_proj.lora_B.weight",
+      "shape": [
+        2560,
+        8
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.002258279826492071
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.22.mlp.gate_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.021675217896699905
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.22.mlp.gate_proj.lora_B.weight",
+      "shape": [
+        9216,
+        8
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.0023370173294097185
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.22.mlp.up_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.021320605650544167
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.22.mlp.up_proj.lora_B.weight",
+      "shape": [
+        9216,
+        8
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.0022738627158105373
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.23.mlp.down_proj.lora_A.weight",
+      "shape": [
+        8,
+        9216
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.01208896841853857
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.23.mlp.down_proj.lora_B.weight",
+      "shape": [
+        2560,
+        8
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.0021799392998218536
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.23.mlp.gate_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.02098197676241398
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.23.mlp.gate_proj.lora_B.weight",
+      "shape": [
+        9216,
+        8
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.002197731751948595
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.23.mlp.up_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.0212454441934824
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.23.mlp.up_proj.lora_B.weight",
+      "shape": [
+        9216,
+        8
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.002307372633367777
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.23.self_attn.k_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.020875558257102966
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.23.self_attn.k_proj.lora_B.weight",
+      "shape": [
+        1024,
+        8
+      ],
+      "parameters": 8192,
+      "finite": true,
+      "nonzero": 8192,
+      "absolute_max": 0.0019607956055551767
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.23.self_attn.o_proj.lora_A.weight",
+      "shape": [
+        8,
+        4096
+      ],
+      "parameters": 32768,
+      "finite": true,
+      "nonzero": 32768,
+      "absolute_max": 0.01715308241546154
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.23.self_attn.o_proj.lora_B.weight",
+      "shape": [
+        2560,
+        8
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.0020384767558425665
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.23.self_attn.q_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.021134957671165466
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.23.self_attn.q_proj.lora_B.weight",
+      "shape": [
+        8192,
+        8
+      ],
+      "parameters": 65536,
+      "finite": true,
+      "nonzero": 65536,
+      "absolute_max": 0.0022951990831643343
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.23.self_attn.v_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.02103729546070099
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.23.self_attn.v_proj.lora_B.weight",
+      "shape": [
+        1024,
+        8
+      ],
+      "parameters": 8192,
+      "finite": true,
+      "nonzero": 8192,
+      "absolute_max": 0.0022092678118497133
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.24.mlp.down_proj.lora_A.weight",
+      "shape": [
+        8,
+        9216
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.011949856765568256
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.24.mlp.down_proj.lora_B.weight",
+      "shape": [
+        2560,
+        8
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.0021380071993917227
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.24.mlp.gate_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.020903723314404488
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.24.mlp.gate_proj.lora_B.weight",
+      "shape": [
+        9216,
+        8
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.00233906670473516
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.24.mlp.up_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.020910220220685005
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.24.mlp.up_proj.lora_B.weight",
+      "shape": [
+        9216,
+        8
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.0024002643767744303
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.25.mlp.down_proj.lora_A.weight",
+      "shape": [
+        8,
+        9216
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.012025414034724236
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.25.mlp.down_proj.lora_B.weight",
+      "shape": [
+        2560,
+        8
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.00208455603569746
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.25.mlp.gate_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.020936748012900352
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.25.mlp.gate_proj.lora_B.weight",
+      "shape": [
+        9216,
+        8
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.0023844828829169273
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.25.mlp.up_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.021134711802005768
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.25.mlp.up_proj.lora_B.weight",
+      "shape": [
+        9216,
+        8
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.0023465496487915516
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.26.mlp.down_proj.lora_A.weight",
+      "shape": [
+        8,
+        9216
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.011569251306355
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.26.mlp.down_proj.lora_B.weight",
+      "shape": [
+        2560,
+        8
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.002209639875218272
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.26.mlp.gate_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.020740075036883354
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.26.mlp.gate_proj.lora_B.weight",
+      "shape": [
+        9216,
+        8
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.0022398687433451414
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.26.mlp.up_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.020798353478312492
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.26.mlp.up_proj.lora_B.weight",
+      "shape": [
+        9216,
+        8
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.002068927977234125
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.27.mlp.down_proj.lora_A.weight",
+      "shape": [
+        8,
+        9216
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.011945495381951332
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.27.mlp.down_proj.lora_B.weight",
+      "shape": [
+        2560,
+        8
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.00204512313939631
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.27.mlp.gate_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.021243231371045113
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.27.mlp.gate_proj.lora_B.weight",
+      "shape": [
+        9216,
+        8
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.002296167192980647
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.27.mlp.up_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.021163154393434525
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.27.mlp.up_proj.lora_B.weight",
+      "shape": [
+        9216,
+        8
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.002279559150338173
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.27.self_attn.k_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.02103389985859394
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.27.self_attn.k_proj.lora_B.weight",
+      "shape": [
+        1024,
+        8
+      ],
+      "parameters": 8192,
+      "finite": true,
+      "nonzero": 8192,
+      "absolute_max": 0.0022531170397996902
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.27.self_attn.o_proj.lora_A.weight",
+      "shape": [
+        8,
+        4096
+      ],
+      "parameters": 32768,
+      "finite": true,
+      "nonzero": 32768,
+      "absolute_max": 0.016991937533020973
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.27.self_attn.o_proj.lora_B.weight",
+      "shape": [
+        2560,
+        8
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.0019651418551802635
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.27.self_attn.q_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.02124837413430214
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.27.self_attn.q_proj.lora_B.weight",
+      "shape": [
+        8192,
+        8
+      ],
+      "parameters": 65536,
+      "finite": true,
+      "nonzero": 65536,
+      "absolute_max": 0.0023017663042992353
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.27.self_attn.v_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.020831869915127754
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.27.self_attn.v_proj.lora_B.weight",
+      "shape": [
+        1024,
+        8
+      ],
+      "parameters": 8192,
+      "finite": true,
+      "nonzero": 8192,
+      "absolute_max": 0.0019331818912178278
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.28.mlp.down_proj.lora_A.weight",
+      "shape": [
+        8,
+        9216
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.01201646588742733
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.28.mlp.down_proj.lora_B.weight",
+      "shape": [
+        2560,
+        8
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.002064531436190009
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.28.mlp.gate_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.021433599293231964
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.28.mlp.gate_proj.lora_B.weight",
+      "shape": [
+        9216,
+        8
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.002423397032544017
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.28.mlp.up_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.0210387222468853
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.28.mlp.up_proj.lora_B.weight",
+      "shape": [
+        9216,
+        8
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.002238052897155285
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.29.mlp.down_proj.lora_A.weight",
+      "shape": [
+        8,
+        9216
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.011879517696797848
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.29.mlp.down_proj.lora_B.weight",
+      "shape": [
+        2560,
+        8
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.0020882284734398127
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.29.mlp.gate_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.02092760242521763
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.29.mlp.gate_proj.lora_B.weight",
+      "shape": [
+        9216,
+        8
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.002219532849267125
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.29.mlp.up_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.021453337743878365
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.29.mlp.up_proj.lora_B.weight",
+      "shape": [
+        9216,
+        8
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.002292779041454196
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.3.mlp.down_proj.lora_A.weight",
+      "shape": [
+        8,
+        9216
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.012009571306407452
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.3.mlp.down_proj.lora_B.weight",
+      "shape": [
+        2560,
+        8
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.0018438458209857345
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.3.mlp.gate_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.021037736907601357
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.3.mlp.gate_proj.lora_B.weight",
+      "shape": [
+        9216,
+        8
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.0019824360497295856
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.3.mlp.up_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.020959405228495598
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.3.mlp.up_proj.lora_B.weight",
+      "shape": [
+        9216,
+        8
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.002137764124199748
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.3.self_attn.k_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.02117454819381237
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.3.self_attn.k_proj.lora_B.weight",
+      "shape": [
+        1024,
+        8
+      ],
+      "parameters": 8192,
+      "finite": true,
+      "nonzero": 8192,
+      "absolute_max": 0.002082465449348092
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.3.self_attn.o_proj.lora_A.weight",
+      "shape": [
+        8,
+        4096
+      ],
+      "parameters": 32768,
+      "finite": true,
+      "nonzero": 32768,
+      "absolute_max": 0.017464974895119667
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.3.self_attn.o_proj.lora_B.weight",
+      "shape": [
+        2560,
+        8
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.002177300164476037
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.3.self_attn.q_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.021163562312722206
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.3.self_attn.q_proj.lora_B.weight",
+      "shape": [
+        8192,
+        8
+      ],
+      "parameters": 65536,
+      "finite": true,
+      "nonzero": 65536,
+      "absolute_max": 0.0020109459292143583
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.3.self_attn.v_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.02111666277050972
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.3.self_attn.v_proj.lora_B.weight",
+      "shape": [
+        1024,
+        8
+      ],
+      "parameters": 8192,
+      "finite": true,
+      "nonzero": 8192,
+      "absolute_max": 0.0019052074057981372
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.30.mlp.down_proj.lora_A.weight",
+      "shape": [
+        8,
+        9216
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.01196516864001751
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.30.mlp.down_proj.lora_B.weight",
+      "shape": [
+        2560,
+        8
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.0019664429128170013
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.30.mlp.gate_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.020837752148509026
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.30.mlp.gate_proj.lora_B.weight",
+      "shape": [
+        9216,
+        8
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.0024971331004053354
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.30.mlp.up_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.020724555477499962
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.30.mlp.up_proj.lora_B.weight",
+      "shape": [
+        9216,
+        8
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.0022247820161283016
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.31.mlp.down_proj.lora_A.weight",
+      "shape": [
+        8,
+        9216
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.012110818177461624
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.31.mlp.down_proj.lora_B.weight",
+      "shape": [
+        2560,
+        8
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.0019928577821701765
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.31.mlp.gate_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.02121099829673767
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.31.mlp.gate_proj.lora_B.weight",
+      "shape": [
+        9216,
+        8
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.0026588148903101683
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.31.mlp.up_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.020969340577721596
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.31.mlp.up_proj.lora_B.weight",
+      "shape": [
+        9216,
+        8
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.0026162320282310247
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.31.self_attn.k_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.020962586626410484
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.31.self_attn.k_proj.lora_B.weight",
+      "shape": [
+        1024,
+        8
+      ],
+      "parameters": 8192,
+      "finite": true,
+      "nonzero": 8192,
+      "absolute_max": 0.0021074151154607534
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.31.self_attn.o_proj.lora_A.weight",
+      "shape": [
+        8,
+        4096
+      ],
+      "parameters": 32768,
+      "finite": true,
+      "nonzero": 32768,
+      "absolute_max": 0.017258543521165848
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.31.self_attn.o_proj.lora_B.weight",
+      "shape": [
+        2560,
+        8
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.002115224488079548
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.31.self_attn.q_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.021272826939821243
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.31.self_attn.q_proj.lora_B.weight",
+      "shape": [
+        8192,
+        8
+      ],
+      "parameters": 65536,
+      "finite": true,
+      "nonzero": 65536,
+      "absolute_max": 0.0025680414400994778
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.31.self_attn.v_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.020980345085263252
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.31.self_attn.v_proj.lora_B.weight",
+      "shape": [
+        1024,
+        8
+      ],
+      "parameters": 8192,
+      "finite": true,
+      "nonzero": 8192,
+      "absolute_max": 0.0022544944658875465
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.4.mlp.down_proj.lora_A.weight",
+      "shape": [
+        8,
+        9216
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.01200768630951643
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.4.mlp.down_proj.lora_B.weight",
+      "shape": [
+        2560,
+        8
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.002370244823396206
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.4.mlp.gate_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.020881667733192444
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.4.mlp.gate_proj.lora_B.weight",
+      "shape": [
+        9216,
+        8
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.0021432721987366676
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.4.mlp.up_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.020877201110124588
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.4.mlp.up_proj.lora_B.weight",
+      "shape": [
+        9216,
+        8
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.0021190913394093513
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.5.mlp.down_proj.lora_A.weight",
+      "shape": [
+        8,
+        9216
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.012086231261491776
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.5.mlp.down_proj.lora_B.weight",
+      "shape": [
+        2560,
+        8
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.002261517336592078
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.5.mlp.gate_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.021077342331409454
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.5.mlp.gate_proj.lora_B.weight",
+      "shape": [
+        9216,
+        8
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.002257290296256542
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.5.mlp.up_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.020929155871272087
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.5.mlp.up_proj.lora_B.weight",
+      "shape": [
+        9216,
+        8
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.0021398349199444056
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.6.mlp.down_proj.lora_A.weight",
+      "shape": [
+        8,
+        9216
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.01221307460218668
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.6.mlp.down_proj.lora_B.weight",
+      "shape": [
+        2560,
+        8
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.0021049000788480043
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.6.mlp.gate_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.02089597098529339
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.6.mlp.gate_proj.lora_B.weight",
+      "shape": [
+        9216,
+        8
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.002239600056782365
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.6.mlp.up_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.02132881060242653
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.6.mlp.up_proj.lora_B.weight",
+      "shape": [
+        9216,
+        8
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.0021446982864290476
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.7.mlp.down_proj.lora_A.weight",
+      "shape": [
+        8,
+        9216
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.012164026498794556
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.7.mlp.down_proj.lora_B.weight",
+      "shape": [
+        2560,
+        8
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.00225519179366529
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.7.mlp.gate_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.020959733054041862
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.7.mlp.gate_proj.lora_B.weight",
+      "shape": [
+        9216,
+        8
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.0022375406697392464
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.7.mlp.up_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.021189436316490173
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.7.mlp.up_proj.lora_B.weight",
+      "shape": [
+        9216,
+        8
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.002235828898847103
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.7.self_attn.k_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.02103089913725853
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.7.self_attn.k_proj.lora_B.weight",
+      "shape": [
+        1024,
+        8
+      ],
+      "parameters": 8192,
+      "finite": true,
+      "nonzero": 8192,
+      "absolute_max": 0.0019556444603949785
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.7.self_attn.o_proj.lora_A.weight",
+      "shape": [
+        8,
+        4096
+      ],
+      "parameters": 32768,
+      "finite": true,
+      "nonzero": 32768,
+      "absolute_max": 0.016830002889037132
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.7.self_attn.o_proj.lora_B.weight",
+      "shape": [
+        2560,
+        8
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.002240289468318224
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.7.self_attn.q_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.021119870245456696
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.7.self_attn.q_proj.lora_B.weight",
+      "shape": [
+        8192,
+        8
+      ],
+      "parameters": 65536,
+      "finite": true,
+      "nonzero": 65536,
+      "absolute_max": 0.002090904163196683
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.7.self_attn.v_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.021193457767367363
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.7.self_attn.v_proj.lora_B.weight",
+      "shape": [
+        1024,
+        8
+      ],
+      "parameters": 8192,
+      "finite": true,
+      "nonzero": 8192,
+      "absolute_max": 0.0021325002890080214
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.8.mlp.down_proj.lora_A.weight",
+      "shape": [
+        8,
+        9216
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.01189403235912323
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.8.mlp.down_proj.lora_B.weight",
+      "shape": [
+        2560,
+        8
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.0020877611823379993
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.8.mlp.gate_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.0209136251360178
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.8.mlp.gate_proj.lora_B.weight",
+      "shape": [
+        9216,
+        8
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.002164470497518778
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.8.mlp.up_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.021186579018831253
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.8.mlp.up_proj.lora_B.weight",
+      "shape": [
+        9216,
+        8
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.0023317921441048384
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.9.mlp.down_proj.lora_A.weight",
+      "shape": [
+        8,
+        9216
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.0118353720754385
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.9.mlp.down_proj.lora_B.weight",
+      "shape": [
+        2560,
+        8
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.0021246159449219704
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.9.mlp.gate_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.021139293909072876
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.9.mlp.gate_proj.lora_B.weight",
+      "shape": [
+        9216,
+        8
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.002272079698741436
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.9.mlp.up_proj.lora_A.weight",
+      "shape": [
+        8,
+        2560
+      ],
+      "parameters": 20480,
+      "finite": true,
+      "nonzero": 20480,
+      "absolute_max": 0.020904475823044777
+    },
+    {
+      "name": "base_model.model.model.language_model.layers.9.mlp.up_proj.lora_B.weight",
+      "shape": [
+        9216,
+        8
+      ],
+      "parameters": 73728,
+      "finite": true,
+      "nonzero": 73728,
+      "absolute_max": 0.002148105762898922
+    }
+  ],
+  "limits": [
+    "This CPU inspection does not execute inference or game actions.",
+    "Nonzero finite LoRA B tensors are evidence of nontrivial saved adapter weights, not a capability score.",
+    "Endpoint health reports loading only; actual per-request use requires completion metadata.used_adapter."
+  ]
+}

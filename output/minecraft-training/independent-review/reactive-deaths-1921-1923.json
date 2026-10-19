@@ -1,0 +1,929 @@
+{
+  "rubric": "minecraft-live-v2-acceptance-1",
+  "from": "2026-10-12T19:21:30.000Z",
+  "to": "2026-10-12T19:23:30.000Z",
+  "cohorts": {},
+  "decisions": 0,
+  "results": 0,
+  "failures": 0,
+  "failureRate": null,
+  "repeatedUnchangedFailures": 0,
+  "repeatedFailureRateAmongAttempts": null,
+  "repeatedFailureEvidence": [],
+  "rejectedDecisions": [],
+  "actionEvidence": [],
+  "safety": {
+    "deaths": 2,
+    "deathEvents": [
+      {
+        "at": "2026-10-12T19:21:55.345Z",
+        "event": "death",
+        "safetyWillResume": true,
+        "lifecycleEpoch": 1
+      },
+      {
+        "at": "2026-10-12T19:23:29.795Z",
+        "event": "death",
+        "safetyWillResume": true,
+        "lifecycleEpoch": 2
+      }
+    ],
+    "minimumLoggedHealth": 1.517354965209961,
+    "healthTrace": [
+      {
+        "at": "2026-10-12T19:21:30.226Z",
+        "event": "priority_changed",
+        "health": 5.517354965209961
+      },
+      {
+        "at": "2026-10-12T19:21:35.336Z",
+        "event": "escape_short_route",
+        "health": 5.517354965209961,
+        "position": {
+          "x": -72.5,
+          "y": 63,
+          "z": 39.5
+        }
+      },
+      {
+        "at": "2026-10-12T19:21:36.952Z",
+        "event": "escape_short_route",
+        "health": 5.517354965209961,
+        "position": {
+          "x": -66.5,
+          "y": 63,
+          "z": 39.499999999999794
+        }
+      },
+      {
+        "at": "2026-10-12T19:21:38.781Z",
+        "event": "priority_changed",
+        "health": 5.517354965209961
+      },
+      {
+        "at": "2026-10-12T19:21:38.792Z",
+        "event": "escape_short_route",
+        "health": 5.517354965209961,
+        "position": {
+          "x": -61.1706604745621,
+          "y": 63,
+          "z": 34.17066047455926
+        }
+      },
+      {
+        "at": "2026-10-12T19:21:39.792Z",
+        "event": "priority_changed",
+        "health": 5.517354965209961
+      },
+      {
+        "at": "2026-10-12T19:21:41.418Z",
+        "event": "escape_short_route",
+        "health": 5.517354965209961,
+        "position": {
+          "x": -55.62619562698319,
+          "y": 63,
+          "z": 40.305274099870594
+        }
+      },
+      {
+        "at": "2026-10-12T19:21:43.458Z",
+        "event": "escape_short_route",
+        "health": 5.517354965209961,
+        "position": {
+          "x": -49.5,
+          "y": 63,
+          "z": 46.5
+        }
+      },
+      {
+        "at": "2026-10-12T19:21:52.392Z",
+        "event": "priority_changed",
+        "health": 5.517354965209961
+      },
+      {
+        "at": "2026-10-12T19:21:54.210Z",
+        "event": "priority_changed",
+        "health": 5.517354965209961
+      },
+      {
+        "at": "2026-10-12T19:21:54.212Z",
+        "event": "escape_short_route",
+        "health": 5.517354965209961,
+        "position": {
+          "x": -38.016715653264626,
+          "y": 64,
+          "z": 56.4523373425648
+        }
+      },
+      {
+        "at": "2026-10-12T19:21:54.413Z",
+        "event": "escape_short_route",
+        "health": 5.517354965209961,
+        "position": {
+          "x": -38.18586244416809,
+          "y": 64,
+          "z": 55.868206625428726
+        }
+      },
+      {
+        "at": "2026-10-12T19:21:54.615Z",
+        "event": "priority_changed",
+        "health": 5.517354965209961
+      },
+      {
+        "at": "2026-10-12T19:21:54.616Z",
+        "event": "escape_short_route",
+        "health": 5.517354965209961,
+        "position": {
+          "x": -38.41688254563682,
+          "y": 64,
+          "z": 55.97852706433218
+        }
+      },
+      {
+        "at": "2026-10-12T19:21:54.818Z",
+        "event": "priority_changed",
+        "health": 5.517354965209961
+      },
+      {
+        "at": "2026-10-12T19:21:54.820Z",
+        "event": "escape_short_route",
+        "health": 5.517354965209961,
+        "position": {
+          "x": -38.456554147412135,
+          "y": 64,
+          "z": 56.5
+        }
+      },
+      {
+        "at": "2026-10-12T19:21:55.020Z",
+        "event": "priority_changed",
+        "health": 1.517354965209961
+      },
+      {
+        "at": "2026-10-12T19:21:55.022Z",
+        "event": "escape_short_route",
+        "health": 1.517354965209961,
+        "position": {
+          "x": -38.47563365403513,
+          "y": 64,
+          "z": 56.064090342233676
+        }
+      },
+      {
+        "at": "2026-10-12T19:21:55.221Z",
+        "event": "escape_short_route",
+        "health": 1.517354965209961,
+        "position": {
+          "x": -38.48064749658343,
+          "y": 64,
+          "z": 55.5
+        }
+      },
+      {
+        "at": "2026-10-12T19:22:24.055Z",
+        "event": "priority_changed",
+        "health": 20
+      },
+      {
+        "at": "2026-10-12T19:22:29.166Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": -9.586297711922827,
+          "y": 63,
+          "z": -2.5
+        }
+      },
+      {
+        "at": "2026-10-12T19:22:30.985Z",
+        "event": "priority_changed",
+        "health": 20
+      },
+      {
+        "at": "2026-10-12T19:22:30.996Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": -12.814534204249767,
+          "y": 64,
+          "z": 2.5616615839207726
+        }
+      },
+      {
+        "at": "2026-10-12T19:22:33.397Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": -18.319710835829234,
+          "y": 65,
+          "z": 8.558107031757677
+        }
+      },
+      {
+        "at": "2026-10-12T19:22:33.805Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": -19.5,
+          "y": 65,
+          "z": 9.5
+        }
+      },
+      {
+        "at": "2026-10-12T19:22:34.629Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": -21.533192145321088,
+          "y": 64,
+          "z": 9.664954721829215
+        }
+      },
+      {
+        "at": "2026-10-12T19:22:36.455Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": -27.367032417715066,
+          "y": 63,
+          "z": 3.6615283048634506
+        }
+      },
+      {
+        "at": "2026-10-12T19:22:38.520Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": -33.5,
+          "y": 63,
+          "z": -2.5
+        }
+      },
+      {
+        "at": "2026-10-12T19:22:39.362Z",
+        "event": "escape_blocked",
+        "health": 20,
+        "position": {
+          "x": -35.5,
+          "y": 63,
+          "z": -4.5
+        }
+      },
+      {
+        "at": "2026-10-12T19:22:40.123Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": -35.5,
+          "y": 63,
+          "z": -4.5
+        }
+      },
+      {
+        "at": "2026-10-12T19:22:41.343Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": -35.50000000000005,
+          "y": 63,
+          "z": -5.5
+        }
+      },
+      {
+        "at": "2026-10-12T19:22:41.764Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": -36.5,
+          "y": 63,
+          "z": -5.499999999999981
+        }
+      },
+      {
+        "at": "2026-10-12T19:22:43.747Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": -42.5,
+          "y": 63,
+          "z": -11.5
+        }
+      },
+      {
+        "at": "2026-10-12T19:22:45.776Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": -48.5,
+          "y": 63,
+          "z": -17.5
+        }
+      },
+      {
+        "at": "2026-10-12T19:22:47.645Z",
+        "event": "priority_changed",
+        "health": 20
+      },
+      {
+        "at": "2026-10-12T19:22:47.653Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": -43.17066047456207,
+          "y": 63,
+          "z": -22.829339525440542
+        }
+      },
+      {
+        "at": "2026-10-12T19:22:50.512Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": -37.5,
+          "y": 63,
+          "z": -28.5
+        }
+      },
+      {
+        "at": "2026-10-12T19:22:52.112Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": -37.500000000000206,
+          "y": 63,
+          "z": -34.5
+        }
+      },
+      {
+        "at": "2026-10-12T19:22:53.523Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": -37.500000000000405,
+          "y": 63,
+          "z": -39.92918081888866
+        }
+      },
+      {
+        "at": "2026-10-12T19:22:53.728Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": -37.500000000000426,
+          "y": 63,
+          "z": -40.87760911280994
+        }
+      },
+      {
+        "at": "2026-10-12T19:22:56.171Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": -43.5,
+          "y": 63,
+          "z": -40.5
+        }
+      },
+      {
+        "at": "2026-10-12T19:22:57.602Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": -49.5,
+          "y": 64,
+          "z": -40.49999999999971
+        }
+      },
+      {
+        "at": "2026-10-12T19:22:58.206Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": -50.5,
+          "y": 64,
+          "z": -41.53292365106759
+        }
+      },
+      {
+        "at": "2026-10-12T19:22:58.385Z",
+        "event": "priority_changed",
+        "health": 20
+      },
+      {
+        "at": "2026-10-12T19:22:58.411Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": -51.314435995091074,
+          "y": 64,
+          "z": -41.51391688671983
+        }
+      },
+      {
+        "at": "2026-10-12T19:22:58.595Z",
+        "event": "priority_changed",
+        "health": 20
+      },
+      {
+        "at": "2026-10-12T19:22:58.795Z",
+        "event": "priority_changed",
+        "health": 20
+      },
+      {
+        "at": "2026-10-12T19:22:58.803Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": -52.5,
+          "y": 64,
+          "z": -41.50691293974265
+        }
+      },
+      {
+        "at": "2026-10-12T19:23:00.422Z",
+        "event": "priority_changed",
+        "health": 20
+      },
+      {
+        "at": "2026-10-12T19:23:00.473Z",
+        "event": "escape_blocked",
+        "health": 20,
+        "position": {
+          "x": -58.452640710872465,
+          "y": 64,
+          "z": -40.98732061424933
+        }
+      },
+      {
+        "at": "2026-10-12T19:23:01.242Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": -58.55475228039882,
+          "y": 64,
+          "z": -40.76345666865845
+        }
+      },
+      {
+        "at": "2026-10-12T19:23:02.679Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": -59.62388240872911,
+          "y": 63,
+          "z": -41.59617431490326
+        }
+      },
+      {
+        "at": "2026-10-12T19:23:04.095Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": -59.45991440967311,
+          "y": 63,
+          "z": -43.5
+        }
+      },
+      {
+        "at": "2026-10-12T19:23:04.495Z",
+        "event": "priority_changed",
+        "health": 20
+      },
+      {
+        "at": "2026-10-12T19:23:05.327Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": -59.46963149251717,
+          "y": 63,
+          "z": -44.5
+        }
+      },
+      {
+        "at": "2026-10-12T19:23:05.777Z",
+        "event": "escape_blocked",
+        "health": 20,
+        "position": {
+          "x": -60.13312820602262,
+          "y": 63,
+          "z": -44.5
+        }
+      },
+      {
+        "at": "2026-10-12T19:23:08.966Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": -61.33615191299608,
+          "y": 63,
+          "z": -44.5
+        }
+      },
+      {
+        "at": "2026-10-12T19:23:09.570Z",
+        "event": "priority_changed",
+        "health": 20
+      },
+      {
+        "at": "2026-10-12T19:23:10.174Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": -60.10331691413514,
+          "y": 63,
+          "z": -43.02554588463938
+        }
+      },
+      {
+        "at": "2026-10-12T19:23:10.792Z",
+        "event": "priority_changed",
+        "health": 20
+      },
+      {
+        "at": "2026-10-12T19:23:10.800Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": -60.379008755599806,
+          "y": 63,
+          "z": -44.5
+        }
+      },
+      {
+        "at": "2026-10-12T19:23:11.243Z",
+        "event": "escape_blocked",
+        "health": 20,
+        "position": {
+          "x": -60.44081926829773,
+          "y": 63,
+          "z": -43.98922544587875
+        }
+      },
+      {
+        "at": "2026-10-12T19:23:12.019Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": -60.54702845319293,
+          "y": 63,
+          "z": -43.06629453370513
+        }
+      },
+      {
+        "at": "2026-10-12T19:23:12.421Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": -59.5,
+          "y": 63,
+          "z": -42.597026983091915
+        }
+      },
+      {
+        "at": "2026-10-12T19:23:13.431Z",
+        "event": "priority_changed",
+        "health": 20
+      },
+      {
+        "at": "2026-10-12T19:23:13.633Z",
+        "event": "priority_changed",
+        "health": 20
+      },
+      {
+        "at": "2026-10-12T19:23:13.643Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": -59.499999999999986,
+          "y": 63,
+          "z": -38.5
+        }
+      },
+      {
+        "at": "2026-10-12T19:23:14.037Z",
+        "event": "priority_changed",
+        "health": 20
+      },
+      {
+        "at": "2026-10-12T19:23:14.239Z",
+        "event": "priority_changed",
+        "health": 20
+      },
+      {
+        "at": "2026-10-12T19:23:14.644Z",
+        "event": "priority_changed",
+        "health": 20
+      },
+      {
+        "at": "2026-10-12T19:23:14.844Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": -59.500000000000036,
+          "y": 63,
+          "z": -39.5
+        }
+      },
+      {
+        "at": "2026-10-12T19:23:15.244Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": -58.39592183225268,
+          "y": 64.17675927506424,
+          "z": -39.991332904883684
+        }
+      },
+      {
+        "at": "2026-10-12T19:23:15.444Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": -58.5,
+          "y": 64,
+          "z": -40.5
+        }
+      },
+      {
+        "at": "2026-10-12T19:23:15.856Z",
+        "event": "priority_changed",
+        "health": 20
+      },
+      {
+        "at": "2026-10-12T19:23:16.256Z",
+        "event": "priority_changed",
+        "health": 20
+      },
+      {
+        "at": "2026-10-12T19:23:16.873Z",
+        "event": "priority_changed",
+        "health": 20
+      },
+      {
+        "at": "2026-10-12T19:23:16.900Z",
+        "event": "escape_blocked",
+        "health": 20,
+        "position": {
+          "x": -59.65379888263249,
+          "y": 63,
+          "z": -41.653798882632145
+        }
+      },
+      {
+        "at": "2026-10-12T19:23:17.889Z",
+        "event": "escape_short_route",
+        "health": 17,
+        "position": {
+          "x": -59.65379888263249,
+          "y": 63,
+          "z": -41.653798882632145
+        }
+      },
+      {
+        "at": "2026-10-12T19:23:18.494Z",
+        "event": "priority_changed",
+        "health": 17.83333396911621
+      },
+      {
+        "at": "2026-10-12T19:23:18.693Z",
+        "event": "escape_short_route",
+        "health": 18.5,
+        "position": {
+          "x": -59.455290926464194,
+          "y": 63,
+          "z": -39.5
+        }
+      },
+      {
+        "at": "2026-10-12T19:23:19.044Z",
+        "event": "priority_changed",
+        "health": 19
+      },
+      {
+        "at": "2026-10-12T19:23:19.053Z",
+        "event": "escape_short_route",
+        "health": 19,
+        "position": {
+          "x": -59.46401326292609,
+          "y": 63,
+          "z": -40.01391508486058
+        }
+      },
+      {
+        "at": "2026-10-12T19:23:19.094Z",
+        "event": "escape_short_route",
+        "health": 19,
+        "position": {
+          "x": -59.46401326292609,
+          "y": 63,
+          "z": -40.13351686466095
+        }
+      },
+      {
+        "at": "2026-10-12T19:23:19.555Z",
+        "event": "escape_short_route",
+        "health": 19.33333396911621,
+        "position": {
+          "x": -59.472507201498765,
+          "y": 63,
+          "z": -40.07061692919325
+        }
+      },
+      {
+        "at": "2026-10-12T19:23:19.908Z",
+        "event": "escape_short_route",
+        "health": 19.33333396911621,
+        "position": {
+          "x": -59.47656365073788,
+          "y": 63,
+          "z": -39.1053075618693
+        }
+      },
+      {
+        "at": "2026-10-12T19:23:20.044Z",
+        "event": "priority_changed",
+        "health": 19.666667938232422
+      },
+      {
+        "at": "2026-10-12T19:23:21.774Z",
+        "event": "escape_short_route",
+        "health": 16.16666603088379,
+        "position": {
+          "x": -55.5,
+          "y": 63,
+          "z": -35.5
+        }
+      },
+      {
+        "at": "2026-10-12T19:23:22.418Z",
+        "event": "escape_blocked",
+        "health": 16.333332061767578,
+        "position": {
+          "x": -54.5,
+          "y": 63,
+          "z": -36.5
+        }
+      },
+      {
+        "at": "2026-10-12T19:23:24.826Z",
+        "event": "priority_changed",
+        "health": 9.333332061767578
+      },
+      {
+        "at": "2026-10-12T19:23:25.646Z",
+        "event": "escape_short_route",
+        "health": 9.333332061767578,
+        "position": {
+          "x": -54.5,
+          "y": 63,
+          "z": -36.5
+        }
+      },
+      {
+        "at": "2026-10-12T19:23:26.044Z",
+        "event": "priority_changed",
+        "health": 10.333332061767578
+      },
+      {
+        "at": "2026-10-12T19:23:26.083Z",
+        "event": "escape_short_route",
+        "health": 10.333332061767578,
+        "position": {
+          "x": -54.49999999999995,
+          "y": 63,
+          "z": -34.868281971930465
+        }
+      },
+      {
+        "at": "2026-10-12T19:23:26.084Z",
+        "event": "escape_short_route",
+        "health": 10.333332061767578,
+        "position": {
+          "x": -54.49999999999995,
+          "y": 63,
+          "z": -34.868281971930465
+        }
+      },
+      {
+        "at": "2026-10-12T19:23:26.495Z",
+        "event": "priority_changed",
+        "health": 10.333332061767578
+      },
+      {
+        "at": "2026-10-12T19:23:27.112Z",
+        "event": "escape_short_route",
+        "health": 6.333332061767578,
+        "position": {
+          "x": -54.500000000000036,
+          "y": 63,
+          "z": -35.37387283957865
+        }
+      },
+      {
+        "at": "2026-10-12T19:23:27.328Z",
+        "event": "escape_short_route",
+        "health": 2.333332061767578,
+        "position": {
+          "x": -54.499999999999986,
+          "y": 63,
+          "z": -34.922112261951156
+        }
+      },
+      {
+        "at": "2026-10-12T19:23:27.516Z",
+        "event": "priority_changed",
+        "health": 2.333332061767578
+      },
+      {
+        "at": "2026-10-12T19:23:27.720Z",
+        "event": "escape_short_route",
+        "health": 2.333332061767578,
+        "position": {
+          "x": -54.499999999999986,
+          "y": 63,
+          "z": -33.5
+        }
+      },
+      {
+        "at": "2026-10-12T19:23:27.919Z",
+        "event": "priority_changed",
+        "health": 2.333332061767578
+      },
+      {
+        "at": "2026-10-12T19:23:29.736Z",
+        "event": "escape_short_route",
+        "health": 2.333332061767578,
+        "position": {
+          "x": -48.5,
+          "y": 63,
+          "z": -27.5
+        }
+      }
+    ],
+    "escapeRoutesIssued": 60,
+    "blockedEvents": 6,
+    "threatClearedEvents": 1,
+    "timingLogSamples": 12,
+    "sampledTickMaxMs": 10.6,
+    "sampledGapMaxMs": 215,
+    "observedCumulativeTickMaxMs": 54.2,
+    "observedCumulativeGapMaxMs": 216.3,
+    "observedCumulativeFallbackOverruns": 0,
+    "escapeAcceptance": "death-observed-review-needed"
+  },
+  "limits": [
+    "Offline logs corroborate executor observations; they are not an independent game sensor.",
+    "Completed partial gains count as progress but not full requested quantity.",
+    "Death and timing counts cover only supplied logs and timestamps; sparse timing logs do not support per-tick percentiles.",
+    "Cumulative timing maxima may predate this window until reactive reload; report them separately from sampled window values.",
+    "Different prompts, compact observations, executors or world states confound model-weight comparisons. Only frozen identical-input base/adapter evaluation isolates a weight contrast.",
+    "No danger encountered means escape behavior remains untested. Issuing a route alone does not establish escape success.",
+    "Unknown completion metadata never proves adapter use."
+  ],
+  "sources": {
+    "autonomy": {
+      "path": "logs/minecraft-autonomy.jsonl",
+      "sha256": "ab0f6fbffd994aabab35c14797797a07e4c9ec901861c9d0704c06152779253f",
+      "malformedLines": []
+    },
+    "session": {
+      "path": "logs/minecraft-session-1791830191222.jsonl",
+      "sha256": "ea35538ac63941b5a5f9b25599ab571869df5c30dcd2a7d8a1e6ab5c2b7d883a",
+      "malformedLines": []
+    }
+  },
+  "implementationHashes": {
+    "src/minecraft/survival-planner.js": "e9cf50096b350e65262dfbc948a7b60a8c8ba08cb561cc7d139ffbdc50dfe59a",
+    "src/minecraft/survival-skills.js": "5ad241b765c1a250466b995d710095d31757aa08f1e4d928993917b9105dc267",
+    "src/minecraft/reactive-agent.js": "a9bf34b973a57b64aebd2612ba9cc90efce2eef125b004a1517e27d4ddae7a32",
+    "src/minecraft/autonomy-loop.js": "a7c105b1eb78f60dbe9c29014ccef4bce8dccf932ca421ca6c2cc399b89e280c"
+  },
+  "implementationHashTiming": "Report-time checkout; establish deployment-time hashes separately before attributing changes.",
+  "review": {
+    "serverDeathMessages": [
+      {
+        "at": "2026-10-12T19:21:55.344Z",
+        "event": "server_message",
+        "text": "SuiGeBot was shot by Stray"
+      },
+      {
+        "at": "2026-10-12T19:23:29.794Z",
+        "event": "server_message",
+        "text": "SuiGeBot was shot by Skeleton"
+      }
+    ],
+    "targetChangeCount": 34,
+    "observedNoPathFailures": 0,
+    "confirmedImplementationFault": "Target ID changes called pathfinder.setMovements even while mode remained flee. Local pathfinder implementation unconditionally resets active path/control states on setMovements.",
+    "sourceEvidence": "node_modules/mineflayer-pathfinder/index.js:149-151 setMovements -> resetPath(movements_updated)",
+    "fix": "Only reset movements when defensive mode changes; nearest target changes update target and log without resetting path.",
+    "test": "minecraft-reactive-escape: target switches zombie -> skeleton -> zombie with isMoving=true cause exactly one mode-entry movement reset and one initial goal.",
+    "causalLimits": [
+      "Server attributed deaths to Stray and Skeleton shots; individual preceding hits are not individually attributed.",
+      "Repeated path resets are independently proven in code and exercised in tests. Logs show frequent target changes, but do not quantify how many hits or either death would have been prevented.",
+      "One-block oscillation and multi-shooter exposure may remain after this narrow fix and require fresh live evidence.",
+      "This window contains no model decision if decisions=0; do not attribute reflex defects to adapter learning."
+    ]
+  }
+}

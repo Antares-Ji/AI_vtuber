@@ -1,0 +1,1153 @@
+{
+  "status": "passed",
+  "trainingRows": 24,
+  "developmentRows": 10,
+  "weightedReplayRows": 286,
+  "overlaps": {
+    "newTrainDev": 0,
+    "newTrainPriorReplay": 0,
+    "newDevPriorReplay": 0
+  },
+  "hashes": {
+    "train": "7481c133ec56fb55e7f8fe38aa7453746acd4ab976d668e5cc9ccec7e0995587",
+    "dev": "4a8266754c6bc3084205109f64009e5bcee9c0b6ecd756431974fea631242c6b",
+    "replay": "0baf800b01e19312869420c15ea6a0ae3421aa00b80cb64f88ef6595b62b16e3"
+  },
+  "replayPrefixPreserved": true,
+  "checked": {
+    "actionSchema": true,
+    "runtimeCompactState": true,
+    "historyConsistency": true,
+    "recipeMaterials": true,
+    "foodPrerequisites": true,
+    "miningPrerequisites": true,
+    "geometry": true,
+    "durability": true
+  },
+  "errors": [],
+  "rowSummary": {
+    "train": [
+      {
+        "id": "v6r1-train-live-teacher-01",
+        "action": {
+          "action": "gather_wood",
+          "count": 3
+        },
+        "food": 17,
+        "inventory": [
+          {
+            "name": "spruce_planks",
+            "count": 2
+          },
+          {
+            "name": "stick",
+            "count": 4
+          }
+        ],
+        "resourceCounts": {
+          "stone": 0,
+          "coal": 1,
+          "iron": 0,
+          "diamond": 0,
+          "obsidian": 0,
+          "gravel": 0,
+          "wood": 4
+        }
+      },
+      {
+        "id": "v6r1-train-live-success-01",
+        "action": {
+          "action": "craft",
+          "item": "wooden_pickaxe",
+          "count": 1
+        },
+        "food": 17,
+        "inventory": [
+          {
+            "name": "spruce_planks",
+            "count": 12
+          },
+          {
+            "name": "stick",
+            "count": 8
+          }
+        ],
+        "resourceCounts": {
+          "stone": 0,
+          "coal": 0,
+          "iron": 0,
+          "diamond": 0,
+          "obsidian": 0,
+          "gravel": 0,
+          "wood": 4
+        }
+      },
+      {
+        "id": "v6r1-train-01",
+        "action": {
+          "action": "gather_wood",
+          "count": 3
+        },
+        "food": 20,
+        "inventory": [
+          {
+            "name": "crafting_table",
+            "count": 1
+          },
+          {
+            "name": "spruce_planks",
+            "count": 2
+          },
+          {
+            "name": "stick",
+            "count": 4
+          }
+        ],
+        "resourceCounts": {
+          "stone": 2,
+          "coal": 1,
+          "iron": 1,
+          "diamond": 1,
+          "obsidian": 0,
+          "gravel": 0,
+          "wood": 3
+        }
+      },
+      {
+        "id": "v6r1-train-02",
+        "action": {
+          "action": "explore",
+          "direction": "south",
+          "distance": 20
+        },
+        "food": 20,
+        "inventory": [
+          {
+            "name": "crafting_table",
+            "count": 1
+          },
+          {
+            "name": "oak_planks",
+            "count": 2
+          },
+          {
+            "name": "stick",
+            "count": 4
+          }
+        ],
+        "resourceCounts": {
+          "stone": 2,
+          "coal": 1,
+          "iron": 1,
+          "diamond": 1,
+          "obsidian": 0,
+          "gravel": 0,
+          "wood": 0
+        }
+      },
+      {
+        "id": "v6r1-train-03",
+        "action": {
+          "action": "craft",
+          "item": "planks",
+          "count": 4
+        },
+        "food": 20,
+        "inventory": [
+          {
+            "name": "crafting_table",
+            "count": 1
+          },
+          {
+            "name": "spruce_log",
+            "count": 1
+          },
+          {
+            "name": "spruce_planks",
+            "count": 2
+          },
+          {
+            "name": "stick",
+            "count": 4
+          }
+        ],
+        "resourceCounts": {
+          "stone": 2,
+          "coal": 1,
+          "iron": 1,
+          "diamond": 1,
+          "obsidian": 0,
+          "gravel": 0,
+          "wood": 3
+        }
+      },
+      {
+        "id": "v6r1-train-04",
+        "action": {
+          "action": "dig_staircase",
+          "direction": "south",
+          "steps": 4
+        },
+        "food": 20,
+        "inventory": [
+          {
+            "name": "wooden_pickaxe",
+            "count": 1
+          },
+          {
+            "name": "crafting_table",
+            "count": 1
+          },
+          {
+            "name": "spruce_planks",
+            "count": 6
+          },
+          {
+            "name": "stick",
+            "count": 8
+          }
+        ],
+        "resourceCounts": {
+          "stone": 0,
+          "coal": 1,
+          "iron": 1,
+          "diamond": 1,
+          "obsidian": 0,
+          "gravel": 0,
+          "wood": 3
+        }
+      },
+      {
+        "id": "v6r1-train-05",
+        "action": {
+          "action": "explore",
+          "direction": "west",
+          "distance": 24
+        },
+        "food": 20,
+        "inventory": [
+          {
+            "name": "crafting_table",
+            "count": 1
+          },
+          {
+            "name": "oak_planks",
+            "count": 2
+          },
+          {
+            "name": "stick",
+            "count": 4
+          }
+        ],
+        "resourceCounts": {
+          "stone": 2,
+          "coal": 1,
+          "iron": 1,
+          "diamond": 1,
+          "obsidian": 0,
+          "gravel": 0,
+          "wood": 0
+        }
+      },
+      {
+        "id": "v6r1-train-06",
+        "action": {
+          "action": "craft",
+          "item": "planks",
+          "count": 4
+        },
+        "food": 20,
+        "inventory": [
+          {
+            "name": "crafting_table",
+            "count": 1
+          },
+          {
+            "name": "birch_log",
+            "count": 1
+          },
+          {
+            "name": "birch_planks",
+            "count": 2
+          },
+          {
+            "name": "stick",
+            "count": 4
+          }
+        ],
+        "resourceCounts": {
+          "stone": 2,
+          "coal": 1,
+          "iron": 1,
+          "diamond": 1,
+          "obsidian": 0,
+          "gravel": 0,
+          "wood": 3
+        }
+      },
+      {
+        "id": "v6r1-train-07",
+        "action": {
+          "action": "craft",
+          "item": "planks",
+          "count": 8
+        },
+        "food": 20,
+        "inventory": [
+          {
+            "name": "oak_log",
+            "count": 2
+          },
+          {
+            "name": "stick",
+            "count": 2
+          }
+        ],
+        "resourceCounts": {
+          "stone": 2,
+          "coal": 1,
+          "iron": 1,
+          "diamond": 1,
+          "obsidian": 0,
+          "gravel": 0,
+          "wood": 3
+        }
+      },
+      {
+        "id": "v6r1-train-08",
+        "action": {
+          "action": "gather_wood",
+          "count": 3
+        },
+        "food": 20,
+        "inventory": [
+          {
+            "name": "crafting_table",
+            "count": 1
+          },
+          {
+            "name": "spruce_planks",
+            "count": 2
+          },
+          {
+            "name": "stick",
+            "count": 4
+          }
+        ],
+        "resourceCounts": {
+          "stone": 2,
+          "coal": 1,
+          "iron": 1,
+          "diamond": 1,
+          "obsidian": 0,
+          "gravel": 0,
+          "wood": 3
+        }
+      },
+      {
+        "id": "v6r1-train-09",
+        "action": {
+          "action": "craft",
+          "item": "stick",
+          "count": 2
+        },
+        "food": 20,
+        "inventory": [
+          {
+            "name": "spruce_planks",
+            "count": 4
+          }
+        ],
+        "resourceCounts": {
+          "stone": 2,
+          "coal": 1,
+          "iron": 1,
+          "diamond": 1,
+          "obsidian": 0,
+          "gravel": 0,
+          "wood": 3
+        }
+      },
+      {
+        "id": "v6r1-train-10",
+        "action": {
+          "action": "explore",
+          "direction": "north",
+          "distance": 20
+        },
+        "food": 20,
+        "inventory": [
+          {
+            "name": "crafting_table",
+            "count": 1
+          },
+          {
+            "name": "oak_planks",
+            "count": 2
+          },
+          {
+            "name": "stick",
+            "count": 4
+          }
+        ],
+        "resourceCounts": {
+          "stone": 2,
+          "coal": 1,
+          "iron": 1,
+          "diamond": 1,
+          "obsidian": 0,
+          "gravel": 0,
+          "wood": 0
+        }
+      },
+      {
+        "id": "v6r1-train-11",
+        "action": {
+          "action": "eat"
+        },
+        "food": 7,
+        "inventory": [
+          {
+            "name": "crafting_table",
+            "count": 1
+          },
+          {
+            "name": "spruce_planks",
+            "count": 2
+          },
+          {
+            "name": "stick",
+            "count": 4
+          },
+          {
+            "name": "bread",
+            "count": 2
+          }
+        ],
+        "resourceCounts": {
+          "stone": 2,
+          "coal": 1,
+          "iron": 1,
+          "diamond": 1,
+          "obsidian": 0,
+          "gravel": 0,
+          "wood": 3
+        }
+      },
+      {
+        "id": "v6r1-train-12",
+        "action": {
+          "action": "gather_wood",
+          "count": 4
+        },
+        "food": 20,
+        "inventory": [
+          {
+            "name": "crafting_table",
+            "count": 1
+          },
+          {
+            "name": "oak_planks",
+            "count": 2
+          },
+          {
+            "name": "stick",
+            "count": 4
+          },
+          {
+            "name": "beef",
+            "count": 2
+          }
+        ],
+        "resourceCounts": {
+          "stone": 2,
+          "coal": 1,
+          "iron": 1,
+          "diamond": 1,
+          "obsidian": 0,
+          "gravel": 0,
+          "wood": 3
+        }
+      },
+      {
+        "id": "v6r1-train-13",
+        "action": {
+          "action": "craft",
+          "item": "crafting_table",
+          "count": 1
+        },
+        "food": 20,
+        "inventory": [
+          {
+            "name": "oak_planks",
+            "count": 4
+          },
+          {
+            "name": "stick",
+            "count": 2
+          }
+        ],
+        "resourceCounts": {
+          "stone": 2,
+          "coal": 1,
+          "iron": 1,
+          "diamond": 1,
+          "obsidian": 0,
+          "gravel": 0,
+          "wood": 3
+        }
+      },
+      {
+        "id": "v6r1-train-14",
+        "action": {
+          "action": "craft",
+          "item": "wooden_pickaxe",
+          "count": 1
+        },
+        "food": 20,
+        "inventory": [
+          {
+            "name": "crafting_table",
+            "count": 1
+          },
+          {
+            "name": "oak_planks",
+            "count": 4
+          },
+          {
+            "name": "stick",
+            "count": 2
+          }
+        ],
+        "resourceCounts": {
+          "stone": 2,
+          "coal": 1,
+          "iron": 1,
+          "diamond": 1,
+          "obsidian": 0,
+          "gravel": 0,
+          "wood": 3
+        }
+      },
+      {
+        "id": "v6r1-train-15",
+        "action": {
+          "action": "craft",
+          "item": "wooden_pickaxe",
+          "count": 1
+        },
+        "food": 20,
+        "inventory": [
+          {
+            "name": "crafting_table",
+            "count": 1
+          },
+          {
+            "name": "birch_planks",
+            "count": 3
+          },
+          {
+            "name": "stick",
+            "count": 2
+          }
+        ],
+        "resourceCounts": {
+          "stone": 2,
+          "coal": 1,
+          "iron": 1,
+          "diamond": 1,
+          "obsidian": 0,
+          "gravel": 0,
+          "wood": 3
+        }
+      },
+      {
+        "id": "v6r1-train-16",
+        "action": {
+          "action": "craft",
+          "item": "stone_pickaxe",
+          "count": 1
+        },
+        "food": 20,
+        "inventory": [
+          {
+            "name": "wooden_pickaxe",
+            "count": 1
+          },
+          {
+            "name": "crafting_table",
+            "count": 1
+          },
+          {
+            "name": "cobblestone",
+            "count": 3
+          },
+          {
+            "name": "stick",
+            "count": 2
+          },
+          {
+            "name": "spruce_planks",
+            "count": 2
+          }
+        ],
+        "resourceCounts": {
+          "stone": 2,
+          "coal": 1,
+          "iron": 1,
+          "diamond": 1,
+          "obsidian": 0,
+          "gravel": 0,
+          "wood": 3
+        }
+      },
+      {
+        "id": "v6r1-train-17",
+        "action": {
+          "action": "mine",
+          "resource": "stone",
+          "count": 1
+        },
+        "food": 20,
+        "inventory": [
+          {
+            "name": "wooden_pickaxe",
+            "count": 1
+          },
+          {
+            "name": "crafting_table",
+            "count": 1
+          },
+          {
+            "name": "cobblestone",
+            "count": 2
+          },
+          {
+            "name": "stick",
+            "count": 2
+          }
+        ],
+        "resourceCounts": {
+          "stone": 2,
+          "coal": 1,
+          "iron": 1,
+          "diamond": 1,
+          "obsidian": 0,
+          "gravel": 0,
+          "wood": 3
+        }
+      },
+      {
+        "id": "v6r1-train-18",
+        "action": {
+          "action": "mine",
+          "resource": "iron",
+          "count": 3
+        },
+        "food": 20,
+        "inventory": [
+          {
+            "name": "stone_pickaxe",
+            "count": 1
+          },
+          {
+            "name": "crafting_table",
+            "count": 1
+          },
+          {
+            "name": "cobblestone",
+            "count": 8
+          },
+          {
+            "name": "stick",
+            "count": 4
+          },
+          {
+            "name": "oak_planks",
+            "count": 6
+          }
+        ],
+        "resourceCounts": {
+          "stone": 2,
+          "coal": 1,
+          "iron": 1,
+          "diamond": 1,
+          "obsidian": 0,
+          "gravel": 0,
+          "wood": 3
+        }
+      },
+      {
+        "id": "v6r1-train-19",
+        "action": {
+          "action": "eat"
+        },
+        "food": 8,
+        "inventory": [
+          {
+            "name": "wooden_pickaxe",
+            "count": 1
+          },
+          {
+            "name": "crafting_table",
+            "count": 1
+          },
+          {
+            "name": "cobblestone",
+            "count": 3
+          },
+          {
+            "name": "stick",
+            "count": 2
+          },
+          {
+            "name": "cooked_chicken",
+            "count": 1
+          }
+        ],
+        "resourceCounts": {
+          "stone": 2,
+          "coal": 1,
+          "iron": 1,
+          "diamond": 1,
+          "obsidian": 0,
+          "gravel": 0,
+          "wood": 3
+        }
+      },
+      {
+        "id": "v6r1-train-20",
+        "action": {
+          "action": "craft",
+          "item": "stone_pickaxe",
+          "count": 1
+        },
+        "food": 20,
+        "inventory": [
+          {
+            "name": "wooden_pickaxe",
+            "count": 1
+          },
+          {
+            "name": "crafting_table",
+            "count": 1
+          },
+          {
+            "name": "cobblestone",
+            "count": 3
+          },
+          {
+            "name": "stick",
+            "count": 2
+          },
+          {
+            "name": "cooked_beef",
+            "count": 2
+          }
+        ],
+        "resourceCounts": {
+          "stone": 2,
+          "coal": 1,
+          "iron": 1,
+          "diamond": 1,
+          "obsidian": 0,
+          "gravel": 0,
+          "wood": 3
+        }
+      },
+      {
+        "id": "v6r1-train-21",
+        "action": {
+          "action": "craft",
+          "item": "planks",
+          "count": 1
+        },
+        "food": 20,
+        "inventory": [
+          {
+            "name": "oak_log",
+            "count": 1
+          },
+          {
+            "name": "oak_planks",
+            "count": 2
+          }
+        ],
+        "resourceCounts": {
+          "stone": 2,
+          "coal": 1,
+          "iron": 1,
+          "diamond": 1,
+          "obsidian": 0,
+          "gravel": 0,
+          "wood": 3
+        }
+      },
+      {
+        "id": "v6r1-train-22",
+        "action": {
+          "action": "gather_wood",
+          "count": 2
+        },
+        "food": 20,
+        "inventory": [
+          {
+            "name": "crafting_table",
+            "count": 1
+          },
+          {
+            "name": "spruce_planks",
+            "count": 2
+          },
+          {
+            "name": "stick",
+            "count": 4
+          }
+        ],
+        "resourceCounts": {
+          "stone": 2,
+          "coal": 1,
+          "iron": 1,
+          "diamond": 1,
+          "obsidian": 0,
+          "gravel": 0,
+          "wood": 3
+        }
+      }
+    ],
+    "dev": [
+      {
+        "id": "v6r1-dev-01",
+        "action": {
+          "action": "craft",
+          "item": "wooden_pickaxe",
+          "count": 1
+        },
+        "food": 20,
+        "inventory": [
+          {
+            "name": "crafting_table",
+            "count": 1
+          },
+          {
+            "name": "birch_planks",
+            "count": 3
+          },
+          {
+            "name": "stick",
+            "count": 2
+          }
+        ],
+        "resourceCounts": {
+          "stone": 2,
+          "coal": 1,
+          "iron": 1,
+          "diamond": 1,
+          "obsidian": 0,
+          "gravel": 0,
+          "wood": 3
+        }
+      },
+      {
+        "id": "v6r1-dev-02",
+        "action": {
+          "action": "gather_wood",
+          "count": 3
+        },
+        "food": 20,
+        "inventory": [
+          {
+            "name": "crafting_table",
+            "count": 1
+          },
+          {
+            "name": "oak_planks",
+            "count": 2
+          },
+          {
+            "name": "stick",
+            "count": 4
+          }
+        ],
+        "resourceCounts": {
+          "stone": 2,
+          "coal": 1,
+          "iron": 1,
+          "diamond": 1,
+          "obsidian": 0,
+          "gravel": 0,
+          "wood": 3
+        }
+      },
+      {
+        "id": "v6r1-dev-03",
+        "action": {
+          "action": "explore",
+          "direction": "east",
+          "distance": 24
+        },
+        "food": 20,
+        "inventory": [
+          {
+            "name": "crafting_table",
+            "count": 1
+          },
+          {
+            "name": "spruce_planks",
+            "count": 2
+          },
+          {
+            "name": "stick",
+            "count": 4
+          }
+        ],
+        "resourceCounts": {
+          "stone": 2,
+          "coal": 1,
+          "iron": 1,
+          "diamond": 1,
+          "obsidian": 0,
+          "gravel": 0,
+          "wood": 0
+        }
+      },
+      {
+        "id": "v6r1-dev-04",
+        "action": {
+          "action": "craft",
+          "item": "planks",
+          "count": 4
+        },
+        "food": 20,
+        "inventory": [
+          {
+            "name": "oak_log",
+            "count": 1
+          }
+        ],
+        "resourceCounts": {
+          "stone": 2,
+          "coal": 1,
+          "iron": 1,
+          "diamond": 1,
+          "obsidian": 0,
+          "gravel": 0,
+          "wood": 3
+        }
+      },
+      {
+        "id": "v6r1-dev-05",
+        "action": {
+          "action": "eat"
+        },
+        "food": 6,
+        "inventory": [
+          {
+            "name": "crafting_table",
+            "count": 1
+          },
+          {
+            "name": "oak_planks",
+            "count": 2
+          },
+          {
+            "name": "stick",
+            "count": 4
+          },
+          {
+            "name": "beef",
+            "count": 1
+          }
+        ],
+        "resourceCounts": {
+          "stone": 2,
+          "coal": 1,
+          "iron": 1,
+          "diamond": 1,
+          "obsidian": 0,
+          "gravel": 0,
+          "wood": 3
+        }
+      },
+      {
+        "id": "v6r1-dev-06",
+        "action": {
+          "action": "gather_wood",
+          "count": 4
+        },
+        "food": 20,
+        "inventory": [
+          {
+            "name": "crafting_table",
+            "count": 1
+          },
+          {
+            "name": "oak_planks",
+            "count": 2
+          },
+          {
+            "name": "stick",
+            "count": 4
+          },
+          {
+            "name": "beef",
+            "count": 2
+          }
+        ],
+        "resourceCounts": {
+          "stone": 2,
+          "coal": 1,
+          "iron": 1,
+          "diamond": 1,
+          "obsidian": 0,
+          "gravel": 0,
+          "wood": 3
+        }
+      },
+      {
+        "id": "v6r1-dev-07",
+        "action": {
+          "action": "craft",
+          "item": "wooden_pickaxe",
+          "count": 1
+        },
+        "food": 20,
+        "inventory": [
+          {
+            "name": "crafting_table",
+            "count": 1
+          },
+          {
+            "name": "spruce_planks",
+            "count": 4
+          },
+          {
+            "name": "stick",
+            "count": 2
+          }
+        ],
+        "resourceCounts": {
+          "stone": 2,
+          "coal": 1,
+          "iron": 1,
+          "diamond": 1,
+          "obsidian": 0,
+          "gravel": 0,
+          "wood": 3
+        }
+      },
+      {
+        "id": "v6r1-dev-08",
+        "action": {
+          "action": "craft",
+          "item": "stone_pickaxe",
+          "count": 1
+        },
+        "food": 20,
+        "inventory": [
+          {
+            "name": "crafting_table",
+            "count": 1
+          },
+          {
+            "name": "cobblestone",
+            "count": 3
+          },
+          {
+            "name": "stick",
+            "count": 2
+          },
+          {
+            "name": "birch_planks",
+            "count": 3
+          }
+        ],
+        "resourceCounts": {
+          "stone": 2,
+          "coal": 1,
+          "iron": 1,
+          "diamond": 1,
+          "obsidian": 0,
+          "gravel": 0,
+          "wood": 3
+        }
+      },
+      {
+        "id": "v6r1-dev-09",
+        "action": {
+          "action": "mine",
+          "resource": "stone",
+          "count": 1
+        },
+        "food": 20,
+        "inventory": [
+          {
+            "name": "wooden_pickaxe",
+            "count": 1
+          },
+          {
+            "name": "crafting_table",
+            "count": 1
+          },
+          {
+            "name": "cobblestone",
+            "count": 2
+          },
+          {
+            "name": "stick",
+            "count": 2
+          }
+        ],
+        "resourceCounts": {
+          "stone": 2,
+          "coal": 1,
+          "iron": 1,
+          "diamond": 1,
+          "obsidian": 0,
+          "gravel": 0,
+          "wood": 3
+        }
+      },
+      {
+        "id": "v6r1-dev-10",
+        "action": {
+          "action": "mine",
+          "resource": "coal",
+          "count": 3
+        },
+        "food": 20,
+        "inventory": [
+          {
+            "name": "stone_pickaxe",
+            "count": 1
+          },
+          {
+            "name": "crafting_table",
+            "count": 1
+          },
+          {
+            "name": "porkchop",
+            "count": 2
+          },
+          {
+            "name": "oak_planks",
+            "count": 6
+          },
+          {
+            "name": "stick",
+            "count": 4
+          }
+        ],
+        "resourceCounts": {
+          "stone": 2,
+          "coal": 1,
+          "iron": 1,
+          "diamond": 1,
+          "obsidian": 0,
+          "gravel": 0,
+          "wood": 3
+        }
+      }
+    ]
+  }
+}

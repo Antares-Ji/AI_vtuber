@@ -1,0 +1,6 @@
+Traceback (most recent call last):
+  File "E:\Github\AI_vtuber\scripts\minecraft-training\train_lora.py", line 213, in <module>
+    main()
+  File "E:\Github\AI_vtuber\scripts\minecraft-training\train_lora.py", line 51, in main
+    from peft import LoraConfig, PeftModel, get_peft_model
+ModuleNotFoundError: No module named 'peft'

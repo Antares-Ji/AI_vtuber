@@ -1,0 +1,479 @@
+{
+  "source": "Read-only175-cell Minecraft snapshot 2026-10-12T22:55:39.849Z",
+  "position": {
+    "x": 59.5,
+    "y": 114,
+    "z": 86.5
+  },
+  "terrain": {
+    "origin": {
+      "x": 59,
+      "y": 114,
+      "z": 86
+    },
+    "bounds": {
+      "horizontalRadius": 2,
+      "minDy": -4,
+      "maxDy": 2
+    },
+    "reads": 175,
+    "knownAirOmitted": true,
+    "onGround": true,
+    "movements": {
+      "canDig": false,
+      "maxDropDown": 1,
+      "allowParkour": false,
+      "allowSprinting": true
+    },
+    "blocks": [
+      {
+        "x": 57,
+        "y": 110,
+        "z": 85,
+        "name": "snow",
+        "boundingBox": "empty",
+        "shapes": []
+      },
+      {
+        "x": 57,
+        "y": 110,
+        "z": 86,
+        "name": "snow",
+        "boundingBox": "empty",
+        "shapes": []
+      },
+      {
+        "x": 57,
+        "y": 110,
+        "z": 87,
+        "name": "snow",
+        "boundingBox": "empty",
+        "shapes": []
+      },
+      {
+        "x": 58,
+        "y": 112,
+        "z": 84,
+        "name": "spruce_leaves",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 58,
+        "y": 113,
+        "z": 84,
+        "name": "snow",
+        "boundingBox": "empty",
+        "shapes": []
+      },
+      {
+        "x": 58,
+        "y": 110,
+        "z": 85,
+        "name": "snow",
+        "boundingBox": "empty",
+        "shapes": []
+      },
+      {
+        "x": 58,
+        "y": 110,
+        "z": 86,
+        "name": "spruce_leaves",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 58,
+        "y": 112,
+        "z": 86,
+        "name": "spruce_leaves",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 58,
+        "y": 113,
+        "z": 86,
+        "name": "snow",
+        "boundingBox": "empty",
+        "shapes": []
+      },
+      {
+        "x": 58,
+        "y": 110,
+        "z": 87,
+        "name": "snow",
+        "boundingBox": "empty",
+        "shapes": []
+      },
+      {
+        "x": 58,
+        "y": 110,
+        "z": 88,
+        "name": "snow",
+        "boundingBox": "empty",
+        "shapes": []
+      },
+      {
+        "x": 59,
+        "y": 112,
+        "z": 84,
+        "name": "spruce_leaves",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 59,
+        "y": 113,
+        "z": 84,
+        "name": "snow",
+        "boundingBox": "empty",
+        "shapes": []
+      },
+      {
+        "x": 59,
+        "y": 110,
+        "z": 85,
+        "name": "spruce_leaves",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 59,
+        "y": 112,
+        "z": 85,
+        "name": "spruce_leaves",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 59,
+        "y": 113,
+        "z": 85,
+        "name": "snow",
+        "boundingBox": "empty",
+        "shapes": []
+      },
+      {
+        "x": 59,
+        "y": 110,
+        "z": 86,
+        "name": "spruce_log",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 59,
+        "y": 111,
+        "z": 86,
+        "name": "spruce_leaves",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 59,
+        "y": 112,
+        "z": 86,
+        "name": "spruce_leaves",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 59,
+        "y": 113,
+        "z": 86,
+        "name": "spruce_leaves",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 59,
+        "y": 114,
+        "z": 86,
+        "name": "snow",
+        "boundingBox": "empty",
+        "shapes": []
+      },
+      {
+        "x": 59,
+        "y": 110,
+        "z": 87,
+        "name": "spruce_leaves",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 59,
+        "y": 112,
+        "z": 87,
+        "name": "spruce_leaves",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 59,
+        "y": 113,
+        "z": 87,
+        "name": "snow",
+        "boundingBox": "empty",
+        "shapes": []
+      },
+      {
+        "x": 59,
+        "y": 110,
+        "z": 88,
+        "name": "snow",
+        "boundingBox": "empty",
+        "shapes": []
+      },
+      {
+        "x": 60,
+        "y": 112,
+        "z": 84,
+        "name": "spruce_leaves",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 60,
+        "y": 113,
+        "z": 84,
+        "name": "snow",
+        "boundingBox": "empty",
+        "shapes": []
+      },
+      {
+        "x": 60,
+        "y": 110,
+        "z": 85,
+        "name": "snow",
+        "boundingBox": "empty",
+        "shapes": []
+      },
+      {
+        "x": 60,
+        "y": 110,
+        "z": 86,
+        "name": "spruce_leaves",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 60,
+        "y": 112,
+        "z": 86,
+        "name": "spruce_leaves",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 60,
+        "y": 113,
+        "z": 86,
+        "name": "snow",
+        "boundingBox": "empty",
+        "shapes": []
+      },
+      {
+        "x": 60,
+        "y": 110,
+        "z": 87,
+        "name": "snow",
+        "boundingBox": "empty",
+        "shapes": []
+      },
+      {
+        "x": 60,
+        "y": 110,
+        "z": 88,
+        "name": "snow",
+        "boundingBox": "empty",
+        "shapes": []
+      },
+      {
+        "x": 61,
+        "y": 112,
+        "z": 84,
+        "name": "spruce_leaves",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 61,
+        "y": 113,
+        "z": 84,
+        "name": "snow",
+        "boundingBox": "empty",
+        "shapes": []
+      },
+      {
+        "x": 61,
+        "y": 110,
+        "z": 85,
+        "name": "snow",
+        "boundingBox": "empty",
+        "shapes": []
+      },
+      {
+        "x": 61,
+        "y": 110,
+        "z": 86,
+        "name": "snow",
+        "boundingBox": "empty",
+        "shapes": []
+      },
+      {
+        "x": 61,
+        "y": 110,
+        "z": 87,
+        "name": "snow",
+        "boundingBox": "empty",
+        "shapes": []
+      }
+    ]
+  }
+}

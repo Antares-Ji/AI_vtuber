@@ -1,0 +1,7 @@
+usage: compare_dev_grid.py [-h] --data DATA --contract CONTRACT --output-dir
+                           OUTPUT_DIR [--output-prefix OUTPUT_PREFIX]
+                           --adapter ADAPTER
+                           [--probe-diagnostics PROBE_DIAGNOSTICS]
+                           [--skip-base] [--allow-gpu-inference]
+                           [--min-free-gib MIN_FREE_GIB]
+compare_dev_grid.py: error: unrecognized arguments: E:\Github\AI_vtuber\runtime\minecraft-training\adapters\minecraft-survival-v4r1-replay-candidate\checkpoint-epoch-01 E:\Github\AI_vtuber\runtime\minecraft-training\adapters\minecraft-survival-v5r2-dense-replay-candidate\checkpoint-epoch-01 E:\Github\AI_vtuber\runtime\minecraft-training\adapters\minecraft-survival-v5r2-dense-replay-candidate\checkpoint-epoch-02

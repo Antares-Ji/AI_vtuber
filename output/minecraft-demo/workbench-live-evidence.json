@@ -1,0 +1,229 @@
+{
+  "at": "2026-10-14T11:45:51.831Z",
+  "note": "Model refined-goal continuation after excess plank crafting; not unassisted first-pass success.",
+  "loop": {
+    "enabled": false,
+    "running": false,
+    "goal": "制作一个工作台；当前库存材料足够时直接完成目标，不再收集木头或制作多余木板。",
+    "deadline": "2026-10-14T12:00:00.894Z",
+    "step": 1,
+    "model": "qwen3.5-4b",
+    "modelLoaded": true,
+    "adapter": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01",
+    "adapterLoaded": true,
+    "lastDecision": {
+      "action": "craft",
+      "item": "crafting_table",
+      "count": 1
+    },
+    "lastResult": {
+      "taskId": "f2019513-a3d3-4a16-83c5-97a98992699e",
+      "action": {
+        "action": "craft",
+        "item": "crafting_table",
+        "count": 1
+      },
+      "status": "completed",
+      "result": {
+        "action": {
+          "action": "craft",
+          "item": "crafting_table",
+          "count": 1
+        },
+        "verified": true,
+        "item": "crafting_table",
+        "gained": 1,
+        "inventoryConfirmation": "server_full_window_per_click",
+        "inventoryBefore": [
+          {
+            "name": "spruce_planks",
+            "count": 24
+          },
+          {
+            "name": "spruce_log",
+            "count": 1
+          }
+        ],
+        "inventoryAfter": [
+          {
+            "name": "spruce_planks",
+            "count": 20
+          },
+          {
+            "name": "crafting_table",
+            "count": 1
+          },
+          {
+            "name": "spruce_log",
+            "count": 1
+          }
+        ],
+        "position": {
+          "x": 35.4,
+          "y": 68,
+          "z": -44.5
+        }
+      },
+      "at": "2026-10-14T11:45:06.527Z"
+    },
+    "lastError": null,
+    "latencyMs": 3975,
+    "history": [
+      {
+        "taskId": "f2019513-a3d3-4a16-83c5-97a98992699e",
+        "action": {
+          "action": "craft",
+          "item": "crafting_table",
+          "count": 1
+        },
+        "status": "completed",
+        "result": {
+          "action": {
+            "action": "craft",
+            "item": "crafting_table",
+            "count": 1
+          },
+          "verified": true,
+          "item": "crafting_table",
+          "gained": 1,
+          "inventoryConfirmation": "server_full_window_per_click",
+          "inventoryBefore": [
+            {
+              "name": "spruce_planks",
+              "count": 24
+            },
+            {
+              "name": "spruce_log",
+              "count": 1
+            }
+          ],
+          "inventoryAfter": [
+            {
+              "name": "spruce_planks",
+              "count": 20
+            },
+            {
+              "name": "crafting_table",
+              "count": 1
+            },
+            {
+              "name": "spruce_log",
+              "count": 1
+            }
+          ],
+          "position": {
+            "x": 35.4,
+            "y": 68,
+            "z": -44.5
+          }
+        },
+        "at": "2026-10-14T11:45:06.527Z"
+      }
+    ],
+    "modelHealth": {
+      "ok": true,
+      "model": "qwen3.5-4b",
+      "path": "E:\\Qwen3.5-4B",
+      "quantization": "nf4",
+      "adapter": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01",
+      "adapter_loaded": true,
+      "adapter_scope": "minecraft-survival",
+      "generation": {
+        "active": false,
+        "queued": 0,
+        "max_waiters": 4,
+        "cancelled_running": 0
+      },
+      "generation_busy": false
+    },
+    "completionItem": "crafting_table",
+    "goalCompleted": true,
+    "audienceSuggestions": [],
+    "updatedAt": "2026-10-14T11:45:09.670Z",
+    "waitingFor": null,
+    "lastDecisionMetadata": {
+      "task": "minecraft-survival",
+      "used_adapter": true,
+      "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01"
+    },
+    "needsRecovery": false
+  },
+  "status": {
+    "connected": true,
+    "busy": false,
+    "activeTaskId": null,
+    "position": {
+      "x": 35.38977151662469,
+      "y": 68,
+      "z": -44.522909780150954
+    },
+    "mode": "survival",
+    "health": 20,
+    "food": 20,
+    "reactive": {
+      "updatedAt": "2026-10-14T11:45:51.660Z",
+      "sampleIntervalMs": 200,
+      "lifecycleEpoch": 0,
+      "dimension": "overworld",
+      "timeOfDay": 12457,
+      "health": 20,
+      "food": 20,
+      "armed": false,
+      "enabled": true,
+      "mode": "idle",
+      "calming": false,
+      "targetId": null,
+      "entities": [
+        {
+          "id": 1830,
+          "name": "sheep",
+          "mounted": false,
+          "position": {
+            "x": 35.71824857970996,
+            "y": 68,
+            "z": -53.22036680207332
+          },
+          "distance": 8.703657612128353
+        }
+      ],
+      "escape": null,
+      "timing": {
+        "tickMs": 0.7,
+        "maxTickMs": 7.8,
+        "sampleGapMs": 199.5,
+        "maxSampleGapMs": 409.4,
+        "skippedTicks": 0,
+        "fallbackMs": 0,
+        "maxFallbackMs": 0,
+        "fallbackBudgetMs": 60,
+        "fallbackOverruns": 0,
+        "leafAwaitMs": 0,
+        "maxLeafAwaitMs": 0,
+        "logCallbackMs": 0.7,
+        "maxLogCallbackMs": 7.1,
+        "tickLogCallbackMs": 0,
+        "fallbackLogCallbackMs": 0,
+        "fallbackCandidateMs": 0,
+        "fallbackSearchMs": 0,
+        "maxSearchSliceMs": 0,
+        "fallbackDispatchMs": 0,
+        "intervalIsSchedulingTarget": true
+      }
+    },
+    "inventory": [
+      {
+        "name": "spruce_planks",
+        "count": 20
+      },
+      {
+        "name": "crafting_table",
+        "count": 1
+      },
+      {
+        "name": "spruce_log",
+        "count": 1
+      }
+    ],
+    "logPath": "E:\\Github\\AI_vtuber\\logs\\minecraft-session-1791977757361.jsonl"
+  }
+}

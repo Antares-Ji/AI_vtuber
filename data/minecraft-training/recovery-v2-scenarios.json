@@ -1,0 +1,415 @@
+{
+  "version": 2,
+  "purpose": "Synthetic recovery and resource-planning scenarios; standalone from the active v1 training and holdout sets.",
+  "output_contract": "The rationale field is training metadata. The chosen action remains a strict JSON object accepted by SURVIVAL_ACTION_SCHEMA.",
+  "records": [
+    {
+      "id": "recovery-materials-01",
+      "scenario": "木材已变成木板但缺少木棍；背包有足量木板，工作台就在附近。",
+      "provenance": "synthetic; hand-authored recovery planning scenario",
+      "rationale": "stick配方需要两块木板；当前库存满足且工作台已存在，直接补足木棍，不再采木或重复制作工作台。",
+      "state": { "mode": "survival", "health": 20, "food": 18, "inventory": [{ "name": "oak_planks", "count": 6 }], "threats": [], "hazards": [], "resources": {}, "animals": [], "stations": [{ "name": "crafting_table", "position": { "x": 2, "y": 64, "z": 1 } }], "craftable": [{ "item": "stick", "outputPerCraft": 4, "requiresTable": false }], "recipeHints": [], "recentFailures": [], "recentExploration": [] },
+      "action": { "action": "craft", "item": "stick", "count": 4 }
+    },
+    {
+      "id": "recovery-materials-02",
+      "scenario": "制作石镐所需木棍不足，但有木板、圆石和可用工作台。",
+      "provenance": "synthetic; hand-authored recovery planning scenario",
+      "rationale": "先补齐可行配方中缺少的木棍，避免重复采集已拥有的圆石；完成后再制作石镐。",
+      "state": { "mode": "survival", "health": 20, "food": 17, "inventory": [{ "name": "oak_planks", "count": 4 }, { "name": "cobblestone", "count": 5 }], "threats": [], "hazards": [], "resources": {}, "animals": [], "stations": [{ "name": "crafting_table", "position": { "x": 0, "y": 64, "z": 2 } }], "craftable": [{ "item": "stick", "outputPerCraft": 4, "requiresTable": false }], "recipeHints": [{ "item": "wooden_pickaxe", "missing": [{ "name": "stick", "count": 2 }], "oneRecipeExample": true }], "recentFailures": [], "recentExploration": [] },
+      "action": { "action": "craft", "item": "stick", "count": 2 }
+    },
+    {
+      "id": "recovery-materials-03",
+      "scenario": "矿镐已损坏，当前没有圆石，近处有已暴露可达的石料。",
+      "provenance": "synthetic; hand-authored recovery planning scenario",
+      "rationale": "先按当前可采资源补充制作升级工具所需的圆石；只采少量材料并确认手中木镐可采。",
+      "state": { "mode": "survival", "health": 18, "food": 15, "inventory": [{ "name": "wooden_pickaxe", "count": 1 }, { "name": "oak_planks", "count": 4 }, { "name": "stick", "count": 2 }], "threats": [], "hazards": [], "resources": { "stone": [{ "name": "stone", "position": { "x": 4, "y": 63, "z": -2 }, "distance": 5 }] }, "animals": [], "stations": [{ "name": "crafting_table", "position": { "x": 1, "y": 64, "z": 0 } }], "craftable": [], "recipeHints": [], "recentFailures": [], "recentExploration": [] },
+      "action": { "action": "mine", "resource": "stone", "count": 3 }
+    },
+    {
+      "id": "recovery-materials-04",
+      "scenario": "三块生铁待熔炼，燃料已经耗尽，附近有暴露煤矿。",
+      "provenance": "synthetic; hand-authored recovery planning scenario",
+      "rationale": "熔炼动作需要足量燃料。先采集可达煤炭，再运行熔炼；当前不应重复尝试已失败的熔炼。",
+      "state": { "mode": "survival", "health": 19, "food": 16, "inventory": [{ "name": "raw_iron", "count": 3 }], "threats": [], "hazards": [], "resources": { "coal": [{ "name": "coal_ore", "position": { "x": 6, "y": 48, "z": 3 }, "distance": 8 }] }, "animals": [], "stations": [{ "name": "furnace", "position": { "x": 0, "y": 64, "z": 1 } }], "craftable": [], "recipeHints": [], "recentFailures": [{ "action": { "action": "smelt", "item": "raw_iron", "count": 3 }, "error": "Need sufficient coal, charcoal, or planks fuel" }], "recentExploration": [] },
+      "action": { "action": "mine", "resource": "coal", "count": 3 }
+    },
+    {
+      "id": "recovery-materials-05",
+      "scenario": "背包有原铁矿石但没有燃料；附近煤炭资源已被确认。",
+      "provenance": "synthetic; hand-authored recovery planning scenario",
+      "rationale": "煤矿位置已经可见且可达，先补充燃料，避免浪费一次无效熔炼调用。",
+      "state": { "mode": "survival", "health": 18, "food": 16, "inventory": [{ "name": "iron_ore", "count": 2 }], "threats": [], "hazards": [], "resources": { "coal": [{ "name": "coal_ore", "position": { "x": -4, "y": 32, "z": 6 }, "distance": 7 }] }, "animals": [], "stations": [{ "name": "furnace", "position": { "x": 0, "y": 64, "z": 0 } }], "craftable": [], "recipeHints": [], "recentFailures": [], "recentExploration": [] },
+      "action": { "action": "mine", "resource": "coal", "count": 2 }
+    },
+    {
+      "id": "recovery-materials-06",
+      "scenario": "建门材料只差打火石，已发现附近暴露的沙砾。",
+      "provenance": "synthetic; hand-authored recovery planning scenario",
+      "rationale": "缺少燧石时采集已知沙砾是直接补给途径；先获取材料，再按配方制作打火石与钢。",
+      "state": { "mode": "survival", "health": 17, "food": 14, "inventory": [{ "name": "obsidian", "count": 10 }, { "name": "iron_ingot", "count": 1 }], "threats": [], "hazards": [], "resources": { "gravel": [{ "name": "gravel", "position": { "x": 3, "y": 64, "z": 5 }, "distance": 6 }] }, "animals": [], "stations": [{ "name": "crafting_table", "position": { "x": 0, "y": 64, "z": 1 } }], "craftable": [], "recipeHints": [], "recentFailures": [], "recentExploration": [] },
+      "action": { "action": "mine", "resource": "gravel", "count": 3 }
+    },
+    {
+      "id": "recovery-materials-07",
+      "scenario": "手中只有木镐，附近有圆石；不要直接去挖铁矿。",
+      "provenance": "synthetic; hand-authored recovery planning scenario",
+      "rationale": "木镐不能开采铁矿。先采圆石并用库存木板和木棍制作石镐，满足工具等级后再采铁。",
+      "state": { "mode": "survival", "health": 20, "food": 19, "inventory": [{ "name": "wooden_pickaxe", "count": 1 }, { "name": "oak_planks", "count": 4 }, { "name": "stick", "count": 2 }], "threats": [], "hazards": [], "resources": { "stone": [{ "name": "cobblestone", "position": { "x": 4, "y": 62, "z": 1 }, "distance": 5 }], "iron": [{ "name": "iron_ore", "position": { "x": 8, "y": 42, "z": 0 }, "distance": 10 }] }, "animals": [], "stations": [{ "name": "crafting_table", "position": { "x": 0, "y": 64, "z": 0 } }], "craftable": [], "recipeHints": [], "recentFailures": [], "recentExploration": [] },
+      "action": { "action": "mine", "resource": "stone", "count": 3 }
+    },
+    {
+      "id": "recovery-materials-08",
+      "scenario": "圆石足够制作石镐，但背包没有木板、木棍已备齐。",
+      "provenance": "synthetic; hand-authored recovery planning scenario",
+      "rationale": "只补配方实际缺少的木材；附近已有可达原木，采一根即可，不重复挖矿。",
+      "state": { "mode": "survival", "health": 20, "food": 18, "inventory": [{ "name": "cobblestone", "count": 8 }, { "name": "stick", "count": 2 }], "threats": [], "hazards": [], "resources": { "wood": [{ "name": "spruce_log", "position": { "x": -3, "y": 64, "z": 5 }, "distance": 6 }] }, "animals": [], "stations": [{ "name": "crafting_table", "position": { "x": 0, "y": 64, "z": 0 } }], "craftable": [], "recipeHints": [{ "item": "stone_pickaxe", "missing": [{ "name": "spruce_planks", "count": 2 }], "oneRecipeExample": true }], "recentFailures": [], "recentExploration": [] },
+      "action": { "action": "gather_wood", "count": 1 }
+    },
+    {
+      "id": "recovery-correction-01",
+      "scenario": "上一次采木失败：目标原木不可达；另一侧有低矮原木，原地安全。",
+      "provenance": "synthetic; hand-authored recovery planning scenario",
+      "rationale": "不要重试同一不可达目标。附近新目标可达且没有威胁，先采一根原木。",
+      "state": { "mode": "survival", "health": 20, "food": 17, "inventory": [], "threats": [], "hazards": [], "resources": { "wood": [{ "name": "birch_log", "position": { "x": 5, "y": 64, "z": 3 }, "distance": 6 }] }, "animals": [], "stations": [], "craftable": [], "recipeHints": [], "recentFailures": [{ "action": { "action": "gather_wood", "count": 2 }, "error": "No exposed reachable log" }], "recentExploration": [] },
+      "action": { "action": "gather_wood", "count": 1 }
+    },
+    {
+      "id": "recovery-correction-02",
+      "scenario": "刚才的铁矿开采因工具等级不足失败；已有圆石、木棍和工作台。",
+      "provenance": "synthetic; hand-authored recovery planning scenario",
+      "rationale": "先制作石镐作为工具升级，再重新评估铁矿；不要在错误工具条件下重复挖掘。",
+      "state": { "mode": "survival", "health": 19, "food": 15, "inventory": [{ "name": "wooden_pickaxe", "count": 1 }, { "name": "cobblestone", "count": 5 }, { "name": "stick", "count": 2 }], "threats": [], "hazards": [], "resources": { "iron": [{ "name": "iron_ore", "position": { "x": 3, "y": 42, "z": 2 }, "distance": 6 }] }, "animals": [], "stations": [{ "name": "crafting_table", "position": { "x": 0, "y": 64, "z": 0 } }], "craftable": [{ "item": "stone_pickaxe", "outputPerCraft": 1, "requiresTable": true }], "recipeHints": [], "recentFailures": [{ "action": { "action": "mine", "resource": "iron", "count": 2 }, "error": "Missing correct tool for iron_ore" }], "recentExploration": [] },
+      "action": { "action": "craft", "item": "stone_pickaxe", "count": 1 }
+    },
+    {
+      "id": "recovery-correction-03",
+      "scenario": "一次制作石剑失败，因为库存缺木棍；现有木板和工作台。",
+      "provenance": "synthetic; hand-authored recovery planning scenario",
+      "rationale": "依据失败原因补齐木棍配方材料。只有在补给后再制作石剑，避免重复失败动作。",
+      "state": { "mode": "survival", "health": 19, "food": 17, "inventory": [{ "name": "oak_planks", "count": 3 }, { "name": "cobblestone", "count": 2 }], "threats": [], "hazards": [], "resources": {}, "animals": [], "stations": [{ "name": "crafting_table", "position": { "x": 0, "y": 64, "z": 0 } }], "craftable": [{ "item": "stick", "outputPerCraft": 4, "requiresTable": false }], "recipeHints": [{ "item": "stone_sword", "missing": [{ "name": "stick", "count": 1 }], "oneRecipeExample": true }], "recentFailures": [{ "action": { "action": "craft", "item": "stone_sword", "count": 1 }, "error": "Missing ingredients for 1 stone_sword" }], "recentExploration": [] },
+      "action": { "action": "craft", "item": "stick", "count": 2 }
+    },
+    {
+      "id": "recovery-correction-04",
+      "scenario": "采集煤炭未获得任何物品，当前扫描的煤矿列表为空，南侧尚未探索。",
+      "provenance": "synthetic; hand-authored recovery planning scenario",
+      "rationale": "采集验证失败且当前资源为空，不能重复挖不存在的矿；转向近期未探索的区域寻找新矿脉。",
+      "state": { "mode": "survival", "health": 18, "food": 15, "inventory": [{ "name": "stone_pickaxe", "count": 1 }], "threats": [], "hazards": [], "resources": { "coal": [] }, "animals": [], "stations": [], "craftable": [], "recipeHints": [], "recentFailures": [{ "action": { "action": "mine", "resource": "coal", "count": 2 }, "error": "No inventory gain; no exposed reachable resource" }], "recentExploration": [{ "direction": "north", "moved": 14 }, { "direction": "east", "moved": 12 }] },
+      "action": { "action": "explore", "direction": "south", "distance": 20 }
+    },
+    {
+      "id": "recovery-correction-05",
+      "scenario": "同一方向的探索连续两次位移不足，东南方向未曾走过且无威胁。",
+      "provenance": "synthetic; hand-authored recovery planning scenario",
+      "rationale": "使用近期失败和探索记录排除无效方向，改走未探索的东南方向。",
+      "state": { "mode": "survival", "health": 20, "food": 14, "inventory": [], "threats": [], "hazards": [], "resources": { "wood": [], "stone": [], "coal": [] }, "animals": [], "stations": [], "craftable": [], "recipeHints": [], "recentFailures": [{ "action": { "action": "explore", "direction": "east", "distance": 16 }, "error": "Exploration did not produce meaningful displacement" }], "recentExploration": [{ "direction": "east", "moved": 2 }, { "direction": "northeast", "moved": 3 }] },
+      "action": { "action": "explore", "direction": "southeast", "distance": 24 }
+    },
+    {
+      "id": "recovery-correction-06",
+      "scenario": "熔炼失败提示燃料不足；背包现在有两块生铁和足量煤，附近已有熔炉。",
+      "provenance": "synthetic; hand-authored recovery planning scenario",
+      "rationale": "已补足此前缺少的燃料，且原料和熔炉可用；重试匹配配方，不改做无关工具。",
+      "state": { "mode": "survival", "health": 20, "food": 18, "inventory": [{ "name": "raw_iron", "count": 2 }, { "name": "coal", "count": 2 }], "threats": [], "hazards": [], "resources": {}, "animals": [], "stations": [{ "name": "furnace", "position": { "x": 1, "y": 64, "z": 0 } }], "craftable": [], "recipeHints": [], "recentFailures": [{ "action": { "action": "smelt", "item": "raw_iron", "count": 2 }, "error": "Need sufficient coal, charcoal, or planks fuel" }], "recentExploration": [] },
+      "action": { "action": "smelt", "item": "raw_iron", "count": 2 }
+    },
+    {
+      "id": "recovery-correction-07",
+      "scenario": "上次制作木镐因未有工作台而失败；现已取得工作台方块且木板与木棍足够。",
+      "provenance": "synthetic; hand-authored recovery planning scenario",
+      "rationale": "失败条件已经变化且材料和工作台均存在，重新尝试可行配方，不要重复采集同样材料。",
+      "state": { "mode": "survival", "health": 20, "food": 18, "inventory": [{ "name": "oak_planks", "count": 3 }, { "name": "stick", "count": 2 }, { "name": "crafting_table", "count": 1 }], "threats": [], "hazards": [], "resources": {}, "animals": [], "stations": [{ "name": "crafting_table", "position": { "x": 0, "y": 64, "z": 1 } }], "craftable": [{ "item": "wooden_pickaxe", "outputPerCraft": 1, "requiresTable": true }], "recipeHints": [], "recentFailures": [{ "action": { "action": "craft", "item": "wooden_pickaxe", "count": 1 }, "error": "Missing crafting table" }], "recentExploration": [] },
+      "action": { "action": "craft", "item": "wooden_pickaxe", "count": 1 }
+    },
+    {
+      "id": "recovery-correction-08",
+      "scenario": "上次追逐动物没有获得肉，动物已离开；当前有充足面包且饥饿度低。",
+      "provenance": "synthetic; hand-authored recovery planning scenario",
+      "rationale": "饥饿状态优先使用已拥有的安全食物恢复，不重试已消失的动物目标。",
+      "state": { "mode": "survival", "health": 13, "food": 4, "inventory": [{ "name": "bread", "count": 2 }], "threats": [], "hazards": [], "resources": {}, "animals": [], "stations": [], "craftable": [], "recipeHints": [], "recentFailures": [{ "action": { "action": "hunt", "count": 1 }, "error": "No nearby passive animals; explore" }], "recentExploration": [] },
+      "action": { "action": "eat" }
+    },
+    {
+      "id": "recovery-correction-09",
+      "scenario": "石料列表为空，上一轮在北侧挖矿没有收益；西侧尚未探索。",
+      "provenance": "synthetic; hand-authored recovery planning scenario",
+      "rationale": "根据实际扫描与挖掘失败转移方向探索，等待新区域的资源观察结果后再决定采矿。",
+      "state": { "mode": "survival", "health": 18, "food": 13, "inventory": [{ "name": "wooden_pickaxe", "count": 1 }], "threats": [], "hazards": [], "resources": { "stone": [] }, "animals": [], "stations": [], "craftable": [], "recipeHints": [], "recentFailures": [{ "action": { "action": "mine", "resource": "stone", "count": 4 }, "error": "No inventory gain" }], "recentExploration": [{ "direction": "north", "moved": 15 }] },
+      "action": { "action": "explore", "direction": "west", "distance": 20 }
+    },
+    {
+      "id": "recovery-station-01",
+      "scenario": "已有工作台方块，制作木镐所需原料齐全；不要再做一张工作台。",
+      "provenance": "synthetic; hand-authored recovery planning scenario",
+      "rationale": "当前工作台位置已观测到，且完整配方可制作，直接制作目标工具并保留木板。",
+      "state": { "mode": "survival", "health": 20, "food": 18, "inventory": [{ "name": "oak_planks", "count": 5 }, { "name": "stick", "count": 3 }], "threats": [], "hazards": [], "resources": {}, "animals": [], "stations": [{ "name": "crafting_table", "position": { "x": 2, "y": 64, "z": 0 } }], "craftable": [{ "item": "wooden_pickaxe", "outputPerCraft": 1, "requiresTable": true }], "recipeHints": [], "recentFailures": [], "recentExploration": [] },
+      "action": { "action": "craft", "item": "wooden_pickaxe", "count": 1 }
+    },
+    {
+      "id": "recovery-station-02",
+      "scenario": "背包已有一张工作台且现场又观测到已放置工作台，缺少木棍。",
+      "provenance": "synthetic; hand-authored recovery planning scenario",
+      "rationale": "两处工作台证据均表明无需再制作；先用现有木板制作缺失的木棍。",
+      "state": { "mode": "survival", "health": 20, "food": 18, "inventory": [{ "name": "crafting_table", "count": 1 }, { "name": "oak_planks", "count": 4 }], "threats": [], "hazards": [], "resources": {}, "animals": [], "stations": [{ "name": "crafting_table", "position": { "x": 1, "y": 64, "z": 0 } }], "craftable": [{ "item": "stick", "outputPerCraft": 4, "requiresTable": false }], "recipeHints": [], "recentFailures": [], "recentExploration": [] },
+      "action": { "action": "craft", "item": "stick", "count": 4 }
+    },
+    {
+      "id": "recovery-station-03",
+      "scenario": "附近已有熔炉，背包有生铁与足量煤，不应再次制作熔炉。",
+      "provenance": "synthetic; hand-authored recovery planning scenario",
+      "rationale": "可直接使用已观察到的熔炉和现有输入、燃料，不消耗额外圆石制作重复设备。",
+      "state": { "mode": "survival", "health": 19, "food": 16, "inventory": [{ "name": "raw_iron", "count": 3 }, { "name": "coal", "count": 2 }], "threats": [], "hazards": [], "resources": {}, "animals": [], "stations": [{ "name": "furnace", "position": { "x": 1, "y": 64, "z": 0 } }], "craftable": [], "recipeHints": [], "recentFailures": [], "recentExploration": [] },
+      "action": { "action": "smelt", "item": "raw_iron", "count": 3 }
+    },
+    {
+      "id": "recovery-station-04",
+      "scenario": "背包和附近都已有工作台；四块木板已够制作工作台，但真正缺的是木镐。",
+      "provenance": "synthetic; hand-authored recovery planning scenario",
+      "rationale": "目标应沿工具进度推进。工作台重复制作没有收益，直接制作缺失木镐。",
+      "state": { "mode": "survival", "health": 20, "food": 19, "inventory": [{ "name": "oak_planks", "count": 4 }, { "name": "stick", "count": 2 }], "threats": [], "hazards": [], "resources": {}, "animals": [], "stations": [{ "name": "crafting_table", "position": { "x": -1, "y": 64, "z": 0 } }], "craftable": [{ "item": "wooden_pickaxe", "outputPerCraft": 1, "requiresTable": true }], "recipeHints": [], "recentFailures": [], "recentExploration": [] },
+      "action": { "action": "craft", "item": "wooden_pickaxe", "count": 1 }
+    },
+    {
+      "id": "recovery-station-05",
+      "scenario": "已经制作石镐且有煤矿位置，升级目标应该继续到铁，而不是重复制石镐。",
+      "provenance": "synthetic; hand-authored recovery planning scenario",
+      "rationale": "库存已有可用石镐，铁矿位置已观测且满足最低工具等级，继续采铁推进进度。",
+      "state": { "mode": "survival", "health": 19, "food": 15, "inventory": [{ "name": "stone_pickaxe", "count": 1 }], "threats": [], "hazards": [], "resources": { "iron": [{ "name": "iron_ore", "position": { "x": 5, "y": 24, "z": -2 }, "distance": 7 }] }, "animals": [], "stations": [{ "name": "crafting_table", "position": { "x": 0, "y": 64, "z": 0 } }], "craftable": [], "recipeHints": [], "recentFailures": [], "recentExploration": [] },
+      "action": { "action": "mine", "resource": "iron", "count": 3 }
+    },
+    {
+      "id": "recovery-station-06",
+      "scenario": "背包已有铁镐和钻石矿，附近工作台无关；不需要再做铁镐。",
+      "provenance": "synthetic; hand-authored recovery planning scenario",
+      "rationale": "库存中工具等级已满足钻石开采要求且矿石已确认，直接采集少量钻石。",
+      "state": { "mode": "survival", "health": 18, "food": 14, "inventory": [{ "name": "iron_pickaxe", "count": 1 }], "threats": [], "hazards": [], "resources": { "diamond": [{ "name": "diamond_ore", "position": { "x": -2, "y": -52, "z": 4 }, "distance": 6 }] }, "animals": [], "stations": [{ "name": "crafting_table", "position": { "x": 0, "y": 64, "z": 0 } }], "craftable": [], "recipeHints": [], "recentFailures": [], "recentExploration": [] },
+      "action": { "action": "mine", "resource": "diamond", "count": 2 }
+    },
+    {
+      "id": "recovery-station-07",
+      "scenario": "背包有足够黑曜石和已制作打火石，附近无已建传送门。",
+      "provenance": "synthetic; hand-authored recovery planning scenario",
+      "rationale": "所有传送门材料与点火工具已齐备，继续建造目标，不再采集或重复制作已拥有物品。",
+      "state": { "mode": "survival", "health": 20, "food": 16, "inventory": [{ "name": "obsidian", "count": 10 }, { "name": "flint_and_steel", "count": 1 }, { "name": "cobblestone", "count": 4 }], "threats": [], "hazards": [], "resources": {}, "animals": [], "stations": [{ "name": "crafting_table", "position": { "x": 0, "y": 64, "z": 1 } }], "craftable": [], "recipeHints": [], "recentFailures": [], "recentExploration": [] },
+      "action": { "action": "build_portal" }
+    },
+    {
+      "id": "recovery-station-08",
+      "scenario": "传送门已经在附近观测到，背包材料足够但进入下界尚未验证。",
+      "provenance": "synthetic; hand-authored recovery planning scenario",
+      "rationale": "世界中已存在传送门，选择进入并等待维度变化验证；不再构建第二座门。",
+      "state": { "mode": "survival", "health": 20, "food": 15, "inventory": [{ "name": "flint_and_steel", "count": 1 }], "threats": [], "hazards": [], "resources": {}, "animals": [], "stations": [{ "name": "nether_portal", "position": { "x": 5, "y": 64, "z": 2 } }], "craftable": [], "recipeHints": [], "recentFailures": [], "recentExploration": [] },
+      "action": { "action": "enter_portal" }
+    },
+    {
+      "id": "recovery-food-01",
+      "scenario": "饥饿度降至三格，背包有面包且附近安全。",
+      "provenance": "synthetic; hand-authored recovery planning scenario",
+      "rationale": "低饥饿且安全食物已在背包，应先恢复饥饿值，再继续探索或采集。",
+      "state": { "mode": "survival", "health": 15, "food": 6, "inventory": [{ "name": "bread", "count": 2 }], "threats": [], "hazards": [], "resources": { "wood": [{ "name": "oak_log", "position": { "x": 8, "y": 64, "z": 2 }, "distance": 9 }] }, "animals": [{ "name": "cow", "distance": 12 }], "stations": [], "craftable": [], "recipeHints": [], "recentFailures": [], "recentExploration": [] },
+      "action": { "action": "eat" }
+    },
+    {
+      "id": "recovery-food-02",
+      "scenario": "生命值偏低且饥饿度仅四格；背包有熟牛肉，无敌对生物。",
+      "provenance": "synthetic; hand-authored recovery planning scenario",
+      "rationale": "食物能恢复饥饿并允许自然回血，当前没有威胁阻止进食，先使用已有熟食。",
+      "state": { "mode": "survival", "health": 8, "food": 8, "inventory": [{ "name": "cooked_beef", "count": 2 }], "threats": [], "hazards": [], "resources": {}, "animals": [], "stations": [], "craftable": [], "recipeHints": [], "recentFailures": [], "recentExploration": [] },
+      "action": { "action": "eat" }
+    },
+    {
+      "id": "recovery-food-03",
+      "scenario": "饥饿很低，唯一可用食物是苹果；不要把它留作非必要囤积。",
+      "provenance": "synthetic; hand-authored recovery planning scenario",
+      "rationale": "苹果在安全食物清单中，且当前食物值极低，先吃现有食物比继续探索安全。",
+      "state": { "mode": "survival", "health": 12, "food": 3, "inventory": [{ "name": "apple", "count": 1 }], "threats": [], "hazards": [], "resources": {}, "animals": [{ "name": "pig", "distance": 7 }], "stations": [], "craftable": [], "recipeHints": [], "recentFailures": [], "recentExploration": [] },
+      "action": { "action": "eat" }
+    },
+    {
+      "id": "recovery-food-04",
+      "scenario": "饥饿度为二，背包有胡萝卜和熟鸡肉；附近有敌对怪物。",
+      "provenance": "synthetic; hand-authored recovery planning scenario",
+      "rationale": "附近敌人优先撤离，避免站立进食暴露在威胁范围内；离开威胁后再使用食物。",
+      "state": { "mode": "survival", "health": 7, "food": 4, "inventory": [{ "name": "carrot", "count": 3 }, { "name": "cooked_chicken", "count": 1 }], "threats": [{ "name": "zombie", "distance": 5, "position": { "x": 4, "y": 64, "z": 0 } }], "hazards": [], "resources": {}, "animals": [], "stations": [], "craftable": [], "recipeHints": [], "recentFailures": [], "recentExploration": [] },
+      "action": { "action": "flee" }
+    },
+    {
+      "id": "recovery-food-05",
+      "scenario": "低饥饿但没有任何安全食物；近处有一只可见被动动物且无威胁。",
+      "provenance": "synthetic; hand-authored recovery planning scenario",
+      "rationale": "背包无食物，无法执行eat；已有近处猎物可提供可验证肉类，先获取最低所需补给。",
+      "state": { "mode": "survival", "health": 12, "food": 3, "inventory": [], "threats": [], "hazards": [], "resources": {}, "animals": [{ "name": "cow", "distance": 5 }, { "name": "sheep", "distance": 12 }], "stations": [], "craftable": [], "recipeHints": [], "recentFailures": [], "recentExploration": [] },
+      "action": { "action": "hunt", "count": 1 }
+    },
+    {
+      "id": "recovery-food-06",
+      "scenario": "饥饿度低、背包无食物且附近没有被动动物；西侧是未探索的林地。",
+      "provenance": "synthetic; hand-authored recovery planning scenario",
+      "rationale": "无法直接进食或狩猎，选择近期未探索的安全方向寻找补给；当前状态未报告敌人或危险地形。",
+      "state": { "mode": "survival", "health": 10, "food": 4, "inventory": [], "threats": [], "hazards": [], "resources": {}, "animals": [], "stations": [], "craftable": [], "recipeHints": [], "recentFailures": [{ "action": { "action": "hunt", "count": 1 }, "error": "No nearby passive animals; explore" }], "recentExploration": [{ "direction": "north", "moved": 11 }, { "direction": "east", "moved": 9 }] },
+      "action": { "action": "explore", "direction": "west", "distance": 12 }
+    },
+    {
+      "id": "recovery-food-07",
+      "scenario": "饥饿度四，库存有甜浆果；附近敌人已被安全系统标出。",
+      "provenance": "synthetic; hand-authored recovery planning scenario",
+      "rationale": "先撤出敌人附近，保持安全反射优先级；威胁解除后再食用库存甜浆果。",
+      "state": { "mode": "survival", "health": 11, "food": 5, "inventory": [{ "name": "sweet_berries", "count": 5 }], "threats": [{ "name": "skeleton", "distance": 8, "position": { "x": -5, "y": 64, "z": 2 } }], "hazards": [], "resources": {}, "animals": [], "stations": [], "craftable": [], "recipeHints": [], "recentFailures": [], "recentExploration": [] },
+      "action": { "action": "flee" }
+    },
+    {
+      "id": "recovery-food-08",
+      "scenario": "饥饿度只有五，背包有烤土豆；可达煤矿不需要立刻处理。",
+      "provenance": "synthetic; hand-authored recovery planning scenario",
+      "rationale": "先处理低饥饿状态以降低继续移动和采矿风险，再回到资源规划。",
+      "state": { "mode": "survival", "health": 16, "food": 5, "inventory": [{ "name": "baked_potato", "count": 3 }], "threats": [], "hazards": [], "resources": { "coal": [{ "name": "coal_ore", "position": { "x": 2, "y": 42, "z": 4 }, "distance": 7 }] }, "animals": [], "stations": [], "craftable": [], "recipeHints": [], "recentFailures": [], "recentExploration": [] },
+      "action": { "action": "eat" }
+    },
+    {
+      "id": "recovery-resources-01",
+      "scenario": "煤矿扫描为空且最近一次采煤没有收益，北侧和东侧已经探索。",
+      "provenance": "synthetic; hand-authored recovery planning scenario",
+      "rationale": "不要重复挖当前不存在的煤。选择未探索的西南方向搜索新矿区，再根据新观察决定采集。",
+      "state": { "mode": "survival", "health": 19, "food": 14, "inventory": [{ "name": "stone_pickaxe", "count": 1 }], "threats": [], "hazards": [], "resources": { "coal": [] }, "animals": [], "stations": [], "craftable": [], "recipeHints": [], "recentFailures": [{ "action": { "action": "mine", "resource": "coal", "count": 4 }, "error": "No inventory gain" }], "recentExploration": [{ "direction": "north", "moved": 20 }, { "direction": "east", "moved": 17 }] },
+      "action": { "action": "explore", "direction": "southwest", "distance": 24 }
+    },
+    {
+      "id": "recovery-resources-02",
+      "scenario": "钻石矿列表为空，最近一次尝试未找到任何可挖钻石；西侧尚未探索。",
+      "provenance": "synthetic; hand-authored recovery planning scenario",
+      "rationale": "工具等级足够但当前没有矿体证据，应换区域寻找而不是原地反复挖掘。",
+      "state": { "mode": "survival", "health": 18, "food": 12, "inventory": [{ "name": "iron_pickaxe", "count": 1 }], "threats": [], "hazards": [], "resources": { "diamond": [] }, "animals": [], "stations": [], "craftable": [], "recipeHints": [], "recentFailures": [{ "action": { "action": "mine", "resource": "diamond", "count": 2 }, "error": "No exposed reachable resource" }], "recentExploration": [{ "direction": "north", "moved": 20 }, { "direction": "east", "moved": 15 }] },
+      "action": { "action": "explore", "direction": "west", "distance": 28 }
+    },
+    {
+      "id": "recovery-resources-03",
+      "scenario": "铁矿扫描为空，北侧刚刚探索，当前未装备铁镐但石镐可用。",
+      "provenance": "synthetic; hand-authored recovery planning scenario",
+      "rationale": "当前无矿体可采且现有石镐足以采铁，先换方向寻找；不虚构铁矿坐标或重复制造工具。",
+      "state": { "mode": "survival", "health": 20, "food": 17, "inventory": [{ "name": "stone_pickaxe", "count": 1 }], "threats": [], "hazards": [], "resources": { "iron": [] }, "animals": [], "stations": [], "craftable": [], "recipeHints": [], "recentFailures": [], "recentExploration": [{ "direction": "north", "moved": 18 }] },
+      "action": { "action": "explore", "direction": "east", "distance": 24 }
+    },
+    {
+      "id": "recovery-resources-04",
+      "scenario": "木材扫描为空，刚在东侧遇到不可达高树；南侧尚未探索。",
+      "provenance": "synthetic; hand-authored recovery planning scenario",
+      "rationale": "不要重试不可达高树，也没有当前可达木材；转向新区域寻找较低原木。",
+      "state": { "mode": "survival", "health": 20, "food": 16, "inventory": [], "threats": [], "hazards": [], "resources": { "wood": [] }, "animals": [], "stations": [], "craftable": [], "recipeHints": [], "recentFailures": [{ "action": { "action": "gather_wood", "count": 2 }, "error": "Unsupported high tree log" }], "recentExploration": [{ "direction": "east", "moved": 13 }] },
+      "action": { "action": "explore", "direction": "south", "distance": 18 }
+    },
+    {
+      "id": "recovery-resources-05",
+      "scenario": "周边沙砾耗尽，近期在北边反复检查过；东南方向尚未探索。",
+      "provenance": "synthetic; hand-authored recovery planning scenario",
+      "rationale": "没有已确认沙砾，不能假定挖掘成功；改走新方向刷新区域观察。",
+      "state": { "mode": "survival", "health": 20, "food": 14, "inventory": [{ "name": "iron_ingot", "count": 1 }], "threats": [], "hazards": [], "resources": { "gravel": [] }, "animals": [], "stations": [], "craftable": [], "recipeHints": [], "recentFailures": [], "recentExploration": [{ "direction": "north", "moved": 20 }] },
+      "action": { "action": "explore", "direction": "southeast", "distance": 24 }
+    },
+    {
+      "id": "recovery-resources-06",
+      "scenario": "唯一已知铁矿被危险岩浆包围，西南方向有安全但未知区域。",
+      "provenance": "synthetic; hand-authored recovery planning scenario",
+      "rationale": "危险地形会使技能的安全检查拒绝采矿。放弃该矿点并探索安全方向，不能冒险挖掘。",
+      "state": { "mode": "survival", "health": 18, "food": 15, "inventory": [{ "name": "stone_pickaxe", "count": 1 }], "threats": [], "hazards": [{ "name": "lava", "position": { "x": 3, "y": 32, "z": 3 } }], "resources": { "iron": [{ "name": "iron_ore", "position": { "x": 2, "y": 32, "z": 2 }, "distance": 5 }] }, "animals": [], "stations": [], "craftable": [], "recipeHints": [], "recentFailures": [{ "action": { "action": "mine", "resource": "iron", "count": 2 }, "error": "Unsafe or hazardous block" }], "recentExploration": [{ "direction": "north", "moved": 12 }] },
+      "action": { "action": "explore", "direction": "southwest", "distance": 20 }
+    },
+    {
+      "id": "recovery-resources-07",
+      "scenario": "附近有两只僵尸并且煤矿只有一块，先不要为燃料采矿。",
+      "provenance": "synthetic; hand-authored recovery planning scenario",
+      "rationale": "威胁优先级高于补给和采矿；撤离敌人后再检查燃料状态。",
+      "state": { "mode": "survival", "health": 9, "food": 10, "inventory": [{ "name": "stone_pickaxe", "count": 1 }], "threats": [{ "name": "zombie", "distance": 7, "position": { "x": 5, "y": 64, "z": 0 } }, { "name": "skeleton", "distance": 11, "position": { "x": -6, "y": 64, "z": 3 } }], "hazards": [], "resources": { "coal": [{ "name": "coal_ore", "position": { "x": 2, "y": 40, "z": 1 }, "distance": 4 }] }, "animals": [], "stations": [], "craftable": [], "recipeHints": [], "recentFailures": [], "recentExploration": [] },
+      "action": { "action": "flee" }
+    },
+    {
+      "id": "recovery-resources-08",
+      "scenario": "最近一次东向探索被悬崖阻挡，煤矿列表仍为空；西北方向安全可行。",
+      "provenance": "synthetic; hand-authored recovery planning scenario",
+      "rationale": "方向失败不代表任务结束；依据失败和地形安全信息改用未阻挡方向寻找矿物。",
+      "state": { "mode": "survival", "health": 17, "food": 13, "inventory": [{ "name": "stone_pickaxe", "count": 1 }], "threats": [], "hazards": [], "resources": { "coal": [] }, "animals": [], "stations": [], "craftable": [], "recipeHints": [], "recentFailures": [{ "action": { "action": "explore", "direction": "east", "distance": 24 }, "error": "Exploration did not produce meaningful displacement; cliff" }], "recentExploration": [{ "direction": "south", "moved": 12 }] },
+      "action": { "action": "explore", "direction": "northwest", "distance": 20 }
+    },
+    {
+      "id": "recovery-safety-01",
+      "scenario": "血量低于安全阈值，僵尸在十格内，背包有熟肉。",
+      "provenance": "synthetic; hand-authored recovery planning scenario",
+      "rationale": "敌人处于附近且安全技能在低血量下禁止非撤退动作，先远离威胁；食物留待安全后使用。",
+      "state": { "mode": "survival", "health": 5, "food": 7, "inventory": [{ "name": "cooked_beef", "count": 2 }], "threats": [{ "name": "zombie", "distance": 9, "position": { "x": 8, "y": 64, "z": 0 } }], "hazards": [], "resources": {}, "animals": [], "stations": [], "craftable": [], "recipeHints": [], "recentFailures": [], "recentExploration": [] },
+      "action": { "action": "flee" }
+    },
+    {
+      "id": "recovery-safety-02",
+      "scenario": "健康低但附近无敌人，背包有面包且饥饿未满。",
+      "provenance": "synthetic; hand-authored recovery planning scenario",
+      "rationale": "安全状态允许进食，已拥有面包，先补充饥饿以帮助自然回血，不去冒险寻找新食物。",
+      "state": { "mode": "survival", "health": 6, "food": 12, "inventory": [{ "name": "bread", "count": 1 }], "threats": [], "hazards": [], "resources": {}, "animals": [], "stations": [], "craftable": [], "recipeHints": [], "recentFailures": [], "recentExploration": [] },
+      "action": { "action": "eat" }
+    },
+    {
+      "id": "recovery-safety-03",
+      "scenario": "饥饿值偏低，安全食物已备好，但脚边是岩浆且危险检查已记录。",
+      "provenance": "synthetic; hand-authored recovery planning scenario",
+      "rationale": "脚边熔岩使站立和采集危险，沿已知远离熔岩的西侧探索到安全位置；不要执行默认向东的撤离方向。",
+      "state": { "mode": "survival", "health": 12, "food": 5, "inventory": [{ "name": "cooked_salmon", "count": 1 }], "threats": [], "hazards": [{ "name": "lava", "position": { "x": 1, "y": 63, "z": 0 } }], "resources": {}, "animals": [], "stations": [], "craftable": [], "recipeHints": [], "recentFailures": [], "recentExploration": [] },
+      "action": { "action": "explore", "direction": "west", "distance": 12 }
+    },
+    {
+      "id": "recovery-safety-04",
+      "scenario": "两只被动动物在视线范围外，库存无食物，饥饿值低但附近安全。",
+      "provenance": "synthetic; hand-authored recovery planning scenario",
+      "rationale": "没有可用食物可吃，安全技能也不会盲目追击视线外猎物。先探索到新视野和补给区域，再按真实观察选择狩猎。",
+      "state": { "mode": "survival", "health": 14, "food": 6, "inventory": [], "threats": [], "hazards": [], "resources": {}, "animals": [], "stations": [], "craftable": [], "recipeHints": [], "recentFailures": [{ "action": { "action": "hunt", "count": 1 }, "error": "No nearby passive animals" }], "recentExploration": [{ "direction": "west", "moved": 13 }] },
+      "action": { "action": "explore", "direction": "northeast", "distance": 12 }
+    },
+    {
+      "id": "recovery-water-01",
+      "scenario": "制作下界门还缺黑曜石，背包有空桶，近处观察到安全岸边的水源。",
+      "provenance": "synthetic; hand-authored recovery planning scenario",
+      "rationale": "水源明确可见且背包有空桶，先收集水桶，为后续在安全熔岩边将水恢复成水桶创造条件。",
+      "state": { "mode": "survival", "dimension": "overworld", "health": 18, "food": 15, "inventory": [{ "name": "bucket", "count": 1 }, { "name": "iron_pickaxe", "count": 1 }], "threats": [], "hazards": [], "fluids": { "water": [{ "position": { "x": 4, "y": 62, "z": -1 }, "distance": 3 }], "lava": [] }, "resources": { "obsidian": [] }, "animals": [], "stations": [], "craftable": [], "recipeHints": [], "recentFailures": [], "recentExploration": [] },
+      "action": { "action": "collect_water" }
+    },
+    {
+      "id": "recovery-water-02",
+      "scenario": "收集水失败，因为没有可达水源；最近探索过北侧，南侧未查找。",
+      "provenance": "synthetic; hand-authored recovery planning scenario",
+      "rationale": "当前流体扫描没有安全水源，不能重复调用同一失败动作；转向新区域寻找河岸。",
+      "state": { "mode": "survival", "dimension": "overworld", "health": 20, "food": 14, "inventory": [{ "name": "bucket", "count": 1 }], "threats": [], "hazards": [], "fluids": { "water": [], "lava": [] }, "resources": {}, "animals": [], "stations": [], "craftable": [], "recipeHints": [], "recentFailures": [{ "action": { "action": "collect_water" }, "error": "No safely reachable water source with a dry bank" }], "recentExploration": [{ "direction": "north", "moved": 16 }] },
+      "action": { "action": "explore", "direction": "south", "distance": 20 }
+    },
+    {
+      "id": "recovery-water-03",
+      "scenario": "制作下界门缺黑曜石，已有水桶和钻石镐；可见安全岸边旁有熔岩源。",
+      "provenance": "synthetic; hand-authored recovery planning scenario",
+      "rationale": "在主世界且有已验证熔岩点时使用水桶可安全冷却熔岩获取黑曜石；不在下界放水。",
+      "state": { "mode": "survival", "dimension": "overworld", "health": 17, "food": 14, "inventory": [{ "name": "water_bucket", "count": 1 }, { "name": "diamond_pickaxe", "count": 1 }], "threats": [], "hazards": [], "fluids": { "water": [], "lava": [{ "position": { "x": 3, "y": 28, "z": 2 }, "distance": 4 }] }, "resources": { "obsidian": [] }, "animals": [], "stations": [], "craftable": [], "recipeHints": [], "recentFailures": [], "recentExploration": [] },
+      "action": { "action": "place_water" }
+    },
+    {
+      "id": "recovery-water-04",
+      "scenario": "当前位于下界，手持水桶且附近有熔岩；不能尝试放水。",
+      "provenance": "synthetic; hand-authored recovery planning scenario",
+      "rationale": "水会蒸发于下界，技能会拒绝该动作。选择撤离熔岩危险并重新评估可行路线。",
+      "state": { "mode": "survival", "dimension": "the_nether", "health": 16, "food": 13, "inventory": [{ "name": "water_bucket", "count": 1 }], "threats": [], "hazards": [{ "name": "lava", "position": { "x": 2, "y": 64, "z": 0 } }], "fluids": { "water": [], "lava": [{ "position": { "x": 2, "y": 64, "z": 0 }, "distance": 2 }] }, "resources": {}, "animals": [], "stations": [], "craftable": [], "recipeHints": [], "recentFailures": [{ "action": { "action": "place_water" }, "error": "Water evaporates in the Nether; placement refused" }], "recentExploration": [] },
+      "action": { "action": "flee" }
+    },
+    {
+      "id": "recovery-stair-01",
+      "scenario": "开阶梯上次因临近熔岩和未知支撑而被安全检查拒绝；东侧有已确认的可走通路。",
+      "provenance": "synthetic; hand-authored recovery planning scenario",
+      "rationale": "阶梯前置地形检查已拒绝该位置，不要反复开挖。使用已确认的安全通道离开障碍，再观察地下资源和地形。",
+      "state": { "mode": "survival", "position": { "x": 4, "y": 57, "z": -3 }, "health": 18, "food": 14, "inventory": [{ "name": "stone_pickaxe", "count": 1 }, { "name": "torch", "count": 2 }], "threats": [], "hazards": [{ "name": "lava", "position": { "x": 3, "y": 56, "z": -3 } }], "fluids": { "water": [], "lava": [{ "position": { "x": 3, "y": 56, "z": -3 }, "distance": 2 }] }, "resources": { "diamond": [], "iron": [] }, "animals": [], "stations": [], "craftable": [], "recipeHints": [], "recentFailures": [{ "action": { "action": "dig_staircase", "direction": "west", "steps": 8 }, "error": "Unsafe staircase: adjacent fluid, hazard, falling block, or unloaded terrain" }], "recentExploration": [] },
+      "action": { "action": "explore", "direction": "east", "distance": 12 }
+    },
+    {
+      "id": "recovery-stair-02",
+      "scenario": "阶梯开挖因饥饿值低于安全下限而拒绝；背包有熟猪肉且附近没有威胁。",
+      "provenance": "synthetic; hand-authored recovery planning scenario",
+      "rationale": "先通过已持有食物恢复饥饿，满足阶梯要求 food>=10 后再重新观察和计划。",
+      "state": { "mode": "survival", "position": { "x": 8, "y": 54, "z": 2 }, "health": 16, "food": 7, "inventory": [{ "name": "cooked_porkchop", "count": 2 }, { "name": "stone_pickaxe", "count": 1 }, { "name": "torch", "count": 2 }], "threats": [], "hazards": [], "fluids": { "water": [], "lava": [] }, "resources": {}, "animals": [], "stations": [], "craftable": [], "recipeHints": [], "recentFailures": [{ "action": { "action": "dig_staircase", "direction": "north", "steps": 4 }, "error": "Staircase requires health >= 12 and food >= 10" }], "recentExploration": [] },
+      "action": { "action": "eat" }
+    }
+  ]
+}

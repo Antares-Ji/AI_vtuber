@@ -1,0 +1,51 @@
+{
+  "capturedAt": 1792330607856,
+  "evidence": {
+    "goal": "由本地千问自主决策建立一个生存小家：房屋有床、箱子、火把，采集材料、制作工具、狩猎动物、烹饪并吃食物、浅矿采集后返回家。全部已注册动作均可选择，包括navigate、dig_block、place_block、attack_entity、sleep、container_transfer等；根据真实结果调整，不重复囤木。成功与失败以真实世界和库存证据为准。",
+    "currentSubgoal": "gather spruce_log at reachable location",
+    "action": {
+      "action": "gather_wood",
+      "count": 4
+    },
+    "outcome": "running",
+    "error": null,
+    "inventory": [
+      {
+        "name": "stick",
+        "count": 2
+      },
+      {
+        "name": "spruce_sapling",
+        "count": 2
+      },
+      {
+        "name": "wooden_pickaxe",
+        "count": 1
+      },
+      {
+        "name": "spruce_planks",
+        "count": 23
+      },
+      {
+        "name": "cobblestone",
+        "count": 1
+      },
+      {
+        "name": "spruce_log",
+        "count": 4
+      }
+    ],
+    "health": 14.768965721130371,
+    "food": 16,
+    "yolo": {
+      "scope": "COCO only, not trained for Minecraft",
+      "detections": []
+    }
+  },
+  "speech": "正往云杉树那边走呢，背包里已经有四块原木了，等真砍到手再算数。",
+  "model": "deepseek-flash",
+  "provider": "cloud",
+  "visionModel": "qwen3.5-4b",
+  "visualObservation": "画面显示一个分叉的树状结构，包含三个标有“YW-2”、“YW-3”、“YW-4”的节点。",
+  "expired": false
+}

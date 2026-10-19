@@ -1,0 +1,26 @@
+{
+  "capturedAt": 1791986160030,
+  "evidence": {
+    "goal": "制作一把铁镐。由本地千问自主调整中间计划，最终以背包出现 iron_pickaxe 为验收。",
+    "currentSubgoal": "采集云杉原木制作工作台",
+    "action": {
+      "action": "gather_wood",
+      "count": 4
+    },
+    "outcome": "running",
+    "error": null,
+    "inventory": [],
+    "health": 20,
+    "food": 20,
+    "yolo": {
+      "scope": "COCO only, not trained for Minecraft",
+      "detections": []
+    }
+  },
+  "speech": "雨还没停，我正试着砍四块云杉原木，先把工作台做出来。背包还是空的，木头一根都还没到手呢。",
+  "model": "deepseek-flash",
+  "provider": "cloud",
+  "visionModel": "qwen3.5-4b",
+  "visualObservation": "雨中的像素化森林地形，可见树木、草地和天空。",
+  "expired": false
+}

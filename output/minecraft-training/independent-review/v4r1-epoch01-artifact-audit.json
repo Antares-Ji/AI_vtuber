@@ -1,0 +1,33 @@
+{
+  "at": "2026-10-12T20:40:15.572Z",
+  "method": "Node raw safetensors F32 CPU-only independent parser; no torch/model load or endpoint requests",
+  "weightsPath": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01\\adapter_model.safetensors",
+  "weightHash": "48bbd148184987a3abdcf2a3e193c61690d36b1f078ce70e18ac62f395d7e14b",
+  "resumeWeightHash": "8a0a340c52e678db3835397096b1058c2e909aa31718d853de61dcdcd0ea82af",
+  "allFinite": true,
+  "totalParameters": 5308416,
+  "tensorCount": 256,
+  "nonzeroBTensors": 128,
+  "rootAuditTensorMismatches": [],
+  "changedTensorsFromResume": 256,
+  "changedValuesFromResume": 5308410,
+  "finalAndEpochWeightIdentical": true,
+  "trainingDataHash": "9f76783df423a873e0d4387763a0b5dec10d8c1a8e3fc0517dd924be3cc032fe",
+  "trainingDataHashMatchesReport": true,
+  "trainingRows": 182,
+  "reportResumePath": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v3r1-fresh-base\\checkpoint-epoch-02",
+  "resumePathMatchesExpected": true,
+  "initialization": "continued_from_adapter",
+  "rank": 4,
+  "baseModel": "E:\\Qwen3.5-4B",
+  "learningRate": 0.00001,
+  "epochs": 1,
+  "optimizerSteps": 46,
+  "elapsedSeconds": 336.3,
+  "trainingScriptCurrentHash": "79251a053cc61ffb7a10c266ad9ba325239730fabb0349583cbc3f6c492910ec",
+  "limitations": [
+    "Config records base model, not resume lineage; lineage is supported by report and training code branch, not recoverable from output tensors alone.",
+    "Current training script hash is report-time; no immutable pre-run script hash is present in training-report.",
+    "Training loss is not capability. Audit health error is endpoint offline and not proof of adapter loading; actual completion metadata required."
+  ]
+}

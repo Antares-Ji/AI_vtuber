@@ -14,6 +14,8 @@ function getLocalLlmConfig() {
 }
 
 function classifyComplexity(item) {
+  if (item?.localGameSpeaker || (item?.liveGame && process.env.MINECRAFT_CHAT_PROVIDER === "local")) return { route: "local", reason: "live-game-local", score: 0 };
+  if (item?.liveGame && process.env.MINECRAFT_CHAT_PROVIDER === "cloud" && process.env.OPENAI_API_KEY) return { route: "cloud", reason: "live-game-gpu-offload", score: 1 };
   const text = String(item?.text || "").trim();
   // Lightweight patterns must match the entire utterance.  Otherwise a
   // greeting prefix can hide a complex request from the cloud router.
@@ -67,7 +69,8 @@ async function callLocalLlm(item, context) {
         model: config.model,
         messages: buildRealtimeMessages(item, context),
         temperature: 0.72,
-        max_tokens: 120
+        max_tokens: context.game ? 90 : 120,
+        chat_template_kwargs: { enable_thinking: false }
       }),
       signal: context.taskSignal ? AbortSignal.any([context.taskSignal, AbortSignal.timeout(Number(process.env.LOCAL_LLM_TIMEOUT_MS || 12_000))]) : AbortSignal.timeout(Number(process.env.LOCAL_LLM_TIMEOUT_MS || 12_000))
     });
@@ -76,7 +79,7 @@ async function callLocalLlm(item, context) {
     const text = String(payload.choices?.[0]?.message?.content || "").replace(/<think>[\s\S]*?<\/think>/gi, "").trim();
     if (!text) throw new Error("Empty local LLM response");
     localCircuit.success();
-    return { text, performanceCues: [], socialPerception: null, status: { ...config, lastMode: "local", lastError: null, lastLatencyMs: Date.now() - started, lastStructured: false } };
+    return { text, performanceCues: [], socialPerception: null, status: { ...config, lastMode: "local", lastError: null, lastLatencyMs: Date.now() - started, lastStructured: false, gameContextAt: context.game?.capturedAt || null, gameGoal: context.game?.goal || null } };
   } catch (error) {
     context.taskSignal?.throwIfAborted();
     localCircuit.failure(error.message);

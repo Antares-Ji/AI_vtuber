@@ -1,0 +1,71 @@
+{
+  "generatedAt": "2026-10-12T21:05:54.299Z",
+  "source": "src/minecraft/survival-skills.js",
+  "sha256": "c048b02b18f71bb808c3cc70b2f24c4d045a9a7e6296a697fa31b7e9a181ecae",
+  "defect": "Rejecting target.y > initial player.y+4 before pathfinding falsely rejects trees accessible along supported natural slopes.",
+  "change": [
+    "Low candidates tried before high candidates using the existing same-resource set.",
+    "High candidates never skip navigation proof: success-only A* route, each node dry supported with clear body/head, adjacent x/z at most1, elevation change at most1 and no purely vertical step/parkour.",
+    "Existing no digging/placing route constraints, 32-block route length, CPU80/continued60ms and cancellation checks preserved.",
+    "Endpoint hypothetical eye raycast remains required. After navigation, current position must be dry supported and actual canDigBlock/LOS/foot-and-overhead safety still pass."
+  ],
+  "fixture": {
+    "command": "node tests/minecraft-harvest-natural-slope.js",
+    "engine": "Installed mineflayer-pathfinder Movements and AStar",
+    "initial": [
+      0.5,
+      64,
+      0.5
+    ],
+    "target": [
+      8,
+      70,
+      0
+    ],
+    "successPath": [
+      [
+        1,
+        65,
+        0
+      ],
+      [
+        2,
+        66,
+        0
+      ],
+      [
+        3,
+        67,
+        0
+      ],
+      [
+        4,
+        68,
+        0
+      ]
+    ],
+    "cpuMs": 3.2,
+    "maxSliceMs": 3.2,
+    "visitedNodes": 21,
+    "inventoryGain": 1,
+    "scope": "Synthetic block world and simulated dig/inventory; not live collection evidence"
+  },
+  "negativeTests": [
+    "Same-height floating remnant on flat ground refuses navigation/dig",
+    "Unsupported path nodes, noncontiguous high step, partial path, goto without arrival all refuse dig",
+    "Cancel closes generator without navigation/dig",
+    "Directly reachable low target wins over earlier high candidate"
+  ],
+  "regressionTests": [
+    "minecraft-harvest-navigation.js",
+    "minecraft-harvest-pickup.js",
+    "minecraft-harvest-partial.js",
+    "minecraft-survival-skills.js"
+  ],
+  "limits": [
+    "Does not prove prior live trees are reachable; old logs contain no reconstructable complete terrain.",
+    "Budget may still end before finding a route. No path is not inferred from partial.",
+    "No towers, mining access tunnels or world changes for path creation. No GPU or game calls made.",
+    "Root controls deployment and must record runtime source switch."
+  ]
+}

@@ -1,0 +1,3181 @@
+{
+  "dataset": "emergency-recovery-v3-candidates",
+  "version": 3,
+  "provenance": "synthetic; hand-authored from current executor semantics and documented failure mode; no real trajectories",
+  "contract": {
+    "action": "strict SURVIVAL_ACTION_SCHEMA object and expected model decision",
+    "expectedAction": "audit mirror of action, not an additional model output",
+    "modelInput": "only state; geometryForReview is synthetic review/fixture metadata and must not be passed to the model",
+    "trainingCandidates": "unmerged suggestions for root review only",
+    "suggestedDevelopmentCases": "independent executor boundary/result cases; not training records",
+    "noDataMutation": "does not modify train-v2.jsonl, development-v2.jsonl, holdout.jsonl, or planner prompts"
+  },
+  "executorSemantics": {
+    "criticalHunt": "health<=6; model-selected hunt only; one cow/pig/sheep at actual distance<=16; excludes chicken; 35 sec/20 block limit and verified safe dry route",
+    "criticalExplore": "health<=6 explore requires no hostile within24, uses model direction, safe flat dry supported short path with no block breaking/placing; actual <=8 blocks, <=15 sec, monitor health/threat; requested range can end complete:false",
+    "observation": "observe threats returns <=16 blocks; hunt/explore guard checks actual <=24, so 16-24 hostiles may be hidden from the model but still stop execution",
+    "food": "FOODS accepts raw beef/porkchop/mutton and excludes raw chicken; eat raises food, not immediate health",
+    "flee": "attempts movement away from visible threats; no healing guarantee",
+    "limitations": "when no food, valid near prey, or safe path/direction, observe is conservative but not recovery; do not claim unsupported crafting/teleport/inventory"
+  },
+  "trainingCandidates": [
+    {
+      "id": "ER3-001",
+      "scenario": "危急血量、无食物、8格内有猪",
+      "provenance": "synthetic; hand-authored from current survival-skills.js and documented low-health deadlock; not a real trajectory",
+      "feasibility": "conditional-hunt",
+      "state": {
+        "connected": true,
+        "mode": "survival",
+        "dimension": "overworld",
+        "health": 4.5,
+        "food": 1,
+        "oxygen": 20,
+        "position": {
+          "x": 0,
+          "y": 64,
+          "z": 0
+        },
+        "timeOfDay": 6000,
+        "isNight": false,
+        "inventory": [],
+        "tools": [],
+        "heldItem": null,
+        "equipment": [],
+        "threats": [],
+        "hazards": [],
+        "resources": {
+          "stone": [],
+          "coal": [],
+          "iron": [],
+          "diamond": [],
+          "obsidian": [],
+          "gravel": [],
+          "wood": []
+        },
+        "animals": [
+          {
+            "id": 31000,
+            "name": "pig",
+            "distance": 8
+          }
+        ],
+        "landmarks": {
+          "evidenceOnly": true,
+          "villageConfirmed": false,
+          "entities": [],
+          "blocks": []
+        },
+        "stations": [],
+        "fluids": {
+          "water": [],
+          "lava": []
+        },
+        "craftable": [],
+        "recipeHints": [],
+        "recentExploration": [],
+        "recentFailures": [],
+        "portalSite": null
+      },
+      "action": {
+        "action": "hunt",
+        "count": 1
+      },
+      "expectedAction": {
+        "action": "hunt",
+        "count": 1
+      },
+      "rationale": "无食物、无可见威胁，8格内有猪；选择一只并由执行器复核安全条件。",
+      "limitations": [
+        null
+      ],
+      "geometryForReview": {
+        "modelInput": false,
+        "playerPosition": {
+          "x": 0,
+          "y": 64,
+          "z": 0
+        },
+        "animals": [
+          {
+            "id": 31000,
+            "name": "pig",
+            "position": {
+              "x": 8,
+              "y": 64,
+              "z": "0"
+            },
+            "distance": 8
+          }
+        ],
+        "hostiles": [],
+        "hazards": []
+      }
+    },
+    {
+      "id": "ER3-002",
+      "scenario": "危急血量、无食物、近处有牛",
+      "provenance": "synthetic; hand-authored from current survival-skills.js and documented low-health deadlock; not a real trajectory",
+      "feasibility": "conditional-hunt",
+      "state": {
+        "connected": true,
+        "mode": "survival",
+        "dimension": "overworld",
+        "health": 5,
+        "food": 3,
+        "oxygen": 20,
+        "position": {
+          "x": 0,
+          "y": 64,
+          "z": 0
+        },
+        "timeOfDay": 6000,
+        "isNight": false,
+        "inventory": [],
+        "tools": [],
+        "heldItem": null,
+        "equipment": [],
+        "threats": [],
+        "hazards": [],
+        "resources": {
+          "stone": [],
+          "coal": [],
+          "iron": [],
+          "diamond": [],
+          "obsidian": [],
+          "gravel": [],
+          "wood": []
+        },
+        "animals": [
+          {
+            "id": 31000,
+            "name": "cow",
+            "distance": 6
+          }
+        ],
+        "landmarks": {
+          "evidenceOnly": true,
+          "villageConfirmed": false,
+          "entities": [],
+          "blocks": []
+        },
+        "stations": [],
+        "fluids": {
+          "water": [],
+          "lava": []
+        },
+        "craftable": [],
+        "recipeHints": [],
+        "recentExploration": [],
+        "recentFailures": [],
+        "portalSite": null
+      },
+      "action": {
+        "action": "hunt",
+        "count": 1
+      },
+      "expectedAction": {
+        "action": "hunt",
+        "count": 1
+      },
+      "rationale": "牛距6格，可以尝试单目标应急狩猎，但不能保证路径或物品验证成功。",
+      "limitations": [
+        null
+      ],
+      "geometryForReview": {
+        "modelInput": false,
+        "playerPosition": {
+          "x": 0,
+          "y": 64,
+          "z": 0
+        },
+        "animals": [
+          {
+            "id": 31000,
+            "name": "cow",
+            "position": {
+              "x": 6,
+              "y": 64,
+              "z": "0"
+            },
+            "distance": 6
+          }
+        ],
+        "hostiles": [],
+        "hazards": []
+      }
+    },
+    {
+      "id": "ER3-003",
+      "scenario": "health恰为6、羊在应急距离边界",
+      "provenance": "synthetic; hand-authored from current survival-skills.js and documented low-health deadlock; not a real trajectory",
+      "feasibility": "conditional-hunt",
+      "state": {
+        "connected": true,
+        "mode": "survival",
+        "dimension": "overworld",
+        "health": 6,
+        "food": 0,
+        "oxygen": 20,
+        "position": {
+          "x": 0,
+          "y": 64,
+          "z": 0
+        },
+        "timeOfDay": 6000,
+        "isNight": false,
+        "inventory": [],
+        "tools": [],
+        "heldItem": null,
+        "equipment": [],
+        "threats": [],
+        "hazards": [],
+        "resources": {
+          "stone": [],
+          "coal": [],
+          "iron": [],
+          "diamond": [],
+          "obsidian": [],
+          "gravel": [],
+          "wood": []
+        },
+        "animals": [
+          {
+            "id": 31000,
+            "name": "sheep",
+            "distance": 16
+          }
+        ],
+        "landmarks": {
+          "evidenceOnly": true,
+          "villageConfirmed": false,
+          "entities": [],
+          "blocks": []
+        },
+        "stations": [],
+        "fluids": {
+          "water": [],
+          "lava": []
+        },
+        "craftable": [],
+        "recipeHints": [],
+        "recentExploration": [],
+        "recentFailures": [],
+        "portalSite": null
+      },
+      "action": {
+        "action": "hunt",
+        "count": 1
+      },
+      "expectedAction": {
+        "action": "hunt",
+        "count": 1
+      },
+      "rationale": "health=6进入health<=6应急分支；真实距离16包含在范围内，动作仍限一只。",
+      "limitations": [
+        null
+      ],
+      "geometryForReview": {
+        "modelInput": false,
+        "playerPosition": {
+          "x": 0,
+          "y": 64,
+          "z": 0
+        },
+        "animals": [
+          {
+            "id": 31000,
+            "name": "sheep",
+            "position": {
+              "x": 16,
+              "y": 64,
+              "z": "0"
+            },
+            "distance": 16
+          }
+        ],
+        "hostiles": [],
+        "hazards": []
+      }
+    },
+    {
+      "id": "ER3-004",
+      "scenario": "多只猎物在范围内，限选最近一只",
+      "provenance": "synthetic; hand-authored from current survival-skills.js and documented low-health deadlock; not a real trajectory",
+      "feasibility": "conditional-hunt",
+      "state": {
+        "connected": true,
+        "mode": "survival",
+        "dimension": "overworld",
+        "health": 3.5,
+        "food": 2,
+        "oxygen": 20,
+        "position": {
+          "x": 0,
+          "y": 64,
+          "z": 0
+        },
+        "timeOfDay": 6000,
+        "isNight": false,
+        "inventory": [],
+        "tools": [],
+        "heldItem": null,
+        "equipment": [],
+        "threats": [],
+        "hazards": [],
+        "resources": {
+          "stone": [],
+          "coal": [],
+          "iron": [],
+          "diamond": [],
+          "obsidian": [],
+          "gravel": [],
+          "wood": []
+        },
+        "animals": [
+          {
+            "id": 31000,
+            "name": "pig",
+            "distance": 5
+          },
+          {
+            "id": 31001,
+            "name": "cow",
+            "distance": 9
+          },
+          {
+            "id": 31002,
+            "name": "sheep",
+            "distance": 13
+          }
+        ],
+        "landmarks": {
+          "evidenceOnly": true,
+          "villageConfirmed": false,
+          "entities": [],
+          "blocks": []
+        },
+        "stations": [],
+        "fluids": {
+          "water": [],
+          "lava": []
+        },
+        "craftable": [],
+        "recipeHints": [],
+        "recentExploration": [],
+        "recentFailures": [],
+        "portalSite": null
+      },
+      "action": {
+        "action": "hunt",
+        "count": 1
+      },
+      "expectedAction": {
+        "action": "hunt",
+        "count": 1
+      },
+      "rationale": "选择最近的猪并count=1，不能把普通多目标狩猎带入危急状态。",
+      "limitations": [
+        null
+      ],
+      "geometryForReview": {
+        "modelInput": false,
+        "playerPosition": {
+          "x": 0,
+          "y": 64,
+          "z": 0
+        },
+        "animals": [
+          {
+            "id": 31000,
+            "name": "pig",
+            "position": {
+              "x": 5,
+              "y": 64,
+              "z": "0"
+            },
+            "distance": 5
+          },
+          {
+            "id": 31001,
+            "name": "cow",
+            "position": {
+              "x": 9,
+              "y": 64,
+              "z": "0"
+            },
+            "distance": 9
+          },
+          {
+            "id": 31002,
+            "name": "sheep",
+            "position": {
+              "x": -13,
+              "y": 64,
+              "z": "0"
+            },
+            "distance": 13
+          }
+        ],
+        "hostiles": [],
+        "hazards": []
+      }
+    },
+    {
+      "id": "ER3-005",
+      "scenario": "之前无动物失败，本轮新出现猪",
+      "provenance": "synthetic; hand-authored from current survival-skills.js and documented low-health deadlock; not a real trajectory",
+      "feasibility": "conditional-hunt",
+      "state": {
+        "connected": true,
+        "mode": "survival",
+        "dimension": "overworld",
+        "health": 4,
+        "food": 1,
+        "oxygen": 20,
+        "position": {
+          "x": 0,
+          "y": 64,
+          "z": 0
+        },
+        "timeOfDay": 6000,
+        "isNight": false,
+        "inventory": [],
+        "tools": [],
+        "heldItem": null,
+        "equipment": [],
+        "threats": [],
+        "hazards": [],
+        "resources": {
+          "stone": [],
+          "coal": [],
+          "iron": [],
+          "diamond": [],
+          "obsidian": [],
+          "gravel": [],
+          "wood": []
+        },
+        "animals": [
+          {
+            "id": 31000,
+            "name": "pig",
+            "distance": 7
+          }
+        ],
+        "landmarks": {
+          "evidenceOnly": true,
+          "villageConfirmed": false,
+          "entities": [],
+          "blocks": []
+        },
+        "stations": [],
+        "fluids": {
+          "water": [],
+          "lava": []
+        },
+        "craftable": [],
+        "recipeHints": [],
+        "recentExploration": [],
+        "recentFailures": [
+          {
+            "action": {
+              "action": "hunt",
+              "count": 1
+            },
+            "error": "No nearby passive animals; explore",
+            "position": {
+              "x": 0,
+              "y": 64,
+              "z": 0
+            },
+            "at": 1791833228944
+          },
+          {
+            "action": {
+              "action": "hunt",
+              "count": 1
+            },
+            "error": "No nearby passive animals; explore",
+            "position": {
+              "x": 0,
+              "y": 64,
+              "z": 0
+            },
+            "at": 1791833233944
+          },
+          {
+            "action": {
+              "action": "hunt",
+              "count": 1
+            },
+            "error": "No nearby passive animals; explore",
+            "position": {
+              "x": 0,
+              "y": 64,
+              "z": 0
+            },
+            "at": 1791833238944
+          }
+        ],
+        "portalSite": null
+      },
+      "action": {
+        "action": "hunt",
+        "count": 1
+      },
+      "expectedAction": {
+        "action": "hunt",
+        "count": 1
+      },
+      "rationale": "失败历史对应旧观测；本轮出现7格内新猪，状态有变化，可重新尝试一次。",
+      "limitations": [
+        null
+      ],
+      "geometryForReview": {
+        "modelInput": false,
+        "playerPosition": {
+          "x": 0,
+          "y": 64,
+          "z": 0
+        },
+        "animals": [
+          {
+            "id": 31000,
+            "name": "pig",
+            "position": {
+              "x": 7,
+              "y": 64,
+              "z": "0"
+            },
+            "distance": 7
+          }
+        ],
+        "hostiles": [],
+        "hazards": []
+      }
+    },
+    {
+      "id": "ER3-006",
+      "scenario": "猪近但8格内可见僵尸",
+      "provenance": "synthetic; hand-authored from current survival-skills.js and documented low-health deadlock; not a real trajectory",
+      "feasibility": "flee",
+      "state": {
+        "connected": true,
+        "mode": "survival",
+        "dimension": "overworld",
+        "health": 4,
+        "food": 1,
+        "oxygen": 20,
+        "position": {
+          "x": 0,
+          "y": 64,
+          "z": 0
+        },
+        "timeOfDay": 6000,
+        "isNight": false,
+        "inventory": [],
+        "tools": [],
+        "heldItem": null,
+        "equipment": [],
+        "threats": [
+          {
+            "id": 32000,
+            "name": "zombie",
+            "position": {
+              "x": 8,
+              "y": 64,
+              "z": "0"
+            },
+            "distance": 8
+          }
+        ],
+        "hazards": [],
+        "resources": {
+          "stone": [],
+          "coal": [],
+          "iron": [],
+          "diamond": [],
+          "obsidian": [],
+          "gravel": [],
+          "wood": []
+        },
+        "animals": [
+          {
+            "id": 31000,
+            "name": "pig",
+            "distance": 5
+          }
+        ],
+        "landmarks": {
+          "evidenceOnly": true,
+          "villageConfirmed": false,
+          "entities": [],
+          "blocks": []
+        },
+        "stations": [],
+        "fluids": {
+          "water": [],
+          "lava": []
+        },
+        "craftable": [],
+        "recipeHints": [],
+        "recentExploration": [],
+        "recentFailures": [],
+        "portalSite": null
+      },
+      "action": {
+        "action": "flee"
+      },
+      "expectedAction": {
+        "action": "flee"
+      },
+      "rationale": "有可见敌对生物时先尝试撤离而非追猎；脱险后刷新状态。",
+      "limitations": [
+        "flee只尝试移动远离威胁，不会治疗，也不保证路径安全。"
+      ],
+      "geometryForReview": {
+        "modelInput": false,
+        "playerPosition": {
+          "x": 0,
+          "y": 64,
+          "z": 0
+        },
+        "animals": [
+          {
+            "id": 31000,
+            "name": "pig",
+            "position": {
+              "x": 5,
+              "y": 64,
+              "z": "0"
+            },
+            "distance": 5
+          }
+        ],
+        "hostiles": [
+          {
+            "id": 32000,
+            "name": "zombie",
+            "position": {
+              "x": 8,
+              "y": 64,
+              "z": "0"
+            },
+            "distance": 8
+          }
+        ],
+        "hazards": []
+      }
+    },
+    {
+      "id": "ER3-007",
+      "scenario": "羊近但骷髅更近",
+      "provenance": "synthetic; hand-authored from current survival-skills.js and documented low-health deadlock; not a real trajectory",
+      "feasibility": "flee",
+      "state": {
+        "connected": true,
+        "mode": "survival",
+        "dimension": "overworld",
+        "health": 5,
+        "food": 0,
+        "oxygen": 20,
+        "position": {
+          "x": 0,
+          "y": 64,
+          "z": 0
+        },
+        "timeOfDay": 6000,
+        "isNight": false,
+        "inventory": [],
+        "tools": [],
+        "heldItem": null,
+        "equipment": [],
+        "threats": [
+          {
+            "id": 32000,
+            "name": "skeleton",
+            "position": {
+              "x": -4,
+              "y": 64,
+              "z": "0"
+            },
+            "distance": 4
+          }
+        ],
+        "hazards": [],
+        "resources": {
+          "stone": [],
+          "coal": [],
+          "iron": [],
+          "diamond": [],
+          "obsidian": [],
+          "gravel": [],
+          "wood": []
+        },
+        "animals": [
+          {
+            "id": 31000,
+            "name": "sheep",
+            "distance": 6
+          }
+        ],
+        "landmarks": {
+          "evidenceOnly": true,
+          "villageConfirmed": false,
+          "entities": [],
+          "blocks": []
+        },
+        "stations": [],
+        "fluids": {
+          "water": [],
+          "lava": []
+        },
+        "craftable": [],
+        "recipeHints": [],
+        "recentExploration": [],
+        "recentFailures": [],
+        "portalSite": null
+      },
+      "action": {
+        "action": "flee"
+      },
+      "expectedAction": {
+        "action": "flee"
+      },
+      "rationale": "骷髅距4格，不能为了食物开始狩猎；先远离威胁。",
+      "limitations": [
+        "flee只尝试移动远离威胁，不会治疗，也不保证路径安全。"
+      ],
+      "geometryForReview": {
+        "modelInput": false,
+        "playerPosition": {
+          "x": 0,
+          "y": 64,
+          "z": 0
+        },
+        "animals": [
+          {
+            "id": 31000,
+            "name": "sheep",
+            "position": {
+              "x": 6,
+              "y": 64,
+              "z": "0"
+            },
+            "distance": 6
+          }
+        ],
+        "hostiles": [
+          {
+            "id": 32000,
+            "name": "skeleton",
+            "position": {
+              "x": -4,
+              "y": 64,
+              "z": "0"
+            },
+            "distance": 4
+          }
+        ],
+        "hazards": []
+      }
+    },
+    {
+      "id": "ER3-008",
+      "scenario": "无近猎物无敌人，选择未探索短程方向",
+      "provenance": "synthetic; hand-authored from current survival-skills.js and documented low-health deadlock; not a real trajectory",
+      "feasibility": "explore",
+      "state": {
+        "connected": true,
+        "mode": "survival",
+        "dimension": "overworld",
+        "health": 5,
+        "food": 1,
+        "oxygen": 20,
+        "position": {
+          "x": 0,
+          "y": 64,
+          "z": 0
+        },
+        "timeOfDay": 6000,
+        "isNight": false,
+        "inventory": [],
+        "tools": [],
+        "heldItem": null,
+        "equipment": [],
+        "threats": [],
+        "hazards": [],
+        "resources": {
+          "stone": [],
+          "coal": [],
+          "iron": [],
+          "diamond": [],
+          "obsidian": [],
+          "gravel": [],
+          "wood": []
+        },
+        "animals": [],
+        "landmarks": {
+          "evidenceOnly": true,
+          "villageConfirmed": false,
+          "entities": [],
+          "blocks": []
+        },
+        "stations": [],
+        "fluids": {
+          "water": [],
+          "lava": []
+        },
+        "craftable": [],
+        "recipeHints": [],
+        "recentExploration": [
+          {
+            "from": {
+              "x": 0,
+              "y": 64,
+              "z": 0
+            },
+            "to": {
+              "x": -8,
+              "y": 64,
+              "z": 0
+            },
+            "direction": "west",
+            "at": 1791833183944
+          },
+          {
+            "from": {
+              "x": 0,
+              "y": 64,
+              "z": 0
+            },
+            "to": {
+              "x": 0,
+              "y": 64,
+              "z": 8
+            },
+            "direction": "south",
+            "at": 1791833213944
+          }
+        ],
+        "recentFailures": [],
+        "portalSite": null
+      },
+      "action": {
+        "action": "explore",
+        "direction": "north",
+        "distance": 24
+      },
+      "expectedAction": {
+        "action": "explore",
+        "direction": "north",
+        "distance": 24
+      },
+      "rationale": "近期已探索west、south且动物列表为空；换north做安全短程探索，不重复hunt。",
+      "limitations": [
+        "health<=6的explore要求真实状态无24格内敌人；执行器只走模型指定方向，预检平地干燥支撑、短路径和不挖/放方块，并限制实际位移<=8格、15秒及持续掉血/威胁监控。请求距离大于上限时可能complete:false；不保证找到食物或回血。",
+        "探索只是尝试改变局部环境，不表示找到食物或恢复生命。"
+      ],
+      "geometryForReview": {
+        "modelInput": false,
+        "playerPosition": {
+          "x": 0,
+          "y": 64,
+          "z": 0
+        },
+        "animals": [],
+        "hostiles": [],
+        "hazards": []
+      }
+    },
+    {
+      "id": "ER3-009",
+      "scenario": "只有鸡在近处，短程探索寻找其他食源",
+      "provenance": "synthetic; hand-authored from current survival-skills.js and documented low-health deadlock; not a real trajectory",
+      "feasibility": "explore",
+      "state": {
+        "connected": true,
+        "mode": "survival",
+        "dimension": "overworld",
+        "health": 4,
+        "food": 1,
+        "oxygen": 20,
+        "position": {
+          "x": 0,
+          "y": 64,
+          "z": 0
+        },
+        "timeOfDay": 6000,
+        "isNight": false,
+        "inventory": [],
+        "tools": [],
+        "heldItem": null,
+        "equipment": [],
+        "threats": [],
+        "hazards": [],
+        "resources": {
+          "stone": [],
+          "coal": [],
+          "iron": [],
+          "diamond": [],
+          "obsidian": [],
+          "gravel": [],
+          "wood": []
+        },
+        "animals": [
+          {
+            "id": 31000,
+            "name": "chicken",
+            "distance": 5
+          }
+        ],
+        "landmarks": {
+          "evidenceOnly": true,
+          "villageConfirmed": false,
+          "entities": [],
+          "blocks": []
+        },
+        "stations": [],
+        "fluids": {
+          "water": [],
+          "lava": []
+        },
+        "craftable": [],
+        "recipeHints": [],
+        "recentExploration": [],
+        "recentFailures": [],
+        "portalSite": null
+      },
+      "action": {
+        "action": "explore",
+        "direction": "east",
+        "distance": 16
+      },
+      "expectedAction": {
+        "action": "explore",
+        "direction": "east",
+        "distance": 16
+      },
+      "rationale": "危急hunt排除chicken，空背包也无法eat；在无威胁时改做受限短程探索。",
+      "limitations": [
+        "health<=6的explore要求真实状态无24格内敌人；执行器只走模型指定方向，预检平地干燥支撑、短路径和不挖/放方块，并限制实际位移<=8格、15秒及持续掉血/威胁监控。请求距离大于上限时可能complete:false；不保证找到食物或回血。",
+        "不把鸡列作预期食物，也不保证新区域有猎物。"
+      ],
+      "geometryForReview": {
+        "modelInput": false,
+        "playerPosition": {
+          "x": 0,
+          "y": 64,
+          "z": 0
+        },
+        "animals": [
+          {
+            "id": 31000,
+            "name": "chicken",
+            "position": {
+              "x": 5,
+              "y": 64,
+              "z": "0"
+            },
+            "distance": 5
+          }
+        ],
+        "hostiles": [],
+        "hazards": []
+      }
+    },
+    {
+      "id": "ER3-010",
+      "scenario": "背包只有生鸡肉且附近也只有鸡",
+      "provenance": "synthetic; hand-authored from current survival-skills.js and documented low-health deadlock; not a real trajectory",
+      "feasibility": "explore",
+      "state": {
+        "connected": true,
+        "mode": "survival",
+        "dimension": "overworld",
+        "health": 3.5,
+        "food": 0,
+        "oxygen": 20,
+        "position": {
+          "x": 0,
+          "y": 64,
+          "z": 0
+        },
+        "timeOfDay": 6000,
+        "isNight": false,
+        "inventory": [
+          {
+            "name": "chicken",
+            "count": 2
+          }
+        ],
+        "tools": [],
+        "heldItem": null,
+        "equipment": [],
+        "threats": [],
+        "hazards": [],
+        "resources": {
+          "stone": [],
+          "coal": [],
+          "iron": [],
+          "diamond": [],
+          "obsidian": [],
+          "gravel": [],
+          "wood": []
+        },
+        "animals": [
+          {
+            "id": 31000,
+            "name": "chicken",
+            "distance": 6
+          }
+        ],
+        "landmarks": {
+          "evidenceOnly": true,
+          "villageConfirmed": false,
+          "entities": [],
+          "blocks": []
+        },
+        "stations": [],
+        "fluids": {
+          "water": [],
+          "lava": []
+        },
+        "craftable": [],
+        "recipeHints": [],
+        "recentExploration": [],
+        "recentFailures": [],
+        "portalSite": null
+      },
+      "action": {
+        "action": "explore",
+        "direction": "northwest",
+        "distance": 16
+      },
+      "expectedAction": {
+        "action": "explore",
+        "direction": "northwest",
+        "distance": 16
+      },
+      "rationale": "生鸡肉不在FOODS白名单，危急hunt也排除鸡；不要eat或重复猎鸡，尝试不同安全方向。",
+      "limitations": [
+        "health<=6的explore要求真实状态无24格内敌人；执行器只走模型指定方向，预检平地干燥支撑、短路径和不挖/放方块，并限制实际位移<=8格、15秒及持续掉血/威胁监控。请求距离大于上限时可能complete:false；不保证找到食物或回血。",
+        "无保证能获得食物的动作；探索也可能失败。"
+      ],
+      "geometryForReview": {
+        "modelInput": false,
+        "playerPosition": {
+          "x": 0,
+          "y": 64,
+          "z": 0
+        },
+        "animals": [
+          {
+            "id": 31000,
+            "name": "chicken",
+            "position": {
+              "x": -6,
+              "y": 64,
+              "z": "0"
+            },
+            "distance": 6
+          }
+        ],
+        "hostiles": [],
+        "hazards": []
+      }
+    },
+    {
+      "id": "ER3-011",
+      "scenario": "牛在17格，仍被观察但不能应急追猎",
+      "provenance": "synthetic; hand-authored from current survival-skills.js and documented low-health deadlock; not a real trajectory",
+      "feasibility": "explore",
+      "state": {
+        "connected": true,
+        "mode": "survival",
+        "dimension": "overworld",
+        "health": 5,
+        "food": 1,
+        "oxygen": 20,
+        "position": {
+          "x": 0,
+          "y": 64,
+          "z": 0
+        },
+        "timeOfDay": 6000,
+        "isNight": false,
+        "inventory": [],
+        "tools": [],
+        "heldItem": null,
+        "equipment": [],
+        "threats": [],
+        "hazards": [],
+        "resources": {
+          "stone": [],
+          "coal": [],
+          "iron": [],
+          "diamond": [],
+          "obsidian": [],
+          "gravel": [],
+          "wood": []
+        },
+        "animals": [
+          {
+            "id": 31000,
+            "name": "cow",
+            "distance": 17
+          }
+        ],
+        "landmarks": {
+          "evidenceOnly": true,
+          "villageConfirmed": false,
+          "entities": [],
+          "blocks": []
+        },
+        "stations": [],
+        "fluids": {
+          "water": [],
+          "lava": []
+        },
+        "craftable": [],
+        "recipeHints": [],
+        "recentExploration": [],
+        "recentFailures": [],
+        "portalSite": null
+      },
+      "action": {
+        "action": "explore",
+        "direction": "east",
+        "distance": 16
+      },
+      "expectedAction": {
+        "action": "explore",
+        "direction": "east",
+        "distance": 16
+      },
+      "rationale": "17格牛超出hunt的16格；动物状态不含方向，探索east不是声称追踪牛。",
+      "limitations": [
+        "health<=6的explore要求真实状态无24格内敌人；执行器只走模型指定方向，预检平地干燥支撑、短路径和不挖/放方块，并限制实际位移<=8格、15秒及持续掉血/威胁监控。请求距离大于上限时可能complete:false；不保证找到食物或回血。",
+        "本次实际移动仍至多8格，不能声称到达牛的位置或获得肉。"
+      ],
+      "geometryForReview": {
+        "modelInput": false,
+        "playerPosition": {
+          "x": 0,
+          "y": 64,
+          "z": 0
+        },
+        "animals": [
+          {
+            "id": 31000,
+            "name": "cow",
+            "position": {
+              "x": 17,
+              "y": 64,
+              "z": "0"
+            },
+            "distance": 17
+          }
+        ],
+        "hostiles": [],
+        "hazards": []
+      }
+    },
+    {
+      "id": "ER3-012",
+      "scenario": "31格处有猪，短程换区而不追目标",
+      "provenance": "synthetic; hand-authored from current survival-skills.js and documented low-health deadlock; not a real trajectory",
+      "feasibility": "explore",
+      "state": {
+        "connected": true,
+        "mode": "survival",
+        "dimension": "overworld",
+        "health": 4,
+        "food": 0,
+        "oxygen": 20,
+        "position": {
+          "x": 0,
+          "y": 64,
+          "z": 0
+        },
+        "timeOfDay": 6000,
+        "isNight": false,
+        "inventory": [],
+        "tools": [],
+        "heldItem": null,
+        "equipment": [],
+        "threats": [],
+        "hazards": [],
+        "resources": {
+          "stone": [],
+          "coal": [],
+          "iron": [],
+          "diamond": [],
+          "obsidian": [],
+          "gravel": [],
+          "wood": []
+        },
+        "animals": [
+          {
+            "id": 31000,
+            "name": "pig",
+            "distance": 31
+          }
+        ],
+        "landmarks": {
+          "evidenceOnly": true,
+          "villageConfirmed": false,
+          "entities": [],
+          "blocks": []
+        },
+        "stations": [],
+        "fluids": {
+          "water": [],
+          "lava": []
+        },
+        "craftable": [],
+        "recipeHints": [],
+        "recentExploration": [],
+        "recentFailures": [],
+        "portalSite": null
+      },
+      "action": {
+        "action": "explore",
+        "direction": "south",
+        "distance": 24
+      },
+      "expectedAction": {
+        "action": "explore",
+        "direction": "south",
+        "distance": 24
+      },
+      "rationale": "猪超出应急hunt范围；根据已知距离不能推断方向，选择新的短程方向采样。",
+      "limitations": [
+        "health<=6的explore要求真实状态无24格内敌人；执行器只走模型指定方向，预检平地干燥支撑、短路径和不挖/放方块，并限制实际位移<=8格、15秒及持续掉血/威胁监控。请求距离大于上限时可能complete:false；不保证找到食物或回血。",
+        "仅尝试安全位移，不能声称抵达猪或恢复食物。"
+      ],
+      "geometryForReview": {
+        "modelInput": false,
+        "playerPosition": {
+          "x": 0,
+          "y": 64,
+          "z": 0
+        },
+        "animals": [
+          {
+            "id": 31000,
+            "name": "pig",
+            "position": {
+              "x": 31,
+              "y": 64,
+              "z": "0"
+            },
+            "distance": 31
+          }
+        ],
+        "hostiles": [],
+        "hazards": []
+      }
+    },
+    {
+      "id": "ER3-013",
+      "scenario": "连续hunt无动物失败，改向未探索区域",
+      "provenance": "synthetic; hand-authored from current survival-skills.js and documented low-health deadlock; not a real trajectory",
+      "feasibility": "explore",
+      "state": {
+        "connected": true,
+        "mode": "survival",
+        "dimension": "overworld",
+        "health": 5,
+        "food": 1,
+        "oxygen": 20,
+        "position": {
+          "x": 0,
+          "y": 64,
+          "z": 0
+        },
+        "timeOfDay": 6000,
+        "isNight": false,
+        "inventory": [],
+        "tools": [],
+        "heldItem": null,
+        "equipment": [],
+        "threats": [],
+        "hazards": [],
+        "resources": {
+          "stone": [],
+          "coal": [],
+          "iron": [],
+          "diamond": [],
+          "obsidian": [],
+          "gravel": [],
+          "wood": []
+        },
+        "animals": [],
+        "landmarks": {
+          "evidenceOnly": true,
+          "villageConfirmed": false,
+          "entities": [],
+          "blocks": []
+        },
+        "stations": [],
+        "fluids": {
+          "water": [],
+          "lava": []
+        },
+        "craftable": [],
+        "recipeHints": [],
+        "recentExploration": [
+          {
+            "from": {
+              "x": 0,
+              "y": 64,
+              "z": 0
+            },
+            "to": {
+              "x": 0,
+              "y": 64,
+              "z": -8
+            },
+            "direction": "north",
+            "at": 1791833213944
+          }
+        ],
+        "recentFailures": [
+          {
+            "action": {
+              "action": "hunt",
+              "count": 1
+            },
+            "error": "No nearby passive animals; explore",
+            "position": {
+              "x": 0,
+              "y": 64,
+              "z": 0
+            },
+            "at": 1791833228944
+          },
+          {
+            "action": {
+              "action": "hunt",
+              "count": 1
+            },
+            "error": "No nearby passive animals; explore",
+            "position": {
+              "x": 0,
+              "y": 64,
+              "z": 0
+            },
+            "at": 1791833233944
+          },
+          {
+            "action": {
+              "action": "hunt",
+              "count": 1
+            },
+            "error": "No nearby passive animals; explore",
+            "position": {
+              "x": 0,
+              "y": 64,
+              "z": 0
+            },
+            "at": 1791833238944
+          }
+        ],
+        "portalSite": null
+      },
+      "action": {
+        "action": "explore",
+        "direction": "east",
+        "distance": 24
+      },
+      "expectedAction": {
+        "action": "explore",
+        "direction": "east",
+        "distance": 24
+      },
+      "rationale": "动物仍为空且最近三次hunt同因无猎物失败；选择未探索east，不重复相同动作。",
+      "limitations": [
+        "health<=6的explore要求真实状态无24格内敌人；执行器只走模型指定方向，预检平地干燥支撑、短路径和不挖/放方块，并限制实际位移<=8格、15秒及持续掉血/威胁监控。请求距离大于上限时可能complete:false；不保证找到食物或回血。",
+        "安全预检不通过时应失败停止；成功移动不等于找到猎物。"
+      ],
+      "geometryForReview": {
+        "modelInput": false,
+        "playerPosition": {
+          "x": 0,
+          "y": 64,
+          "z": 0
+        },
+        "animals": [],
+        "hostiles": [],
+        "hazards": []
+      }
+    },
+    {
+      "id": "ER3-014",
+      "scenario": "同一羊的安全路径验证连续失败",
+      "provenance": "synthetic; hand-authored from current survival-skills.js and documented low-health deadlock; not a real trajectory",
+      "feasibility": "explore",
+      "state": {
+        "connected": true,
+        "mode": "survival",
+        "dimension": "overworld",
+        "health": 4.5,
+        "food": 2,
+        "oxygen": 20,
+        "position": {
+          "x": 0,
+          "y": 64,
+          "z": 0
+        },
+        "timeOfDay": 6000,
+        "isNight": false,
+        "inventory": [],
+        "tools": [],
+        "heldItem": null,
+        "equipment": [],
+        "threats": [],
+        "hazards": [],
+        "resources": {
+          "stone": [],
+          "coal": [],
+          "iron": [],
+          "diamond": [],
+          "obsidian": [],
+          "gravel": [],
+          "wood": []
+        },
+        "animals": [
+          {
+            "id": 31000,
+            "name": "sheep",
+            "distance": 8
+          }
+        ],
+        "landmarks": {
+          "evidenceOnly": true,
+          "villageConfirmed": false,
+          "entities": [],
+          "blocks": []
+        },
+        "stations": [],
+        "fluids": {
+          "water": [],
+          "lava": []
+        },
+        "craftable": [],
+        "recipeHints": [],
+        "recentExploration": [
+          {
+            "from": {
+              "x": 0,
+              "y": 64,
+              "z": 0
+            },
+            "to": {
+              "x": -8,
+              "y": 64,
+              "z": 0
+            },
+            "direction": "west",
+            "at": 1791833213944
+          }
+        ],
+        "recentFailures": [
+          {
+            "action": {
+              "action": "hunt",
+              "count": 1
+            },
+            "error": "Emergency hunt has no verified safe short route",
+            "position": {
+              "x": 0,
+              "y": 64,
+              "z": 0
+            },
+            "at": 1791833233944
+          },
+          {
+            "action": {
+              "action": "hunt",
+              "count": 1
+            },
+            "error": "Emergency hunt has no verified safe short route",
+            "position": {
+              "x": 0,
+              "y": 64,
+              "z": 0
+            },
+            "at": 1791833238944
+          }
+        ],
+        "portalSite": null
+      },
+      "action": {
+        "action": "explore",
+        "direction": "south",
+        "distance": 16
+      },
+      "expectedAction": {
+        "action": "explore",
+        "direction": "south",
+        "distance": 16
+      },
+      "rationale": "同目标hunt路径已重复失败，无路径变化证据；改走不同短程方向，而非盲目再次狩猎。",
+      "limitations": [
+        "health<=6的explore要求真实状态无24格内敌人；执行器只走模型指定方向，预检平地干燥支撑、短路径和不挖/放方块，并限制实际位移<=8格、15秒及持续掉血/威胁监控。请求距离大于上限时可能complete:false；不保证找到食物或回血。",
+        "动物没有方位信息；不能声称此方向避开全部障碍或靠近羊。"
+      ],
+      "geometryForReview": {
+        "modelInput": false,
+        "playerPosition": {
+          "x": 0,
+          "y": 64,
+          "z": 0
+        },
+        "animals": [
+          {
+            "id": 31000,
+            "name": "sheep",
+            "position": {
+              "x": 8,
+              "y": 64,
+              "z": "0"
+            },
+            "distance": 8
+          }
+        ],
+        "hostiles": [],
+        "hazards": []
+      }
+    },
+    {
+      "id": "ER3-015",
+      "scenario": "相邻熔岩，狩猎与移动安全条件不成立",
+      "provenance": "synthetic; hand-authored from current survival-skills.js and documented low-health deadlock; not a real trajectory",
+      "feasibility": "observe",
+      "state": {
+        "connected": true,
+        "mode": "survival",
+        "dimension": "overworld",
+        "health": 5,
+        "food": 1,
+        "oxygen": 20,
+        "position": {
+          "x": 0,
+          "y": 64,
+          "z": 0
+        },
+        "timeOfDay": 6000,
+        "isNight": false,
+        "inventory": [],
+        "tools": [],
+        "heldItem": null,
+        "equipment": [],
+        "threats": [],
+        "hazards": [
+          {
+            "name": "lava",
+            "position": {
+              "x": 1,
+              "y": 64,
+              "z": "0"
+            }
+          }
+        ],
+        "resources": {
+          "stone": [],
+          "coal": [],
+          "iron": [],
+          "diamond": [],
+          "obsidian": [],
+          "gravel": [],
+          "wood": []
+        },
+        "animals": [
+          {
+            "id": 31000,
+            "name": "pig",
+            "distance": 4
+          }
+        ],
+        "landmarks": {
+          "evidenceOnly": true,
+          "villageConfirmed": false,
+          "entities": [],
+          "blocks": []
+        },
+        "stations": [],
+        "fluids": {
+          "water": [],
+          "lava": []
+        },
+        "craftable": [],
+        "recipeHints": [],
+        "recentExploration": [],
+        "recentFailures": [],
+        "portalSite": null
+      },
+      "action": {
+        "action": "observe"
+      },
+      "expectedAction": {
+        "action": "observe"
+      },
+      "rationale": "相邻熔岩会影响起点/路径的真实安全检查；不因猪近就假定能通过预检。",
+      "limitations": [
+        "observe本身不移动、不补食、不回血。不要无限重复无效动作，也不要虚构工作台、传送或已获物资。若安全预检不通过且无可用食物/猎物，现有技能没有保证恢复的方案。"
+      ],
+      "geometryForReview": {
+        "modelInput": false,
+        "playerPosition": {
+          "x": 0,
+          "y": 64,
+          "z": 0
+        },
+        "animals": [
+          {
+            "id": 31000,
+            "name": "pig",
+            "position": {
+              "x": 4,
+              "y": 64,
+              "z": "0"
+            },
+            "distance": 4
+          }
+        ],
+        "hostiles": [],
+        "hazards": [
+          {
+            "name": "lava",
+            "position": {
+              "x": 1,
+              "y": 64,
+              "z": "0"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "ER3-016",
+      "scenario": "脚边危险浆果丛，不能假定路径安全",
+      "provenance": "synthetic; hand-authored from current survival-skills.js and documented low-health deadlock; not a real trajectory",
+      "feasibility": "observe",
+      "state": {
+        "connected": true,
+        "mode": "survival",
+        "dimension": "overworld",
+        "health": 4,
+        "food": 0,
+        "oxygen": 20,
+        "position": {
+          "x": 0,
+          "y": 64,
+          "z": 0
+        },
+        "timeOfDay": 6000,
+        "isNight": false,
+        "inventory": [],
+        "tools": [],
+        "heldItem": null,
+        "equipment": [],
+        "threats": [],
+        "hazards": [
+          {
+            "name": "sweet_berry_bush",
+            "position": {
+              "x": 0,
+              "y": 64,
+              "z": 1
+            }
+          }
+        ],
+        "resources": {
+          "stone": [],
+          "coal": [],
+          "iron": [],
+          "diamond": [],
+          "obsidian": [],
+          "gravel": [],
+          "wood": []
+        },
+        "animals": [
+          {
+            "id": 31000,
+            "name": "sheep",
+            "distance": 3
+          }
+        ],
+        "landmarks": {
+          "evidenceOnly": true,
+          "villageConfirmed": false,
+          "entities": [],
+          "blocks": []
+        },
+        "stations": [],
+        "fluids": {
+          "water": [],
+          "lava": []
+        },
+        "craftable": [],
+        "recipeHints": [],
+        "recentExploration": [],
+        "recentFailures": [],
+        "portalSite": null
+      },
+      "action": {
+        "action": "observe"
+      },
+      "expectedAction": {
+        "action": "observe"
+      },
+      "rationale": "危险方块在相邻格，当前动作不证明有安全移动端点；保守观察并明确不可恢复。",
+      "limitations": [
+        "observe本身不移动、不补食、不回血。不要无限重复无效动作，也不要虚构工作台、传送或已获物资。若安全预检不通过且无可用食物/猎物，现有技能没有保证恢复的方案。"
+      ],
+      "geometryForReview": {
+        "modelInput": false,
+        "playerPosition": {
+          "x": 0,
+          "y": 64,
+          "z": 0
+        },
+        "animals": [
+          {
+            "id": 31000,
+            "name": "sheep",
+            "position": {
+              "x": 3,
+              "y": 64,
+              "z": "0"
+            },
+            "distance": 3
+          }
+        ],
+        "hostiles": [],
+        "hazards": [
+          {
+            "name": "sweet_berry_bush",
+            "position": {
+              "x": 0,
+              "y": 64,
+              "z": 1
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "ER3-017",
+      "scenario": "低血有生牛肉，先吃库存",
+      "provenance": "synthetic; hand-authored from current survival-skills.js and documented low-health deadlock; not a real trajectory",
+      "feasibility": "eat",
+      "state": {
+        "connected": true,
+        "mode": "survival",
+        "dimension": "overworld",
+        "health": 5,
+        "food": 3,
+        "oxygen": 20,
+        "position": {
+          "x": 0,
+          "y": 64,
+          "z": 0
+        },
+        "timeOfDay": 6000,
+        "isNight": false,
+        "inventory": [
+          {
+            "name": "beef",
+            "count": 1
+          }
+        ],
+        "tools": [],
+        "heldItem": null,
+        "equipment": [],
+        "threats": [],
+        "hazards": [],
+        "resources": {
+          "stone": [],
+          "coal": [],
+          "iron": [],
+          "diamond": [],
+          "obsidian": [],
+          "gravel": [],
+          "wood": []
+        },
+        "animals": [
+          {
+            "id": 31000,
+            "name": "cow",
+            "distance": 6
+          }
+        ],
+        "landmarks": {
+          "evidenceOnly": true,
+          "villageConfirmed": false,
+          "entities": [],
+          "blocks": []
+        },
+        "stations": [],
+        "fluids": {
+          "water": [],
+          "lava": []
+        },
+        "craftable": [],
+        "recipeHints": [],
+        "recentExploration": [],
+        "recentFailures": [],
+        "portalSite": null
+      },
+      "action": {
+        "action": "eat"
+      },
+      "expectedAction": {
+        "action": "eat"
+      },
+      "rationale": "FOODS包含beef；已有安全食物且饥饿值低，先eat，避免为了补给去狩猎。",
+      "limitations": [
+        "eat只补充饥饿值，不会立即回血；之后是否自然恢复须看真实health。FOODS包含生beef、porkchop、mutton，不含生chicken。"
+      ],
+      "geometryForReview": {
+        "modelInput": false,
+        "playerPosition": {
+          "x": 0,
+          "y": 64,
+          "z": 0
+        },
+        "animals": [
+          {
+            "id": 31000,
+            "name": "cow",
+            "position": {
+              "x": 6,
+              "y": 64,
+              "z": "0"
+            },
+            "distance": 6
+          }
+        ],
+        "hostiles": [],
+        "hazards": []
+      }
+    },
+    {
+      "id": "ER3-018",
+      "scenario": "低血有生猪排，先吃库存",
+      "provenance": "synthetic; hand-authored from current survival-skills.js and documented low-health deadlock; not a real trajectory",
+      "feasibility": "eat",
+      "state": {
+        "connected": true,
+        "mode": "survival",
+        "dimension": "overworld",
+        "health": 4,
+        "food": 6,
+        "oxygen": 20,
+        "position": {
+          "x": 0,
+          "y": 64,
+          "z": 0
+        },
+        "timeOfDay": 6000,
+        "isNight": false,
+        "inventory": [
+          {
+            "name": "porkchop",
+            "count": 2
+          }
+        ],
+        "tools": [],
+        "heldItem": null,
+        "equipment": [],
+        "threats": [],
+        "hazards": [],
+        "resources": {
+          "stone": [],
+          "coal": [],
+          "iron": [],
+          "diamond": [],
+          "obsidian": [],
+          "gravel": [],
+          "wood": []
+        },
+        "animals": [
+          {
+            "id": 31000,
+            "name": "pig",
+            "distance": 4
+          }
+        ],
+        "landmarks": {
+          "evidenceOnly": true,
+          "villageConfirmed": false,
+          "entities": [],
+          "blocks": []
+        },
+        "stations": [],
+        "fluids": {
+          "water": [],
+          "lava": []
+        },
+        "craftable": [],
+        "recipeHints": [],
+        "recentExploration": [],
+        "recentFailures": [],
+        "portalSite": null
+      },
+      "action": {
+        "action": "eat"
+      },
+      "expectedAction": {
+        "action": "eat"
+      },
+      "rationale": "FOODS包含porkchop；使用已有食物，不重复狩猎。",
+      "limitations": [
+        "eat只补充饥饿值，不会立即回血；之后是否自然恢复须看真实health。FOODS包含生beef、porkchop、mutton，不含生chicken。"
+      ],
+      "geometryForReview": {
+        "modelInput": false,
+        "playerPosition": {
+          "x": 0,
+          "y": 64,
+          "z": 0
+        },
+        "animals": [
+          {
+            "id": 31000,
+            "name": "pig",
+            "position": {
+              "x": 4,
+              "y": 64,
+              "z": "0"
+            },
+            "distance": 4
+          }
+        ],
+        "hostiles": [],
+        "hazards": []
+      }
+    },
+    {
+      "id": "ER3-019",
+      "scenario": "低血有生羊肉，先吃库存",
+      "provenance": "synthetic; hand-authored from current survival-skills.js and documented low-health deadlock; not a real trajectory",
+      "feasibility": "eat",
+      "state": {
+        "connected": true,
+        "mode": "survival",
+        "dimension": "overworld",
+        "health": 6,
+        "food": 2,
+        "oxygen": 20,
+        "position": {
+          "x": 0,
+          "y": 64,
+          "z": 0
+        },
+        "timeOfDay": 6000,
+        "isNight": false,
+        "inventory": [
+          {
+            "name": "mutton",
+            "count": 1
+          }
+        ],
+        "tools": [],
+        "heldItem": null,
+        "equipment": [],
+        "threats": [],
+        "hazards": [],
+        "resources": {
+          "stone": [],
+          "coal": [],
+          "iron": [],
+          "diamond": [],
+          "obsidian": [],
+          "gravel": [],
+          "wood": []
+        },
+        "animals": [
+          {
+            "id": 31000,
+            "name": "sheep",
+            "distance": 5
+          }
+        ],
+        "landmarks": {
+          "evidenceOnly": true,
+          "villageConfirmed": false,
+          "entities": [],
+          "blocks": []
+        },
+        "stations": [],
+        "fluids": {
+          "water": [],
+          "lava": []
+        },
+        "craftable": [],
+        "recipeHints": [],
+        "recentExploration": [],
+        "recentFailures": [],
+        "portalSite": null
+      },
+      "action": {
+        "action": "eat"
+      },
+      "expectedAction": {
+        "action": "eat"
+      },
+      "rationale": "FOODS包含mutton；health=6不改变已有可食用食物优先级。",
+      "limitations": [
+        "eat只补充饥饿值，不会立即回血；之后是否自然恢复须看真实health。FOODS包含生beef、porkchop、mutton，不含生chicken。"
+      ],
+      "geometryForReview": {
+        "modelInput": false,
+        "playerPosition": {
+          "x": 0,
+          "y": 64,
+          "z": 0
+        },
+        "animals": [
+          {
+            "id": 31000,
+            "name": "sheep",
+            "position": {
+              "x": 5,
+              "y": 64,
+              "z": "0"
+            },
+            "distance": 5
+          }
+        ],
+        "hostiles": [],
+        "hazards": []
+      }
+    },
+    {
+      "id": "ER3-020",
+      "scenario": "生鸡肉与苹果并存，只吃白名单食物",
+      "provenance": "synthetic; hand-authored from current survival-skills.js and documented low-health deadlock; not a real trajectory",
+      "feasibility": "eat",
+      "state": {
+        "connected": true,
+        "mode": "survival",
+        "dimension": "overworld",
+        "health": 4,
+        "food": 4,
+        "oxygen": 20,
+        "position": {
+          "x": 0,
+          "y": 64,
+          "z": 0
+        },
+        "timeOfDay": 6000,
+        "isNight": false,
+        "inventory": [
+          {
+            "name": "chicken",
+            "count": 2
+          },
+          {
+            "name": "apple",
+            "count": 1
+          }
+        ],
+        "tools": [],
+        "heldItem": null,
+        "equipment": [],
+        "threats": [],
+        "hazards": [],
+        "resources": {
+          "stone": [],
+          "coal": [],
+          "iron": [],
+          "diamond": [],
+          "obsidian": [],
+          "gravel": [],
+          "wood": []
+        },
+        "animals": [
+          {
+            "id": 31000,
+            "name": "chicken",
+            "distance": 3
+          }
+        ],
+        "landmarks": {
+          "evidenceOnly": true,
+          "villageConfirmed": false,
+          "entities": [],
+          "blocks": []
+        },
+        "stations": [],
+        "fluids": {
+          "water": [],
+          "lava": []
+        },
+        "craftable": [],
+        "recipeHints": [],
+        "recentExploration": [],
+        "recentFailures": [],
+        "portalSite": null
+      },
+      "action": {
+        "action": "eat"
+      },
+      "expectedAction": {
+        "action": "eat"
+      },
+      "rationale": "FOODS包含apple而不含生chicken；选择苹果，不把鸡肉库存误判为安全食物。",
+      "limitations": [
+        "eat只补充饥饿值，不会立即回血；之后是否自然恢复须看真实health。FOODS包含生beef、porkchop、mutton，不含生chicken。"
+      ],
+      "geometryForReview": {
+        "modelInput": false,
+        "playerPosition": {
+          "x": 0,
+          "y": 64,
+          "z": 0
+        },
+        "animals": [
+          {
+            "id": 31000,
+            "name": "chicken",
+            "position": {
+              "x": 3,
+              "y": 64,
+              "z": "0"
+            },
+            "distance": 3
+          }
+        ],
+        "hostiles": [],
+        "hazards": []
+      }
+    },
+    {
+      "id": "ER3-021",
+      "scenario": "先前空背包eat失败，现在出现生猪排",
+      "provenance": "synthetic; hand-authored from current survival-skills.js and documented low-health deadlock; not a real trajectory",
+      "feasibility": "eat",
+      "state": {
+        "connected": true,
+        "mode": "survival",
+        "dimension": "overworld",
+        "health": 3,
+        "food": 1,
+        "oxygen": 20,
+        "position": {
+          "x": 0,
+          "y": 64,
+          "z": 0
+        },
+        "timeOfDay": 6000,
+        "isNight": false,
+        "inventory": [
+          {
+            "name": "porkchop",
+            "count": 1
+          }
+        ],
+        "tools": [],
+        "heldItem": null,
+        "equipment": [],
+        "threats": [],
+        "hazards": [],
+        "resources": {
+          "stone": [],
+          "coal": [],
+          "iron": [],
+          "diamond": [],
+          "obsidian": [],
+          "gravel": [],
+          "wood": []
+        },
+        "animals": [],
+        "landmarks": {
+          "evidenceOnly": true,
+          "villageConfirmed": false,
+          "entities": [],
+          "blocks": []
+        },
+        "stations": [],
+        "fluids": {
+          "water": [],
+          "lava": []
+        },
+        "craftable": [],
+        "recipeHints": [],
+        "recentExploration": [],
+        "recentFailures": [
+          {
+            "action": {
+              "action": "eat"
+            },
+            "error": "No safe edible food in inventory; hunt and smelt food",
+            "position": {
+              "x": 0,
+              "y": 64,
+              "z": 0
+            },
+            "at": 1791833238944
+          }
+        ],
+        "portalSite": null
+      },
+      "action": {
+        "action": "eat"
+      },
+      "expectedAction": {
+        "action": "eat"
+      },
+      "rationale": "失败记录属于旧背包；当前新出现porkchop，状态变化使eat成为可行决策。",
+      "limitations": [
+        "eat只补充饥饿值，不会立即回血；之后是否自然恢复须看真实health。FOODS包含生beef、porkchop、mutton，不含生chicken。"
+      ],
+      "geometryForReview": {
+        "modelInput": false,
+        "playerPosition": {
+          "x": 0,
+          "y": 64,
+          "z": 0
+        },
+        "animals": [],
+        "hostiles": [],
+        "hazards": []
+      }
+    },
+    {
+      "id": "ER3-022",
+      "scenario": "饥饿满且无食物、无威胁",
+      "provenance": "synthetic; hand-authored from current survival-skills.js and documented low-health deadlock; not a real trajectory",
+      "feasibility": "observe",
+      "state": {
+        "connected": true,
+        "mode": "survival",
+        "dimension": "overworld",
+        "health": 5,
+        "food": 20,
+        "oxygen": 20,
+        "position": {
+          "x": 0,
+          "y": 64,
+          "z": 0
+        },
+        "timeOfDay": 6000,
+        "isNight": false,
+        "inventory": [],
+        "tools": [],
+        "heldItem": null,
+        "equipment": [],
+        "threats": [],
+        "hazards": [],
+        "resources": {
+          "stone": [],
+          "coal": [],
+          "iron": [],
+          "diamond": [],
+          "obsidian": [],
+          "gravel": [],
+          "wood": []
+        },
+        "animals": [],
+        "landmarks": {
+          "evidenceOnly": true,
+          "villageConfirmed": false,
+          "entities": [],
+          "blocks": []
+        },
+        "stations": [],
+        "fluids": {
+          "water": [],
+          "lava": []
+        },
+        "craftable": [],
+        "recipeHints": [],
+        "recentExploration": [],
+        "recentFailures": [],
+        "portalSite": null
+      },
+      "action": {
+        "action": "observe"
+      },
+      "expectedAction": {
+        "action": "observe"
+      },
+      "rationale": "eat会返回alreadyFull；不应为无目标而hunt，也不能把flee说成治疗。观察无副作用，但不代表恢复。",
+      "limitations": [
+        "observe本身不移动、不补食、不回血。不要无限重复无效动作，也不要虚构工作台、传送或已获物资。若安全预检不通过且无可用食物/猎物，现有技能没有保证恢复的方案。"
+      ],
+      "geometryForReview": {
+        "modelInput": false,
+        "playerPosition": {
+          "x": 0,
+          "y": 64,
+          "z": 0
+        },
+        "animals": [],
+        "hostiles": [],
+        "hazards": []
+      }
+    },
+    {
+      "id": "ER3-023",
+      "scenario": "可见威胁且有生羊肉，先脱险",
+      "provenance": "synthetic; hand-authored from current survival-skills.js and documented low-health deadlock; not a real trajectory",
+      "feasibility": "flee",
+      "state": {
+        "connected": true,
+        "mode": "survival",
+        "dimension": "overworld",
+        "health": 4,
+        "food": 2,
+        "oxygen": 20,
+        "position": {
+          "x": 0,
+          "y": 64,
+          "z": 0
+        },
+        "timeOfDay": 6000,
+        "isNight": false,
+        "inventory": [
+          {
+            "name": "mutton",
+            "count": 1
+          }
+        ],
+        "tools": [],
+        "heldItem": null,
+        "equipment": [],
+        "threats": [
+          {
+            "id": 32000,
+            "name": "zombie",
+            "position": {
+              "x": 7,
+              "y": 64,
+              "z": "0"
+            },
+            "distance": 7
+          }
+        ],
+        "hazards": [],
+        "resources": {
+          "stone": [],
+          "coal": [],
+          "iron": [],
+          "diamond": [],
+          "obsidian": [],
+          "gravel": [],
+          "wood": []
+        },
+        "animals": [],
+        "landmarks": {
+          "evidenceOnly": true,
+          "villageConfirmed": false,
+          "entities": [],
+          "blocks": []
+        },
+        "stations": [],
+        "fluids": {
+          "water": [],
+          "lava": []
+        },
+        "craftable": [],
+        "recipeHints": [],
+        "recentExploration": [],
+        "recentFailures": [],
+        "portalSite": null
+      },
+      "action": {
+        "action": "flee"
+      },
+      "expectedAction": {
+        "action": "flee"
+      },
+      "rationale": "7格内有僵尸；即使已有食物也先撤离，确认威胁消失后再eat。",
+      "limitations": [
+        "flee只尝试移动远离威胁，不会治疗，也不保证路径安全。"
+      ],
+      "geometryForReview": {
+        "modelInput": false,
+        "playerPosition": {
+          "x": 0,
+          "y": 64,
+          "z": 0
+        },
+        "animals": [],
+        "hostiles": [
+          {
+            "id": 32000,
+            "name": "zombie",
+            "position": {
+              "x": 7,
+              "y": 64,
+              "z": "0"
+            },
+            "distance": 7
+          }
+        ],
+        "hazards": []
+      }
+    },
+    {
+      "id": "ER3-024",
+      "scenario": "猪距15格，保持应急单只限制",
+      "provenance": "synthetic; hand-authored from current survival-skills.js and documented low-health deadlock; not a real trajectory",
+      "feasibility": "conditional-hunt",
+      "state": {
+        "connected": true,
+        "mode": "survival",
+        "dimension": "overworld",
+        "health": 5.5,
+        "food": 5,
+        "oxygen": 20,
+        "position": {
+          "x": 0,
+          "y": 64,
+          "z": 0
+        },
+        "timeOfDay": 6000,
+        "isNight": false,
+        "inventory": [],
+        "tools": [],
+        "heldItem": null,
+        "equipment": [],
+        "threats": [],
+        "hazards": [],
+        "resources": {
+          "stone": [],
+          "coal": [],
+          "iron": [],
+          "diamond": [],
+          "obsidian": [],
+          "gravel": [],
+          "wood": []
+        },
+        "animals": [
+          {
+            "id": 31000,
+            "name": "pig",
+            "distance": 15
+          }
+        ],
+        "landmarks": {
+          "evidenceOnly": true,
+          "villageConfirmed": false,
+          "entities": [],
+          "blocks": []
+        },
+        "stations": [],
+        "fluids": {
+          "water": [],
+          "lava": []
+        },
+        "craftable": [],
+        "recipeHints": [],
+        "recentExploration": [],
+        "recentFailures": [],
+        "portalSite": null
+      },
+      "action": {
+        "action": "hunt",
+        "count": 1
+      },
+      "expectedAction": {
+        "action": "hunt",
+        "count": 1
+      },
+      "rationale": "目标在范围内但较远；动作仍仅count=1，需通过真实短路径检查。",
+      "limitations": [
+        null
+      ],
+      "geometryForReview": {
+        "modelInput": false,
+        "playerPosition": {
+          "x": 0,
+          "y": 64,
+          "z": 0
+        },
+        "animals": [
+          {
+            "id": 31000,
+            "name": "pig",
+            "position": {
+              "x": -15,
+              "y": 64,
+              "z": "0"
+            },
+            "distance": 15
+          }
+        ],
+        "hostiles": [],
+        "hazards": []
+      }
+    }
+  ],
+  "suggestedDevelopmentCases": [
+    {
+      "id": "ER3-DEV-01",
+      "scenario": "17格僵尸对模型不可见但hunt须被执行器拦截",
+      "provenance": "synthetic; hand-authored from current survival-skills.js and documented low-health deadlock; not a real trajectory",
+      "feasibility": "hunt",
+      "state": {
+        "connected": true,
+        "mode": "survival",
+        "dimension": "overworld",
+        "health": 4,
+        "food": 1,
+        "oxygen": 20,
+        "position": {
+          "x": 0,
+          "y": 64,
+          "z": 0
+        },
+        "timeOfDay": 6000,
+        "isNight": false,
+        "inventory": [],
+        "tools": [],
+        "heldItem": null,
+        "equipment": [],
+        "threats": [],
+        "hazards": [],
+        "resources": {
+          "stone": [],
+          "coal": [],
+          "iron": [],
+          "diamond": [],
+          "obsidian": [],
+          "gravel": [],
+          "wood": []
+        },
+        "animals": [
+          {
+            "id": 31000,
+            "name": "pig",
+            "distance": 8
+          }
+        ],
+        "landmarks": {
+          "evidenceOnly": true,
+          "villageConfirmed": false,
+          "entities": [],
+          "blocks": []
+        },
+        "stations": [],
+        "fluids": {
+          "water": [],
+          "lava": []
+        },
+        "craftable": [],
+        "recipeHints": [],
+        "recentExploration": [],
+        "recentFailures": [],
+        "portalSite": null
+      },
+      "action": {
+        "action": "hunt",
+        "count": 1
+      },
+      "expectedAction": {
+        "action": "hunt",
+        "count": 1
+      },
+      "rationale": "observe threats只返回16格内实体；world fixture有17格僵尸，hunt真实24格守卫应拒绝且不移动。不可训练模型把隐藏状态当已知。",
+      "limitations": [
+        "仅模型显式选择hunt时尝试；health<=6最多一只且仅cow/pig/sheep真实距离<=16，排除chicken。执行器另检查真实24格内威胁、掉血、35秒/20格限额、干燥支撑点及安全短路径。observe.threats只列16格内，16至24格敌人可能不可见。狩猎成功只增加肉，不会立即回血。"
+      ],
+      "geometryForReview": {
+        "modelInput": false,
+        "playerPosition": {
+          "x": 0,
+          "y": 64,
+          "z": 0
+        },
+        "animals": [
+          {
+            "id": 31000,
+            "name": "pig",
+            "position": {
+              "x": 8,
+              "y": 64,
+              "z": "0"
+            },
+            "distance": 8
+          }
+        ],
+        "hostiles": [
+          {
+            "id": 32000,
+            "name": "zombie",
+            "position": {
+              "x": 17,
+              "y": 64,
+              "z": "0"
+            },
+            "distance": 17
+          }
+        ],
+        "hazards": []
+      }
+    },
+    {
+      "id": "ER3-DEV-02",
+      "scenario": "hunt敌对物排除23.9格内侧边界",
+      "provenance": "synthetic; hand-authored from current survival-skills.js and documented low-health deadlock; not a real trajectory",
+      "feasibility": "hunt",
+      "state": {
+        "connected": true,
+        "mode": "survival",
+        "dimension": "overworld",
+        "health": 4.5,
+        "food": 1,
+        "oxygen": 20,
+        "position": {
+          "x": 0,
+          "y": 64,
+          "z": 0
+        },
+        "timeOfDay": 6000,
+        "isNight": false,
+        "inventory": [],
+        "tools": [],
+        "heldItem": null,
+        "equipment": [],
+        "threats": [],
+        "hazards": [],
+        "resources": {
+          "stone": [],
+          "coal": [],
+          "iron": [],
+          "diamond": [],
+          "obsidian": [],
+          "gravel": [],
+          "wood": []
+        },
+        "animals": [
+          {
+            "id": 31000,
+            "name": "cow",
+            "distance": 8
+          }
+        ],
+        "landmarks": {
+          "evidenceOnly": true,
+          "villageConfirmed": false,
+          "entities": [],
+          "blocks": []
+        },
+        "stations": [],
+        "fluids": {
+          "water": [],
+          "lava": []
+        },
+        "craftable": [],
+        "recipeHints": [],
+        "recentExploration": [],
+        "recentFailures": [],
+        "portalSite": null
+      },
+      "action": {
+        "action": "hunt",
+        "count": 1
+      },
+      "expectedAction": {
+        "action": "hunt",
+        "count": 1
+      },
+      "rationale": "真实距离23.9<=24，即使model view threats为空，执行器也应在移动前拦截。",
+      "limitations": [
+        "仅模型显式选择hunt时尝试；health<=6最多一只且仅cow/pig/sheep真实距离<=16，排除chicken。执行器另检查真实24格内威胁、掉血、35秒/20格限额、干燥支撑点及安全短路径。observe.threats只列16格内，16至24格敌人可能不可见。狩猎成功只增加肉，不会立即回血。"
+      ],
+      "geometryForReview": {
+        "modelInput": false,
+        "playerPosition": {
+          "x": 0,
+          "y": 64,
+          "z": 0
+        },
+        "animals": [
+          {
+            "id": 31000,
+            "name": "cow",
+            "position": {
+              "x": 8,
+              "y": 64,
+              "z": "0"
+            },
+            "distance": 8
+          }
+        ],
+        "hostiles": [
+          {
+            "id": 32000,
+            "name": "skeleton",
+            "position": {
+              "x": 23.9,
+              "y": 64,
+              "z": "0"
+            },
+            "distance": 23.9
+          }
+        ],
+        "hazards": []
+      }
+    },
+    {
+      "id": "ER3-DEV-03",
+      "scenario": "hunt敌对物排除24.1格外侧边界",
+      "provenance": "synthetic; hand-authored from current survival-skills.js and documented low-health deadlock; not a real trajectory",
+      "feasibility": "hunt",
+      "state": {
+        "connected": true,
+        "mode": "survival",
+        "dimension": "overworld",
+        "health": 4.5,
+        "food": 1,
+        "oxygen": 20,
+        "position": {
+          "x": 0,
+          "y": 64,
+          "z": 0
+        },
+        "timeOfDay": 6000,
+        "isNight": false,
+        "inventory": [],
+        "tools": [],
+        "heldItem": null,
+        "equipment": [],
+        "threats": [],
+        "hazards": [],
+        "resources": {
+          "stone": [],
+          "coal": [],
+          "iron": [],
+          "diamond": [],
+          "obsidian": [],
+          "gravel": [],
+          "wood": []
+        },
+        "animals": [
+          {
+            "id": 31000,
+            "name": "sheep",
+            "distance": 8
+          }
+        ],
+        "landmarks": {
+          "evidenceOnly": true,
+          "villageConfirmed": false,
+          "entities": [],
+          "blocks": []
+        },
+        "stations": [],
+        "fluids": {
+          "water": [],
+          "lava": []
+        },
+        "craftable": [],
+        "recipeHints": [],
+        "recentExploration": [],
+        "recentFailures": [],
+        "portalSite": null
+      },
+      "action": {
+        "action": "hunt",
+        "count": 1
+      },
+      "expectedAction": {
+        "action": "hunt",
+        "count": 1
+      },
+      "rationale": "24.1不满足<=24敌对距离守卫；这里只验证此条件通过，不能声称其他安全条件或狩猎成功。",
+      "limitations": [
+        "仅模型显式选择hunt时尝试；health<=6最多一只且仅cow/pig/sheep真实距离<=16，排除chicken。执行器另检查真实24格内威胁、掉血、35秒/20格限额、干燥支撑点及安全短路径。observe.threats只列16格内，16至24格敌人可能不可见。狩猎成功只增加肉，不会立即回血。"
+      ],
+      "geometryForReview": {
+        "modelInput": false,
+        "playerPosition": {
+          "x": 0,
+          "y": 64,
+          "z": 0
+        },
+        "animals": [
+          {
+            "id": 31000,
+            "name": "sheep",
+            "position": {
+              "x": 8,
+              "y": 64,
+              "z": "0"
+            },
+            "distance": 8
+          }
+        ],
+        "hostiles": [
+          {
+            "id": 32000,
+            "name": "zombie",
+            "position": {
+              "x": 24.1,
+              "y": 64,
+              "z": "0"
+            },
+            "distance": 24.1
+          }
+        ],
+        "hazards": []
+      }
+    },
+    {
+      "id": "ER3-DEV-04",
+      "scenario": "应急explore长请求实际限短且标记未完成",
+      "provenance": "synthetic; hand-authored from current survival-skills.js and documented low-health deadlock; not a real trajectory",
+      "feasibility": "explore",
+      "state": {
+        "connected": true,
+        "mode": "survival",
+        "dimension": "overworld",
+        "health": 5,
+        "food": 1,
+        "oxygen": 20,
+        "position": {
+          "x": 0,
+          "y": 64,
+          "z": 0
+        },
+        "timeOfDay": 6000,
+        "isNight": false,
+        "inventory": [],
+        "tools": [],
+        "heldItem": null,
+        "equipment": [],
+        "threats": [],
+        "hazards": [],
+        "resources": {
+          "stone": [],
+          "coal": [],
+          "iron": [],
+          "diamond": [],
+          "obsidian": [],
+          "gravel": [],
+          "wood": []
+        },
+        "animals": [],
+        "landmarks": {
+          "evidenceOnly": true,
+          "villageConfirmed": false,
+          "entities": [],
+          "blocks": []
+        },
+        "stations": [],
+        "fluids": {
+          "water": [],
+          "lava": []
+        },
+        "craftable": [],
+        "recipeHints": [],
+        "recentExploration": [],
+        "recentFailures": [],
+        "portalSite": null
+      },
+      "action": {
+        "action": "explore",
+        "direction": "east",
+        "distance": 24
+      },
+      "expectedAction": {
+        "action": "explore",
+        "direction": "east",
+        "distance": 24
+      },
+      "rationale": "安全预检和实际移动通过时，紧急分支位移最多8格；返回complete:false时不得声称完成24格。",
+      "limitations": [
+        "health<=6的explore要求真实状态无24格内敌人；执行器只走模型指定方向，预检平地干燥支撑、短路径和不挖/放方块，并限制实际位移<=8格、15秒及持续掉血/威胁监控。请求距离大于上限时可能complete:false；不保证找到食物或回血。"
+      ],
+      "geometryForReview": {
+        "modelInput": false,
+        "playerPosition": {
+          "x": 0,
+          "y": 64,
+          "z": 0
+        },
+        "animals": [],
+        "hostiles": [],
+        "hazards": []
+      }
+    },
+    {
+      "id": "ER3-DEV-05",
+      "scenario": "起点地形不安全时应急explore拒绝不换向",
+      "provenance": "synthetic; hand-authored from current survival-skills.js and documented low-health deadlock; not a real trajectory",
+      "feasibility": "explore",
+      "state": {
+        "connected": true,
+        "mode": "survival",
+        "dimension": "overworld",
+        "health": 5,
+        "food": 1,
+        "oxygen": 20,
+        "position": {
+          "x": 0,
+          "y": 64,
+          "z": 0
+        },
+        "timeOfDay": 6000,
+        "isNight": false,
+        "inventory": [],
+        "tools": [],
+        "heldItem": null,
+        "equipment": [],
+        "threats": [],
+        "hazards": [
+          {
+            "name": "lava",
+            "position": {
+              "x": 0,
+              "y": 64,
+              "z": 1
+            }
+          }
+        ],
+        "resources": {
+          "stone": [],
+          "coal": [],
+          "iron": [],
+          "diamond": [],
+          "obsidian": [],
+          "gravel": [],
+          "wood": []
+        },
+        "animals": [],
+        "landmarks": {
+          "evidenceOnly": true,
+          "villageConfirmed": false,
+          "entities": [],
+          "blocks": []
+        },
+        "stations": [],
+        "fluids": {
+          "water": [],
+          "lava": []
+        },
+        "craftable": [],
+        "recipeHints": [],
+        "recentExploration": [],
+        "recentFailures": [],
+        "portalSite": null
+      },
+      "action": {
+        "action": "explore",
+        "direction": "north",
+        "distance": 16
+      },
+      "expectedAction": {
+        "action": "explore",
+        "direction": "north",
+        "distance": 16
+      },
+      "rationale": "fixture注入不安全支撑/短路径，执行器应无位移拒绝，不能自动换方向或挖/放方块。",
+      "limitations": [
+        "health<=6的explore要求真实状态无24格内敌人；执行器只走模型指定方向，预检平地干燥支撑、短路径和不挖/放方块，并限制实际位移<=8格、15秒及持续掉血/威胁监控。请求距离大于上限时可能complete:false；不保证找到食物或回血。"
+      ],
+      "geometryForReview": {
+        "modelInput": false,
+        "playerPosition": {
+          "x": 0,
+          "y": 64,
+          "z": 0
+        },
+        "animals": [],
+        "hostiles": [],
+        "hazards": [
+          {
+            "name": "lava",
+            "position": {
+              "x": 0,
+              "y": 64,
+              "z": 1
+            }
+          }
+        ]
+      }
+    },
+    {
+      "id": "ER3-DEV-06",
+      "scenario": "应急explore途中出现威胁或掉血时中止",
+      "provenance": "synthetic; hand-authored from current survival-skills.js and documented low-health deadlock; not a real trajectory",
+      "feasibility": "explore",
+      "state": {
+        "connected": true,
+        "mode": "survival",
+        "dimension": "overworld",
+        "health": 5,
+        "food": 1,
+        "oxygen": 20,
+        "position": {
+          "x": 0,
+          "y": 64,
+          "z": 0
+        },
+        "timeOfDay": 6000,
+        "isNight": false,
+        "inventory": [],
+        "tools": [],
+        "heldItem": null,
+        "equipment": [],
+        "threats": [],
+        "hazards": [],
+        "resources": {
+          "stone": [],
+          "coal": [],
+          "iron": [],
+          "diamond": [],
+          "obsidian": [],
+          "gravel": [],
+          "wood": []
+        },
+        "animals": [],
+        "landmarks": {
+          "evidenceOnly": true,
+          "villageConfirmed": false,
+          "entities": [],
+          "blocks": []
+        },
+        "stations": [],
+        "fluids": {
+          "water": [],
+          "lava": []
+        },
+        "craftable": [],
+        "recipeHints": [],
+        "recentExploration": [],
+        "recentFailures": [],
+        "portalSite": null
+      },
+      "action": {
+        "action": "explore",
+        "direction": "south",
+        "distance": 16
+      },
+      "expectedAction": {
+        "action": "explore",
+        "direction": "south",
+        "distance": 16
+      },
+      "rationale": "在动作期间注入24格内hostile或health下降，需验证安全监控取消；部分移动不等于任务完成。",
+      "limitations": [
+        "health<=6的explore要求真实状态无24格内敌人；执行器只走模型指定方向，预检平地干燥支撑、短路径和不挖/放方块，并限制实际位移<=8格、15秒及持续掉血/威胁监控。请求距离大于上限时可能complete:false；不保证找到食物或回血。"
+      ],
+      "geometryForReview": {
+        "modelInput": false,
+        "playerPosition": {
+          "x": 0,
+          "y": 64,
+          "z": 0
+        },
+        "animals": [],
+        "hostiles": [],
+        "hazards": []
+      }
+    },
+    {
+      "id": "ER3-DEV-07",
+      "scenario": "狩猎状态变化已验证有肉后切换eat",
+      "provenance": "synthetic; hand-authored from current survival-skills.js and documented low-health deadlock; not a real trajectory",
+      "feasibility": "eat",
+      "state": {
+        "connected": true,
+        "mode": "survival",
+        "dimension": "overworld",
+        "health": 4,
+        "food": 2,
+        "oxygen": 20,
+        "position": {
+          "x": 0,
+          "y": 64,
+          "z": 0
+        },
+        "timeOfDay": 6000,
+        "isNight": false,
+        "inventory": [
+          {
+            "name": "mutton",
+            "count": 1
+          }
+        ],
+        "tools": [],
+        "heldItem": null,
+        "equipment": [],
+        "threats": [],
+        "hazards": [],
+        "resources": {
+          "stone": [],
+          "coal": [],
+          "iron": [],
+          "diamond": [],
+          "obsidian": [],
+          "gravel": [],
+          "wood": []
+        },
+        "animals": [
+          {
+            "id": 31000,
+            "name": "sheep",
+            "distance": 6
+          }
+        ],
+        "landmarks": {
+          "evidenceOnly": true,
+          "villageConfirmed": false,
+          "entities": [],
+          "blocks": []
+        },
+        "stations": [],
+        "fluids": {
+          "water": [],
+          "lava": []
+        },
+        "craftable": [],
+        "recipeHints": [],
+        "recentExploration": [],
+        "recentFailures": [],
+        "portalSite": null
+      },
+      "action": {
+        "action": "eat"
+      },
+      "expectedAction": {
+        "action": "eat"
+      },
+      "rationale": "合成下一状态包含mutton，下一轮应eat而非继续追羊；该状态是假设 fixture，不代表真实狩猎发生。",
+      "limitations": [
+        "eat只补充饥饿值，不会立即回血；之后是否自然恢复须看真实health。FOODS包含生beef、porkchop、mutton，不含生chicken。"
+      ],
+      "geometryForReview": {
+        "modelInput": false,
+        "playerPosition": {
+          "x": 0,
+          "y": 64,
+          "z": 0
+        },
+        "animals": [
+          {
+            "id": 31000,
+            "name": "sheep",
+            "position": {
+              "x": 6,
+              "y": 64,
+              "z": "0"
+            },
+            "distance": 6
+          }
+        ],
+        "hostiles": [],
+        "hazards": []
+      }
+    }
+  ]
+}

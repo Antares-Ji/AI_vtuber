@@ -2,6 +2,7 @@ const { classifyComplexity, getLocalLlmConfig } = require("./local-llm");
 const { getLlmConfig } = require("./llm");
 const { buildRealtimeMessages } = require("./realtime-context");
 const { applyReplyPolicy } = require("./policy");
+const { deepseekFetch } = require('../runtime/deepseek-transport');
 
 const THINKING_PREFACES = [
   "嗯……",
@@ -29,7 +30,7 @@ function selectThinkingPreface(item = {}) {
 
 async function* openAiTokenStream(url, headers, body, signal) {
   signal?.throwIfAborted();
-  const response = await fetch(url, { method: "POST", headers: { "content-type": "application/json", ...headers }, body: JSON.stringify({ ...body, stream: true }), signal });
+  const response = await deepseekFetch(url, { method: "POST", headers: { "content-type": "application/json", ...headers }, body: JSON.stringify({ ...body, stream: true }), signal });
   if (!response.ok || !response.body) throw new Error(`Streaming LLM HTTP ${response.status}: ${(await response.text()).slice(0, 120)}`);
   const decoder = new TextDecoder();
   let pending = "";
@@ -72,15 +73,16 @@ async function* streamRoutedReply(item, context, signal) {
     };
     return;
   }
-  const routing = classifyComplexity(item);
+  const routing = classifyComplexity({ ...item, localGameSpeaker: context.game?.localOnly || item.localGameSpeaker });
   const messages = buildRealtimeMessages(item, context);
   const localConfig = getLocalLlmConfig();
   const cloudConfig = getLlmConfig();
   const localTokens = () => providerTokens({ name: "local", enabled: localConfig.enabled && !context.disableExternalLlm, url: `${localConfig.baseUrl.replace(/\/$/, "")}/chat/completions`, headers: {}, model: localConfig.model, messages, signal, maxTokens: context.realtimeMaxTokens });
   const cloudTokens = () => providerTokens({ name: "cloud", enabled: cloudConfig.enabled && !context.disableExternalLlm, url: `${cloudConfig.baseUrl.replace(/\/$/, "")}/chat/completions`, headers: { authorization: `Bearer ${process.env.OPENAI_API_KEY}` }, model: cloudConfig.model, messages, signal });
-  const plans = routing.route === "local"
+  let plans = routing.route === "local"
     ? [{ route: "local", model: localConfig.model, mode: "local-stream", tokens: localTokens }, { route: "cloud", model: cloudConfig.model, mode: "cloud-stream", tokens: cloudTokens }]
     : [{ route: "cloud", model: cloudConfig.model, mode: "cloud-stream", tokens: cloudTokens }, { route: "local", model: localConfig.model, mode: "local-stream", tokens: localTokens }];
+  if (context.game && (context.game.localOnly || process.env.MINECRAFT_CHAT_PROVIDER === "local")) plans = plans.filter(plan => plan.route === "local");
   if (routing.route === "cloud") yield { type: "preface", text: selectThinkingPreface(item), routing };
 
   let firstError = null;
@@ -104,7 +106,7 @@ async function* streamRoutedReply(item, context, signal) {
     } catch (error) {
       if (signal?.aborted || emitted) throw error;
       firstError ||= error;
-      if (index === 0 && routing.route === "local") {
+      if (index === 0 && routing.route === "local" && plans.length > 1) {
         const fallbackRouting = {
           ...routing,
           route: plans[1].route,

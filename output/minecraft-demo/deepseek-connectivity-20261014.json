@@ -1,0 +1,19 @@
+{
+  "at": "2026-10-14T13:44:49.456Z",
+  "ok": true,
+  "status": 200,
+  "elapsedMs": 1039,
+  "model": "deepseek-flash",
+  "text": "你好！",
+  "finish": "stop",
+  "usage": {
+    "prompt_tokens": 11,
+    "completion_tokens": 2,
+    "total_tokens": 13,
+    "prompt_tokens_details": {
+      "cached_tokens": 0
+    },
+    "prompt_cache_hit_tokens": 0,
+    "prompt_cache_miss_tokens": 11
+  }
+}

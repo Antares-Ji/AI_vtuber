@@ -1,0 +1,42 @@
+{
+  "probe": "live-probe-1791833435547.json",
+  "source_path": "E:\\Github\\AI_vtuber\\output\\minecraft-training\\live-probe-1791833435547.json",
+  "at": "2026-10-12T19:30:35.548Z",
+  "raw": "{\"action\":\"craft\",\"item\":\"planks\",\"count\":4}",
+  "predicted": {
+    "action": "craft",
+    "item": "planks",
+    "count": 4
+  },
+  "schema_valid": true,
+  "latency_ms": 1880.3,
+  "request_metadata": {
+    "task": "minecraft-survival",
+    "used_adapter": true,
+    "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v6r1-weighted-material-candidate\\checkpoint-epoch-01"
+  },
+  "diagnostic_only": true,
+  "hard_gold_label": null,
+  "original_results_for_context": [
+    {
+      "task": null,
+      "latencyMs": 1500,
+      "metadata": {
+        "task": null,
+        "used_adapter": false,
+        "adapter_path": null
+      },
+      "content": "{\"action\":\"craft\",\"item\":\"planks\",\"count\":4}"
+    },
+    {
+      "task": "minecraft-survival",
+      "latencyMs": 1673,
+      "metadata": {
+        "task": "minecraft-survival",
+        "used_adapter": true,
+        "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v2\\checkpoint-epoch-03"
+      },
+      "content": "{\"action\":\"craft\",\"item\":\"crafting_table\",\"count\":1}"
+    }
+  ]
+}

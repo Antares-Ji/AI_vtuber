@@ -1,0 +1,1413 @@
+{
+  "at": "2026-10-12T20:46:47.834Z",
+  "scope": "Development only; no final20 holdout read for this review",
+  "combinedInputsPreserved": true,
+  "models": {
+    "base": {
+      "source": "output/minecraft-training/v4r1-comparison/v4r1-all35-base.jsonl",
+      "hash": "3d34184a2513118f6cde2071c83e871f69246494890a226837c67bf67ce74c75",
+      "broad27": {
+        "schema": 26,
+        "exact": 7
+      },
+      "new8": {
+        "schema": 8,
+        "accepted": 2
+      },
+      "all35": {
+        "schema": 34,
+        "exact": 8,
+        "accepted": 9
+      },
+      "cases": [
+        {
+          "id": "development-v2-0001",
+          "predicted": {
+            "action": "craft",
+            "item": "stone_pickaxe",
+            "count": 1
+          },
+          "valid": true,
+          "exact": true,
+          "accepted": true,
+          "latency": 2641.9
+        },
+        {
+          "id": "development-v2-0002",
+          "predicted": {
+            "action": "mine",
+            "resource": "stone",
+            "count": 1
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": false,
+          "latency": 1090.5
+        },
+        {
+          "id": "development-v2-0003",
+          "predicted": {
+            "action": "mine",
+            "resource": "diamond",
+            "count": 1
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": false,
+          "latency": 1058.8
+        },
+        {
+          "id": "development-v2-0004",
+          "predicted": {
+            "action": "craft",
+            "item": "planks",
+            "count": 8
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": false,
+          "latency": 1104.4
+        },
+        {
+          "id": "development-v2-0005",
+          "predicted": {
+            "action": "mine",
+            "resource": "coal",
+            "count": 1
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": false,
+          "latency": 1042.7
+        },
+        {
+          "id": "development-v2-0006",
+          "predicted": {
+            "action": "flee"
+          },
+          "valid": true,
+          "exact": true,
+          "accepted": true,
+          "latency": 712.2
+        },
+        {
+          "id": "development-v2-0007",
+          "predicted": {
+            "action": "mine",
+            "resource": "diamond",
+            "count": 1
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": false,
+          "latency": 1037.9
+        },
+        {
+          "id": "development-v2-0008",
+          "predicted": {
+            "action": "mine",
+            "resource": "coal",
+            "count": 1
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": false,
+          "latency": 1062.8
+        },
+        {
+          "id": "development-v2-0009",
+          "predicted": {
+            "action": "flee"
+          },
+          "valid": true,
+          "exact": true,
+          "accepted": true,
+          "latency": 729.5
+        },
+        {
+          "id": "development-v2-0010",
+          "predicted": {
+            "action": "mine",
+            "resource": "iron",
+            "count": 1
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": false,
+          "latency": 1035.7
+        },
+        {
+          "id": "development-v2-0011",
+          "predicted": {
+            "action": "mine",
+            "resource": "iron_ore",
+            "count": 1
+          },
+          "valid": false,
+          "exact": false,
+          "accepted": false,
+          "latency": 1210.7
+        },
+        {
+          "id": "development-v2-0012",
+          "predicted": {
+            "action": "gather_wood",
+            "count": 12
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": false,
+          "latency": 1012.2
+        },
+        {
+          "id": "development-v2-0013",
+          "predicted": {
+            "action": "gather_wood",
+            "count": 12
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": false,
+          "latency": 992.8
+        },
+        {
+          "id": "development-v2-0014",
+          "predicted": {
+            "action": "craft",
+            "item": "wooden_pickaxe",
+            "count": 1
+          },
+          "valid": true,
+          "exact": true,
+          "accepted": true,
+          "latency": 1216.9
+        },
+        {
+          "id": "development-v2-0015",
+          "predicted": {
+            "action": "craft",
+            "item": "planks",
+            "count": 8
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": false,
+          "latency": 1097.1
+        },
+        {
+          "id": "development-v2-0016",
+          "predicted": {
+            "action": "gather_wood",
+            "count": 12
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": false,
+          "latency": 1029.4
+        },
+        {
+          "id": "development-v2-0017",
+          "predicted": {
+            "action": "mine",
+            "resource": "obsidian",
+            "count": 1
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": false,
+          "latency": 1129.7
+        },
+        {
+          "id": "development-v2-0018",
+          "predicted": {
+            "action": "mine",
+            "resource": "coal",
+            "count": 1
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": false,
+          "latency": 1072.4
+        },
+        {
+          "id": "development-v2-0019",
+          "predicted": {
+            "action": "eat"
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": false,
+          "latency": 670.5
+        },
+        {
+          "id": "development-v2-0020",
+          "predicted": {
+            "action": "mine",
+            "resource": "coal",
+            "count": 1
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": false,
+          "latency": 1040.6
+        },
+        {
+          "id": "development-v2-0021",
+          "predicted": {
+            "action": "mine",
+            "resource": "coal",
+            "count": 1
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": false,
+          "latency": 1077.7
+        },
+        {
+          "id": "development-v2-0022",
+          "predicted": {
+            "action": "craft",
+            "item": "iron_pickaxe",
+            "count": 1
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": false,
+          "latency": 1317.2
+        },
+        {
+          "id": "development-v2-0023",
+          "predicted": {
+            "action": "eat"
+          },
+          "valid": true,
+          "exact": true,
+          "accepted": true,
+          "latency": 723.8
+        },
+        {
+          "id": "development-v2-0024",
+          "predicted": {
+            "action": "gather_wood",
+            "count": 12
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": false,
+          "latency": 1067.6
+        },
+        {
+          "id": "development-v2-0025",
+          "predicted": {
+            "action": "gather_wood",
+            "count": 12
+          },
+          "valid": true,
+          "exact": true,
+          "accepted": true,
+          "latency": 1236.9
+        },
+        {
+          "id": "development-v2-0026",
+          "predicted": {
+            "action": "explore",
+            "direction": "northwest",
+            "distance": 16
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": false,
+          "latency": 1268.8
+        },
+        {
+          "id": "development-v3r1-real-material-probe",
+          "predicted": {
+            "action": "craft",
+            "item": "planks",
+            "count": 4
+          },
+          "valid": true,
+          "exact": true,
+          "accepted": true,
+          "latency": 1515.1
+        },
+        {
+          "id": "v4r1-dev-01",
+          "predicted": {
+            "action": "craft",
+            "item": "furnace",
+            "count": 1
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": false,
+          "latency": 1316.7
+        },
+        {
+          "id": "v4r1-dev-02",
+          "predicted": {
+            "action": "mine",
+            "resource": "iron",
+            "count": 1
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": true,
+          "latency": 1120.2
+        },
+        {
+          "id": "v4r1-dev-03",
+          "predicted": {
+            "action": "craft",
+            "item": "furnace",
+            "count": 1
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": false,
+          "latency": 1184.9
+        },
+        {
+          "id": "v4r1-dev-04",
+          "predicted": {
+            "action": "craft",
+            "item": "crafting_table",
+            "count": 1
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": false,
+          "latency": 1216.4
+        },
+        {
+          "id": "v4r1-dev-05",
+          "predicted": {
+            "action": "gather_wood",
+            "count": 12
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": false,
+          "latency": 1050.1
+        },
+        {
+          "id": "v4r1-dev-06",
+          "predicted": {
+            "action": "craft",
+            "item": "planks",
+            "count": 4
+          },
+          "valid": true,
+          "exact": true,
+          "accepted": true,
+          "latency": 1206.8
+        },
+        {
+          "id": "v4r1-dev-07",
+          "predicted": {
+            "action": "gather_wood",
+            "count": 12
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": false,
+          "latency": 1136.8
+        },
+        {
+          "id": "v4r1-dev-08",
+          "predicted": {
+            "action": "eat"
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": false,
+          "latency": 693.4
+        }
+      ]
+    },
+    "v3r1": {
+      "source": "output/minecraft-training/v4r1-comparison/v4r1-all35-v3r1.jsonl",
+      "hash": "3ad0ace1b9930c6dc581171722d6ca93791bccbb47e6f7a1391b063818872a52",
+      "broad27": {
+        "schema": 27,
+        "exact": 11
+      },
+      "new8": {
+        "schema": 8,
+        "accepted": 3
+      },
+      "all35": {
+        "schema": 35,
+        "exact": 12,
+        "accepted": 14
+      },
+      "cases": [
+        {
+          "id": "development-v2-0001",
+          "predicted": {
+            "action": "craft",
+            "item": "stone_pickaxe",
+            "count": 1
+          },
+          "valid": true,
+          "exact": true,
+          "accepted": true,
+          "latency": 1466.1
+        },
+        {
+          "id": "development-v2-0002",
+          "predicted": {
+            "action": "mine",
+            "resource": "stone",
+            "count": 5
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": false,
+          "latency": 1384.8
+        },
+        {
+          "id": "development-v2-0003",
+          "predicted": {
+            "action": "eat"
+          },
+          "valid": true,
+          "exact": true,
+          "accepted": true,
+          "latency": 810.4
+        },
+        {
+          "id": "development-v2-0004",
+          "predicted": {
+            "action": "craft",
+            "item": "iron_pickaxe",
+            "count": 1
+          },
+          "valid": true,
+          "exact": true,
+          "accepted": true,
+          "latency": 1783.6
+        },
+        {
+          "id": "development-v2-0005",
+          "predicted": {
+            "action": "eat"
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": false,
+          "latency": 816
+        },
+        {
+          "id": "development-v2-0006",
+          "predicted": {
+            "action": "flee"
+          },
+          "valid": true,
+          "exact": true,
+          "accepted": true,
+          "latency": 1029.2
+        },
+        {
+          "id": "development-v2-0007",
+          "predicted": {
+            "action": "mine",
+            "resource": "diamond",
+            "count": 4
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": false,
+          "latency": 1330.5
+        },
+        {
+          "id": "development-v2-0008",
+          "predicted": {
+            "action": "eat"
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": false,
+          "latency": 774.9
+        },
+        {
+          "id": "development-v2-0009",
+          "predicted": {
+            "action": "flee"
+          },
+          "valid": true,
+          "exact": true,
+          "accepted": true,
+          "latency": 839.8
+        },
+        {
+          "id": "development-v2-0010",
+          "predicted": {
+            "action": "smelt",
+            "item": "raw_iron",
+            "count": 2
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": false,
+          "latency": 1557.4
+        },
+        {
+          "id": "development-v2-0011",
+          "predicted": {
+            "action": "mine",
+            "resource": "iron",
+            "count": 4
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": false,
+          "latency": 1360.8
+        },
+        {
+          "id": "development-v2-0012",
+          "predicted": {
+            "action": "collect_water"
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": false,
+          "latency": 889.2
+        },
+        {
+          "id": "development-v2-0013",
+          "predicted": {
+            "action": "collect_water"
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": false,
+          "latency": 860.4
+        },
+        {
+          "id": "development-v2-0014",
+          "predicted": {
+            "action": "craft",
+            "item": "wooden_pickaxe",
+            "count": 1
+          },
+          "valid": true,
+          "exact": true,
+          "accepted": true,
+          "latency": 1528.7
+        },
+        {
+          "id": "development-v2-0015",
+          "predicted": {
+            "action": "mine",
+            "resource": "stone",
+            "count": 8
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": false,
+          "latency": 1325.6
+        },
+        {
+          "id": "development-v2-0016",
+          "predicted": {
+            "action": "eat"
+          },
+          "valid": true,
+          "exact": true,
+          "accepted": true,
+          "latency": 817.1
+        },
+        {
+          "id": "development-v2-0017",
+          "predicted": {
+            "action": "mine",
+            "resource": "obsidian",
+            "count": 10
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": false,
+          "latency": 1469
+        },
+        {
+          "id": "development-v2-0018",
+          "predicted": {
+            "action": "eat"
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": false,
+          "latency": 865.2
+        },
+        {
+          "id": "development-v2-0019",
+          "predicted": {
+            "action": "flee"
+          },
+          "valid": true,
+          "exact": true,
+          "accepted": true,
+          "latency": 949.7
+        },
+        {
+          "id": "development-v2-0020",
+          "predicted": {
+            "action": "eat"
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": false,
+          "latency": 800.7
+        },
+        {
+          "id": "development-v2-0021",
+          "predicted": {
+            "action": "mine",
+            "resource": "coal",
+            "count": 4
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": false,
+          "latency": 1319.4
+        },
+        {
+          "id": "development-v2-0022",
+          "predicted": {
+            "action": "craft",
+            "item": "stone_pickaxe",
+            "count": 1
+          },
+          "valid": true,
+          "exact": true,
+          "accepted": true,
+          "latency": 1437.8
+        },
+        {
+          "id": "development-v2-0023",
+          "predicted": {
+            "action": "eat"
+          },
+          "valid": true,
+          "exact": true,
+          "accepted": true,
+          "latency": 781.5
+        },
+        {
+          "id": "development-v2-0024",
+          "predicted": {
+            "action": "craft",
+            "item": "torch",
+            "count": 4
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": false,
+          "latency": 1337.6
+        },
+        {
+          "id": "development-v2-0025",
+          "predicted": {
+            "action": "gather_wood",
+            "count": 4
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": false,
+          "latency": 1443.8
+        },
+        {
+          "id": "development-v2-0026",
+          "predicted": {
+            "action": "explore",
+            "direction": "south",
+            "distance": 24
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": false,
+          "latency": 1436.4
+        },
+        {
+          "id": "development-v3r1-real-material-probe",
+          "predicted": {
+            "action": "craft",
+            "item": "planks",
+            "count": 4
+          },
+          "valid": true,
+          "exact": true,
+          "accepted": true,
+          "latency": 1532.4
+        },
+        {
+          "id": "v4r1-dev-01",
+          "predicted": {
+            "action": "craft",
+            "item": "stick",
+            "count": 4
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": false,
+          "latency": 1297.5
+        },
+        {
+          "id": "v4r1-dev-02",
+          "predicted": {
+            "action": "mine",
+            "resource": "iron",
+            "count": 4
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": true,
+          "latency": 1304.1
+        },
+        {
+          "id": "v4r1-dev-03",
+          "predicted": {
+            "action": "craft",
+            "item": "planks",
+            "count": 16
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": false,
+          "latency": 1424.1
+        },
+        {
+          "id": "v4r1-dev-04",
+          "predicted": {
+            "action": "craft",
+            "item": "planks",
+            "count": 16
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": false,
+          "latency": 1447.9
+        },
+        {
+          "id": "v4r1-dev-05",
+          "predicted": {
+            "action": "gather_wood",
+            "count": 6
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": true,
+          "latency": 1179.2
+        },
+        {
+          "id": "v4r1-dev-06",
+          "predicted": {
+            "action": "craft",
+            "item": "planks",
+            "count": 4
+          },
+          "valid": true,
+          "exact": true,
+          "accepted": true,
+          "latency": 1353.4
+        },
+        {
+          "id": "v4r1-dev-07",
+          "predicted": {
+            "action": "eat"
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": false,
+          "latency": 773.3
+        },
+        {
+          "id": "v4r1-dev-08",
+          "predicted": {
+            "action": "eat"
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": false,
+          "latency": 798.5
+        }
+      ]
+    },
+    "v4r1": {
+      "source": "output/minecraft-training/v4r1-comparison/v4r1-all35-v4r1.jsonl",
+      "hash": "5b6b913462019a811a8b161c603ec5bd7575b07817a631344cb1c8b373f5800d",
+      "broad27": {
+        "schema": 27,
+        "exact": 12
+      },
+      "new8": {
+        "schema": 8,
+        "accepted": 4
+      },
+      "all35": {
+        "schema": 35,
+        "exact": 13,
+        "accepted": 16
+      },
+      "cases": [
+        {
+          "id": "development-v2-0001",
+          "predicted": {
+            "action": "craft",
+            "item": "stone_pickaxe",
+            "count": 1
+          },
+          "valid": true,
+          "exact": true,
+          "accepted": true,
+          "latency": 1439.8
+        },
+        {
+          "id": "development-v2-0002",
+          "predicted": {
+            "action": "mine",
+            "resource": "stone",
+            "count": 4
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": false,
+          "latency": 1294.4
+        },
+        {
+          "id": "development-v2-0003",
+          "predicted": {
+            "action": "eat"
+          },
+          "valid": true,
+          "exact": true,
+          "accepted": true,
+          "latency": 765.3
+        },
+        {
+          "id": "development-v2-0004",
+          "predicted": {
+            "action": "craft",
+            "item": "iron_pickaxe",
+            "count": 1
+          },
+          "valid": true,
+          "exact": true,
+          "accepted": true,
+          "latency": 1401.1
+        },
+        {
+          "id": "development-v2-0005",
+          "predicted": {
+            "action": "eat"
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": false,
+          "latency": 759.6
+        },
+        {
+          "id": "development-v2-0006",
+          "predicted": {
+            "action": "flee"
+          },
+          "valid": true,
+          "exact": true,
+          "accepted": true,
+          "latency": 831.9
+        },
+        {
+          "id": "development-v2-0007",
+          "predicted": {
+            "action": "mine",
+            "resource": "diamond",
+            "count": 3
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": false,
+          "latency": 1316.1
+        },
+        {
+          "id": "development-v2-0008",
+          "predicted": {
+            "action": "explore",
+            "direction": "north",
+            "distance": 24
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": false,
+          "latency": 1436.7
+        },
+        {
+          "id": "development-v2-0009",
+          "predicted": {
+            "action": "flee"
+          },
+          "valid": true,
+          "exact": true,
+          "accepted": true,
+          "latency": 857.3
+        },
+        {
+          "id": "development-v2-0010",
+          "predicted": {
+            "action": "smelt",
+            "item": "raw_iron",
+            "count": 2
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": false,
+          "latency": 1471
+        },
+        {
+          "id": "development-v2-0011",
+          "predicted": {
+            "action": "mine",
+            "resource": "iron",
+            "count": 4
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": false,
+          "latency": 1290.5
+        },
+        {
+          "id": "development-v2-0012",
+          "predicted": {
+            "action": "collect_water"
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": false,
+          "latency": 820.6
+        },
+        {
+          "id": "development-v2-0013",
+          "predicted": {
+            "action": "place_water"
+          },
+          "valid": true,
+          "exact": true,
+          "accepted": true,
+          "latency": 819.9
+        },
+        {
+          "id": "development-v2-0014",
+          "predicted": {
+            "action": "craft",
+            "item": "wooden_pickaxe",
+            "count": 1
+          },
+          "valid": true,
+          "exact": true,
+          "accepted": true,
+          "latency": 1475.5
+        },
+        {
+          "id": "development-v2-0015",
+          "predicted": {
+            "action": "explore",
+            "direction": "north",
+            "distance": 24
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": false,
+          "latency": 1442.4
+        },
+        {
+          "id": "development-v2-0016",
+          "predicted": {
+            "action": "eat"
+          },
+          "valid": true,
+          "exact": true,
+          "accepted": true,
+          "latency": 778.8
+        },
+        {
+          "id": "development-v2-0017",
+          "predicted": {
+            "action": "mine",
+            "resource": "obsidian",
+            "count": 10
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": false,
+          "latency": 1406.2
+        },
+        {
+          "id": "development-v2-0018",
+          "predicted": {
+            "action": "eat"
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": false,
+          "latency": 783.1
+        },
+        {
+          "id": "development-v2-0019",
+          "predicted": {
+            "action": "flee"
+          },
+          "valid": true,
+          "exact": true,
+          "accepted": true,
+          "latency": 828.3
+        },
+        {
+          "id": "development-v2-0020",
+          "predicted": {
+            "action": "explore",
+            "direction": "north",
+            "distance": 24
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": false,
+          "latency": 1428.1
+        },
+        {
+          "id": "development-v2-0021",
+          "predicted": {
+            "action": "mine",
+            "resource": "coal",
+            "count": 4
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": false,
+          "latency": 1463.7
+        },
+        {
+          "id": "development-v2-0022",
+          "predicted": {
+            "action": "craft",
+            "item": "stone_pickaxe",
+            "count": 1
+          },
+          "valid": true,
+          "exact": true,
+          "accepted": true,
+          "latency": 1469.3
+        },
+        {
+          "id": "development-v2-0023",
+          "predicted": {
+            "action": "eat"
+          },
+          "valid": true,
+          "exact": true,
+          "accepted": true,
+          "latency": 761.9
+        },
+        {
+          "id": "development-v2-0024",
+          "predicted": {
+            "action": "craft",
+            "item": "torch",
+            "count": 4
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": false,
+          "latency": 1299.5
+        },
+        {
+          "id": "development-v2-0025",
+          "predicted": {
+            "action": "gather_wood",
+            "count": 3
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": false,
+          "latency": 1375.5
+        },
+        {
+          "id": "development-v2-0026",
+          "predicted": {
+            "action": "explore",
+            "direction": "south",
+            "distance": 24
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": false,
+          "latency": 1410.3
+        },
+        {
+          "id": "development-v3r1-real-material-probe",
+          "predicted": {
+            "action": "craft",
+            "item": "planks",
+            "count": 4
+          },
+          "valid": true,
+          "exact": true,
+          "accepted": true,
+          "latency": 1528
+        },
+        {
+          "id": "v4r1-dev-01",
+          "predicted": {
+            "action": "craft",
+            "item": "stick",
+            "count": 4
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": false,
+          "latency": 1292.6
+        },
+        {
+          "id": "v4r1-dev-02",
+          "predicted": {
+            "action": "mine",
+            "resource": "iron",
+            "count": 4
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": true,
+          "latency": 1281.2
+        },
+        {
+          "id": "v4r1-dev-03",
+          "predicted": {
+            "action": "explore",
+            "direction": "east",
+            "distance": 24
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": true,
+          "latency": 1405.9
+        },
+        {
+          "id": "v4r1-dev-04",
+          "predicted": {
+            "action": "craft",
+            "item": "planks",
+            "count": 16
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": false,
+          "latency": 1424.5
+        },
+        {
+          "id": "v4r1-dev-05",
+          "predicted": {
+            "action": "gather_wood",
+            "count": 6
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": true,
+          "latency": 1152.3
+        },
+        {
+          "id": "v4r1-dev-06",
+          "predicted": {
+            "action": "craft",
+            "item": "planks",
+            "count": 4
+          },
+          "valid": true,
+          "exact": true,
+          "accepted": true,
+          "latency": 1379.8
+        },
+        {
+          "id": "v4r1-dev-07",
+          "predicted": {
+            "action": "explore",
+            "direction": "south",
+            "distance": 24
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": false,
+          "latency": 1408.6
+        },
+        {
+          "id": "v4r1-dev-08",
+          "predicted": {
+            "action": "eat"
+          },
+          "valid": true,
+          "exact": false,
+          "accepted": false,
+          "latency": 784.4
+        }
+      ]
+    }
+  },
+  "changes": [
+    {
+      "id": "development-v2-0002",
+      "prior": {
+        "action": "mine",
+        "resource": "stone",
+        "count": 5
+      },
+      "next": {
+        "action": "mine",
+        "resource": "stone",
+        "count": 4
+      },
+      "oldExact": false,
+      "newExact": false
+    },
+    {
+      "id": "development-v2-0007",
+      "prior": {
+        "action": "mine",
+        "resource": "diamond",
+        "count": 4
+      },
+      "next": {
+        "action": "mine",
+        "resource": "diamond",
+        "count": 3
+      },
+      "oldExact": false,
+      "newExact": false
+    },
+    {
+      "id": "development-v2-0008",
+      "prior": {
+        "action": "eat"
+      },
+      "next": {
+        "action": "explore",
+        "direction": "north",
+        "distance": 24
+      },
+      "oldExact": false,
+      "newExact": false
+    },
+    {
+      "id": "development-v2-0013",
+      "prior": {
+        "action": "collect_water"
+      },
+      "next": {
+        "action": "place_water"
+      },
+      "oldExact": false,
+      "newExact": true
+    },
+    {
+      "id": "development-v2-0015",
+      "prior": {
+        "action": "mine",
+        "resource": "stone",
+        "count": 8
+      },
+      "next": {
+        "action": "explore",
+        "direction": "north",
+        "distance": 24
+      },
+      "oldExact": false,
+      "newExact": false
+    },
+    {
+      "id": "development-v2-0020",
+      "prior": {
+        "action": "eat"
+      },
+      "next": {
+        "action": "explore",
+        "direction": "north",
+        "distance": 24
+      },
+      "oldExact": false,
+      "newExact": false
+    },
+    {
+      "id": "development-v2-0025",
+      "prior": {
+        "action": "gather_wood",
+        "count": 4
+      },
+      "next": {
+        "action": "gather_wood",
+        "count": 3
+      },
+      "oldExact": false,
+      "newExact": false
+    },
+    {
+      "id": "v4r1-dev-03",
+      "prior": {
+        "action": "craft",
+        "item": "planks",
+        "count": 16
+      },
+      "next": {
+        "action": "explore",
+        "direction": "east",
+        "distance": 24
+      },
+      "oldExact": false,
+      "newExact": false
+    },
+    {
+      "id": "v4r1-dev-07",
+      "prior": {
+        "action": "eat"
+      },
+      "next": {
+        "action": "explore",
+        "direction": "south",
+        "distance": 24
+      },
+      "oldExact": false,
+      "newExact": false
+    }
+  ],
+  "exactRegressions": [],
+  "summaryRecomputedWithoutDiscrepancy": true,
+  "findings": {
+    "concreteImprovements": [
+      "development-v2-0013: water_bucket plus visible lava now place_water, instead of infeasible collect_water with no empty bucket.",
+      "development-v2-0015: no visible stone now explore rather than mine nonexistent stone.",
+      "development-v2-0020: explore instead of eat when food18 and prepared iron tool/torches; useful progress alternative despite different direction from fixed label.",
+      "v4r1-dev-03: surplus31planks/10sticks/no mineral now explore east24, accepted among all eight directions instead of redundant planks16."
+    ],
+    "mixedChanges": [
+      "development-v2-0008: eat at hp15/food12 changed to explore; both executable but loses nourishment priority, neither attempts requested staircase.",
+      "v4r1-dev-07: eat at hp17/food13 changed to explore; materially allowed but no staircase-learning evidence."
+    ],
+    "unchangedFailures": [
+      "v4r1-dev-01: still craft stick4 despite existing8sticks/woodpick/visible stone; core wood-to-stone bottleneck unresolved.",
+      "v4r1-dev-04: still planks16 despite18 existingplanks/12sticks; surplus loop persists.",
+      "development-v2-0007: still tries diamond mining with onlystone pickaxe.",
+      "v4r1-dev-08: eat with food15 is safe and feasible but does not remedy absent torch after staircase failure; score remains failed fixed stage target."
+    ],
+    "oldExactProbeReview": [
+      "development-v2-0025 remains correct gather intent; count4→3 is not semantic regression versus label12.",
+      "development-v3r1-real-material-probe remains planks4, feasible fromlogs3/planks2. Both also passedbase at intent/material level."
+    ],
+    "thirdProbe": "Separate diagnostic1791836151666 retains basegather12 vs bothadaptersplanks4; realstate haslog1 andno planks, so planks4 feasible. Do not use that diagnostic exact flag as progression failure or adapter regression.",
+    "safety": "Both adapters preserve2/2 known-threat flee and low-hunger eat cases. No new definitive safety/material regression found; narrow sample cannot establish safety."
+  },
+  "metadataCaveat": "compare_dev_grid.py constructs request_metadata locally around PEFT set_adapter/disable_adapter; these are directGPU benchmark labels, not actual HTTP completion used_adapter metadata.",
+  "recommendation": "Worth one short bounded live trial ofv4r1 due concrete recovery/exploration gains and no clear lost correct cases. It is a modest candidate, not evidence of solved progression. Preservefull interval/failures and deployedruntime hashes; require actual completionmetadata. Judge learned progression by model-selectedmine with appropriatevisible resource/tool and corroborated stone gain, not repeatedpositivewoodcraft alone. Keep finalizedholdout for post-selectionaudit only.",
+  "evaluationIsolationLimitation": {
+    "reportedAt": "2026-10-12T20:47:10.968Z",
+    "rootDisclosure": "Root reports accidental exposure to part of original20 construction labels while rg-searching scripts for evaluation CLI. Root states candidate selection/training/scoring were not adjusted from that exposure; v4r1 selection was based on35development cases.",
+    "independentReviewer": "This v4r1 selection review accessed development artifacts only, not final20 labels.",
+    "trainingAgent": "No final20 access by training agent reported.",
+    "claimRestriction": "Do not claim all decision makers remained blind to original20. Frozen post-selection assessment remains useful but this is an isolation limitation."
+  }
+}

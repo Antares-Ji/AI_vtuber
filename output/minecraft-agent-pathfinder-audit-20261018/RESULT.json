@@ -1,0 +1,16 @@
+{
+  "at": "2026-10-19T00:59:19.827Z",
+  "version": "2.4.5",
+  "baseline": {
+    "emptyNoPath": "resolved",
+    "partialTimeout": "rejected:Timeout"
+  },
+  "patched": {
+    "emptyNoPath": "rejected:NoPath",
+    "partialTimeout": "resolved"
+  },
+  "patchExit": 0,
+  "cancellationTestsExit": 0,
+  "applicationDependencyUnchanged": true,
+  "gameStarted": false
+}

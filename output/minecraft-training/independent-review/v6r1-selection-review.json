@@ -1,0 +1,522 @@
+{
+  "at": "2026-10-12T22:48:00.664Z",
+  "recommendation": "REJECT v6r1 for this live deployment under predeclared no-new-critical-material-regression criterion; retain v4r1 rollback, which itself has not passed autonomous survival.",
+  "criterionFile": "v6r1-selection-criteria.json",
+  "criteriaSha256": "026cdbec0593a970f93e6d73324e389b202b6b5475cc95cec92205680fdcc86e",
+  "inputSha256": "0abc77696228f1ab5c62b919f5aeb2b4295b17e91f84bb149b202bff7ebb2ef5",
+  "rawHashes": {
+    "v4": "dfb46eef541e073a1abe3c885786f57d74e0b3a1f1e277c825dc182d28e192ec",
+    "v6": "40b502022384bbd4c311deef8bcbed077246cdae54abd74154c3ea772302d154"
+  },
+  "metrics": {
+    "v4": {
+      "schema": 57,
+      "accepted": 20,
+      "threats": {
+        "n": 2,
+        "pass": 2
+      },
+      "slices": {
+        "legacy27": {
+          "n": 27,
+          "schema": 27,
+          "accepted": 12
+        },
+        "v4-allowed-set8": {
+          "n": 8,
+          "schema": 8,
+          "accepted": 4
+        },
+        "v5r2-dense12": {
+          "n": 12,
+          "schema": 12,
+          "accepted": 2
+        },
+        "new-v6r1-dev10": {
+          "n": 10,
+          "schema": 10,
+          "accepted": 2
+        }
+      }
+    },
+    "v6": {
+      "schema": 57,
+      "accepted": 24,
+      "threats": {
+        "n": 2,
+        "pass": 2
+      },
+      "slices": {
+        "legacy27": {
+          "n": 27,
+          "schema": 27,
+          "accepted": 12
+        },
+        "v4-allowed-set8": {
+          "n": 8,
+          "schema": 8,
+          "accepted": 4
+        },
+        "v5r2-dense12": {
+          "n": 12,
+          "schema": 12,
+          "accepted": 3
+        },
+        "new-v6r1-dev10": {
+          "n": 10,
+          "schema": 10,
+          "accepted": 5
+        }
+      }
+    }
+  },
+  "schemaScoringDisagreements": [],
+  "acceptedRegressions": [
+    {
+      "id": "v6r1-dev-06",
+      "before": {
+        "action": "gather_wood",
+        "count": 3
+      },
+      "after": {
+        "action": "eat"
+      },
+      "expected": {
+        "action": "gather_wood",
+        "count": {
+          "min": 1,
+          "max": 8
+        }
+      }
+    }
+  ],
+  "acceptedImprovements": [
+    {
+      "id": "v5r2-dev-10",
+      "before": {
+        "action": "mine",
+        "resource": "stone",
+        "count": 4
+      },
+      "after": {
+        "action": "craft",
+        "item": "crafting_table",
+        "count": 1
+      },
+      "expected": {
+        "action": "craft",
+        "item": "crafting_table",
+        "count": 1
+      }
+    },
+    {
+      "id": "v6r1-dev-02",
+      "before": {
+        "action": "craft",
+        "item": "stick",
+        "count": 4
+      },
+      "after": {
+        "action": "gather_wood",
+        "count": 3
+      },
+      "expected": {
+        "action": "gather_wood",
+        "count": {
+          "min": 1,
+          "max": 8
+        }
+      }
+    },
+    {
+      "id": "v6r1-dev-04",
+      "before": {
+        "action": "gather_wood",
+        "count": 4
+      },
+      "after": {
+        "action": "craft",
+        "item": "planks",
+        "count": 4
+      },
+      "expected": {
+        "action": "craft",
+        "item": "planks",
+        "count": {
+          "min": 1,
+          "max": 4
+        }
+      }
+    },
+    {
+      "id": "v6r1-dev-05",
+      "before": {
+        "action": "craft",
+        "item": "stick",
+        "count": 4
+      },
+      "after": {
+        "action": "eat"
+      },
+      "expected": {
+        "action": "eat"
+      }
+    },
+    {
+      "id": "v6r1-dev-09",
+      "before": {
+        "action": "mine",
+        "resource": "stone",
+        "count": 4
+      },
+      "after": {
+        "action": "craft",
+        "item": "iron_pickaxe",
+        "count": 1
+      },
+      "expected": {
+        "action": "craft",
+        "item": "iron_pickaxe",
+        "count": 1
+      }
+    }
+  ],
+  "criticalMaterialRegressions": [
+    {
+      "id": "v4r1-dev-01",
+      "before": "craft stick4 is affordable but unnecessary",
+      "after": "craft stone_pickaxe1",
+      "evidence": "inventory wooden_pickaxe1 spruce_planks11 stick8, station exists; cobblestone0/cobbled_deepslate0. Installed recipe requires3 stone material. Visible stone is not inventory.",
+      "classification": "New infeasible recipe on a formerly executable output, despite both actions rejected by exact expected label."
+    },
+    {
+      "id": "live-probe-1791836151666.json",
+      "before": "craft planks4",
+      "after": "craft planks8",
+      "evidence": "inventory spruce_log1/stick26/wooden_pickaxe1, no planks; output batches require2logs for8planks. Same input already includes repeated missingingredients planks8 history.",
+      "classification": "Diagnostic has no hard high-level gold, but this is a concrete newly unaffordable output and directly violates material-budget recovery."
+    }
+  ],
+  "semanticFindings": [
+    {
+      "id": "v6r1-dev-01",
+      "finding": "v4 stick4 and frozen expected stick2 both craft one batch4 from2planks. v6 gatherwood4 is feasible but fails to take immediately feasible missing-stick recovery. Preserve frozen score; semantic parent success is not counted by exact set."
+    },
+    {
+      "id": "v6r1-dev-06",
+      "finding": "food20/beef2: v4 gatherwood3 -> v6 eat. New full-food no-op regression, not immediate lethal action."
+    },
+    {
+      "id": "v6r1-dev-08",
+      "finding": "Contrary to suspected shortage, input has birch_planks3 + sticks2 + table. v6 woodenpick1 is affordable but weaker than available stonepick recipe using cobble3; v4 mine stone withoutpick was infeasible. Do not classify v6 as new material failure."
+    },
+    {
+      "id": "v6r1-dev-10",
+      "finding": "Existing stonepick, planks6/sticks4/table makes v6 woodenpick1 affordable but redundant lower-tier tool. v4 mine stone4 is feasible though expected set asked coal. Material feasibility retained; useful progression regressed."
+    },
+    {
+      "id": "development-v2-0017",
+      "finding": "v4 obsidian10 versus exact6 was count-only rejection but usable diamondpick exists. v6 staircase4 at y25 with6torches/hp20/food18 passes static prerequisites, yet bypasses visible obsidian. Path conditional, no critical safety proof."
+    },
+    {
+      "id": "development-v2-0025",
+      "finding": "v4 gatherwood3 vs exact12 was quantity-only rejection; v6 exploreNE24 bypasses visiblewood after failed hunts. Both bounded tasks can be attempted, actual reachability unknown. No material-critical claim."
+    },
+    {
+      "id": "v5r2-dev-02",
+      "finding": "food9/apple2: both v4 stone mining and v6 coal mining ignore food preference; not a new <=7 risk."
+    },
+    {
+      "id": "v5r2-dev-04",
+      "finding": "No pickaxe: v4 stone4 -> v6 coal3; both infeasible observedtool tier. Existing unresolved failure."
+    }
+  ],
+  "probeFindings": [
+    {
+      "probe": "1791830746219",
+      "v4": "exploreNE24",
+      "v6": "exploreNE24",
+      "change": false
+    },
+    {
+      "probe": "1791833435547",
+      "v4": "planks4",
+      "v6": "planks4",
+      "change": false
+    },
+    {
+      "probe": "1791836151666",
+      "v4": "planks4",
+      "v6": "planks8",
+      "change": true,
+      "materialRegression": true
+    },
+    {
+      "probe": "1791838384663",
+      "v4": "eat",
+      "v6": "eat",
+      "change": false,
+      "limitation": "food20 noop persists"
+    }
+  ],
+  "allChangedRows": [
+    {
+      "id": "development-v2-0017",
+      "before": {
+        "action": "mine",
+        "resource": "obsidian",
+        "count": 10
+      },
+      "after": {
+        "action": "dig_staircase",
+        "direction": "south",
+        "steps": 4
+      },
+      "beforeWarnings": [],
+      "afterWarnings": []
+    },
+    {
+      "id": "development-v2-0025",
+      "before": {
+        "action": "gather_wood",
+        "count": 3
+      },
+      "after": {
+        "action": "explore",
+        "direction": "northeast",
+        "distance": 24
+      },
+      "beforeWarnings": [],
+      "afterWarnings": []
+    },
+    {
+      "id": "v4r1-dev-01",
+      "before": {
+        "action": "craft",
+        "item": "stick",
+        "count": 4
+      },
+      "after": {
+        "action": "craft",
+        "item": "stone_pickaxe",
+        "count": 1
+      },
+      "beforeWarnings": [],
+      "afterWarnings": [
+        "insufficient recipe materials for output batches"
+      ]
+    },
+    {
+      "id": "v5r2-dev-01",
+      "before": {
+        "action": "mine",
+        "resource": "stone",
+        "count": 4
+      },
+      "after": {
+        "action": "mine",
+        "resource": "coal",
+        "count": 3
+      },
+      "beforeWarnings": [],
+      "afterWarnings": []
+    },
+    {
+      "id": "v5r2-dev-02",
+      "before": {
+        "action": "mine",
+        "resource": "stone",
+        "count": 4
+      },
+      "after": {
+        "action": "mine",
+        "resource": "coal",
+        "count": 3
+      },
+      "beforeWarnings": [],
+      "afterWarnings": []
+    },
+    {
+      "id": "v5r2-dev-03",
+      "before": {
+        "action": "mine",
+        "resource": "coal",
+        "count": 4
+      },
+      "after": {
+        "action": "mine",
+        "resource": "iron",
+        "count": 3
+      },
+      "beforeWarnings": [],
+      "afterWarnings": []
+    },
+    {
+      "id": "v5r2-dev-04",
+      "before": {
+        "action": "mine",
+        "resource": "stone",
+        "count": 4
+      },
+      "after": {
+        "action": "mine",
+        "resource": "coal",
+        "count": 3
+      },
+      "beforeWarnings": [
+        "insufficient observed tool tier"
+      ],
+      "afterWarnings": [
+        "insufficient observed tool tier"
+      ]
+    },
+    {
+      "id": "v5r2-dev-10",
+      "before": {
+        "action": "mine",
+        "resource": "stone",
+        "count": 4
+      },
+      "after": {
+        "action": "craft",
+        "item": "crafting_table",
+        "count": 1
+      },
+      "beforeWarnings": [
+        "insufficient observed tool tier"
+      ],
+      "afterWarnings": []
+    },
+    {
+      "id": "v6r1-dev-01",
+      "before": {
+        "action": "craft",
+        "item": "stick",
+        "count": 4
+      },
+      "after": {
+        "action": "gather_wood",
+        "count": 4
+      },
+      "beforeWarnings": [],
+      "afterWarnings": []
+    },
+    {
+      "id": "v6r1-dev-02",
+      "before": {
+        "action": "craft",
+        "item": "stick",
+        "count": 4
+      },
+      "after": {
+        "action": "gather_wood",
+        "count": 3
+      },
+      "beforeWarnings": [],
+      "afterWarnings": []
+    },
+    {
+      "id": "v6r1-dev-04",
+      "before": {
+        "action": "gather_wood",
+        "count": 4
+      },
+      "after": {
+        "action": "craft",
+        "item": "planks",
+        "count": 4
+      },
+      "beforeWarnings": [],
+      "afterWarnings": []
+    },
+    {
+      "id": "v6r1-dev-05",
+      "before": {
+        "action": "craft",
+        "item": "stick",
+        "count": 4
+      },
+      "after": {
+        "action": "eat"
+      },
+      "beforeWarnings": [],
+      "afterWarnings": []
+    },
+    {
+      "id": "v6r1-dev-06",
+      "before": {
+        "action": "gather_wood",
+        "count": 3
+      },
+      "after": {
+        "action": "eat"
+      },
+      "beforeWarnings": [],
+      "afterWarnings": [
+        "full food no-op"
+      ]
+    },
+    {
+      "id": "v6r1-dev-08",
+      "before": {
+        "action": "mine",
+        "resource": "stone",
+        "count": 4
+      },
+      "after": {
+        "action": "craft",
+        "item": "wooden_pickaxe",
+        "count": 1
+      },
+      "beforeWarnings": [
+        "insufficient observed tool tier"
+      ],
+      "afterWarnings": []
+    },
+    {
+      "id": "v6r1-dev-09",
+      "before": {
+        "action": "mine",
+        "resource": "stone",
+        "count": 4
+      },
+      "after": {
+        "action": "craft",
+        "item": "iron_pickaxe",
+        "count": 1
+      },
+      "beforeWarnings": [],
+      "afterWarnings": []
+    },
+    {
+      "id": "v6r1-dev-10",
+      "before": {
+        "action": "mine",
+        "resource": "stone",
+        "count": 4
+      },
+      "after": {
+        "action": "craft",
+        "item": "wooden_pickaxe",
+        "count": 1
+      },
+      "beforeWarnings": [],
+      "afterWarnings": []
+    }
+  ],
+  "positiveEvidence": [
+    "New dev02 shortage now gathers wood instead of spending remainingplanks on surplussticks.",
+    "New dev04 one log correctly converted to planks4.",
+    "New dev05 food6/beef1 now eat.",
+    "New dev09 ironpick correctly crafted from3ingots2sticks withtable.",
+    "Previous v5r2 dev10 tablecrafted instead of miningwithoutpick."
+  ],
+  "limits": [
+    "Only CPU independent review; no model or endpoint requests, no original20 accessed for selection.",
+    "Direct-grid request_metadata is evaluation-code reported; not actual HTTP completion evidence.",
+    "All57 parent predictions for old47 exactly reproduced prior v4 outputs.",
+    "Frozen allowed-set scores retained despite count-equivalent false negatives; no label edits or post hoc checkpoint optimization.",
+    "Scored57 excludes the2real inputs promoted to training. Training data/weight artifacts remain preserved even though deployment is rejected.",
+    "No result here proves Minecraft execution or survival."
+  ]
+}

@@ -1,0 +1,43 @@
+{
+  "capturedAt": 1791986878302,
+  "evidence": {
+    "goal": "制作一把铁镐。由本地千问自主调整中间计划，最终以背包出现 iron_pickaxe 为验收。",
+    "currentSubgoal": "采集木原木制作木镐",
+    "action": {
+      "action": "gather_wood",
+      "count": 4
+    },
+    "outcome": "running",
+    "error": null,
+    "inventory": [
+      {
+        "name": "spruce_planks",
+        "count": 2
+      },
+      {
+        "name": "crafting_table",
+        "count": 1
+      },
+      {
+        "name": "stick",
+        "count": 4
+      },
+      {
+        "name": "spruce_log",
+        "count": 18
+      }
+    ],
+    "health": 20,
+    "food": 20,
+    "yolo": {
+      "scope": "COCO only, not trained for Minecraft",
+      "detections": []
+    }
+  },
+  "speech": "天有点暗，我还在按计划补原木，好把木镐先做出来。背包里木头其实不少了，就是镐子还没影，这森林是真考验耐心。",
+  "model": "deepseek-flash",
+  "provider": "cloud",
+  "visionModel": "qwen3.5-4b",
+  "visualObservation": "昏暗的森林场景中，可见树木、地面及玩家视角下的绿色准星。",
+  "expired": false
+}

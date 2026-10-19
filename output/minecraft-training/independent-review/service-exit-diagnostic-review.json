@@ -1,0 +1,46 @@
+{
+  "scope": "CPU-only project source and saved logs; no live service restart, GPU request, game action or machine-wide command-line scan",
+  "conclusion": "Historical exit causes remain unknown. Diagnostics added for future launches, not active resident processes.",
+  "mainEvidence": {
+    "pid": 186472,
+    "lastAutonomyEvent": "2026-10-12T21:19:38.895Z",
+    "savedStdout": "output/minecraft-training/v4r1-main-exit-server.out.log",
+    "savedStdoutBytes": 56,
+    "savedStdoutContent": "Startup line only; no shutdown line",
+    "savedStderr": "output/minecraft-training/v4r1-main-exit-server.err.log",
+    "savedStderrBytes": 0,
+    "limitation": "Absence of exception/shutdown text cannot distinguish forced termination, native crash, lost diagnostic output, or another unobserved exit. Saved old files remain valid evidence even though current logs/server.* were later overwritten."
+  },
+  "modelEvidence": {
+    "reportedPids": [155216, 164236, 143552],
+    "stdout": "logs/local-llm-v4r1-0447.stdout.log",
+    "stdoutLastWriteUtc": "2026-10-12T21:30:21Z",
+    "tail": "HTTP 200 access lines; no request timestamps inside access lines",
+    "stderr": "logs/local-llm-v4r1-0447.stderr.log",
+    "stderrTail": "Model startup and generation-option warning; no traceback or shutdown record",
+    "limitation": "File modification time is not an exact process exit time. Simultaneous absence of wrapper and child is insufficient to establish termination order or cause."
+  },
+  "sourceFindings": [
+    "restart-main.ps1 uses Stop-Process -Force and redirects new starts into fixed stdout/stderr files. This is a possible route to missing shutdown logs, not evidence that it caused either incident.",
+    "start-local-llm.ps1 previously waited for uvicorn without saving the native exit code or append-only lifecycle evidence.",
+    "server.js previously recorded only console SIGINT/SIGTERM shutdown messages and no persistent exit/fatal monitor."
+  ],
+  "changes": [
+    "src/runtime/process-lifecycle.js: synchronous append-only start/ready/shutdown_requested/exit/uncaughtExceptionMonitor events, with PID/parent PID/start timestamp. No uncaughtException or unhandledRejection handler; fatal behavior unchanged. No messages, stacks, argv, environment or prompts in lifecycle records.",
+    "src/server.js: installs monitor before application initialization, records ready and existing shutdown entry; no automatic restart or bot action.",
+    "scripts/lib/process-lifecycle.ps1 and scripts/start-local-llm.ps1: append native_start_requested/native_wait_finished with wrapper PID/run ID, exact LASTEXITCODE captured immediately after native return, exception type only, rethrow launcher errors and propagate native exit code."
+  ],
+  "tests": [
+    "node tests/process-lifecycle.js: PASS; real child normal/fatal/rejected-Promise exit codes, append preservation, private error message excluded, listener cleanup, actual PowerShell wrapper sequence with CPU-only Node child exit17",
+    "node --check src/server.js: PASS",
+    "node tests/server-cancellation.js: PASS",
+    "node tests/server-brain-policy.js: PASS"
+  ],
+  "deployment": "Source only; no resident service, bot or training restart performed.",
+  "limits": [
+    "Force kill, process-tree termination, OS termination or native process abort can prevent exit/finally execution. A missing final event is not proof of a particular cause.",
+    "Lifecycle diagnostic I/O failure is intentionally nonfatal and can leave missing records.",
+    "The PowerShell logging applies to launches through start-local-llm.ps1, not arbitrary direct uvicorn launches.",
+    "No evidence supports attributing these exits to GPU training or model inference."
+  ]
+}

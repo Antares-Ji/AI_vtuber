@@ -1,0 +1,29 @@
+{
+  "status": "passed",
+  "trainingRows": 16,
+  "developmentRows": 8,
+  "replayRows": 182,
+  "replayOriginalPrefixIdentical": true,
+  "replayCandidateSuffixIdentical": true,
+  "actionSchemaChecked": true,
+  "stationCoordinatesInteger": true,
+  "inventoryCountsPositive": true,
+  "resourceDistancesRecomputed": true,
+  "pickaxeDurabilityMatchesMinecraftData": true,
+  "probeTrainLeakage": false,
+  "promptOverlaps": {
+    "trainDev": 0,
+    "trainV3Train": 0,
+    "trainV3Dev": 0,
+    "devV3Train": 0,
+    "devV3Dev": 0
+  },
+  "hashes": {
+    "train": "0382aa1d546535ace8f7f759905e85c7c39663fd316d0d2c6de011a674272368",
+    "development": "98e8841369185780e912fb8b7f2906027ac9adc8de92e361ede984c77e36b41c",
+    "replay": "9f76783df423a873e0d4387763a0b5dec10d8c1a8e3fc0517dd924be3cc032fe",
+    "frozenOriginalV4Train": "3dffa65c7275651b57b410e6edb8af29c9629759b6389e4a612e375febfc162a",
+    "frozenOriginalV4Development": "e0e7f04cc7594db5afec51ef27ce395e9d27218b7df966a0a52584e281d57363"
+  },
+  "errors": []
+}

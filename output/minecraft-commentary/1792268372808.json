@@ -1,0 +1,33 @@
+{
+  "capturedAt": 1792268372808,
+  "evidence": {
+    "goal": "建立可生活的小家：先安全生存与食物，再依真实库存制作工作台、工具、熔炉、熟肉和火把，选择平坦安全位置造简单小屋，放置床、箱子、火把，最后浅层采矿并安全返回。由你自主分阶段决策。已有材料足够就推进下一阶段，不重复囤积。每5分钟监管反馈，失败先分析再改方法；同因两次失败需诊断而非原样重复。新建房/家具技能仅在能力表可用后调用，缺少技能要说明不能假装完成。生命危险优先避险/找可用食物。",
+    "currentSubgoal": "观察环境安全状态",
+    "action": {
+      "action": "observe",
+      "source": "local-qwen",
+      "model": "qwen3.5-4b",
+      "adapterLoaded": false,
+      "modelMetadata": {
+        "task": "minecraft-survival",
+        "used_adapter": false,
+        "adapter_path": null
+      }
+    },
+    "outcome": "completed",
+    "error": null,
+    "inventory": [],
+    "health": 1.4130733013153076,
+    "food": 16,
+    "yolo": {
+      "scope": "COCO only, not trained for Minecraft",
+      "detections": []
+    }
+  },
+  "speech": "树旁积雪挺安静的，我先停在这儿确认周围没威胁；血量还很低，背包也空着，只能先稳住。",
+  "model": "deepseek-flash",
+  "provider": "cloud",
+  "visionModel": "qwen3.5-4b",
+  "visualObservation": "画面显示《我的世界》游戏内，一棵被树叶遮挡的大树旁是覆盖着积雪的地面。",
+  "expired": false
+}

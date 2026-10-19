@@ -1,0 +1,70 @@
+✔ only a completed dragon kill criterion proves the kill (0.6184ms)
+✔ a dimension change is not a win (0.0984ms)
+✔ Java 1.16.5 sends the numeric end-credit event (0.0815ms)
+✔ dragon death needs both zero health and dying phase (0.0781ms)
+✔ logged two-cloud failure cannot escape east into the older cloud (3.4577ms)
+✔ blocked west paths select a clear side path without crossing another cloud (0.85ms)
+✔ escape paths stop before unsupported ground (1.2544ms)
+✔ cloud safety uses horizontal radius, including jumping players (0.2186ms)
+✔ return path excludes the older cloud even when both endpoints are safe (0.537ms)
+✔ table across both X and Y section edges is available for crafting (0.4828ms)
+✔ distant table remains an approach target, not a crafting target (0.0817ms)
+✔ Actions can continue while one planner request is pending (0.7467ms)
+✔ Discard old stage plans and request the new stage immediately (0.2035ms)
+✔ Planner failures do not reject the action loop or erase the current plan (0.1766ms)
+✔ turn steps obey 45 degree cap including combined yaw and pitch (1.7594ms)
+✔ wrap uses shortest turn across 360 degrees (0.126ms)
+✔ a half turn advances smoothly and reaches the target (0.0941ms)
+✔ the recorded fountain corner does not permit a diagonal through its solid side (0.8511ms)
+✔ a clear diagonal remains available (0.1681ms)
+✔ a real upward step still uses the standard jump checks (0.0688ms)
+✔ magma beneath ruined-portal build position forces sneak even after controls clear (0.6946ms)
+✔ server cursor correction restores carried pickaxe and clears it after placement (429.4896ms)
+✔ prepare a bed before retreat and return for observed landing approach (1.5918ms)
+✔ a prepared bed remains known from the distant waiting position (0.1882ms)
+✔ rotated entry frame avoids crying obsidian and needs nine obsidian (5.6944ms)
+✔ exit has ten required obsidian and four ordinary corner supports (0.1331ms)
+✔ distant portal approach uses a short route segment (0.3909ms)
+✔ portal directly below uses a vertical path instead of repeating a surface segment (0.4549ms)
+✔ travel follows the next surveyed point without another planner request (0.4459ms)
+✔ preparation retains the planner waypoint (0.082ms)
+✔ End approach clips long searches to a loaded short segment (0.1521ms)
+✖ a movement time limit with substantial progress is not a route failure (0.385ms)
+✔ Peaceful preparation does not offer empty furnace checks (0.304ms)
+✔ boat departure stays unavailable until preparation is complete (0.063ms)
+✔ a reached waypoint does not offer repeated zero-distance travel (0.8604ms)
+✔ portal waypoint requires vertical arrival (0.6504ms)
+✔ breath removes unsafe waiting and combat options (0.1267ms)
+✔ successful steps do not trigger planner calls (0.084ms)
+✔ new milestone triggers review (0.0526ms)
+✔ navigation failure does not disable all movement for a minute (0.1171ms)
+✔ completed stone tools do not offer another wooden pick (0.0793ms)
+✔ a placed table satisfies the crafting requirement (0.0373ms)
+✔ stick crafting stops at the remaining tool requirement (0.0758ms)
+✔ a plan with no useful actions receives a prompt review (0.1037ms)
+✔ using navigation blocks does not undo a completed preparation milestone (0.1001ms)
+✔ completed tools and boat do not require extra wood or a portable table (0.0871ms)
+ℹ tests 46
+ℹ suites 0
+ℹ pass 45
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1816.8675
+
+✖ failing tests:
+
+test at optimization\pass-2\policy.test.mjs:5:1
+✖ a movement time limit with substantial progress is not a route failure (0.385ms)
+  TypeError: bot.blockAt is not a function
+      at file:///E:/Github/AI_vtuber/vendor/minecraft-agent/navigation.mjs:6:146
+      at Array.every (<anonymous>)
+      at approachEndCover (file:///E:/Github/AI_vtuber/vendor/minecraft-agent/navigation.mjs:6:128)
+      at TestContext.<anonymous> (file:///E:/Github/AI_vtuber/vendor/minecraft-agent/optimization/pass-2/policy.test.mjs:5:271)
+      at Test.runInAsyncScope (node:async_hooks:227:14)
+      at Test.run (node:internal/test_runner/test:1201:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:831:18)
+      at Test.postRun (node:internal/test_runner/test:1330:19)
+      at Test.run (node:internal/test_runner/test:1258:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:831:7)

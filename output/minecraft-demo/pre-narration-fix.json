@@ -1,0 +1,142 @@
+{
+  "enabled": true,
+  "running": true,
+  "goal": "安全生存，寻找食物，安全时收集可达的圆石。已经拥有木镐，不要重复制作。不可达时换路，不要重复同一失败动作。",
+  "deadline": "2026-10-14T12:18:54.353Z",
+  "step": 24,
+  "model": "qwen3.5-4b",
+  "modelLoaded": true,
+  "adapter": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01",
+  "adapterLoaded": true,
+  "lastDecision": {
+    "action": "flee"
+  },
+  "lastResult": {
+    "taskId": "de3e4b7f-2610-40d0-8f12-09f42bdfe71b",
+    "action": {
+      "action": "explore",
+      "direction": "east",
+      "distance": 20
+    },
+    "status": "completed",
+    "result": {
+      "action": {
+        "action": "explore",
+        "direction": "east",
+        "distance": 20
+      },
+      "verified": true,
+      "moved": 17,
+      "from": {
+        "x": 13.5,
+        "y": 65,
+        "z": -1.5
+      },
+      "to": {
+        "x": 30.4,
+        "y": 66,
+        "z": -1.5
+      },
+      "remainingThreats": [],
+      "inventoryBefore": [],
+      "inventoryAfter": [],
+      "position": {
+        "x": 30.4,
+        "y": 66,
+        "z": -1.5
+      }
+    },
+    "at": "2026-10-14T12:11:44.271Z"
+  },
+  "lastError": null,
+  "latencyMs": 4072,
+  "history": [
+    {
+      "taskId": "de3e4b7f-2610-40d0-8f12-09f42bdfe71b",
+      "action": {
+        "action": "explore",
+        "direction": "east",
+        "distance": 20
+      },
+      "status": "completed",
+      "result": {
+        "action": {
+          "action": "explore",
+          "direction": "east",
+          "distance": 20
+        },
+        "verified": true,
+        "moved": 17,
+        "from": {
+          "x": 13.5,
+          "y": 65,
+          "z": -1.5
+        },
+        "to": {
+          "x": 30.4,
+          "y": 66,
+          "z": -1.5
+        },
+        "remainingThreats": [],
+        "inventoryBefore": [],
+        "inventoryAfter": [],
+        "position": {
+          "x": 30.4,
+          "y": 66,
+          "z": -1.5
+        }
+      },
+      "at": "2026-10-14T12:11:44.271Z"
+    },
+    {
+      "action": {
+        "action": "explore",
+        "direction": "west",
+        "distance": 12
+      },
+      "status": "rejected",
+      "error": "推理期间世界状态已变化，本次决策作废：position-changed",
+      "at": "2026-10-14T12:11:55.356Z"
+    },
+    {
+      "action": {
+        "action": "flee"
+      },
+      "status": "rejected",
+      "error": "推理期间出现危险，本次决策作废，安全层正在避险",
+      "at": "2026-10-14T12:12:06.325Z"
+    }
+  ],
+  "modelHealth": {
+    "ok": true,
+    "model": "qwen3.5-4b",
+    "path": "E:\\Qwen3.5-4B",
+    "quantization": "nf4",
+    "adapter": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01",
+    "adapter_loaded": true,
+    "adapter_scope": "minecraft-survival",
+    "generation": {
+      "active": false,
+      "queued": 0,
+      "max_waiters": 4,
+      "cancelled_running": 1
+    },
+    "generation_busy": false
+  },
+  "completionItem": null,
+  "goalCompleted": false,
+  "audienceSuggestions": [
+    {
+      "text": "岁歌要不要先找点吃的",
+      "at": "2026-10-14T12:12:09.428Z"
+    }
+  ],
+  "updatedAt": "2026-10-14T12:12:19.346Z",
+  "waitingFor": null,
+  "lastDecisionMetadata": {
+    "task": "minecraft-survival",
+    "used_adapter": true,
+    "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01"
+  },
+  "needsRecovery": false
+}

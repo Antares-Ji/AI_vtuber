@@ -1,0 +1,3 @@
+# The isolated environment shares these already-installed binary packages via
+# inference-runtime.pth; pin the only package installed in that environment.
+peft==0.21.2

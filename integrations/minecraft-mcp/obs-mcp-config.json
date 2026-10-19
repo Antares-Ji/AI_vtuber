@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "suige-obs": {
+      "command": "node",
+      "args": ["E:/Github/AI_vtuber/integrations/minecraft-mcp/obs-server.cjs"],
+      "env": {
+        "OBS_WEBSOCKET_URL": "ws://127.0.0.1:4455",
+        "OBS_CONFIG_FILE": "C:/Users/Antares.Ji/AppData/Roaming/obs-studio/plugin_config/obs-websocket/config.json"
+      }
+    }
+  }
+}

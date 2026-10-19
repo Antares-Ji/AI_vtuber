@@ -1,0 +1,48 @@
+{
+  "generatedAt": "2026-10-12T20:57:24.122Z",
+  "source": "src/minecraft/survival-skills.js",
+  "sha256": "c2e85b46d3e1b213ebfd454b5c0829e681c6b57d4a4caa61a539eb46ef6c30b3",
+  "evidence": "Logged low tree candidates returned partial at 16–21ms; no path was proven unreachable. Installed A* yields frontier-bearing partial results and wall-clock timeout includes asynchronous yields.",
+  "implementation": {
+    "skillCpuBudgetMs": 80,
+    "normalCandidateCpuBudgetMs": 24,
+    "continuedCandidateCpuBudgetMs": 60,
+    "maxContinuedCandidatesPerSkill": 1,
+    "maxProbes": 12,
+    "requestedSliceMs": 5,
+    "safetyReserveMs": 8,
+    "wallClockBudgetMs": 500,
+    "yield": "setTimeout(0) via cancellable ctx.sleep after every generator.next, including success; ctx.safe before and after",
+    "acceptance": "success only; valid safe endpoint, no dig/place path, bounded path length; no wall/CPU overrun accepted"
+  },
+  "performanceFixture": {
+    "command": "node tests/minecraft-harvest-navigation.js",
+    "engine": "installed mineflayer-pathfinder/lib/astar",
+    "terrain": "Synthetic single corridor with controlled 6ms neighbor cost; NOT live terrain reconstruction",
+    "status": "success",
+    "cpuMs": 37,
+    "wallMs": 101.8,
+    "slices": 7,
+    "maxSliceMs": 6.4,
+    "timerHeartbeatCount": 7,
+    "maxTimerGapMs": 15.8,
+    "visitedNodes": 6
+  },
+  "tests": [
+    "navigation: same-resource fallback, endpoint LOS, no false goto arrival, one continuation only, cancellation both early and during continuation, actual timer yields",
+    "90ms noncooperative generator reports maxSlice/overrun and refuses even success; actual overrun cannot be synchronously preempted",
+    "pickup, partial evidence, survival guards, reactive escape suites passed"
+  ],
+  "validationFeedback": {
+    "schemaChanged": false,
+    "normalization": false,
+    "enumErrorMaxCharacters": 240,
+    "description": "Rejected value bounded to48 characters; allowed values start with generic planks for craft. If whole enum cannot fit, explicitly marks prefix and refers to full schema. Range reports inclusive integer bounds."
+  },
+  "limits": [
+    "First eligible partial can consume most CPU; at most60 of80 requested, leaving nominal20 for others. A poor first target may reduce breadth.",
+    "Single synchronous next() and scheduler pauses cannot be preempted; actual maxSlice/cpu/wall/overruns are logged. 200ms remains a scheduling target, not a latency guarantee.",
+    "No claim that previously logged partial targets now have a feasible path. All high-tree and hazardous terrain restrictions retained.",
+    "Executor and error-feedback changes are not improvements attributable to model weights. No GPU, endpoint, or gameplay calls performed."
+  ]
+}

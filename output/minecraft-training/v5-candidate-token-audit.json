@@ -1,0 +1,95 @@
+{
+  "train-v5-candidates.jsonl": {
+    "rows": 32,
+    "prompt_tokens": {
+      "min": 1855,
+      "median": 2065,
+      "p90": 2117,
+      "max": 2152,
+      "mean": 2052.6
+    },
+    "full_sequence_tokens": {
+      "min": 1872,
+      "median": 2074,
+      "p90": 2135,
+      "max": 2169,
+      "mean": 2067.9
+    },
+    "assistant_label_tokens": {
+      "min": 7,
+      "max": 18,
+      "mean": 15.3
+    },
+    "all_full_sequences_fit_2304": 32,
+    "all_full_sequences_fit_2560": 32,
+    "prompts_in_live_target_1800_to_2600": 32,
+    "rows_with_six_recent_results": 32,
+    "longest_ids": [
+      "v5-train-19",
+      "v5-train-31",
+      "v5-train-29"
+    ]
+  },
+  "development-v5-candidates.jsonl": {
+    "rows": 12,
+    "prompt_tokens": {
+      "min": 1893,
+      "median": 2102,
+      "p90": 2111,
+      "max": 2119,
+      "mean": 2065.9
+    },
+    "full_sequence_tokens": {
+      "min": 1910,
+      "median": 2115,
+      "p90": 2126,
+      "max": 2136,
+      "mean": 2081.0
+    },
+    "assistant_label_tokens": {
+      "min": 7,
+      "max": 18,
+      "mean": 15.1
+    },
+    "all_full_sequences_fit_2304": 12,
+    "all_full_sequences_fit_2560": 12,
+    "prompts_in_live_target_1800_to_2600": 12,
+    "rows_with_six_recent_results": 12,
+    "longest_ids": [
+      "v5-dev-11",
+      "v5-dev-01",
+      "v5-dev-05"
+    ]
+  },
+  "train-v5-replay-candidates.jsonl": {
+    "rows": 214,
+    "prompt_tokens": {
+      "min": 1013,
+      "median": 1080,
+      "p90": 2039,
+      "max": 2152,
+      "mean": 1239.1
+    },
+    "full_sequence_tokens": {
+      "min": 1020,
+      "median": 1094,
+      "p90": 2056,
+      "max": 2169,
+      "mean": 1253.1
+    },
+    "assistant_label_tokens": {
+      "min": 7,
+      "max": 19,
+      "mean": 14.1
+    },
+    "all_full_sequences_fit_2304": 214,
+    "all_full_sequences_fit_2560": 214,
+    "prompts_in_live_target_1800_to_2600": 32,
+    "rows_with_six_recent_results": 32,
+    "longest_ids": [
+      "v5-train-19",
+      "v5-train-31",
+      "v5-train-29"
+    ]
+  }
+}

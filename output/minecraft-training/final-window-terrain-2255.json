@@ -1,0 +1,908 @@
+{
+  "at": "2026-10-12T22:56:08.251Z",
+  "observation": {
+    "connected": true,
+    "mode": "survival",
+    "dimension": "overworld",
+    "health": 9.499998092651367,
+    "food": 17,
+    "oxygen": 400,
+    "position": {
+      "x": 59.5,
+      "y": 114,
+      "z": 86.5
+    },
+    "timeOfDay": 10149,
+    "isNight": false,
+    "inventory": [],
+    "inventoryDiagnostics": {
+      "inventory": {
+        "id": 0,
+        "type": "minecraft:inventory",
+        "inventoryStart": 9,
+        "inventoryEnd": 45,
+        "craftingResultSlot": 0,
+        "slots": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        "selectedItem": null
+      },
+      "currentWindow": null,
+      "confirmation": "local window model; includes optimistic updates until server reconciliation"
+    },
+    "terrainDiagnostics": {
+      "origin": {
+        "x": 59,
+        "y": 114,
+        "z": 86
+      },
+      "bounds": {
+        "horizontalRadius": 2,
+        "minDy": -4,
+        "maxDy": 2
+      },
+      "reads": 175,
+      "knownAirOmitted": true,
+      "onGround": true,
+      "movements": {
+        "canDig": false,
+        "maxDropDown": 1,
+        "allowParkour": false,
+        "allowSprinting": true
+      },
+      "blocks": [
+        {
+          "x": 57,
+          "y": 110,
+          "z": 85,
+          "name": "snow",
+          "boundingBox": "empty",
+          "shapes": []
+        },
+        {
+          "x": 57,
+          "y": 110,
+          "z": 86,
+          "name": "snow",
+          "boundingBox": "empty",
+          "shapes": []
+        },
+        {
+          "x": 57,
+          "y": 110,
+          "z": 87,
+          "name": "snow",
+          "boundingBox": "empty",
+          "shapes": []
+        },
+        {
+          "x": 58,
+          "y": 112,
+          "z": 84,
+          "name": "spruce_leaves",
+          "boundingBox": "block",
+          "shapes": [
+            [
+              0,
+              0,
+              0,
+              1,
+              1,
+              1
+            ]
+          ]
+        },
+        {
+          "x": 58,
+          "y": 113,
+          "z": 84,
+          "name": "snow",
+          "boundingBox": "empty",
+          "shapes": []
+        },
+        {
+          "x": 58,
+          "y": 110,
+          "z": 85,
+          "name": "snow",
+          "boundingBox": "empty",
+          "shapes": []
+        },
+        {
+          "x": 58,
+          "y": 110,
+          "z": 86,
+          "name": "spruce_leaves",
+          "boundingBox": "block",
+          "shapes": [
+            [
+              0,
+              0,
+              0,
+              1,
+              1,
+              1
+            ]
+          ]
+        },
+        {
+          "x": 58,
+          "y": 112,
+          "z": 86,
+          "name": "spruce_leaves",
+          "boundingBox": "block",
+          "shapes": [
+            [
+              0,
+              0,
+              0,
+              1,
+              1,
+              1
+            ]
+          ]
+        },
+        {
+          "x": 58,
+          "y": 113,
+          "z": 86,
+          "name": "snow",
+          "boundingBox": "empty",
+          "shapes": []
+        },
+        {
+          "x": 58,
+          "y": 110,
+          "z": 87,
+          "name": "snow",
+          "boundingBox": "empty",
+          "shapes": []
+        },
+        {
+          "x": 58,
+          "y": 110,
+          "z": 88,
+          "name": "snow",
+          "boundingBox": "empty",
+          "shapes": []
+        },
+        {
+          "x": 59,
+          "y": 112,
+          "z": 84,
+          "name": "spruce_leaves",
+          "boundingBox": "block",
+          "shapes": [
+            [
+              0,
+              0,
+              0,
+              1,
+              1,
+              1
+            ]
+          ]
+        },
+        {
+          "x": 59,
+          "y": 113,
+          "z": 84,
+          "name": "snow",
+          "boundingBox": "empty",
+          "shapes": []
+        },
+        {
+          "x": 59,
+          "y": 110,
+          "z": 85,
+          "name": "spruce_leaves",
+          "boundingBox": "block",
+          "shapes": [
+            [
+              0,
+              0,
+              0,
+              1,
+              1,
+              1
+            ]
+          ]
+        },
+        {
+          "x": 59,
+          "y": 112,
+          "z": 85,
+          "name": "spruce_leaves",
+          "boundingBox": "block",
+          "shapes": [
+            [
+              0,
+              0,
+              0,
+              1,
+              1,
+              1
+            ]
+          ]
+        },
+        {
+          "x": 59,
+          "y": 113,
+          "z": 85,
+          "name": "snow",
+          "boundingBox": "empty",
+          "shapes": []
+        },
+        {
+          "x": 59,
+          "y": 110,
+          "z": 86,
+          "name": "spruce_log",
+          "boundingBox": "block",
+          "shapes": [
+            [
+              0,
+              0,
+              0,
+              1,
+              1,
+              1
+            ]
+          ]
+        },
+        {
+          "x": 59,
+          "y": 111,
+          "z": 86,
+          "name": "spruce_leaves",
+          "boundingBox": "block",
+          "shapes": [
+            [
+              0,
+              0,
+              0,
+              1,
+              1,
+              1
+            ]
+          ]
+        },
+        {
+          "x": 59,
+          "y": 112,
+          "z": 86,
+          "name": "spruce_leaves",
+          "boundingBox": "block",
+          "shapes": [
+            [
+              0,
+              0,
+              0,
+              1,
+              1,
+              1
+            ]
+          ]
+        },
+        {
+          "x": 59,
+          "y": 113,
+          "z": 86,
+          "name": "spruce_leaves",
+          "boundingBox": "block",
+          "shapes": [
+            [
+              0,
+              0,
+              0,
+              1,
+              1,
+              1
+            ]
+          ]
+        },
+        {
+          "x": 59,
+          "y": 114,
+          "z": 86,
+          "name": "snow",
+          "boundingBox": "empty",
+          "shapes": []
+        },
+        {
+          "x": 59,
+          "y": 110,
+          "z": 87,
+          "name": "spruce_leaves",
+          "boundingBox": "block",
+          "shapes": [
+            [
+              0,
+              0,
+              0,
+              1,
+              1,
+              1
+            ]
+          ]
+        },
+        {
+          "x": 59,
+          "y": 112,
+          "z": 87,
+          "name": "spruce_leaves",
+          "boundingBox": "block",
+          "shapes": [
+            [
+              0,
+              0,
+              0,
+              1,
+              1,
+              1
+            ]
+          ]
+        },
+        {
+          "x": 59,
+          "y": 113,
+          "z": 87,
+          "name": "snow",
+          "boundingBox": "empty",
+          "shapes": []
+        },
+        {
+          "x": 59,
+          "y": 110,
+          "z": 88,
+          "name": "snow",
+          "boundingBox": "empty",
+          "shapes": []
+        },
+        {
+          "x": 60,
+          "y": 112,
+          "z": 84,
+          "name": "spruce_leaves",
+          "boundingBox": "block",
+          "shapes": [
+            [
+              0,
+              0,
+              0,
+              1,
+              1,
+              1
+            ]
+          ]
+        },
+        {
+          "x": 60,
+          "y": 113,
+          "z": 84,
+          "name": "snow",
+          "boundingBox": "empty",
+          "shapes": []
+        },
+        {
+          "x": 60,
+          "y": 110,
+          "z": 85,
+          "name": "snow",
+          "boundingBox": "empty",
+          "shapes": []
+        },
+        {
+          "x": 60,
+          "y": 110,
+          "z": 86,
+          "name": "spruce_leaves",
+          "boundingBox": "block",
+          "shapes": [
+            [
+              0,
+              0,
+              0,
+              1,
+              1,
+              1
+            ]
+          ]
+        },
+        {
+          "x": 60,
+          "y": 112,
+          "z": 86,
+          "name": "spruce_leaves",
+          "boundingBox": "block",
+          "shapes": [
+            [
+              0,
+              0,
+              0,
+              1,
+              1,
+              1
+            ]
+          ]
+        },
+        {
+          "x": 60,
+          "y": 113,
+          "z": 86,
+          "name": "snow",
+          "boundingBox": "empty",
+          "shapes": []
+        },
+        {
+          "x": 60,
+          "y": 110,
+          "z": 87,
+          "name": "snow",
+          "boundingBox": "empty",
+          "shapes": []
+        },
+        {
+          "x": 60,
+          "y": 110,
+          "z": 88,
+          "name": "snow",
+          "boundingBox": "empty",
+          "shapes": []
+        },
+        {
+          "x": 61,
+          "y": 112,
+          "z": 84,
+          "name": "spruce_leaves",
+          "boundingBox": "block",
+          "shapes": [
+            [
+              0,
+              0,
+              0,
+              1,
+              1,
+              1
+            ]
+          ]
+        },
+        {
+          "x": 61,
+          "y": 113,
+          "z": 84,
+          "name": "snow",
+          "boundingBox": "empty",
+          "shapes": []
+        },
+        {
+          "x": 61,
+          "y": 110,
+          "z": 85,
+          "name": "snow",
+          "boundingBox": "empty",
+          "shapes": []
+        },
+        {
+          "x": 61,
+          "y": 110,
+          "z": 86,
+          "name": "snow",
+          "boundingBox": "empty",
+          "shapes": []
+        },
+        {
+          "x": 61,
+          "y": 110,
+          "z": 87,
+          "name": "snow",
+          "boundingBox": "empty",
+          "shapes": []
+        }
+      ]
+    },
+    "tools": [],
+    "heldItem": null,
+    "equipment": [],
+    "threats": [
+      {
+        "id": 55348,
+        "name": "spider",
+        "distance": 22.6,
+        "position": {
+          "x": 63.3,
+          "y": 101.1,
+          "z": 68.3
+        }
+      }
+    ],
+    "hazards": [],
+    "resources": {
+      "stone": [
+        {
+          "name": "stone",
+          "position": {
+            "x": 60,
+            "y": 102,
+            "z": 86
+          },
+          "distance": 12
+        },
+        {
+          "name": "stone",
+          "position": {
+            "x": 60,
+            "y": 102,
+            "z": 87
+          },
+          "distance": 12
+        },
+        {
+          "name": "stone",
+          "position": {
+            "x": 60,
+            "y": 102,
+            "z": 85
+          },
+          "distance": 12
+        },
+        {
+          "name": "stone",
+          "position": {
+            "x": 60,
+            "y": 102,
+            "z": 88
+          },
+          "distance": 12
+        }
+      ],
+      "coal": [],
+      "iron": [
+        {
+          "name": "iron_ore",
+          "position": {
+            "x": 63,
+            "y": 98,
+            "z": 69
+          },
+          "distance": 24
+        },
+        {
+          "name": "iron_ore",
+          "position": {
+            "x": 63,
+            "y": 97,
+            "z": 69
+          },
+          "distance": 25
+        },
+        {
+          "name": "iron_ore",
+          "position": {
+            "x": 54,
+            "y": 88,
+            "z": 88
+          },
+          "distance": 27
+        }
+      ],
+      "diamond": [],
+      "obsidian": [],
+      "gravel": [
+        {
+          "name": "gravel",
+          "position": {
+            "x": 63,
+            "y": 99,
+            "z": 66
+          },
+          "distance": 26
+        },
+        {
+          "name": "gravel",
+          "position": {
+            "x": 64,
+            "y": 100,
+            "z": 65
+          },
+          "distance": 26
+        },
+        {
+          "name": "gravel",
+          "position": {
+            "x": 62,
+            "y": 99,
+            "z": 65
+          },
+          "distance": 26
+        },
+        {
+          "name": "gravel",
+          "position": {
+            "x": 63,
+            "y": 99,
+            "z": 65
+          },
+          "distance": 26
+        }
+      ],
+      "wood": [
+        {
+          "name": "spruce_log",
+          "position": {
+            "x": 60,
+            "y": 110,
+            "z": 81
+          },
+          "distance": 7
+        },
+        {
+          "name": "spruce_log",
+          "position": {
+            "x": 60,
+            "y": 109,
+            "z": 81
+          },
+          "distance": 7
+        },
+        {
+          "name": "spruce_log",
+          "position": {
+            "x": 59,
+            "y": 106,
+            "z": 86
+          },
+          "distance": 8
+        },
+        {
+          "name": "spruce_log",
+          "position": {
+            "x": 60,
+            "y": 108,
+            "z": 81
+          },
+          "distance": 8
+        }
+      ]
+    },
+    "animals": [],
+    "landmarks": {
+      "evidenceOnly": true,
+      "villageConfirmed": false,
+      "entities": [],
+      "blocks": []
+    },
+    "stations": [],
+    "fluids": {
+      "water": [],
+      "lava": []
+    },
+    "craftable": [],
+    "recipeHints": [
+      {
+        "item": "stick",
+        "missing": [
+          {
+            "name": "cherry_planks",
+            "count": 2
+          }
+        ],
+        "oneRecipeExample": true
+      },
+      {
+        "item": "crafting_table",
+        "missing": [
+          {
+            "name": "cherry_planks",
+            "count": 4
+          }
+        ],
+        "oneRecipeExample": true
+      },
+      {
+        "item": "wooden_pickaxe",
+        "missing": [
+          {
+            "name": "cherry_planks",
+            "count": 3
+          },
+          {
+            "name": "stick",
+            "count": 2
+          }
+        ],
+        "oneRecipeExample": true
+      },
+      {
+        "item": "stone_pickaxe",
+        "missing": [
+          {
+            "name": "cobbled_deepslate",
+            "count": 3
+          },
+          {
+            "name": "stick",
+            "count": 2
+          }
+        ],
+        "oneRecipeExample": true
+      },
+      {
+        "item": "furnace",
+        "missing": [
+          {
+            "name": "cobbled_deepslate",
+            "count": 8
+          }
+        ],
+        "oneRecipeExample": true
+      },
+      {
+        "item": "iron_pickaxe",
+        "missing": [
+          {
+            "name": "iron_ingot",
+            "count": 3
+          },
+          {
+            "name": "stick",
+            "count": 2
+          }
+        ],
+        "oneRecipeExample": true
+      },
+      {
+        "item": "bucket",
+        "missing": [
+          {
+            "name": "iron_ingot",
+            "count": 3
+          }
+        ],
+        "oneRecipeExample": true
+      },
+      {
+        "item": "flint_and_steel",
+        "missing": [
+          {
+            "name": "iron_ingot",
+            "count": 1
+          },
+          {
+            "name": "flint",
+            "count": 1
+          }
+        ],
+        "oneRecipeExample": true
+      },
+      {
+        "item": "diamond_pickaxe",
+        "missing": [
+          {
+            "name": "diamond",
+            "count": 3
+          },
+          {
+            "name": "stick",
+            "count": 2
+          }
+        ],
+        "oneRecipeExample": true
+      },
+      {
+        "item": "torch",
+        "missing": [
+          {
+            "name": "charcoal",
+            "count": 1
+          },
+          {
+            "name": "stick",
+            "count": 1
+          }
+        ],
+        "oneRecipeExample": true
+      }
+    ],
+    "recentExploration": [],
+    "recentFailures": [],
+    "portalSite": null,
+    "busy": false,
+    "activeTaskId": null,
+    "reactive": {
+      "updatedAt": "2026-10-12T22:56:07.485Z",
+      "sampleIntervalMs": 200,
+      "lifecycleEpoch": 9,
+      "dimension": "overworld",
+      "timeOfDay": 10128,
+      "health": 9.499998092651367,
+      "food": 17,
+      "armed": false,
+      "enabled": true,
+      "mode": "idle",
+      "calming": false,
+      "targetId": null,
+      "entities": [
+        {
+          "id": 55348,
+          "name": "spider",
+          "position": {
+            "x": 63.30000001192093,
+            "y": 101.10000002384186,
+            "z": 68.30000001192093
+          },
+          "distance": 22.629405627226653
+        }
+      ],
+      "escape": null,
+      "timing": {
+        "tickMs": 0.2,
+        "maxTickMs": 6.7,
+        "sampleGapMs": 201.7,
+        "maxSampleGapMs": 713.6,
+        "skippedTicks": 0,
+        "fallbackMs": 0,
+        "maxFallbackMs": 0,
+        "fallbackBudgetMs": 60,
+        "fallbackOverruns": 0,
+        "leafAwaitMs": 0,
+        "maxLeafAwaitMs": 0,
+        "logCallbackMs": 0.6,
+        "maxLogCallbackMs": 6.5,
+        "tickLogCallbackMs": 0,
+        "fallbackLogCallbackMs": 0,
+        "fallbackCandidateMs": 0,
+        "fallbackSearchMs": 0,
+        "maxSearchSliceMs": 0,
+        "fallbackDispatchMs": 0,
+        "intervalIsSchedulingTarget": true
+      }
+    },
+    "sessionId": "E:\\Github\\AI_vtuber\\logs\\minecraft-session-1791830191222.jsonl"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "capturedAt": 1792268447086,
+  "evidence": {
+    "goal": "建立可生活的小家：先安全生存与食物，再依真实库存制作工作台、工具、熔炉、熟肉和火把，选择平坦安全位置造简单小屋，放置床、箱子、火把，最后浅层采矿并安全返回。由你自主分阶段决策。已有材料足够就推进下一阶段，不重复囤积。每5分钟监管反馈，失败先分析再改方法；同因两次失败需诊断而非原样重复。新建房/家具技能仅在能力表可用后调用，缺少技能要说明不能假装完成。生命危险优先避险/找可用食物。",
+    "currentSubgoal": "等待生命恢复，避免无效探索",
+    "action": {
+      "action": "observe",
+      "source": "local-qwen",
+      "model": "qwen3.5-4b",
+      "adapterLoaded": false,
+      "modelMetadata": {
+        "task": "minecraft-survival",
+        "used_adapter": false,
+        "adapter_path": null
+      }
+    },
+    "outcome": "completed",
+    "error": null,
+    "inventory": [],
+    "health": 1.4130733013153076,
+    "food": 16,
+    "yolo": {
+      "scope": "COCO only, not trained for Minecraft",
+      "detections": []
+    }
+  },
+  "speech": "我还在原地等生命慢慢恢复，雪地里暂时没见着威胁；背包空空的，这会儿出去乱跑不划算。",
+  "model": "deepseek-flash",
+  "provider": "cloud",
+  "visionModel": "qwen3.5-4b",
+  "visualObservation": "游戏画面显示，玩家身处一片被树木环绕的雪地地形中，远处可见夕阳下的平原。",
+  "expired": false
+}

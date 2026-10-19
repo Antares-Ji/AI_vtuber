@@ -1,0 +1,323 @@
+{
+  "status": "diagnostic only; no hard action gold, no holdout",
+  "models": [
+    "base",
+    "v4r1",
+    "epoch-01",
+    "epoch-02"
+  ],
+  "probes": [
+    {
+      "source": "live-probe-1791830746219.json",
+      "sourceSha256": "ad81a259793e808ab00a974408814eecc4a109b39e2f7b3074aaaabbd68541f5",
+      "classification": "resource_access_ambiguous",
+      "interpretation": "Wood was observed but the live trial later encountered high/inaccessible wood; action-path outcome is not a hard model label.",
+      "observedLogCount": 0,
+      "predictions": {
+        "base": {
+          "action": {
+            "action": "gather_wood",
+            "count": 12
+          },
+          "schemaValid": true,
+          "directGridAdapterContext": {
+            "task": "minecraft-survival",
+            "used_adapter": false,
+            "adapter_path": null
+          },
+          "contextNote": "Local direct-grid evaluator metadata; not an HTTP completion response or endpoint metadata verification.",
+          "latencyMs": 1500.0,
+          "materialCheck": null
+        },
+        "v4r1": {
+          "action": {
+            "action": "explore",
+            "direction": "northeast",
+            "distance": 24
+          },
+          "schemaValid": true,
+          "directGridAdapterContext": {
+            "task": "minecraft-survival",
+            "used_adapter": true,
+            "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01"
+          },
+          "contextNote": "Local direct-grid evaluator metadata; not an HTTP completion response or endpoint metadata verification.",
+          "latencyMs": 2144.4,
+          "materialCheck": null
+        },
+        "epoch-01": {
+          "action": {
+            "action": "explore",
+            "direction": "northeast",
+            "distance": 24
+          },
+          "schemaValid": true,
+          "directGridAdapterContext": {
+            "task": "minecraft-survival",
+            "used_adapter": true,
+            "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v5r2-dense-replay-candidate\\checkpoint-epoch-01"
+          },
+          "contextNote": "Local direct-grid evaluator metadata; not an HTTP completion response or endpoint metadata verification.",
+          "latencyMs": 2172.2,
+          "materialCheck": null
+        },
+        "epoch-02": {
+          "action": {
+            "action": "explore",
+            "direction": "northeast",
+            "distance": 24
+          },
+          "schemaValid": true,
+          "directGridAdapterContext": {
+            "task": "minecraft-survival",
+            "used_adapter": true,
+            "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v5r2-dense-replay-candidate\\checkpoint-epoch-02"
+          },
+          "contextNote": "Local direct-grid evaluator metadata; not an HTTP completion response or endpoint metadata verification.",
+          "latencyMs": 2141.8,
+          "materialCheck": null
+        }
+      }
+    },
+    {
+      "source": "live-probe-1791833435547.json",
+      "sourceSha256": "24af7a8c298abbe71d567b23cd452cdee902bb81741cd01ed425a75a588c758a",
+      "classification": "material_recovery_clear",
+      "interpretation": "The identical recorded input was previously answered with craft planks 4 by base and v4r1; inspect whether each model chooses a material-feasible recovery. This is a diagnostic reference, not a training row.",
+      "observedLogCount": 3,
+      "predictions": {
+        "base": {
+          "action": {
+            "action": "craft",
+            "item": "planks",
+            "count": 4
+          },
+          "schemaValid": true,
+          "directGridAdapterContext": {
+            "task": "minecraft-survival",
+            "used_adapter": false,
+            "adapter_path": null
+          },
+          "contextNote": "Local direct-grid evaluator metadata; not an HTTP completion response or endpoint metadata verification.",
+          "latencyMs": 1386.7,
+          "materialCheck": {
+            "feasibleFromObservedLogs": true,
+            "requestedPlanks": 4,
+            "maxPlanksFromObservedLogs": 12
+          }
+        },
+        "v4r1": {
+          "action": {
+            "action": "craft",
+            "item": "planks",
+            "count": 4
+          },
+          "schemaValid": true,
+          "directGridAdapterContext": {
+            "task": "minecraft-survival",
+            "used_adapter": true,
+            "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01"
+          },
+          "contextNote": "Local direct-grid evaluator metadata; not an HTTP completion response or endpoint metadata verification.",
+          "latencyMs": 1706.1,
+          "materialCheck": {
+            "feasibleFromObservedLogs": true,
+            "requestedPlanks": 4,
+            "maxPlanksFromObservedLogs": 12
+          }
+        },
+        "epoch-01": {
+          "action": {
+            "action": "craft",
+            "item": "planks",
+            "count": 4
+          },
+          "schemaValid": true,
+          "directGridAdapterContext": {
+            "task": "minecraft-survival",
+            "used_adapter": true,
+            "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v5r2-dense-replay-candidate\\checkpoint-epoch-01"
+          },
+          "contextNote": "Local direct-grid evaluator metadata; not an HTTP completion response or endpoint metadata verification.",
+          "latencyMs": 1761.2,
+          "materialCheck": {
+            "feasibleFromObservedLogs": true,
+            "requestedPlanks": 4,
+            "maxPlanksFromObservedLogs": 12
+          }
+        },
+        "epoch-02": {
+          "action": {
+            "action": "craft",
+            "item": "planks",
+            "count": 4
+          },
+          "schemaValid": true,
+          "directGridAdapterContext": {
+            "task": "minecraft-survival",
+            "used_adapter": true,
+            "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v5r2-dense-replay-candidate\\checkpoint-epoch-02"
+          },
+          "contextNote": "Local direct-grid evaluator metadata; not an HTTP completion response or endpoint metadata verification.",
+          "latencyMs": 1664.2,
+          "materialCheck": {
+            "feasibleFromObservedLogs": true,
+            "requestedPlanks": 4,
+            "maxPlanksFromObservedLogs": 12
+          }
+        }
+      }
+    },
+    {
+      "source": "live-probe-1791836151666.json",
+      "sourceSha256": "0cb33971dfe186f4d5ab6bfdc35398cbec8b2ac0a890692d18ede978adccd8bf",
+      "classification": "stage_ambiguous_with_material_check",
+      "interpretation": "Do not score gather-versus-planks as a unique gold action. Independently check whether a proposed planks count exceeds the one observed log; schema validity alone is insufficient.",
+      "observedLogCount": 1,
+      "predictions": {
+        "base": {
+          "action": {
+            "action": "gather_wood",
+            "count": 12
+          },
+          "schemaValid": true,
+          "directGridAdapterContext": {
+            "task": "minecraft-survival",
+            "used_adapter": false,
+            "adapter_path": null
+          },
+          "contextNote": "Local direct-grid evaluator metadata; not an HTTP completion response or endpoint metadata verification.",
+          "latencyMs": 1417.8,
+          "materialCheck": null
+        },
+        "v4r1": {
+          "action": {
+            "action": "craft",
+            "item": "planks",
+            "count": 4
+          },
+          "schemaValid": true,
+          "directGridAdapterContext": {
+            "task": "minecraft-survival",
+            "used_adapter": true,
+            "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01"
+          },
+          "contextNote": "Local direct-grid evaluator metadata; not an HTTP completion response or endpoint metadata verification.",
+          "latencyMs": 1833.2,
+          "materialCheck": {
+            "feasibleFromObservedLogs": true,
+            "requestedPlanks": 4,
+            "maxPlanksFromObservedLogs": 4
+          }
+        },
+        "epoch-01": {
+          "action": {
+            "action": "craft",
+            "item": "planks",
+            "count": 8
+          },
+          "schemaValid": true,
+          "directGridAdapterContext": {
+            "task": "minecraft-survival",
+            "used_adapter": true,
+            "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v5r2-dense-replay-candidate\\checkpoint-epoch-01"
+          },
+          "contextNote": "Local direct-grid evaluator metadata; not an HTTP completion response or endpoint metadata verification.",
+          "latencyMs": 1789.8,
+          "materialCheck": {
+            "feasibleFromObservedLogs": false,
+            "requestedPlanks": 8,
+            "maxPlanksFromObservedLogs": 4
+          }
+        },
+        "epoch-02": {
+          "action": {
+            "action": "craft",
+            "item": "planks",
+            "count": 8
+          },
+          "schemaValid": true,
+          "directGridAdapterContext": {
+            "task": "minecraft-survival",
+            "used_adapter": true,
+            "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v5r2-dense-replay-candidate\\checkpoint-epoch-02"
+          },
+          "contextNote": "Local direct-grid evaluator metadata; not an HTTP completion response or endpoint metadata verification.",
+          "latencyMs": 1761.8,
+          "materialCheck": {
+            "feasibleFromObservedLogs": false,
+            "requestedPlanks": 8,
+            "maxPlanksFromObservedLogs": 4
+          }
+        }
+      }
+    },
+    {
+      "source": "live-probe-1791838384663.json",
+      "sourceSha256": "5c1046a3146075c2d4c8455e483a95867d8f4b949dd197ae7826896f33d3a49d",
+      "classification": "full_food_noop_clear",
+      "interpretation": "Food is already full; avoid an eat no-op. Other useful actions are diagnostic, not exact gold labels.",
+      "observedLogCount": 0,
+      "predictions": {
+        "base": {
+          "action": {
+            "action": "gather_wood",
+            "count": 4
+          },
+          "schemaValid": true,
+          "directGridAdapterContext": {
+            "task": "minecraft-survival",
+            "used_adapter": false,
+            "adapter_path": null
+          },
+          "contextNote": "Local direct-grid evaluator metadata; not an HTTP completion response or endpoint metadata verification.",
+          "latencyMs": 1332.0,
+          "materialCheck": null
+        },
+        "v4r1": {
+          "action": {
+            "action": "eat"
+          },
+          "schemaValid": true,
+          "directGridAdapterContext": {
+            "task": "minecraft-survival",
+            "used_adapter": true,
+            "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01"
+          },
+          "contextNote": "Local direct-grid evaluator metadata; not an HTTP completion response or endpoint metadata verification.",
+          "latencyMs": 1195.3,
+          "materialCheck": null
+        },
+        "epoch-01": {
+          "action": {
+            "action": "eat"
+          },
+          "schemaValid": true,
+          "directGridAdapterContext": {
+            "task": "minecraft-survival",
+            "used_adapter": true,
+            "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v5r2-dense-replay-candidate\\checkpoint-epoch-01"
+          },
+          "contextNote": "Local direct-grid evaluator metadata; not an HTTP completion response or endpoint metadata verification.",
+          "latencyMs": 1208.5,
+          "materialCheck": null
+        },
+        "epoch-02": {
+          "action": {
+            "action": "gather_wood",
+            "count": 4
+          },
+          "schemaValid": true,
+          "directGridAdapterContext": {
+            "task": "minecraft-survival",
+            "used_adapter": true,
+            "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v5r2-dense-replay-candidate\\checkpoint-epoch-02"
+          },
+          "contextNote": "Local direct-grid evaluator metadata; not an HTTP completion response or endpoint metadata verification.",
+          "latencyMs": 1665.6,
+          "materialCheck": null
+        }
+      }
+    }
+  ]
+}

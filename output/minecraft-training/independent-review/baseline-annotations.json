@@ -1,0 +1,22 @@
+[
+  {"id":"holdout-001","verdict":"uncertain","reason":"Gathering twelve logs instead of seven is a useful allowed alternative, but this fixture contradicts its own geometry: the resource is reported five blocks away while its coordinates are about 128 blocks from the player. Conditional on the reported nearby resource being correct, this choice passes."},
+  {"id":"holdout-002","verdict":"pass","reason":"Four birch logs afford four planks. A smaller batch still advances the missing wood-processing prerequisite; twelve planks is not the only valid count."},
+  {"id":"holdout-003","verdict":"fail","reason":"Inventory contains planks but no logs. Crafting another sixteen planks lacks its required raw input."},
+  {"id":"holdout-004","verdict":"fail","reason":"Only a wooden pickaxe is present; crafting planks requires unavailable logs. Resource-coordinate inconsistencies elsewhere in this fixture do not repair that missing ingredient."},
+  {"id":"holdout-005","verdict":"fail","reason":"iron_ore is not a legal mine.resource value. The inventory also has no pickaxe able to harvest iron."},
+  {"id":"holdout-006","verdict":"fail","reason":"Raw iron is not an iron ingot. An iron pickaxe additionally requires sticks and a crafting table, which are absent."},
+  {"id":"holdout-007","verdict":"fail","reason":"iron_ore is not a legal mine.resource value. The conceptual target is appropriate, but strict whitelist compatibility is a required gate."},
+  {"id":"holdout-008","verdict":"fail","reason":"No wood is observed, and food is six with baked potatoes available. The chosen gathering action ignores both a missing resource and the urgent edible-food option."},
+  {"id":"holdout-009","verdict":"pass","reason":"Retreat is appropriate with a spider six blocks away and twelve health; no count or direction argument is required."},
+  {"id":"holdout-010","verdict":"fail","reason":"No wood is observed, and the recent failure requires finding absent gravel. Gathering nonexistent visible wood cannot resolve the state."},
+  {"id":"holdout-011","verdict":"pass","reason":"Exploring sixteen more blocks east can expose new terrain. The sparse history gives only a previous direction and distance, not a destination or a failed eastward navigation, so it does not establish retracing or make west uniquely valid. The choice is less diversified, but still plausible progress toward absent iron."},
+  {"id":"holdout-012","verdict":"pass","reason":"Eating an available apple at five health and eight food is safe and useful when no threats are observed. The authored flee label is not the only valid response and could add needless night movement."},
+  {"id":"holdout-013","verdict":"fail","reason":"No wood is observed. Visible gravel and an iron ingot make flint collection relevant, while the chosen gathering action lacks its target."},
+  {"id":"holdout-014","verdict":"fail","reason":"The executor requires flint_and_steel before building and igniting a portal; it is absent. Sufficient obsidian alone does not meet the skill contract."},
+  {"id":"holdout-015","verdict":"pass","reason":"The required obsidian, cobblestone corners and igniter are all present. The skill itself checks a flat site before placement, so selecting this bounded attempt is reasonable; this is not a guarantee that placement would succeed."},
+  {"id":"holdout-016","verdict":"fail","reason":"diamond_ore is outside the mine.resource whitelist, and no iron-or-better pickaxe exists in inventory. An already active portal also makes this detour unnecessary for the goal."},
+  {"id":"holdout-017","verdict":"fail","reason":"The goal of entering the Nether is already satisfied and there is no immediate survival shortage. Further unexplained exploration does not advance an unresolved prerequisite or verify completion."},
+  {"id":"holdout-018","verdict":"fail","reason":"At four food with no food inventory, nearby passive prey is a viable survival resource. No wood is observed, so the selected wood-gathering task is not feasible."},
+  {"id":"holdout-019","verdict":"fail","reason":"Raw iron cannot directly craft an iron pickaxe. There are no iron ingots, sticks, or crafting table; the existing furnace and coal support smelting instead."},
+  {"id":"holdout-020","verdict":"pass","reason":"Retreat appropriately takes precedence over eating when a zombie is three blocks away and a creeper is eight blocks away."}
+]

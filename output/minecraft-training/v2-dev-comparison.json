@@ -1,0 +1,63 @@
+{
+  "evaluation": "development-v2.jsonl (26 compact prompts; never final holdout)",
+  "selection_rule": "Maximize exact action-object accuracy; ties broken by progression_exact_accuracy, then earlier epoch. This is a small development set and a tie-break, not proof of generalization.",
+  "selected_checkpoint": "runtime/minecraft-training/adapters/minecraft-survival-v2/checkpoint-epoch-03",
+  "reason": "Epochs 01, 03 and 04 tie at 11/26 exact; epoch 03 and 04 tie at 6/20 progression versus 5/20 for epoch 01, and epoch 03 is earlier than epoch 04.",
+  "metrics": [
+    {
+      "model": "base",
+      "n": 26,
+      "exact": 0.23076923076923078,
+      "action_name": 0.4230769230769231,
+      "schema_valid": 0.9615384615384616,
+      "threat_priority": 1.0,
+      "progression_exact": 0.15
+    },
+    {
+      "model": "v1",
+      "n": 26,
+      "exact": 0.38461538461538464,
+      "action_name": 0.5769230769230769,
+      "schema_valid": 1.0,
+      "threat_priority": 1.0,
+      "progression_exact": 0.2
+    },
+    {
+      "model": "epoch-01",
+      "n": 26,
+      "exact": 0.4230769230769231,
+      "action_name": 0.7307692307692307,
+      "schema_valid": 1.0,
+      "threat_priority": 1.0,
+      "progression_exact": 0.25
+    },
+    {
+      "model": "epoch-02",
+      "n": 26,
+      "exact": 0.38461538461538464,
+      "action_name": 0.8076923076923077,
+      "schema_valid": 1.0,
+      "threat_priority": 1.0,
+      "progression_exact": 0.25
+    },
+    {
+      "model": "epoch-03",
+      "n": 26,
+      "exact": 0.4230769230769231,
+      "action_name": 0.7692307692307693,
+      "schema_valid": 1.0,
+      "threat_priority": 1.0,
+      "progression_exact": 0.3
+    },
+    {
+      "model": "epoch-04",
+      "n": 26,
+      "exact": 0.4230769230769231,
+      "action_name": 0.7692307692307693,
+      "schema_valid": 1.0,
+      "threat_priority": 1.0,
+      "progression_exact": 0.3
+    }
+  ],
+  "caveat": "Scores represent agreement with authored next-step labels only. They do not establish game success. Old v1 holdout was not read or used."
+}

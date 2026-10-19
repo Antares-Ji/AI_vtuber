@@ -1,0 +1,41 @@
+{
+  "createdAt": "2026-10-12T18:44:11.201Z",
+  "rubric": "independent-semantic-feasibility-v1",
+  "holdoutSha256": "ffbd010232a4f8cbcdaee4650ea4c938d719b2940bd0cbb7b8fad4b179006e4b",
+  "rubricSha256": "3427949d6c18c941a57d573cccfd8582f12a8949353138cf7fb69f1d17c3e295",
+  "n": 20,
+  "baseline": {
+    "semantic": {
+      "pass": 6,
+      "fail": 13,
+      "uncertain": 1
+    },
+    "semanticPassRate": 0.3,
+    "strictSchemaRate": 0.85,
+    "exactMatchRate": 0.15,
+    "latency": {
+      "medianMs": 1339.0500000000002,
+      "p95Ms": 1488.3,
+      "maxMs": 1541.8
+    }
+  },
+  "adapter": {
+    "semantic": {
+      "pass": 15,
+      "fail": 3,
+      "uncertain": 2
+    },
+    "semanticPassRate": 0.75,
+    "strictSchemaRate": 1,
+    "exactMatchRate": 0.45,
+    "latency": {
+      "medianMs": 1352.85,
+      "p95Ms": 1608.2,
+      "maxMs": 6531.4
+    },
+    "perCompletionAdapterUseConfirmed": true
+  },
+  "semanticPassRateDelta": 0.45,
+  "interpretation": "The same frozen v1 prompt and synthetic states show improved schema compliance and semantic feasibility. These twenty cases are a small, related hand-authored distribution, not proof of generalization or live Nether completion. Live runs use an expanded v2 planner/observer/executor; their progress cannot be causally attributed to weights alone.",
+  "fixtureLimits": "Two fixtures contain inconsistent resource coordinates/distances. They remain unchanged; uncertainty is explicit when it affects the selected action. Baseline has one uncertain case and adapter two."
+}

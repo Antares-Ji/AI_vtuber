@@ -1,0 +1,113 @@
+{
+  "dataset": "minecraft-survival-v6r1-material-recovery-candidate",
+  "status": "candidate only; not trained; independent semantic review pending",
+  "contract": "Current runtime SURVIVAL_ACTION_SCHEMA + compactObservation + decisionMessages; no prompt/schema changes.",
+  "revisionHistory": [
+    {
+      "supersededDraft": {
+        "train": "7481c133ec56fb55e7f8fe38aa7453746acd4ab976d668e5cc9ccec7e0995587",
+        "development": "4a8266754c6bc3084205109f64009e5bcee9c0b6ecd756431974fea631242c6b",
+        "weightedReplay": "0baf800b01e19312869420c15ea6a0ae3421aa00b80cb64f88ef6595b62b16e3"
+      },
+      "changes": [
+        "Generate synthetic craftable from installed minecraft-data recipes across CRAFT_ITEMS, based on inventory affordability and without suppressing a recipe because the item or station is already owned.",
+        "Rebuild development row 01 as a material-distinct missing-stick recovery case with a state-consistent prior pickaxe failure.",
+        "Replace development rows 06 and 09 after normalized-prompt review found they differed from training rows only by absolute coordinates/time. Row 06 now tests full-food/no-op rejection with an empty starter inventory; row 09 tests iron-pickaxe upgrade feasibility."
+      ],
+      "reason": "Independent review found craftable metadata inconsistent with runtime craftingOptions, an unsupported failure-history implication, and two non-independent development cases."
+    },
+    {
+      "supersededDraft": {
+        "train": "e2c0594f0d7953f45c1b623ae305284289771f0a94e95ee7fe01eeaaf5b6e75d",
+        "development": "cd208f0a3d46e5f165dd1d6d0095f4caa132342a350210e0fd3d21ef59ad0e3d",
+        "weightedReplay": "b1f81297d705e6f3accb02265217f148967730b4936eaa7599aa9ba3244526ac"
+      },
+      "changes": [
+        "Make development row 01 distinct from training after normalized-input audit: use four spruce planks, no sticks, a consistent prior missing-ingredients failure, and craft stick2 as the feasible recovery."
+      ],
+      "reason": "Independent normalized-overlap review found dev01 duplicated train15 before this change."
+    }
+  ],
+  "trainingRowsUnique": 24,
+  "developmentRows": 10,
+  "replayRows": 286,
+  "uniqueNewTrainingRows": 24,
+  "explicitOversampling": "Every unique row appears 3 times total (one base + two replay copies); repeated copies are not counted as independent examples.",
+  "trainingSha256": "e2c0594f0d7953f45c1b623ae305284289771f0a94e95ee7fe01eeaaf5b6e75d",
+  "developmentSha256": "cd208f0a3d46e5f165dd1d6d0095f4caa132342a350210e0fd3d21ef59ad0e3d",
+  "weightedReplaySha256": "b1f81297d705e6f3accb02265217f148967730b4936eaa7599aa9ba3244526ac",
+  "sourceEvidence": {
+    "path": "logs/minecraft-autonomy.jsonl",
+    "sha256": "f7321ca3d0f1025f0e0136919612fe61e10ffca37f299cdb56e1c31ab5ad1a3b",
+    "sessionPath": "E:\\Github\\AI_vtuber\\logs\\minecraft-session-1791830191222.jsonl",
+    "sessionSha256": "e0c92a6ba10425d296fe83914fef3f19f660b0fe669bdea8a267ceb9ad3fd620",
+    "selectedRequestId": "e31b2a45-2201-4049-958f-be3120b8355e",
+    "selectedAt": "2026-10-12T22:03:19.861Z",
+    "originalModelAction": {
+      "action": "craft",
+      "item": "wooden_pickaxe",
+      "count": 1
+    },
+    "teacherAction": {
+      "action": "gather_wood",
+      "count": 3
+    },
+    "matchedMaterialShortageRequests": 3,
+    "successfulDemoRequestId": "68abb2da-7844-4219-a9ed-2b673e953465",
+    "successfulDemoTaskId": "fb0c381e-c6ab-4af3-a10e-56c3d796adbf",
+    "successfulDemoDelta": {
+      "before": [
+        {
+          "name": "spruce_planks",
+          "count": 12
+        },
+        {
+          "name": "stick",
+          "count": 8
+        }
+      ],
+      "after": [
+        {
+          "name": "stick",
+          "count": 6
+        },
+        {
+          "name": "spruce_planks",
+          "count": 9
+        },
+        {
+          "name": "wooden_pickaxe",
+          "count": 1
+        }
+      ]
+    },
+    "holdoutRead": false,
+    "exactLegacyProbeRead": false
+  },
+  "replayPrefix": {
+    "path": "train-v5r2-replay-candidates.jsonl",
+    "sha256": "2086a5efe8cefdf2e10f99fd2e3b7cd0aabb6bf4eb91fdab0d21e1b1a9934877",
+    "preserved": true
+  },
+  "limits": [
+    "Teacher labels are recommendations for the stated observation; they were not executed.",
+    "Exact live inputs are training-only; development consists of independently generated counterfactuals.",
+    "Development counts/directions are action sets and feasibility criteria, not proof of world/path success.",
+    "Legacy final holdout was not read; four prior exact diagnostics were not used as training or development."
+  ],
+  "suggestedTrainingConfig": {
+    "initialization": "v4r1 epoch01",
+    "rank": 4,
+    "learningRate": 0.00001,
+    "epochs": 1,
+    "maxLength": 2560,
+    "tokenAudit": "CPU audit passed: max full sequence 2237 tokens; all 24 unique training, 10 development, and 286 weighted replay labels are retained whole.",
+    "reason": "Pending independent review; v5r2 shows material-count and food-priority failures, so v4r1 is a conservative parent. Validate on frozen independent development slices; do not select by loss alone."
+  },
+  "selectionStatus": "not evaluated; GPU training not authorized",
+  "sourceHashes": {
+    "planner": "7003728b698e0006849c0960e1e79392c9dda479362fe74712da3f9f8021f630",
+    "skills": "de343d62a0ab4bc771102a9f0d45bcb1814daf5692a26aa7b378a00e3c6a2541",
+    "priorReplay": "2086a5efe8cefdf2e10f99fd2e3b7cd0aabb6bf4eb91fdab0d21e1b1a9934877"
+  }
+}

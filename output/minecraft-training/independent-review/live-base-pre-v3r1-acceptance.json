@@ -1,0 +1,628 @@
+{
+  "rubric": "minecraft-live-v2-acceptance-1",
+  "from": "2026-10-12T19:44:27.104Z",
+  "to": "2026-10-12T19:51:08.346Z",
+  "cohorts": {
+    "base": {
+      "decisions": 22,
+      "results": 22,
+      "failed": 13,
+      "corroborated": 9,
+      "progress": 9
+    }
+  },
+  "decisions": 22,
+  "results": 22,
+  "failures": 13,
+  "failureRate": 0.5909090909090909,
+  "repeatedUnchangedFailures": 7,
+  "repeatedFailureRateAmongAttempts": 0.3181818181818182,
+  "repeatedFailureEvidence": [
+    {
+      "previousTaskId": "96c89e5d-ad09-4f56-af88-8855985ebf0d",
+      "taskId": "2f171153-0e3c-40c1-9cf7-7732b88268cf",
+      "intent": {
+        "action": "craft",
+        "item": "planks",
+        "count": 16
+      },
+      "error": "Gather wood before crafting planks",
+      "cohort": "base"
+    },
+    {
+      "previousTaskId": "2f171153-0e3c-40c1-9cf7-7732b88268cf",
+      "taskId": "790eeca3-9341-4a47-943c-d802dffb1a43",
+      "intent": {
+        "action": "craft",
+        "item": "planks",
+        "count": 16
+      },
+      "error": "Gather wood before crafting planks",
+      "cohort": "base"
+    },
+    {
+      "previousTaskId": "17874ed7-46e5-42e1-b506-5d6777855f77",
+      "taskId": "c11a90e4-3688-4213-ad08-242a3a1e5a1a",
+      "intent": {
+        "action": "gather_wood",
+        "count": 12
+      },
+      "error": "No inventory gain (0 blocks removed): unsafe/unreachable block; unsafe/unreachable block",
+      "cohort": "base"
+    },
+    {
+      "previousTaskId": "c11a90e4-3688-4213-ad08-242a3a1e5a1a",
+      "taskId": "7e991d37-b646-4d1f-88c0-695a7c8f5ef1",
+      "intent": {
+        "action": "gather_wood",
+        "count": 12
+      },
+      "error": "No inventory gain (0 blocks removed): unsafe/unreachable block; unsafe/unreachable block",
+      "cohort": "base"
+    },
+    {
+      "previousTaskId": "7e991d37-b646-4d1f-88c0-695a7c8f5ef1",
+      "taskId": "d17d44b6-4208-4f52-8d42-9292f6dcdc90",
+      "intent": {
+        "action": "gather_wood",
+        "count": 12
+      },
+      "error": "No inventory gain (0 blocks removed): unsafe/unreachable block; unsafe/unreachable block",
+      "cohort": "base"
+    },
+    {
+      "previousTaskId": "d17d44b6-4208-4f52-8d42-9292f6dcdc90",
+      "taskId": "993ada48-a2be-4aa2-a2c1-af7a19c902bd",
+      "intent": {
+        "action": "gather_wood",
+        "count": 12
+      },
+      "error": "No inventory gain (0 blocks removed): unsafe/unreachable block; unsafe/unreachable block",
+      "cohort": "base"
+    },
+    {
+      "previousTaskId": "993ada48-a2be-4aa2-a2c1-af7a19c902bd",
+      "taskId": "a6c2d14c-48f0-43e3-af38-f53f7952801d",
+      "intent": {
+        "action": "gather_wood",
+        "count": 1
+      },
+      "error": "No inventory gain (0 blocks removed): unsafe/unreachable block; unsafe/unreachable block",
+      "cohort": "base"
+    }
+  ],
+  "rejectedDecisions": [],
+  "actionEvidence": [
+    {
+      "taskId": "50385985-82af-41e6-b380-6883597fe91b",
+      "at": "2026-10-12T19:44:31.721Z",
+      "action": {
+        "action": "gather_wood",
+        "count": 4
+      },
+      "status": "cancelled",
+      "cohort": "base",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": false,
+      "inventorySource": "outer-observation-may-include-inference-time",
+      "inventoryDelta": {},
+      "corroborated": false,
+      "progress": false,
+      "reason": "not-completed-and-verified"
+    },
+    {
+      "taskId": "7fb5953a-32a7-41ec-b3d1-f7ee5a2cd988",
+      "at": "2026-10-12T19:45:21.989Z",
+      "action": {
+        "action": "gather_wood",
+        "count": 4
+      },
+      "status": "completed",
+      "cohort": "base",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": true,
+      "inventorySource": "executor-local",
+      "inventoryDelta": {
+        "spruce_log": 4
+      },
+      "corroborated": true,
+      "progress": true,
+      "reason": "action-specific-evidence-present"
+    },
+    {
+      "taskId": "7a7d5f54-bec2-4e36-beca-ea73deb3c982",
+      "at": "2026-10-12T19:46:01.107Z",
+      "action": {
+        "action": "gather_wood",
+        "count": 4
+      },
+      "status": "completed",
+      "cohort": "base",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": true,
+      "inventorySource": "executor-local",
+      "inventoryDelta": {
+        "spruce_log": 4
+      },
+      "corroborated": true,
+      "progress": true,
+      "reason": "action-specific-evidence-present"
+    },
+    {
+      "taskId": "5b91f865-0721-4887-a564-8dbf53af75cd",
+      "at": "2026-10-12T19:46:05.276Z",
+      "action": {
+        "action": "craft",
+        "item": "planks",
+        "count": 12
+      },
+      "status": "completed",
+      "cohort": "base",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": true,
+      "inventorySource": "executor-local",
+      "inventoryDelta": {
+        "spruce_log": -3,
+        "spruce_planks": 12
+      },
+      "corroborated": true,
+      "progress": true,
+      "reason": "action-specific-evidence-present"
+    },
+    {
+      "taskId": "592bfea4-ff63-4a06-ae60-55e6ca5bf318",
+      "at": "2026-10-12T19:46:09.238Z",
+      "action": {
+        "action": "craft",
+        "item": "planks",
+        "count": 12
+      },
+      "status": "completed",
+      "cohort": "base",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": true,
+      "inventorySource": "executor-local",
+      "inventoryDelta": {
+        "spruce_log": -3,
+        "spruce_planks": 12
+      },
+      "corroborated": true,
+      "progress": true,
+      "reason": "action-specific-evidence-present"
+    },
+    {
+      "taskId": "0c73e363-6b56-4f2b-adeb-97499c01b499",
+      "at": "2026-10-12T19:46:13.227Z",
+      "action": {
+        "action": "craft",
+        "item": "planks",
+        "count": 12
+      },
+      "status": "completed",
+      "cohort": "base",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": true,
+      "inventorySource": "executor-local",
+      "inventoryDelta": {
+        "spruce_log": -3,
+        "spruce_planks": 12
+      },
+      "corroborated": true,
+      "progress": true,
+      "reason": "action-specific-evidence-present"
+    },
+    {
+      "taskId": "85274c81-f06b-4188-beab-525fd911bba4",
+      "at": "2026-10-12T19:46:17.187Z",
+      "action": {
+        "action": "craft",
+        "item": "crafting_table",
+        "count": 1
+      },
+      "status": "completed",
+      "cohort": "base",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": true,
+      "inventorySource": "executor-local",
+      "inventoryDelta": {
+        "spruce_planks": -4,
+        "crafting_table": 1
+      },
+      "corroborated": true,
+      "progress": true,
+      "reason": "action-specific-evidence-present"
+    },
+    {
+      "taskId": "982ff3ea-69c0-4a2a-9f11-19fc60bfa260",
+      "at": "2026-10-12T19:46:22.123Z",
+      "action": {
+        "action": "craft",
+        "item": "wooden_pickaxe",
+        "count": 1
+      },
+      "status": "completed",
+      "cohort": "base",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": true,
+      "inventorySource": "executor-local",
+      "inventoryDelta": {
+        "spruce_planks": -3,
+        "stick": -2,
+        "crafting_table": -1,
+        "wooden_pickaxe": 1
+      },
+      "corroborated": true,
+      "progress": true,
+      "reason": "action-specific-evidence-present"
+    },
+    {
+      "taskId": "de145826-1e00-4718-b52b-4c17b9cd0915",
+      "at": "2026-10-12T19:46:39.748Z",
+      "action": {
+        "action": "mine",
+        "resource": "coal",
+        "count": 3
+      },
+      "status": "failed",
+      "cohort": "base",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": false,
+      "inventorySource": "outer-observation-may-include-inference-time",
+      "inventoryDelta": {},
+      "corroborated": false,
+      "progress": false,
+      "reason": "not-completed-and-verified"
+    },
+    {
+      "taskId": "d6fa0c59-4b2d-447f-a949-3cb736e3528e",
+      "at": "2026-10-12T19:46:49.950Z",
+      "action": {
+        "action": "explore",
+        "direction": "north",
+        "distance": 16
+      },
+      "status": "completed",
+      "cohort": "base",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": true,
+      "inventorySource": "executor-local",
+      "inventoryDelta": {},
+      "corroborated": true,
+      "progress": true,
+      "reason": "action-specific-evidence-present"
+    },
+    {
+      "taskId": "7d98c858-cf55-42ce-a9b1-3c849de96265",
+      "at": "2026-10-12T19:47:20.578Z",
+      "action": {
+        "action": "mine",
+        "resource": "stone",
+        "count": 4
+      },
+      "status": "failed",
+      "cohort": "base",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": false,
+      "inventorySource": "outer-observation-may-include-inference-time",
+      "inventoryDelta": {
+        "cobblestone": 1
+      },
+      "corroborated": false,
+      "progress": false,
+      "reason": "not-completed-and-verified"
+    },
+    {
+      "taskId": "e36cd72f-8d41-49ff-a2f5-23e8fb27472c",
+      "at": "2026-10-12T19:48:01.401Z",
+      "action": {
+        "action": "gather_wood",
+        "count": 4
+      },
+      "status": "completed",
+      "cohort": "base",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": true,
+      "inventorySource": "executor-local",
+      "inventoryDelta": {
+        "spruce_log": 4
+      },
+      "corroborated": true,
+      "progress": true,
+      "reason": "action-specific-evidence-present"
+    },
+    {
+      "taskId": "faf040d6-e878-4ff1-ab51-1d466e0736e5",
+      "at": "2026-10-12T19:48:04.963Z",
+      "action": {
+        "action": "craft",
+        "item": "furnace",
+        "count": 1
+      },
+      "status": "failed",
+      "cohort": "base",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": false,
+      "inventorySource": "outer-observation-may-include-inference-time",
+      "inventoryDelta": {},
+      "corroborated": false,
+      "progress": false,
+      "reason": "not-completed-and-verified"
+    },
+    {
+      "taskId": "96c89e5d-ad09-4f56-af88-8855985ebf0d",
+      "at": "2026-10-12T19:48:18.486Z",
+      "action": {
+        "action": "craft",
+        "item": "planks",
+        "count": 16
+      },
+      "status": "failed",
+      "cohort": "base",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": false,
+      "inventorySource": "outer-observation-may-include-inference-time",
+      "inventoryDelta": {
+        "spruce_log": -6,
+        "spruce_planks": 12
+      },
+      "corroborated": false,
+      "progress": false,
+      "reason": "not-completed-and-verified"
+    },
+    {
+      "taskId": "2f171153-0e3c-40c1-9cf7-7732b88268cf",
+      "at": "2026-10-12T19:48:25.602Z",
+      "action": {
+        "action": "craft",
+        "item": "planks",
+        "count": 16
+      },
+      "status": "failed",
+      "cohort": "base",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": false,
+      "inventorySource": "outer-observation-may-include-inference-time",
+      "inventoryDelta": {},
+      "corroborated": false,
+      "progress": false,
+      "reason": "not-completed-and-verified"
+    },
+    {
+      "taskId": "790eeca3-9341-4a47-943c-d802dffb1a43",
+      "at": "2026-10-12T19:48:32.645Z",
+      "action": {
+        "action": "craft",
+        "item": "planks",
+        "count": 16
+      },
+      "status": "failed",
+      "cohort": "base",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": false,
+      "inventorySource": "outer-observation-may-include-inference-time",
+      "inventoryDelta": {},
+      "corroborated": false,
+      "progress": false,
+      "reason": "not-completed-and-verified"
+    },
+    {
+      "taskId": "17874ed7-46e5-42e1-b506-5d6777855f77",
+      "at": "2026-10-12T19:49:05.037Z",
+      "action": {
+        "action": "gather_wood",
+        "count": 12
+      },
+      "status": "failed",
+      "cohort": "base",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": false,
+      "inventorySource": "outer-observation-may-include-inference-time",
+      "inventoryDelta": {},
+      "corroborated": false,
+      "progress": false,
+      "reason": "not-completed-and-verified"
+    },
+    {
+      "taskId": "c11a90e4-3688-4213-ad08-242a3a1e5a1a",
+      "at": "2026-10-12T19:49:12.256Z",
+      "action": {
+        "action": "gather_wood",
+        "count": 12
+      },
+      "status": "failed",
+      "cohort": "base",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": false,
+      "inventorySource": "outer-observation-may-include-inference-time",
+      "inventoryDelta": {},
+      "corroborated": false,
+      "progress": false,
+      "reason": "not-completed-and-verified"
+    },
+    {
+      "taskId": "7e991d37-b646-4d1f-88c0-695a7c8f5ef1",
+      "at": "2026-10-12T19:49:19.504Z",
+      "action": {
+        "action": "gather_wood",
+        "count": 12
+      },
+      "status": "failed",
+      "cohort": "base",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": false,
+      "inventorySource": "outer-observation-may-include-inference-time",
+      "inventoryDelta": {},
+      "corroborated": false,
+      "progress": false,
+      "reason": "not-completed-and-verified"
+    },
+    {
+      "taskId": "d17d44b6-4208-4f52-8d42-9292f6dcdc90",
+      "at": "2026-10-12T19:49:52.044Z",
+      "action": {
+        "action": "gather_wood",
+        "count": 12
+      },
+      "status": "failed",
+      "cohort": "base",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": false,
+      "inventorySource": "outer-observation-may-include-inference-time",
+      "inventoryDelta": {},
+      "corroborated": false,
+      "progress": false,
+      "reason": "not-completed-and-verified"
+    },
+    {
+      "taskId": "993ada48-a2be-4aa2-a2c1-af7a19c902bd",
+      "at": "2026-10-12T19:50:25.228Z",
+      "action": {
+        "action": "gather_wood",
+        "count": 12
+      },
+      "status": "failed",
+      "cohort": "base",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": false,
+      "inventorySource": "outer-observation-may-include-inference-time",
+      "inventoryDelta": {},
+      "corroborated": false,
+      "progress": false,
+      "reason": "not-completed-and-verified"
+    },
+    {
+      "taskId": "a6c2d14c-48f0-43e3-af38-f53f7952801d",
+      "at": "2026-10-12T19:50:57.572Z",
+      "action": {
+        "action": "gather_wood",
+        "count": 1
+      },
+      "status": "failed",
+      "cohort": "base",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": false,
+      "inventorySource": "outer-observation-may-include-inference-time",
+      "inventoryDelta": {},
+      "corroborated": false,
+      "progress": false,
+      "reason": "not-completed-and-verified"
+    }
+  ],
+  "safety": {
+    "deaths": 0,
+    "deathEvents": [],
+    "minimumLoggedHealth": 20,
+    "healthTrace": [
+      {
+        "at": "2026-10-12T19:44:31.723Z",
+        "event": "priority_changed",
+        "health": 20
+      },
+      {
+        "at": "2026-10-12T19:44:32.133Z",
+        "event": "priority_changed",
+        "health": 20
+      },
+      {
+        "at": "2026-10-12T19:44:37.123Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": 84.59840369391294,
+          "y": 105,
+          "z": 74.5
+        }
+      },
+      {
+        "at": "2026-10-12T19:44:37.741Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": 85.50581343010104,
+          "y": 104,
+          "z": 75.50651154009385
+        }
+      },
+      {
+        "at": "2026-10-12T19:44:38.670Z",
+        "event": "escape_blocked",
+        "health": 20,
+        "position": {
+          "x": 85.5,
+          "y": 103,
+          "z": 76.66339058675187
+        }
+      },
+      {
+        "at": "2026-10-12T19:44:39.487Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": 85.5,
+          "y": 103,
+          "z": 76.66339058675187
+        }
+      }
+    ],
+    "escapeRoutesIssued": 3,
+    "blockedEvents": 1,
+    "threatClearedEvents": 1,
+    "timingLogSamples": 40,
+    "sampledTickMaxMs": 0.3,
+    "sampledGapMaxMs": 246.8,
+    "observedCumulativeTickMaxMs": 51.7,
+    "observedCumulativeGapMaxMs": 511.1,
+    "observedCumulativeFallbackOverruns": 0,
+    "escapeAcceptance": "routes-observed-review-endpoints-and-threat-clearance"
+  },
+  "limits": [
+    "Offline logs corroborate executor observations; they are not an independent game sensor.",
+    "Completed partial gains count as progress but not full requested quantity.",
+    "Death and timing counts cover only supplied logs and timestamps; sparse timing logs do not support per-tick percentiles.",
+    "Cumulative timing maxima may predate this window until reactive reload; report them separately from sampled window values.",
+    "Different prompts, compact observations, executors or world states confound model-weight comparisons. Only frozen identical-input base/adapter evaluation isolates a weight contrast.",
+    "No danger encountered means escape behavior remains untested. Issuing a route alone does not establish escape success.",
+    "Unknown completion metadata never proves adapter use."
+  ],
+  "sources": {
+    "autonomy": {
+      "path": "logs/minecraft-autonomy.jsonl",
+      "sha256": "8e7389d533dc9ee909ab56a9cb91b84fad19e66243a63045f5d3729cf559c866",
+      "malformedLines": []
+    },
+    "session": {
+      "path": "logs/minecraft-session-1791830191222.jsonl",
+      "sha256": "983082f488c511d2861a8c88989c7e56eb42475c4fac3ba08d1107247290c853",
+      "malformedLines": []
+    }
+  },
+  "implementationHashes": {
+    "src/minecraft/survival-planner.js": "5f14415c9b03c18d2b7aeffdf4e0fe763c3a3e05b64e4a0a34056f39491ee80e",
+    "src/minecraft/survival-skills.js": "be8711cc8acd3ed820fe79d8b96c1ccb6f24cede1542d4b0c9b50a8039127634",
+    "src/minecraft/reactive-agent.js": "a9bf34b973a57b64aebd2612ba9cc90efce2eef125b004a1517e27d4ddae7a32",
+    "src/minecraft/autonomy-loop.js": "74fdce15bd48d22e009bcdf2d300d02ce7844f6472199aefccec5f06fec07b7d"
+  },
+  "implementationHashTiming": "Report-time checkout; establish deployment-time hashes separately before attributing changes."
+}

@@ -1,0 +1,60 @@
+{
+  "at": "2026-10-12T22:59:33.658Z",
+  "status": "CPU verified executor semantics repair; not yet deployed by reviewer",
+  "evidence": {
+    "snapshot": "final-window-local-terrain-snapshot.json",
+    "replay": "final-window-drop-replay.json",
+    "position": {
+      "x": 59.5,
+      "y": 114,
+      "z": 86.5
+    },
+    "actualLandingFeetY": 113,
+    "actualFeetDrop": 1,
+    "installedImplementation": "node_modules/mineflayer-pathfinder/lib/movements.js getLandingBlock compares node.y - floor.position.y; floor112 gives2. Returned landing is floor+1=113.",
+    "before": {
+      "parameter": 1,
+      "neighbors": 0
+    },
+    "after": {
+      "parameter": 2,
+      "neighbors": 4,
+      "feetDrop": 1,
+      "digPlace": false
+    }
+  },
+  "implementation": {
+    "reactiveSha256": "066be5bd17f7e67898cd1feb6bc15da798f87842d82cf9d7827561b6e5bccef1",
+    "skillsSha256": "7af59146b40a2658699ea60627e5db127e42cf6e06bf67c238d1f33d0bb405c0",
+    "sharedFunction": "singleBlockDescents exported from existing reactive-agent module; both owner modules hotload together",
+    "guards": [
+      "explicit actual feet drop <=1",
+      "emergency maxDropDown0 remains no descent",
+      "known passable feet/head and non-gravity solid floor",
+      "horizontal adjacent floor/feet loaded without terrain hazards/liquid",
+      "no toBreak/toPlace on descending edge",
+      "unknown landing sentinel becomes null; exclusions reject unknown block without dereference"
+    ],
+    "notChanged": [
+      "no node_modules edits",
+      "no new dependency",
+      "no manually selected or executed Minecraft skill",
+      "no model weights or system prompt changes",
+      "no actual2-block fall authorized"
+    ]
+  },
+  "tests": [
+    "minecraft-single-block-descent.js real175grid reproduction + true2fall, liquid, unknown, gravitysupport, dig/place, emergency0",
+    "minecraft-reactive.js",
+    "minecraft-reactive-escape.js",
+    "minecraft-survival-skills.js",
+    "minecraft-emergency-explore.js",
+    "minecraft-harvest-navigation.js",
+    "minecraft-harvest-natural-slope.js"
+  ],
+  "limits": [
+    "Only offline neighbor feasibility proven; real movement and later terrain remain unverified until model-selected task executes.",
+    "No claim that every historical noPath was caused by this boundary.",
+    "Sample gaps can include synchronous resource-observation scans, logger, native callbacks, OS scheduling or GC. New watchdog/status change is a separate runtime change; high gap with low tick is not evidence of logger-only causation."
+  ]
+}

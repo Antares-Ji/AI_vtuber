@@ -1,0 +1,158 @@
+{
+  "dataset": "minecraft-survival-v5-candidates",
+  "status": "candidate-only; awaiting independent semantic audit and root review; not used for training",
+  "contract": "Current runtime SURVIVAL_ACTION_SCHEMA + compactObservation + decisionMessages; no system/schema change in this dataset builder.",
+  "provenance": "synthetic; independently authored dense-state counterfactual; no exact live probe copied",
+  "trainingRows": 32,
+  "developmentRows": 12,
+  "replayRows": 214,
+  "trainingSha256": "600b85f096219d193b084724ae56d23dee00e6d9f72b2f196948eca242af5b7f",
+  "developmentSha256": "f79d6068ffb3dc442fb43e32cfd0cb9517c7d26b5d43fb0323f1b2dc7abe46e6",
+  "replaySha256": "c75ec265597d719a341bd967b024a7dc0ae9107b2c685004ecc9067bcf794ee6",
+  "frozenReplayPrefix": {
+    "path": "train-v4r1-replay-candidates.jsonl",
+    "sha256": "9f76783df423a873e0d4387763a0b5dec10d8c1a8e3fc0517dd924be3cc032fe",
+    "bytes": 1017649,
+    "bytePrefixPreserved": true
+  },
+  "scopeBalance": {
+    "trainFood": 8,
+    "trainToolPrerequisite": 8,
+    "trainResourceRecovery": 6,
+    "trainRecipeHintEnum": 6,
+    "trainStageProgress": 4,
+    "devRowsById": [
+      "v5-dev-01",
+      "v5-dev-02",
+      "v5-dev-03",
+      "v5-dev-04",
+      "v5-dev-05",
+      "v5-dev-06",
+      "v5-dev-07",
+      "v5-dev-08",
+      "v5-dev-09",
+      "v5-dev-10",
+      "v5-dev-11",
+      "v5-dev-12"
+    ]
+  },
+  "tokenTarget": "Expected live-like dense state length ~1.8k-2.6k tokens; not yet tokenizer-verified. CPU tokenizer audit must set max_length only after exact lengths are known.",
+  "limits": [
+    "Synthetic actions indicate a useful/materially feasible decision, not guaranteed path or block physics success.",
+    "Exact live probes remain development-only and are not copied here.",
+    "Recent result entries describe zero inventory delta unless explicitly reported; all six are matched to prior history and current state is not credited with unrecorded gains.",
+    "The fresh recentResults schema includes alreadyFull, foodBefore, and foodAfter from the current runtime planner."
+  ],
+  "sourceHashes": {
+    "survivalPlanner": "7003728b698e0006849c0960e1e79392c9dda479362fe74712da3f9f8021f630",
+    "survivalSkills": "c048b02b18f71bb808c3cc70b2f24c4d045a9a7e6296a697fa31b7e9a181ecae",
+    "priorReplay": "9f76783df423a873e0d4387763a0b5dec10d8c1a8e3fc0517dd924be3cc032fe"
+  },
+  "validation": {
+    "schemaValidatedAtBuild": true,
+    "generatedFromRuntimeDecisionMessages": true,
+    "noHoldoutRead": true,
+    "semanticPreflightPending": true
+  },
+  "tokenAudit": {
+    "path": "output/minecraft-training/v5-candidate-token-audit.json",
+    "sha256": "7be28a43926d8f9c286fdf882e5cd5e1d5d4c77f2c58969e7e1151cbfd59664e",
+    "runtimeProcessor": "AutoProcessor E:\\Qwen3.5-4B tokenizer + runtime chat template; CPU-only",
+    "report": {
+      "train-v5-candidates.jsonl": {
+        "rows": 32,
+        "prompt_tokens": {
+          "min": 1855,
+          "median": 2065,
+          "p90": 2117,
+          "max": 2152,
+          "mean": 2052.6
+        },
+        "full_sequence_tokens": {
+          "min": 1872,
+          "median": 2074,
+          "p90": 2135,
+          "max": 2169,
+          "mean": 2067.9
+        },
+        "assistant_label_tokens": {
+          "min": 7,
+          "max": 18,
+          "mean": 15.3
+        },
+        "all_full_sequences_fit_2304": 32,
+        "all_full_sequences_fit_2560": 32,
+        "prompts_in_live_target_1800_to_2600": 32,
+        "rows_with_six_recent_results": 32,
+        "longest_ids": [
+          "v5-train-19",
+          "v5-train-31",
+          "v5-train-29"
+        ]
+      },
+      "development-v5-candidates.jsonl": {
+        "rows": 12,
+        "prompt_tokens": {
+          "min": 1893,
+          "median": 2102,
+          "p90": 2111,
+          "max": 2119,
+          "mean": 2065.9
+        },
+        "full_sequence_tokens": {
+          "min": 1910,
+          "median": 2115,
+          "p90": 2126,
+          "max": 2136,
+          "mean": 2081.0
+        },
+        "assistant_label_tokens": {
+          "min": 7,
+          "max": 18,
+          "mean": 15.1
+        },
+        "all_full_sequences_fit_2304": 12,
+        "all_full_sequences_fit_2560": 12,
+        "prompts_in_live_target_1800_to_2600": 12,
+        "rows_with_six_recent_results": 12,
+        "longest_ids": [
+          "v5-dev-11",
+          "v5-dev-01",
+          "v5-dev-05"
+        ]
+      },
+      "train-v5-replay-candidates.jsonl": {
+        "rows": 214,
+        "prompt_tokens": {
+          "min": 1013,
+          "median": 1080,
+          "p90": 2039,
+          "max": 2152,
+          "mean": 1239.1
+        },
+        "full_sequence_tokens": {
+          "min": 1020,
+          "median": 1094,
+          "p90": 2056,
+          "max": 2169,
+          "mean": 1253.1
+        },
+        "assistant_label_tokens": {
+          "min": 7,
+          "max": 19,
+          "mean": 14.1
+        },
+        "all_full_sequences_fit_2304": 214,
+        "all_full_sequences_fit_2560": 214,
+        "prompts_in_live_target_1800_to_2600": 32,
+        "rows_with_six_recent_results": 32,
+        "longest_ids": [
+          "v5-train-19",
+          "v5-train-31",
+          "v5-train-29"
+        ]
+      }
+    },
+    "coverageDecision": "All candidate full sequences fit max_length=2304; exact maximum is 2169 tokens. Recommend >=2304; choose 2560 only if GPU memory preflight permits."
+  }
+}

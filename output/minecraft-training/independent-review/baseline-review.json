@@ -1,0 +1,278 @@
+{
+  "generatedAt": "2026-10-12T18:40:55.161Z",
+  "rubric": "independent-semantic-feasibility-v1",
+  "sources": {
+    "predictions": "E:\\Github\\AI_vtuber\\output\\minecraft-training\\baseline.jsonl",
+    "annotations": "E:\\Github\\AI_vtuber\\output\\minecraft-training\\independent-review\\baseline-annotations.json",
+    "rubric": "E:\\Github\\AI_vtuber\\output\\minecraft-training\\independent-review\\rubric-v1.json",
+    "holdout": "E:\\Github\\AI_vtuber\\data\\minecraft-training\\holdout.jsonl"
+  },
+  "sha256": {
+    "predictions": "0b71a52dce756a1025b45094e970a1f62e95eeaf7839da4aa6c04c22d6cd37af",
+    "annotations": "a568c11fcfdbadcfe39c65f33e2d98f448de1baded165c06bbc4e340a2f75d86",
+    "rubric": "3427949d6c18c941a57d573cccfd8582f12a8949353138cf7fb69f1d17c3e295",
+    "holdout": "ffbd010232a4f8cbcdaee4650ea4c938d719b2940bd0cbb7b8fad4b179006e4b"
+  },
+  "n": 20,
+  "totals": {
+    "pass": 6,
+    "fail": 13,
+    "uncertain": 1
+  },
+  "semanticPassRate": 0.3,
+  "semanticPassAmongDecidable": 0.3157894736842105,
+  "strictSchemaRate": 0.85,
+  "exactMatchRate": 0.15,
+  "rows": [
+    {
+      "id": "holdout-001",
+      "verdict": "uncertain",
+      "reason": "Gathering twelve logs instead of seven is a useful allowed alternative, but this fixture contradicts its own geometry: the resource is reported five blocks away while its coordinates are about 128 blocks from the player. Conditional on the reported nearby resource being correct, this choice passes.",
+      "predicted": {
+        "action": "gather_wood",
+        "count": 12
+      },
+      "schemaValid": true,
+      "exactMatch": false,
+      "latencyMs": 1320.9
+    },
+    {
+      "id": "holdout-002",
+      "verdict": "pass",
+      "reason": "Four birch logs afford four planks. A smaller batch still advances the missing wood-processing prerequisite; twelve planks is not the only valid count.",
+      "predicted": {
+        "action": "craft",
+        "item": "planks",
+        "count": 4
+      },
+      "schemaValid": true,
+      "exactMatch": false,
+      "latencyMs": 1377.2
+    },
+    {
+      "id": "holdout-003",
+      "verdict": "fail",
+      "reason": "Inventory contains planks but no logs. Crafting another sixteen planks lacks its required raw input.",
+      "predicted": {
+        "action": "craft",
+        "item": "planks",
+        "count": 16
+      },
+      "schemaValid": true,
+      "exactMatch": false,
+      "latencyMs": 1429.6
+    },
+    {
+      "id": "holdout-004",
+      "verdict": "fail",
+      "reason": "Only a wooden pickaxe is present; crafting planks requires unavailable logs. Resource-coordinate inconsistencies elsewhere in this fixture do not repair that missing ingredient.",
+      "predicted": {
+        "action": "craft",
+        "item": "planks",
+        "count": 8
+      },
+      "schemaValid": true,
+      "exactMatch": false,
+      "latencyMs": 1357.2
+    },
+    {
+      "id": "holdout-005",
+      "verdict": "fail",
+      "reason": "iron_ore is not a legal mine.resource value. The inventory also has no pickaxe able to harvest iron.",
+      "predicted": {
+        "action": "mine",
+        "resource": "iron_ore",
+        "count": 1
+      },
+      "schemaValid": false,
+      "exactMatch": false,
+      "latencyMs": 1453.8
+    },
+    {
+      "id": "holdout-006",
+      "verdict": "fail",
+      "reason": "Raw iron is not an iron ingot. An iron pickaxe additionally requires sticks and a crafting table, which are absent.",
+      "predicted": {
+        "action": "craft",
+        "item": "iron_pickaxe",
+        "count": 1
+      },
+      "schemaValid": true,
+      "exactMatch": false,
+      "latencyMs": 1480.2
+    },
+    {
+      "id": "holdout-007",
+      "verdict": "fail",
+      "reason": "iron_ore is not a legal mine.resource value. The conceptual target is appropriate, but strict whitelist compatibility is a required gate.",
+      "predicted": {
+        "action": "mine",
+        "resource": "iron_ore",
+        "count": 1
+      },
+      "schemaValid": false,
+      "exactMatch": false,
+      "latencyMs": 1488.3
+    },
+    {
+      "id": "holdout-008",
+      "verdict": "fail",
+      "reason": "No wood is observed, and food is six with baked potatoes available. The chosen gathering action ignores both a missing resource and the urgent edible-food option.",
+      "predicted": {
+        "action": "gather_wood",
+        "count": 12
+      },
+      "schemaValid": true,
+      "exactMatch": false,
+      "latencyMs": 1226.6
+    },
+    {
+      "id": "holdout-009",
+      "verdict": "pass",
+      "reason": "Retreat is appropriate with a spider six blocks away and twelve health; no count or direction argument is required.",
+      "predicted": {
+        "action": "flee"
+      },
+      "schemaValid": true,
+      "exactMatch": true,
+      "latencyMs": 878.5
+    },
+    {
+      "id": "holdout-010",
+      "verdict": "fail",
+      "reason": "No wood is observed, and the recent failure requires finding absent gravel. Gathering nonexistent visible wood cannot resolve the state.",
+      "predicted": {
+        "action": "gather_wood",
+        "count": 12
+      },
+      "schemaValid": true,
+      "exactMatch": false,
+      "latencyMs": 1258.4
+    },
+    {
+      "id": "holdout-011",
+      "verdict": "pass",
+      "reason": "Exploring sixteen more blocks east can expose new terrain. The sparse history gives only a previous direction and distance, not a destination or a failed eastward navigation, so it does not establish retracing or make west uniquely valid. The choice is less diversified, but still plausible progress toward absent iron.",
+      "predicted": {
+        "action": "explore",
+        "direction": "east",
+        "distance": 16
+      },
+      "schemaValid": true,
+      "exactMatch": false,
+      "latencyMs": 1442.8
+    },
+    {
+      "id": "holdout-012",
+      "verdict": "pass",
+      "reason": "Eating an available apple at five health and eight food is safe and useful when no threats are observed. The authored flee label is not the only valid response and could add needless night movement.",
+      "predicted": {
+        "action": "eat"
+      },
+      "schemaValid": true,
+      "exactMatch": false,
+      "latencyMs": 800.2
+    },
+    {
+      "id": "holdout-013",
+      "verdict": "fail",
+      "reason": "No wood is observed. Visible gravel and an iron ingot make flint collection relevant, while the chosen gathering action lacks its target.",
+      "predicted": {
+        "action": "gather_wood",
+        "count": 12
+      },
+      "schemaValid": true,
+      "exactMatch": false,
+      "latencyMs": 1278.3
+    },
+    {
+      "id": "holdout-014",
+      "verdict": "fail",
+      "reason": "The executor requires flint_and_steel before building and igniting a portal; it is absent. Sufficient obsidian alone does not meet the skill contract.",
+      "predicted": {
+        "action": "build_portal"
+      },
+      "schemaValid": true,
+      "exactMatch": false,
+      "latencyMs": 886.5
+    },
+    {
+      "id": "holdout-015",
+      "verdict": "pass",
+      "reason": "The required obsidian, cobblestone corners and igniter are all present. The skill itself checks a flat site before placement, so selecting this bounded attempt is reasonable; this is not a guarantee that placement would succeed.",
+      "predicted": {
+        "action": "build_portal"
+      },
+      "schemaValid": true,
+      "exactMatch": true,
+      "latencyMs": 905.8
+    },
+    {
+      "id": "holdout-016",
+      "verdict": "fail",
+      "reason": "diamond_ore is outside the mine.resource whitelist, and no iron-or-better pickaxe exists in inventory. An already active portal also makes this detour unnecessary for the goal.",
+      "predicted": {
+        "action": "mine",
+        "resource": "diamond_ore",
+        "count": 1
+      },
+      "schemaValid": false,
+      "exactMatch": false,
+      "latencyMs": 1480.6
+    },
+    {
+      "id": "holdout-017",
+      "verdict": "fail",
+      "reason": "The goal of entering the Nether is already satisfied and there is no immediate survival shortage. Further unexplained exploration does not advance an unresolved prerequisite or verify completion.",
+      "predicted": {
+        "action": "explore",
+        "direction": "north",
+        "distance": 16
+      },
+      "schemaValid": true,
+      "exactMatch": false,
+      "latencyMs": 1541.8
+    },
+    {
+      "id": "holdout-018",
+      "verdict": "fail",
+      "reason": "At four food with no food inventory, nearby passive prey is a viable survival resource. No wood is observed, so the selected wood-gathering task is not feasible.",
+      "predicted": {
+        "action": "gather_wood",
+        "count": 12
+      },
+      "schemaValid": true,
+      "exactMatch": false,
+      "latencyMs": 1279.7
+    },
+    {
+      "id": "holdout-019",
+      "verdict": "fail",
+      "reason": "Raw iron cannot directly craft an iron pickaxe. There are no iron ingots, sticks, or crafting table; the existing furnace and coal support smelting instead.",
+      "predicted": {
+        "action": "craft",
+        "item": "iron_pickaxe",
+        "count": 1
+      },
+      "schemaValid": true,
+      "exactMatch": false,
+      "latencyMs": 1432.3
+    },
+    {
+      "id": "holdout-020",
+      "verdict": "pass",
+      "reason": "Retreat appropriately takes precedence over eating when a zombie is three blocks away and a creeper is eight blocks away.",
+      "predicted": {
+        "action": "flee"
+      },
+      "schemaValid": true,
+      "exactMatch": true,
+      "latencyMs": 906.6
+    }
+  ],
+  "limits": [
+    "Independent manual semantic review of a small synthetic holdout; this is not live-world success.",
+    "Uncertain fixtures are retained and reported separately instead of silently repaired.",
+    "Training agents must not use per-holdout annotations for further tuning."
+  ]
+}

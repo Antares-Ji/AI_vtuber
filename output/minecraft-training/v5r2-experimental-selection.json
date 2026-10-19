@@ -1,0 +1,26 @@
+{
+  "at": "2026-10-12T21:58:45.2791698Z",
+  "stableRecommendation": "v4r1",
+  "experimentalSelection": "v5r2-epoch-02",
+  "adapter": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v5r2-dense-replay-candidate\\checkpoint-epoch-02",
+  "sha256": "6cd0f9ec8dbf15dadc90ebb9102bab347214a82b5ba902adcc615c1d5dc61712",
+  "trialMinutes": 20,
+  "accepted47": {
+    "v4r1": 18,
+    "base": 11,
+    "epoch02": 22,
+    "epoch01": 19
+  },
+  "reason": "Bounded real-game experiment: new staircase/torch/table/stone accepted actions and full-food exact live probe no longer chooses eat; not a stable upgrade or acceptance pass.",
+  "knownRegressions": [
+    "food7 with bread1, hp20 and no threat: mines instead of eating",
+    "exact ambiguous-stage probe: spruce_log1 but requests planks8, requiring two logs"
+  ],
+  "stopForReview": [
+    "death",
+    "observed low-food-with-food recovery skipped for continued gathering/mining",
+    "repeated same insufficient-material failure"
+  ],
+  "final20UsedForSelection": false,
+  "manualProgressionAllowed": false
+}

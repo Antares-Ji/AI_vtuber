@@ -1,0 +1,2196 @@
+{
+  "position": {
+    "x": 49.2,
+    "y": 70,
+    "z": 2.3
+  },
+  "terrainDiagnostics": {
+    "origin": {
+      "x": 49,
+      "y": 70,
+      "z": 2
+    },
+    "bounds": {
+      "horizontalRadius": 2,
+      "minDy": -4,
+      "maxDy": 2
+    },
+    "reads": 175,
+    "knownAirOmitted": true,
+    "onGround": true,
+    "movements": {
+      "canDig": false,
+      "maxDropDown": 2,
+      "allowParkour": false,
+      "allowSprinting": true
+    },
+    "blocks": [
+      {
+        "x": 47,
+        "y": 66,
+        "z": 0,
+        "name": "dirt",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 47,
+        "y": 67,
+        "z": 0,
+        "name": "dirt",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 47,
+        "y": 68,
+        "z": 0,
+        "name": "grass_block",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 47,
+        "y": 69,
+        "z": 0,
+        "name": "snow",
+        "boundingBox": "empty",
+        "shapes": []
+      },
+      {
+        "x": 47,
+        "y": 70,
+        "z": 0,
+        "name": "spruce_leaves",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 47,
+        "y": 71,
+        "z": 0,
+        "name": "spruce_leaves",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 47,
+        "y": 66,
+        "z": 1,
+        "name": "dirt",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 47,
+        "y": 67,
+        "z": 1,
+        "name": "dirt",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 47,
+        "y": 68,
+        "z": 1,
+        "name": "grass_block",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 47,
+        "y": 69,
+        "z": 1,
+        "name": "snow",
+        "boundingBox": "empty",
+        "shapes": []
+      },
+      {
+        "x": 47,
+        "y": 70,
+        "z": 1,
+        "name": "spruce_leaves",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 47,
+        "y": 71,
+        "z": 1,
+        "name": "snow",
+        "boundingBox": "empty",
+        "shapes": []
+      },
+      {
+        "x": 47,
+        "y": 66,
+        "z": 2,
+        "name": "dirt",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 47,
+        "y": 67,
+        "z": 2,
+        "name": "dirt",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 47,
+        "y": 68,
+        "z": 2,
+        "name": "grass_block",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 47,
+        "y": 69,
+        "z": 2,
+        "name": "snow",
+        "boundingBox": "empty",
+        "shapes": []
+      },
+      {
+        "x": 47,
+        "y": 66,
+        "z": 3,
+        "name": "dirt",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 47,
+        "y": 67,
+        "z": 3,
+        "name": "dirt",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 47,
+        "y": 68,
+        "z": 3,
+        "name": "grass_block",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 47,
+        "y": 69,
+        "z": 3,
+        "name": "snow",
+        "boundingBox": "empty",
+        "shapes": []
+      },
+      {
+        "x": 47,
+        "y": 66,
+        "z": 4,
+        "name": "dirt",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 47,
+        "y": 67,
+        "z": 4,
+        "name": "dirt",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 47,
+        "y": 68,
+        "z": 4,
+        "name": "grass_block",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 47,
+        "y": 69,
+        "z": 4,
+        "name": "snow",
+        "boundingBox": "empty",
+        "shapes": []
+      },
+      {
+        "x": 48,
+        "y": 66,
+        "z": 0,
+        "name": "dirt",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 48,
+        "y": 67,
+        "z": 0,
+        "name": "dirt",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 48,
+        "y": 68,
+        "z": 0,
+        "name": "grass_block",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 48,
+        "y": 70,
+        "z": 0,
+        "name": "spruce_leaves",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 48,
+        "y": 71,
+        "z": 0,
+        "name": "spruce_leaves",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 48,
+        "y": 66,
+        "z": 1,
+        "name": "dirt",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 48,
+        "y": 67,
+        "z": 1,
+        "name": "dirt",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 48,
+        "y": 68,
+        "z": 1,
+        "name": "grass_block",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 48,
+        "y": 70,
+        "z": 1,
+        "name": "spruce_leaves",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 48,
+        "y": 71,
+        "z": 1,
+        "name": "snow",
+        "boundingBox": "empty",
+        "shapes": []
+      },
+      {
+        "x": 48,
+        "y": 66,
+        "z": 2,
+        "name": "dirt",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 48,
+        "y": 67,
+        "z": 2,
+        "name": "dirt",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 48,
+        "y": 68,
+        "z": 2,
+        "name": "grass_block",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 48,
+        "y": 69,
+        "z": 2,
+        "name": "snow",
+        "boundingBox": "empty",
+        "shapes": []
+      },
+      {
+        "x": 48,
+        "y": 66,
+        "z": 3,
+        "name": "dirt",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 48,
+        "y": 67,
+        "z": 3,
+        "name": "dirt",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 48,
+        "y": 68,
+        "z": 3,
+        "name": "grass_block",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 48,
+        "y": 69,
+        "z": 3,
+        "name": "snow",
+        "boundingBox": "empty",
+        "shapes": []
+      },
+      {
+        "x": 48,
+        "y": 66,
+        "z": 4,
+        "name": "dirt",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 48,
+        "y": 67,
+        "z": 4,
+        "name": "dirt",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 48,
+        "y": 68,
+        "z": 4,
+        "name": "grass_block",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 48,
+        "y": 69,
+        "z": 4,
+        "name": "snow",
+        "boundingBox": "empty",
+        "shapes": []
+      },
+      {
+        "x": 49,
+        "y": 66,
+        "z": 0,
+        "name": "dirt",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 49,
+        "y": 67,
+        "z": 0,
+        "name": "dirt",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 49,
+        "y": 68,
+        "z": 0,
+        "name": "dirt",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 49,
+        "y": 69,
+        "z": 0,
+        "name": "grass_block",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 49,
+        "y": 70,
+        "z": 0,
+        "name": "spruce_leaves",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 49,
+        "y": 71,
+        "z": 0,
+        "name": "spruce_leaves",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 49,
+        "y": 66,
+        "z": 1,
+        "name": "dirt",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 49,
+        "y": 67,
+        "z": 1,
+        "name": "dirt",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 49,
+        "y": 68,
+        "z": 1,
+        "name": "dirt",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 49,
+        "y": 69,
+        "z": 1,
+        "name": "grass_block",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 49,
+        "y": 70,
+        "z": 1,
+        "name": "spruce_leaves",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 49,
+        "y": 71,
+        "z": 1,
+        "name": "snow",
+        "boundingBox": "empty",
+        "shapes": []
+      },
+      {
+        "x": 49,
+        "y": 66,
+        "z": 2,
+        "name": "dirt",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 49,
+        "y": 67,
+        "z": 2,
+        "name": "dirt",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 49,
+        "y": 68,
+        "z": 2,
+        "name": "dirt",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 49,
+        "y": 69,
+        "z": 2,
+        "name": "grass_block",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 49,
+        "y": 70,
+        "z": 2,
+        "name": "snow",
+        "boundingBox": "empty",
+        "shapes": []
+      },
+      {
+        "x": 49,
+        "y": 66,
+        "z": 3,
+        "name": "dirt",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 49,
+        "y": 67,
+        "z": 3,
+        "name": "dirt",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 49,
+        "y": 68,
+        "z": 3,
+        "name": "dirt",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 49,
+        "y": 69,
+        "z": 3,
+        "name": "grass_block",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 49,
+        "y": 70,
+        "z": 3,
+        "name": "snow",
+        "boundingBox": "empty",
+        "shapes": []
+      },
+      {
+        "x": 49,
+        "y": 66,
+        "z": 4,
+        "name": "dirt",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 49,
+        "y": 67,
+        "z": 4,
+        "name": "dirt",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 49,
+        "y": 68,
+        "z": 4,
+        "name": "dirt",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 49,
+        "y": 69,
+        "z": 4,
+        "name": "grass_block",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 49,
+        "y": 70,
+        "z": 4,
+        "name": "snow",
+        "boundingBox": "empty",
+        "shapes": []
+      },
+      {
+        "x": 50,
+        "y": 66,
+        "z": 0,
+        "name": "dirt",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 50,
+        "y": 67,
+        "z": 0,
+        "name": "dirt",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 50,
+        "y": 68,
+        "z": 0,
+        "name": "dirt",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 50,
+        "y": 69,
+        "z": 0,
+        "name": "grass_block",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 50,
+        "y": 70,
+        "z": 0,
+        "name": "spruce_leaves",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 50,
+        "y": 71,
+        "z": 0,
+        "name": "snow",
+        "boundingBox": "empty",
+        "shapes": []
+      },
+      {
+        "x": 50,
+        "y": 66,
+        "z": 1,
+        "name": "dirt",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 50,
+        "y": 67,
+        "z": 1,
+        "name": "dirt",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 50,
+        "y": 68,
+        "z": 1,
+        "name": "dirt",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 50,
+        "y": 69,
+        "z": 1,
+        "name": "grass_block",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 50,
+        "y": 70,
+        "z": 1,
+        "name": "snow",
+        "boundingBox": "empty",
+        "shapes": []
+      },
+      {
+        "x": 50,
+        "y": 66,
+        "z": 2,
+        "name": "dirt",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 50,
+        "y": 67,
+        "z": 2,
+        "name": "dirt",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 50,
+        "y": 68,
+        "z": 2,
+        "name": "dirt",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 50,
+        "y": 69,
+        "z": 2,
+        "name": "grass_block",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 50,
+        "y": 70,
+        "z": 2,
+        "name": "snow",
+        "boundingBox": "empty",
+        "shapes": []
+      },
+      {
+        "x": 50,
+        "y": 66,
+        "z": 3,
+        "name": "dirt",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 50,
+        "y": 67,
+        "z": 3,
+        "name": "dirt",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 50,
+        "y": 68,
+        "z": 3,
+        "name": "dirt",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 50,
+        "y": 69,
+        "z": 3,
+        "name": "grass_block",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 50,
+        "y": 70,
+        "z": 3,
+        "name": "snow",
+        "boundingBox": "empty",
+        "shapes": []
+      },
+      {
+        "x": 50,
+        "y": 66,
+        "z": 4,
+        "name": "dirt",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 50,
+        "y": 67,
+        "z": 4,
+        "name": "dirt",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 50,
+        "y": 68,
+        "z": 4,
+        "name": "dirt",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 50,
+        "y": 69,
+        "z": 4,
+        "name": "grass_block",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 50,
+        "y": 70,
+        "z": 4,
+        "name": "snow",
+        "boundingBox": "empty",
+        "shapes": []
+      },
+      {
+        "x": 51,
+        "y": 66,
+        "z": 0,
+        "name": "dirt",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 51,
+        "y": 67,
+        "z": 0,
+        "name": "grass_block",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 51,
+        "y": 69,
+        "z": 0,
+        "name": "grass_block",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 51,
+        "y": 70,
+        "z": 0,
+        "name": "spruce_leaves",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 51,
+        "y": 71,
+        "z": 0,
+        "name": "snow",
+        "boundingBox": "empty",
+        "shapes": []
+      },
+      {
+        "x": 51,
+        "y": 66,
+        "z": 1,
+        "name": "dirt",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 51,
+        "y": 67,
+        "z": 1,
+        "name": "dirt",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 51,
+        "y": 68,
+        "z": 1,
+        "name": "dirt",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 51,
+        "y": 69,
+        "z": 1,
+        "name": "grass_block",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 51,
+        "y": 70,
+        "z": 1,
+        "name": "snow",
+        "boundingBox": "empty",
+        "shapes": []
+      },
+      {
+        "x": 51,
+        "y": 66,
+        "z": 2,
+        "name": "dirt",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 51,
+        "y": 67,
+        "z": 2,
+        "name": "dirt",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 51,
+        "y": 68,
+        "z": 2,
+        "name": "dirt",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 51,
+        "y": 69,
+        "z": 2,
+        "name": "grass_block",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 51,
+        "y": 70,
+        "z": 2,
+        "name": "snow",
+        "boundingBox": "empty",
+        "shapes": []
+      },
+      {
+        "x": 51,
+        "y": 66,
+        "z": 3,
+        "name": "stone",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 51,
+        "y": 67,
+        "z": 3,
+        "name": "dirt",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 51,
+        "y": 68,
+        "z": 3,
+        "name": "dirt",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 51,
+        "y": 69,
+        "z": 3,
+        "name": "dirt",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 51,
+        "y": 70,
+        "z": 3,
+        "name": "grass_block",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 51,
+        "y": 71,
+        "z": 3,
+        "name": "snow",
+        "boundingBox": "empty",
+        "shapes": []
+      },
+      {
+        "x": 51,
+        "y": 66,
+        "z": 4,
+        "name": "stone",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 51,
+        "y": 67,
+        "z": 4,
+        "name": "dirt",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 51,
+        "y": 68,
+        "z": 4,
+        "name": "dirt",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 51,
+        "y": 69,
+        "z": 4,
+        "name": "dirt",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 51,
+        "y": 70,
+        "z": 4,
+        "name": "grass_block",
+        "boundingBox": "block",
+        "shapes": [
+          [
+            0,
+            0,
+            0,
+            1,
+            1,
+            1
+          ]
+        ]
+      },
+      {
+        "x": 51,
+        "y": 71,
+        "z": 4,
+        "name": "snow",
+        "boundingBox": "empty",
+        "shapes": []
+      }
+    ]
+  },
+  "entityDiagnostics": {
+    "radius": 48,
+    "loadedOnly": true,
+    "count": 10,
+    "truncated": false,
+    "entities": [
+      {
+        "id": 92093,
+        "name": "skeleton",
+        "displayName": "Skeleton",
+        "type": "hostile",
+        "entityType": 115,
+        "position": {
+          "x": 53.5,
+          "y": 53,
+          "z": -14.5
+        },
+        "distance": 24.3,
+        "vehicle": null,
+        "passengers": [],
+        "equipment": [
+          {
+            "name": "bow",
+            "count": 1
+          },
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "id": 94737,
+        "name": "spider",
+        "displayName": "Spider",
+        "type": "hostile",
+        "entityType": 124,
+        "position": {
+          "x": 34.5,
+          "y": 69,
+          "z": 32.5
+        },
+        "distance": 33.6,
+        "vehicle": null,
+        "passengers": [],
+        "equipment": [
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "id": 94796,
+        "name": "zombie",
+        "displayName": "Zombie",
+        "type": "hostile",
+        "entityType": 150,
+        "position": {
+          "x": 85.3,
+          "y": 76,
+          "z": 0.5
+        },
+        "distance": 36.6,
+        "vehicle": null,
+        "passengers": [],
+        "equipment": [
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "id": 94824,
+        "name": "skeleton",
+        "displayName": "Skeleton",
+        "type": "hostile",
+        "entityType": 115,
+        "position": {
+          "x": 59.5,
+          "y": 89,
+          "z": 34.5
+        },
+        "distance": 38.8,
+        "vehicle": null,
+        "passengers": [],
+        "equipment": [
+          {
+            "name": "bow",
+            "count": 1
+          },
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "id": 94600,
+        "name": "creeper",
+        "displayName": "Creeper",
+        "type": "hostile",
+        "entityType": 32,
+        "position": {
+          "x": 33.4,
+          "y": 49,
+          "z": 31.2
+        },
+        "distance": 39,
+        "vehicle": null,
+        "passengers": [],
+        "equipment": [
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "id": 94745,
+        "name": "stray",
+        "displayName": "Stray",
+        "type": "hostile",
+        "entityType": 128,
+        "position": {
+          "x": 25.5,
+          "y": 72,
+          "z": 37.5
+        },
+        "distance": 42.5,
+        "vehicle": null,
+        "passengers": [],
+        "equipment": [
+          {
+            "name": "bow",
+            "count": 1
+          },
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "id": 94797,
+        "name": "zombie",
+        "displayName": "Zombie",
+        "type": "hostile",
+        "entityType": 150,
+        "position": {
+          "x": 94.5,
+          "y": 72,
+          "z": -2.5
+        },
+        "distance": 45.6,
+        "vehicle": null,
+        "passengers": [],
+        "equipment": [
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "id": 94854,
+        "name": "bat",
+        "displayName": "Bat",
+        "type": "ambient",
+        "entityType": 10,
+        "position": {
+          "x": 15.8,
+          "y": 40.2,
+          "z": -8.2
+        },
+        "distance": 46,
+        "vehicle": null,
+        "passengers": [],
+        "equipment": [
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "id": 94829,
+        "name": "stray",
+        "displayName": "Stray",
+        "type": "hostile",
+        "entityType": 128,
+        "position": {
+          "x": 17.2,
+          "y": 73,
+          "z": 35.2
+        },
+        "distance": 46,
+        "vehicle": null,
+        "passengers": [],
+        "equipment": [
+          {
+            "name": "bow",
+            "count": 1
+          },
+          null,
+          null,
+          null,
+          null
+        ]
+      },
+      {
+        "id": 94856,
+        "name": "bat",
+        "displayName": "Bat",
+        "type": "ambient",
+        "entityType": 10,
+        "position": {
+          "x": 15.4,
+          "y": 39.3,
+          "z": -10.3
+        },
+        "distance": 47.4,
+        "vehicle": null,
+        "passengers": [],
+        "equipment": [
+          null,
+          null,
+          null,
+          null,
+          null
+        ]
+      }
+    ]
+  }
+}

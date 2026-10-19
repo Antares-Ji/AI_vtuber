@@ -1,0 +1,727 @@
+{
+  "at": "2026-10-12T23:08:58.175Z",
+  "window": {
+    "start": "2026-10-12T23:02:19.882Z",
+    "stopRequestedAt": "2026-10-12T23:03:48.128Z",
+    "endArtifactWrittenAt": "2026-10-12T23:05:12.156Z",
+    "deathAt": "2026-10-12T23:03:47.703Z",
+    "life": [
+      10,
+      11
+    ]
+  },
+  "verdict": "FAILED survival/progression; six completed movement actions, no inventory gain; server reports speared by Zombie. Later loop-off deaths are separate defense failures.",
+  "counts": {
+    "completions": 11,
+    "decisions": 11,
+    "actualAdapter": 11,
+    "results": 8,
+    "completed": 6,
+    "failed": 2,
+    "cancelled": 0,
+    "stale": 3
+  },
+  "trace": [
+    {
+      "at": "2026-10-12T23:02:21.546Z",
+      "requestId": "da8f1eed-169f-4ab1-b97c-1b4130c607db",
+      "action": {
+        "action": "flee"
+      },
+      "metadata": {
+        "task": "minecraft-survival",
+        "used_adapter": true,
+        "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01"
+      },
+      "taskId": "a975f01d-46c5-4912-b7f1-8bbbed11840d",
+      "status": "completed",
+      "result": {
+        "action": {
+          "action": "flee"
+        },
+        "verified": true,
+        "moved": 21,
+        "from": {
+          "x": 20.5,
+          "y": 66,
+          "z": 2.5
+        },
+        "to": {
+          "x": 23.5,
+          "y": 67,
+          "z": -18.3
+        },
+        "remainingThreats": [],
+        "inventoryBefore": [],
+        "inventoryAfter": [],
+        "position": {
+          "x": 23.5,
+          "y": 67,
+          "z": -18.3
+        }
+      }
+    },
+    {
+      "at": "2026-10-12T23:02:30.877Z",
+      "requestId": "438a0ac5-11b1-4338-9af4-9ae95fb15cd2",
+      "action": {
+        "action": "explore",
+        "direction": "south",
+        "distance": 20
+      },
+      "metadata": {
+        "task": "minecraft-survival",
+        "used_adapter": true,
+        "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01"
+      },
+      "taskId": "49dfbcca-2fee-49c0-9fe9-835e84559ebd",
+      "status": "completed",
+      "result": {
+        "action": {
+          "action": "explore",
+          "direction": "south",
+          "distance": 20
+        },
+        "verified": true,
+        "moved": 17,
+        "from": {
+          "x": 23.5,
+          "y": 67,
+          "z": -18.3
+        },
+        "to": {
+          "x": 23.5,
+          "y": 65,
+          "z": -1.5
+        },
+        "remainingThreats": [],
+        "inventoryBefore": [],
+        "inventoryAfter": [],
+        "position": {
+          "x": 23.5,
+          "y": 65,
+          "z": -1.5
+        }
+      }
+    },
+    {
+      "at": "2026-10-12T23:02:39.048Z",
+      "requestId": "524d9abc-8c06-4b5f-af65-e2fd0fbf018a",
+      "action": {
+        "action": "explore",
+        "direction": "north",
+        "distance": 20
+      },
+      "metadata": {
+        "task": "minecraft-survival",
+        "used_adapter": true,
+        "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01"
+      },
+      "taskId": "ea94fe5b-a05e-4e6c-b888-8652321f8637",
+      "status": "completed",
+      "result": {
+        "action": {
+          "action": "explore",
+          "direction": "north",
+          "distance": 20
+        },
+        "verified": true,
+        "moved": 17,
+        "from": {
+          "x": 23.5,
+          "y": 65,
+          "z": -1.5
+        },
+        "to": {
+          "x": 23.5,
+          "y": 67,
+          "z": -18.3
+        },
+        "remainingThreats": [],
+        "inventoryBefore": [],
+        "inventoryAfter": [],
+        "position": {
+          "x": 23.5,
+          "y": 67,
+          "z": -18.3
+        }
+      }
+    },
+    {
+      "at": "2026-10-12T23:02:47.176Z",
+      "requestId": "43f660f3-2b68-4b49-8fc4-cc3bae33a7c1",
+      "action": {
+        "action": "gather_wood",
+        "count": 4
+      },
+      "metadata": {
+        "task": "minecraft-survival",
+        "used_adapter": true,
+        "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01"
+      },
+      "taskId": "0832d6ac-0f8b-48c7-aadc-7bcc2f171ea9",
+      "status": "failed",
+      "error": "No inventory gain (0 blocks removed): search budget exhausted; reachability unconfirmed; search budget exhausted; reachability unconfirmed"
+    },
+    {
+      "at": "2026-10-12T23:02:55.332Z",
+      "requestId": "8ab4c437-1e41-4266-8bed-287eec5b8ec2",
+      "action": {
+        "action": "explore",
+        "direction": "south",
+        "distance": 20
+      },
+      "metadata": {
+        "task": "minecraft-survival",
+        "used_adapter": true,
+        "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01"
+      },
+      "taskId": "b9ec5cfb-80da-4675-a163-ceaacef1ad15",
+      "status": "completed",
+      "result": {
+        "action": {
+          "action": "explore",
+          "direction": "south",
+          "distance": 20
+        },
+        "verified": true,
+        "moved": 17,
+        "from": {
+          "x": 23.5,
+          "y": 67,
+          "z": -18.3
+        },
+        "to": {
+          "x": 23.5,
+          "y": 65,
+          "z": -1.5
+        },
+        "remainingThreats": [],
+        "inventoryBefore": [],
+        "inventoryAfter": [],
+        "position": {
+          "x": 23.5,
+          "y": 65,
+          "z": -1.5
+        }
+      }
+    },
+    {
+      "at": "2026-10-12T23:03:03.297Z",
+      "requestId": "01933f9b-99d4-4aea-b8a1-1f19270933a6",
+      "action": {
+        "action": "explore",
+        "direction": "northwest",
+        "distance": 20
+      },
+      "metadata": {
+        "task": "minecraft-survival",
+        "used_adapter": true,
+        "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01"
+      },
+      "taskId": "8768b644-5406-48a0-88c9-007002cfe451",
+      "status": "completed",
+      "result": {
+        "action": {
+          "action": "explore",
+          "direction": "northwest",
+          "distance": 20
+        },
+        "verified": true,
+        "moved": 17,
+        "from": {
+          "x": 23.5,
+          "y": 65,
+          "z": -1.5
+        },
+        "to": {
+          "x": 11.4,
+          "y": 65,
+          "z": -13.3
+        },
+        "remainingThreats": [],
+        "inventoryBefore": [],
+        "inventoryAfter": [],
+        "position": {
+          "x": 11.4,
+          "y": 65,
+          "z": -13.3
+        }
+      }
+    },
+    {
+      "at": "2026-10-12T23:03:11.234Z",
+      "requestId": "687ffff4-f7c5-4f0c-b2f9-0cc8a3b70f59",
+      "action": {
+        "action": "explore",
+        "direction": "south",
+        "distance": 24
+      },
+      "metadata": {
+        "task": "minecraft-survival",
+        "used_adapter": true,
+        "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01"
+      },
+      "taskId": "24e6aef6-e7d5-48a5-999f-71b7ae0b24ca",
+      "status": "completed",
+      "result": {
+        "action": {
+          "action": "explore",
+          "direction": "south",
+          "distance": 24
+        },
+        "verified": true,
+        "moved": 21,
+        "from": {
+          "x": 11.4,
+          "y": 65,
+          "z": -13.3
+        },
+        "to": {
+          "x": 11.5,
+          "y": 65,
+          "z": 7.4
+        },
+        "remainingThreats": [],
+        "inventoryBefore": [],
+        "inventoryAfter": [],
+        "position": {
+          "x": 11.5,
+          "y": 65,
+          "z": 7.4
+        }
+      }
+    },
+    {
+      "at": "2026-10-12T23:03:19.021Z",
+      "requestId": "34544a0d-ce93-44bd-88c6-9a64641510fd",
+      "action": {
+        "action": "flee"
+      },
+      "metadata": {
+        "task": "minecraft-survival",
+        "used_adapter": true,
+        "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01"
+      }
+    },
+    {
+      "at": "2026-10-12T23:03:25.961Z",
+      "requestId": "93939c91-e943-4fed-8369-0f3ee8a66c11",
+      "action": {
+        "action": "flee"
+      },
+      "metadata": {
+        "task": "minecraft-survival",
+        "used_adapter": true,
+        "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01"
+      }
+    },
+    {
+      "at": "2026-10-12T23:03:33.693Z",
+      "requestId": "d3ba0a37-8132-4def-8020-7640bcb2c07a",
+      "action": {
+        "action": "explore",
+        "direction": "northwest",
+        "distance": 20
+      },
+      "metadata": {
+        "task": "minecraft-survival",
+        "used_adapter": true,
+        "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01"
+      }
+    },
+    {
+      "at": "2026-10-12T23:03:41.063Z",
+      "requestId": "6f668659-36a8-4937-8046-7a507fb31389",
+      "action": {
+        "action": "gather_wood",
+        "count": 4
+      },
+      "metadata": {
+        "task": "minecraft-survival",
+        "used_adapter": true,
+        "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01"
+      },
+      "taskId": "9fd3fe62-9b10-4824-b0ca-d29f954576ba",
+      "status": "failed",
+      "error": "Unsafe: critical health; eat or flee first"
+    }
+  ],
+  "stale": [
+    {
+      "at": "2026-10-12T23:03:19.314Z",
+      "action": {
+        "action": "flee"
+      },
+      "reasons": [
+        "health-decreased"
+      ]
+    },
+    {
+      "at": "2026-10-12T23:03:26.251Z",
+      "action": {
+        "action": "flee"
+      },
+      "reasons": [
+        "health-decreased"
+      ]
+    },
+    {
+      "at": "2026-10-12T23:03:34.054Z",
+      "action": {
+        "action": "explore",
+        "direction": "northwest",
+        "distance": 20
+      },
+      "reasons": [
+        "health-decreased"
+      ]
+    }
+  ],
+  "damage": [
+    {
+      "at": "2026-10-12T23:03:18.545Z",
+      "event": "reactive_damage_observed",
+      "previousHealth": 20,
+      "health": 13,
+      "food": 20,
+      "position": {
+        "x": 11.500326717628974,
+        "y": 65,
+        "z": 7.3936182539120425
+      },
+      "enabled": true,
+      "mode": "idle",
+      "targetId": null,
+      "lifecycleEpoch": 10,
+      "nearby": [
+        {
+          "id": 57656,
+          "name": "spider",
+          "position": {
+            "x": 22.69999998807907,
+            "y": 52.10002187728882,
+            "z": 23.262224567503665
+          },
+          "distance": 23.316405882275713
+        }
+      ],
+      "nearbyCount": 1,
+      "observationRadius": 24,
+      "damageSource": "unknown",
+      "terrain": [
+        {
+          "x": 12,
+          "y": 65,
+          "z": 7,
+          "floor": "grass_block",
+          "feet": "snow",
+          "head": "air"
+        },
+        {
+          "x": 10,
+          "y": 65,
+          "z": 7,
+          "floor": "grass_block",
+          "feet": "snow",
+          "head": "air"
+        },
+        {
+          "x": 11,
+          "y": 65,
+          "z": 8,
+          "floor": "grass_block",
+          "feet": "snow",
+          "head": "air"
+        },
+        {
+          "x": 11,
+          "y": 65,
+          "z": 6,
+          "floor": "grass_block",
+          "feet": "snow",
+          "head": "air"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T23:03:24.611Z",
+      "event": "reactive_damage_observed",
+      "previousHealth": 16.333332061767578,
+      "health": 9.333332061767578,
+      "food": 20,
+      "position": {
+        "x": 11.500326717628974,
+        "y": 65,
+        "z": 7.3936182539120425
+      },
+      "enabled": true,
+      "mode": "idle",
+      "targetId": null,
+      "lifecycleEpoch": 10,
+      "nearby": [
+        {
+          "id": 57656,
+          "name": "spider",
+          "position": {
+            "x": 22.69999998807907,
+            "y": 52.10002187728882,
+            "z": 23.124040973753665
+          },
+          "distance": 23.222582024317862
+        }
+      ],
+      "nearbyCount": 1,
+      "observationRadius": 24,
+      "damageSource": "unknown",
+      "terrain": [
+        {
+          "x": 12,
+          "y": 65,
+          "z": 7,
+          "floor": "grass_block",
+          "feet": "snow",
+          "head": "air"
+        },
+        {
+          "x": 10,
+          "y": 65,
+          "z": 7,
+          "floor": "grass_block",
+          "feet": "snow",
+          "head": "air"
+        },
+        {
+          "x": 11,
+          "y": 65,
+          "z": 8,
+          "floor": "grass_block",
+          "feet": "snow",
+          "head": "air"
+        },
+        {
+          "x": 11,
+          "y": 65,
+          "z": 6,
+          "floor": "grass_block",
+          "feet": "snow",
+          "head": "air"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T23:03:31.535Z",
+      "event": "reactive_damage_observed",
+      "previousHealth": 11.333332061767578,
+      "health": 4.333332061767578,
+      "food": 17,
+      "position": {
+        "x": 11.500326717628974,
+        "y": 65,
+        "z": 7.3936182539120425
+      },
+      "enabled": true,
+      "mode": "idle",
+      "targetId": null,
+      "lifecycleEpoch": 10,
+      "nearby": [
+        {
+          "id": 57656,
+          "name": "spider",
+          "position": {
+            "x": 22.69999998807907,
+            "y": 52.10000002384186,
+            "z": 23.0541096066101
+          },
+          "distance": 23.175281447215372
+        }
+      ],
+      "nearbyCount": 1,
+      "observationRadius": 24,
+      "damageSource": "unknown",
+      "terrain": [
+        {
+          "x": 12,
+          "y": 65,
+          "z": 7,
+          "floor": "grass_block",
+          "feet": "snow",
+          "head": "air"
+        },
+        {
+          "x": 10,
+          "y": 65,
+          "z": 7,
+          "floor": "grass_block",
+          "feet": "snow",
+          "head": "air"
+        },
+        {
+          "x": 11,
+          "y": 65,
+          "z": 8,
+          "floor": "grass_block",
+          "feet": "snow",
+          "head": "air"
+        },
+        {
+          "x": 11,
+          "y": 65,
+          "z": 6,
+          "floor": "grass_block",
+          "feet": "snow",
+          "head": "air"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T23:03:47.703Z",
+      "event": "reactive_damage_observed",
+      "previousHealth": 4.333332061767578,
+      "health": 0,
+      "food": 17,
+      "position": {
+        "x": 11.500326717628974,
+        "y": 65,
+        "z": 7.3936182539120425
+      },
+      "enabled": true,
+      "mode": "idle",
+      "targetId": null,
+      "lifecycleEpoch": 10,
+      "nearby": [
+        {
+          "id": 57656,
+          "name": "spider",
+          "position": {
+            "x": 22.699966561208516,
+            "y": 50,
+            "z": 22.11066010654088
+          },
+          "distance": 23.812250072555578
+        }
+      ],
+      "nearbyCount": 1,
+      "observationRadius": 24,
+      "damageSource": "unknown",
+      "terrain": [
+        {
+          "x": 12,
+          "y": 65,
+          "z": 7,
+          "floor": "grass_block",
+          "feet": "snow",
+          "head": "air"
+        },
+        {
+          "x": 10,
+          "y": 65,
+          "z": 7,
+          "floor": "grass_block",
+          "feet": "snow",
+          "head": "air"
+        },
+        {
+          "x": 11,
+          "y": 65,
+          "z": 8,
+          "floor": "grass_block",
+          "feet": "snow",
+          "head": "air"
+        },
+        {
+          "x": 11,
+          "y": 65,
+          "z": 6,
+          "floor": "grass_block",
+          "feet": "snow",
+          "head": "air"
+        }
+      ]
+    }
+  ],
+  "serverDeaths": [
+    {
+      "at": "2026-10-12T23:03:47.695Z",
+      "event": "server_message",
+      "text": "SuiGeBot was speared by Zombie"
+    },
+    {
+      "at": "2026-10-12T23:03:47.703Z",
+      "event": "death",
+      "safetyWillResume": true,
+      "lifecycleEpoch": 11
+    }
+  ],
+  "postWindowLoopOffDeaths": [
+    {
+      "at": "2026-10-12T23:04:14.447Z",
+      "life": 12
+    },
+    {
+      "at": "2026-10-12T23:04:26.500Z",
+      "life": 13
+    },
+    {
+      "at": "2026-10-12T23:04:46.345Z",
+      "life": 14
+    },
+    {
+      "at": "2026-10-12T23:05:00.194Z",
+      "life": 15
+    },
+    {
+      "at": "2026-10-12T23:05:43.193Z",
+      "life": 16
+    },
+    {
+      "at": "2026-10-12T23:06:11.151Z",
+      "life": 17
+    },
+    {
+      "at": "2026-10-12T23:06:42.645Z",
+      "life": 18
+    },
+    {
+      "at": "2026-10-12T23:06:59.994Z",
+      "life": 19
+    },
+    {
+      "at": "2026-10-12T23:07:26.994Z",
+      "life": 20
+    }
+  ],
+  "timing": [
+    {
+      "at": "2026-10-12T23:03:43.715Z",
+      "event": "reactive_timing",
+      "configuredIntervalMs": 200,
+      "tickMs": 0.2,
+      "maxTickMs": 339.5,
+      "sampleGapMs": 202,
+      "maxSampleGapMs": 764,
+      "skippedTicks": 2,
+      "fallbackMs": 0.5,
+      "maxFallbackMs": 50.8,
+      "fallbackBudgetMs": 60,
+      "fallbackOverruns": 0,
+      "leafAwaitMs": 0,
+      "maxLeafAwaitMs": 312,
+      "logCallbackMs": 6.7,
+      "maxLogCallbackMs": 7.9,
+      "tickLogCallbackMs": 0,
+      "fallbackLogCallbackMs": 0,
+      "fallbackCandidateMs": 0.5,
+      "fallbackSearchMs": 0,
+      "maxSearchSliceMs": 7.3,
+      "fallbackDispatchMs": 0,
+      "intervalIsSchedulingTarget": true
+    }
+  ],
+  "limitations": [
+    "Completed flee moved21 but remainingThreats empty was based on stale mounted rider coordinates; it is movement evidence, not proof of safety.",
+    "Three decisions rejected because health decreased during inference; Qwen did produce flee twice but safety stale validation prevented dispatch.",
+    "Mounted Zombie position bug later confirmed by loaded reciprocal vehicle relation; historical damage packets do not identify each hit attacker.",
+    "Post-window deaths occurred with loop off; do not attribute them to fresh Qwen decisions."
+  ]
+}

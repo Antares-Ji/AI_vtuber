@@ -1,0 +1,485 @@
+{
+  "rubric": "minecraft-live-v2-acceptance-1",
+  "from": "2026-10-12T22:02:55.969Z",
+  "to": "2026-10-12T22:04:15.9497788Z",
+  "cohorts": {
+    "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v5r2-dense-replay-candidate\\checkpoint-epoch-02": {
+      "decisions": 11,
+      "results": 9,
+      "failed": 3,
+      "corroborated": 6,
+      "progress": 6
+    }
+  },
+  "decisions": 11,
+  "results": 9,
+  "failures": 3,
+  "failureRate": 0.3333333333333333,
+  "repeatedUnchangedFailures": 0,
+  "repeatedFailureRateAmongAttempts": 0,
+  "repeatedFailureEvidence": [],
+  "rejectedDecisions": [
+    {
+      "at": "2026-10-12T22:03:39.825Z",
+      "action": {
+        "action": "craft",
+        "item": "wooden_pickaxe",
+        "count": 1
+      },
+      "error": "推理期间出现危险，本次决策作废，安全层正在避险"
+    }
+  ],
+  "actionEvidence": [
+    {
+      "taskId": "e0a47119-4be0-4b32-9e89-b697284194aa",
+      "at": "2026-10-12T22:02:58.632Z",
+      "action": {
+        "action": "craft",
+        "item": "planks",
+        "count": 4
+      },
+      "status": "completed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v5r2-dense-replay-candidate\\checkpoint-epoch-02",
+      "healthBefore": 18,
+      "healthAfter": 18,
+      "executorVerified": true,
+      "inventorySource": "executor-local",
+      "inventoryDelta": {
+        "spruce_log": -1,
+        "spruce_planks": 4
+      },
+      "corroborated": true,
+      "progress": true,
+      "reason": "action-specific-evidence-present"
+    },
+    {
+      "taskId": "104771a5-ffb9-4554-9825-fc7b5e4edc07",
+      "at": "2026-10-12T22:03:02.794Z",
+      "action": {
+        "action": "craft",
+        "item": "stick",
+        "count": 2
+      },
+      "status": "completed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v5r2-dense-replay-candidate\\checkpoint-epoch-02",
+      "healthBefore": 18,
+      "healthAfter": 18,
+      "executorVerified": true,
+      "inventorySource": "executor-local",
+      "inventoryDelta": {
+        "spruce_planks": -2,
+        "stick": 4
+      },
+      "corroborated": true,
+      "progress": true,
+      "reason": "action-specific-evidence-present"
+    },
+    {
+      "taskId": "8f619474-e448-4cb9-8740-4bd6b58ab41d",
+      "at": "2026-10-12T22:03:06.519Z",
+      "action": {
+        "action": "craft",
+        "item": "wooden_pickaxe",
+        "count": 1
+      },
+      "status": "failed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v5r2-dense-replay-candidate\\checkpoint-epoch-02",
+      "healthBefore": 18,
+      "healthAfter": 18,
+      "executorVerified": false,
+      "inventorySource": "outer-observation-may-include-inference-time",
+      "inventoryDelta": {},
+      "corroborated": false,
+      "progress": false,
+      "reason": "not-completed-and-verified"
+    },
+    {
+      "taskId": "a2cbfe44-3f73-480a-a69a-9e645e28a076",
+      "at": "2026-10-12T22:03:18.122Z",
+      "action": {
+        "action": "flee"
+      },
+      "status": "completed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v5r2-dense-replay-candidate\\checkpoint-epoch-02",
+      "healthBefore": 18,
+      "healthAfter": 18,
+      "executorVerified": true,
+      "inventorySource": "executor-local",
+      "inventoryDelta": {},
+      "corroborated": true,
+      "progress": true,
+      "reason": "action-specific-evidence-present"
+    },
+    {
+      "taskId": "1f41492a-9183-4ef2-86c4-efb1d6af1535",
+      "at": "2026-10-12T22:03:22.237Z",
+      "action": {
+        "action": "craft",
+        "item": "wooden_pickaxe",
+        "count": 1
+      },
+      "status": "failed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v5r2-dense-replay-candidate\\checkpoint-epoch-02",
+      "healthBefore": 18,
+      "healthAfter": 18,
+      "executorVerified": false,
+      "inventorySource": "outer-observation-may-include-inference-time",
+      "inventoryDelta": {},
+      "corroborated": false,
+      "progress": false,
+      "reason": "not-completed-and-verified"
+    },
+    {
+      "taskId": "e3761fa1-bd0b-49b3-b86f-ab138b9e3261",
+      "at": "2026-10-12T22:03:32.409Z",
+      "action": {
+        "action": "explore",
+        "direction": "south",
+        "distance": 16
+      },
+      "status": "cancelled",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v5r2-dense-replay-candidate\\checkpoint-epoch-02",
+      "healthBefore": 18,
+      "healthAfter": 18,
+      "executorVerified": false,
+      "inventorySource": "outer-observation-may-include-inference-time",
+      "inventoryDelta": {},
+      "corroborated": false,
+      "progress": false,
+      "reason": "not-completed-and-verified"
+    },
+    {
+      "taskId": "113095d5-09f4-4fe9-af91-a1b252741882",
+      "at": "2026-10-12T22:03:51.296Z",
+      "action": {
+        "action": "explore",
+        "direction": "northwest",
+        "distance": 20
+      },
+      "status": "completed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v5r2-dense-replay-candidate\\checkpoint-epoch-02",
+      "healthBefore": 18,
+      "healthAfter": 18,
+      "executorVerified": true,
+      "inventorySource": "executor-local",
+      "inventoryDelta": {},
+      "corroborated": true,
+      "progress": true,
+      "reason": "action-specific-evidence-present"
+    },
+    {
+      "taskId": "95ac9e0c-eff1-4655-b0f1-c1def5d10b41",
+      "at": "2026-10-12T22:04:00.393Z",
+      "action": {
+        "action": "explore",
+        "direction": "south",
+        "distance": 24
+      },
+      "status": "completed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v5r2-dense-replay-candidate\\checkpoint-epoch-02",
+      "healthBefore": 18,
+      "healthAfter": 18,
+      "executorVerified": true,
+      "inventorySource": "executor-local",
+      "inventoryDelta": {},
+      "corroborated": true,
+      "progress": true,
+      "reason": "action-specific-evidence-present"
+    },
+    {
+      "taskId": "49801887-eef5-4905-a613-1082d53439e3",
+      "at": "2026-10-12T22:04:08.876Z",
+      "action": {
+        "action": "explore",
+        "direction": "northwest",
+        "distance": 24
+      },
+      "status": "completed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v5r2-dense-replay-candidate\\checkpoint-epoch-02",
+      "healthBefore": 18,
+      "healthAfter": 18,
+      "executorVerified": true,
+      "inventorySource": "executor-local",
+      "inventoryDelta": {},
+      "corroborated": true,
+      "progress": true,
+      "reason": "action-specific-evidence-present"
+    }
+  ],
+  "safety": {
+    "deaths": 0,
+    "deathEvents": [],
+    "minimumLoggedHealth": 18,
+    "healthTrace": [
+      {
+        "at": "2026-10-12T22:03:32.411Z",
+        "event": "priority_changed",
+        "health": 18
+      },
+      {
+        "at": "2026-10-12T22:03:39.408Z",
+        "event": "priority_changed",
+        "health": 18
+      }
+    ],
+    "escapeRoutesIssued": 0,
+    "blockedEvents": 0,
+    "threatClearedEvents": 2,
+    "timingLogSamples": 8,
+    "sampledTickMaxMs": 0.3,
+    "sampledGapMaxMs": 305.7,
+    "observedCumulativeTickMaxMs": 52.1,
+    "observedCumulativeGapMaxMs": 545,
+    "observedCumulativeFallbackOverruns": 0,
+    "escapeAcceptance": "not-exercised"
+  },
+  "limits": [
+    "Offline logs corroborate executor observations; they are not an independent game sensor.",
+    "Completed partial gains count as progress but not full requested quantity.",
+    "Death and timing counts cover only supplied logs and timestamps; sparse timing logs do not support per-tick percentiles.",
+    "Cumulative timing maxima may predate this window until reactive reload; report them separately from sampled window values.",
+    "Different prompts, compact observations, executors or world states confound model-weight comparisons. Only frozen identical-input base/adapter evaluation isolates a weight contrast.",
+    "No danger encountered means escape behavior remains untested. Issuing a route alone does not establish escape success.",
+    "Unknown completion metadata never proves adapter use."
+  ],
+  "sources": {
+    "autonomy": {
+      "path": "logs/minecraft-autonomy.jsonl",
+      "sha256": "da9f7183fadf5097e4c7c0307920c610dded1fb6b9410c191f9b930c535cbd96",
+      "malformedLines": []
+    },
+    "session": {
+      "path": "logs/minecraft-session-1791830191222.jsonl",
+      "sha256": "ec0f98adc10695aec3b4a49fcd39466efae688d9a6ddd65a86f359de49a8b085",
+      "malformedLines": []
+    }
+  },
+  "implementationHashes": {
+    "src/minecraft/survival-planner.js": "7003728b698e0006849c0960e1e79392c9dda479362fe74712da3f9f8021f630",
+    "src/minecraft/survival-skills.js": "de343d62a0ab4bc771102a9f0d45bcb1814daf5692a26aa7b378a00e3c6a2541",
+    "src/minecraft/reactive-agent.js": "a8fcfe711b76329d15f4565b65236ffb46dd0c317b51c84cfe5d29596bc382f5",
+    "src/minecraft/autonomy-loop.js": "4c171df6c3ee8d3b5c495f5a8bd7f6aaa522bca6eb14c1663f8620af852dd90c"
+  },
+  "implementationHashTiming": "Report-time checkout; establish deployment-time hashes separately before attributing changes.",
+  "independentReview": {
+    "conclusion": "Bounded trial stopped early under predeclared repeated-material-failure rule. Not accepted for stable deployment; no survival/Nether success claim.",
+    "durationSeconds": 79.98,
+    "endReason": "Predetermined repeated identical insufficient-material failure: wooden_pickaxe1 twice with planks2/stick4 and no material recovery",
+    "plannedMaximumMinutes": 20,
+    "fiveMinuteReview": "Window ended after about80 seconds, before the requested5-minute checkpoint; this report covers the complete actual window.",
+    "actualAdapter": {
+      "completionCount": 11,
+      "allTrue": true,
+      "paths": [
+        "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v5r2-dense-replay-candidate\\checkpoint-epoch-02"
+      ]
+    },
+    "reconciledCounts": {
+      "modelCompletions": 11,
+      "modelDecisions": 11,
+      "schemaRejected": 0,
+      "safetyRejectedBeforeDispatch": 1,
+      "nativeTasks": 10,
+      "completed": 6,
+      "failed": 2,
+      "cancelled": 2,
+      "autonomyResultRows": 9,
+      "missingAutonomyResultResolvedFromSession": 1
+    },
+    "positiveEvidence": {
+      "crafts": [
+        {
+          "item": "spruce_planks",
+          "gained": 4,
+          "input": "spruce_log1",
+          "confirmation": "server_full_window_per_click",
+          "at": "2026-10-12T22:02:58.388Z"
+        },
+        {
+          "item": "stick",
+          "requested": 2,
+          "gained": 4,
+          "input": "spruce_planks2",
+          "confirmation": "server_full_window_per_click",
+          "at": "2026-10-12T22:03:02.487Z"
+        }
+      ],
+      "recipeBatchMeaning": "Requesting2 sticks still uses one vanilla recipe batch that outputs4. This is legitimate output granularity, not inventory fabrication.",
+      "movementCompleted": {
+        "flee": 1,
+        "explore": 3
+      },
+      "limits": "These two real2x2 craft successes exercise the protocol fix. They do not establish all recipes or native3x3 protocol reliability."
+    },
+    "negativeEvidence": {
+      "sameInsufficientMaterial": {
+        "action": {
+          "action": "craft",
+          "item": "wooden_pickaxe",
+          "count": 1
+        },
+        "attempts": 2,
+        "repeatAfterFirst": 1,
+        "tasks": [
+          "8f619474-e448-4cb9-8740-4bd6b58ab41d",
+          "1f41492a-9183-4ef2-86c4-efb1d6af1535"
+        ],
+        "inventory": [
+          {
+            "name": "spruce_planks",
+            "count": 2
+          },
+          {
+            "name": "stick",
+            "count": 4
+          }
+        ],
+        "firstFailureAt": "2026-10-12T22:03:06.519Z",
+        "repeatAt": "2026-10-12T22:03:22.237Z",
+        "missing": "one additional plank for pickaxe recipe; no inventory table present either",
+        "inputEvidence": {
+          "recentFailures": [
+            {
+              "action": {
+                "action": "craft",
+                "item": "wooden_pickaxe",
+                "count": 1
+              },
+              "error": "Missing ingredients for 1 wooden_pickaxe",
+              "position": {
+                "x": 42.6,
+                "y": 70,
+                "z": -50.7
+              }
+            }
+          ],
+          "recentResults": [
+            {
+              "action": {
+                "action": "craft",
+                "item": "planks",
+                "count": 4
+              },
+              "status": "completed",
+              "result": {
+                "gained": 4,
+                "verified": true
+              }
+            },
+            {
+              "action": {
+                "action": "craft",
+                "item": "stick",
+                "count": 2
+              },
+              "status": "completed",
+              "result": {
+                "gained": 4,
+                "verified": true
+              }
+            },
+            {
+              "action": {
+                "action": "craft",
+                "item": "wooden_pickaxe",
+                "count": 1
+              },
+              "status": "failed",
+              "error": "Missing ingredients for 1 wooden_pickaxe"
+            },
+            {
+              "action": {
+                "action": "flee"
+              },
+              "status": "completed",
+              "result": {
+                "verified": true
+              }
+            }
+          ],
+          "craftable": [
+            {
+              "item": "stick",
+              "outputPerCraft": 4,
+              "requiresTable": false
+            }
+          ],
+          "woodenPickaxeHint": {
+            "item": "wooden_pickaxe",
+            "missing": [
+              {
+                "name": "spruce_planks",
+                "count": 1
+              }
+            ],
+            "oneRecipeExample": true
+          }
+        },
+        "interpretation": "The repeated request was sent despite accurate current inventory, explicit prior failure and recipe hint showing missing spruce_planks1. This is policy material recovery failure, not missing feedback or executor craft protocol loss. Intervening flee changed position but no materials; generic consecutive-failure metrics may miss it."
+      },
+      "thirdPickaxeDecision": {
+        "at": "2026-10-12T22:03:39.627Z",
+        "dispatched": false,
+        "reason": "Safety changed during inference; rejected before task. Do not count a third executed recipe failure."
+      }
+    },
+    "boundaryCancellation": {
+      "taskId": "a48d7d81-0ac8-4028-b490-7c5bc8aba8c0",
+      "action": {
+        "action": "explore",
+        "direction": "south",
+        "distance": 20
+      },
+      "skillFinishedAt": "2026-10-12T22:04:15.936Z",
+      "status": "cancelled",
+      "insideWindow": true,
+      "inventoryUnchanged": true,
+      "autonomyResultAbsent": true,
+      "source": "exact taskId-correlated session skill_failed/skill_finished records"
+    },
+    "riskMonitoring": {
+      "lowFoodAtMost7WithEdibleThenMineOrGather": 0,
+      "lowFoodCaseExercised": false,
+      "deaths": 0,
+      "healthObserved": 18,
+      "foodRange": [
+        17,
+        17
+      ],
+      "inventoryFinal": [
+        {
+          "name": "spruce_planks",
+          "count": 2
+        },
+        {
+          "name": "stick",
+          "count": 4
+        }
+      ],
+      "noNewTools": true,
+      "noMining": true,
+      "noNether": true
+    },
+    "reactiveReview": {
+      "strayPreemptAt": "2026-10-12T22:03:32.095Z",
+      "strayDistance": 22.871389652727707,
+      "modelExploreCancelled": true,
+      "secondThreatPriorityAt": "2026-10-12T22:03:39.408Z",
+      "noDamageEvent": true,
+      "deathCount": 0,
+      "threatClearedCount": 2,
+      "killNotVerified": true,
+      "shortSafeRouteCount": 0,
+      "newCandidateRotationTriggered": false,
+      "meaning": "Ranged reflex and long retreat were exercised; new stalled-candidate rotation was not exercised. Survival of this short encounter is not general escape validation.",
+      "timing": "Sampled tick max0.3ms/sample gap305.7ms. Cumulative52.1ms tick/545ms gap may predate window; no hard200ms guarantee."
+    },
+    "latencyMs": {
+      "min": 1175,
+      "median": 1870,
+      "max": 2016
+    },
+    "deployment": "Reactive a8fcfe711b76329d15f4565b65236ffb46dd0c317b51c84cfe5d29596bc382f5 deployed before this window; no in-window source reload observed. Main restart reset policy history before start; retained real inventory began with spruce_log1.",
+    "intervention": "Root stopped loop under declared rule; no manual progression or action replacement by reviewer."
+  }
+}

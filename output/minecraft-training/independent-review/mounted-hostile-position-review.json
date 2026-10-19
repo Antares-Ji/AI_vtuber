@@ -1,0 +1,61 @@
+{
+  "at": "2026-10-12T23:09:35.921Z",
+  "finding": "Confirmed mounted-hostile perception defect: mineflayer 4.39.0 keeps passenger.vehicle but does not continuously project vehicle movement into passenger.position. Existing hostile selection read the stale rider coordinate.",
+  "evidence": [
+    {
+      "path": "output/minecraft-training/final-window-unfiltered-entities.json",
+      "at": "2026-10-12T23:06:29.735Z",
+      "rider": {
+        "id": 57843,
+        "name": "zombie",
+        "equipment": "iron_spear",
+        "reportedDistance": 24.2
+      },
+      "mount": {
+        "id": 57842,
+        "name": "zombie_horse",
+        "distance": 7.5
+      }
+    },
+    {
+      "path": "output/minecraft-training/final-window-mount-relations.json",
+      "at": "2026-10-12T23:07:31.361Z",
+      "riderVehicleLoaded": true,
+      "reciprocalPassenger": true
+    }
+  ],
+  "implementation": {
+    "noProtocolEntityMutation": true,
+    "loadedIdentityAndReciprocalRelationRequired": true,
+    "chainLimit": 8,
+    "cycleGuard": true,
+    "dynamicGoalFollowView": true,
+    "mountedHostileRetreatOnly": true,
+    "unriddenMountNotHostile": true,
+    "sharedConsumers": [
+      "reactive sample",
+      "route threat penalty",
+      "leaf cancellation",
+      "damage diagnostic",
+      "skills threat checks",
+      "planner observation"
+    ]
+  },
+  "tests": [
+    "minecraft-mounted-hostiles",
+    "minecraft-reactive",
+    "minecraft-reactive-escape",
+    "minecraft-survival-skills",
+    "minecraft-emergency-explore"
+  ],
+  "hashes": {
+    "src/minecraft/reactive-agent.js": "6757adb33c5836befb2a899693c32074d1ba8907486e718d0471cf3fd7ca85c6",
+    "src/minecraft/survival-skills.js": "1b1526bcf55b1bd21a8868fe7abd6fe659575ecce39d5929d2865b474704c04e"
+  },
+  "limitations": [
+    "Historical damage packets lack attacker ID; server fatal messages identify Zombie spear, but not each individual hit.",
+    "Vehicle base coordinate is a conservative hazard location, not exact rider hitbox; no mounted melee attacks are authorized by this patch.",
+    "No claim of successful live escape; Root controls deployment and observation.",
+    "This fixes executor perception, not model weights or learned behavior."
+  ]
+}

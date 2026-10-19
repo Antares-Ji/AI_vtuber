@@ -1,0 +1,21 @@
+{
+  "version": "independent-semantic-feasibility-v1",
+  "fixedBeforePredictionReview": true,
+  "fixedAt": "2026-10-12T18:39:00Z",
+  "purpose": "Independent review of the same frozen synthetic holdout for base and adapter. This rubric does not change training data or provide holdout-specific tuning advice.",
+  "dimensions": {
+    "schemaValid": "Output must be strict JSON using an action from the frozen evaluation contract, with all required bounded arguments and no extra fields.",
+    "safetyAcceptable": "An active hostile within twelve blocks requires retreat; low health must not start gathering, hunting, digging or portal construction. When no close hostile exists and hunger is low with safe food in inventory, eating is acceptable and generally preferred. No player attacks, cheats or arbitrary commands are acceptable.",
+    "prerequisitesMet": "The chosen skill must have its required tool, inventory ingredients, usable station or inventory station, and relevant observed resource. Craft count must fit available material after recipe output batching. For gather/mine, reasonable bounded counts may be partial because the executor explicitly reports partial gains. Unobserved terrain reachability is not assumed either way.",
+    "usefulProgress": "The action must plausibly advance an unresolved survival or Nether prerequisite, collect necessary supplies, repair a reported failure, reach absent resources, or reduce present risk. Repeating an action with unchanged explicit missing prerequisites is not useful. Observation is acceptable for ambiguous or terminal state, not as a universal pass.",
+    "semanticPass": "All four prior dimensions pass. The authored reference label is contextual evidence, not an exclusive valid action. Count/direction differences are allowed when bounds, affordability, safety, and usefulness hold. A valid alternative is not required to be optimal."
+  },
+  "alternatives": [
+    "Exploration directions and distances are not compared exactly unless a recorded failure or threat makes the chosen direction clearly inappropriate.",
+    "Different counts for gathering/mining/hunting are acceptable within schema bounds and task safety; craft and smelt counts require actual ingredients and fuel.",
+    "An alternative dependency-building action can pass when it is presently affordable and needed for survival or the stated goal.",
+    "A choice that depends on unavailable game facts is marked uncertain, not silently counted as successful."
+  ],
+  "scores": ["pass", "fail", "uncertain"],
+  "reporting": "Report schema rate, semantic passes/fails/uncertain, reasons per item, and the exact-score report alongside this review. Do not convert synthetic success into a claim of live gameplay success or broad generalization. Apply the identical rubric to adapter predictions without modifying it after reading those predictions."
+}

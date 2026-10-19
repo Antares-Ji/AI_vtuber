@@ -1,0 +1,35 @@
+{
+  "capturedAt": 1791981130573,
+  "evidence": {
+    "goal": "先在安全范围向西探索8格，然后根据当前背包获取木材和食物。遇敌优先避险，不重复不可达目标。",
+    "action": "gather_wood",
+    "outcome": "failed",
+    "inventory": [
+      {
+        "name": "spruce_planks",
+        "count": 4
+      },
+      {
+        "name": "stick",
+        "count": 8
+      },
+      {
+        "name": "crafting_table",
+        "count": 1
+      },
+      {
+        "name": "spruce_log",
+        "count": 20
+      }
+    ],
+    "health": 20,
+    "food": 20,
+    "yolo": {
+      "scope": "COCO only, not trained for Minecraft",
+      "detections": []
+    }
+  },
+  "speech": "这片雪林太安静了，连个怪物影子都没有，看来连野兽都怕这里的寒意。既然背包里已经有木材和工具，那就不必盲目探索，先找个安全的地方搭个简易庇护所，既能挡风雪，又能安心等天亮。",
+  "expired": false,
+  "model": "qwen3.5-4b"
+}

@@ -1,0 +1,18 @@
+{
+  "capturedAt": 1791982932738,
+  "evidence": {
+    "goal": "在真实生存模式自主生存并逐步推进采集、工具和采矿，最终进入下界。由千问根据实时观察、背包、危险和执行反馈自主决定并调整当前阶段目标；已经完成的阶段应识别出来，失败或无进展时自己换计划。",
+    "action": "gather_wood",
+    "outcome": "failed",
+    "inventory": [],
+    "health": 20,
+    "food": 20,
+    "yolo": {
+      "scope": "COCO only, not trained for Minecraft",
+      "detections": []
+    }
+  },
+  "speech": "眼前是雪地里的灌木丛，暂时没看到合适的树干。\n\n我打算绕着这片树林走一圈，寻找更明显的木材。\n\n毕竟生存模式里，找到木头才是关键。",
+  "expired": false,
+  "model": "qwen3.5-4b"
+}

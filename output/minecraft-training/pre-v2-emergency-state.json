@@ -1,0 +1,334 @@
+{
+  "at": "2026-10-12T19:21:01.594Z",
+  "source": "read-only resident bot observation; no model decision or game action",
+  "state": {
+    "connected": true,
+    "mode": "survival",
+    "dimension": "overworld",
+    "health": 5.517354965209961,
+    "food": 17,
+    "oxygen": 20,
+    "position": {
+      "x": -83.5,
+      "y": 63,
+      "z": 53.5
+    },
+    "timeOfDay": 16008,
+    "isNight": true,
+    "inventory": [
+      {
+        "name": "snowball",
+        "count": 16
+      },
+      {
+        "name": "snowball",
+        "count": 1
+      }
+    ],
+    "tools": [],
+    "heldItem": {
+      "name": "snowball",
+      "durabilityUsed": null
+    },
+    "equipment": [
+      {
+        "name": "snowball",
+        "durabilityUsed": null
+      }
+    ],
+    "threats": [],
+    "hazards": [],
+    "resources": {
+      "stone": [],
+      "coal": [],
+      "iron": [],
+      "diamond": [],
+      "obsidian": [],
+      "gravel": [
+        {
+          "name": "gravel",
+          "position": {
+            "x": -86,
+            "y": 62,
+            "z": 53
+          },
+          "distance": 3
+        },
+        {
+          "name": "gravel",
+          "position": {
+            "x": -86,
+            "y": 62,
+            "z": 54
+          },
+          "distance": 3
+        },
+        {
+          "name": "gravel",
+          "position": {
+            "x": -86,
+            "y": 62,
+            "z": 55
+          },
+          "distance": 3
+        },
+        {
+          "name": "gravel",
+          "position": {
+            "x": -87,
+            "y": 62,
+            "z": 54
+          },
+          "distance": 4
+        }
+      ],
+      "wood": [
+        {
+          "name": "spruce_log",
+          "position": {
+            "x": -76,
+            "y": 63,
+            "z": 36
+          },
+          "distance": 19
+        },
+        {
+          "name": "spruce_log",
+          "position": {
+            "x": -76,
+            "y": 64,
+            "z": 36
+          },
+          "distance": 19
+        },
+        {
+          "name": "spruce_log",
+          "position": {
+            "x": -73,
+            "y": 63,
+            "z": 36
+          },
+          "distance": 20
+        },
+        {
+          "name": "spruce_log",
+          "position": {
+            "x": -73,
+            "y": 64,
+            "z": 36
+          },
+          "distance": 20
+        }
+      ]
+    },
+    "animals": [],
+    "landmarks": {
+      "evidenceOnly": true,
+      "villageConfirmed": false,
+      "entities": [],
+      "blocks": []
+    },
+    "stations": [],
+    "fluids": {
+      "water": [
+        {
+          "position": {
+            "x": -82,
+            "y": 61,
+            "z": 53
+          },
+          "distance": 3
+        },
+        {
+          "position": {
+            "x": -82,
+            "y": 61,
+            "z": 54
+          },
+          "distance": 3
+        },
+        {
+          "position": {
+            "x": -82,
+            "y": 61,
+            "z": 55
+          },
+          "distance": 3
+        }
+      ],
+      "lava": []
+    },
+    "craftable": [],
+    "recipeHints": [
+      {
+        "item": "stick",
+        "missing": [
+          {
+            "name": "cherry_planks",
+            "count": 2
+          }
+        ],
+        "oneRecipeExample": true
+      },
+      {
+        "item": "crafting_table",
+        "missing": [
+          {
+            "name": "cherry_planks",
+            "count": 4
+          }
+        ],
+        "oneRecipeExample": true
+      },
+      {
+        "item": "wooden_pickaxe",
+        "missing": [
+          {
+            "name": "cherry_planks",
+            "count": 3
+          },
+          {
+            "name": "stick",
+            "count": 2
+          }
+        ],
+        "oneRecipeExample": true
+      },
+      {
+        "item": "stone_pickaxe",
+        "missing": [
+          {
+            "name": "cobbled_deepslate",
+            "count": 3
+          },
+          {
+            "name": "stick",
+            "count": 2
+          }
+        ],
+        "oneRecipeExample": true
+      },
+      {
+        "item": "furnace",
+        "missing": [
+          {
+            "name": "cobbled_deepslate",
+            "count": 8
+          }
+        ],
+        "oneRecipeExample": true
+      },
+      {
+        "item": "iron_pickaxe",
+        "missing": [
+          {
+            "name": "iron_ingot",
+            "count": 3
+          },
+          {
+            "name": "stick",
+            "count": 2
+          }
+        ],
+        "oneRecipeExample": true
+      },
+      {
+        "item": "bucket",
+        "missing": [
+          {
+            "name": "iron_ingot",
+            "count": 3
+          }
+        ],
+        "oneRecipeExample": true
+      },
+      {
+        "item": "flint_and_steel",
+        "missing": [
+          {
+            "name": "iron_ingot",
+            "count": 1
+          },
+          {
+            "name": "flint",
+            "count": 1
+          }
+        ],
+        "oneRecipeExample": true
+      },
+      {
+        "item": "diamond_pickaxe",
+        "missing": [
+          {
+            "name": "diamond",
+            "count": 3
+          },
+          {
+            "name": "stick",
+            "count": 2
+          }
+        ],
+        "oneRecipeExample": true
+      },
+      {
+        "item": "torch",
+        "missing": [
+          {
+            "name": "charcoal",
+            "count": 1
+          },
+          {
+            "name": "stick",
+            "count": 1
+          }
+        ],
+        "oneRecipeExample": true
+      }
+    ],
+    "recentExploration": [],
+    "recentFailures": [],
+    "portalSite": null,
+    "busy": false,
+    "activeTaskId": null,
+    "reactive": {
+      "updatedAt": "2026-10-12T19:21:01.382Z",
+      "sampleIntervalMs": 200,
+      "lifecycleEpoch": 0,
+      "dimension": "overworld",
+      "timeOfDay": 16008,
+      "health": 5.517354965209961,
+      "food": 17,
+      "armed": false,
+      "enabled": true,
+      "mode": "idle",
+      "calming": false,
+      "targetId": null,
+      "entities": [
+        {
+          "id": 24048,
+          "name": "squid",
+          "position": {
+            "x": -75.44785195049609,
+            "y": 59.2978515625,
+            "z": 56.85816589226627
+          },
+          "distance": 9.477355613481741
+        }
+      ],
+      "escape": null,
+      "timing": {
+        "tickMs": 0.1,
+        "maxTickMs": 1.1,
+        "sampleGapMs": 202,
+        "maxSampleGapMs": 216.3,
+        "skippedTicks": 0,
+        "fallbackMs": 0,
+        "maxFallbackMs": 0,
+        "fallbackBudgetMs": 60,
+        "fallbackOverruns": 0,
+        "intervalIsSchedulingTarget": true
+      }
+    },
+    "sessionId": "E:\\Github\\AI_vtuber\\logs\\minecraft-session-1791830191222.jsonl"
+  }
+}

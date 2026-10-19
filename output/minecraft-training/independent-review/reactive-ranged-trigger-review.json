@@ -1,0 +1,40 @@
+{
+  "generatedAt": "2026-10-12T20:52:18.011Z",
+  "source": "src/minecraft/reactive-agent.js",
+  "sourceSha256": "53ea06bd1fc177a03cc90b4a0674b580d9c32918b354a7493587690b7e7c9d41",
+  "incident": {
+    "at": "2026-10-12T20:42:12.244Z",
+    "serverMessage": "SuiGeBot was shot by Stray",
+    "lifecycleEpoch": 7,
+    "known": "Periodic timing exists; no contemporaneous attacker positions, injury snapshots or retreat events were recorded.",
+    "unknown": "Cannot establish shooter distance, line of sight, actual escape opportunity or that trigger radius caused this death."
+  },
+  "confirmedCodeDefect": "Existing loaded entities within 24 are sampled, but decide previously ignored every hostile outside 12 while idle. Health events reran identical logic. Thus observed ranged threats at 12–24 could remain idle even during injury.",
+  "change": [
+    "Known ranged hostile classes skeleton/stray/bogged/pillager/witch trigger retreat throughout the existing 24-block sample. No further discovery or perception radius change.",
+    "Melee trigger/retreat radii remain 12/20; ranged exit uses existing two-second sustained-absence calm.",
+    "Health decreases emit bounded nearby loaded hostile/projectile plus terrain and health evidence, including fatal packets. The reported damage source remains unknown.",
+    "No source changes to path planning, movement safety, scan cadence, or model action selection."
+  ],
+  "tests": {
+    "commands": [
+      "node tests/minecraft-reactive.js",
+      "node tests/minecraft-reactive-escape.js"
+    ],
+    "result": "pass",
+    "coverage": [
+      "12.1/20/24 boundary for five ranged classes and 24.1 rejection",
+      "melee unchanged",
+      "actual tick activates retreat, reentry resets calm and sustained absence clears",
+      "health damage versus healing/fatal packet, nearby projectile without invented attacker attribution",
+      "dispose removes listener",
+      "existing route stall/cancellation/path safety/budget tests retained"
+    ]
+  },
+  "limits": [
+    "CPU tests only; no live survival or latency improvement claim.",
+    "Twenty-four-block perception may still miss farther loaded or unloaded attackers; absent nearby evidence does not imply no threat.",
+    "No unsafe route is permitted solely because the threat trigger activates. Environment may have no safe escape.",
+    "Health diagnostics run on actual health changes, not every 200ms timer; actual event-loop timing must be measured after root deployment."
+  ]
+}

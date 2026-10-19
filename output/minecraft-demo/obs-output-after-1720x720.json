@@ -1,0 +1,52 @@
+{
+  "at": "2026-10-14T13:29:47.784Z",
+  "video": {
+    "baseHeight": 1440,
+    "baseWidth": 3440,
+    "fpsDenominator": 1,
+    "fpsNumerator": 30,
+    "outputHeight": 720,
+    "outputWidth": 1720
+  },
+  "virtualCamera": {
+    "outputActive": true
+  },
+  "outputs": {
+    "outputs": [
+      {
+        "outputActive": false,
+        "outputFlags": {
+          "OBS_OUTPUT_AUDIO": true,
+          "OBS_OUTPUT_ENCODED": true,
+          "OBS_OUTPUT_MULTI_TRACK": true,
+          "OBS_OUTPUT_SERVICE": false,
+          "OBS_OUTPUT_VIDEO": true
+        },
+        "outputHeight": 720,
+        "outputKind": "mp4_output",
+        "outputName": "simple_file_output",
+        "outputWidth": 1720
+      },
+      {
+        "outputActive": true,
+        "outputFlags": {
+          "OBS_OUTPUT_AUDIO": false,
+          "OBS_OUTPUT_ENCODED": false,
+          "OBS_OUTPUT_MULTI_TRACK": false,
+          "OBS_OUTPUT_SERVICE": false,
+          "OBS_OUTPUT_VIDEO": true
+        },
+        "outputHeight": 720,
+        "outputKind": "virtualcam_output",
+        "outputName": "virtualcam_output",
+        "outputWidth": 1720
+      }
+    ]
+  },
+  "scene": {
+    "currentProgramSceneName": "Minecraft Bot POV",
+    "currentProgramSceneUuid": "bc72727f-9018-45fd-9e6e-e2ced907bd84",
+    "sceneName": "Minecraft Bot POV",
+    "sceneUuid": "bc72727f-9018-45fd-9e6e-e2ced907bd84"
+  }
+}

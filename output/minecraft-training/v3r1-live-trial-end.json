@@ -1,0 +1,645 @@
+{
+  "at": "2026-10-12T20:15:48.043Z",
+  "reason": "Diagnose repeated wood production after verified wooden pickaxe; maintenance for executor and exact-request audit",
+  "loop": {
+    "enabled": false,
+    "running": false,
+    "goal": "由本地千问自主规划：安全生存、采集、制作工具、采矿、制作并点燃下界门，进入下界。失败后根据真实状态调整计划。",
+    "deadline": "2026-10-12T23:17:01.000Z",
+    "step": 35,
+    "model": "qwen3.5-4b",
+    "modelLoaded": true,
+    "adapter": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v3r1-fresh-base\\checkpoint-epoch-02",
+    "adapterLoaded": true,
+    "lastDecision": {
+      "action": "craft",
+      "item": "stick",
+      "count": 8
+    },
+    "lastResult": {
+      "taskId": "80c0b679-ddb7-40d8-9555-48ac5b3315ca",
+      "action": {
+        "action": "craft",
+        "item": "stick",
+        "count": 8
+      },
+      "status": "failed",
+      "result": {
+        "verifiedPartial": true,
+        "gained": 4,
+        "items": [
+          "stick"
+        ],
+        "inventoryBefore": [
+          {
+            "name": "stick",
+            "count": 22
+          },
+          {
+            "name": "spruce_planks",
+            "count": 29
+          },
+          {
+            "name": "spruce_log",
+            "count": 1
+          },
+          {
+            "name": "wooden_pickaxe",
+            "count": 1
+          }
+        ],
+        "inventoryAfter": [
+          {
+            "name": "stick",
+            "count": 26
+          },
+          {
+            "name": "spruce_log",
+            "count": 1
+          },
+          {
+            "name": "wooden_pickaxe",
+            "count": 1
+          }
+        ],
+        "complete": false,
+        "inventoryConfirmation": "server_window_sync"
+      },
+      "partialEvidenceSource": "correlated-skill-log",
+      "error": "crafted batch inventory: server verification failed",
+      "at": "2026-10-12T20:15:47.789Z"
+    },
+    "lastError": "crafted batch inventory: server verification failed",
+    "latencyMs": 1628,
+    "history": [
+      {
+        "taskId": "40238798-b927-4ce8-9960-e3386baec602",
+        "action": {
+          "action": "craft",
+          "item": "planks",
+          "count": 8
+        },
+        "status": "failed",
+        "error": "Missing ingredients for 8 spruce_planks",
+        "at": "2026-10-12T20:14:10.182Z"
+      },
+      {
+        "taskId": "d2779208-b777-4a42-b1f5-04bb8857cfab",
+        "action": {
+          "action": "craft",
+          "item": "stick",
+          "count": 4
+        },
+        "status": "completed",
+        "result": {
+          "action": {
+            "action": "craft",
+            "item": "stick",
+            "count": 4
+          },
+          "verified": true,
+          "item": "stick",
+          "gained": 4,
+          "inventoryConfirmation": "server_window_sync",
+          "inventoryBefore": [
+            {
+              "name": "stick",
+              "count": 6
+            },
+            {
+              "name": "spruce_planks",
+              "count": 17
+            },
+            {
+              "name": "spruce_log",
+              "count": 1
+            },
+            {
+              "name": "spruce_planks",
+              "count": 4
+            },
+            {
+              "name": "wooden_pickaxe",
+              "count": 1
+            }
+          ],
+          "inventoryAfter": [
+            {
+              "name": "stick",
+              "count": 10
+            },
+            {
+              "name": "spruce_log",
+              "count": 1
+            },
+            {
+              "name": "spruce_planks",
+              "count": 19
+            },
+            {
+              "name": "wooden_pickaxe",
+              "count": 1
+            }
+          ],
+          "position": {
+            "x": 41.5,
+            "y": 70,
+            "z": -27.4
+          }
+        },
+        "at": "2026-10-12T20:14:17.469Z"
+      },
+      {
+        "taskId": "7dde8af6-78f6-4384-bdf6-327e99c41750",
+        "action": {
+          "action": "craft",
+          "item": "stick",
+          "count": 4
+        },
+        "status": "completed",
+        "result": {
+          "action": {
+            "action": "craft",
+            "item": "stick",
+            "count": 4
+          },
+          "verified": true,
+          "item": "stick",
+          "gained": 4,
+          "inventoryConfirmation": "server_window_sync",
+          "inventoryBefore": [
+            {
+              "name": "stick",
+              "count": 10
+            },
+            {
+              "name": "spruce_log",
+              "count": 1
+            },
+            {
+              "name": "spruce_planks",
+              "count": 19
+            },
+            {
+              "name": "wooden_pickaxe",
+              "count": 1
+            }
+          ],
+          "inventoryAfter": [
+            {
+              "name": "stick",
+              "count": 14
+            },
+            {
+              "name": "spruce_planks",
+              "count": 17
+            },
+            {
+              "name": "spruce_log",
+              "count": 1
+            },
+            {
+              "name": "wooden_pickaxe",
+              "count": 1
+            }
+          ],
+          "position": {
+            "x": 41.5,
+            "y": 70,
+            "z": -27.4
+          }
+        },
+        "at": "2026-10-12T20:14:21.245Z"
+      },
+      {
+        "taskId": "c9bd859e-3794-48ca-b5df-6d2c229c00c9",
+        "action": {
+          "action": "gather_wood",
+          "count": 3
+        },
+        "status": "failed",
+        "error": "No inventory gain (1 blocks removed): search budget exhausted; reachability unconfirmed; search budget exhausted; reachability unconfirmed",
+        "at": "2026-10-12T20:14:32.925Z"
+      },
+      {
+        "taskId": "181105db-09e6-4dea-a51f-55a1a2056c90",
+        "action": {
+          "action": "gather_wood",
+          "count": 4
+        },
+        "status": "completed",
+        "result": {
+          "action": {
+            "action": "gather_wood",
+            "count": 4
+          },
+          "verified": true,
+          "gained": 4,
+          "requested": 4,
+          "complete": true,
+          "dug": 5,
+          "items": [
+            "oak_log",
+            "spruce_log",
+            "birch_log",
+            "jungle_log",
+            "acacia_log",
+            "cherry_log",
+            "dark_oak_log",
+            "pale_oak_log",
+            "mangrove_log"
+          ],
+          "inventoryBefore": [
+            {
+              "name": "stick",
+              "count": 14
+            },
+            {
+              "name": "spruce_planks",
+              "count": 17
+            },
+            {
+              "name": "spruce_log",
+              "count": 1
+            },
+            {
+              "name": "wooden_pickaxe",
+              "count": 1
+            }
+          ],
+          "inventoryAfter": [
+            {
+              "name": "stick",
+              "count": 14
+            },
+            {
+              "name": "spruce_planks",
+              "count": 17
+            },
+            {
+              "name": "spruce_log",
+              "count": 5
+            },
+            {
+              "name": "wooden_pickaxe",
+              "count": 1
+            }
+          ],
+          "position": {
+            "x": 39.7,
+            "y": 70,
+            "z": -36.5
+          }
+        },
+        "at": "2026-10-12T20:15:07.787Z"
+      },
+      {
+        "taskId": "e3f34246-401d-4a28-ab21-46c59339dc24",
+        "action": {
+          "action": "craft",
+          "item": "planks",
+          "count": 4
+        },
+        "status": "completed",
+        "result": {
+          "action": {
+            "action": "craft",
+            "item": "planks",
+            "count": 4
+          },
+          "verified": true,
+          "item": "spruce_planks",
+          "gained": 4,
+          "inventoryConfirmation": "server_window_sync",
+          "inventoryBefore": [
+            {
+              "name": "stick",
+              "count": 14
+            },
+            {
+              "name": "spruce_planks",
+              "count": 17
+            },
+            {
+              "name": "spruce_log",
+              "count": 5
+            },
+            {
+              "name": "wooden_pickaxe",
+              "count": 1
+            }
+          ],
+          "inventoryAfter": [
+            {
+              "name": "stick",
+              "count": 14
+            },
+            {
+              "name": "spruce_planks",
+              "count": 21
+            },
+            {
+              "name": "spruce_log",
+              "count": 4
+            },
+            {
+              "name": "wooden_pickaxe",
+              "count": 1
+            }
+          ],
+          "position": {
+            "x": 39.7,
+            "y": 70,
+            "z": -36.5
+          }
+        },
+        "at": "2026-10-12T20:15:11.796Z"
+      },
+      {
+        "taskId": "ec788267-d65f-421f-bb48-a860931913d2",
+        "action": {
+          "action": "craft",
+          "item": "planks",
+          "count": 4
+        },
+        "status": "completed",
+        "result": {
+          "action": {
+            "action": "craft",
+            "item": "planks",
+            "count": 4
+          },
+          "verified": true,
+          "item": "spruce_planks",
+          "gained": 4,
+          "inventoryConfirmation": "server_window_sync",
+          "inventoryBefore": [
+            {
+              "name": "stick",
+              "count": 14
+            },
+            {
+              "name": "spruce_planks",
+              "count": 21
+            },
+            {
+              "name": "spruce_log",
+              "count": 4
+            },
+            {
+              "name": "wooden_pickaxe",
+              "count": 1
+            }
+          ],
+          "inventoryAfter": [
+            {
+              "name": "stick",
+              "count": 14
+            },
+            {
+              "name": "spruce_planks",
+              "count": 25
+            },
+            {
+              "name": "spruce_log",
+              "count": 3
+            },
+            {
+              "name": "wooden_pickaxe",
+              "count": 1
+            }
+          ],
+          "position": {
+            "x": 39.7,
+            "y": 70,
+            "z": -36.5
+          }
+        },
+        "at": "2026-10-12T20:15:15.667Z"
+      },
+      {
+        "taskId": "5322c459-86ce-4bdc-b35d-f20a26395b8f",
+        "action": {
+          "action": "craft",
+          "item": "planks",
+          "count": 8
+        },
+        "status": "completed",
+        "result": {
+          "action": {
+            "action": "craft",
+            "item": "planks",
+            "count": 8
+          },
+          "verified": true,
+          "item": "spruce_planks",
+          "gained": 8,
+          "inventoryConfirmation": "server_window_sync",
+          "inventoryBefore": [
+            {
+              "name": "stick",
+              "count": 14
+            },
+            {
+              "name": "spruce_planks",
+              "count": 25
+            },
+            {
+              "name": "spruce_log",
+              "count": 3
+            },
+            {
+              "name": "wooden_pickaxe",
+              "count": 1
+            }
+          ],
+          "inventoryAfter": [
+            {
+              "name": "stick",
+              "count": 14
+            },
+            {
+              "name": "spruce_planks",
+              "count": 33
+            },
+            {
+              "name": "spruce_log",
+              "count": 1
+            },
+            {
+              "name": "wooden_pickaxe",
+              "count": 1
+            }
+          ],
+          "position": {
+            "x": 39.7,
+            "y": 70,
+            "z": -36.5
+          }
+        },
+        "at": "2026-10-12T20:15:19.499Z"
+      },
+      {
+        "taskId": "3f555e57-af5e-4393-8066-19c1108d5674",
+        "action": {
+          "action": "craft",
+          "item": "planks",
+          "count": 8
+        },
+        "status": "failed",
+        "error": "Missing ingredients for 8 spruce_planks",
+        "at": "2026-10-12T20:15:23.053Z"
+      },
+      {
+        "taskId": "31ce3208-84d1-40c2-ab39-85938887bfed",
+        "action": {
+          "action": "craft",
+          "item": "stick",
+          "count": 8
+        },
+        "status": "completed",
+        "result": {
+          "action": {
+            "action": "craft",
+            "item": "stick",
+            "count": 8
+          },
+          "verified": true,
+          "item": "stick",
+          "gained": 8,
+          "inventoryConfirmation": "server_window_sync",
+          "inventoryBefore": [
+            {
+              "name": "stick",
+              "count": 14
+            },
+            {
+              "name": "spruce_planks",
+              "count": 33
+            },
+            {
+              "name": "spruce_log",
+              "count": 1
+            },
+            {
+              "name": "wooden_pickaxe",
+              "count": 1
+            }
+          ],
+          "inventoryAfter": [
+            {
+              "name": "stick",
+              "count": 22
+            },
+            {
+              "name": "spruce_planks",
+              "count": 29
+            },
+            {
+              "name": "spruce_log",
+              "count": 1
+            },
+            {
+              "name": "wooden_pickaxe",
+              "count": 1
+            }
+          ],
+          "position": {
+            "x": 39.7,
+            "y": 70,
+            "z": -36.5
+          }
+        },
+        "at": "2026-10-12T20:15:30.762Z"
+      },
+      {
+        "taskId": "a5d3590a-ac06-46be-8191-8256acd5e38d",
+        "action": {
+          "action": "craft",
+          "item": "planks",
+          "count": 8
+        },
+        "status": "failed",
+        "error": "Missing ingredients for 8 spruce_planks",
+        "at": "2026-10-12T20:15:34.304Z"
+      },
+      {
+        "taskId": "80c0b679-ddb7-40d8-9555-48ac5b3315ca",
+        "action": {
+          "action": "craft",
+          "item": "stick",
+          "count": 8
+        },
+        "status": "failed",
+        "result": {
+          "verifiedPartial": true,
+          "gained": 4,
+          "items": [
+            "stick"
+          ],
+          "inventoryBefore": [
+            {
+              "name": "stick",
+              "count": 22
+            },
+            {
+              "name": "spruce_planks",
+              "count": 29
+            },
+            {
+              "name": "spruce_log",
+              "count": 1
+            },
+            {
+              "name": "wooden_pickaxe",
+              "count": 1
+            }
+          ],
+          "inventoryAfter": [
+            {
+              "name": "stick",
+              "count": 26
+            },
+            {
+              "name": "spruce_log",
+              "count": 1
+            },
+            {
+              "name": "wooden_pickaxe",
+              "count": 1
+            }
+          ],
+          "complete": false,
+          "inventoryConfirmation": "server_window_sync"
+        },
+        "partialEvidenceSource": "correlated-skill-log",
+        "error": "crafted batch inventory: server verification failed",
+        "at": "2026-10-12T20:15:47.789Z"
+      }
+    ],
+    "modelHealth": {
+      "ok": true,
+      "model": "qwen3.5-4b",
+      "path": "E:\\Qwen3.5-4B",
+      "quantization": "nf4",
+      "adapter": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v3r1-fresh-base\\checkpoint-epoch-02",
+      "adapter_loaded": true,
+      "adapter_scope": "minecraft-survival",
+      "generation": {
+        "active": false,
+        "queued": 0,
+        "max_waiters": 4,
+        "cancelled_running": 0
+      },
+      "generation_busy": false
+    },
+    "updatedAt": "2026-10-12T20:15:48.042Z",
+    "waitingFor": null,
+    "lastDecisionMetadata": {
+      "task": "minecraft-survival",
+      "used_adapter": true,
+      "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v3r1-fresh-base\\checkpoint-epoch-02"
+    },
+    "needsRecovery": false
+  }
+}

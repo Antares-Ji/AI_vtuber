@@ -1,0 +1,107 @@
+{
+  "train-v5r1-candidates.jsonl": {
+    "rows": 32,
+    "promptTokens": {
+      "min": 1586,
+      "median": 2023,
+      "p90": 2083,
+      "max": 2112,
+      "mean": 2007.0
+    },
+    "fullSequenceTokens": {
+      "min": 1603,
+      "median": 2038,
+      "p90": 2100,
+      "max": 2129,
+      "mean": 2022.3
+    },
+    "assistantLabelTokens": {
+      "min": 7,
+      "max": 18,
+      "mean": 15.3
+    },
+    "completeAt2304": 32,
+    "completeAt2560": 32,
+    "prompts1800To2600": 31,
+    "sixRecentResults": 32,
+    "historyOutcomeOccurrences": {
+      "alreadyFull_noop": 3,
+      "food_recovery": 3
+    },
+    "longestIds": [
+      "v5r1-train-31",
+      "v5r1-train-29",
+      "v5r1-train-30"
+    ]
+  },
+  "development-v5r1-candidates.jsonl": {
+    "rows": 12,
+    "promptTokens": {
+      "min": 1871,
+      "median": 2066,
+      "p90": 2089,
+      "max": 2097,
+      "mean": 2041.3
+    },
+    "fullSequenceTokens": {
+      "min": 1888,
+      "median": 2083,
+      "p90": 2104,
+      "max": 2114,
+      "mean": 2056.4
+    },
+    "assistantLabelTokens": {
+      "min": 7,
+      "max": 18,
+      "mean": 15.1
+    },
+    "completeAt2304": 12,
+    "completeAt2560": 12,
+    "prompts1800To2600": 12,
+    "sixRecentResults": 12,
+    "historyOutcomeOccurrences": {
+      "alreadyFull_noop": 1,
+      "food_recovery": 1
+    },
+    "longestIds": [
+      "v5r1-dev-11",
+      "v5r1-dev-05",
+      "v5r1-dev-12"
+    ]
+  },
+  "train-v5r1-replay-candidates.jsonl": {
+    "rows": 214,
+    "promptTokens": {
+      "min": 1013,
+      "median": 1080,
+      "p90": 2007,
+      "max": 2112,
+      "mean": 1232.2
+    },
+    "fullSequenceTokens": {
+      "min": 1020,
+      "median": 1094,
+      "p90": 2023,
+      "max": 2129,
+      "mean": 1246.3
+    },
+    "assistantLabelTokens": {
+      "min": 7,
+      "max": 19,
+      "mean": 14.1
+    },
+    "completeAt2304": 214,
+    "completeAt2560": 214,
+    "prompts1800To2600": 31,
+    "sixRecentResults": 32,
+    "historyOutcomeOccurrences": {
+      "alreadyFull_noop": 3,
+      "food_recovery": 3
+    },
+    "longestIds": [
+      "v5r1-train-31",
+      "v5r1-train-29",
+      "v5r1-train-30"
+    ]
+  }
+}

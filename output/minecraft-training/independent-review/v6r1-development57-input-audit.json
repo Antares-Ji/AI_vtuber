@@ -1,0 +1,16 @@
+{
+  "at": "2026-10-12T22:38:11.985Z",
+  "status": "PASS",
+  "sha256": "0abc77696228f1ab5c62b919f5aeb2b4295b17e91f84bb149b202bff7ebb2ef5",
+  "old47ExactlyPreserved": true,
+  "new10AllSourceFieldsExactlyPreserved": true,
+  "addedMetadata": [],
+  "uniqueIds": 57,
+  "train24ExactPromptOverlap": 0,
+  "priorIndependentNormalizedOverlapAudit": "v6r1-candidate-audit.json",
+  "limits": [
+    "This checks exact assembly and known-source isolation, not model quality.",
+    "No final20 read, no GPU, no endpoint requests.",
+    "The two live inputs promoted into training are excluded from scored57; they can only be training-fit diagnostics."
+  ]
+}

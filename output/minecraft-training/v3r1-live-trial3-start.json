@@ -1,0 +1,125 @@
+{
+  "at": "2026-10-12T20:30:50.020Z",
+  "reason": "Same adapter, modern 2x2 server-confirmed crafting; inventory reset by logged deaths",
+  "loop": {
+    "enabled": true,
+    "running": true,
+    "goal": "由本地千问自主规划：安全生存、采集、制作工具、采矿、制作并点燃下界门，进入下界。失败后根据真实状态调整计划。",
+    "deadline": "2026-10-12T23:17:01.000Z",
+    "step": 6,
+    "model": "qwen3.5-4b",
+    "modelLoaded": true,
+    "adapter": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v3r1-fresh-base\\checkpoint-epoch-02",
+    "adapterLoaded": true,
+    "lastDecision": {
+      "action": "craft",
+      "item": "stick",
+      "count": 8
+    },
+    "lastResult": {
+      "taskId": "35843793-4241-4dba-b7a1-ed49135b7f03",
+      "action": {
+        "action": "craft",
+        "item": "stick",
+        "count": 8
+      },
+      "status": "failed",
+      "error": "crafted batch inventory: server verification failed",
+      "at": "2026-10-12T20:21:26.581Z"
+    },
+    "lastError": null,
+    "latencyMs": 1768,
+    "history": [
+      {
+        "taskId": "3be93a33-0ccc-4416-ad2d-7c90e2737090",
+        "action": {
+          "action": "craft",
+          "item": "planks",
+          "count": 4
+        },
+        "status": "failed",
+        "error": "Error: Event updateSlot:0 did not fire within timeout of 20000ms",
+        "at": "2026-10-12T20:19:02.055Z"
+      },
+      {
+        "taskId": "540dfa04-cd80-4646-8c17-be31763d91d2",
+        "action": {
+          "action": "craft",
+          "item": "stick",
+          "count": 8
+        },
+        "status": "failed",
+        "error": "crafted batch inventory: server verification failed",
+        "at": "2026-10-12T20:19:15.605Z"
+      },
+      {
+        "taskId": "ced63506-40ad-4a6a-bee1-7fff11ea1af1",
+        "action": {
+          "action": "craft",
+          "item": "stick",
+          "count": 8
+        },
+        "status": "failed",
+        "error": "Error: Event updateSlot:0 did not fire within timeout of 20000ms",
+        "at": "2026-10-12T20:19:42.652Z"
+      },
+      {
+        "taskId": "6fa4158d-db8a-4559-9250-0b5e9e030917",
+        "action": {
+          "action": "craft",
+          "item": "stick",
+          "count": 6
+        },
+        "status": "failed",
+        "error": "crafted batch inventory: server verification failed",
+        "at": "2026-10-12T20:19:55.977Z"
+      },
+      {
+        "taskId": "b882e15f-6be5-43f3-b48f-cf443f072d59",
+        "action": {
+          "action": "craft",
+          "item": "stick",
+          "count": 4
+        },
+        "status": "failed",
+        "error": "Error: Event updateSlot:0 did not fire within timeout of 20000ms",
+        "at": "2026-10-12T20:20:48.253Z"
+      },
+      {
+        "taskId": "35843793-4241-4dba-b7a1-ed49135b7f03",
+        "action": {
+          "action": "craft",
+          "item": "stick",
+          "count": 8
+        },
+        "status": "failed",
+        "error": "crafted batch inventory: server verification failed",
+        "at": "2026-10-12T20:21:26.581Z"
+      }
+    ],
+    "updatedAt": "2026-10-12T20:30:50.043Z",
+    "waitingFor": "safety-reflex",
+    "modelHealth": {
+      "ok": true,
+      "model": "qwen3.5-4b",
+      "path": "E:\\Qwen3.5-4B",
+      "quantization": "nf4",
+      "adapter": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v3r1-fresh-base\\checkpoint-epoch-02",
+      "adapter_loaded": true,
+      "adapter_scope": "minecraft-survival",
+      "generation": {
+        "active": false,
+        "queued": 0,
+        "max_waiters": 4,
+        "cancelled_running": 0
+      },
+      "generation_busy": false
+    },
+    "lastDecisionMetadata": {
+      "task": "minecraft-survival",
+      "used_adapter": true,
+      "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v3r1-fresh-base\\checkpoint-epoch-02"
+    },
+    "needsRecovery": true
+  }
+}

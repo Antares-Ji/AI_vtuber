@@ -1,0 +1,178 @@
+{
+  "dataset": "minecraft-survival-v5r1-candidates",
+  "status": "candidate-only; CPU semantic/token preflight passed; awaiting independent v5r1 audit and root review; not used for training",
+  "contract": "Current runtime SURVIVAL_ACTION_SCHEMA + compactObservation + decisionMessages; no system/schema change in this dataset builder.",
+  "provenance": "synthetic; independently authored dense-state counterfactual; v5r1 semantic corrections; no exact live probe copied",
+  "trainingRows": 32,
+  "developmentRows": 12,
+  "replayRows": 214,
+  "trainingSha256": "39a25fab7a8ad951b3a1094d1717ae41a17eaa78771c8142638ad78bc909b647",
+  "developmentSha256": "ceb50aaff7bcb4322e5d091e85440039a91c839b3739be7ec7a11cf8edac64e8",
+  "replaySha256": "48acfb5ae76098d4def88f35cb42f7a25c87db85d11f11159b3324183e9b4277",
+  "frozenReplayPrefix": {
+    "path": "train-v4r1-replay-candidates.jsonl",
+    "sha256": "9f76783df423a873e0d4387763a0b5dec10d8c1a8e3fc0517dd924be3cc032fe",
+    "bytes": 1017649,
+    "bytePrefixPreserved": true
+  },
+  "scopeBalance": {
+    "trainFood": 8,
+    "trainToolPrerequisite": 8,
+    "trainResourceRecovery": 6,
+    "trainRecipeHintEnum": 6,
+    "trainStageProgress": 4,
+    "devRowsById": [
+      "v5r1-dev-01",
+      "v5r1-dev-02",
+      "v5r1-dev-03",
+      "v5r1-dev-04",
+      "v5r1-dev-05",
+      "v5r1-dev-06",
+      "v5r1-dev-07",
+      "v5r1-dev-08",
+      "v5r1-dev-09",
+      "v5r1-dev-10",
+      "v5r1-dev-11",
+      "v5r1-dev-12"
+    ]
+  },
+  "tokenTarget": "CPU-tokenized training/dev prompts match the live 1.8k-2.6k range; see tokenAudit for full-sequence maximum.",
+  "limits": [
+    "Synthetic actions indicate a useful/materially feasible decision, not guaranteed path or block physics success.",
+    "Exact live probes remain development-only and are not copied here.",
+    "Recent result entries describe zero inventory delta unless explicitly reported; all six are matched to prior history and current state is not credited with unrecorded gains.",
+    "The fresh recentResults schema includes alreadyFull, foodBefore, and foodAfter from the current runtime planner.",
+    "Policy distinction: full-food eat is a no-op and should be avoided; low-food eat with safe food is useful. Root separately reports low-food raw-rabbit eating as a reasonable model choice rejected by the current executor because FOODS omits rabbit; that trace is executor coverage, not a wrong model label, and is excluded from v5r1 training pending executor fix/verification."
+  ],
+  "sourceHashes": {
+    "survivalPlanner": "7003728b698e0006849c0960e1e79392c9dda479362fe74712da3f9f8021f630",
+    "survivalSkills": "de343d62a0ab4bc771102a9f0d45bcb1814daf5692a26aa7b378a00e3c6a2541",
+    "priorReplay": "9f76783df423a873e0d4387763a0b5dec10d8c1a8e3fc0517dd924be3cc032fe"
+  },
+  "validation": {
+    "schemaValidatedAtBuild": true,
+    "generatedFromRuntimeDecisionMessages": true,
+    "noHoldoutRead": true,
+    "localSemanticPreflightPending": false,
+    "independentSemanticPreflightPending": true
+  },
+  "tokenAudit": {
+    "path": "output/minecraft-training/v5r1-candidate-token-audit.json",
+    "sha256": "df8bcd2444df9eb41a1b6cb7b87ef03a1aad5a4442b3a4452d11fe0d5d209dbb",
+    "runtimeProcessor": "Qwen AutoProcessor E:\\Qwen3.5-4B + inference chat template; CPU-only",
+    "report": {
+      "train-v5r1-candidates.jsonl": {
+        "rows": 32,
+        "promptTokens": {
+          "min": 1586,
+          "median": 2023,
+          "p90": 2083,
+          "max": 2112,
+          "mean": 2007.0
+        },
+        "fullSequenceTokens": {
+          "min": 1603,
+          "median": 2038,
+          "p90": 2100,
+          "max": 2129,
+          "mean": 2022.3
+        },
+        "assistantLabelTokens": {
+          "min": 7,
+          "max": 18,
+          "mean": 15.3
+        },
+        "completeAt2304": 32,
+        "completeAt2560": 32,
+        "prompts1800To2600": 31,
+        "sixRecentResults": 32,
+        "historyOutcomeOccurrences": {
+          "alreadyFull_noop": 3,
+          "food_recovery": 3
+        },
+        "longestIds": [
+          "v5r1-train-31",
+          "v5r1-train-29",
+          "v5r1-train-30"
+        ]
+      },
+      "development-v5r1-candidates.jsonl": {
+        "rows": 12,
+        "promptTokens": {
+          "min": 1871,
+          "median": 2066,
+          "p90": 2089,
+          "max": 2097,
+          "mean": 2041.3
+        },
+        "fullSequenceTokens": {
+          "min": 1888,
+          "median": 2083,
+          "p90": 2104,
+          "max": 2114,
+          "mean": 2056.4
+        },
+        "assistantLabelTokens": {
+          "min": 7,
+          "max": 18,
+          "mean": 15.1
+        },
+        "completeAt2304": 12,
+        "completeAt2560": 12,
+        "prompts1800To2600": 12,
+        "sixRecentResults": 12,
+        "historyOutcomeOccurrences": {
+          "alreadyFull_noop": 1,
+          "food_recovery": 1
+        },
+        "longestIds": [
+          "v5r1-dev-11",
+          "v5r1-dev-05",
+          "v5r1-dev-12"
+        ]
+      },
+      "train-v5r1-replay-candidates.jsonl": {
+        "rows": 214,
+        "promptTokens": {
+          "min": 1013,
+          "median": 1080,
+          "p90": 2007,
+          "max": 2112,
+          "mean": 1232.2
+        },
+        "fullSequenceTokens": {
+          "min": 1020,
+          "median": 1094,
+          "p90": 2023,
+          "max": 2129,
+          "mean": 1246.3
+        },
+        "assistantLabelTokens": {
+          "min": 7,
+          "max": 19,
+          "mean": 14.1
+        },
+        "completeAt2304": 214,
+        "completeAt2560": 214,
+        "prompts1800To2600": 31,
+        "sixRecentResults": 32,
+        "historyOutcomeOccurrences": {
+          "alreadyFull_noop": 3,
+          "food_recovery": 3
+        },
+        "longestIds": [
+          "v5r1-train-31",
+          "v5r1-train-29",
+          "v5r1-train-30"
+        ]
+      }
+    },
+    "coverageNote": "Maximum observed full sequence is 2129 tokens; 2304 fully preserves all candidate sequences. This is a coverage fact, not an approved training configuration. Final max_length awaits independent semantic review and GPU-memory preflight."
+  },
+  "localSemanticPreflight": {
+    "path": "output/minecraft-training/v5r1-candidate-semantic-preflight.json",
+    "sha256": "0253d61216d9bb2424172b39905c8f695ae361e9b995d724017878931819559c",
+    "status": "passed",
+    "independentAuditPending": true
+  }
+}

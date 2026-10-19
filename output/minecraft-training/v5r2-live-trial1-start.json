@@ -1,0 +1,453 @@
+{
+  "at": "2026-10-12T22:02:55.969Z",
+  "trialStopAt": "2026-10-12T22:22:55.970Z",
+  "selection": "v5r2-experimental-selection.json",
+  "historyResetByMainRestart": true,
+  "observation": {
+    "connected": true,
+    "mode": "survival",
+    "dimension": "overworld",
+    "health": 18,
+    "food": 17,
+    "oxygen": 20,
+    "position": {
+      "x": 42.6,
+      "y": 70,
+      "z": -50.7
+    },
+    "timeOfDay": 18309,
+    "isNight": true,
+    "inventory": [
+      {
+        "name": "spruce_log",
+        "count": 1
+      }
+    ],
+    "inventoryDiagnostics": {
+      "inventory": {
+        "id": 0,
+        "type": "minecraft:inventory",
+        "inventoryStart": 9,
+        "inventoryEnd": 45,
+        "craftingResultSlot": 0,
+        "slots": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          {
+            "name": "spruce_log",
+            "type": 135,
+            "count": 1,
+            "metadata": 0,
+            "slot": 36
+          },
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        "selectedItem": null
+      },
+      "currentWindow": null,
+      "confirmation": "local window model; includes optimistic updates until server reconciliation"
+    },
+    "tools": [],
+    "heldItem": {
+      "name": "spruce_log",
+      "durabilityUsed": null
+    },
+    "equipment": [
+      {
+        "name": "spruce_log",
+        "durabilityUsed": null
+      }
+    ],
+    "threats": [],
+    "hazards": [],
+    "resources": {
+      "stone": [
+        {
+          "name": "stone",
+          "position": {
+            "x": 41,
+            "y": 65,
+            "z": -53
+          },
+          "distance": 6
+        },
+        {
+          "name": "stone",
+          "position": {
+            "x": 40,
+            "y": 65,
+            "z": -52
+          },
+          "distance": 6
+        }
+      ],
+      "coal": [],
+      "iron": [
+        {
+          "name": "iron_ore",
+          "position": {
+            "x": 38,
+            "y": 38,
+            "z": -55
+          },
+          "distance": 33
+        }
+      ],
+      "diamond": [],
+      "obsidian": [],
+      "gravel": [],
+      "wood": [
+        {
+          "name": "spruce_log",
+          "position": {
+            "x": 45,
+            "y": 71,
+            "z": -53
+          },
+          "distance": 4
+        },
+        {
+          "name": "spruce_log",
+          "position": {
+            "x": 45,
+            "y": 70,
+            "z": -48
+          },
+          "distance": 4
+        },
+        {
+          "name": "spruce_log",
+          "position": {
+            "x": 45,
+            "y": 72,
+            "z": -53
+          },
+          "distance": 4
+        },
+        {
+          "name": "spruce_log",
+          "position": {
+            "x": 45,
+            "y": 73,
+            "z": -53
+          },
+          "distance": 5
+        }
+      ]
+    },
+    "animals": [
+      {
+        "id": 17741,
+        "name": "sheep",
+        "distance": 23
+      }
+    ],
+    "landmarks": {
+      "evidenceOnly": true,
+      "villageConfirmed": false,
+      "entities": [],
+      "blocks": []
+    },
+    "stations": [],
+    "fluids": {
+      "water": [
+        {
+          "position": {
+            "x": 38,
+            "y": 62,
+            "z": -51
+          },
+          "distance": 9
+        },
+        {
+          "position": {
+            "x": 41,
+            "y": 62,
+            "z": -55
+          },
+          "distance": 9
+        },
+        {
+          "position": {
+            "x": 41,
+            "y": 61,
+            "z": -53
+          },
+          "distance": 9
+        }
+      ],
+      "lava": []
+    },
+    "craftable": [
+      {
+        "item": "planks",
+        "outputPerCraft": 4,
+        "requiresTable": false
+      }
+    ],
+    "recipeHints": [
+      {
+        "item": "stick",
+        "missing": [
+          {
+            "name": "cherry_planks",
+            "count": 2
+          }
+        ],
+        "oneRecipeExample": true
+      },
+      {
+        "item": "crafting_table",
+        "missing": [
+          {
+            "name": "cherry_planks",
+            "count": 4
+          }
+        ],
+        "oneRecipeExample": true
+      },
+      {
+        "item": "wooden_pickaxe",
+        "missing": [
+          {
+            "name": "cherry_planks",
+            "count": 3
+          },
+          {
+            "name": "stick",
+            "count": 2
+          }
+        ],
+        "oneRecipeExample": true
+      },
+      {
+        "item": "stone_pickaxe",
+        "missing": [
+          {
+            "name": "cobbled_deepslate",
+            "count": 3
+          },
+          {
+            "name": "stick",
+            "count": 2
+          }
+        ],
+        "oneRecipeExample": true
+      },
+      {
+        "item": "furnace",
+        "missing": [
+          {
+            "name": "cobbled_deepslate",
+            "count": 8
+          }
+        ],
+        "oneRecipeExample": true
+      },
+      {
+        "item": "iron_pickaxe",
+        "missing": [
+          {
+            "name": "iron_ingot",
+            "count": 3
+          },
+          {
+            "name": "stick",
+            "count": 2
+          }
+        ],
+        "oneRecipeExample": true
+      },
+      {
+        "item": "bucket",
+        "missing": [
+          {
+            "name": "iron_ingot",
+            "count": 3
+          }
+        ],
+        "oneRecipeExample": true
+      },
+      {
+        "item": "flint_and_steel",
+        "missing": [
+          {
+            "name": "iron_ingot",
+            "count": 1
+          },
+          {
+            "name": "flint",
+            "count": 1
+          }
+        ],
+        "oneRecipeExample": true
+      },
+      {
+        "item": "diamond_pickaxe",
+        "missing": [
+          {
+            "name": "diamond",
+            "count": 3
+          },
+          {
+            "name": "stick",
+            "count": 2
+          }
+        ],
+        "oneRecipeExample": true
+      },
+      {
+        "item": "torch",
+        "missing": [
+          {
+            "name": "charcoal",
+            "count": 1
+          },
+          {
+            "name": "stick",
+            "count": 1
+          }
+        ],
+        "oneRecipeExample": true
+      }
+    ],
+    "recentExploration": [],
+    "recentFailures": [],
+    "portalSite": null,
+    "busy": false,
+    "activeTaskId": null,
+    "reactive": {
+      "updatedAt": "2026-10-12T22:02:55.794Z",
+      "sampleIntervalMs": 200,
+      "lifecycleEpoch": 8,
+      "dimension": "overworld",
+      "timeOfDay": 18309,
+      "health": 18,
+      "food": 17,
+      "armed": false,
+      "enabled": true,
+      "mode": "idle",
+      "calming": false,
+      "targetId": null,
+      "entities": [
+        {
+          "id": 17741,
+          "name": "sheep",
+          "position": {
+            "x": 38.519319214540864,
+            "y": 66.75325194001198,
+            "z": -73.44999998807907
+          },
+          "distance": 23.363896607081085
+        }
+      ],
+      "escape": null,
+      "timing": {
+        "tickMs": 0.1,
+        "maxTickMs": 52.1,
+        "sampleGapMs": 200.9,
+        "maxSampleGapMs": 216.3,
+        "skippedTicks": 0,
+        "fallbackMs": 35,
+        "maxFallbackMs": 52,
+        "fallbackBudgetMs": 60,
+        "fallbackOverruns": 0,
+        "leafAwaitMs": 0,
+        "maxLeafAwaitMs": 0,
+        "intervalIsSchedulingTarget": true
+      }
+    },
+    "sessionId": "E:\\Github\\AI_vtuber\\logs\\minecraft-session-1791830191222.jsonl"
+  },
+  "health": {
+    "ok": true,
+    "model": "qwen3.5-4b",
+    "path": "E:\\Qwen3.5-4B",
+    "quantization": "nf4",
+    "adapter": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v5r2-dense-replay-candidate\\checkpoint-epoch-02",
+    "adapter_loaded": true,
+    "adapter_scope": "minecraft-survival",
+    "generation": {
+      "active": false,
+      "queued": 0,
+      "max_waiters": 4,
+      "cancelled_running": 0
+    },
+    "generation_busy": false
+  },
+  "loop": {
+    "enabled": true,
+    "running": true,
+    "goal": "由本地千问自主规划：安全生存、采集、制作工具、采矿、制作并点燃下界门，进入下界。失败后根据真实状态调整计划。",
+    "deadline": "2026-10-12T23:17:01.000Z",
+    "step": 0,
+    "model": "qwen3.5-4b",
+    "modelLoaded": true,
+    "adapter": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v5r2-dense-replay-candidate\\checkpoint-epoch-02",
+    "adapterLoaded": true,
+    "lastDecision": null,
+    "lastResult": null,
+    "lastError": null,
+    "latencyMs": null,
+    "history": [],
+    "modelHealth": {
+      "ok": true,
+      "model": "qwen3.5-4b",
+      "path": "E:\\Qwen3.5-4B",
+      "quantization": "nf4",
+      "adapter": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v5r2-dense-replay-candidate\\checkpoint-epoch-02",
+      "adapter_loaded": true,
+      "adapter_scope": "minecraft-survival",
+      "generation": {
+        "active": false,
+        "queued": 0,
+        "max_waiters": 4,
+        "cancelled_running": 0
+      },
+      "generation_busy": false
+    },
+    "updatedAt": "2026-10-12T22:02:55.968Z"
+  }
+}

@@ -1,0 +1,3837 @@
+{
+  "generatedAt": "2026-10-12T21:56:26.380Z",
+  "sourceSha256": "0f5632030e830c29807ee6180007109969414a86ebea09b374904a46a98fe31d",
+  "criteriaSha256": "f2060031f4779e60d6984ae4661e7a33646be8d79bb29b7987790f1ffe1fc212",
+  "models": {
+    "base": {
+      "rawSha256": "50039076b3124d663073c034c0b873a0005a34d1a202b35094887bfd4161c19e",
+      "schema": 45,
+      "accepted": 11,
+      "threats": {
+        "n": 2,
+        "pass": 2
+      },
+      "slices": {
+        "legacy27": {
+          "n": 27,
+          "schema": 26,
+          "accepted": 7
+        },
+        "v4-allowed-set8": {
+          "n": 8,
+          "schema": 8,
+          "accepted": 2
+        },
+        "v5r2-dense12": {
+          "n": 12,
+          "schema": 11,
+          "accepted": 2
+        }
+      },
+      "cases": [
+        {
+          "id": "development-v2-0001",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "craft",
+            "item": "stone_pickaxe",
+            "count": 1
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "craft",
+            "item": "stone_pickaxe",
+            "count": 1
+          }
+        },
+        {
+          "id": "development-v2-0002",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "mine",
+            "resource": "stone",
+            "count": 1
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "mine",
+            "resource": "stone",
+            "count": 2
+          }
+        },
+        {
+          "id": "development-v2-0003",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "mine",
+            "resource": "diamond",
+            "count": 1
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "eat"
+          }
+        },
+        {
+          "id": "development-v2-0004",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "craft",
+            "item": "planks",
+            "count": 8
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "craft",
+            "item": "iron_pickaxe",
+            "count": 1
+          }
+        },
+        {
+          "id": "development-v2-0005",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "mine",
+            "resource": "coal",
+            "count": 1
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "dig_staircase",
+            "direction": "west",
+            "steps": 8
+          }
+        },
+        {
+          "id": "development-v2-0006",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "flee"
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": true,
+          "threatPass": true,
+          "expected": {
+            "action": "flee"
+          }
+        },
+        {
+          "id": "development-v2-0007",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "mine",
+            "resource": "diamond",
+            "count": 1
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "explore",
+            "direction": "northwest",
+            "distance": 24
+          }
+        },
+        {
+          "id": "development-v2-0008",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "mine",
+            "resource": "coal",
+            "count": 1
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "dig_staircase",
+            "direction": "north",
+            "steps": 3
+          }
+        },
+        {
+          "id": "development-v2-0009",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "flee"
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": true,
+          "threatPass": true,
+          "expected": {
+            "action": "flee"
+          }
+        },
+        {
+          "id": "development-v2-0010",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "mine",
+            "resource": "iron",
+            "count": 1
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "smelt",
+            "item": "iron_ore",
+            "count": 2
+          }
+        },
+        {
+          "id": "development-v2-0011",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "mine",
+            "resource": "iron_ore",
+            "count": 1
+          },
+          "schemaValid": false,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "explore",
+            "direction": "east",
+            "distance": 16
+          }
+        },
+        {
+          "id": "development-v2-0012",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "gather_wood",
+            "count": 12
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "explore",
+            "direction": "south",
+            "distance": 16
+          }
+        },
+        {
+          "id": "development-v2-0013",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "gather_wood",
+            "count": 12
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "place_water"
+          }
+        },
+        {
+          "id": "development-v2-0014",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "craft",
+            "item": "wooden_pickaxe",
+            "count": 1
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "craft",
+            "item": "wooden_pickaxe",
+            "count": 1
+          }
+        },
+        {
+          "id": "development-v2-0015",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "craft",
+            "item": "planks",
+            "count": 8
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "explore",
+            "direction": "southeast",
+            "distance": 32
+          }
+        },
+        {
+          "id": "development-v2-0016",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "gather_wood",
+            "count": 12
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "eat"
+          }
+        },
+        {
+          "id": "development-v2-0017",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "mine",
+            "resource": "obsidian",
+            "count": 1
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "mine",
+            "resource": "obsidian",
+            "count": 6
+          }
+        },
+        {
+          "id": "development-v2-0018",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "mine",
+            "resource": "coal",
+            "count": 1
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "dig_staircase",
+            "direction": "south",
+            "steps": 1
+          }
+        },
+        {
+          "id": "development-v2-0019",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "eat"
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "flee"
+          }
+        },
+        {
+          "id": "development-v2-0020",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "mine",
+            "resource": "coal",
+            "count": 1
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "explore",
+            "direction": "northeast",
+            "distance": 24
+          }
+        },
+        {
+          "id": "development-v2-0021",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "mine",
+            "resource": "coal",
+            "count": 1
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "mine",
+            "resource": "coal",
+            "count": 3
+          }
+        },
+        {
+          "id": "development-v2-0022",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "craft",
+            "item": "iron_pickaxe",
+            "count": 1
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "craft",
+            "item": "stone_pickaxe",
+            "count": 1
+          }
+        },
+        {
+          "id": "development-v2-0023",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "eat"
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "eat"
+          }
+        },
+        {
+          "id": "development-v2-0024",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "gather_wood",
+            "count": 12
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "craft",
+            "item": "torch",
+            "count": 8
+          }
+        },
+        {
+          "id": "development-v2-0025",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "gather_wood",
+            "count": 12
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "gather_wood",
+            "count": 12
+          }
+        },
+        {
+          "id": "development-v2-0026",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "explore",
+            "direction": "northwest",
+            "distance": 16
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "gather_wood",
+            "count": 6
+          }
+        },
+        {
+          "id": "development-v3r1-real-material-probe",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "craft",
+            "item": "planks",
+            "count": 4
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "craft",
+            "item": "planks",
+            "count": 4
+          }
+        },
+        {
+          "id": "v4r1-dev-01",
+          "slice": "v4-allowed-set8",
+          "predicted": {
+            "action": "craft",
+            "item": "furnace",
+            "count": 1
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "mine",
+            "resource": "stone",
+            "count": {
+              "min": 1,
+              "max": 8
+            }
+          }
+        },
+        {
+          "id": "v4r1-dev-02",
+          "slice": "v4-allowed-set8",
+          "predicted": {
+            "action": "mine",
+            "resource": "iron",
+            "count": 1
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "mine",
+            "resource": "iron",
+            "count": {
+              "min": 1,
+              "max": 8
+            }
+          }
+        },
+        {
+          "id": "v4r1-dev-03",
+          "slice": "v4-allowed-set8",
+          "predicted": {
+            "action": "craft",
+            "item": "furnace",
+            "count": 1
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "explore",
+            "direction": [
+              "north",
+              "south",
+              "east",
+              "west",
+              "northeast",
+              "northwest",
+              "southeast",
+              "southwest"
+            ],
+            "distance": {
+              "min": 8,
+              "max": 48
+            }
+          }
+        },
+        {
+          "id": "v4r1-dev-04",
+          "slice": "v4-allowed-set8",
+          "predicted": {
+            "action": "craft",
+            "item": "crafting_table",
+            "count": 1
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "explore",
+            "direction": [
+              "north",
+              "south",
+              "east",
+              "west",
+              "northeast",
+              "northwest",
+              "southeast",
+              "southwest"
+            ],
+            "distance": {
+              "min": 8,
+              "max": 48
+            }
+          }
+        },
+        {
+          "id": "v4r1-dev-05",
+          "slice": "v4-allowed-set8",
+          "predicted": {
+            "action": "gather_wood",
+            "count": 12
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "gather_wood",
+            "count": {
+              "min": 1,
+              "max": 8
+            }
+          }
+        },
+        {
+          "id": "v4r1-dev-06",
+          "slice": "v4-allowed-set8",
+          "predicted": {
+            "action": "craft",
+            "item": "planks",
+            "count": 4
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "craft",
+            "item": "planks",
+            "count": {
+              "min": 1,
+              "max": 8
+            }
+          }
+        },
+        {
+          "id": "v4r1-dev-07",
+          "slice": "v4-allowed-set8",
+          "predicted": {
+            "action": "gather_wood",
+            "count": 12
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "dig_staircase",
+            "direction": [
+              "north",
+              "south",
+              "east",
+              "west"
+            ],
+            "steps": {
+              "min": 1,
+              "max": 8
+            }
+          }
+        },
+        {
+          "id": "v4r1-dev-08",
+          "slice": "v4-allowed-set8",
+          "predicted": {
+            "action": "eat"
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "craft",
+            "item": "torch",
+            "count": {
+              "min": 1,
+              "max": 8
+            }
+          }
+        },
+        {
+          "id": "v5r2-dev-01",
+          "slice": "v5r2-dense12",
+          "predicted": {
+            "action": "mine",
+            "resource": "coal",
+            "count": 1
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "mine",
+            "resource": "diamond",
+            "count": {
+              "min": 1,
+              "max": 8
+            }
+          }
+        },
+        {
+          "id": "v5r2-dev-02",
+          "slice": "v5r2-dense12",
+          "predicted": {
+            "action": "mine",
+            "resource": "coal",
+            "count": 1
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "eat"
+          }
+        },
+        {
+          "id": "v5r2-dev-03",
+          "slice": "v5r2-dense12",
+          "predicted": {
+            "action": "gather_wood",
+            "count": 12
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "smelt",
+            "item": "raw_iron",
+            "count": 2
+          }
+        },
+        {
+          "id": "v5r2-dev-04",
+          "slice": "v5r2-dense12",
+          "predicted": {
+            "action": "mine",
+            "resource": "stone",
+            "count": 1
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "gather_wood",
+            "count": {
+              "min": 1,
+              "max": 8
+            }
+          }
+        },
+        {
+          "id": "v5r2-dev-05",
+          "slice": "v5r2-dense12",
+          "predicted": {
+            "action": "mine",
+            "resource": "coal",
+            "count": 1
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "mine",
+            "resource": "coal",
+            "count": {
+              "min": 1,
+              "max": 8
+            }
+          }
+        },
+        {
+          "id": "v5r2-dev-06",
+          "slice": "v5r2-dense12",
+          "predicted": {
+            "action": "mine",
+            "resource": "stone",
+            "count": 1
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "explore",
+            "direction": [
+              "north",
+              "south",
+              "east",
+              "west",
+              "northeast",
+              "northwest",
+              "southeast",
+              "southwest"
+            ],
+            "distance": {
+              "min": 8,
+              "max": 48
+            }
+          }
+        },
+        {
+          "id": "v5r2-dev-07",
+          "slice": "v5r2-dense12",
+          "predicted": {
+            "action": "craft",
+            "item": "planks",
+            "count": 8
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "explore",
+            "direction": [
+              "north",
+              "south",
+              "east",
+              "west",
+              "northeast",
+              "northwest",
+              "southeast",
+              "southwest"
+            ],
+            "distance": {
+              "min": 8,
+              "max": 48
+            }
+          }
+        },
+        {
+          "id": "v5r2-dev-08",
+          "slice": "v5r2-dense12",
+          "predicted": {
+            "action": "mine",
+            "resource": "stone",
+            "count": 1
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "gather_wood",
+            "count": {
+              "min": 1,
+              "max": 8
+            }
+          }
+        },
+        {
+          "id": "v5r2-dev-09",
+          "slice": "v5r2-dense12",
+          "predicted": {
+            "action": "craft",
+            "item": "planks",
+            "count": 4
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "craft",
+            "item": "planks",
+            "count": {
+              "min": 1,
+              "max": 16
+            }
+          }
+        },
+        {
+          "id": "v5r2-dev-10",
+          "slice": "v5r2-dense12",
+          "predicted": {
+            "action": "mine",
+            "resource": "spruce_log",
+            "count": 1
+          },
+          "schemaValid": false,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "craft",
+            "item": "crafting_table",
+            "count": 1
+          }
+        },
+        {
+          "id": "v5r2-dev-11",
+          "slice": "v5r2-dense12",
+          "predicted": {
+            "action": "mine",
+            "resource": "coal",
+            "count": 1
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "craft",
+            "item": "iron_pickaxe",
+            "count": 1
+          }
+        },
+        {
+          "id": "v5r2-dev-12",
+          "slice": "v5r2-dense12",
+          "predicted": {
+            "action": "mine",
+            "resource": "coal",
+            "count": 1
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "mine",
+            "resource": "stone",
+            "count": {
+              "min": 1,
+              "max": 8
+            }
+          }
+        }
+      ]
+    },
+    "v4r1": {
+      "rawSha256": "ccd1c47c45bfc10fc5ebfcd2c2ef3cb7b688025b7fb8200d6cf7e826d594d920",
+      "schema": 47,
+      "accepted": 18,
+      "threats": {
+        "n": 2,
+        "pass": 2
+      },
+      "slices": {
+        "legacy27": {
+          "n": 27,
+          "schema": 27,
+          "accepted": 12
+        },
+        "v4-allowed-set8": {
+          "n": 8,
+          "schema": 8,
+          "accepted": 4
+        },
+        "v5r2-dense12": {
+          "n": 12,
+          "schema": 12,
+          "accepted": 2
+        }
+      },
+      "cases": [
+        {
+          "id": "development-v2-0001",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "craft",
+            "item": "stone_pickaxe",
+            "count": 1
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "craft",
+            "item": "stone_pickaxe",
+            "count": 1
+          }
+        },
+        {
+          "id": "development-v2-0002",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "mine",
+            "resource": "stone",
+            "count": 4
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "mine",
+            "resource": "stone",
+            "count": 2
+          }
+        },
+        {
+          "id": "development-v2-0003",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "eat"
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "eat"
+          }
+        },
+        {
+          "id": "development-v2-0004",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "craft",
+            "item": "iron_pickaxe",
+            "count": 1
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "craft",
+            "item": "iron_pickaxe",
+            "count": 1
+          }
+        },
+        {
+          "id": "development-v2-0005",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "eat"
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "dig_staircase",
+            "direction": "west",
+            "steps": 8
+          }
+        },
+        {
+          "id": "development-v2-0006",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "flee"
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": true,
+          "threatPass": true,
+          "expected": {
+            "action": "flee"
+          }
+        },
+        {
+          "id": "development-v2-0007",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "mine",
+            "resource": "diamond",
+            "count": 3
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "explore",
+            "direction": "northwest",
+            "distance": 24
+          }
+        },
+        {
+          "id": "development-v2-0008",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "explore",
+            "direction": "north",
+            "distance": 24
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "dig_staircase",
+            "direction": "north",
+            "steps": 3
+          }
+        },
+        {
+          "id": "development-v2-0009",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "flee"
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": true,
+          "threatPass": true,
+          "expected": {
+            "action": "flee"
+          }
+        },
+        {
+          "id": "development-v2-0010",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "smelt",
+            "item": "raw_iron",
+            "count": 2
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "smelt",
+            "item": "iron_ore",
+            "count": 2
+          }
+        },
+        {
+          "id": "development-v2-0011",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "mine",
+            "resource": "iron",
+            "count": 4
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "explore",
+            "direction": "east",
+            "distance": 16
+          }
+        },
+        {
+          "id": "development-v2-0012",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "collect_water"
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "explore",
+            "direction": "south",
+            "distance": 16
+          }
+        },
+        {
+          "id": "development-v2-0013",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "place_water"
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "place_water"
+          }
+        },
+        {
+          "id": "development-v2-0014",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "craft",
+            "item": "wooden_pickaxe",
+            "count": 1
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "craft",
+            "item": "wooden_pickaxe",
+            "count": 1
+          }
+        },
+        {
+          "id": "development-v2-0015",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "explore",
+            "direction": "north",
+            "distance": 24
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "explore",
+            "direction": "southeast",
+            "distance": 32
+          }
+        },
+        {
+          "id": "development-v2-0016",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "eat"
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "eat"
+          }
+        },
+        {
+          "id": "development-v2-0017",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "mine",
+            "resource": "obsidian",
+            "count": 10
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "mine",
+            "resource": "obsidian",
+            "count": 6
+          }
+        },
+        {
+          "id": "development-v2-0018",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "eat"
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "dig_staircase",
+            "direction": "south",
+            "steps": 1
+          }
+        },
+        {
+          "id": "development-v2-0019",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "flee"
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "flee"
+          }
+        },
+        {
+          "id": "development-v2-0020",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "explore",
+            "direction": "north",
+            "distance": 24
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "explore",
+            "direction": "northeast",
+            "distance": 24
+          }
+        },
+        {
+          "id": "development-v2-0021",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "mine",
+            "resource": "coal",
+            "count": 4
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "mine",
+            "resource": "coal",
+            "count": 3
+          }
+        },
+        {
+          "id": "development-v2-0022",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "craft",
+            "item": "stone_pickaxe",
+            "count": 1
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "craft",
+            "item": "stone_pickaxe",
+            "count": 1
+          }
+        },
+        {
+          "id": "development-v2-0023",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "eat"
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "eat"
+          }
+        },
+        {
+          "id": "development-v2-0024",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "craft",
+            "item": "torch",
+            "count": 4
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "craft",
+            "item": "torch",
+            "count": 8
+          }
+        },
+        {
+          "id": "development-v2-0025",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "gather_wood",
+            "count": 3
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "gather_wood",
+            "count": 12
+          }
+        },
+        {
+          "id": "development-v2-0026",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "explore",
+            "direction": "south",
+            "distance": 24
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "gather_wood",
+            "count": 6
+          }
+        },
+        {
+          "id": "development-v3r1-real-material-probe",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "craft",
+            "item": "planks",
+            "count": 4
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "craft",
+            "item": "planks",
+            "count": 4
+          }
+        },
+        {
+          "id": "v4r1-dev-01",
+          "slice": "v4-allowed-set8",
+          "predicted": {
+            "action": "craft",
+            "item": "stick",
+            "count": 4
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "mine",
+            "resource": "stone",
+            "count": {
+              "min": 1,
+              "max": 8
+            }
+          }
+        },
+        {
+          "id": "v4r1-dev-02",
+          "slice": "v4-allowed-set8",
+          "predicted": {
+            "action": "mine",
+            "resource": "iron",
+            "count": 4
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "mine",
+            "resource": "iron",
+            "count": {
+              "min": 1,
+              "max": 8
+            }
+          }
+        },
+        {
+          "id": "v4r1-dev-03",
+          "slice": "v4-allowed-set8",
+          "predicted": {
+            "action": "explore",
+            "direction": "east",
+            "distance": 24
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "explore",
+            "direction": [
+              "north",
+              "south",
+              "east",
+              "west",
+              "northeast",
+              "northwest",
+              "southeast",
+              "southwest"
+            ],
+            "distance": {
+              "min": 8,
+              "max": 48
+            }
+          }
+        },
+        {
+          "id": "v4r1-dev-04",
+          "slice": "v4-allowed-set8",
+          "predicted": {
+            "action": "craft",
+            "item": "planks",
+            "count": 16
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "explore",
+            "direction": [
+              "north",
+              "south",
+              "east",
+              "west",
+              "northeast",
+              "northwest",
+              "southeast",
+              "southwest"
+            ],
+            "distance": {
+              "min": 8,
+              "max": 48
+            }
+          }
+        },
+        {
+          "id": "v4r1-dev-05",
+          "slice": "v4-allowed-set8",
+          "predicted": {
+            "action": "gather_wood",
+            "count": 6
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "gather_wood",
+            "count": {
+              "min": 1,
+              "max": 8
+            }
+          }
+        },
+        {
+          "id": "v4r1-dev-06",
+          "slice": "v4-allowed-set8",
+          "predicted": {
+            "action": "craft",
+            "item": "planks",
+            "count": 4
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "craft",
+            "item": "planks",
+            "count": {
+              "min": 1,
+              "max": 8
+            }
+          }
+        },
+        {
+          "id": "v4r1-dev-07",
+          "slice": "v4-allowed-set8",
+          "predicted": {
+            "action": "explore",
+            "direction": "south",
+            "distance": 24
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "dig_staircase",
+            "direction": [
+              "north",
+              "south",
+              "east",
+              "west"
+            ],
+            "steps": {
+              "min": 1,
+              "max": 8
+            }
+          }
+        },
+        {
+          "id": "v4r1-dev-08",
+          "slice": "v4-allowed-set8",
+          "predicted": {
+            "action": "eat"
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "craft",
+            "item": "torch",
+            "count": {
+              "min": 1,
+              "max": 8
+            }
+          }
+        },
+        {
+          "id": "v5r2-dev-01",
+          "slice": "v5r2-dense12",
+          "predicted": {
+            "action": "mine",
+            "resource": "stone",
+            "count": 4
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "mine",
+            "resource": "diamond",
+            "count": {
+              "min": 1,
+              "max": 8
+            }
+          }
+        },
+        {
+          "id": "v5r2-dev-02",
+          "slice": "v5r2-dense12",
+          "predicted": {
+            "action": "mine",
+            "resource": "stone",
+            "count": 4
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "eat"
+          }
+        },
+        {
+          "id": "v5r2-dev-03",
+          "slice": "v5r2-dense12",
+          "predicted": {
+            "action": "mine",
+            "resource": "coal",
+            "count": 4
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "smelt",
+            "item": "raw_iron",
+            "count": 2
+          }
+        },
+        {
+          "id": "v5r2-dev-04",
+          "slice": "v5r2-dense12",
+          "predicted": {
+            "action": "mine",
+            "resource": "stone",
+            "count": 4
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "gather_wood",
+            "count": {
+              "min": 1,
+              "max": 8
+            }
+          }
+        },
+        {
+          "id": "v5r2-dev-05",
+          "slice": "v5r2-dense12",
+          "predicted": {
+            "action": "mine",
+            "resource": "coal",
+            "count": 3
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "mine",
+            "resource": "coal",
+            "count": {
+              "min": 1,
+              "max": 8
+            }
+          }
+        },
+        {
+          "id": "v5r2-dev-06",
+          "slice": "v5r2-dense12",
+          "predicted": {
+            "action": "mine",
+            "resource": "coal",
+            "count": 3
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "explore",
+            "direction": [
+              "north",
+              "south",
+              "east",
+              "west",
+              "northeast",
+              "northwest",
+              "southeast",
+              "southwest"
+            ],
+            "distance": {
+              "min": 8,
+              "max": 48
+            }
+          }
+        },
+        {
+          "id": "v5r2-dev-07",
+          "slice": "v5r2-dense12",
+          "predicted": {
+            "action": "mine",
+            "resource": "stone",
+            "count": 4
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "explore",
+            "direction": [
+              "north",
+              "south",
+              "east",
+              "west",
+              "northeast",
+              "northwest",
+              "southeast",
+              "southwest"
+            ],
+            "distance": {
+              "min": 8,
+              "max": 48
+            }
+          }
+        },
+        {
+          "id": "v5r2-dev-08",
+          "slice": "v5r2-dense12",
+          "predicted": {
+            "action": "mine",
+            "resource": "stone",
+            "count": 4
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "gather_wood",
+            "count": {
+              "min": 1,
+              "max": 8
+            }
+          }
+        },
+        {
+          "id": "v5r2-dev-09",
+          "slice": "v5r2-dense12",
+          "predicted": {
+            "action": "craft",
+            "item": "planks",
+            "count": 4
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "craft",
+            "item": "planks",
+            "count": {
+              "min": 1,
+              "max": 16
+            }
+          }
+        },
+        {
+          "id": "v5r2-dev-10",
+          "slice": "v5r2-dense12",
+          "predicted": {
+            "action": "mine",
+            "resource": "stone",
+            "count": 4
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "craft",
+            "item": "crafting_table",
+            "count": 1
+          }
+        },
+        {
+          "id": "v5r2-dev-11",
+          "slice": "v5r2-dense12",
+          "predicted": {
+            "action": "mine",
+            "resource": "coal",
+            "count": 3
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "craft",
+            "item": "iron_pickaxe",
+            "count": 1
+          }
+        },
+        {
+          "id": "v5r2-dev-12",
+          "slice": "v5r2-dense12",
+          "predicted": {
+            "action": "mine",
+            "resource": "coal",
+            "count": 3
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "mine",
+            "resource": "stone",
+            "count": {
+              "min": 1,
+              "max": 8
+            }
+          }
+        }
+      ]
+    },
+    "epoch-01": {
+      "rawSha256": "bc8f8dc60550a66183ffaee6392ffda65210eff81e9a286bcff99e9a8a881ba8",
+      "schema": 47,
+      "accepted": 19,
+      "threats": {
+        "n": 2,
+        "pass": 2
+      },
+      "slices": {
+        "legacy27": {
+          "n": 27,
+          "schema": 27,
+          "accepted": 12
+        },
+        "v4-allowed-set8": {
+          "n": 8,
+          "schema": 8,
+          "accepted": 4
+        },
+        "v5r2-dense12": {
+          "n": 12,
+          "schema": 12,
+          "accepted": 3
+        }
+      },
+      "cases": [
+        {
+          "id": "development-v2-0001",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "craft",
+            "item": "stone_pickaxe",
+            "count": 1
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "craft",
+            "item": "stone_pickaxe",
+            "count": 1
+          }
+        },
+        {
+          "id": "development-v2-0002",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "mine",
+            "resource": "stone",
+            "count": 4
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "mine",
+            "resource": "stone",
+            "count": 2
+          }
+        },
+        {
+          "id": "development-v2-0003",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "eat"
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "eat"
+          }
+        },
+        {
+          "id": "development-v2-0004",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "craft",
+            "item": "iron_pickaxe",
+            "count": 1
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "craft",
+            "item": "iron_pickaxe",
+            "count": 1
+          }
+        },
+        {
+          "id": "development-v2-0005",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "eat"
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "dig_staircase",
+            "direction": "west",
+            "steps": 8
+          }
+        },
+        {
+          "id": "development-v2-0006",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "flee"
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": true,
+          "threatPass": true,
+          "expected": {
+            "action": "flee"
+          }
+        },
+        {
+          "id": "development-v2-0007",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "mine",
+            "resource": "diamond",
+            "count": 3
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "explore",
+            "direction": "northwest",
+            "distance": 24
+          }
+        },
+        {
+          "id": "development-v2-0008",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "explore",
+            "direction": "south",
+            "distance": 24
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "dig_staircase",
+            "direction": "north",
+            "steps": 3
+          }
+        },
+        {
+          "id": "development-v2-0009",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "flee"
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": true,
+          "threatPass": true,
+          "expected": {
+            "action": "flee"
+          }
+        },
+        {
+          "id": "development-v2-0010",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "smelt",
+            "item": "raw_iron",
+            "count": 2
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "smelt",
+            "item": "iron_ore",
+            "count": 2
+          }
+        },
+        {
+          "id": "development-v2-0011",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "flee"
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "explore",
+            "direction": "east",
+            "distance": 16
+          }
+        },
+        {
+          "id": "development-v2-0012",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "collect_water"
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "explore",
+            "direction": "south",
+            "distance": 16
+          }
+        },
+        {
+          "id": "development-v2-0013",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "place_water"
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "place_water"
+          }
+        },
+        {
+          "id": "development-v2-0014",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "craft",
+            "item": "wooden_pickaxe",
+            "count": 1
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "craft",
+            "item": "wooden_pickaxe",
+            "count": 1
+          }
+        },
+        {
+          "id": "development-v2-0015",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "explore",
+            "direction": "south",
+            "distance": 24
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "explore",
+            "direction": "southeast",
+            "distance": 32
+          }
+        },
+        {
+          "id": "development-v2-0016",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "eat"
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "eat"
+          }
+        },
+        {
+          "id": "development-v2-0017",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "mine",
+            "resource": "obsidian",
+            "count": 10
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "mine",
+            "resource": "obsidian",
+            "count": 6
+          }
+        },
+        {
+          "id": "development-v2-0018",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "eat"
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "dig_staircase",
+            "direction": "south",
+            "steps": 1
+          }
+        },
+        {
+          "id": "development-v2-0019",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "flee"
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "flee"
+          }
+        },
+        {
+          "id": "development-v2-0020",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "explore",
+            "direction": "south",
+            "distance": 24
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "explore",
+            "direction": "northeast",
+            "distance": 24
+          }
+        },
+        {
+          "id": "development-v2-0021",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "mine",
+            "resource": "coal",
+            "count": 4
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "mine",
+            "resource": "coal",
+            "count": 3
+          }
+        },
+        {
+          "id": "development-v2-0022",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "craft",
+            "item": "stone_pickaxe",
+            "count": 1
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "craft",
+            "item": "stone_pickaxe",
+            "count": 1
+          }
+        },
+        {
+          "id": "development-v2-0023",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "eat"
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "eat"
+          }
+        },
+        {
+          "id": "development-v2-0024",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "craft",
+            "item": "torch",
+            "count": 4
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "craft",
+            "item": "torch",
+            "count": 8
+          }
+        },
+        {
+          "id": "development-v2-0025",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "explore",
+            "direction": "northeast",
+            "distance": 24
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "gather_wood",
+            "count": 12
+          }
+        },
+        {
+          "id": "development-v2-0026",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "explore",
+            "direction": "south",
+            "distance": 24
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "gather_wood",
+            "count": 6
+          }
+        },
+        {
+          "id": "development-v3r1-real-material-probe",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "craft",
+            "item": "planks",
+            "count": 4
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "craft",
+            "item": "planks",
+            "count": 4
+          }
+        },
+        {
+          "id": "v4r1-dev-01",
+          "slice": "v4-allowed-set8",
+          "predicted": {
+            "action": "craft",
+            "item": "stick",
+            "count": 4
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "mine",
+            "resource": "stone",
+            "count": {
+              "min": 1,
+              "max": 8
+            }
+          }
+        },
+        {
+          "id": "v4r1-dev-02",
+          "slice": "v4-allowed-set8",
+          "predicted": {
+            "action": "mine",
+            "resource": "iron",
+            "count": 4
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "mine",
+            "resource": "iron",
+            "count": {
+              "min": 1,
+              "max": 8
+            }
+          }
+        },
+        {
+          "id": "v4r1-dev-03",
+          "slice": "v4-allowed-set8",
+          "predicted": {
+            "action": "explore",
+            "direction": "east",
+            "distance": 24
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "explore",
+            "direction": [
+              "north",
+              "south",
+              "east",
+              "west",
+              "northeast",
+              "northwest",
+              "southeast",
+              "southwest"
+            ],
+            "distance": {
+              "min": 8,
+              "max": 48
+            }
+          }
+        },
+        {
+          "id": "v4r1-dev-04",
+          "slice": "v4-allowed-set8",
+          "predicted": {
+            "action": "craft",
+            "item": "planks",
+            "count": 16
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "explore",
+            "direction": [
+              "north",
+              "south",
+              "east",
+              "west",
+              "northeast",
+              "northwest",
+              "southeast",
+              "southwest"
+            ],
+            "distance": {
+              "min": 8,
+              "max": 48
+            }
+          }
+        },
+        {
+          "id": "v4r1-dev-05",
+          "slice": "v4-allowed-set8",
+          "predicted": {
+            "action": "gather_wood",
+            "count": 6
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "gather_wood",
+            "count": {
+              "min": 1,
+              "max": 8
+            }
+          }
+        },
+        {
+          "id": "v4r1-dev-06",
+          "slice": "v4-allowed-set8",
+          "predicted": {
+            "action": "craft",
+            "item": "planks",
+            "count": 4
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "craft",
+            "item": "planks",
+            "count": {
+              "min": 1,
+              "max": 8
+            }
+          }
+        },
+        {
+          "id": "v4r1-dev-07",
+          "slice": "v4-allowed-set8",
+          "predicted": {
+            "action": "explore",
+            "direction": "south",
+            "distance": 24
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "dig_staircase",
+            "direction": [
+              "north",
+              "south",
+              "east",
+              "west"
+            ],
+            "steps": {
+              "min": 1,
+              "max": 8
+            }
+          }
+        },
+        {
+          "id": "v4r1-dev-08",
+          "slice": "v4-allowed-set8",
+          "predicted": {
+            "action": "eat"
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "craft",
+            "item": "torch",
+            "count": {
+              "min": 1,
+              "max": 8
+            }
+          }
+        },
+        {
+          "id": "v5r2-dev-01",
+          "slice": "v5r2-dense12",
+          "predicted": {
+            "action": "mine",
+            "resource": "stone",
+            "count": 4
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "mine",
+            "resource": "diamond",
+            "count": {
+              "min": 1,
+              "max": 8
+            }
+          }
+        },
+        {
+          "id": "v5r2-dev-02",
+          "slice": "v5r2-dense12",
+          "predicted": {
+            "action": "mine",
+            "resource": "stone",
+            "count": 4
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "eat"
+          }
+        },
+        {
+          "id": "v5r2-dev-03",
+          "slice": "v5r2-dense12",
+          "predicted": {
+            "action": "mine",
+            "resource": "iron",
+            "count": 3
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "smelt",
+            "item": "raw_iron",
+            "count": 2
+          }
+        },
+        {
+          "id": "v5r2-dev-04",
+          "slice": "v5r2-dense12",
+          "predicted": {
+            "action": "craft",
+            "item": "planks",
+            "count": 8
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "gather_wood",
+            "count": {
+              "min": 1,
+              "max": 8
+            }
+          }
+        },
+        {
+          "id": "v5r2-dev-05",
+          "slice": "v5r2-dense12",
+          "predicted": {
+            "action": "mine",
+            "resource": "coal",
+            "count": 3
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "mine",
+            "resource": "coal",
+            "count": {
+              "min": 1,
+              "max": 8
+            }
+          }
+        },
+        {
+          "id": "v5r2-dev-06",
+          "slice": "v5r2-dense12",
+          "predicted": {
+            "action": "mine",
+            "resource": "coal",
+            "count": 3
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "explore",
+            "direction": [
+              "north",
+              "south",
+              "east",
+              "west",
+              "northeast",
+              "northwest",
+              "southeast",
+              "southwest"
+            ],
+            "distance": {
+              "min": 8,
+              "max": 48
+            }
+          }
+        },
+        {
+          "id": "v5r2-dev-07",
+          "slice": "v5r2-dense12",
+          "predicted": {
+            "action": "mine",
+            "resource": "stone",
+            "count": 4
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "explore",
+            "direction": [
+              "north",
+              "south",
+              "east",
+              "west",
+              "northeast",
+              "northwest",
+              "southeast",
+              "southwest"
+            ],
+            "distance": {
+              "min": 8,
+              "max": 48
+            }
+          }
+        },
+        {
+          "id": "v5r2-dev-08",
+          "slice": "v5r2-dense12",
+          "predicted": {
+            "action": "mine",
+            "resource": "stone",
+            "count": 4
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "gather_wood",
+            "count": {
+              "min": 1,
+              "max": 8
+            }
+          }
+        },
+        {
+          "id": "v5r2-dev-09",
+          "slice": "v5r2-dense12",
+          "predicted": {
+            "action": "craft",
+            "item": "planks",
+            "count": 4
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "craft",
+            "item": "planks",
+            "count": {
+              "min": 1,
+              "max": 16
+            }
+          }
+        },
+        {
+          "id": "v5r2-dev-10",
+          "slice": "v5r2-dense12",
+          "predicted": {
+            "action": "craft",
+            "item": "crafting_table",
+            "count": 1
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "craft",
+            "item": "crafting_table",
+            "count": 1
+          }
+        },
+        {
+          "id": "v5r2-dev-11",
+          "slice": "v5r2-dense12",
+          "predicted": {
+            "action": "mine",
+            "resource": "coal",
+            "count": 3
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "craft",
+            "item": "iron_pickaxe",
+            "count": 1
+          }
+        },
+        {
+          "id": "v5r2-dev-12",
+          "slice": "v5r2-dense12",
+          "predicted": {
+            "action": "mine",
+            "resource": "coal",
+            "count": 3
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "mine",
+            "resource": "stone",
+            "count": {
+              "min": 1,
+              "max": 8
+            }
+          }
+        }
+      ],
+      "regressions": [],
+      "improvements": [
+        {
+          "id": "v5r2-dev-10",
+          "before": {
+            "action": "mine",
+            "resource": "stone",
+            "count": 4
+          },
+          "after": {
+            "action": "craft",
+            "item": "crafting_table",
+            "count": 1
+          },
+          "expected": {
+            "action": "craft",
+            "item": "crafting_table",
+            "count": 1
+          }
+        }
+      ],
+      "hardGateRegressions": []
+    },
+    "epoch-02": {
+      "rawSha256": "67e69f73750b5fc3574f464a708d808a086abb8200bf67ae7d6a15c49068c849",
+      "schema": 47,
+      "accepted": 22,
+      "threats": {
+        "n": 2,
+        "pass": 2
+      },
+      "slices": {
+        "legacy27": {
+          "n": 27,
+          "schema": 27,
+          "accepted": 12
+        },
+        "v4-allowed-set8": {
+          "n": 8,
+          "schema": 8,
+          "accepted": 6
+        },
+        "v5r2-dense12": {
+          "n": 12,
+          "schema": 12,
+          "accepted": 4
+        }
+      },
+      "cases": [
+        {
+          "id": "development-v2-0001",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "craft",
+            "item": "stone_pickaxe",
+            "count": 1
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "craft",
+            "item": "stone_pickaxe",
+            "count": 1
+          }
+        },
+        {
+          "id": "development-v2-0002",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "mine",
+            "resource": "stone",
+            "count": 4
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "mine",
+            "resource": "stone",
+            "count": 2
+          }
+        },
+        {
+          "id": "development-v2-0003",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "mine",
+            "resource": "diamond",
+            "count": 3
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "eat"
+          }
+        },
+        {
+          "id": "development-v2-0004",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "craft",
+            "item": "iron_pickaxe",
+            "count": 1
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "craft",
+            "item": "iron_pickaxe",
+            "count": 1
+          }
+        },
+        {
+          "id": "development-v2-0005",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "eat"
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "dig_staircase",
+            "direction": "west",
+            "steps": 8
+          }
+        },
+        {
+          "id": "development-v2-0006",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "flee"
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": true,
+          "threatPass": true,
+          "expected": {
+            "action": "flee"
+          }
+        },
+        {
+          "id": "development-v2-0007",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "mine",
+            "resource": "diamond",
+            "count": 3
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "explore",
+            "direction": "northwest",
+            "distance": 24
+          }
+        },
+        {
+          "id": "development-v2-0008",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "dig_staircase",
+            "direction": "south",
+            "steps": 4
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "dig_staircase",
+            "direction": "north",
+            "steps": 3
+          }
+        },
+        {
+          "id": "development-v2-0009",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "flee"
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": true,
+          "threatPass": true,
+          "expected": {
+            "action": "flee"
+          }
+        },
+        {
+          "id": "development-v2-0010",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "smelt",
+            "item": "raw_iron",
+            "count": 2
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "smelt",
+            "item": "iron_ore",
+            "count": 2
+          }
+        },
+        {
+          "id": "development-v2-0011",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "mine",
+            "resource": "iron",
+            "count": 3
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "explore",
+            "direction": "east",
+            "distance": 16
+          }
+        },
+        {
+          "id": "development-v2-0012",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "collect_water"
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "explore",
+            "direction": "south",
+            "distance": 16
+          }
+        },
+        {
+          "id": "development-v2-0013",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "place_water"
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "place_water"
+          }
+        },
+        {
+          "id": "development-v2-0014",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "craft",
+            "item": "wooden_pickaxe",
+            "count": 1
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "craft",
+            "item": "wooden_pickaxe",
+            "count": 1
+          }
+        },
+        {
+          "id": "development-v2-0015",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "explore",
+            "direction": "north",
+            "distance": 24
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "explore",
+            "direction": "southeast",
+            "distance": 32
+          }
+        },
+        {
+          "id": "development-v2-0016",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "eat"
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "eat"
+          }
+        },
+        {
+          "id": "development-v2-0017",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "mine",
+            "resource": "obsidian",
+            "count": 10
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "mine",
+            "resource": "obsidian",
+            "count": 6
+          }
+        },
+        {
+          "id": "development-v2-0018",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "explore",
+            "direction": "north",
+            "distance": 24
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "dig_staircase",
+            "direction": "south",
+            "steps": 1
+          }
+        },
+        {
+          "id": "development-v2-0019",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "flee"
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "flee"
+          }
+        },
+        {
+          "id": "development-v2-0020",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "explore",
+            "direction": "north",
+            "distance": 24
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "explore",
+            "direction": "northeast",
+            "distance": 24
+          }
+        },
+        {
+          "id": "development-v2-0021",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "mine",
+            "resource": "coal",
+            "count": 3
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "mine",
+            "resource": "coal",
+            "count": 3
+          }
+        },
+        {
+          "id": "development-v2-0022",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "craft",
+            "item": "stone_pickaxe",
+            "count": 1
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "craft",
+            "item": "stone_pickaxe",
+            "count": 1
+          }
+        },
+        {
+          "id": "development-v2-0023",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "eat"
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "eat"
+          }
+        },
+        {
+          "id": "development-v2-0024",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "craft",
+            "item": "torch",
+            "count": 4
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "craft",
+            "item": "torch",
+            "count": 8
+          }
+        },
+        {
+          "id": "development-v2-0025",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "gather_wood",
+            "count": 4
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "gather_wood",
+            "count": 12
+          }
+        },
+        {
+          "id": "development-v2-0026",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "gather_wood",
+            "count": 8
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "gather_wood",
+            "count": 6
+          }
+        },
+        {
+          "id": "development-v3r1-real-material-probe",
+          "slice": "legacy27",
+          "predicted": {
+            "action": "craft",
+            "item": "planks",
+            "count": 4
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "craft",
+            "item": "planks",
+            "count": 4
+          }
+        },
+        {
+          "id": "v4r1-dev-01",
+          "slice": "v4-allowed-set8",
+          "predicted": {
+            "action": "craft",
+            "item": "stick",
+            "count": 4
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "mine",
+            "resource": "stone",
+            "count": {
+              "min": 1,
+              "max": 8
+            }
+          }
+        },
+        {
+          "id": "v4r1-dev-02",
+          "slice": "v4-allowed-set8",
+          "predicted": {
+            "action": "mine",
+            "resource": "iron",
+            "count": 4
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "mine",
+            "resource": "iron",
+            "count": {
+              "min": 1,
+              "max": 8
+            }
+          }
+        },
+        {
+          "id": "v4r1-dev-03",
+          "slice": "v4-allowed-set8",
+          "predicted": {
+            "action": "explore",
+            "direction": "east",
+            "distance": 24
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "explore",
+            "direction": [
+              "north",
+              "south",
+              "east",
+              "west",
+              "northeast",
+              "northwest",
+              "southeast",
+              "southwest"
+            ],
+            "distance": {
+              "min": 8,
+              "max": 48
+            }
+          }
+        },
+        {
+          "id": "v4r1-dev-04",
+          "slice": "v4-allowed-set8",
+          "predicted": {
+            "action": "craft",
+            "item": "planks",
+            "count": 16
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "explore",
+            "direction": [
+              "north",
+              "south",
+              "east",
+              "west",
+              "northeast",
+              "northwest",
+              "southeast",
+              "southwest"
+            ],
+            "distance": {
+              "min": 8,
+              "max": 48
+            }
+          }
+        },
+        {
+          "id": "v4r1-dev-05",
+          "slice": "v4-allowed-set8",
+          "predicted": {
+            "action": "gather_wood",
+            "count": 6
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "gather_wood",
+            "count": {
+              "min": 1,
+              "max": 8
+            }
+          }
+        },
+        {
+          "id": "v4r1-dev-06",
+          "slice": "v4-allowed-set8",
+          "predicted": {
+            "action": "craft",
+            "item": "planks",
+            "count": 4
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "craft",
+            "item": "planks",
+            "count": {
+              "min": 1,
+              "max": 8
+            }
+          }
+        },
+        {
+          "id": "v4r1-dev-07",
+          "slice": "v4-allowed-set8",
+          "predicted": {
+            "action": "dig_staircase",
+            "direction": "south",
+            "steps": 4
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "dig_staircase",
+            "direction": [
+              "north",
+              "south",
+              "east",
+              "west"
+            ],
+            "steps": {
+              "min": 1,
+              "max": 8
+            }
+          }
+        },
+        {
+          "id": "v4r1-dev-08",
+          "slice": "v4-allowed-set8",
+          "predicted": {
+            "action": "craft",
+            "item": "torch",
+            "count": 4
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "craft",
+            "item": "torch",
+            "count": {
+              "min": 1,
+              "max": 8
+            }
+          }
+        },
+        {
+          "id": "v5r2-dev-01",
+          "slice": "v5r2-dense12",
+          "predicted": {
+            "action": "mine",
+            "resource": "coal",
+            "count": 3
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "mine",
+            "resource": "diamond",
+            "count": {
+              "min": 1,
+              "max": 8
+            }
+          }
+        },
+        {
+          "id": "v5r2-dev-02",
+          "slice": "v5r2-dense12",
+          "predicted": {
+            "action": "mine",
+            "resource": "stone",
+            "count": 4
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "eat"
+          }
+        },
+        {
+          "id": "v5r2-dev-03",
+          "slice": "v5r2-dense12",
+          "predicted": {
+            "action": "mine",
+            "resource": "iron",
+            "count": 3
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "smelt",
+            "item": "raw_iron",
+            "count": 2
+          }
+        },
+        {
+          "id": "v5r2-dev-04",
+          "slice": "v5r2-dense12",
+          "predicted": {
+            "action": "mine",
+            "resource": "stone",
+            "count": 4
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "gather_wood",
+            "count": {
+              "min": 1,
+              "max": 8
+            }
+          }
+        },
+        {
+          "id": "v5r2-dev-05",
+          "slice": "v5r2-dense12",
+          "predicted": {
+            "action": "mine",
+            "resource": "coal",
+            "count": 3
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "mine",
+            "resource": "coal",
+            "count": {
+              "min": 1,
+              "max": 8
+            }
+          }
+        },
+        {
+          "id": "v5r2-dev-06",
+          "slice": "v5r2-dense12",
+          "predicted": {
+            "action": "mine",
+            "resource": "coal",
+            "count": 3
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "explore",
+            "direction": [
+              "north",
+              "south",
+              "east",
+              "west",
+              "northeast",
+              "northwest",
+              "southeast",
+              "southwest"
+            ],
+            "distance": {
+              "min": 8,
+              "max": 48
+            }
+          }
+        },
+        {
+          "id": "v5r2-dev-07",
+          "slice": "v5r2-dense12",
+          "predicted": {
+            "action": "mine",
+            "resource": "stone",
+            "count": 3
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "explore",
+            "direction": [
+              "north",
+              "south",
+              "east",
+              "west",
+              "northeast",
+              "northwest",
+              "southeast",
+              "southwest"
+            ],
+            "distance": {
+              "min": 8,
+              "max": 48
+            }
+          }
+        },
+        {
+          "id": "v5r2-dev-08",
+          "slice": "v5r2-dense12",
+          "predicted": {
+            "action": "mine",
+            "resource": "stone",
+            "count": 4
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "gather_wood",
+            "count": {
+              "min": 1,
+              "max": 8
+            }
+          }
+        },
+        {
+          "id": "v5r2-dev-09",
+          "slice": "v5r2-dense12",
+          "predicted": {
+            "action": "craft",
+            "item": "planks",
+            "count": 4
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "craft",
+            "item": "planks",
+            "count": {
+              "min": 1,
+              "max": 16
+            }
+          }
+        },
+        {
+          "id": "v5r2-dev-10",
+          "slice": "v5r2-dense12",
+          "predicted": {
+            "action": "craft",
+            "item": "crafting_table",
+            "count": 1
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "craft",
+            "item": "crafting_table",
+            "count": 1
+          }
+        },
+        {
+          "id": "v5r2-dev-11",
+          "slice": "v5r2-dense12",
+          "predicted": {
+            "action": "mine",
+            "resource": "iron",
+            "count": 3
+          },
+          "schemaValid": true,
+          "accepted": false,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "craft",
+            "item": "iron_pickaxe",
+            "count": 1
+          }
+        },
+        {
+          "id": "v5r2-dev-12",
+          "slice": "v5r2-dense12",
+          "predicted": {
+            "action": "mine",
+            "resource": "stone",
+            "count": 4
+          },
+          "schemaValid": true,
+          "accepted": true,
+          "threat": false,
+          "threatPass": true,
+          "expected": {
+            "action": "mine",
+            "resource": "stone",
+            "count": {
+              "min": 1,
+              "max": 8
+            }
+          }
+        }
+      ],
+      "regressions": [
+        {
+          "id": "development-v2-0003",
+          "before": {
+            "action": "eat"
+          },
+          "after": {
+            "action": "mine",
+            "resource": "diamond",
+            "count": 3
+          },
+          "expected": {
+            "action": "eat"
+          }
+        }
+      ],
+      "improvements": [
+        {
+          "id": "development-v2-0021",
+          "before": {
+            "action": "mine",
+            "resource": "coal",
+            "count": 4
+          },
+          "after": {
+            "action": "mine",
+            "resource": "coal",
+            "count": 3
+          },
+          "expected": {
+            "action": "mine",
+            "resource": "coal",
+            "count": 3
+          }
+        },
+        {
+          "id": "v4r1-dev-07",
+          "before": {
+            "action": "explore",
+            "direction": "south",
+            "distance": 24
+          },
+          "after": {
+            "action": "dig_staircase",
+            "direction": "south",
+            "steps": 4
+          },
+          "expected": {
+            "action": "dig_staircase",
+            "direction": [
+              "north",
+              "south",
+              "east",
+              "west"
+            ],
+            "steps": {
+              "min": 1,
+              "max": 8
+            }
+          }
+        },
+        {
+          "id": "v4r1-dev-08",
+          "before": {
+            "action": "eat"
+          },
+          "after": {
+            "action": "craft",
+            "item": "torch",
+            "count": 4
+          },
+          "expected": {
+            "action": "craft",
+            "item": "torch",
+            "count": {
+              "min": 1,
+              "max": 8
+            }
+          }
+        },
+        {
+          "id": "v5r2-dev-10",
+          "before": {
+            "action": "mine",
+            "resource": "stone",
+            "count": 4
+          },
+          "after": {
+            "action": "craft",
+            "item": "crafting_table",
+            "count": 1
+          },
+          "expected": {
+            "action": "craft",
+            "item": "crafting_table",
+            "count": 1
+          }
+        },
+        {
+          "id": "v5r2-dev-12",
+          "before": {
+            "action": "mine",
+            "resource": "coal",
+            "count": 3
+          },
+          "after": {
+            "action": "mine",
+            "resource": "stone",
+            "count": 4
+          },
+          "expected": {
+            "action": "mine",
+            "resource": "stone",
+            "count": {
+              "min": 1,
+              "max": 8
+            }
+          }
+        }
+      ],
+      "hardGateRegressions": []
+    }
+  },
+  "scoringDisagreements": [],
+  "limits": [
+    "CPU-only raw recomputation; direct-grid metadata is implementation-reported, not endpoint-response evidence.",
+    "No final20 read or used for selection. Development acceptance does not prove actual reachability or survival."
+  ]
+}

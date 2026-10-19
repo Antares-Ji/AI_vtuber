@@ -1,0 +1,18 @@
+{
+  "capturedAt": 1791982723469,
+  "evidence": {
+    "goal": "仅探索寻找可达石头：用现有木镐采集3个圆石。背包已有大量木镐和木棍，不再合成任何物品，也不再采木头。附近没有可达石头就探索8至16格，失败换方向。危险优先避险，提前规划最多三步。",
+    "action": "explore",
+    "outcome": "running",
+    "inventory": [],
+    "health": 20,
+    "food": 20,
+    "yolo": {
+      "scope": "COCO only, not trained for Minecraft",
+      "detections": []
+    }
+  },
+  "speech": "眼前是片死寂的雪地，连个影子都没有，这地方也太安静了吧？\n\n我打算先回基地把木镐升级成石镐，再出发去挖点圆石。\n\n……要是真遇到怪物，估计只能靠运气了。",
+  "expired": false,
+  "model": "qwen3.5-4b"
+}

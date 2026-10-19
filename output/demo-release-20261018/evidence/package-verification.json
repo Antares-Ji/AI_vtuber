@@ -1,0 +1,14 @@
+{
+  "verifiedAt": "2026-10-18T17:38:02.182798+00:00",
+  "checks": {
+    "flappyAcceptance100of100": true,
+    "flappyEndurance10000": true,
+    "agentHashMatchesAcceptance": true,
+    "pythonSourceSyntax": true,
+    "minecraftLoopStopped": true,
+    "automationPaused": true
+  },
+  "gameLaunchedDuringPackaging": false,
+  "freshMachineInstallTested": false,
+  "scope": "artifact and evidence validation; no live game repair or restart"
+}

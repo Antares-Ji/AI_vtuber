@@ -1,0 +1,71 @@
+{
+  "dataset": "minecraft-survival-v4r1-candidates",
+  "status": "candidate-only; revised after independent v4 audit; awaiting independent v4r1 audit and root review; not used for training",
+  "contract": "Frozen current SURVIVAL_ACTION_SCHEMA and survival-planner decisionMessages; no schema or system prompt change",
+  "provenance": "synthetic; independent v4 counterfactual inspired by live failure patterns; not copied from any exact live probe",
+  "revisionFromFrozenV4": {
+    "sourceTrainSha256": "3dffa65c7275651b57b410e6edb8af29c9629759b6389e4a612e375febfc162a",
+    "sourceDevelopmentSha256": "e0e7f04cc7594db5afec51ef27ce395e9d27218b7df966a0a52584e281d57363",
+    "fixes": [
+      "train-11/dev-06 now have no table, station, or inventory crafting_table; recipeHints show the missing species-specific planks needed before crafting a table, while craftable reflects the available plank recipe.",
+      "Pickaxe durability is sourced from minecraft-data 1.21.11 registry.",
+      "Zero-count inventory entries are filtered; train-12 no longer contains stick:0.",
+      "All observed crafting-table block positions are integer coordinates.",
+      "dev-03 accepts all eight legal exploration directions; east is not excluded for preference alone."
+    ]
+  },
+  "trainingRows": 16,
+  "developmentRows": 8,
+  "trainSha256": "0382aa1d546535ace8f7f759905e85c7c39663fd316d0d2c6de011a674272368",
+  "developmentSha256": "98e8841369185780e912fb8b7f2906027ac9adc8de92e361ede984c77e36b41c",
+  "replayRows": 182,
+  "replaySha256": "9f76783df423a873e0d4387763a0b5dec10d8c1a8e3fc0517dd924be3cc032fe",
+  "frozenInputReferences": {
+    "v3r1TrainSha256": "a6962d31f9e865ef846c72672811ff7b9ba48677dc2905c759275762c940f823",
+    "v3r1DevelopmentSha256": "174d8feaeadf842fa3caab546e4654284a9159d608f5ab8f0dc76e671a04f0f2",
+    "liveTrialR2Sha256": "b1d4e02a90a2e5809c84c015e30b908aefa4e93215dd97dcd146432a7d11af17",
+    "originalV4TrainSha256": "3dffa65c7275651b57b410e6edb8af29c9629759b6389e4a612e375febfc162a",
+    "originalV4DevelopmentSha256": "e0e7f04cc7594db5afec51ef27ce395e9d27218b7df966a0a52584e281d57363",
+    "exactSameStateProbe": "output/minecraft-training/live-probe-1791836151666.json (development only; never a train row)"
+  },
+  "promptOverlap": {
+    "candidateTrainWithinSet": 0,
+    "candidateDevWithinSet": 0,
+    "candidateTrainVsDev": 0,
+    "candidateTrainVsFrozenV3r1Train": 0,
+    "candidateTrainVsFrozenV3r1Development": 0,
+    "candidateDevVsFrozenV3r1Train": 0,
+    "candidateDevVsFrozenV3r1Development": 0
+  },
+  "runtimeSourceHashes": {
+    "survivalPlanner": "279563bb965f8b908aeb2d8896744ccd6cb3fa123b0912c8828a8fce0a0ff9fb",
+    "survivalSkills": "9a4bf388f84cbf480f2cd754c585c4fe65265fb45b63dde33194f97a6792716a",
+    "builder": "ba10e18e9cd76e83a01c2fc4d835ee01de9d17c6941fc73da3c182d334c36c13"
+  },
+  "minecraftData": {
+    "packageVersion": "3.117.0",
+    "gameVersion": "1.21.11",
+    "pickaxeDurabilityFromRegistry": true
+  },
+  "frozenContractHashes": {
+    "contractVersion": "3.1",
+    "systemPromptSha256": "92640ee8390594cdfb188c7f20f4c9af0421e01dfa7de5ff8a04ef28804b259a",
+    "actionSchemaSha256": "7e482f50f0e5e4f1e88392c6ee1462b39eae2fde01d460fe3b44233e368a445f",
+    "runtimePromptMatchesFrozen": true,
+    "runtimeSchemaMatchesFrozen": true
+  },
+  "proposal": "If approved after independent audit: replay unchanged train-v3r1 (166 rows) plus these 16 candidates via train-v4r1-replay-candidates.jsonl; resume from v3r1 epoch-02 at learning rate 1e-5 for one epoch, save into a new output directory. No GPU work was started.",
+  "suggestedCommand": "runtime/minecraft-training/.venv/Scripts/python.exe scripts/minecraft-training/train_lora.py --allow-gpu-training --min-free-gib 6.0 --data data/minecraft-training/train-v4r1-replay-candidates.jsonl --output runtime/minecraft-training/adapters/minecraft-survival-v4r1-replay-candidate --resume-adapter runtime/minecraft-training/adapters/minecraft-survival-v3r1-fresh-base/checkpoint-epoch-02 --epochs 1 --max-length 1536 --rank 4 --learning-rate 1e-5 --experiment minecraft-survival-v4r1-replay-candidate --log-every-steps 4 (proposal only; do not run before audit/root approval)",
+  "validation": {
+    "schemaValid": true,
+    "messagesBuiltWithRuntimePlanner": true,
+    "distancesDerivedFromPositions": true,
+    "trainDevInputOverlap": 0
+  },
+  "notes": [
+    "Train actions are strict single labels. Dev rows carry expectedActionSet for accepted direction/resource/count classes; custom semantic scoring is required, since the generic evaluator exact-matches one action.",
+    "Mine targets are synthetic observation fixtures with positions inside the perception radius. Visibility, exposure, path reachability, and world physics remain runtime checks.",
+    "Staircase gold means permitted attempt only. Hidden adjacent block geometry cannot be inferred from observations and must not be scored as model guarantee.",
+    "No exact live probe state or response was copied into train data; dev coordinates/inventory/history differ from training."
+  ]
+}

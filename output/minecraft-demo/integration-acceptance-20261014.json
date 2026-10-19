@@ -1,0 +1,94 @@
+{
+  "at": "2026-10-14T13:56:46.216Z",
+  "chatProvider": "cloud",
+  "video": {
+    "observedWidth": 1720,
+    "observedHeight": 720,
+    "observedBrowserFps": 30,
+    "sourceBlackoutCause": "Minecraft window minimized; restored without reconnecting bot"
+  },
+  "game": {
+    "connected": true,
+    "health": 20,
+    "food": 20,
+    "position": {
+      "x": 90.49033202346757,
+      "y": 108,
+      "z": 67.42776549074738
+    },
+    "inventory": [
+      {
+        "name": "spruce_log",
+        "count": 2
+      }
+    ],
+    "enabled": true,
+    "deadline": "2026-10-14T14:10:10.675Z",
+    "subgoal": "采集云杉原木制作工作台",
+    "lastDecision": {
+      "action": "gather_wood",
+      "count": 4
+    },
+    "lastError": "dig: timeout",
+    "goalCompleted": false
+  },
+  "commentary": {
+    "state": "ready",
+    "capturedAt": 1791986187180,
+    "speech": "雨里砍云杉有点滑手，好在背包里已经有两块原木了，我还在凑够做工作台的那几根。",
+    "provider": "cloud",
+    "model": "deepseek-flash",
+    "visionModel": "qwen3.5-4b",
+    "lastError": null,
+    "yolo": {
+      "scope": "COCO only, not trained for Minecraft",
+      "detections": []
+    },
+    "nextAt": 1791986212544
+  },
+  "queue": 0,
+  "latency": {
+    "client_tts_queue_wait": {
+      "samples": 3,
+      "p50": 0,
+      "p95": 0,
+      "max": 0
+    },
+    "tts": {
+      "samples": 3,
+      "p50": 3,
+      "p95": 4,
+      "max": 4
+    },
+    "tts_first_byte": {
+      "samples": 3,
+      "p50": 3,
+      "p95": 4,
+      "max": 4
+    },
+    "client_tts_request_headers": {
+      "samples": 3,
+      "p50": 1234,
+      "p95": 1261,
+      "max": 1261
+    },
+    "client_tts_first_pcm": {
+      "samples": 3,
+      "p50": 1264,
+      "p95": 1274,
+      "max": 1274
+    },
+    "client_tts_playback_end": {
+      "samples": 3,
+      "p50": 7793,
+      "p95": 9193,
+      "max": 9193
+    }
+  },
+  "limitations": [
+    "Iron pickaxe not verified",
+    "Game planning and navigation can still stall",
+    "No end-to-end live microphone speech accuracy test in this turn",
+    "Windows GPU per-process counters are not additive"
+  ]
+}

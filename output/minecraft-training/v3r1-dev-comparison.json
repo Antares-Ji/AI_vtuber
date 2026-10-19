@@ -1,0 +1,203 @@
+{
+  "evaluation_data": "data/minecraft-training/development-v3r1.jsonl",
+  "contract": "data/minecraft-training/contract-v3r1.json",
+  "selection_note": "Report the 26-row broad slice and the two real probes separately; do not use executor diagnostics as policy labels or touch the frozen final holdout.",
+  "models": {
+    "base": {
+      "all_27": {
+        "n": 27,
+        "exact_action_object": 7,
+        "action_name": 12,
+        "schema_valid": 26,
+        "exact_action_object_rate": 0.25925925925925924,
+        "action_name_rate": 0.4444444444444444,
+        "schema_valid_rate": 0.9629629629629629,
+        "progression_cases": 21,
+        "progression_exact": 4,
+        "progression_exact_rate": 0.19047619047619047,
+        "threat_cases": 2,
+        "threat_priority_passes": 2,
+        "threat_priority_rate": 1.0
+      },
+      "frozen_broad_26": {
+        "n": 26,
+        "exact_action_object": 6,
+        "action_name": 11,
+        "schema_valid": 25,
+        "exact_action_object_rate": 0.23076923076923078,
+        "action_name_rate": 0.4230769230769231,
+        "schema_valid_rate": 0.9615384615384616,
+        "progression_cases": 20,
+        "progression_exact": 3,
+        "progression_exact_rate": 0.15,
+        "threat_cases": 2,
+        "threat_priority_passes": 2,
+        "threat_priority_rate": 1.0
+      },
+      "two_real_probes": {
+        "n": 2,
+        "exact_action_object": 2,
+        "action_name": 2,
+        "schema_valid": 2,
+        "exact_action_object_rate": 1.0,
+        "action_name_rate": 1.0,
+        "schema_valid_rate": 1.0,
+        "progression_cases": 2,
+        "progression_exact": 2,
+        "progression_exact_rate": 1.0,
+        "threat_cases": 0,
+        "threat_priority_passes": 0,
+        "threat_priority_rate": null
+      },
+      "probe_predictions": {
+        "development-v2-0025": {
+          "action": "gather_wood",
+          "count": 12
+        },
+        "development-v3r1-real-material-probe": {
+          "action": "craft",
+          "item": "planks",
+          "count": 4
+        }
+      },
+      "real_probe_semantic_repairs": {
+        "no_animals_nearby_wood": true,
+        "logs_planks_table_failure": true
+      },
+      "both_real_probes_repaired": true,
+      "real_probe_repair_count": 2,
+      "broad_prediction_objects_matching_base": 26
+    },
+    "epoch-01": {
+      "all_27": {
+        "n": 27,
+        "exact_action_object": 9,
+        "action_name": 18,
+        "schema_valid": 27,
+        "exact_action_object_rate": 0.3333333333333333,
+        "action_name_rate": 0.6666666666666666,
+        "schema_valid_rate": 1.0,
+        "progression_cases": 21,
+        "progression_exact": 4,
+        "progression_exact_rate": 0.19047619047619047,
+        "threat_cases": 2,
+        "threat_priority_passes": 2,
+        "threat_priority_rate": 1.0
+      },
+      "frozen_broad_26": {
+        "n": 26,
+        "exact_action_object": 8,
+        "action_name": 17,
+        "schema_valid": 26,
+        "exact_action_object_rate": 0.3076923076923077,
+        "action_name_rate": 0.6538461538461539,
+        "schema_valid_rate": 1.0,
+        "progression_cases": 20,
+        "progression_exact": 3,
+        "progression_exact_rate": 0.15,
+        "threat_cases": 2,
+        "threat_priority_passes": 2,
+        "threat_priority_rate": 1.0
+      },
+      "two_real_probes": {
+        "n": 2,
+        "exact_action_object": 1,
+        "action_name": 1,
+        "schema_valid": 2,
+        "exact_action_object_rate": 0.5,
+        "action_name_rate": 0.5,
+        "schema_valid_rate": 1.0,
+        "progression_cases": 2,
+        "progression_exact": 1,
+        "progression_exact_rate": 0.5,
+        "threat_cases": 0,
+        "threat_priority_passes": 0,
+        "threat_priority_rate": null
+      },
+      "probe_predictions": {
+        "development-v2-0025": {
+          "action": "explore",
+          "direction": "northwest",
+          "distance": 16
+        },
+        "development-v3r1-real-material-probe": {
+          "action": "craft",
+          "item": "planks",
+          "count": 4
+        }
+      },
+      "real_probe_semantic_repairs": {
+        "no_animals_nearby_wood": false,
+        "logs_planks_table_failure": true
+      },
+      "both_real_probes_repaired": false,
+      "real_probe_repair_count": 1,
+      "broad_prediction_objects_matching_base": 8
+    },
+    "epoch-02": {
+      "all_27": {
+        "n": 27,
+        "exact_action_object": 11,
+        "action_name": 17,
+        "schema_valid": 27,
+        "exact_action_object_rate": 0.4074074074074074,
+        "action_name_rate": 0.6296296296296297,
+        "schema_valid_rate": 1.0,
+        "progression_cases": 21,
+        "progression_exact": 5,
+        "progression_exact_rate": 0.23809523809523808,
+        "threat_cases": 2,
+        "threat_priority_passes": 2,
+        "threat_priority_rate": 1.0
+      },
+      "frozen_broad_26": {
+        "n": 26,
+        "exact_action_object": 10,
+        "action_name": 16,
+        "schema_valid": 26,
+        "exact_action_object_rate": 0.38461538461538464,
+        "action_name_rate": 0.6153846153846154,
+        "schema_valid_rate": 1.0,
+        "progression_cases": 20,
+        "progression_exact": 4,
+        "progression_exact_rate": 0.2,
+        "threat_cases": 2,
+        "threat_priority_passes": 2,
+        "threat_priority_rate": 1.0
+      },
+      "two_real_probes": {
+        "n": 2,
+        "exact_action_object": 1,
+        "action_name": 2,
+        "schema_valid": 2,
+        "exact_action_object_rate": 0.5,
+        "action_name_rate": 1.0,
+        "schema_valid_rate": 1.0,
+        "progression_cases": 2,
+        "progression_exact": 1,
+        "progression_exact_rate": 0.5,
+        "threat_cases": 0,
+        "threat_priority_passes": 0,
+        "threat_priority_rate": null
+      },
+      "probe_predictions": {
+        "development-v2-0025": {
+          "action": "gather_wood",
+          "count": 4
+        },
+        "development-v3r1-real-material-probe": {
+          "action": "craft",
+          "item": "planks",
+          "count": 4
+        }
+      },
+      "real_probe_semantic_repairs": {
+        "no_animals_nearby_wood": true,
+        "logs_planks_table_failure": true
+      },
+      "both_real_probes_repaired": true,
+      "real_probe_repair_count": 2,
+      "broad_prediction_objects_matching_base": 5
+    }
+  }
+}

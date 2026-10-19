@@ -1,0 +1,20 @@
+{
+  "mode": "direct",
+  "base_model": "E:\\Qwen3.5-4B",
+  "adapter": "runtime\\minecraft-training\\adapters\\minecraft-survival-v1",
+  "health_url": null,
+  "evaluation_data": "E:\\Github\\AI_vtuber\\data\\minecraft-training\\development-v2.jsonl",
+  "evaluation_contract": "E:\\Github\\AI_vtuber\\data\\minecraft-training\\contract-v2.json",
+  "holdout_file": null,
+  "raw_predictions": "output\\minecraft-training\\v2-dev-v1.jsonl",
+  "n": 26,
+  "exact_action_object_accuracy": 0.38461538461538464,
+  "strict_json_schema_valid_rate": 1.0,
+  "threat_priority_accuracy": 1.0,
+  "progression_exact_accuracy": 0.2,
+  "threat_cases": 2,
+  "progression_cases": 20,
+  "final_holdout": false,
+  "limitation": "Scores measure agreement with authored next-skill labels, not gameplay success or broad generalization. Use the development set for checkpoint selection and the final holdout only for final audit.",
+  "action_name_accuracy": 0.5769230769230769
+}

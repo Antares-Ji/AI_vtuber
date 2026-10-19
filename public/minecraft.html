@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#10151a" />
+    <title>姬岁歌 · Minecraft 直播面板</title>
+    <link rel="stylesheet" href="/minecraft-panel.css" />
+  </head>
+  <body>
+    <main class="console">
+      <header class="topbar">
+        <a class="brand" href="/" aria-label="返回直播台"><span class="brand-mark">岁</span><span><strong>姬岁歌</strong><small>直播控制台 / MINECRAFT</small></span></a>
+        <div class="topbar-status"><span id="connectionDot" class="connection-dot" aria-hidden="true"></span><span id="connectionText" aria-live="polite">正在连接游戏</span><time id="updatedAt">等待状态</time></div>
+        <a class="back-link" href="/">返回直播台 <span aria-hidden="true">↗</span></a>
+      </header>
+
+      <div class="session-toolbar"><span id="modeLabel">状态读取中</span><button type="button" data-demo="crafting_table">做工作台</button><button type="button" data-demo="iron_pickaxe">做铁镐</button><button type="button" id="recordDemo">录制演示</button><button type="button" id="visibleStop">停止游戏任务</button></div>
+      <p id="demoProgress" class="compact-status" role="status">等待游戏连接</p>
+      <section class="panel engine-panel" aria-label="游戏控制方案">
+        <form id="engineForm">
+          <label>游戏控制方案<select id="gameEngine"><option value="astra">Astra 玩游戏 · 本地千问互动</option><option value="local-qwen">本地千问同时负责游戏与互动</option></select></label>
+          <label id="engineKeyField">OpenAI API Key（Astra 专用）<input id="engineApiKey" type="password" autocomplete="new-password" maxlength="512" placeholder="留空保留已保存密钥" /></label>
+          <button id="saveEngine" type="submit">保存配置</button><button id="testEngine" type="button">检查 Astra 连接</button>
+        </form>
+        <p id="engineDescription">Astra 规划阶段步骤 → 程序检查 → Mineflayer 执行与核验 → 本地千问讲解、回应观众。聊天与游戏规划独立进行。</p>
+        <p id="engineStatus" role="status" aria-live="polite">正在读取配置…</p>
+        <p class="engine-help">密钥仅保存在本机服务端，不会回显。<a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer">获取 OpenAI 密钥</a> · 检查只调用一次 Astra 并产生 API 用量，不会执行游戏动作。</p>
+      </section>
+      <section class="panel engine-panel" aria-label="主播与游戏数据交换">
+        <div class="panel-heading"><h2>千问现在知道什么</h2><span id="speakerProvider">读取中</span></div>
+        <p id="speakerFacts" role="status">等待共享游戏状态</p>
+        <p id="speakerHint">等待口播依据</p>
+        <p>主动口播：程序生成事实句，千问选择情绪补充。计划：说“准备做” · 执行：说“正在尝试” · 核验成功：说“这一步完成” · 部分完成或失败：如实说明</p>
+        <p>千问整理观众建议 → 你确认后交给 Astra 考虑；千问不能直接操作游戏。</p>
+        <details><summary>查看实际传给千问的数据</summary><pre id="speakerContext" class="speaker-context">读取中</pre></details>
+      </section>
+      <section class="main-grid" aria-label="直播与游戏状态">
+        <article class="stage-card panel world-viewer-card">
+          <div class="panel-heading"><h2>游戏画面</h2><span id="viewerStatus">未共享</span></div>
+          <div class="game-signal-row"><span id="gameActivity" class="activity-pill" data-state="waiting">等待游戏状态</span><span id="videoMetrics" title="测量网页收到并呈现的帧，不代表游戏内帧率或机器人移动速度。">无视频输入</span></div>
+          <div class="stage-foot"><button type="button" id="botViewCommand">BOT 视角：复制切换命令</button><button type="button" id="playerViewCommand">玩家视角：复制返回命令</button></div>
+          <p id="cameraStatus" class="compact-status" role="status">视角未确认 · BOT 死亡后需要重新旁观。</p>
+          <div class="viewer-wrap"><video id="gameVideo" autoplay muted playsinline aria-label="用户选择共享的 Minecraft 窗口"></video><div id="viewerFallback" class="viewer-fallback"><span class="viewer-cube" aria-hidden="true">▧</span><strong>游戏画面尚未共享</strong><small>画面留在本机预览，不会上传</small><button id="obsCameraButton" type="button">连接 OBS 画面</button><button id="shareGameButton" type="button">选择 Minecraft 窗口</button></div></div>
+          <div class="stage-foot"><span id="shareStatus">未请求屏幕权限</span><button id="stopShareButton" class="share-stop" type="button" hidden>停止共享</button><span id="captureHint">仅在点击后选择共享窗口</span></div>
+        </article>
+
+        <article class="avatar-card panel">
+          <div class="panel-heading"><h2>主播舞台</h2><select id="panelPersona" aria-label="主播人格"><option value="sui">岁</option><option value="ge">歌</option></select></div>
+          <div class="stage-wrap"><iframe id="streamStage" title="姬岁歌 Live2D 主播舞台" src="about:blank" loading="eager"></iframe><div class="stage-caption"><span class="avatar-orb">姬</span><span><strong id="personaName">姬岁歌 · 岁</strong><small id="personaMood">听潮记岁 · 温柔、细致、好奇</small></span><span class="stage-live">LIVE</span></div></div>
+          <div class="stage-foot"><label><input id="demoVoice" type="checkbox"> 主播语音</label><select id="panelVoiceProvider" aria-label="语音模型"><option value="browser">系统语音</option><option value="gpt-sovits">GPT-SoVITS</option></select></div>
+        </article>
+
+        <article class="world-card panel">
+          <div class="panel-heading"><div><p class="eyebrow">WORLD STATUS</p><h2>现场状态</h2></div><span id="taskBadge" class="state-badge">待命</span></div>
+          <div class="vitals">
+            <div class="vital"><span class="vital-icon heart" aria-hidden="true">♥</span><div><small>生命值</small><strong id="healthValue">未知</strong></div><div class="meter"><i id="healthMeter"></i></div></div>
+            <div class="vital"><span class="vital-icon food" aria-hidden="true">◆</span><div><small>饱食度</small><strong id="foodValue">未知</strong></div><div class="meter"><i id="foodMeter"></i></div></div>
+          </div>
+          <div class="position-block"><span class="position-icon" aria-hidden="true">⌖</span><div><small>当前位置</small><strong id="positionValue">未知</strong></div><span id="dimensionValue" class="dimension">维度未知</span></div>
+          <div class="world-lower">
+            <div><span class="field-label">当前任务</span><strong id="taskValue">等待游戏状态</strong></div>
+            <div><span class="field-label">自主生存循环</span><label class="switch"><input id="loopToggle" type="checkbox" aria-label="自主生存循环开关" disabled><span class="switch-track"></span><span id="loopLabel">读取中</span></label></div>
+          </div>
+          <div class="loop-meta" aria-live="polite" aria-label="自主生存循环进度">
+            <span>循环步骤 <strong id="loopStep">未知</strong></span>
+            <span>目标期限 <strong id="loopDeadline">未知</strong></span>
+            <span id="recoveryState" class="recovery-state">纠偏状态未知</span>
+          </div>
+          <div class="loop-model-use"><span>最近动作使用模型权重</span><strong id="actionAdapterUse">未知</strong></div>
+          <div class="reactive-status"><span>自动防卫 · 安全反射</span><strong id="reactiveStatusValue">状态未知</strong></div>
+          <button id="stopButton" class="stop-button" type="button"><span aria-hidden="true">■</span> 立即停止当前动作</button>
+        </article>
+      </section>
+
+      <section class="metrics-grid" aria-label="运行数据">
+        <article class="metric-card"><span class="metric-symbol" aria-hidden="true">▦</span><div><small>背包物品</small><strong id="inventorySummary">未知</strong><span id="inventoryDetail" class="metric-detail">等待游戏状态</span></div></article>
+        <article class="metric-card threat-card"><span class="metric-symbol" aria-hidden="true">⚑</span><div><small>附近威胁</small><strong id="threatSummary">未知</strong><span id="threatDetail" class="metric-detail">等待实体扫描</span></div></article>
+        <article class="metric-card"><span class="metric-symbol" aria-hidden="true">◷</span><div><small>模型推理延迟</small><strong id="latencyValue">未知</strong><span id="latencyDetail" class="metric-detail">接口尚未提供此数据</span></div></article>
+        <article class="metric-card"><span class="metric-symbol" aria-hidden="true">◇</span><div><small>游戏控制模型</small><strong id="modelVersion">未知</strong><span id="modelDetail" class="metric-detail">接口尚未提供此数据</span></div></article>
+      </section>
+
+      <section class="operator-grid" aria-label="操作与日志">
+        <article class="panel audience-card">
+          <div class="panel-heading"><h2>聊天</h2><div class="voice-controls"><button id="panelVoiceCall" type="button">开始语音通话</button><button id="panelVoiceMessage" type="button">语音发弹幕</button><button id="panelInterrupt" type="button">打断发言</button></div></div>
+          <div class="voice-input-row"><label>输入 <select id="panelMicrophone" aria-label="麦克风"><option value="">系统默认麦克风</option></select></label><label>主播输出 <select id="panelSpeaker" aria-label="主播音频输出"><option value="">系统默认输出</option></select></label><span id="panelVoiceStatus" role="status">语音准备中</span></div>
+          <div id="panelMicCalibration" role="status">开始通话后显示输入音量；输入请选择你实际使用的麦克风。</div>
+          <div id="audienceMessages" class="audience-messages" role="log" aria-live="polite"><p class="chat-system">可以说“先看看饿不饿，要不要找些吃的”。千问会整理建议，等待你在下方确认后才交给 Astra。</p></div>
+          <form id="audienceForm"><label class="sr-only" for="audienceInput">和主播聊天</label><textarea id="audienceInput" rows="2" maxlength="500" required placeholder="岁歌，要不要先找点吃的？"></textarea><button type="submit">发送 ↗</button></form>
+          <p class="input-hint">Enter 发送 · Shift + Enter 换行</p>
+          <label class="influence-option"><input type="checkbox" id="influenceGame" checked> 让千问整理为待确认游戏建议</label>
+          <div id="suggestionReview" aria-label="待确认游戏建议"></div>
+          <div class="chat-suggestions"><button type="button" data-chat="先检查饱食度和背包里的食物。如果食物不够，先找安全的食物来源，再继续原来的目标。">先照顾好肚子</button><button type="button" data-chat="先看看周围有没有危险，尽量在安全的地方完成原来的目标。">留意附近危险</button><button type="button" data-chat="如果目前安全、食物也够，就继续完成最初的目标。">继续原来的目标</button></div>
+        </article>
+        <article class="command-card panel">
+          <div class="panel-heading"><h2>游戏目标</h2></div>
+          <div class="goal-overview"><div><span>你的长期目标</span><strong id="longTermGoal">尚未提交</strong></div><div><span>当前模型计划</span><strong id="currentStageGoal">等待模型规划</strong></div></div>
+          <form id="commandForm">
+            <label class="sr-only" for="commandInput">游戏指令</label>
+            <textarea id="commandInput" rows="2" maxlength="500" placeholder="例如：看看周围有没有敌人，顺便告诉我背包里有什么。" required></textarea>
+            <div class="command-actions"><span id="commandFeedback" role="status" aria-live="polite">Enter 发送 · Shift + Enter 换行</span><button id="sendButton" type="submit">发送指令 <span aria-hidden="true">↗</span></button></div>
+          </form>
+        </article>
+        <details class="logs-card panel" id="logsPanel">
+          <summary><span><p class="eyebrow">ACTIVITY LOG</p><strong>执行记录与诊断</strong></span><span class="details-chevron" aria-hidden="true">⌄</span></summary>
+          <div class="log-content"><div class="log-line"><span>最新结果</span><p id="resultText" aria-live="polite">等待指令</p></div><details class="raw-result"><summary>自主生存循环原始结果</summary><pre id="loopResultDiagnostic">暂无自主循环结果</pre></details><div class="log-line"><span>状态更新时间</span><p id="reactiveUpdated">未知</p></div><div class="log-line"><span>日志文件</span><p id="logPath">未知</p></div><div class="log-line"><span>原始状态</span><pre id="diagnostic">尚无数据</pre></div></div>
+        </details>
+      </section>
+      <details id="technicalDetails"><summary>状态与诊断</summary></details>
+    </main>
+    <script src="/minecraft-panel.js"></script>
+  </body>
+</html>

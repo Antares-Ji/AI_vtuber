@@ -152,6 +152,7 @@ class StreamerBrain {
   buildContext(item) {
     item = { ...item, sessionId: item.sessionId || this.memoryStore.ensureActiveSession() };
     const context = buildContext(this.memoryStore, this.emotion, item, this.persona, this.dualPersonas);
+    context.game = this.liveGameContextProvider?.() || null;
     context.personality = this.personality;
     this.personalityExpression = deriveExpressedPersonality(this.personality, this.emotion, context.relationship);
     context.personalityExpression = this.personalityExpression;
@@ -237,17 +238,19 @@ class StreamerBrain {
     this.updateEmotion(item.text, item.type, { relationship: this.memoryStore.getRelationship(item.user) });
     this.emotion = applyRepetition(this.emotion, Number(item.repeatCount || 0));
     const context = this.buildContext(item);
+    if (context.game) { item = { ...item, liveGame: true, localGameSpeaker: context.game.localOnly === true }; if (item.type !== "proactive") context.releaseLiveTurn = this.onLiveHumanTurn?.(); }
     this.lastMemoryRetrieval = context.retrieval;
     const direction = directReply(item, this.emotion, context.relationship, context);
     this.lastDirection = direction;
     context.direction = direction;
     context.disableExternalLlm = !this.llmEnabled;
     context.taskSignal = signal;
-    context.fallbackText = this.localReply(item, context);
+    context.fallbackText = context.game?.localOnly ? "本地对话暂时不可用，我还不能回答这句。" : this.localReply(item, context);
     return { item, context, direction };
   }
 
   commitStreamReply(item, context, rawText) {
+    context.releaseLiveTurn?.();
     this.assertTurnCurrent(item);
     const direction = context.direction || this.lastDirection;
     const policy = applyReplyPolicy(rawText, { item, capabilityRequest: context.capabilityRequest, maxCharacters: direction?.responseBudget?.maxCharacters || 180, persona: this.persona, memoryRetrieval: context.retrieval });
@@ -303,7 +306,7 @@ class StreamerBrain {
     let external;
     if (routing.route === "local") {
       external = await callLocalLlm(item, context);
-      if (!external.text) {
+      if (!external.text && !(context.game && (context.game.localOnly || process.env.MINECRAFT_CHAT_PROVIDER === "local"))) {
         external = await callExternalLlm(item, context);
         external.status = { ...external.status, route: "cloud-fallback", routeReason: routing.reason };
       }
@@ -311,12 +314,15 @@ class StreamerBrain {
       external = await callExternalLlm(item, context);
       external.status = { ...external.status, route: "cloud", routeReason: routing.reason };
     }
+    context.releaseLiveTurn?.();
     this.assertTurnCurrent(item);
     this.llmStatus = external.status;
     if (external.socialPerception) this.emotion = applySocialPerception(this.emotion, external.socialPerception);
     if (external.liveTime) this.lastTimeCheck = external.liveTime;
-    const repeatedDraft = external.text && isNearDuplicateReply(external.text, context.recent);
-    const rawText = external.text && !repeatedDraft ? external.text : this.localReply(item, context);
+    // A live status answer can legitimately repeat while the game is unchanged.
+    // Never replace grounded progress with an unrelated generic conversation line.
+    const repeatedDraft = !context.game && external.text && isNearDuplicateReply(external.text, context.recent);
+    const rawText = external.text && !repeatedDraft ? external.text : context.game?.localOnly ? "本地对话暂时不可用，我还不能回答这句。" : this.localReply(item, context);
     if (repeatedDraft) this.llmStatus = { ...this.llmStatus, lastMode: "fallback-quality", lastError: "External draft repeated a recent reply" };
     const policy = applyReplyPolicy(rawText, { item, capabilityRequest: context.capabilityRequest, maxCharacters: direction.responseBudget?.maxCharacters || 180, persona: this.persona, memoryRetrieval: context.retrieval });
     const performance = extractPerformance(policy.text);

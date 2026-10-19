@@ -1,0 +1,16 @@
+{
+  "trainPath": "E:\\Github\\AI_vtuber\\data\\minecraft-training\\train-v6r1-candidates.jsonl",
+  "devPath": "E:\\Github\\AI_vtuber\\data\\minecraft-training\\development-v6r1-candidates.jsonl",
+  "replayPath": "E:\\Github\\AI_vtuber\\data\\minecraft-training\\train-v6r1-weighted-replay-candidates.jsonl",
+  "manifestPath": "E:\\Github\\AI_vtuber\\data\\minecraft-training\\manifest-v6r1-candidates.json",
+  "uniqueRows": [
+    24,
+    10
+  ],
+  "replayRows": 286,
+  "hashes": {
+    "train": "e2c0594f0d7953f45c1b623ae305284289771f0a94e95ee7fe01eeaaf5b6e75d",
+    "dev": "cd208f0a3d46e5f165dd1d6d0095f4caa132342a350210e0fd3d21ef59ad0e3d",
+    "replay": "b1f81297d705e6f3accb02265217f148967730b4936eaa7599aa9ba3244526ac"
+  }
+}

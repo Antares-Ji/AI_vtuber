@@ -1,0 +1,21 @@
+{
+  "at": "2026-10-12T19:25:56.678Z",
+  "busySeen": true,
+  "drained": true,
+  "health": {
+    "ok": true,
+    "model": "qwen3.5-4b",
+    "path": "E:\\Qwen3.5-4B",
+    "quantization": "nf4",
+    "adapter": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v2\\checkpoint-epoch-03",
+    "adapter_loaded": true,
+    "adapter_scope": "minecraft-survival",
+    "generation": {
+      "active": false,
+      "queued": 0,
+      "max_waiters": 4,
+      "cancelled_running": 1
+    },
+    "generation_busy": false
+  }
+}

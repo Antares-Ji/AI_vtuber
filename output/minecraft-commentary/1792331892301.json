@@ -1,0 +1,31 @@
+{
+  "capturedAt": 1792331892301,
+  "evidence": {
+    "goal": "由本地千问自主决策建立一个生存小家：房屋有床、箱子、火把，采集材料、制作工具、狩猎动物、烹饪并吃食物、浅矿采集后返回家。全部已注册动作均可选择，包括navigate、dig_block、place_block、attack_entity、sleep、container_transfer等；根据真实结果调整，不重复囤木。成功与失败以真实世界和库存证据为准。",
+    "currentSubgoal": "采集木材并制作工作台",
+    "action": {
+      "action": "gather_wood",
+      "count": 12
+    },
+    "outcome": "running",
+    "error": null,
+    "inventory": [],
+    "health": 20,
+    "food": 20,
+    "yolo": {
+      "scope": "COCO only, not trained for Minecraft",
+      "detections": [
+        {
+          "label": "train",
+          "confidence": 0.509
+        }
+      ]
+    }
+  },
+  "speech": "正试着再收些云杉木，背包里还是只有那五根原木，离工作台都还差一截。",
+  "model": "deepseek-flash",
+  "provider": "cloud",
+  "visionModel": "qwen3.5-4b",
+  "visualObservation": "画面显示《我的世界》游戏内，由泥土和草方块构成的阶梯状地形，背景有树木和积雪。",
+  "expired": false
+}

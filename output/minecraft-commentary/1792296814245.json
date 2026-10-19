@@ -1,0 +1,36 @@
+{
+  "capturedAt": 1792296814245,
+  "evidence": {
+    "goal": "建立可生活的小家：先安全生存与食物，再依真实库存制作工作台、工具、熔炉、熟肉和火把，选择平坦安全位置造简单小屋，放置床、箱子、火把，最后浅层采矿并安全返回。由你自主分阶段决策。已有材料足够就推进下一阶段，不重复囤积。每5分钟监管反馈，失败先分析再改方法；同因两次失败需诊断而非原样重复。新建房/家具技能仅在能力表可用后调用，缺少技能要说明不能假装完成。生命危险优先避险/找可用食物。",
+    "currentSubgoal": "探索安全区域寻找食物",
+    "action": {
+      "action": "explore",
+      "direction": "northwest",
+      "distance": 10,
+      "source": "local-qwen",
+      "model": "qwen3.5-4b",
+      "adapterLoaded": false,
+      "modelMetadata": {
+        "request_id": "101a3e2b-3895-4757-8414-7bc11774f7a3",
+        "task": "minecraft-survival",
+        "used_adapter": false,
+        "adapter_path": null
+      }
+    },
+    "outcome": "failed",
+    "error": "Emergency explore infeasible: no verified 1-7 block route in selected direction",
+    "inventory": [],
+    "health": 1.885119080543518,
+    "food": 17,
+    "yolo": {
+      "scope": "COCO only, not trained for Minecraft",
+      "detections": []
+    }
+  },
+  "speech": "往西北探路没找到能走的路线，血只剩一点，背包也还空着。我先稳住别乱动，这雪林开局确实够呛。",
+  "model": "deepseek-flash",
+  "provider": "cloud",
+  "visionModel": "qwen3.5-4b",
+  "visualObservation": "游戏画面显示玩家身处茂密森林，周围是覆盖积雪的地面和树木。",
+  "expired": false
+}

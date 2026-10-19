@@ -1,0 +1,476 @@
+{
+  "at": "2026-10-12T21:10:54.875Z",
+  "reason": "Same v4r1; natural slope executor hotloaded; model feedback now includes alreadyFull and foodBefore/After. Main restart resets history, declared separately from weight effects.",
+  "loop": {
+    "enabled": true,
+    "running": true,
+    "goal": "由本地千问自主规划：安全生存、采集、制作工具、采矿、制作并点燃下界门，进入下界。失败后根据真实状态调整计划。",
+    "deadline": "2026-10-12T23:17:01.000Z",
+    "step": 0,
+    "model": "qwen3.5-4b",
+    "modelLoaded": true,
+    "adapter": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01",
+    "adapterLoaded": true,
+    "lastDecision": null,
+    "lastResult": null,
+    "lastError": null,
+    "latencyMs": null,
+    "history": [],
+    "modelHealth": {
+      "ok": true,
+      "model": "qwen3.5-4b",
+      "path": "E:\\Qwen3.5-4B",
+      "quantization": "nf4",
+      "adapter": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01",
+      "adapter_loaded": true,
+      "adapter_scope": "minecraft-survival",
+      "generation": {
+        "active": false,
+        "queued": 0,
+        "max_waiters": 4,
+        "cancelled_running": 0
+      },
+      "generation_busy": false
+    },
+    "updatedAt": "2026-10-12T21:10:54.874Z"
+  },
+  "before": {
+    "connected": true,
+    "mode": "survival",
+    "dimension": "overworld",
+    "health": 5.177065849304199,
+    "food": 16,
+    "oxygen": 20,
+    "position": {
+      "x": 24.5,
+      "y": 67,
+      "z": 160.3
+    },
+    "timeOfDay": 3888,
+    "isNight": false,
+    "inventory": [
+      {
+        "name": "rabbit",
+        "count": 1
+      },
+      {
+        "name": "rabbit_hide",
+        "count": 1
+      },
+      {
+        "name": "gravel",
+        "count": 4
+      }
+    ],
+    "inventoryDiagnostics": {
+      "inventory": {
+        "id": 0,
+        "type": "minecraft:inventory",
+        "inventoryStart": 9,
+        "inventoryEnd": 45,
+        "craftingResultSlot": 0,
+        "slots": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          {
+            "name": "rabbit",
+            "type": 1250,
+            "count": 1,
+            "metadata": 0,
+            "slot": 36
+          },
+          {
+            "name": "rabbit_hide",
+            "type": 1254,
+            "count": 1,
+            "metadata": 0,
+            "slot": 37
+          },
+          {
+            "name": "gravel",
+            "type": 63,
+            "count": 4,
+            "metadata": 0,
+            "slot": 38
+          },
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        "selectedItem": null
+      },
+      "currentWindow": null,
+      "confirmation": "local window model; includes optimistic updates until server reconciliation"
+    },
+    "tools": [],
+    "heldItem": {
+      "name": "rabbit",
+      "durabilityUsed": null
+    },
+    "equipment": [
+      {
+        "name": "rabbit",
+        "durabilityUsed": null
+      }
+    ],
+    "threats": [],
+    "hazards": [],
+    "resources": {
+      "stone": [],
+      "coal": [],
+      "iron": [],
+      "diamond": [],
+      "obsidian": [],
+      "gravel": [
+        {
+          "name": "gravel",
+          "position": {
+            "x": 28,
+            "y": 57,
+            "z": 165
+          },
+          "distance": 12
+        },
+        {
+          "name": "gravel",
+          "position": {
+            "x": 29,
+            "y": 57,
+            "z": 165
+          },
+          "distance": 12
+        },
+        {
+          "name": "gravel",
+          "position": {
+            "x": 30,
+            "y": 57,
+            "z": 164
+          },
+          "distance": 12
+        },
+        {
+          "name": "gravel",
+          "position": {
+            "x": 31,
+            "y": 57,
+            "z": 164
+          },
+          "distance": 12
+        }
+      ],
+      "wood": [
+        {
+          "name": "oak_log",
+          "position": {
+            "x": 28,
+            "y": 71,
+            "z": 161
+          },
+          "distance": 5
+        },
+        {
+          "name": "oak_log",
+          "position": {
+            "x": 28,
+            "y": 72,
+            "z": 161
+          },
+          "distance": 6
+        },
+        {
+          "name": "oak_log",
+          "position": {
+            "x": 24,
+            "y": 71,
+            "z": 166
+          },
+          "distance": 7
+        },
+        {
+          "name": "oak_log",
+          "position": {
+            "x": 28,
+            "y": 73,
+            "z": 161
+          },
+          "distance": 7
+        }
+      ]
+    },
+    "animals": [],
+    "landmarks": {
+      "evidenceOnly": true,
+      "villageConfirmed": false,
+      "entities": [],
+      "blocks": []
+    },
+    "stations": [],
+    "fluids": {
+      "water": [
+        {
+          "position": {
+            "x": 24,
+            "y": 55,
+            "z": 160
+          },
+          "distance": 12
+        },
+        {
+          "position": {
+            "x": 25,
+            "y": 55,
+            "z": 160
+          },
+          "distance": 12
+        },
+        {
+          "position": {
+            "x": 24,
+            "y": 55,
+            "z": 161
+          },
+          "distance": 12
+        }
+      ],
+      "lava": [
+        {
+          "position": {
+            "x": 8,
+            "y": 70,
+            "z": 144
+          },
+          "distance": 23
+        },
+        {
+          "position": {
+            "x": 7,
+            "y": 70,
+            "z": 144
+          },
+          "distance": 24
+        }
+      ]
+    },
+    "craftable": [],
+    "recipeHints": [
+      {
+        "item": "stick",
+        "missing": [
+          {
+            "name": "cherry_planks",
+            "count": 2
+          }
+        ],
+        "oneRecipeExample": true
+      },
+      {
+        "item": "crafting_table",
+        "missing": [
+          {
+            "name": "cherry_planks",
+            "count": 4
+          }
+        ],
+        "oneRecipeExample": true
+      },
+      {
+        "item": "wooden_pickaxe",
+        "missing": [
+          {
+            "name": "cherry_planks",
+            "count": 3
+          },
+          {
+            "name": "stick",
+            "count": 2
+          }
+        ],
+        "oneRecipeExample": true
+      },
+      {
+        "item": "stone_pickaxe",
+        "missing": [
+          {
+            "name": "cobbled_deepslate",
+            "count": 3
+          },
+          {
+            "name": "stick",
+            "count": 2
+          }
+        ],
+        "oneRecipeExample": true
+      },
+      {
+        "item": "furnace",
+        "missing": [
+          {
+            "name": "cobbled_deepslate",
+            "count": 8
+          }
+        ],
+        "oneRecipeExample": true
+      },
+      {
+        "item": "iron_pickaxe",
+        "missing": [
+          {
+            "name": "iron_ingot",
+            "count": 3
+          },
+          {
+            "name": "stick",
+            "count": 2
+          }
+        ],
+        "oneRecipeExample": true
+      },
+      {
+        "item": "bucket",
+        "missing": [
+          {
+            "name": "iron_ingot",
+            "count": 3
+          }
+        ],
+        "oneRecipeExample": true
+      },
+      {
+        "item": "flint_and_steel",
+        "missing": [
+          {
+            "name": "iron_ingot",
+            "count": 1
+          },
+          {
+            "name": "flint",
+            "count": 1
+          }
+        ],
+        "oneRecipeExample": true
+      },
+      {
+        "item": "diamond_pickaxe",
+        "missing": [
+          {
+            "name": "diamond",
+            "count": 3
+          },
+          {
+            "name": "stick",
+            "count": 2
+          }
+        ],
+        "oneRecipeExample": true
+      },
+      {
+        "item": "torch",
+        "missing": [
+          {
+            "name": "charcoal",
+            "count": 1
+          },
+          {
+            "name": "stick",
+            "count": 1
+          }
+        ],
+        "oneRecipeExample": true
+      }
+    ],
+    "recentExploration": [],
+    "recentFailures": [],
+    "portalSite": null,
+    "busy": false,
+    "activeTaskId": null,
+    "reactive": {
+      "updatedAt": "2026-10-12T21:10:54.575Z",
+      "sampleIntervalMs": 200,
+      "lifecycleEpoch": 7,
+      "dimension": "overworld",
+      "timeOfDay": 3869,
+      "health": 5.177065849304199,
+      "food": 16,
+      "armed": false,
+      "enabled": true,
+      "mode": "idle",
+      "calming": false,
+      "targetId": null,
+      "entities": [
+        {
+          "id": 41284,
+          "name": "item",
+          "position": {
+            "x": 42.768091191189825,
+            "y": 70,
+            "z": 161.1922042965
+          },
+          "distance": 18.532384612086794
+        },
+        {
+          "id": 41307,
+          "name": "item",
+          "position": {
+            "x": 3.943137892042008,
+            "y": 72,
+            "z": 166.09493319035906
+          },
+          "distance": 21.92493940260108
+        }
+      ],
+      "escape": null,
+      "timing": {
+        "tickMs": 0.1,
+        "maxTickMs": 0.6,
+        "sampleGapMs": 200.5,
+        "maxSampleGapMs": 215.4,
+        "skippedTicks": 0,
+        "fallbackMs": 0,
+        "maxFallbackMs": 0,
+        "fallbackBudgetMs": 60,
+        "fallbackOverruns": 0,
+        "intervalIsSchedulingTarget": true
+      }
+    },
+    "sessionId": "E:\\Github\\AI_vtuber\\logs\\minecraft-session-1791830191222.jsonl"
+  }
+}

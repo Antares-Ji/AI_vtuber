@@ -1,0 +1,23 @@
+{
+  "startedAt": "2026-10-12T21:51:10.5068436Z",
+  "wrapperPid": 146492,
+  "workerPid": 184792,
+  "commandLine": "\"C:\\Users\\Antares.Ji\\AppData\\Roaming\\uv\\python\\cpython-3.12-windows-x86_64-none\\python.exe\" \"scripts/minecraft-training/compare_dev_grid.py\" --data \"E:\\Github\\AI_vtuber\\output\\minecraft-training\\v5r2-development47.jsonl\" --contract \"E:\\Github\\AI_vtuber\\data\\minecraft-training\\contract-v3r1.json\" --output-dir \"E:\\Github\\AI_vtuber\\output\\minecraft-training\" --output-prefix v5r2-dev47 --adapter \"v4r1=E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01\" --adapter \"epoch-01=E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v5r2-dense-replay-candidate\\checkpoint-epoch-01\" --adapter \"epoch-02=E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v5r2-dense-replay-candidate\\checkpoint-epoch-02\" --probe-diagnostics \"E:\\Github\\AI_vtuber\\output\\minecraft-training\\live-probe-1791830746219.json\" --probe-diagnostics \"E:\\Github\\AI_vtuber\\output\\minecraft-training\\live-probe-1791833435547.json\" --probe-diagnostics \"E:\\Github\\AI_vtuber\\output\\minecraft-training\\live-probe-1791836151666.json\" --probe-diagnostics \"E:\\Github\\AI_vtuber\\output\\minecraft-training\\live-probe-1791838384663.json\" --allow-gpu-inference --min-free-gib 6",
+  "dataPath": "E:\\Github\\AI_vtuber\\output\\minecraft-training\\v5r2-development47.jsonl",
+  "dataSha256": "0f5632030e830c29807ee6180007109969414a86ebea09b374904a46a98fe31d",
+  "models": [
+    "base",
+    "v4r1",
+    "epoch-01",
+    "epoch-02"
+  ],
+  "diagnosticProbes": [
+    "live-probe-1791830746219.json",
+    "live-probe-1791833435547.json",
+    "live-probe-1791836151666.json",
+    "live-probe-1791838384663.json"
+  ],
+  "status": "completed; worker exited after producing four 47-row model outputs and 16 probe diagnostics",
+  "outputPrefix": "v5r2-dev47",
+  "priorAttempt": "v5r2-dev47-process.json failed during CLI parsing before CUDA/model load; logs preserved"
+}

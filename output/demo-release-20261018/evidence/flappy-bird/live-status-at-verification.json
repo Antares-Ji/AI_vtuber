@@ -1,0 +1,11 @@
+{
+  "pid": 81820,
+  "seed": 50000,
+  "score": 112,
+  "steps": 4260,
+  "policy": "guarded",
+  "game_seconds": 142.0,
+  "guard_interventions": 0,
+  "updated_at": "2026-10-18T16:17:50.893450+00:00",
+  "terminated": false
+}

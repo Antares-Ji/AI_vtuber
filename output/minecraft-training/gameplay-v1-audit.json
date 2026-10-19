@@ -1,0 +1,203 @@
+{
+  "generatedAt": "2026-10-12T18:46:41.114Z",
+  "decisionCount": 19,
+  "baseDecisionCount": 0,
+  "adapterDecisionCount": 13,
+  "unknownAdapterDecisionCount": 6,
+  "adapterPathsReported": [
+    "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v1"
+  ],
+  "modelLatencyMs": {
+    "median": 2424,
+    "p95": 6609,
+    "maximum": 6609
+  },
+  "attemptedSkills": 19,
+  "verifiedSkills": 5,
+  "verifiedSkillRate": 0.2631578947368421,
+  "byAction": {
+    "explore": {
+      "attempted": 3,
+      "completed": 2,
+      "verified": 2,
+      "failed": 1
+    },
+    "gather_wood": {
+      "attempted": 1,
+      "completed": 1,
+      "verified": 1,
+      "failed": 0
+    },
+    "craft": {
+      "attempted": 4,
+      "completed": 2,
+      "verified": 2,
+      "failed": 2
+    },
+    "hunt": {
+      "attempted": 11,
+      "completed": 0,
+      "verified": 0,
+      "failed": 11
+    }
+  },
+  "failureAttribution": {
+    "missing_prerequisite": 2,
+    "navigation_or_resource": 11,
+    "safety_or_cancellation": 1
+  },
+  "sessionDeaths": 1,
+  "deathEvents": [
+    {
+      "at": "2026-10-12T18:41:50.195Z"
+    }
+  ],
+  "netherObserved": false,
+  "netherEvidence": [],
+  "verifiedEvidence": [
+    {
+      "taskId": "4b01d42c-0932-4d56-8963-917a3f365bf3",
+      "action": {
+        "action": "explore",
+        "direction": "west",
+        "distance": 16
+      },
+      "adapterUsed": null,
+      "inventoryDelta": {},
+      "from": {
+        "x": -15.2,
+        "y": 63,
+        "z": -18.1
+      },
+      "to": {
+        "x": -33.5,
+        "y": 63,
+        "z": -23.5
+      },
+      "dimension": "overworld"
+    },
+    {
+      "taskId": "6b70d9b1-ddb1-4b30-9c94-4597827f5d94",
+      "action": {
+        "action": "gather_wood",
+        "count": 1
+      },
+      "adapterUsed": null,
+      "inventoryDelta": {
+        "spruce_log": 1
+      },
+      "from": {
+        "x": -33.5,
+        "y": 63,
+        "z": -23.5
+      },
+      "to": {
+        "x": -43.5,
+        "y": 63,
+        "z": -35.6
+      },
+      "dimension": "overworld"
+    },
+    {
+      "taskId": "fd50398c-677e-4296-b3ef-9c2b31d94e1e",
+      "action": {
+        "action": "craft",
+        "item": "planks",
+        "count": 4
+      },
+      "adapterUsed": null,
+      "inventoryDelta": {
+        "spruce_log": -1,
+        "spruce_planks": 4
+      },
+      "from": {
+        "x": -43.5,
+        "y": 63,
+        "z": -35.6
+      },
+      "to": {
+        "x": -43.5,
+        "y": 63,
+        "z": -35.6
+      },
+      "dimension": "overworld"
+    },
+    {
+      "taskId": "74230cfb-bc0b-4253-ae17-0c6933a2eabf",
+      "action": {
+        "action": "craft",
+        "item": "crafting_table",
+        "count": 1
+      },
+      "adapterUsed": null,
+      "inventoryDelta": {
+        "spruce_planks": -4,
+        "crafting_table": 1
+      },
+      "from": {
+        "x": -43.5,
+        "y": 63,
+        "z": -35.6
+      },
+      "to": {
+        "x": -43.5,
+        "y": 63,
+        "z": -35.6
+      },
+      "dimension": "overworld"
+    },
+    {
+      "taskId": "a914828a-4abc-49cc-8a5c-5613505d6376",
+      "action": {
+        "action": "explore",
+        "direction": "northwest",
+        "distance": 34
+      },
+      "adapterUsed": true,
+      "inventoryDelta": {},
+      "from": {
+        "x": 6.5,
+        "y": 64,
+        "z": 1.5
+      },
+      "to": {
+        "x": -15.5,
+        "y": 63,
+        "z": -20.5
+      },
+      "dimension": "overworld"
+    }
+  ],
+  "limits": [
+    "Skill completion is distinct from survival progression and model quality.",
+    "Adapter counts require per-completion used_adapter metadata; legacy health-only logs are unknown. Verify the artifact and health response separately.",
+    "Failures are classified by error text for triage; classification is not proof of cause.",
+    "Missing death events do not prove that no death occurred outside the provided session log."
+  ],
+  "sources": {
+    "autonomyPath": "E:\\Github\\AI_vtuber\\logs\\minecraft-autonomy.jsonl",
+    "sessionPath": "logs/minecraft-session-1791830191222.jsonl"
+  },
+  "adapterArtifact": {
+    "directory": "runtime/minecraft-training/adapters/minecraft-survival-v1",
+    "weightsExist": true,
+    "configExists": true,
+    "weightBytes": 42504600,
+    "sha256": "6da5ae1bd3b583688c19dcbd4a79ba402ded431fcdfae8dff6e22f009a630445",
+    "config": {
+      "peft_type": "LORA",
+      "r": 8,
+      "lora_alpha": 16,
+      "target_modules": [
+        "up_proj",
+        "down_proj",
+        "o_proj",
+        "k_proj",
+        "gate_proj",
+        "q_proj",
+        "v_proj"
+      ],
+      "base_model_name_or_path": "E:\\Qwen3.5-4B"
+    }
+  }
+}

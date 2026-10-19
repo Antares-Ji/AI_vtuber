@@ -1,0 +1,932 @@
+{
+  "created_at": "2026-10-18T16:10:12.013114+00:00",
+  "policy": "bundled_pretrained_dueling_dqn_numpy",
+  "model_sha256": "a0adb00810f7dbcd9d50ff6bcdcaa5cc5a4186a75fa0178f7f022d28f99bfab0",
+  "package_versions": {
+    "flappy-bird-gymnasium": "0.4.0",
+    "gymnasium": "1.4.0",
+    "numpy": "2.4.6",
+    "pygame": "2.6.1"
+  },
+  "settings": {
+    "pipe_gap": 100,
+    "use_lidar": false,
+    "render": false,
+    "target_pipes": 1000,
+    "seed_start": 20000,
+    "requested_episodes": 100,
+    "max_steps": 100000
+  },
+  "episodes": [
+    {
+      "seed": 20000,
+      "score": 896,
+      "steps": 33796,
+      "game_seconds": 1126.53,
+      "reason": "collision",
+      "reward": 4184.9,
+      "wall_seconds": 0.639
+    },
+    {
+      "seed": 20001,
+      "score": 1000,
+      "steps": 37691,
+      "game_seconds": 1256.37,
+      "reason": "target_reached_alive",
+      "reward": 4669.1,
+      "wall_seconds": 0.709
+    },
+    {
+      "seed": 20002,
+      "score": 1000,
+      "steps": 37691,
+      "game_seconds": 1256.37,
+      "reason": "target_reached_alive",
+      "reward": 4669.1,
+      "wall_seconds": 0.698
+    },
+    {
+      "seed": 20003,
+      "score": 712,
+      "steps": 26867,
+      "game_seconds": 895.57,
+      "reason": "collision",
+      "reward": 3326.4,
+      "wall_seconds": 0.505
+    },
+    {
+      "seed": 20004,
+      "score": 1000,
+      "steps": 37691,
+      "game_seconds": 1256.37,
+      "reason": "target_reached_alive",
+      "reward": 4669.1,
+      "wall_seconds": 0.705
+    },
+    {
+      "seed": 20005,
+      "score": 953,
+      "steps": 35926,
+      "game_seconds": 1197.53,
+      "reason": "collision",
+      "reward": 4449.2,
+      "wall_seconds": 0.672
+    },
+    {
+      "seed": 20006,
+      "score": 1000,
+      "steps": 37691,
+      "game_seconds": 1256.37,
+      "reason": "target_reached_alive",
+      "reward": 4669.1,
+      "wall_seconds": 0.706
+    },
+    {
+      "seed": 20007,
+      "score": 1000,
+      "steps": 37691,
+      "game_seconds": 1256.37,
+      "reason": "target_reached_alive",
+      "reward": 4669.1,
+      "wall_seconds": 0.708
+    },
+    {
+      "seed": 20008,
+      "score": 1000,
+      "steps": 37691,
+      "game_seconds": 1256.37,
+      "reason": "target_reached_alive",
+      "reward": 4669.1,
+      "wall_seconds": 0.704
+    },
+    {
+      "seed": 20009,
+      "score": 35,
+      "steps": 1365,
+      "game_seconds": 45.5,
+      "reason": "collision",
+      "reward": 166.9,
+      "wall_seconds": 0.026
+    },
+    {
+      "seed": 20010,
+      "score": 1000,
+      "steps": 37691,
+      "game_seconds": 1256.37,
+      "reason": "target_reached_alive",
+      "reward": 4669.1,
+      "wall_seconds": 0.704
+    },
+    {
+      "seed": 20011,
+      "score": 1000,
+      "steps": 37691,
+      "game_seconds": 1256.37,
+      "reason": "target_reached_alive",
+      "reward": 4669.1,
+      "wall_seconds": 0.701
+    },
+    {
+      "seed": 20012,
+      "score": 379,
+      "steps": 14308,
+      "game_seconds": 476.93,
+      "reason": "collision",
+      "reward": 1770.8,
+      "wall_seconds": 0.266
+    },
+    {
+      "seed": 20013,
+      "score": 355,
+      "steps": 13420,
+      "game_seconds": 447.33,
+      "reason": "collision",
+      "reward": 1660.4,
+      "wall_seconds": 0.253
+    },
+    {
+      "seed": 20014,
+      "score": 1000,
+      "steps": 37691,
+      "game_seconds": 1256.37,
+      "reason": "target_reached_alive",
+      "reward": 4669.1,
+      "wall_seconds": 0.7
+    },
+    {
+      "seed": 20015,
+      "score": 580,
+      "steps": 21879,
+      "game_seconds": 729.3,
+      "reason": "collision",
+      "reward": 2708.8,
+      "wall_seconds": 0.405
+    },
+    {
+      "seed": 20016,
+      "score": 1000,
+      "steps": 37691,
+      "game_seconds": 1256.37,
+      "reason": "target_reached_alive",
+      "reward": 4669.1,
+      "wall_seconds": 0.736
+    },
+    {
+      "seed": 20017,
+      "score": 1000,
+      "steps": 37691,
+      "game_seconds": 1256.37,
+      "reason": "target_reached_alive",
+      "reward": 4669.1,
+      "wall_seconds": 0.71
+    },
+    {
+      "seed": 20018,
+      "score": 1000,
+      "steps": 37691,
+      "game_seconds": 1256.37,
+      "reason": "target_reached_alive",
+      "reward": 4669.1,
+      "wall_seconds": 0.701
+    },
+    {
+      "seed": 20019,
+      "score": 1000,
+      "steps": 37691,
+      "game_seconds": 1256.37,
+      "reason": "target_reached_alive",
+      "reward": 4669.1,
+      "wall_seconds": 0.707
+    },
+    {
+      "seed": 20020,
+      "score": 1000,
+      "steps": 37691,
+      "game_seconds": 1256.37,
+      "reason": "target_reached_alive",
+      "reward": 4669.1,
+      "wall_seconds": 0.705
+    },
+    {
+      "seed": 20021,
+      "score": 1000,
+      "steps": 37691,
+      "game_seconds": 1256.37,
+      "reason": "target_reached_alive",
+      "reward": 4669.1,
+      "wall_seconds": 0.703
+    },
+    {
+      "seed": 20022,
+      "score": 1000,
+      "steps": 37691,
+      "game_seconds": 1256.37,
+      "reason": "target_reached_alive",
+      "reward": 4669.1,
+      "wall_seconds": 0.701
+    },
+    {
+      "seed": 20023,
+      "score": 829,
+      "steps": 31274,
+      "game_seconds": 1042.47,
+      "reason": "collision",
+      "reward": 3872.4,
+      "wall_seconds": 0.583
+    },
+    {
+      "seed": 20024,
+      "score": 1000,
+      "steps": 37691,
+      "game_seconds": 1256.37,
+      "reason": "target_reached_alive",
+      "reward": 4669.1,
+      "wall_seconds": 0.706
+    },
+    {
+      "seed": 20025,
+      "score": 77,
+      "steps": 2931,
+      "game_seconds": 97.7,
+      "reason": "collision",
+      "reward": 361.3,
+      "wall_seconds": 0.055
+    },
+    {
+      "seed": 20026,
+      "score": 731,
+      "steps": 27565,
+      "game_seconds": 918.83,
+      "reason": "collision",
+      "reward": 3413.3,
+      "wall_seconds": 0.515
+    },
+    {
+      "seed": 20027,
+      "score": 559,
+      "steps": 21104,
+      "game_seconds": 703.47,
+      "reason": "collision",
+      "reward": 2612.4,
+      "wall_seconds": 0.396
+    },
+    {
+      "seed": 20028,
+      "score": 1000,
+      "steps": 37691,
+      "game_seconds": 1256.37,
+      "reason": "target_reached_alive",
+      "reward": 4669.1,
+      "wall_seconds": 0.705
+    },
+    {
+      "seed": 20029,
+      "score": 1000,
+      "steps": 37691,
+      "game_seconds": 1256.37,
+      "reason": "target_reached_alive",
+      "reward": 4669.1,
+      "wall_seconds": 0.699
+    },
+    {
+      "seed": 20030,
+      "score": 1000,
+      "steps": 37691,
+      "game_seconds": 1256.37,
+      "reason": "target_reached_alive",
+      "reward": 4669.1,
+      "wall_seconds": 0.701
+    },
+    {
+      "seed": 20031,
+      "score": 1000,
+      "steps": 37691,
+      "game_seconds": 1256.37,
+      "reason": "target_reached_alive",
+      "reward": 4669.1,
+      "wall_seconds": 0.701
+    },
+    {
+      "seed": 20032,
+      "score": 374,
+      "steps": 14134,
+      "game_seconds": 471.13,
+      "reason": "collision",
+      "reward": 1748.9,
+      "wall_seconds": 0.265
+    },
+    {
+      "seed": 20033,
+      "score": 167,
+      "steps": 6337,
+      "game_seconds": 211.23,
+      "reason": "collision",
+      "reward": 782.9,
+      "wall_seconds": 0.118
+    },
+    {
+      "seed": 20034,
+      "score": 376,
+      "steps": 14211,
+      "game_seconds": 473.7,
+      "reason": "collision",
+      "reward": 1758.4,
+      "wall_seconds": 0.267
+    },
+    {
+      "seed": 20035,
+      "score": 1000,
+      "steps": 37691,
+      "game_seconds": 1256.37,
+      "reason": "target_reached_alive",
+      "reward": 4669.1,
+      "wall_seconds": 0.704
+    },
+    {
+      "seed": 20036,
+      "score": 1000,
+      "steps": 37691,
+      "game_seconds": 1256.37,
+      "reason": "target_reached_alive",
+      "reward": 4669.1,
+      "wall_seconds": 0.7
+    },
+    {
+      "seed": 20037,
+      "score": 1000,
+      "steps": 37691,
+      "game_seconds": 1256.37,
+      "reason": "target_reached_alive",
+      "reward": 4669.1,
+      "wall_seconds": 0.704
+    },
+    {
+      "seed": 20038,
+      "score": 1000,
+      "steps": 37691,
+      "game_seconds": 1256.37,
+      "reason": "target_reached_alive",
+      "reward": 4669.1,
+      "wall_seconds": 0.703
+    },
+    {
+      "seed": 20039,
+      "score": 1000,
+      "steps": 37691,
+      "game_seconds": 1256.37,
+      "reason": "target_reached_alive",
+      "reward": 4669.1,
+      "wall_seconds": 0.703
+    },
+    {
+      "seed": 20040,
+      "score": 1000,
+      "steps": 37691,
+      "game_seconds": 1256.37,
+      "reason": "target_reached_alive",
+      "reward": 4669.1,
+      "wall_seconds": 0.707
+    },
+    {
+      "seed": 20041,
+      "score": 1000,
+      "steps": 37691,
+      "game_seconds": 1256.37,
+      "reason": "target_reached_alive",
+      "reward": 4669.1,
+      "wall_seconds": 0.707
+    },
+    {
+      "seed": 20042,
+      "score": 1000,
+      "steps": 37691,
+      "game_seconds": 1256.37,
+      "reason": "target_reached_alive",
+      "reward": 4669.1,
+      "wall_seconds": 0.699
+    },
+    {
+      "seed": 20043,
+      "score": 1000,
+      "steps": 37691,
+      "game_seconds": 1256.37,
+      "reason": "target_reached_alive",
+      "reward": 4669.1,
+      "wall_seconds": 0.697
+    },
+    {
+      "seed": 20044,
+      "score": 1000,
+      "steps": 37691,
+      "game_seconds": 1256.37,
+      "reason": "target_reached_alive",
+      "reward": 4669.1,
+      "wall_seconds": 0.708
+    },
+    {
+      "seed": 20045,
+      "score": 672,
+      "steps": 25341,
+      "game_seconds": 844.7,
+      "reason": "collision",
+      "reward": 3137.8,
+      "wall_seconds": 0.473
+    },
+    {
+      "seed": 20046,
+      "score": 569,
+      "steps": 21462,
+      "game_seconds": 715.4,
+      "reason": "collision",
+      "reward": 2657.2,
+      "wall_seconds": 0.4
+    },
+    {
+      "seed": 20047,
+      "score": 1000,
+      "steps": 37691,
+      "game_seconds": 1256.37,
+      "reason": "target_reached_alive",
+      "reward": 4669.1,
+      "wall_seconds": 0.708
+    },
+    {
+      "seed": 20048,
+      "score": 1000,
+      "steps": 37691,
+      "game_seconds": 1256.37,
+      "reason": "target_reached_alive",
+      "reward": 4669.1,
+      "wall_seconds": 0.712
+    },
+    {
+      "seed": 20049,
+      "score": 1000,
+      "steps": 37691,
+      "game_seconds": 1256.37,
+      "reason": "target_reached_alive",
+      "reward": 4669.1,
+      "wall_seconds": 0.702
+    },
+    {
+      "seed": 20050,
+      "score": 224,
+      "steps": 8468,
+      "game_seconds": 282.27,
+      "reason": "collision",
+      "reward": 1047.3,
+      "wall_seconds": 0.159
+    },
+    {
+      "seed": 20051,
+      "score": 1000,
+      "steps": 37691,
+      "game_seconds": 1256.37,
+      "reason": "target_reached_alive",
+      "reward": 4669.1,
+      "wall_seconds": 0.702
+    },
+    {
+      "seed": 20052,
+      "score": 302,
+      "steps": 11422,
+      "game_seconds": 380.73,
+      "reason": "collision",
+      "reward": 1412.9,
+      "wall_seconds": 0.213
+    },
+    {
+      "seed": 20053,
+      "score": 1000,
+      "steps": 37691,
+      "game_seconds": 1256.37,
+      "reason": "target_reached_alive",
+      "reward": 4669.1,
+      "wall_seconds": 0.706
+    },
+    {
+      "seed": 20054,
+      "score": 1000,
+      "steps": 37691,
+      "game_seconds": 1256.37,
+      "reason": "target_reached_alive",
+      "reward": 4669.1,
+      "wall_seconds": 0.705
+    },
+    {
+      "seed": 20055,
+      "score": 1000,
+      "steps": 37691,
+      "game_seconds": 1256.37,
+      "reason": "target_reached_alive",
+      "reward": 4669.1,
+      "wall_seconds": 0.702
+    },
+    {
+      "seed": 20056,
+      "score": 1000,
+      "steps": 37691,
+      "game_seconds": 1256.37,
+      "reason": "target_reached_alive",
+      "reward": 4669.1,
+      "wall_seconds": 0.71
+    },
+    {
+      "seed": 20057,
+      "score": 19,
+      "steps": 764,
+      "game_seconds": 25.47,
+      "reason": "collision",
+      "reward": 92.4,
+      "wall_seconds": 0.014
+    },
+    {
+      "seed": 20058,
+      "score": 1000,
+      "steps": 37691,
+      "game_seconds": 1256.37,
+      "reason": "target_reached_alive",
+      "reward": 4669.1,
+      "wall_seconds": 0.708
+    },
+    {
+      "seed": 20059,
+      "score": 623,
+      "steps": 23497,
+      "game_seconds": 783.23,
+      "reason": "collision",
+      "reward": 2909.3,
+      "wall_seconds": 0.44
+    },
+    {
+      "seed": 20060,
+      "score": 611,
+      "steps": 23061,
+      "game_seconds": 768.7,
+      "reason": "collision",
+      "reward": 2854.9,
+      "wall_seconds": 0.433
+    },
+    {
+      "seed": 20061,
+      "score": 707,
+      "steps": 26677,
+      "game_seconds": 889.23,
+      "reason": "collision",
+      "reward": 3302.9,
+      "wall_seconds": 0.499
+    },
+    {
+      "seed": 20062,
+      "score": 1000,
+      "steps": 37691,
+      "game_seconds": 1256.37,
+      "reason": "target_reached_alive",
+      "reward": 4669.1,
+      "wall_seconds": 0.7
+    },
+    {
+      "seed": 20063,
+      "score": 1000,
+      "steps": 37691,
+      "game_seconds": 1256.37,
+      "reason": "target_reached_alive",
+      "reward": 4669.1,
+      "wall_seconds": 0.704
+    },
+    {
+      "seed": 20064,
+      "score": 521,
+      "steps": 19671,
+      "game_seconds": 655.7,
+      "reason": "collision",
+      "reward": 2434.9,
+      "wall_seconds": 0.368
+    },
+    {
+      "seed": 20065,
+      "score": 239,
+      "steps": 9033,
+      "game_seconds": 301.1,
+      "reason": "collision",
+      "reward": 1117.3,
+      "wall_seconds": 0.172
+    },
+    {
+      "seed": 20066,
+      "score": 1000,
+      "steps": 37691,
+      "game_seconds": 1256.37,
+      "reason": "target_reached_alive",
+      "reward": 4669.1,
+      "wall_seconds": 0.709
+    },
+    {
+      "seed": 20067,
+      "score": 136,
+      "steps": 5171,
+      "game_seconds": 172.37,
+      "reason": "collision",
+      "reward": 638.4,
+      "wall_seconds": 0.098
+    },
+    {
+      "seed": 20068,
+      "score": 1000,
+      "steps": 37691,
+      "game_seconds": 1256.37,
+      "reason": "target_reached_alive",
+      "reward": 4669.1,
+      "wall_seconds": 0.703
+    },
+    {
+      "seed": 20069,
+      "score": 1000,
+      "steps": 37691,
+      "game_seconds": 1256.37,
+      "reason": "target_reached_alive",
+      "reward": 4669.1,
+      "wall_seconds": 0.704
+    },
+    {
+      "seed": 20070,
+      "score": 1000,
+      "steps": 37691,
+      "game_seconds": 1256.37,
+      "reason": "target_reached_alive",
+      "reward": 4669.1,
+      "wall_seconds": 0.698
+    },
+    {
+      "seed": 20071,
+      "score": 836,
+      "steps": 31520,
+      "game_seconds": 1050.67,
+      "reason": "collision",
+      "reward": 3903.3,
+      "wall_seconds": 0.584
+    },
+    {
+      "seed": 20072,
+      "score": 1000,
+      "steps": 37691,
+      "game_seconds": 1256.37,
+      "reason": "target_reached_alive",
+      "reward": 4669.1,
+      "wall_seconds": 0.7
+    },
+    {
+      "seed": 20073,
+      "score": 1000,
+      "steps": 37691,
+      "game_seconds": 1256.37,
+      "reason": "target_reached_alive",
+      "reward": 4669.1,
+      "wall_seconds": 0.701
+    },
+    {
+      "seed": 20074,
+      "score": 713,
+      "steps": 26903,
+      "game_seconds": 896.77,
+      "reason": "collision",
+      "reward": 3330.9,
+      "wall_seconds": 0.505
+    },
+    {
+      "seed": 20075,
+      "score": 218,
+      "steps": 8242,
+      "game_seconds": 274.73,
+      "reason": "collision",
+      "reward": 1019.3,
+      "wall_seconds": 0.152
+    },
+    {
+      "seed": 20076,
+      "score": 851,
+      "steps": 32085,
+      "game_seconds": 1069.5,
+      "reason": "collision",
+      "reward": 3973.3,
+      "wall_seconds": 0.602
+    },
+    {
+      "seed": 20077,
+      "score": 1000,
+      "steps": 37691,
+      "game_seconds": 1256.37,
+      "reason": "target_reached_alive",
+      "reward": 4669.1,
+      "wall_seconds": 0.705
+    },
+    {
+      "seed": 20078,
+      "score": 758,
+      "steps": 28598,
+      "game_seconds": 953.27,
+      "reason": "collision",
+      "reward": 3540.9,
+      "wall_seconds": 0.538
+    },
+    {
+      "seed": 20079,
+      "score": 1000,
+      "steps": 37691,
+      "game_seconds": 1256.37,
+      "reason": "target_reached_alive",
+      "reward": 4669.1,
+      "wall_seconds": 0.704
+    },
+    {
+      "seed": 20080,
+      "score": 1000,
+      "steps": 37691,
+      "game_seconds": 1256.37,
+      "reason": "target_reached_alive",
+      "reward": 4669.1,
+      "wall_seconds": 0.708
+    },
+    {
+      "seed": 20081,
+      "score": 1000,
+      "steps": 37691,
+      "game_seconds": 1256.37,
+      "reason": "target_reached_alive",
+      "reward": 4669.1,
+      "wall_seconds": 0.707
+    },
+    {
+      "seed": 20082,
+      "score": 1000,
+      "steps": 37691,
+      "game_seconds": 1256.37,
+      "reason": "target_reached_alive",
+      "reward": 4669.1,
+      "wall_seconds": 0.714
+    },
+    {
+      "seed": 20083,
+      "score": 1000,
+      "steps": 37691,
+      "game_seconds": 1256.37,
+      "reason": "target_reached_alive",
+      "reward": 4669.1,
+      "wall_seconds": 0.713
+    },
+    {
+      "seed": 20084,
+      "score": 1000,
+      "steps": 37691,
+      "game_seconds": 1256.37,
+      "reason": "target_reached_alive",
+      "reward": 4669.1,
+      "wall_seconds": 0.703
+    },
+    {
+      "seed": 20085,
+      "score": 1000,
+      "steps": 37691,
+      "game_seconds": 1256.37,
+      "reason": "target_reached_alive",
+      "reward": 4669.1,
+      "wall_seconds": 0.701
+    },
+    {
+      "seed": 20086,
+      "score": 1000,
+      "steps": 37691,
+      "game_seconds": 1256.37,
+      "reason": "target_reached_alive",
+      "reward": 4669.1,
+      "wall_seconds": 0.704
+    },
+    {
+      "seed": 20087,
+      "score": 443,
+      "steps": 16733,
+      "game_seconds": 557.77,
+      "reason": "collision",
+      "reward": 2070.9,
+      "wall_seconds": 0.32
+    },
+    {
+      "seed": 20088,
+      "score": 947,
+      "steps": 35700,
+      "game_seconds": 1190.0,
+      "reason": "collision",
+      "reward": 4421.2,
+      "wall_seconds": 0.676
+    },
+    {
+      "seed": 20089,
+      "score": 1000,
+      "steps": 37691,
+      "game_seconds": 1256.37,
+      "reason": "target_reached_alive",
+      "reward": 4669.1,
+      "wall_seconds": 0.727
+    },
+    {
+      "seed": 20090,
+      "score": 712,
+      "steps": 26851,
+      "game_seconds": 895.03,
+      "reason": "collision",
+      "reward": 3324.8,
+      "wall_seconds": 0.512
+    },
+    {
+      "seed": 20091,
+      "score": 263,
+      "steps": 9937,
+      "game_seconds": 331.23,
+      "reason": "collision",
+      "reward": 1229.3,
+      "wall_seconds": 0.187
+    },
+    {
+      "seed": 20092,
+      "score": 469,
+      "steps": 17698,
+      "game_seconds": 589.93,
+      "reason": "collision",
+      "reward": 2190.8,
+      "wall_seconds": 0.332
+    },
+    {
+      "seed": 20093,
+      "score": 328,
+      "steps": 12387,
+      "game_seconds": 412.9,
+      "reason": "collision",
+      "reward": 1532.8,
+      "wall_seconds": 0.233
+    },
+    {
+      "seed": 20094,
+      "score": 1000,
+      "steps": 37691,
+      "game_seconds": 1256.37,
+      "reason": "target_reached_alive",
+      "reward": 4669.1,
+      "wall_seconds": 0.702
+    },
+    {
+      "seed": 20095,
+      "score": 1000,
+      "steps": 37691,
+      "game_seconds": 1256.37,
+      "reason": "target_reached_alive",
+      "reward": 4669.1,
+      "wall_seconds": 0.701
+    },
+    {
+      "seed": 20096,
+      "score": 1000,
+      "steps": 37691,
+      "game_seconds": 1256.37,
+      "reason": "target_reached_alive",
+      "reward": 4669.1,
+      "wall_seconds": 0.709
+    },
+    {
+      "seed": 20097,
+      "score": 1000,
+      "steps": 37691,
+      "game_seconds": 1256.37,
+      "reason": "target_reached_alive",
+      "reward": 4669.1,
+      "wall_seconds": 0.701
+    },
+    {
+      "seed": 20098,
+      "score": 1000,
+      "steps": 37691,
+      "game_seconds": 1256.37,
+      "reason": "target_reached_alive",
+      "reward": 4669.1,
+      "wall_seconds": 0.705
+    },
+    {
+      "seed": 20099,
+      "score": 1000,
+      "steps": 37691,
+      "game_seconds": 1256.37,
+      "reason": "target_reached_alive",
+      "reward": 4669.1,
+      "wall_seconds": 0.71
+    }
+  ],
+  "status": "completed",
+  "summary": {
+    "episodes": 100,
+    "min_score": 19,
+    "mean_score": 821.84,
+    "max_score": 1000,
+    "collisions": 36,
+    "successes": 64
+  },
+  "wall_seconds": 58.169
+}

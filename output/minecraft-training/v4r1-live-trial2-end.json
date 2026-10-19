@@ -1,0 +1,323 @@
+{
+  "at": "2026-10-12T20:57:25.558Z",
+  "reason": "Repeated schema rejection of cherry_planks; pause progression loop for bounded path continuation and explicit validation feedback maintenance. Bot and reactive defense remain online.",
+  "loop": {
+    "enabled": false,
+    "running": false,
+    "goal": "由本地千问自主规划：安全生存、采集、制作工具、采矿、制作并点燃下界门，进入下界。失败后根据真实状态调整计划。",
+    "deadline": "2026-10-12T23:17:01.000Z",
+    "step": 32,
+    "model": "qwen3.5-4b",
+    "modelLoaded": true,
+    "adapter": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01",
+    "adapterLoaded": true,
+    "lastDecision": {
+      "action": "mine",
+      "resource": "stone",
+      "count": 4
+    },
+    "lastResult": {
+      "taskId": "2aced8b6-cb99-4846-b06f-8e3d9935e525",
+      "action": {
+        "action": "mine",
+        "resource": "stone",
+        "count": 4
+      },
+      "status": "failed",
+      "error": "Missing correct tool for stone",
+      "at": "2026-10-12T20:55:04.266Z"
+    },
+    "lastError": "Invalid item",
+    "latencyMs": 1659,
+    "history": [
+      {
+        "taskId": "78b510d5-cc90-498d-b633-eca22b7c38ff",
+        "action": {
+          "action": "explore",
+          "direction": "south",
+          "distance": 16
+        },
+        "status": "completed",
+        "result": {
+          "action": {
+            "action": "explore",
+            "direction": "south",
+            "distance": 16
+          },
+          "verified": true,
+          "moved": 13,
+          "from": {
+            "x": 13.7,
+            "y": 66,
+            "z": 11.6
+          },
+          "to": {
+            "x": 13.5,
+            "y": 68,
+            "z": 24.5
+          },
+          "remainingThreats": [],
+          "inventoryBefore": [
+            {
+              "name": "rabbit",
+              "count": 1
+            },
+            {
+              "name": "rabbit_hide",
+              "count": 1
+            }
+          ],
+          "inventoryAfter": [
+            {
+              "name": "rabbit",
+              "count": 1
+            },
+            {
+              "name": "rabbit_hide",
+              "count": 1
+            }
+          ],
+          "position": {
+            "x": 13.5,
+            "y": 68,
+            "z": 24.5
+          }
+        },
+        "at": "2026-10-12T20:54:30.664Z"
+      },
+      {
+        "taskId": "69a70bdb-aefc-4ffa-a623-1b300c1876d3",
+        "action": {
+          "action": "explore",
+          "direction": "south",
+          "distance": 16
+        },
+        "status": "completed",
+        "result": {
+          "action": {
+            "action": "explore",
+            "direction": "south",
+            "distance": 16
+          },
+          "verified": true,
+          "moved": 14,
+          "from": {
+            "x": 13.5,
+            "y": 68,
+            "z": 24.5
+          },
+          "to": {
+            "x": 13.5,
+            "y": 71.8,
+            "z": 37.5
+          },
+          "remainingThreats": [],
+          "inventoryBefore": [
+            {
+              "name": "rabbit",
+              "count": 1
+            },
+            {
+              "name": "rabbit_hide",
+              "count": 1
+            }
+          ],
+          "inventoryAfter": [
+            {
+              "name": "rabbit",
+              "count": 1
+            },
+            {
+              "name": "rabbit_hide",
+              "count": 1
+            }
+          ],
+          "position": {
+            "x": 13.5,
+            "y": 71.8,
+            "z": 37.5
+          }
+        },
+        "at": "2026-10-12T20:54:38.487Z"
+      },
+      {
+        "taskId": "0a86b690-8cbf-41c4-9daa-4f8b89b4840c",
+        "action": {
+          "action": "explore",
+          "direction": "south",
+          "distance": 20
+        },
+        "status": "completed",
+        "result": {
+          "action": {
+            "action": "explore",
+            "direction": "south",
+            "distance": 20
+          },
+          "verified": true,
+          "moved": 18,
+          "from": {
+            "x": 13.5,
+            "y": 71,
+            "z": 37.5
+          },
+          "to": {
+            "x": 12.5,
+            "y": 69,
+            "z": 55.4
+          },
+          "remainingThreats": [],
+          "inventoryBefore": [
+            {
+              "name": "rabbit",
+              "count": 1
+            },
+            {
+              "name": "rabbit_hide",
+              "count": 1
+            }
+          ],
+          "inventoryAfter": [
+            {
+              "name": "rabbit",
+              "count": 1
+            },
+            {
+              "name": "rabbit_hide",
+              "count": 1
+            }
+          ],
+          "position": {
+            "x": 12.5,
+            "y": 69,
+            "z": 55.4
+          }
+        },
+        "at": "2026-10-12T20:54:47.382Z"
+      },
+      {
+        "taskId": "620a7a63-e721-497c-add1-10e77283a5ea",
+        "action": {
+          "action": "mine",
+          "resource": "stone",
+          "count": 4
+        },
+        "status": "failed",
+        "error": "No inventory gain (0 blocks removed): search budget exhausted; reachability unconfirmed; search budget exhausted; reachability unconfirmed",
+        "at": "2026-10-12T20:54:51.606Z"
+      },
+      {
+        "taskId": "8b192aea-fc56-489f-9f54-3e7e894ecb6f",
+        "action": {
+          "action": "eat"
+        },
+        "status": "completed",
+        "result": {
+          "action": {
+            "action": "eat"
+          },
+          "verified": true,
+          "alreadyFull": true,
+          "food": 20,
+          "inventoryBefore": [
+            {
+              "name": "rabbit",
+              "count": 1
+            },
+            {
+              "name": "rabbit_hide",
+              "count": 1
+            }
+          ],
+          "inventoryAfter": [
+            {
+              "name": "rabbit",
+              "count": 1
+            },
+            {
+              "name": "rabbit_hide",
+              "count": 1
+            }
+          ],
+          "position": {
+            "x": 12.5,
+            "y": 69,
+            "z": 55.4
+          }
+        },
+        "at": "2026-10-12T20:54:58.373Z"
+      },
+      {
+        "taskId": "2aced8b6-cb99-4846-b06f-8e3d9935e525",
+        "action": {
+          "action": "mine",
+          "resource": "stone",
+          "count": 4
+        },
+        "status": "failed",
+        "error": "Missing correct tool for stone",
+        "at": "2026-10-12T20:55:04.266Z"
+      },
+      {
+        "action": null,
+        "status": "rejected",
+        "error": "Invalid item",
+        "at": "2026-10-12T20:55:11.471Z"
+      },
+      {
+        "action": null,
+        "status": "rejected",
+        "error": "Invalid item",
+        "at": "2026-10-12T20:55:18.549Z"
+      },
+      {
+        "action": null,
+        "status": "rejected",
+        "error": "Invalid item",
+        "at": "2026-10-12T20:55:25.595Z"
+      },
+      {
+        "action": null,
+        "status": "rejected",
+        "error": "Invalid item",
+        "at": "2026-10-12T20:55:57.715Z"
+      },
+      {
+        "action": null,
+        "status": "rejected",
+        "error": "Invalid item",
+        "at": "2026-10-12T20:56:29.868Z"
+      },
+      {
+        "action": null,
+        "status": "rejected",
+        "error": "Invalid item",
+        "at": "2026-10-12T20:57:02.070Z"
+      }
+    ],
+    "modelHealth": {
+      "ok": true,
+      "model": "qwen3.5-4b",
+      "path": "E:\\Qwen3.5-4B",
+      "quantization": "nf4",
+      "adapter": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01",
+      "adapter_loaded": true,
+      "adapter_scope": "minecraft-survival",
+      "generation": {
+        "active": false,
+        "queued": 0,
+        "max_waiters": 4,
+        "cancelled_running": 0
+      },
+      "generation_busy": false
+    },
+    "updatedAt": "2026-10-12T20:57:25.555Z",
+    "waitingFor": null,
+    "lastDecisionMetadata": {
+      "task": "minecraft-survival",
+      "used_adapter": true,
+      "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01"
+    },
+    "needsRecovery": true
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "mode": "endpoint",
+  "base_model": "qwen3.5-4b",
+  "adapter": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v1",
+  "health_url": "http://127.0.0.1:11435/health",
+  "holdout_file": "E:\\Github\\AI_vtuber\\data\\minecraft-training\\holdout.jsonl",
+  "raw_predictions": "output\\minecraft-training\\adapter-v1.jsonl",
+  "n": 20,
+  "exact_action_object_accuracy": 0.45,
+  "strict_json_schema_valid_rate": 1.0,
+  "threat_priority_accuracy": 1.0,
+  "progression_exact_accuracy": 0.4,
+  "threat_cases": 2,
+  "progression_cases": 15,
+  "synthetic_holdout_only": true,
+  "limitation": "This is a small synthetic holdout. Scores measure agreement with hand-authored next-skill labels, not gameplay success or broad generalization."
+}

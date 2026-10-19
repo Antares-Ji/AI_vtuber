@@ -1,0 +1,20 @@
+{
+  "status": "frozen candidate evaluation input; no final holdout used",
+  "path": "E:\\Github\\AI_vtuber\\output\\minecraft-training\\v5r2-development47.jsonl",
+  "sha256": "0f5632030e830c29807ee6180007109969414a86ebea09b374904a46a98fe31d",
+  "rows": 47,
+  "sliceCounts": {
+    "legacy27": 27,
+    "v4-allowed-set8": 8,
+    "v5r2-dense12": 12
+  },
+  "inputs": {
+    "development-v3r1.jsonl": "174d8feaeadf842fa3caab546e4654284a9159d608f5ab8f0dc76e671a04f0f2",
+    "development-v4r1-candidates.jsonl": "98e8841369185780e912fb8b7f2906027ac9adc8de92e361ede984c77e36b41c",
+    "development-v5r2-candidates.jsonl": "9f64e517f955735756caf808fb0af006a63b3dce77ef15b15805e35ec0638ba3"
+  },
+  "contract": "E:\\Github\\AI_vtuber\\data\\minecraft-training\\contract-v3r1.json",
+  "contractSha256": "9e1e8201acc736250979f351a612252d64d0667fbb7481e9508cc6fce9f1ce44",
+  "holdoutRead": false,
+  "purpose": "Same-input base/v4r1/v5r2 checkpoint development comparison only; no automatic deployment."
+}

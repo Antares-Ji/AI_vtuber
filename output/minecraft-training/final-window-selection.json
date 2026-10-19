@@ -1,0 +1,19 @@
+{
+  "recordedAt": "2026-10-12T22:47:41.1563320Z",
+  "adapter": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01",
+  "weightsSha256": "48bbd148184987a3abdcf2a3e193c61690d36b1f078ce70e18ac62f395d7e14b",
+  "decision": "Retain v4r1 rollback; reject v6r1 under frozen selection criteria",
+  "rejectedAdapter": "minecraft-survival-v6r1-weighted-material-candidate/checkpoint-epoch-01",
+  "rejectedSha256": "e1af96aa5523aeb42f3546092f50e684065b61213627082866ee3ede13f65f8d",
+  "reason": [
+    "New v4r1-dev-01 stone_pickaxe without required cobblestone",
+    "Prior exact live probe log1 becomes planks8, requiring log2",
+    "New full-food eat no-op regression; score 20-to-24 does not outweigh material regressions"
+  ],
+  "limitations": [
+    "v4r1 has not passed autonomous survival or Nether acceptance",
+    "Direct-grid metadata is not HTTP completion proof",
+    "New and prior datasets remain frozen; original20 not used for selection"
+  ],
+  "deadline": "2026-10-12T23:17:01Z"
+}

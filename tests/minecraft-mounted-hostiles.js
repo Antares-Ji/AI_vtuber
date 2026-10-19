@@ -1,0 +1,26 @@
+const assert = require('node:assert/strict');
+const { Vec3 } = require('vec3');
+const { effectivePosition, entityView, decide, HOSTILES, safetyMovements } = require('../src/minecraft/reactive-agent');
+const { observe, entityDiagnostics } = require('../src/minecraft/survival-skills');
+const { compactObservation } = require('../src/minecraft/survival-planner');
+const rider = { id: 57843, name: 'zombie', position: new Vec3(24, 66, 0), equipment: [{name:'iron_spear',count:1}] };
+const mount = { id: 57842, name: 'zombie_horse', position: new Vec3(2, 64, 0), passengers: [rider] };
+rider.vehicle = mount;
+const bot = { entity: { position: new Vec3(0,64,0) }, entities: {57843:rider,57842:mount}, game:{}, inventory:{items:()=>[]}, registry:{blocksByName:{}, itemsByName:{}}, findBlocks:()=>[], blockAt:()=>null };
+assert.equal(effectivePosition(bot,rider),mount.position);
+assert.equal(rider.position.x,24,'raw protocol rider coordinates stay intact');
+const view=entityView(bot,rider); mount.position.x=3; assert.equal(view.position.x,3,'GoalFollow view follows live mount');
+assert.equal(HOSTILES.has(mount.name),false,'mount alone is not hostile');
+assert.equal(decide({health:20,enabled:true,armed:true,entities:[{id:rider.id,name:rider.name,mounted:true,distance:2}]}).action,'flee');
+const state=observe(bot); assert.equal(state.threats[0].distance,3); assert.equal(state.threats[0].position.x,3);
+assert.equal(compactObservation(state).threats[0].distance,3,'model sees same resolved threat position');
+assert.equal(compactObservation(state).entityDiagnostics,undefined);
+const diagnostics=entityDiagnostics(bot); assert.equal(diagnostics.entities.find(e=>e.id===rider.id).position.x,24,'diagnostics retain raw position');
+assert.equal(diagnostics.entities.find(e=>e.id===rider.id).vehicle.loaded,true);
+mount.passengers=[];assert.equal(effectivePosition(bot,rider),rider.position,'stale one-sided relation rejected');mount.passengers=[rider];
+delete bot.entities[mount.id]; assert.equal(effectivePosition(bot,rider),rider.position,'unloaded mount rejected');bot.entities[mount.id]=mount;
+mount.vehicle=rider;rider.passengers=[mount];assert.equal(effectivePosition(bot,rider),mount.position,'cycle terminates before revisit');delete mount.vehicle;
+let previous=mount;for(let n=0;n<12;n++){let e={id:60000+n,name:'boat',position:new Vec3(n,0,0),passengers:[previous]};bot.entities[e.id]=e;previous.vehicle=e;previous=e;}
+assert(Number.isFinite(effectivePosition(bot,rider).x),'deep chain bounded');
+assert.equal(decide({health:20,enabled:true,entities:[{name:'zombie_horse',distance:1}]}).action,'idle');
+console.log('Mounted hostile position checks passed: reciprocal loaded relation, live view, no protocol mutation, stale/unloaded/cycle/depth guards, mounted retreat and planner alignment.');

@@ -1,0 +1,2001 @@
+{
+  "evaluationData": "E:\\Github\\AI_vtuber\\output\\minecraft-training\\v5r2-development47.jsonl",
+  "evaluationSha256": "0f5632030e830c29807ee6180007109969414a86ebea09b374904a46a98fe31d",
+  "n": 47,
+  "selectionRule": "Do not select by loss alone. Report slice/action-set semantics and retention of base behavior; final holdout excluded.",
+  "models": {
+    "base": {
+      "all47": {
+        "n": 47,
+        "strictSchema": {
+          "pass": 45,
+          "rate": 0.9574
+        },
+        "actionName": {
+          "pass": 19,
+          "rate": 0.4043
+        },
+        "exactActionObject": {
+          "pass": 8,
+          "rate": 0.1702
+        },
+        "acceptedActionSetOrExact": {
+          "pass": 11,
+          "rate": 0.234
+        },
+        "progressionAccepted": {
+          "n": 40,
+          "pass": 8,
+          "rate": 0.2
+        },
+        "threatPriorityFlee": {
+          "n": 2,
+          "pass": 2,
+          "rate": 1.0
+        },
+        "fullFoodNoOpAvoided": {
+          "n": 1,
+          "pass": 1,
+          "rate": 1.0
+        },
+        "toolStageCraftAccepted": {
+          "n": 5,
+          "pass": 2,
+          "rate": 0.4
+        },
+        "recipeEnumActionsAccepted": {
+          "n": 4,
+          "pass": 3,
+          "rate": 0.75
+        },
+        "woodRecoverySliceAccepted": {
+          "n": 14,
+          "pass": 1,
+          "rate": 0.0714
+        },
+        "latencyMs": {
+          "median": 1238.1,
+          "mean": 1251.7
+        }
+      },
+      "legacyFrozenBroad26": {
+        "n": 26,
+        "strictSchema": {
+          "pass": 25,
+          "rate": 0.9615
+        },
+        "actionName": {
+          "pass": 11,
+          "rate": 0.4231
+        },
+        "exactActionObject": {
+          "pass": 6,
+          "rate": 0.2308
+        },
+        "acceptedActionSetOrExact": {
+          "pass": 6,
+          "rate": 0.2308
+        },
+        "progressionAccepted": {
+          "n": 20,
+          "pass": 3,
+          "rate": 0.15
+        },
+        "threatPriorityFlee": {
+          "n": 2,
+          "pass": 2,
+          "rate": 1.0
+        },
+        "fullFoodNoOpAvoided": {
+          "n": 0,
+          "pass": 0,
+          "rate": null
+        },
+        "toolStageCraftAccepted": {
+          "n": 4,
+          "pass": 2,
+          "rate": 0.5
+        },
+        "recipeEnumActionsAccepted": {
+          "n": 0,
+          "pass": 0,
+          "rate": null
+        },
+        "woodRecoverySliceAccepted": {
+          "n": 7,
+          "pass": 1,
+          "rate": 0.1429
+        },
+        "latencyMs": {
+          "median": 1191.8,
+          "mean": 1216.0
+        }
+      },
+      "legacyRealProbeRows2": {
+        "n": 2,
+        "strictSchema": {
+          "pass": 2,
+          "rate": 1.0
+        },
+        "actionName": {
+          "pass": 2,
+          "rate": 1.0
+        },
+        "exactActionObject": {
+          "pass": 2,
+          "rate": 1.0
+        },
+        "acceptedActionSetOrExact": {
+          "pass": 2,
+          "rate": 1.0
+        },
+        "progressionAccepted": {
+          "n": 2,
+          "pass": 2,
+          "rate": 1.0
+        },
+        "threatPriorityFlee": {
+          "n": 0,
+          "pass": 0,
+          "rate": null
+        },
+        "fullFoodNoOpAvoided": {
+          "n": 0,
+          "pass": 0,
+          "rate": null
+        },
+        "toolStageCraftAccepted": {
+          "n": 0,
+          "pass": 0,
+          "rate": null
+        },
+        "recipeEnumActionsAccepted": {
+          "n": 1,
+          "pass": 1,
+          "rate": 1.0
+        },
+        "woodRecoverySliceAccepted": {
+          "n": 1,
+          "pass": 1,
+          "rate": 1.0
+        },
+        "latencyMs": {
+          "median": 1456.6,
+          "mean": 1359.5
+        }
+      },
+      "v4AllowedSet8": {
+        "n": 8,
+        "strictSchema": {
+          "pass": 8,
+          "rate": 1.0
+        },
+        "actionName": {
+          "pass": 3,
+          "rate": 0.375
+        },
+        "exactActionObject": {
+          "pass": 1,
+          "rate": 0.125
+        },
+        "acceptedActionSetOrExact": {
+          "pass": 2,
+          "rate": 0.25
+        },
+        "progressionAccepted": {
+          "n": 8,
+          "pass": 2,
+          "rate": 0.25
+        },
+        "threatPriorityFlee": {
+          "n": 0,
+          "pass": 0,
+          "rate": null
+        },
+        "fullFoodNoOpAvoided": {
+          "n": 0,
+          "pass": 0,
+          "rate": null
+        },
+        "toolStageCraftAccepted": {
+          "n": 0,
+          "pass": 0,
+          "rate": null
+        },
+        "recipeEnumActionsAccepted": {
+          "n": 1,
+          "pass": 1,
+          "rate": 1.0
+        },
+        "woodRecoverySliceAccepted": {
+          "n": 3,
+          "pass": 0,
+          "rate": 0.0
+        },
+        "latencyMs": {
+          "median": 1235.8,
+          "mean": 1169.0
+        }
+      },
+      "v5r2Dense12": {
+        "n": 12,
+        "strictSchema": {
+          "pass": 11,
+          "rate": 0.9167
+        },
+        "actionName": {
+          "pass": 4,
+          "rate": 0.3333
+        },
+        "exactActionObject": {
+          "pass": 0,
+          "rate": 0.0
+        },
+        "acceptedActionSetOrExact": {
+          "pass": 2,
+          "rate": 0.1667
+        },
+        "progressionAccepted": {
+          "n": 11,
+          "pass": 2,
+          "rate": 0.1818
+        },
+        "threatPriorityFlee": {
+          "n": 0,
+          "pass": 0,
+          "rate": null
+        },
+        "fullFoodNoOpAvoided": {
+          "n": 1,
+          "pass": 1,
+          "rate": 1.0
+        },
+        "toolStageCraftAccepted": {
+          "n": 1,
+          "pass": 0,
+          "rate": 0.0
+        },
+        "recipeEnumActionsAccepted": {
+          "n": 2,
+          "pass": 1,
+          "rate": 0.5
+        },
+        "woodRecoverySliceAccepted": {
+          "n": 4,
+          "pass": 0,
+          "rate": 0.0
+        },
+        "latencyMs": {
+          "median": 1358.7,
+          "mean": 1367.2
+        }
+      },
+      "predictionsById": {
+        "development-v2-0001": {
+          "action": "craft",
+          "item": "stone_pickaxe",
+          "count": 1
+        },
+        "development-v2-0002": {
+          "action": "mine",
+          "resource": "stone",
+          "count": 1
+        },
+        "development-v2-0003": {
+          "action": "mine",
+          "resource": "diamond",
+          "count": 1
+        },
+        "development-v2-0004": {
+          "action": "craft",
+          "item": "planks",
+          "count": 8
+        },
+        "development-v2-0005": {
+          "action": "mine",
+          "resource": "coal",
+          "count": 1
+        },
+        "development-v2-0006": {
+          "action": "flee"
+        },
+        "development-v2-0007": {
+          "action": "mine",
+          "resource": "diamond",
+          "count": 1
+        },
+        "development-v2-0008": {
+          "action": "mine",
+          "resource": "coal",
+          "count": 1
+        },
+        "development-v2-0009": {
+          "action": "flee"
+        },
+        "development-v2-0010": {
+          "action": "mine",
+          "resource": "iron",
+          "count": 1
+        },
+        "development-v2-0011": {
+          "action": "mine",
+          "resource": "iron_ore",
+          "count": 1
+        },
+        "development-v2-0012": {
+          "action": "gather_wood",
+          "count": 12
+        },
+        "development-v2-0013": {
+          "action": "gather_wood",
+          "count": 12
+        },
+        "development-v2-0014": {
+          "action": "craft",
+          "item": "wooden_pickaxe",
+          "count": 1
+        },
+        "development-v2-0015": {
+          "action": "craft",
+          "item": "planks",
+          "count": 8
+        },
+        "development-v2-0016": {
+          "action": "gather_wood",
+          "count": 12
+        },
+        "development-v2-0017": {
+          "action": "mine",
+          "resource": "obsidian",
+          "count": 1
+        },
+        "development-v2-0018": {
+          "action": "mine",
+          "resource": "coal",
+          "count": 1
+        },
+        "development-v2-0019": {
+          "action": "eat"
+        },
+        "development-v2-0020": {
+          "action": "mine",
+          "resource": "coal",
+          "count": 1
+        },
+        "development-v2-0021": {
+          "action": "mine",
+          "resource": "coal",
+          "count": 1
+        },
+        "development-v2-0022": {
+          "action": "craft",
+          "item": "iron_pickaxe",
+          "count": 1
+        },
+        "development-v2-0023": {
+          "action": "eat"
+        },
+        "development-v2-0024": {
+          "action": "gather_wood",
+          "count": 12
+        },
+        "development-v2-0025": {
+          "action": "gather_wood",
+          "count": 12
+        },
+        "development-v2-0026": {
+          "action": "explore",
+          "direction": "northwest",
+          "distance": 16
+        },
+        "development-v3r1-real-material-probe": {
+          "action": "craft",
+          "item": "planks",
+          "count": 4
+        },
+        "v4r1-dev-01": {
+          "action": "craft",
+          "item": "furnace",
+          "count": 1
+        },
+        "v4r1-dev-02": {
+          "action": "mine",
+          "resource": "iron",
+          "count": 1
+        },
+        "v4r1-dev-03": {
+          "action": "craft",
+          "item": "furnace",
+          "count": 1
+        },
+        "v4r1-dev-04": {
+          "action": "craft",
+          "item": "crafting_table",
+          "count": 1
+        },
+        "v4r1-dev-05": {
+          "action": "gather_wood",
+          "count": 12
+        },
+        "v4r1-dev-06": {
+          "action": "craft",
+          "item": "planks",
+          "count": 4
+        },
+        "v4r1-dev-07": {
+          "action": "gather_wood",
+          "count": 12
+        },
+        "v4r1-dev-08": {
+          "action": "eat"
+        },
+        "v5r2-dev-01": {
+          "action": "mine",
+          "resource": "coal",
+          "count": 1
+        },
+        "v5r2-dev-02": {
+          "action": "mine",
+          "resource": "coal",
+          "count": 1
+        },
+        "v5r2-dev-03": {
+          "action": "gather_wood",
+          "count": 12
+        },
+        "v5r2-dev-04": {
+          "action": "mine",
+          "resource": "stone",
+          "count": 1
+        },
+        "v5r2-dev-05": {
+          "action": "mine",
+          "resource": "coal",
+          "count": 1
+        },
+        "v5r2-dev-06": {
+          "action": "mine",
+          "resource": "stone",
+          "count": 1
+        },
+        "v5r2-dev-07": {
+          "action": "craft",
+          "item": "planks",
+          "count": 8
+        },
+        "v5r2-dev-08": {
+          "action": "mine",
+          "resource": "stone",
+          "count": 1
+        },
+        "v5r2-dev-09": {
+          "action": "craft",
+          "item": "planks",
+          "count": 4
+        },
+        "v5r2-dev-10": {
+          "action": "mine",
+          "resource": "spruce_log",
+          "count": 1
+        },
+        "v5r2-dev-11": {
+          "action": "mine",
+          "resource": "coal",
+          "count": 1
+        },
+        "v5r2-dev-12": {
+          "action": "mine",
+          "resource": "coal",
+          "count": 1
+        }
+      }
+    },
+    "v4r1": {
+      "all47": {
+        "n": 47,
+        "strictSchema": {
+          "pass": 47,
+          "rate": 1.0
+        },
+        "actionName": {
+          "pass": 28,
+          "rate": 0.5957
+        },
+        "exactActionObject": {
+          "pass": 13,
+          "rate": 0.2766
+        },
+        "acceptedActionSetOrExact": {
+          "pass": 18,
+          "rate": 0.383
+        },
+        "progressionAccepted": {
+          "n": 40,
+          "pass": 12,
+          "rate": 0.3
+        },
+        "threatPriorityFlee": {
+          "n": 2,
+          "pass": 2,
+          "rate": 1.0
+        },
+        "fullFoodNoOpAvoided": {
+          "n": 1,
+          "pass": 1,
+          "rate": 1.0
+        },
+        "toolStageCraftAccepted": {
+          "n": 5,
+          "pass": 4,
+          "rate": 0.8
+        },
+        "recipeEnumActionsAccepted": {
+          "n": 4,
+          "pass": 3,
+          "rate": 0.75
+        },
+        "woodRecoverySliceAccepted": {
+          "n": 14,
+          "pass": 2,
+          "rate": 0.1429
+        },
+        "latencyMs": {
+          "median": 1609.8,
+          "mean": 1458.1
+        }
+      },
+      "legacyFrozenBroad26": {
+        "n": 26,
+        "strictSchema": {
+          "pass": 26,
+          "rate": 1.0
+        },
+        "actionName": {
+          "pass": 19,
+          "rate": 0.7308
+        },
+        "exactActionObject": {
+          "pass": 11,
+          "rate": 0.4231
+        },
+        "acceptedActionSetOrExact": {
+          "pass": 11,
+          "rate": 0.4231
+        },
+        "progressionAccepted": {
+          "n": 20,
+          "pass": 5,
+          "rate": 0.25
+        },
+        "threatPriorityFlee": {
+          "n": 2,
+          "pass": 2,
+          "rate": 1.0
+        },
+        "fullFoodNoOpAvoided": {
+          "n": 0,
+          "pass": 0,
+          "rate": null
+        },
+        "toolStageCraftAccepted": {
+          "n": 4,
+          "pass": 4,
+          "rate": 1.0
+        },
+        "recipeEnumActionsAccepted": {
+          "n": 0,
+          "pass": 0,
+          "rate": null
+        },
+        "woodRecoverySliceAccepted": {
+          "n": 7,
+          "pass": 0,
+          "rate": 0.0
+        },
+        "latencyMs": {
+          "median": 1474.6,
+          "mean": 1341.5
+        }
+      },
+      "legacyRealProbeRows2": {
+        "n": 2,
+        "strictSchema": {
+          "pass": 2,
+          "rate": 1.0
+        },
+        "actionName": {
+          "pass": 2,
+          "rate": 1.0
+        },
+        "exactActionObject": {
+          "pass": 1,
+          "rate": 0.5
+        },
+        "acceptedActionSetOrExact": {
+          "pass": 1,
+          "rate": 0.5
+        },
+        "progressionAccepted": {
+          "n": 2,
+          "pass": 1,
+          "rate": 0.5
+        },
+        "threatPriorityFlee": {
+          "n": 0,
+          "pass": 0,
+          "rate": null
+        },
+        "fullFoodNoOpAvoided": {
+          "n": 0,
+          "pass": 0,
+          "rate": null
+        },
+        "toolStageCraftAccepted": {
+          "n": 0,
+          "pass": 0,
+          "rate": null
+        },
+        "recipeEnumActionsAccepted": {
+          "n": 1,
+          "pass": 1,
+          "rate": 1.0
+        },
+        "woodRecoverySliceAccepted": {
+          "n": 1,
+          "pass": 0,
+          "rate": 0.0
+        },
+        "latencyMs": {
+          "median": 1735.8,
+          "mean": 1672.8
+        }
+      },
+      "v4AllowedSet8": {
+        "n": 8,
+        "strictSchema": {
+          "pass": 8,
+          "rate": 1.0
+        },
+        "actionName": {
+          "pass": 4,
+          "rate": 0.5
+        },
+        "exactActionObject": {
+          "pass": 1,
+          "rate": 0.125
+        },
+        "acceptedActionSetOrExact": {
+          "pass": 4,
+          "rate": 0.5
+        },
+        "progressionAccepted": {
+          "n": 8,
+          "pass": 4,
+          "rate": 0.5
+        },
+        "threatPriorityFlee": {
+          "n": 0,
+          "pass": 0,
+          "rate": null
+        },
+        "fullFoodNoOpAvoided": {
+          "n": 0,
+          "pass": 0,
+          "rate": null
+        },
+        "toolStageCraftAccepted": {
+          "n": 0,
+          "pass": 0,
+          "rate": null
+        },
+        "recipeEnumActionsAccepted": {
+          "n": 1,
+          "pass": 1,
+          "rate": 1.0
+        },
+        "woodRecoverySliceAccepted": {
+          "n": 3,
+          "pass": 2,
+          "rate": 0.6667
+        },
+        "latencyMs": {
+          "median": 1569.6,
+          "mean": 1471.3
+        }
+      },
+      "v5r2Dense12": {
+        "n": 12,
+        "strictSchema": {
+          "pass": 12,
+          "rate": 1.0
+        },
+        "actionName": {
+          "pass": 4,
+          "rate": 0.3333
+        },
+        "exactActionObject": {
+          "pass": 0,
+          "rate": 0.0
+        },
+        "acceptedActionSetOrExact": {
+          "pass": 2,
+          "rate": 0.1667
+        },
+        "progressionAccepted": {
+          "n": 11,
+          "pass": 2,
+          "rate": 0.1818
+        },
+        "threatPriorityFlee": {
+          "n": 0,
+          "pass": 0,
+          "rate": null
+        },
+        "fullFoodNoOpAvoided": {
+          "n": 1,
+          "pass": 1,
+          "rate": 1.0
+        },
+        "toolStageCraftAccepted": {
+          "n": 1,
+          "pass": 0,
+          "rate": 0.0
+        },
+        "recipeEnumActionsAccepted": {
+          "n": 2,
+          "pass": 1,
+          "rate": 0.5
+        },
+        "woodRecoverySliceAccepted": {
+          "n": 4,
+          "pass": 0,
+          "rate": 0.0
+        },
+        "latencyMs": {
+          "median": 1679.1,
+          "mean": 1678.9
+        }
+      },
+      "predictionsById": {
+        "development-v2-0001": {
+          "action": "craft",
+          "item": "stone_pickaxe",
+          "count": 1
+        },
+        "development-v2-0002": {
+          "action": "mine",
+          "resource": "stone",
+          "count": 4
+        },
+        "development-v2-0003": {
+          "action": "eat"
+        },
+        "development-v2-0004": {
+          "action": "craft",
+          "item": "iron_pickaxe",
+          "count": 1
+        },
+        "development-v2-0005": {
+          "action": "eat"
+        },
+        "development-v2-0006": {
+          "action": "flee"
+        },
+        "development-v2-0007": {
+          "action": "mine",
+          "resource": "diamond",
+          "count": 3
+        },
+        "development-v2-0008": {
+          "action": "explore",
+          "direction": "north",
+          "distance": 24
+        },
+        "development-v2-0009": {
+          "action": "flee"
+        },
+        "development-v2-0010": {
+          "action": "smelt",
+          "item": "raw_iron",
+          "count": 2
+        },
+        "development-v2-0011": {
+          "action": "mine",
+          "resource": "iron",
+          "count": 4
+        },
+        "development-v2-0012": {
+          "action": "collect_water"
+        },
+        "development-v2-0013": {
+          "action": "place_water"
+        },
+        "development-v2-0014": {
+          "action": "craft",
+          "item": "wooden_pickaxe",
+          "count": 1
+        },
+        "development-v2-0015": {
+          "action": "explore",
+          "direction": "north",
+          "distance": 24
+        },
+        "development-v2-0016": {
+          "action": "eat"
+        },
+        "development-v2-0017": {
+          "action": "mine",
+          "resource": "obsidian",
+          "count": 10
+        },
+        "development-v2-0018": {
+          "action": "eat"
+        },
+        "development-v2-0019": {
+          "action": "flee"
+        },
+        "development-v2-0020": {
+          "action": "explore",
+          "direction": "north",
+          "distance": 24
+        },
+        "development-v2-0021": {
+          "action": "mine",
+          "resource": "coal",
+          "count": 4
+        },
+        "development-v2-0022": {
+          "action": "craft",
+          "item": "stone_pickaxe",
+          "count": 1
+        },
+        "development-v2-0023": {
+          "action": "eat"
+        },
+        "development-v2-0024": {
+          "action": "craft",
+          "item": "torch",
+          "count": 4
+        },
+        "development-v2-0025": {
+          "action": "gather_wood",
+          "count": 3
+        },
+        "development-v2-0026": {
+          "action": "explore",
+          "direction": "south",
+          "distance": 24
+        },
+        "development-v3r1-real-material-probe": {
+          "action": "craft",
+          "item": "planks",
+          "count": 4
+        },
+        "v4r1-dev-01": {
+          "action": "craft",
+          "item": "stick",
+          "count": 4
+        },
+        "v4r1-dev-02": {
+          "action": "mine",
+          "resource": "iron",
+          "count": 4
+        },
+        "v4r1-dev-03": {
+          "action": "explore",
+          "direction": "east",
+          "distance": 24
+        },
+        "v4r1-dev-04": {
+          "action": "craft",
+          "item": "planks",
+          "count": 16
+        },
+        "v4r1-dev-05": {
+          "action": "gather_wood",
+          "count": 6
+        },
+        "v4r1-dev-06": {
+          "action": "craft",
+          "item": "planks",
+          "count": 4
+        },
+        "v4r1-dev-07": {
+          "action": "explore",
+          "direction": "south",
+          "distance": 24
+        },
+        "v4r1-dev-08": {
+          "action": "eat"
+        },
+        "v5r2-dev-01": {
+          "action": "mine",
+          "resource": "stone",
+          "count": 4
+        },
+        "v5r2-dev-02": {
+          "action": "mine",
+          "resource": "stone",
+          "count": 4
+        },
+        "v5r2-dev-03": {
+          "action": "mine",
+          "resource": "coal",
+          "count": 4
+        },
+        "v5r2-dev-04": {
+          "action": "mine",
+          "resource": "stone",
+          "count": 4
+        },
+        "v5r2-dev-05": {
+          "action": "mine",
+          "resource": "coal",
+          "count": 3
+        },
+        "v5r2-dev-06": {
+          "action": "mine",
+          "resource": "coal",
+          "count": 3
+        },
+        "v5r2-dev-07": {
+          "action": "mine",
+          "resource": "stone",
+          "count": 4
+        },
+        "v5r2-dev-08": {
+          "action": "mine",
+          "resource": "stone",
+          "count": 4
+        },
+        "v5r2-dev-09": {
+          "action": "craft",
+          "item": "planks",
+          "count": 4
+        },
+        "v5r2-dev-10": {
+          "action": "mine",
+          "resource": "stone",
+          "count": 4
+        },
+        "v5r2-dev-11": {
+          "action": "mine",
+          "resource": "coal",
+          "count": 3
+        },
+        "v5r2-dev-12": {
+          "action": "mine",
+          "resource": "coal",
+          "count": 3
+        }
+      },
+      "baseAcceptedToModelRejected": [
+        {
+          "id": "development-v2-0025",
+          "slice": "legacy27",
+          "scenario": "实机纠偏：满饥饿空背包、多次hunt无动物但21格有原木",
+          "base": {
+            "action": "gather_wood",
+            "count": 12
+          },
+          "model": {
+            "action": "gather_wood",
+            "count": 3
+          }
+        }
+      ],
+      "v4r1AcceptedToModelRejected": []
+    },
+    "epoch-01": {
+      "all47": {
+        "n": 47,
+        "strictSchema": {
+          "pass": 47,
+          "rate": 1.0
+        },
+        "actionName": {
+          "pass": 28,
+          "rate": 0.5957
+        },
+        "exactActionObject": {
+          "pass": 14,
+          "rate": 0.2979
+        },
+        "acceptedActionSetOrExact": {
+          "pass": 19,
+          "rate": 0.4043
+        },
+        "progressionAccepted": {
+          "n": 40,
+          "pass": 13,
+          "rate": 0.325
+        },
+        "threatPriorityFlee": {
+          "n": 2,
+          "pass": 2,
+          "rate": 1.0
+        },
+        "fullFoodNoOpAvoided": {
+          "n": 1,
+          "pass": 1,
+          "rate": 1.0
+        },
+        "toolStageCraftAccepted": {
+          "n": 5,
+          "pass": 4,
+          "rate": 0.8
+        },
+        "recipeEnumActionsAccepted": {
+          "n": 4,
+          "pass": 4,
+          "rate": 1.0
+        },
+        "woodRecoverySliceAccepted": {
+          "n": 14,
+          "pass": 2,
+          "rate": 0.1429
+        },
+        "latencyMs": {
+          "median": 1566.1,
+          "mean": 1422.0
+        }
+      },
+      "legacyFrozenBroad26": {
+        "n": 26,
+        "strictSchema": {
+          "pass": 26,
+          "rate": 1.0
+        },
+        "actionName": {
+          "pass": 18,
+          "rate": 0.6923
+        },
+        "exactActionObject": {
+          "pass": 11,
+          "rate": 0.4231
+        },
+        "acceptedActionSetOrExact": {
+          "pass": 11,
+          "rate": 0.4231
+        },
+        "progressionAccepted": {
+          "n": 20,
+          "pass": 5,
+          "rate": 0.25
+        },
+        "threatPriorityFlee": {
+          "n": 2,
+          "pass": 2,
+          "rate": 1.0
+        },
+        "fullFoodNoOpAvoided": {
+          "n": 0,
+          "pass": 0,
+          "rate": null
+        },
+        "toolStageCraftAccepted": {
+          "n": 4,
+          "pass": 4,
+          "rate": 1.0
+        },
+        "recipeEnumActionsAccepted": {
+          "n": 0,
+          "pass": 0,
+          "rate": null
+        },
+        "woodRecoverySliceAccepted": {
+          "n": 7,
+          "pass": 0,
+          "rate": 0.0
+        },
+        "latencyMs": {
+          "median": 1433.5,
+          "mean": 1289.7
+        }
+      },
+      "legacyRealProbeRows2": {
+        "n": 2,
+        "strictSchema": {
+          "pass": 2,
+          "rate": 1.0
+        },
+        "actionName": {
+          "pass": 1,
+          "rate": 0.5
+        },
+        "exactActionObject": {
+          "pass": 1,
+          "rate": 0.5
+        },
+        "acceptedActionSetOrExact": {
+          "pass": 1,
+          "rate": 0.5
+        },
+        "progressionAccepted": {
+          "n": 2,
+          "pass": 1,
+          "rate": 0.5
+        },
+        "threatPriorityFlee": {
+          "n": 0,
+          "pass": 0,
+          "rate": null
+        },
+        "fullFoodNoOpAvoided": {
+          "n": 0,
+          "pass": 0,
+          "rate": null
+        },
+        "toolStageCraftAccepted": {
+          "n": 0,
+          "pass": 0,
+          "rate": null
+        },
+        "recipeEnumActionsAccepted": {
+          "n": 1,
+          "pass": 1,
+          "rate": 1.0
+        },
+        "woodRecoverySliceAccepted": {
+          "n": 1,
+          "pass": 0,
+          "rate": 0.0
+        },
+        "latencyMs": {
+          "median": 1880.8,
+          "mean": 1778.7
+        }
+      },
+      "v4AllowedSet8": {
+        "n": 8,
+        "strictSchema": {
+          "pass": 8,
+          "rate": 1.0
+        },
+        "actionName": {
+          "pass": 4,
+          "rate": 0.5
+        },
+        "exactActionObject": {
+          "pass": 1,
+          "rate": 0.125
+        },
+        "acceptedActionSetOrExact": {
+          "pass": 4,
+          "rate": 0.5
+        },
+        "progressionAccepted": {
+          "n": 8,
+          "pass": 4,
+          "rate": 0.5
+        },
+        "threatPriorityFlee": {
+          "n": 0,
+          "pass": 0,
+          "rate": null
+        },
+        "fullFoodNoOpAvoided": {
+          "n": 0,
+          "pass": 0,
+          "rate": null
+        },
+        "toolStageCraftAccepted": {
+          "n": 0,
+          "pass": 0,
+          "rate": null
+        },
+        "recipeEnumActionsAccepted": {
+          "n": 1,
+          "pass": 1,
+          "rate": 1.0
+        },
+        "woodRecoverySliceAccepted": {
+          "n": 3,
+          "pass": 2,
+          "rate": 0.6667
+        },
+        "latencyMs": {
+          "median": 1506.8,
+          "mean": 1420.1
+        }
+      },
+      "v5r2Dense12": {
+        "n": 12,
+        "strictSchema": {
+          "pass": 12,
+          "rate": 1.0
+        },
+        "actionName": {
+          "pass": 5,
+          "rate": 0.4167
+        },
+        "exactActionObject": {
+          "pass": 1,
+          "rate": 0.0833
+        },
+        "acceptedActionSetOrExact": {
+          "pass": 3,
+          "rate": 0.25
+        },
+        "progressionAccepted": {
+          "n": 11,
+          "pass": 3,
+          "rate": 0.2727
+        },
+        "threatPriorityFlee": {
+          "n": 0,
+          "pass": 0,
+          "rate": null
+        },
+        "fullFoodNoOpAvoided": {
+          "n": 1,
+          "pass": 1,
+          "rate": 1.0
+        },
+        "toolStageCraftAccepted": {
+          "n": 1,
+          "pass": 0,
+          "rate": 0.0
+        },
+        "recipeEnumActionsAccepted": {
+          "n": 2,
+          "pass": 2,
+          "rate": 1.0
+        },
+        "woodRecoverySliceAccepted": {
+          "n": 4,
+          "pass": 0,
+          "rate": 0.0
+        },
+        "latencyMs": {
+          "median": 1711.8,
+          "mean": 1688.6
+        }
+      },
+      "predictionsById": {
+        "development-v2-0001": {
+          "action": "craft",
+          "item": "stone_pickaxe",
+          "count": 1
+        },
+        "development-v2-0002": {
+          "action": "mine",
+          "resource": "stone",
+          "count": 4
+        },
+        "development-v2-0003": {
+          "action": "eat"
+        },
+        "development-v2-0004": {
+          "action": "craft",
+          "item": "iron_pickaxe",
+          "count": 1
+        },
+        "development-v2-0005": {
+          "action": "eat"
+        },
+        "development-v2-0006": {
+          "action": "flee"
+        },
+        "development-v2-0007": {
+          "action": "mine",
+          "resource": "diamond",
+          "count": 3
+        },
+        "development-v2-0008": {
+          "action": "explore",
+          "direction": "south",
+          "distance": 24
+        },
+        "development-v2-0009": {
+          "action": "flee"
+        },
+        "development-v2-0010": {
+          "action": "smelt",
+          "item": "raw_iron",
+          "count": 2
+        },
+        "development-v2-0011": {
+          "action": "flee"
+        },
+        "development-v2-0012": {
+          "action": "collect_water"
+        },
+        "development-v2-0013": {
+          "action": "place_water"
+        },
+        "development-v2-0014": {
+          "action": "craft",
+          "item": "wooden_pickaxe",
+          "count": 1
+        },
+        "development-v2-0015": {
+          "action": "explore",
+          "direction": "south",
+          "distance": 24
+        },
+        "development-v2-0016": {
+          "action": "eat"
+        },
+        "development-v2-0017": {
+          "action": "mine",
+          "resource": "obsidian",
+          "count": 10
+        },
+        "development-v2-0018": {
+          "action": "eat"
+        },
+        "development-v2-0019": {
+          "action": "flee"
+        },
+        "development-v2-0020": {
+          "action": "explore",
+          "direction": "south",
+          "distance": 24
+        },
+        "development-v2-0021": {
+          "action": "mine",
+          "resource": "coal",
+          "count": 4
+        },
+        "development-v2-0022": {
+          "action": "craft",
+          "item": "stone_pickaxe",
+          "count": 1
+        },
+        "development-v2-0023": {
+          "action": "eat"
+        },
+        "development-v2-0024": {
+          "action": "craft",
+          "item": "torch",
+          "count": 4
+        },
+        "development-v2-0025": {
+          "action": "explore",
+          "direction": "northeast",
+          "distance": 24
+        },
+        "development-v2-0026": {
+          "action": "explore",
+          "direction": "south",
+          "distance": 24
+        },
+        "development-v3r1-real-material-probe": {
+          "action": "craft",
+          "item": "planks",
+          "count": 4
+        },
+        "v4r1-dev-01": {
+          "action": "craft",
+          "item": "stick",
+          "count": 4
+        },
+        "v4r1-dev-02": {
+          "action": "mine",
+          "resource": "iron",
+          "count": 4
+        },
+        "v4r1-dev-03": {
+          "action": "explore",
+          "direction": "east",
+          "distance": 24
+        },
+        "v4r1-dev-04": {
+          "action": "craft",
+          "item": "planks",
+          "count": 16
+        },
+        "v4r1-dev-05": {
+          "action": "gather_wood",
+          "count": 6
+        },
+        "v4r1-dev-06": {
+          "action": "craft",
+          "item": "planks",
+          "count": 4
+        },
+        "v4r1-dev-07": {
+          "action": "explore",
+          "direction": "south",
+          "distance": 24
+        },
+        "v4r1-dev-08": {
+          "action": "eat"
+        },
+        "v5r2-dev-01": {
+          "action": "mine",
+          "resource": "stone",
+          "count": 4
+        },
+        "v5r2-dev-02": {
+          "action": "mine",
+          "resource": "stone",
+          "count": 4
+        },
+        "v5r2-dev-03": {
+          "action": "mine",
+          "resource": "iron",
+          "count": 3
+        },
+        "v5r2-dev-04": {
+          "action": "craft",
+          "item": "planks",
+          "count": 8
+        },
+        "v5r2-dev-05": {
+          "action": "mine",
+          "resource": "coal",
+          "count": 3
+        },
+        "v5r2-dev-06": {
+          "action": "mine",
+          "resource": "coal",
+          "count": 3
+        },
+        "v5r2-dev-07": {
+          "action": "mine",
+          "resource": "stone",
+          "count": 4
+        },
+        "v5r2-dev-08": {
+          "action": "mine",
+          "resource": "stone",
+          "count": 4
+        },
+        "v5r2-dev-09": {
+          "action": "craft",
+          "item": "planks",
+          "count": 4
+        },
+        "v5r2-dev-10": {
+          "action": "craft",
+          "item": "crafting_table",
+          "count": 1
+        },
+        "v5r2-dev-11": {
+          "action": "mine",
+          "resource": "coal",
+          "count": 3
+        },
+        "v5r2-dev-12": {
+          "action": "mine",
+          "resource": "coal",
+          "count": 3
+        }
+      },
+      "baseAcceptedToModelRejected": [
+        {
+          "id": "development-v2-0025",
+          "slice": "legacy27",
+          "scenario": "实机纠偏：满饥饿空背包、多次hunt无动物但21格有原木",
+          "base": {
+            "action": "gather_wood",
+            "count": 12
+          },
+          "model": {
+            "action": "explore",
+            "direction": "northeast",
+            "distance": 24
+          }
+        }
+      ],
+      "v4r1AcceptedToModelRejected": []
+    },
+    "epoch-02": {
+      "all47": {
+        "n": 47,
+        "strictSchema": {
+          "pass": 47,
+          "rate": 1.0
+        },
+        "actionName": {
+          "pass": 32,
+          "rate": 0.6809
+        },
+        "exactActionObject": {
+          "pass": 14,
+          "rate": 0.2979
+        },
+        "acceptedActionSetOrExact": {
+          "pass": 22,
+          "rate": 0.4681
+        },
+        "progressionAccepted": {
+          "n": 40,
+          "pass": 17,
+          "rate": 0.425
+        },
+        "threatPriorityFlee": {
+          "n": 2,
+          "pass": 2,
+          "rate": 1.0
+        },
+        "fullFoodNoOpAvoided": {
+          "n": 1,
+          "pass": 1,
+          "rate": 1.0
+        },
+        "toolStageCraftAccepted": {
+          "n": 5,
+          "pass": 4,
+          "rate": 0.8
+        },
+        "recipeEnumActionsAccepted": {
+          "n": 4,
+          "pass": 4,
+          "rate": 1.0
+        },
+        "woodRecoverySliceAccepted": {
+          "n": 14,
+          "pass": 2,
+          "rate": 0.1429
+        },
+        "latencyMs": {
+          "median": 1572.4,
+          "mean": 1457.7
+        }
+      },
+      "legacyFrozenBroad26": {
+        "n": 26,
+        "strictSchema": {
+          "pass": 26,
+          "rate": 1.0
+        },
+        "actionName": {
+          "pass": 20,
+          "rate": 0.7692
+        },
+        "exactActionObject": {
+          "pass": 11,
+          "rate": 0.4231
+        },
+        "acceptedActionSetOrExact": {
+          "pass": 11,
+          "rate": 0.4231
+        },
+        "progressionAccepted": {
+          "n": 20,
+          "pass": 6,
+          "rate": 0.3
+        },
+        "threatPriorityFlee": {
+          "n": 2,
+          "pass": 2,
+          "rate": 1.0
+        },
+        "fullFoodNoOpAvoided": {
+          "n": 0,
+          "pass": 0,
+          "rate": null
+        },
+        "toolStageCraftAccepted": {
+          "n": 4,
+          "pass": 4,
+          "rate": 1.0
+        },
+        "recipeEnumActionsAccepted": {
+          "n": 0,
+          "pass": 0,
+          "rate": null
+        },
+        "woodRecoverySliceAccepted": {
+          "n": 7,
+          "pass": 0,
+          "rate": 0.0
+        },
+        "latencyMs": {
+          "median": 1444.3,
+          "mean": 1336.6
+        }
+      },
+      "legacyRealProbeRows2": {
+        "n": 2,
+        "strictSchema": {
+          "pass": 2,
+          "rate": 1.0
+        },
+        "actionName": {
+          "pass": 2,
+          "rate": 1.0
+        },
+        "exactActionObject": {
+          "pass": 1,
+          "rate": 0.5
+        },
+        "acceptedActionSetOrExact": {
+          "pass": 1,
+          "rate": 0.5
+        },
+        "progressionAccepted": {
+          "n": 2,
+          "pass": 1,
+          "rate": 0.5
+        },
+        "threatPriorityFlee": {
+          "n": 0,
+          "pass": 0,
+          "rate": null
+        },
+        "fullFoodNoOpAvoided": {
+          "n": 0,
+          "pass": 0,
+          "rate": null
+        },
+        "toolStageCraftAccepted": {
+          "n": 0,
+          "pass": 0,
+          "rate": null
+        },
+        "recipeEnumActionsAccepted": {
+          "n": 1,
+          "pass": 1,
+          "rate": 1.0
+        },
+        "woodRecoverySliceAccepted": {
+          "n": 1,
+          "pass": 0,
+          "rate": 0.0
+        },
+        "latencyMs": {
+          "median": 1680.8,
+          "mean": 1600.0
+        }
+      },
+      "v4AllowedSet8": {
+        "n": 8,
+        "strictSchema": {
+          "pass": 8,
+          "rate": 1.0
+        },
+        "actionName": {
+          "pass": 6,
+          "rate": 0.75
+        },
+        "exactActionObject": {
+          "pass": 1,
+          "rate": 0.125
+        },
+        "acceptedActionSetOrExact": {
+          "pass": 6,
+          "rate": 0.75
+        },
+        "progressionAccepted": {
+          "n": 8,
+          "pass": 6,
+          "rate": 0.75
+        },
+        "threatPriorityFlee": {
+          "n": 0,
+          "pass": 0,
+          "rate": null
+        },
+        "fullFoodNoOpAvoided": {
+          "n": 0,
+          "pass": 0,
+          "rate": null
+        },
+        "toolStageCraftAccepted": {
+          "n": 0,
+          "pass": 0,
+          "rate": null
+        },
+        "recipeEnumActionsAccepted": {
+          "n": 1,
+          "pass": 1,
+          "rate": 1.0
+        },
+        "woodRecoverySliceAccepted": {
+          "n": 3,
+          "pass": 2,
+          "rate": 0.6667
+        },
+        "latencyMs": {
+          "median": 1523.5,
+          "mean": 1525.5
+        }
+      },
+      "v5r2Dense12": {
+        "n": 12,
+        "strictSchema": {
+          "pass": 12,
+          "rate": 1.0
+        },
+        "actionName": {
+          "pass": 5,
+          "rate": 0.4167
+        },
+        "exactActionObject": {
+          "pass": 1,
+          "rate": 0.0833
+        },
+        "acceptedActionSetOrExact": {
+          "pass": 4,
+          "rate": 0.3333
+        },
+        "progressionAccepted": {
+          "n": 11,
+          "pass": 4,
+          "rate": 0.3636
+        },
+        "threatPriorityFlee": {
+          "n": 0,
+          "pass": 0,
+          "rate": null
+        },
+        "fullFoodNoOpAvoided": {
+          "n": 1,
+          "pass": 1,
+          "rate": 1.0
+        },
+        "toolStageCraftAccepted": {
+          "n": 1,
+          "pass": 0,
+          "rate": 0.0
+        },
+        "recipeEnumActionsAccepted": {
+          "n": 2,
+          "pass": 2,
+          "rate": 1.0
+        },
+        "woodRecoverySliceAccepted": {
+          "n": 4,
+          "pass": 0,
+          "rate": 0.0
+        },
+        "latencyMs": {
+          "median": 1648.1,
+          "mean": 1656.2
+        }
+      },
+      "predictionsById": {
+        "development-v2-0001": {
+          "action": "craft",
+          "item": "stone_pickaxe",
+          "count": 1
+        },
+        "development-v2-0002": {
+          "action": "mine",
+          "resource": "stone",
+          "count": 4
+        },
+        "development-v2-0003": {
+          "action": "mine",
+          "resource": "diamond",
+          "count": 3
+        },
+        "development-v2-0004": {
+          "action": "craft",
+          "item": "iron_pickaxe",
+          "count": 1
+        },
+        "development-v2-0005": {
+          "action": "eat"
+        },
+        "development-v2-0006": {
+          "action": "flee"
+        },
+        "development-v2-0007": {
+          "action": "mine",
+          "resource": "diamond",
+          "count": 3
+        },
+        "development-v2-0008": {
+          "action": "dig_staircase",
+          "direction": "south",
+          "steps": 4
+        },
+        "development-v2-0009": {
+          "action": "flee"
+        },
+        "development-v2-0010": {
+          "action": "smelt",
+          "item": "raw_iron",
+          "count": 2
+        },
+        "development-v2-0011": {
+          "action": "mine",
+          "resource": "iron",
+          "count": 3
+        },
+        "development-v2-0012": {
+          "action": "collect_water"
+        },
+        "development-v2-0013": {
+          "action": "place_water"
+        },
+        "development-v2-0014": {
+          "action": "craft",
+          "item": "wooden_pickaxe",
+          "count": 1
+        },
+        "development-v2-0015": {
+          "action": "explore",
+          "direction": "north",
+          "distance": 24
+        },
+        "development-v2-0016": {
+          "action": "eat"
+        },
+        "development-v2-0017": {
+          "action": "mine",
+          "resource": "obsidian",
+          "count": 10
+        },
+        "development-v2-0018": {
+          "action": "explore",
+          "direction": "north",
+          "distance": 24
+        },
+        "development-v2-0019": {
+          "action": "flee"
+        },
+        "development-v2-0020": {
+          "action": "explore",
+          "direction": "north",
+          "distance": 24
+        },
+        "development-v2-0021": {
+          "action": "mine",
+          "resource": "coal",
+          "count": 3
+        },
+        "development-v2-0022": {
+          "action": "craft",
+          "item": "stone_pickaxe",
+          "count": 1
+        },
+        "development-v2-0023": {
+          "action": "eat"
+        },
+        "development-v2-0024": {
+          "action": "craft",
+          "item": "torch",
+          "count": 4
+        },
+        "development-v2-0025": {
+          "action": "gather_wood",
+          "count": 4
+        },
+        "development-v2-0026": {
+          "action": "gather_wood",
+          "count": 8
+        },
+        "development-v3r1-real-material-probe": {
+          "action": "craft",
+          "item": "planks",
+          "count": 4
+        },
+        "v4r1-dev-01": {
+          "action": "craft",
+          "item": "stick",
+          "count": 4
+        },
+        "v4r1-dev-02": {
+          "action": "mine",
+          "resource": "iron",
+          "count": 4
+        },
+        "v4r1-dev-03": {
+          "action": "explore",
+          "direction": "east",
+          "distance": 24
+        },
+        "v4r1-dev-04": {
+          "action": "craft",
+          "item": "planks",
+          "count": 16
+        },
+        "v4r1-dev-05": {
+          "action": "gather_wood",
+          "count": 6
+        },
+        "v4r1-dev-06": {
+          "action": "craft",
+          "item": "planks",
+          "count": 4
+        },
+        "v4r1-dev-07": {
+          "action": "dig_staircase",
+          "direction": "south",
+          "steps": 4
+        },
+        "v4r1-dev-08": {
+          "action": "craft",
+          "item": "torch",
+          "count": 4
+        },
+        "v5r2-dev-01": {
+          "action": "mine",
+          "resource": "coal",
+          "count": 3
+        },
+        "v5r2-dev-02": {
+          "action": "mine",
+          "resource": "stone",
+          "count": 4
+        },
+        "v5r2-dev-03": {
+          "action": "mine",
+          "resource": "iron",
+          "count": 3
+        },
+        "v5r2-dev-04": {
+          "action": "mine",
+          "resource": "stone",
+          "count": 4
+        },
+        "v5r2-dev-05": {
+          "action": "mine",
+          "resource": "coal",
+          "count": 3
+        },
+        "v5r2-dev-06": {
+          "action": "mine",
+          "resource": "coal",
+          "count": 3
+        },
+        "v5r2-dev-07": {
+          "action": "mine",
+          "resource": "stone",
+          "count": 3
+        },
+        "v5r2-dev-08": {
+          "action": "mine",
+          "resource": "stone",
+          "count": 4
+        },
+        "v5r2-dev-09": {
+          "action": "craft",
+          "item": "planks",
+          "count": 4
+        },
+        "v5r2-dev-10": {
+          "action": "craft",
+          "item": "crafting_table",
+          "count": 1
+        },
+        "v5r2-dev-11": {
+          "action": "mine",
+          "resource": "iron",
+          "count": 3
+        },
+        "v5r2-dev-12": {
+          "action": "mine",
+          "resource": "stone",
+          "count": 4
+        }
+      },
+      "baseAcceptedToModelRejected": [
+        {
+          "id": "development-v2-0025",
+          "slice": "legacy27",
+          "scenario": "实机纠偏：满饥饿空背包、多次hunt无动物但21格有原木",
+          "base": {
+            "action": "gather_wood",
+            "count": 12
+          },
+          "model": {
+            "action": "gather_wood",
+            "count": 4
+          }
+        }
+      ],
+      "v4r1AcceptedToModelRejected": [
+        {
+          "id": "development-v2-0003",
+          "slice": "legacy27",
+          "scenario": "开发-铁镐可采远处钻石但食物不足",
+          "v4r1": {
+            "action": "eat"
+          },
+          "model": {
+            "action": "mine",
+            "resource": "diamond",
+            "count": 3
+          }
+        }
+      ]
+    }
+  }
+}

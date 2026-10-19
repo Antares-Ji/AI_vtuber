@@ -1,0 +1,41 @@
+{
+  "scope": {
+    "start": "2026-10-12T20:49:48.913Z",
+    "end": "2026-10-12T20:52:56.072Z",
+    "source": "logs/minecraft-autonomy.jsonl",
+    "sessionLog": "logs/minecraft-session-1791830191222.jsonl"
+  },
+  "records": 24,
+  "counts": {
+    "requests": 24,
+    "completions": 24,
+    "decisions": 24,
+    "actionResults": 23,
+    "completeChains": 23,
+    "missingActionResult": 1,
+    "promptObservationMatches": 24,
+    "historyMatches": 24,
+    "systemPromptMatches": 24,
+    "adapterMetadataMatches": 24,
+    "completionActionMatches": 24
+  },
+  "rawTracePath": "data\\minecraft-training\\v4r1-live-trial-20261012-dev-only-r1.jsonl",
+  "stopClassification": "Step 24 has no model_action_result in the autonomy log. Session log links its skill_started and cancellation/finished events (all before the exact window-end timestamp); preserve this as a cancelled in-window action, not as unexecuted.",
+  "windowSettlement": {
+    "path": "data\\minecraft-training\\v4r1-live-trial-20261012-window-settlement-r1.jsonl",
+    "taskId": "3e8853f4-81a5-4894-8acd-7207a1035601",
+    "finalStatus": "cancelled",
+    "skillEvents": [
+      "skill_failed",
+      "skill_finished"
+    ],
+    "modelActionResultPresent": false
+  },
+  "limitations": [
+    "This is an actual trajectory candidate, not a curated gold-label dataset.",
+    "Executor reachability/path-budget failures and the final cancelled skill are retained and must not be labeled as model failures without a separate policy review.",
+    "No rows from the sealed final holdout were read.",
+    "The trace remains development-only; exact prompts/states must not enter training."
+  ],
+  "issues": []
+}

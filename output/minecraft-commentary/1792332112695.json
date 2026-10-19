@@ -1,0 +1,40 @@
+{
+  "capturedAt": 1792332112695,
+  "evidence": {
+    "goal": "由本地千问自主决策建立一个生存小家：房屋有床、箱子、火把，采集材料、制作工具、狩猎动物、烹饪并吃食物、浅矿采集后返回家。全部已注册动作均可选择，包括navigate、dig_block、place_block、attack_entity、sleep、container_transfer等；根据真实结果调整，不重复囤木。成功与失败以真实世界和库存证据为准。",
+    "currentSubgoal": "采集木材并制作工作台",
+    "action": {
+      "action": "gather_wood",
+      "count": 6
+    },
+    "outcome": "running",
+    "error": null,
+    "inventory": [
+      {
+        "name": "spruce_sapling",
+        "count": 1
+      },
+      {
+        "name": "spruce_log",
+        "count": 10
+      }
+    ],
+    "health": 20,
+    "food": 20,
+    "yolo": {
+      "scope": "COCO only, not trained for Minecraft",
+      "detections": [
+        {
+          "label": "keyboard",
+          "confidence": 0.313
+        }
+      ]
+    }
+  },
+  "speech": "雪夜砍树还在继续，背包里已经有十根云杉原木了，正试着凑够数做工作台。这雪厚得，砍一棵树都费劲。",
+  "model": "deepseek-flash",
+  "provider": "cloud",
+  "visionModel": "qwen3.5-4b",
+  "visualObservation": "夜间雪地地形，可见树木、积雪覆盖的地面及一个木箱。",
+  "expired": false
+}

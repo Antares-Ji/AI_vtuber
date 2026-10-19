@@ -1,0 +1,1574 @@
+{
+  "generatedAt": "2026-10-12T22:36:23.423Z",
+  "death": {
+    "at": "2026-10-12T22:21:58.050Z",
+    "event": "death",
+    "safetyWillResume": true,
+    "lifecycleEpoch": 9
+  },
+  "serverAttribution": {
+    "at": "2026-10-12T22:21:58.048Z",
+    "event": "server_message",
+    "text": "SuiGeBot was blown up by Creeper"
+  },
+  "window": {
+    "start": "2026-10-12T22:21:28.050Z",
+    "end": "2026-10-12T22:21:58.050Z"
+  },
+  "deploymentAtDeath": "a8fcfe711b76329d15f4565b65236ffb46dd0c317b51c84cfe5d29596bc382f5",
+  "modelAttribution": "Loop stopped before encounter; no model progression task. Model endpoint service was still loaded, but its later shutdown is not the death time. This is an executor defense failure, not a Qwen action failure.",
+  "events": [
+    {
+      "at": "2026-10-12T22:21:30.653Z",
+      "event": "reactive_timing",
+      "configuredIntervalMs": 200,
+      "tickMs": 0.2,
+      "maxTickMs": 52.1,
+      "sampleGapMs": 200.8,
+      "maxSampleGapMs": 602,
+      "skippedTicks": 0,
+      "fallbackMs": 11.1,
+      "maxFallbackMs": 52,
+      "fallbackBudgetMs": 60,
+      "fallbackOverruns": 0,
+      "leafAwaitMs": 0,
+      "maxLeafAwaitMs": 0,
+      "intervalIsSchedulingTarget": true
+    },
+    {
+      "at": "2026-10-12T22:21:31.662Z",
+      "event": "priority_changed",
+      "mode": "flee",
+      "target": {
+        "id": 51670,
+        "name": "zombie"
+      },
+      "health": 18
+    },
+    {
+      "at": "2026-10-12T22:21:31.861Z",
+      "event": "priority_changed",
+      "mode": "flee",
+      "target": {
+        "id": 51662,
+        "name": "zombie"
+      },
+      "health": 18
+    },
+    {
+      "at": "2026-10-12T22:21:34.084Z",
+      "event": "priority_changed",
+      "mode": "flee",
+      "target": {
+        "id": 51729,
+        "name": "spider"
+      },
+      "health": 18
+    },
+    {
+      "at": "2026-10-12T22:21:34.294Z",
+      "event": "escape_short_route",
+      "position": {
+        "x": -159.50023727487482,
+        "y": 63,
+        "z": -118.35390598456422
+      },
+      "destination": {
+        "x": -166,
+        "y": 63,
+        "z": -119
+      },
+      "health": 18,
+      "currentSeparation": 9.971541004795172,
+      "separation": 12.543988019139686,
+      "revisitPenalty": 0,
+      "separationStalledMs": 2625,
+      "minPathClearance": 9.138214394932477,
+      "pathLength": 6,
+      "routeEdge": "(-160, 63, -119)->(-161, 63, -120)",
+      "firstWaypoint": {
+        "x": -160.5,
+        "y": 63,
+        "z": -119.5
+      },
+      "reusedStalledEdge": false,
+      "candidatesExamined": 1,
+      "candidateCount": 14,
+      "nextCandidateCursor": 0
+    },
+    {
+      "at": "2026-10-12T22:21:35.699Z",
+      "event": "escape_short_route",
+      "position": {
+        "x": -165.32996408756208,
+        "y": 63,
+        "z": -118.5002094146655
+      },
+      "destination": {
+        "x": -172,
+        "y": 64,
+        "z": -119
+      },
+      "health": 18,
+      "currentSeparation": 8.377408668717887,
+      "separation": 13.924665029993765,
+      "revisitPenalty": 0,
+      "separationStalledMs": 4031,
+      "minPathClearance": 9.359656710146139,
+      "pathLength": 6,
+      "routeEdge": "(-166, 63, -119)->(-167, 63, -119)",
+      "firstWaypoint": {
+        "x": -166.5,
+        "y": 63,
+        "z": -118.5
+      },
+      "reusedStalledEdge": false,
+      "candidatesExamined": 1,
+      "candidateCount": 18,
+      "nextCandidateCursor": 0
+    },
+    {
+      "at": "2026-10-12T22:21:36.716Z",
+      "event": "escape_no_separation_progress",
+      "position": {
+        "x": -169.77414679999998,
+        "y": 64.16610926093821,
+        "z": -118.50020941466526
+      },
+      "health": 18,
+      "separation": 9.44752507110757,
+      "bestSeparation": 11.682109248669462,
+      "durationMs": 5054,
+      "recentSites": 2,
+      "escapeVerified": false
+    },
+    {
+      "at": "2026-10-12T22:21:37.123Z",
+      "event": "escape_short_route",
+      "position": {
+        "x": -171.08736202050383,
+        "y": 64,
+        "z": -118.50020941466522
+      },
+      "destination": {
+        "x": -178,
+        "y": 64,
+        "z": -119
+      },
+      "health": 18,
+      "currentSeparation": 10.118086107516717,
+      "separation": 14.752709754056468,
+      "revisitPenalty": 0,
+      "separationStalledMs": 5457,
+      "minPathClearance": 11.004298865667584,
+      "pathLength": 6,
+      "routeEdge": "(-172, 64, -119)->(-173, 64, -119)",
+      "firstWaypoint": {
+        "x": -172.5,
+        "y": 64,
+        "z": -118.5
+      },
+      "reusedStalledEdge": false,
+      "candidatesExamined": 1,
+      "candidateCount": 15,
+      "nextCandidateCursor": 0
+    },
+    {
+      "at": "2026-10-12T22:21:37.321Z",
+      "event": "priority_changed",
+      "mode": "flee",
+      "target": {
+        "id": 51730,
+        "name": "spider"
+      },
+      "health": 18
+    },
+    {
+      "at": "2026-10-12T22:21:38.333Z",
+      "event": "escape_short_route",
+      "position": {
+        "x": -177.5,
+        "y": 64,
+        "z": -118.50020941466491
+      },
+      "destination": {
+        "x": -184,
+        "y": 64,
+        "z": -113
+      },
+      "health": 18,
+      "currentSeparation": 10.606080052545053,
+      "separation": 18.09349799044263,
+      "revisitPenalty": 0,
+      "separationStalledMs": 6666,
+      "minPathClearance": 11.948727869810858,
+      "pathLength": 6,
+      "routeEdge": "(-178, 64, -119)->(-179, 64, -118)",
+      "firstWaypoint": {
+        "x": -178.5,
+        "y": 64,
+        "z": -117.5
+      },
+      "reusedStalledEdge": false,
+      "candidatesExamined": 1,
+      "candidateCount": 16,
+      "nextCandidateCursor": 0
+    },
+    {
+      "at": "2026-10-12T22:21:39.949Z",
+      "event": "escape_short_route",
+      "position": {
+        "x": -183.5,
+        "y": 64,
+        "z": -112.5
+      },
+      "destination": {
+        "x": -190,
+        "y": 64,
+        "z": -107
+      },
+      "health": 18,
+      "currentSeparation": 13.280788559470842,
+      "separation": 20.952251458361605,
+      "revisitPenalty": 0,
+      "separationStalledMs": 401,
+      "minPathClearance": 14.602444848128055,
+      "pathLength": 6,
+      "routeEdge": "(-184, 64, -113)->(-185, 64, -112)",
+      "firstWaypoint": {
+        "x": -184.5,
+        "y": 64,
+        "z": -111.5
+      },
+      "reusedStalledEdge": false,
+      "candidatesExamined": 1,
+      "candidateCount": 16,
+      "nextCandidateCursor": 0
+    },
+    {
+      "at": "2026-10-12T22:21:40.762Z",
+      "event": "reactive_timing",
+      "configuredIntervalMs": 200,
+      "tickMs": 0.2,
+      "maxTickMs": 52.1,
+      "sampleGapMs": 201.4,
+      "maxSampleGapMs": 602,
+      "skippedTicks": 0,
+      "fallbackMs": 5.7,
+      "maxFallbackMs": 52,
+      "fallbackBudgetMs": 60,
+      "fallbackOverruns": 0,
+      "leafAwaitMs": 0,
+      "maxLeafAwaitMs": 0,
+      "intervalIsSchedulingTarget": true
+    },
+    {
+      "at": "2026-10-12T22:21:41.570Z",
+      "event": "escape_short_route",
+      "position": {
+        "x": -189.5,
+        "y": 64,
+        "z": -106.5
+      },
+      "destination": {
+        "x": -196,
+        "y": 64,
+        "z": -101
+      },
+      "health": 18,
+      "currentSeparation": 16.258540434628717,
+      "separation": 24.337055810059624,
+      "revisitPenalty": 0,
+      "separationStalledMs": 200,
+      "minPathClearance": 17.578362508228885,
+      "pathLength": 6,
+      "routeEdge": "(-190, 64, -107)->(-191, 64, -106)",
+      "firstWaypoint": {
+        "x": -190.5,
+        "y": 64,
+        "z": -105.5
+      },
+      "reusedStalledEdge": false,
+      "candidatesExamined": 1,
+      "candidateCount": 16,
+      "nextCandidateCursor": 0
+    },
+    {
+      "at": "2026-10-12T22:21:42.587Z",
+      "event": "priority_changed",
+      "mode": "flee",
+      "target": {
+        "id": 51684,
+        "name": "zombie"
+      },
+      "health": 18
+    },
+    {
+      "at": "2026-10-12T22:21:43.194Z",
+      "event": "priority_changed",
+      "mode": "flee",
+      "target": {
+        "id": 51769,
+        "name": "creeper"
+      },
+      "health": 18
+    },
+    {
+      "at": "2026-10-12T22:21:43.198Z",
+      "event": "escape_short_route",
+      "position": {
+        "x": -195.5,
+        "y": 64,
+        "z": -100.5
+      },
+      "destination": {
+        "x": -202,
+        "y": 64,
+        "z": -107
+      },
+      "health": 18,
+      "currentSeparation": 19.019832319602042,
+      "separation": 23.133763499553595,
+      "revisitPenalty": 0,
+      "separationStalledMs": 608,
+      "minPathClearance": 19.510429351939653,
+      "pathLength": 6,
+      "routeEdge": "(-196, 64, -101)->(-197, 64, -102)",
+      "firstWaypoint": {
+        "x": -196.5,
+        "y": 64,
+        "z": -101.5
+      },
+      "reusedStalledEdge": false,
+      "candidatesExamined": 1,
+      "candidateCount": 12,
+      "nextCandidateCursor": 0
+    },
+    {
+      "at": "2026-10-12T22:21:44.208Z",
+      "event": "priority_changed",
+      "mode": "flee",
+      "target": {
+        "id": 51729,
+        "name": "spider"
+      },
+      "health": 18
+    },
+    {
+      "at": "2026-10-12T22:21:44.832Z",
+      "event": "escape_short_route",
+      "position": {
+        "x": -201.5,
+        "y": 64,
+        "z": -106.5
+      },
+      "destination": {
+        "x": -208,
+        "y": 65,
+        "z": -107
+      },
+      "health": 18,
+      "currentSeparation": 19.06131181560386,
+      "separation": 23.884305679568072,
+      "revisitPenalty": 0,
+      "separationStalledMs": 2228,
+      "minPathClearance": 20.028732970335653,
+      "pathLength": 6,
+      "routeEdge": "(-202, 64, -107)->(-203, 64, -107)",
+      "firstWaypoint": {
+        "x": -202.5,
+        "y": 64,
+        "z": -106.5
+      },
+      "reusedStalledEdge": false,
+      "candidatesExamined": 2,
+      "candidateCount": 15,
+      "nextCandidateCursor": 0
+    },
+    {
+      "at": "2026-10-12T22:21:45.621Z",
+      "event": "priority_changed",
+      "mode": "flee",
+      "target": {
+        "id": 51964,
+        "name": "zombie"
+      },
+      "health": 18
+    },
+    {
+      "at": "2026-10-12T22:21:46.242Z",
+      "event": "escape_short_route",
+      "position": {
+        "x": -207.08736202050383,
+        "y": 65,
+        "z": -106.49999999999972
+      },
+      "destination": {
+        "x": -202,
+        "y": 64,
+        "z": -101
+      },
+      "health": 18,
+      "currentSeparation": 16.999800408143862,
+      "separation": 20.950758673310283,
+      "revisitPenalty": 0,
+      "separationStalledMs": 3651,
+      "minPathClearance": 17.302588155946566,
+      "pathLength": 6,
+      "routeEdge": "(-208, 65, -107)->(-207, 65, -106)",
+      "firstWaypoint": {
+        "x": -206.5,
+        "y": 65,
+        "z": -105.5
+      },
+      "reusedStalledEdge": false,
+      "candidatesExamined": 1,
+      "candidateCount": 15,
+      "nextCandidateCursor": 0
+    },
+    {
+      "at": "2026-10-12T22:21:47.644Z",
+      "event": "priority_changed",
+      "mode": "flee",
+      "target": {
+        "id": 51769,
+        "name": "creeper"
+      },
+      "health": 18
+    },
+    {
+      "at": "2026-10-12T22:21:47.645Z",
+      "event": "escape_no_separation_progress",
+      "position": {
+        "x": -202.8892258020058,
+        "y": 64,
+        "z": -101.86364447999236
+      },
+      "health": 18,
+      "separation": 17.662408269359645,
+      "bestSeparation": 19.70286379704868,
+      "durationMs": 5058,
+      "recentSites": 6,
+      "escapeVerified": false
+    },
+    {
+      "at": "2026-10-12T22:21:48.058Z",
+      "event": "escape_short_route",
+      "position": {
+        "x": -201.68620886156944,
+        "y": 64,
+        "z": -100.68650729631716
+      },
+      "destination": {
+        "x": -203,
+        "y": 64,
+        "z": -101
+      },
+      "health": 18,
+      "currentSeparation": 16.830627265873037,
+      "separation": 17.473101749450407,
+      "revisitPenalty": 0,
+      "separationStalledMs": 5469,
+      "minPathClearance": 17.473101749450407,
+      "pathLength": 1,
+      "routeEdge": "(-202, 64, -101)->(-203, 64, -101)",
+      "firstWaypoint": {
+        "x": -202.5,
+        "y": 64,
+        "z": -100.5
+      },
+      "reusedStalledEdge": false,
+      "candidatesExamined": 1,
+      "candidateCount": 2,
+      "nextCandidateCursor": 0
+    },
+    {
+      "at": "2026-10-12T22:21:48.258Z",
+      "event": "escape_short_route",
+      "position": {
+        "x": -202.5,
+        "y": 64,
+        "z": -100.56164328355909
+      },
+      "destination": {
+        "x": -203,
+        "y": 64,
+        "z": -102
+      },
+      "health": 18,
+      "currentSeparation": 16.78407831518816,
+      "separation": 16.70303785327558,
+      "revisitPenalty": 0,
+      "separationStalledMs": 5670,
+      "minPathClearance": 16.70303785327558,
+      "pathLength": 1,
+      "routeEdge": "(-203, 64, -101)->(-203, 64, -102)",
+      "firstWaypoint": {
+        "x": -202.5,
+        "y": 64,
+        "z": -101.5
+      },
+      "reusedStalledEdge": false,
+      "candidatesExamined": 1,
+      "candidateCount": 1,
+      "nextCandidateCursor": 0
+    },
+    {
+      "at": "2026-10-12T22:21:48.461Z",
+      "event": "escape_short_route",
+      "position": {
+        "x": -202.50000000000006,
+        "y": 64,
+        "z": -100.88600381109424
+      },
+      "destination": {
+        "x": -203,
+        "y": 64,
+        "z": -103
+      },
+      "health": 18,
+      "currentSeparation": 16.403526791509794,
+      "separation": 16.169795138443966,
+      "revisitPenalty": 0,
+      "separationStalledMs": 5872,
+      "minPathClearance": 16.169795138443966,
+      "pathLength": 2,
+      "routeEdge": "(-203, 64, -101)->(-203, 64, -102)",
+      "firstWaypoint": {
+        "x": -202.5,
+        "y": 64,
+        "z": -101.5
+      },
+      "reusedStalledEdge": false,
+      "candidatesExamined": 1,
+      "candidateCount": 2,
+      "nextCandidateCursor": 0
+    },
+    {
+      "at": "2026-10-12T22:21:48.865Z",
+      "event": "escape_short_route",
+      "position": {
+        "x": -202.5000000000002,
+        "y": 64,
+        "z": -102.5
+      },
+      "destination": {
+        "x": -203,
+        "y": 64,
+        "z": -104
+      },
+      "health": 18,
+      "currentSeparation": 15.27949172887893,
+      "separation": 15.067272176985675,
+      "revisitPenalty": 0,
+      "separationStalledMs": 6277,
+      "minPathClearance": 15.067272176985675,
+      "pathLength": 1,
+      "routeEdge": "(-203, 64, -103)->(-203, 64, -104)",
+      "firstWaypoint": {
+        "x": -202.5,
+        "y": 64,
+        "z": -103.5
+      },
+      "reusedStalledEdge": false,
+      "candidatesExamined": 1,
+      "candidateCount": 3,
+      "nextCandidateCursor": 0
+    },
+    {
+      "at": "2026-10-12T22:21:49.069Z",
+      "event": "escape_short_route",
+      "position": {
+        "x": -202.50000000000028,
+        "y": 64,
+        "z": -103.05930099831127
+      },
+      "destination": {
+        "x": -203,
+        "y": 64,
+        "z": -100
+      },
+      "health": 18,
+      "currentSeparation": 14.868118463806484,
+      "separation": 15.227340234717378,
+      "revisitPenalty": 0,
+      "separationStalledMs": 6478,
+      "minPathClearance": 14.930648588506646,
+      "pathLength": 4,
+      "routeEdge": "(-203, 64, -104)->(-203, 64, -103)",
+      "firstWaypoint": {
+        "x": -202.5,
+        "y": 64,
+        "z": -102.5
+      },
+      "reusedStalledEdge": false,
+      "candidatesExamined": 1,
+      "candidateCount": 6,
+      "nextCandidateCursor": 0
+    },
+    {
+      "at": "2026-10-12T22:21:49.895Z",
+      "event": "escape_short_route",
+      "position": {
+        "x": -202.49999999999994,
+        "y": 64,
+        "z": -99.5
+      },
+      "destination": {
+        "x": -202,
+        "y": 64,
+        "z": -99
+      },
+      "health": 18,
+      "currentSeparation": 13.184140687279704,
+      "separation": 14.005597940658289,
+      "revisitPenalty": 0,
+      "separationStalledMs": 7306,
+      "minPathClearance": 14.005597940658289,
+      "pathLength": 1,
+      "routeEdge": "(-203, 64, -100)->(-202, 64, -99)",
+      "firstWaypoint": {
+        "x": -201.5,
+        "y": 64,
+        "z": -98.5
+      },
+      "reusedStalledEdge": false,
+      "candidatesExamined": 1,
+      "candidateCount": 9,
+      "nextCandidateCursor": 0
+    },
+    {
+      "at": "2026-10-12T22:21:50.096Z",
+      "event": "escape_short_route",
+      "position": {
+        "x": -201.92372314399233,
+        "y": 64,
+        "z": -98.9237231439928
+      },
+      "destination": {
+        "x": -202,
+        "y": 64,
+        "z": -98
+      },
+      "health": 18,
+      "currentSeparation": 13.545009890873075,
+      "separation": 14.21229466249874,
+      "revisitPenalty": 0,
+      "separationStalledMs": 7507,
+      "minPathClearance": 14.21229466249874,
+      "pathLength": 1,
+      "routeEdge": "(-202, 64, -99)->(-202, 64, -98)",
+      "firstWaypoint": {
+        "x": -201.5,
+        "y": 64,
+        "z": -97.5
+      },
+      "reusedStalledEdge": false,
+      "candidatesExamined": 1,
+      "candidateCount": 4,
+      "nextCandidateCursor": 0
+    },
+    {
+      "at": "2026-10-12T22:21:50.503Z",
+      "event": "escape_short_route",
+      "position": {
+        "x": -201.50738540632693,
+        "y": 64,
+        "z": -97.65040609356936
+      },
+      "destination": {
+        "x": -202,
+        "y": 64,
+        "z": -97
+      },
+      "health": 18,
+      "currentSeparation": 13.126092028076028,
+      "separation": 13.766965686406573,
+      "revisitPenalty": 0,
+      "separationStalledMs": 7914,
+      "minPathClearance": 13.766965686406573,
+      "pathLength": 1,
+      "routeEdge": "(-202, 64, -98)->(-202, 64, -97)",
+      "firstWaypoint": {
+        "x": -201.5,
+        "y": 64,
+        "z": -96.5
+      },
+      "reusedStalledEdge": false,
+      "candidatesExamined": 1,
+      "candidateCount": 5,
+      "nextCandidateCursor": 0
+    },
+    {
+      "at": "2026-10-12T22:21:50.705Z",
+      "event": "escape_short_route",
+      "position": {
+        "x": -201.5047171695391,
+        "y": 64,
+        "z": -97.09111831980655
+      },
+      "destination": {
+        "x": -202,
+        "y": 64,
+        "z": -96
+      },
+      "health": 18,
+      "currentSeparation": 13.088094236767022,
+      "separation": 13.666029307091561,
+      "revisitPenalty": 0,
+      "separationStalledMs": 8116,
+      "minPathClearance": 13.422715859905288,
+      "pathLength": 2,
+      "routeEdge": "(-202, 64, -98)->(-202, 64, -97)",
+      "firstWaypoint": {
+        "x": -201.5,
+        "y": 64,
+        "z": -96.5
+      },
+      "reusedStalledEdge": false,
+      "candidatesExamined": 1,
+      "candidateCount": 2,
+      "nextCandidateCursor": 0
+    },
+    {
+      "at": "2026-10-12T22:21:50.904Z",
+      "event": "reactive_timing",
+      "configuredIntervalMs": 200,
+      "tickMs": 0.1,
+      "maxTickMs": 52.1,
+      "sampleGapMs": 201.2,
+      "maxSampleGapMs": 602,
+      "skippedTicks": 0,
+      "fallbackMs": 2.1,
+      "maxFallbackMs": 52,
+      "fallbackBudgetMs": 60,
+      "fallbackOverruns": 0,
+      "leafAwaitMs": 0,
+      "maxLeafAwaitMs": 0,
+      "intervalIsSchedulingTarget": true
+    },
+    {
+      "at": "2026-10-12T22:21:51.113Z",
+      "event": "escape_short_route",
+      "position": {
+        "x": -201.50204891903525,
+        "y": 64,
+        "z": -95.5
+      },
+      "destination": {
+        "x": -202,
+        "y": 64,
+        "z": -95
+      },
+      "health": 18,
+      "currentSeparation": 12.993527981436669,
+      "separation": 13.01324207524217,
+      "revisitPenalty": 0,
+      "separationStalledMs": 8525,
+      "minPathClearance": 13.01324207524217,
+      "pathLength": 1,
+      "routeEdge": "(-202, 64, -96)->(-202, 64, -95)",
+      "firstWaypoint": {
+        "x": -201.5,
+        "y": 64,
+        "z": -94.5
+      },
+      "reusedStalledEdge": false,
+      "candidatesExamined": 1,
+      "candidateCount": 1,
+      "nextCandidateCursor": 0
+    },
+    {
+      "at": "2026-10-12T22:21:51.525Z",
+      "event": "escape_short_route",
+      "position": {
+        "x": -201.5007147903542,
+        "y": 64,
+        "z": -94.68502424743846
+      },
+      "destination": {
+        "x": -203,
+        "y": 64,
+        "z": -95
+      },
+      "health": 18,
+      "currentSeparation": 12.229788858171888,
+      "separation": 12.069849313837732,
+      "revisitPenalty": 0,
+      "separationStalledMs": 8937,
+      "minPathClearance": 12.069849313837732,
+      "pathLength": 1,
+      "routeEdge": "(-202, 64, -95)->(-203, 64, -95)",
+      "firstWaypoint": {
+        "x": -202.5,
+        "y": 64,
+        "z": -94.5
+      },
+      "reusedStalledEdge": false,
+      "candidatesExamined": 1,
+      "candidateCount": 2,
+      "nextCandidateCursor": 0
+    },
+    {
+      "at": "2026-10-12T22:21:51.933Z",
+      "event": "escape_short_route",
+      "position": {
+        "x": -202.30204644472465,
+        "y": 64,
+        "z": -94.53650620394396
+      },
+      "destination": {
+        "x": -207,
+        "y": 64,
+        "z": -91
+      },
+      "health": 18,
+      "currentSeparation": 11.214195103526995,
+      "separation": 11.066175072270251,
+      "revisitPenalty": 0,
+      "separationStalledMs": 9342,
+      "minPathClearance": 10.696069139233034,
+      "pathLength": 4,
+      "routeEdge": "(-203, 64, -95)->(-204, 64, -94)",
+      "firstWaypoint": {
+        "x": -203.5,
+        "y": 64,
+        "z": -93.5
+      },
+      "reusedStalledEdge": false,
+      "candidatesExamined": 1,
+      "candidateCount": 3,
+      "nextCandidateCursor": 0
+    },
+    {
+      "at": "2026-10-12T22:21:52.743Z",
+      "event": "escape_no_separation_progress",
+      "position": {
+        "x": -205.11885315573235,
+        "y": 64,
+        "z": -91.88398527694636
+      },
+      "health": 18,
+      "separation": 8.580053088421987,
+      "bestSeparation": 19.70286379704868,
+      "durationMs": 10156,
+      "recentSites": 14,
+      "escapeVerified": false
+    },
+    {
+      "at": "2026-10-12T22:21:53.144Z",
+      "event": "escape_short_route",
+      "position": {
+        "x": -206.30823102743986,
+        "y": 64,
+        "z": -90.6923131855542
+      },
+      "destination": {
+        "x": -208,
+        "y": 64,
+        "z": -90
+      },
+      "health": 18,
+      "currentSeparation": 7.56691373513644,
+      "separation": 8.143992911644167,
+      "revisitPenalty": 0,
+      "separationStalledMs": 10556,
+      "minPathClearance": 8.143992911644167,
+      "pathLength": 1,
+      "routeEdge": "(-207, 64, -91)->(-208, 64, -90)",
+      "firstWaypoint": {
+        "x": -207.5,
+        "y": 64,
+        "z": -89.5
+      },
+      "reusedStalledEdge": false,
+      "candidatesExamined": 1,
+      "candidateCount": 10,
+      "nextCandidateCursor": 0
+    },
+    {
+      "at": "2026-10-12T22:21:53.571Z",
+      "event": "escape_short_route",
+      "position": {
+        "x": -207.5,
+        "y": 64,
+        "z": -89.5
+      },
+      "destination": {
+        "x": -214,
+        "y": 65,
+        "z": -90
+      },
+      "health": 18,
+      "currentSeparation": 7.4090718434586345,
+      "separation": 7.744962293916223,
+      "revisitPenalty": 0,
+      "separationStalledMs": 10956,
+      "minPathClearance": 6.886950128372021,
+      "pathLength": 6,
+      "routeEdge": "(-208, 64, -90)->(-209, 64, -91)",
+      "firstWaypoint": {
+        "x": -208.5,
+        "y": 64,
+        "z": -90.5
+      },
+      "reusedStalledEdge": false,
+      "candidatesExamined": 3,
+      "candidateCount": 5,
+      "nextCandidateCursor": 0
+    },
+    {
+      "at": "2026-10-12T22:21:53.944Z",
+      "event": "priority_changed",
+      "mode": "flee",
+      "target": {
+        "id": 51860,
+        "name": "creeper"
+      },
+      "health": 18
+    },
+    {
+      "at": "2026-10-12T22:21:55.156Z",
+      "event": "escape_short_route",
+      "position": {
+        "x": -213.30444310595877,
+        "y": 65,
+        "z": -89.5
+      },
+      "destination": {
+        "x": -214,
+        "y": 65,
+        "z": -91
+      },
+      "health": 18,
+      "currentSeparation": 4.874794335203552,
+      "separation": 4.947845462731274,
+      "revisitPenalty": 0,
+      "separationStalledMs": 12567,
+      "minPathClearance": 4.947845462731274,
+      "pathLength": 1,
+      "routeEdge": "(-214, 65, -90)->(-214, 65, -91)",
+      "firstWaypoint": {
+        "x": -213.5,
+        "y": 65,
+        "z": -90.5
+      },
+      "reusedStalledEdge": false,
+      "candidatesExamined": 1,
+      "candidateCount": 1,
+      "nextCandidateCursor": 0
+    },
+    {
+      "at": "2026-10-12T22:21:55.359Z",
+      "event": "escape_short_route",
+      "position": {
+        "x": -213.41212083403366,
+        "y": 65,
+        "z": -90.04883796660636
+      },
+      "destination": {
+        "x": -214,
+        "y": 65,
+        "z": -90
+      },
+      "health": 18,
+      "currentSeparation": 4.836956800165294,
+      "separation": 4.690158629950719,
+      "revisitPenalty": 10,
+      "separationStalledMs": 12771,
+      "minPathClearance": 4.690158629950719,
+      "pathLength": 1,
+      "routeEdge": "(-214, 65, -91)->(-214, 65, -90)",
+      "firstWaypoint": {
+        "x": -213.5,
+        "y": 65,
+        "z": -89.5
+      },
+      "reusedStalledEdge": false,
+      "candidatesExamined": 1,
+      "candidateCount": 1,
+      "nextCandidateCursor": 0
+    },
+    {
+      "at": "2026-10-12T22:21:55.586Z",
+      "event": "escape_short_route",
+      "position": {
+        "x": -213.49998091997375,
+        "y": 65,
+        "z": -89.5
+      },
+      "destination": {
+        "x": -214,
+        "y": 65,
+        "z": -91
+      },
+      "health": 18,
+      "currentSeparation": 4.33511735834069,
+      "separation": 4.276496531622089,
+      "revisitPenalty": 10,
+      "separationStalledMs": 12972,
+      "minPathClearance": 4.276496531622089,
+      "pathLength": 1,
+      "routeEdge": "(-214, 65, -90)->(-214, 65, -91)",
+      "firstWaypoint": {
+        "x": -213.5,
+        "y": 65,
+        "z": -90.5
+      },
+      "reusedStalledEdge": false,
+      "candidatesExamined": 3,
+      "candidateCount": 3,
+      "nextCandidateCursor": 0
+    },
+    {
+      "at": "2026-10-12T22:21:55.800Z",
+      "event": "escape_blocked",
+      "position": {
+        "x": -213.49998091997386,
+        "y": 65,
+        "z": -90.31497854544739
+      },
+      "health": 18,
+      "noPathCount": 0,
+      "triedSites": 26,
+      "leavesCleared": 0,
+      "terrain": [
+        {
+          "x": -213,
+          "y": 65,
+          "z": -91,
+          "floor": "grass_block",
+          "feet": "snow",
+          "head": "air"
+        },
+        {
+          "x": -215,
+          "y": 65,
+          "z": -91,
+          "floor": "sand",
+          "feet": "snow",
+          "head": "air"
+        },
+        {
+          "x": -214,
+          "y": 65,
+          "z": -90,
+          "floor": "grass_block",
+          "feet": "snow",
+          "head": "air"
+        },
+        {
+          "x": -214,
+          "y": 65,
+          "z": -92,
+          "floor": "sand",
+          "feet": "snow",
+          "head": "air"
+        }
+      ],
+      "threats": [
+        {
+          "id": 51964,
+          "name": "zombie",
+          "position": {
+            "x": -210.52504991492398,
+            "y": 65,
+            "z": -92.51763774589453
+          },
+          "distance": 3.7016107356286874
+        },
+        {
+          "id": 51860,
+          "name": "creeper",
+          "position": {
+            "x": -210.64637915945292,
+            "y": 64,
+            "z": -87.55261872562794
+          },
+          "distance": 4.095567699574894
+        },
+        {
+          "id": 51859,
+          "name": "creeper",
+          "position": {
+            "x": -217.1717064160415,
+            "y": 65,
+            "z": -84.8491581726493
+          },
+          "distance": 6.584585064084737
+        },
+        {
+          "id": 51769,
+          "name": "creeper",
+          "position": {
+            "x": -206.072021484375,
+            "y": 64,
+            "z": -88.509765625
+          },
+          "distance": 7.709304447552477
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T22:21:56.581Z",
+      "event": "trapped_counterattack",
+      "target": "zombie",
+      "targetId": 51964,
+      "health": 18,
+      "killVerified": false
+    },
+    {
+      "at": "2026-10-12T22:21:57.374Z",
+      "event": "priority_changed",
+      "mode": "flee",
+      "target": {
+        "id": 51859,
+        "name": "creeper"
+      },
+      "health": 18
+    },
+    {
+      "at": "2026-10-12T22:21:57.380Z",
+      "event": "trapped_counterattack",
+      "target": "creeper",
+      "targetId": 51859,
+      "health": 18,
+      "killVerified": false
+    },
+    {
+      "at": "2026-10-12T22:21:57.589Z",
+      "event": "priority_changed",
+      "mode": "flee",
+      "target": {
+        "id": 51860,
+        "name": "creeper"
+      },
+      "health": 18
+    },
+    {
+      "at": "2026-10-12T22:21:57.792Z",
+      "event": "escape_no_separation_progress",
+      "position": {
+        "x": -213.49998091997386,
+        "y": 65,
+        "z": -90.31497854544739
+      },
+      "health": 18,
+      "separation": 1.8655676729531385,
+      "bestSeparation": 19.70286379704868,
+      "durationMs": 15205,
+      "recentSites": 11,
+      "escapeVerified": false
+    },
+    {
+      "at": "2026-10-12T22:21:57.892Z",
+      "event": "reactive_damage_observed",
+      "previousHealth": 18,
+      "health": 15,
+      "food": 17,
+      "position": {
+        "x": -213.49998091997386,
+        "y": 65,
+        "z": -90.31497854544739
+      },
+      "enabled": true,
+      "mode": "flee",
+      "targetId": 51860,
+      "lifecycleEpoch": 8,
+      "nearby": [
+        {
+          "id": 51964,
+          "name": "zombie",
+          "position": {
+            "x": -212.04182608628736,
+            "y": 65,
+            "z": -90.7534778644938
+          },
+          "distance": 1.5226612137332103
+        },
+        {
+          "id": 51860,
+          "name": "creeper",
+          "position": {
+            "x": -211.61961505250193,
+            "y": 65,
+            "z": -88.33375366926187
+          },
+          "distance": 2.7314882034469465
+        },
+        {
+          "id": 51769,
+          "name": "creeper",
+          "position": {
+            "x": -210.74565428495407,
+            "y": 65.25227537751198,
+            "z": -89.49089332859381
+          },
+          "distance": 2.886013604111193
+        },
+        {
+          "id": 51859,
+          "name": "creeper",
+          "position": {
+            "x": -215.3362226875592,
+            "y": 65.30480341211019,
+            "z": -86.47368682241152
+          },
+          "distance": 4.268513915934067
+        },
+        {
+          "id": 51771,
+          "name": "spider",
+          "position": {
+            "x": -209.25845923828032,
+            "y": 64,
+            "z": -84.25864311155644
+          },
+          "distance": 7.461213377466128
+        },
+        {
+          "id": 51770,
+          "name": "spider",
+          "position": {
+            "x": -215.00004801780642,
+            "y": 65,
+            "z": -82.96878598526303
+          },
+          "distance": 7.497782767545875
+        },
+        {
+          "id": 51684,
+          "name": "zombie",
+          "position": {
+            "x": -203.16759986368015,
+            "y": 64,
+            "z": -93.51945231845531
+          },
+          "distance": 10.864011710889896
+        },
+        {
+          "id": 51670,
+          "name": "zombie",
+          "position": {
+            "x": -202.30235668219342,
+            "y": 64,
+            "z": -93.55375284986212
+          },
+          "distance": 11.699420821795634
+        },
+        {
+          "id": 51662,
+          "name": "zombie",
+          "position": {
+            "x": -198.77504082197171,
+            "y": 64,
+            "z": -94.64538979924902
+          },
+          "distance": 15.381037758122934
+        }
+      ],
+      "nearbyCount": 9,
+      "observationRadius": 24,
+      "damageSource": "unknown",
+      "terrain": [
+        {
+          "x": -213,
+          "y": 65,
+          "z": -91,
+          "floor": "grass_block",
+          "feet": "snow",
+          "head": "air"
+        },
+        {
+          "x": -215,
+          "y": 65,
+          "z": -91,
+          "floor": "sand",
+          "feet": "snow",
+          "head": "air"
+        },
+        {
+          "x": -214,
+          "y": 65,
+          "z": -90,
+          "floor": "grass_block",
+          "feet": "snow",
+          "head": "air"
+        },
+        {
+          "x": -214,
+          "y": 65,
+          "z": -92,
+          "floor": "sand",
+          "feet": "snow",
+          "head": "air"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T22:21:58.048Z",
+      "event": "server_message",
+      "text": "SuiGeBot was blown up by Creeper"
+    },
+    {
+      "at": "2026-10-12T22:21:58.049Z",
+      "event": "reactive_damage_observed",
+      "previousHealth": 15,
+      "health": 0,
+      "food": 17,
+      "position": {
+        "x": -213.49998091997386,
+        "y": 65,
+        "z": -90.31497854544739
+      },
+      "enabled": true,
+      "mode": "flee",
+      "targetId": 51860,
+      "lifecycleEpoch": 8,
+      "nearby": [
+        {
+          "id": 51964,
+          "name": "zombie",
+          "position": {
+            "x": -212.29890616441236,
+            "y": 65,
+            "z": -90.6340930988688
+          },
+          "distance": 1.242744811557257
+        },
+        {
+          "id": 51769,
+          "name": "creeper",
+          "position": {
+            "x": -210.81743230521772,
+            "y": 65,
+            "z": -89.49110170262207
+          },
+          "distance": 2.806214553927392
+        },
+        {
+          "id": 51859,
+          "name": "creeper",
+          "position": {
+            "x": -215.4423907284935,
+            "y": 65,
+            "z": -86.25238672149675
+          },
+          "distance": 4.503066532071662
+        },
+        {
+          "id": 51771,
+          "name": "spider",
+          "position": {
+            "x": -209.67911353515532,
+            "y": 64,
+            "z": -84.67929740843144
+          },
+          "distance": 6.881855087873289
+        },
+        {
+          "id": 51770,
+          "name": "spider",
+          "position": {
+            "x": -215.00004801780642,
+            "y": 65,
+            "z": -83.54886411026303
+          },
+          "distance": 6.9304044505360585
+        },
+        {
+          "id": 51684,
+          "name": "zombie",
+          "position": {
+            "x": -203.51720923868015,
+            "y": 64,
+            "z": -93.51701091220531
+          },
+          "distance": 10.53132193594921
+        },
+        {
+          "id": 51670,
+          "name": "zombie",
+          "position": {
+            "x": -202.65098949469342,
+            "y": 64,
+            "z": -93.53300089673712
+          },
+          "distance": 11.360294133481268
+        },
+        {
+          "id": 51662,
+          "name": "zombie",
+          "position": {
+            "x": -199.11659355634671,
+            "y": 64,
+            "z": -94.57410073674902
+          },
+          "distance": 15.034026536247273
+        }
+      ],
+      "nearbyCount": 8,
+      "observationRadius": 24,
+      "damageSource": "unknown",
+      "terrain": [
+        {
+          "x": -213,
+          "y": 65,
+          "z": -91,
+          "floor": "grass_block",
+          "feet": "snow",
+          "head": "air"
+        },
+        {
+          "x": -215,
+          "y": 65,
+          "z": -91,
+          "floor": "sand",
+          "feet": "snow",
+          "head": "air"
+        },
+        {
+          "x": -214,
+          "y": 65,
+          "z": -90,
+          "floor": "grass_block",
+          "feet": "snow",
+          "head": "air"
+        },
+        {
+          "x": -214,
+          "y": 65,
+          "z": -92,
+          "floor": "sand",
+          "feet": "snow",
+          "head": "air"
+        }
+      ]
+    },
+    {
+      "at": "2026-10-12T22:21:58.050Z",
+      "event": "death",
+      "safetyWillResume": true,
+      "lifecycleEpoch": 9
+    }
+  ],
+  "counts": {
+    "reactive_timing": 3,
+    "priority_changed": 12,
+    "escape_short_route": 26,
+    "escape_no_separation_progress": 4,
+    "escape_blocked": 1,
+    "trapped_counterattack": 2,
+    "reactive_damage_observed": 2,
+    "server_message": 1,
+    "death": 1
+  },
+  "routeEvidence": {
+    "routes": 26,
+    "reusedStalledEdges": 0,
+    "noProgressEvents": 0,
+    "firstPosition": {
+      "x": -159.50023727487482,
+      "y": 63,
+      "z": -118.35390598456422
+    },
+    "lastPosition": {
+      "x": -213.49998091997375,
+      "y": 65,
+      "z": -89.5
+    },
+    "firstSeparation": 9.971541004795172,
+    "lastSeparation": 4.33511735834069
+  },
+  "timing": {
+    "samples": [
+      {
+        "at": "2026-10-12T22:21:30.653Z",
+        "event": "reactive_timing",
+        "configuredIntervalMs": 200,
+        "tickMs": 0.2,
+        "maxTickMs": 52.1,
+        "sampleGapMs": 200.8,
+        "maxSampleGapMs": 602,
+        "skippedTicks": 0,
+        "fallbackMs": 11.1,
+        "maxFallbackMs": 52,
+        "fallbackBudgetMs": 60,
+        "fallbackOverruns": 0,
+        "leafAwaitMs": 0,
+        "maxLeafAwaitMs": 0,
+        "intervalIsSchedulingTarget": true
+      },
+      {
+        "at": "2026-10-12T22:21:40.762Z",
+        "event": "reactive_timing",
+        "configuredIntervalMs": 200,
+        "tickMs": 0.2,
+        "maxTickMs": 52.1,
+        "sampleGapMs": 201.4,
+        "maxSampleGapMs": 602,
+        "skippedTicks": 0,
+        "fallbackMs": 5.7,
+        "maxFallbackMs": 52,
+        "fallbackBudgetMs": 60,
+        "fallbackOverruns": 0,
+        "leafAwaitMs": 0,
+        "maxLeafAwaitMs": 0,
+        "intervalIsSchedulingTarget": true
+      },
+      {
+        "at": "2026-10-12T22:21:50.904Z",
+        "event": "reactive_timing",
+        "configuredIntervalMs": 200,
+        "tickMs": 0.1,
+        "maxTickMs": 52.1,
+        "sampleGapMs": 201.2,
+        "maxSampleGapMs": 602,
+        "skippedTicks": 0,
+        "fallbackMs": 2.1,
+        "maxFallbackMs": 52,
+        "fallbackBudgetMs": 60,
+        "fallbackOverruns": 0,
+        "leafAwaitMs": 0,
+        "maxLeafAwaitMs": 0,
+        "intervalIsSchedulingTarget": true
+      }
+    ],
+    "limitation": "Every-ten-second timing samples are not a complete per-tick trace. max fields are cumulative since hotload, not maxima attributable only to this encounter; no increased cumulative fallback overrun was logged. 200ms is a scheduling target, not guarantee."
+  },
+  "findings": [
+    {
+      "status": "confirmed",
+      "detail": "Creeper death server message; health18->15->0 in157ms. First 3 damage source unknown; fatal packet attributed by server message."
+    },
+    {
+      "status": "confirmed",
+      "detail": "Actual route movement continued before last2.25s trapped. No stationary-edge reuse or candidate cursor starvation evidence in this encounter. Safety route destinations gradually lost separation as multiple enemies approached."
+    },
+    {
+      "status": "confirmed code limitation",
+      "detail": "Old safeFloor rejected every sand/gravel surface before path search, including two adjacent sand floors in final terrain log. Their supporting blocks are not logged, so a viable escape through them is not proven."
+    },
+    {
+      "status": "counterattack rationale",
+      "detail": "Counterattack only runs after failed/no-moving route or bounded replanning backoff; target must remain within2.8 with clear ray, cooldown750ms and no chase. HOSTILES includes creeper; contact attack may knock it back. Two logged attacks against zombie then creeper do not prove kill or prevented explosion. There is no logged valid escape route at those moments, so cannot claim attacks blocked one."
+    }
+  ],
+  "patch": {
+    "source": "src/minecraft/reactive-agent.js",
+    "sha256": "55bb214877924d3f49c9bc129343bcdd08a1df8d87d5404f2f5fea6b0f52260e",
+    "deployed": true,
+    "scope": "Walking only: sand/red_sand/gravel must have immediately loaded solid non-gravity support and all8 horizontal floor/feet neighbors loaded and hazard-free. Feet/head passability and every returned path node checks retained. No dig/place; strict leaf excavation guard unchanged. Other falling/support blocks are denied rather than accepted as fixed support.",
+    "tests": [
+      "node tests/minecraft-reactive.js PASS",
+      "node tests/minecraft-reactive-escape.js PASS"
+    ],
+    "limitations": "Does not establish historical sand support, escape feasibility against9hostiles, or prevent future deaths. Search/interval budgets unchanged; additional bounded block lookups could change measured duration.",
+    "finalSha256": "7a4ef01673621c046429e76fc17482b0c1263274f572613dcce6b8ec13063143",
+    "deployment": {
+      "at": "2026-10-12T22:38:10Z",
+      "source": "Root reported hotload and enabled:true; this reviewer performed no hotload",
+      "additionalGuard": "escapeLeaf overhead uses gravityBlock; actual registry red_sand/concrete_powder/anvil rejection regression passed"
+    }
+  }
+}

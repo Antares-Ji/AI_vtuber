@@ -1,0 +1,1 @@
+{'python': 'E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\.venv\\Scripts\\python.exe', 'torch': '2.11.0+cu128', 'cuda': '12.8', 'cuda_available': True, 'memory': (15712911360, 17066033152), 'transformers': '5.16.1', 'peft': '0.21.2', 'accelerate': '1.14.0', 'bitsandbytes': '0.50.2'}

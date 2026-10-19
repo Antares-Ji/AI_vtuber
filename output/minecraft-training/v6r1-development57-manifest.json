@@ -1,0 +1,24 @@
+{
+  "status": "frozen development-only same-input comparison; no final holdout",
+  "path": "output/minecraft-training/v6r1-development57.jsonl",
+  "sha256": "0abc77696228f1ab5c62b919f5aeb2b4295b17e91f84bb149b202bff7ebb2ef5",
+  "rows": 57,
+  "slices": {
+    "previousFrozen47": 47,
+    "newV6r1Development10": 10
+  },
+  "inputs": {
+    "path": "output/minecraft-training/v5r2-development47.jsonl",
+    "sha256": "0f5632030e830c29807ee6180007109969414a86ebea09b374904a46a98fe31d",
+    "rows": 47,
+    "pathV6": "data/minecraft-training/development-v6r1-candidates.jsonl",
+    "sha256V6": "cd208f0a3d46e5f165dd1d6d0095f4caa132342a350210e0fd3d21ef59ad0e3d",
+    "rowsV6": 10
+  },
+  "uniqueIds": true,
+  "holdoutRead": false,
+  "diagnosticsExcluded": [
+    "four previously recorded exact live probes are not part of scored 57-row set",
+    "two live inputs included in v6r1 training are training-fit diagnostics only, not unseen evaluation"
+  ]
+}

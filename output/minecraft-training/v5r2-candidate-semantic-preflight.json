@@ -1,0 +1,31 @@
+{
+  "status": "passed",
+  "trainingRows": 32,
+  "developmentRows": 12,
+  "replayRows": 214,
+  "originalReplayPrefixByteIdentical": true,
+  "overlaps": {
+    "trainDev": 0,
+    "trainOldReplay": 0,
+    "devOldReplay": 0
+  },
+  "hashes": {
+    "training": "2fcdd67d983f255630d648593ced18dd6bf0e7d2c0cc2ab9fb422ed256a94898",
+    "development": "9f64e517f955735756caf808fb0af006a63b3dce77ef15b15805e35ec0638ba3",
+    "replay": "2086a5efe8cefdf2e10f99fd2e3b7cd0aabb6bf4eb91fdab0d21e1b1a9934877",
+    "replayOriginalPrefixSha256": "9f76783df423a873e0d4387763a0b5dec10d8c1a8e3fc0517dd924be3cc032fe"
+  },
+  "checked": {
+    "actionSchema": true,
+    "runtimeCompaction": true,
+    "sixRecentResults": true,
+    "foodLabels": true,
+    "miningTiersAndTargets": true,
+    "craftPrerequisites": true,
+    "smeltPrerequisites": true,
+    "recipeHintConsistency": true,
+    "geometry": true,
+    "registryDurability": true
+  },
+  "errors": []
+}

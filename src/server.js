@@ -1,3 +1,6 @@
+const processLifecycle = require('./runtime/process-lifecycle').installProcessLifecycle({
+  file: require('node:path').join(__dirname, '..', 'logs', 'main-lifecycle.jsonl')
+});
 require("./config/env").loadEnv();
 
 const http = require("http");
@@ -26,6 +29,12 @@ const { streamRoutedReply, openAiTokenStream, selectThinkingPreface } = require(
 const { getLlmConfig } = require("./brain/llm");
 const { responseAbortController } = require("./runtime/request-lifecycle");
 const { createVoiceCallRoutes } = require("./api/voice-call-routes");
+const minecraftBridge = require("./minecraft/qwen-bridge");
+const { AutonomyLoop } = require('./minecraft/autonomy-loop');
+const { MinecraftEngine } = require('./minecraft/astra-jev');
+const minecraftEngine = new MinecraftEngine();
+let minecraftEngineTesting = false;
+let minecraftRun = null;
 
 const PORT = Number(process.env.PORT || 3000);
 const HOST = process.env.HOST || "127.0.0.1";
@@ -48,6 +57,111 @@ let runtimeSettings = loadRuntimeSettings();
 let nextInFlight = false;
 let cloudReplyInFlight = null;
 let deferredReply = null;
+const minecraftMcp = require('../integrations/minecraft-mcp/control-adapter.cjs').createMcpControl();
+const { VisualCommentary } = require('./minecraft/visual-commentary');
+const minecraftCommentary = new VisualCommentary();
+const audienceSuggestions = new (require('./minecraft/audience-suggestions').AudienceSuggestions)();
+let commentaryController = new AbortController();
+let commentaryInferenceSlot = null;
+function preemptMinecraftCommentary() {
+  commentaryController.abort(); commentaryController = new AbortController();
+  // A queued camera remark must never get in front of a new audience turn.
+  if (deferredReply?.commentaryId) {
+    minecraftCommentary.playbackEnded(deferredReply.commentaryId);
+    deferredReply = null;
+  }
+}
+// Reserve a bounded model slot for vision, without cancelling any Mineflayer
+// skill already executing. Audience input can preempt this slot immediately.
+function requestMinecraftCommentary(result) {
+  const audienceWaiting = () => nextInFlight || cloudReplyInFlight || queue.some(item => item.type !== 'proactive');
+  if (commentaryInferenceSlot || audienceWaiting() || deferredReply || minecraftCommentary.busy) return;
+  if (minecraftCommentary.pendingPlayback) {
+    // Preserve the existing lost-playback-receipt recovery without taking a
+    // planning slot while speech is playing or during its ten-second cooldown.
+    if (Date.now() - minecraftCommentary.pendingPlayback.at > 90000) minecraftCommentary.playbackEnded(minecraftCommentary.pendingPlayback.id);
+    return;
+  }
+  if (Date.now() < minecraftCommentary.nextAt) return;
+  const loop = minecraftLoop.snapshot();
+  if (!result.state?.connected || (loop.provider !== 'astra' && (!(result.state.health > 0) || result.state.reactive?.mode !== 'idle'))) {
+    minecraftCommentary.status = { state: 'blocked', reason: !result.state?.connected ? 'not-connected' : !(result.state.health > 0) ? 'not-alive' : 'safety-active', lastError: null };
+    return;
+  }
+  // Do not interrupt planner recovery or queue vision behind a generation
+  // whose cancellation has not exited the single local GPU slot yet.
+  const modelCancelling = loop.modelHealth?.generation?.current?.cancel_requested === true;
+  if (loop.provider !== 'astra' && (modelCancelling || (loop.lastError && !result.state.busy))) {
+    minecraftCommentary.status = { state: 'blocked', reason: modelCancelling ? 'model-cancelling' : 'planning-recovery', lastError: null };
+    return;
+  }
+  const slot = {};
+  commentaryInferenceSlot = slot;
+  const signal = AbortSignal.any([brain.personaRuntime.controller.signal, commentaryController.signal, AbortSignal.timeout(25000)]);
+  // This API only stops model planning. Its epoch-owned release cannot clear
+  // a newer audience turn's hold; a reentrant commentary cannot acquire one.
+  const releasePlanner = loop.provider === 'astra' ? () => {} : minecraftLoop.prioritizeConversation(25000);
+  let released = false;
+  const releaseSlot = () => { if (!released) { released = true; releasePlanner(); } };
+  signal.addEventListener('abort', releaseSlot, { once: true });
+  void (async () => {
+    try {
+      const speech = await minecraftCommentary.describe({ result, goal: loop.goal, currentSubgoal: loop.currentSubgoal, persona: brain.persona, signal, gameContext: require('./minecraft/live-context').liveGameContext(result.state, loop), stateOnly: loop.provider === 'astra' });
+      if (!speech || signal.aborted || audienceWaiting() || deferredReply) return;
+      const current = await minecraftBridge.control('status');
+      if (!current.connected || current.reactive?.lifecycleEpoch !== result.state.reactive?.lifecycleEpoch || current.health < result.state.health || current.reactive?.mode !== result.state.reactive?.mode) return;
+      if (signal.aborted || audienceWaiting() || deferredReply) return;
+      if (loop.provider === 'astra') {
+        const { factualSpeech } = require('./minecraft/fact-speech');
+        const { liveGameContext } = require('./minecraft/live-context');
+        if (factualSpeech(liveGameContext(current, minecraftLoop.snapshot())) !== factualSpeech(liveGameContext(result.state, loop))) return;
+      }
+      const prepared = brain.prepareStreamReply({ user: '游戏现场', text: '看游戏画面聊两句', type: 'proactive', timestamp: new Date().toISOString() });
+      const reply = brain.commitStreamReply(prepared.item, prepared.context, speech);
+      const commentaryId = require('node:crypto').randomUUID();
+      minecraftCommentary.queued(commentaryId);
+      deferredReply = { idle: false, item: prepared.item, reply, commentaryId, queueSize: queue.length };
+    } catch (error) { minecraftCommentary.status.lastError = error.message; }
+    finally {
+      signal.removeEventListener('abort', releaseSlot);
+      releaseSlot();
+      if (commentaryInferenceSlot === slot) commentaryInferenceSlot = null;
+    }
+  })();
+}
+const minecraftLoop = new AutonomyLoop({ engine: minecraftEngine, request: minecraftMcp.request, onResult: requestMinecraftCommentary });
+let liveGameCache = null;
+let liveGameRefreshBusy = false;
+const { liveGameContext } = require('./minecraft/live-context');
+brain.liveGameContextProvider = () => {
+  const context = (liveGameCache || minecraftEngine.config.provider === 'astra') ? liveGameContext(liveGameCache?.state, minecraftLoop.snapshot(), liveGameCache?.at || null) : null;
+  if (context) context.pendingAudienceSuggestions = audienceSuggestions.list().filter(item => ['summarizing', 'ready'].includes(item.status)).map(item => ({ text: item.summary || item.original, status: 'awaiting-console-confirmation' }));
+  return context;
+};
+brain.onLiveHumanTurn = () => {
+  preemptMinecraftCommentary();
+  // Cloud dialogue does not compete for the local vision/planning GPU slot.
+  if (minecraftEngine.config.provider === 'astra' || process.env.MINECRAFT_CHAT_PROVIDER === 'cloud') return () => {};
+  return minecraftLoop.prioritizeConversation();
+};
+setInterval(async () => {
+  if (liveGameRefreshBusy) return;
+  liveGameRefreshBusy = true;
+  try { const state = await require('./minecraft/autonomy-loop').controlRequest('/observe'); liveGameCache = { state, at: Date.now() }; }
+  catch { liveGameCache = null; }
+  finally { liveGameRefreshBusy = false; }
+}, 1200).unref();
+let commentaryTickBusy = false;
+setInterval(async () => {
+  if (commentaryTickBusy || !minecraftLoop.snapshot().enabled || minecraftCommentary.busy || Date.now() < minecraftCommentary.nextAt) return;
+  commentaryTickBusy = true;
+  try {
+    const state = await minecraftBridge.control('status');
+    const loop = minecraftLoop.snapshot();
+    if (loop.provider !== 'astra' && loop.running && !state.busy) return;
+    requestMinecraftCommentary({ state, decision: loop.lastDecision, evidence: { status: state.busy ? 'running' : loop.lastResult?.status } });
+  } catch {} finally { commentaryTickBusy = false; }
+}, 1000).unref();
 const handleVoiceCall = createVoiceCallRoutes({ brain, streamRoutedReply, parseBody, send, acquire: () => {
   if (nextInFlight || cloudReplyInFlight) return null;
   nextInFlight = true;
@@ -183,6 +297,121 @@ function safeFilePath(root, relative) {
 
 async function handleApi(req, res) {
   const url = new URL(req.url, `http://${req.headers.host}`);
+  if (url.pathname === '/api/minecraft/live-context' && req.method === 'GET') return send(res, 200, { context: brain.liveGameContextProvider(), cachedAt: liveGameCache?.at || null, chatProvider: minecraftEngine.config.provider === 'astra' ? 'local' : process.env.MINECRAFT_CHAT_PROVIDER || 'auto', suggestions: audienceSuggestions.list() });
+  if (url.pathname === '/api/minecraft/commentary/next' && req.method === 'POST') {
+    if (!nextInFlight && !cloudReplyInFlight && deferredReply?.commentaryId) { const result = deferredReply; deferredReply = null; return send(res, 200, result); }
+    return send(res, 200, { idle: true });
+  }
+  if (url.pathname === '/api/minecraft/commentary' && req.method === 'GET') return send(res, 200, minecraftCommentary.status);
+  if (url.pathname === '/api/minecraft/commentary/playback-ended' && req.method === 'POST') {
+    const body = await parseBody(req);
+    return send(res, 200, { accepted: minecraftCommentary.playbackEnded(body.id) });
+  }
+
+  if (['/api/minecraft/engine', '/api/minecraft/engine/test'].includes(url.pathname)) {
+    // Credentials may only be managed from the local console. Check both the
+    // peer and browser origin so another site cannot write a key or incur calls.
+    const localPeer = ['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(req.socket.remoteAddress);
+    let localHost = false, sameOrigin = !req.headers.origin;
+    try {
+      const host = new URL(`http://${req.headers.host}`);
+      localHost = ['127.0.0.1', 'localhost', '[::1]'].includes(host.hostname);
+      if (req.headers.origin) sameOrigin = req.headers.origin === host.origin;
+    } catch {}
+    if (!localPeer || !localHost || !sameOrigin) return send(res, 403, { error: '请从本机控制面板管理游戏模型配置' });
+    res.setHeader('Cache-Control', 'no-store');
+    if (req.method === 'GET' && url.pathname === '/api/minecraft/engine') return send(res, 200, minecraftEngine.status());
+    if (req.method !== 'POST') return send(res, 405, { error: 'Method not allowed' });
+    try {
+      const body = await parseBody(req);
+      if (minecraftRun || minecraftLoop.pending || minecraftLoop.state.running || minecraftLoop.state.enabled || minecraftEngineTesting) return send(res, 409, { error: '请等待检查结束，或先停止游戏任务再修改配置' });
+      if (url.pathname.endsWith('/test')) {
+        minecraftEngineTesting = true;
+        const controller = responseAbortController(res, brain.personaRuntime.controller.signal);
+        try { return send(res, 200, await minecraftEngine.test(controller.signal)); }
+        finally { minecraftEngineTesting = false; }
+      }
+      const saved = minecraftEngine.save(body);
+      minecraftLoop.lookahead = null;
+      minecraftLoop.healthCheckedAt = null;
+      Object.assign(minecraftLoop.state, { decision: null, lastDecision: null, lastDecisionMetadata: null, lastResult: null, lastError: null, currentSubgoal: null, goalReview: null, latencyMs: null, modelLoaded: false, adapter: null, adapterLoaded: false, modelHealth: null });
+      return send(res, 200, saved);
+    } catch (error) { return send(res, 400, { error: error.message }); }
+  }
+  if (minecraftEngineTesting && req.method === 'POST' && ['/api/minecraft/demo', '/api/minecraft/command', '/api/minecraft/loop'].includes(url.pathname)) return send(res, 409, { error: '模型连接检查中，请稍后再启动任务' });
+  if (url.pathname === '/api/minecraft/demo' && req.method === 'POST') {
+    try {
+      const body = await parseBody(req);
+      if (minecraftRun) return send(res, 409, { error: '单次任务运行中，请先停止' });
+      return send(res, 200, await minecraftLoop.start({ goal: body.goal, durationMinutes: 15, completionItem: body.completionItem }));
+    } catch (error) { return send(res, 409, { error: error.message }); }
+  }
+  if (url.pathname === '/api/minecraft/suggestions' && req.method === 'POST') {
+    const localPeer = ['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(req.socket.remoteAddress);
+    if (!localPeer || (req.headers.origin && req.headers.origin !== url.origin)) return send(res, 403, { error: '请在本机控制台确认建议' });
+    try {
+      const body = await parseBody(req);
+      const suggestions = body.action === 'confirm' ? audienceSuggestions.confirm(body.id, body.text, text => minecraftLoop.addAudienceSuggestion(text)) : body.action === 'dismiss' ? audienceSuggestions.dismiss(body.id) : null;
+      if (!suggestions) return send(res, 400, { error: '未知建议操作' });
+      return send(res, 200, { suggestions });
+    } catch (error) { return send(res, 409, { error: error.message }); }
+  }
+  if (url.pathname === '/api/minecraft/chat' && req.method === 'POST') {
+    try {
+      const body = await parseBody(req);
+      const text = typeof body.text === 'string' ? body.text.trim() : '';
+      if (!text || text.length > 500) return send(res, 400, { error: '请输入1到500字' });
+      const suggestion = body.influence !== false ? audienceSuggestions.submit(text, brain.liveGameContextProvider()) : null;
+      if (body.suggestionOnly !== true) enqueueDanmaku({ user: '直播间观众', text, type: 'chat', timestamp: new Date().toISOString() });
+      return send(res, 200, { accepted: true, influenced: false, applied: suggestion ? 'awaiting-console-confirmation' : 'chat-only', suggestion, state: minecraftLoop.snapshot() });
+    } catch (error) { return send(res, 400, { error: error.message }); }
+  }
+
+  if (url.pathname === '/api/minecraft/loop' && req.method === 'GET') { await minecraftLoop.refreshModelHealth(); return send(res, 200, minecraftLoop.snapshot()); }
+  if (url.pathname === '/api/minecraft/loop' && req.method === 'POST') {
+    try {
+      const body = await parseBody(req);
+      if (typeof body.enabled !== 'boolean') return send(res, 400, { error: 'enabled must be boolean' });
+      if (body.enabled && minecraftRun) return send(res, 409, { error: '单次任务运行中，请先停止' });
+      return send(res, 200, body.enabled ? await minecraftLoop.start({ goal: body.goal, durationMinutes: body.durationMinutes, continuous: body.continuous, untilStopped: body.untilStopped, completionItem: body.completionItem }) : await minecraftLoop.stop());
+    } catch (error) { return send(res, 409, { error: error.message }); }
+  }
+
+  if (req.method === "GET" && url.pathname === "/api/minecraft/status") {
+    try { return send(res, 200, await minecraftBridge.control('status')); }
+    catch (error) { return send(res, 503, { error: error.message }); }
+  }
+  if (req.method === "POST" && url.pathname === "/api/minecraft/stop") {
+    minecraftRun?.abort();
+    await minecraftLoop.stop();
+    try { await minecraftBridge.control('stop'); return send(res, 200, { requested: true }); }
+    catch (error) { return send(res, 503, { error: error.message }); }
+  }
+  if (req.method === "POST" && url.pathname === "/api/minecraft/command") {
+    if (minecraftRun || minecraftLoop.snapshot().enabled) return send(res, 409, { error: '已有游戏任务或自主循环，请先停止' });
+    const controller = responseAbortController(res, brain.personaRuntime.controller.signal);
+    minecraftRun = controller;
+    try {
+      const body = await parseBody(req);
+      const direct = /^(停止|停下|别动了|停止任务|stop|状态|查看状态|status|自动防卫|defend)[！!。\s]*$/i.test(String(body.text || '').trim());
+      const result = direct ? await minecraftBridge.run(body.text, controller.signal) : await minecraftLoop.runOnce(body.text, controller.signal);
+      controller.signal.throwIfAborted();
+      // A verified report uses the same persona, subtitle and playback envelope
+      // as ordinary replies. Do not overwrite an unrelated pending reply.
+      let staged = false;
+      if (!nextInFlight && !cloudReplyInFlight && !deferredReply) {
+        const prepared = brain.prepareStreamReply({ user: '游戏现场', text: '播报本次游戏执行结果', type: 'proactive', timestamp: new Date().toISOString() });
+        const reply = brain.commitStreamReply(prepared.item, prepared.context, result.speech);
+        deferredReply = { idle: false, item: prepared.item, reply, queueSize: queue.length };
+        staged = true;
+      }
+      return send(res, 200, { ...result, staged });
+    } catch (error) {
+      if (!controller.signal.aborted && !res.destroyed) return send(res, 503, { error: error.message });
+      if (!res.destroyed && !res.writableEnded) res.destroy();
+    } finally { if (minecraftRun === controller) minecraftRun = null; }
+    return;
+  }
 
   if (req.method === "GET" && url.pathname === "/api/personas") return send(res, 200, brain.personaStatus());
   if (req.method === "POST" && ["/api/personas/switch", "/api/personas/interrupt"].includes(url.pathname)) {
@@ -319,6 +548,10 @@ async function handleApi(req, res) {
       let item = brain.pickDanmaku(queue.filter(candidate => candidate.delivery !== "stream"), { preferFresh: highTraffic || Boolean(body.preferFresh) });
       if (!item) item = brain.maybeInitiate();
       if (!item) return send(res, 200, { idle: true });
+      // QueueStore removes by object identity. Keep the picked queue entry so
+      // both local completion and cloud dispatch consume it exactly once.
+      const liveContext = brain.liveGameContextProvider();
+      if (liveContext) { item.liveGame = true; item.localGameSpeaker = liveContext.localOnly === true; }
       const routing = classifyComplexity(item);
       if (routing.route === "cloud" && item.type !== "proactive") {
         if (queue.includes(item)) queueStore.remove(item);
@@ -615,6 +848,7 @@ function enqueueDanmaku(input) {
     if (Math.random() > admissionChance) return { ok: true, duplicate: true, suppressed: true, repeatCount, admissionChance, item, queueSize: queue.length };
   }
   queueStore.push(item);
+  if (item.type !== 'proactive') preemptMinecraftCommentary();
   queue.sort((a, b) => brain.scoreDanmaku(b) - brain.scoreDanmaku(a));
   queueStore.save();
   return { ok: true, duplicate: repeatCount > 0, repeatCount, item, queueSize: queue.length };
@@ -641,6 +875,7 @@ server.requestTimeout = 65_000;
 server.headersTimeout = 10_000;
 
 async function shutdown(signal) {
+  processLifecycle.shutdown(signal);
   console.log(`Received ${signal}; shutting down cleanly.`);
   server.close(() => {
     try { brain.persistRuntime(); brain.memoryStore.close(); } finally { process.exit(0); }
@@ -651,5 +886,6 @@ process.once("SIGINT", () => void shutdown("SIGINT"));
 process.once("SIGTERM", () => void shutdown("SIGTERM"));
 
 server.listen(PORT, HOST, () => {
+  processLifecycle.ready();
   console.log(`Live2D AI Streamer MVP running at http://${HOST}:${PORT}`);
 });

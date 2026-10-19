@@ -1,0 +1,8 @@
+{
+  "name": "suige-minecraft-mcp",
+  "version": "0.1.0",
+  "private": true,
+  "type": "commonjs",
+  "scripts": { "start": "node server.cjs", "test": "node --test test.cjs" },
+  "dependencies": { "@modelcontextprotocol/server": "2.3.1", "@modelcontextprotocol/client": "2.3.1", "zod": "4.4.3" }
+}

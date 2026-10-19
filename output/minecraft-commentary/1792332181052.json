@@ -1,0 +1,57 @@
+{
+  "capturedAt": 1792332181052,
+  "evidence": {
+    "goal": "由本地千问自主决策建立一个生存小家：房屋有床、箱子、火把，采集材料、制作工具、狩猎动物、烹饪并吃食物、浅矿采集后返回家。全部已注册动作均可选择，包括navigate、dig_block、place_block、attack_entity、sleep、container_transfer等；根据真实结果调整，不重复囤木。成功与失败以真实世界和库存证据为准。",
+    "currentSubgoal": "采集石料并制作石镐",
+    "action": {
+      "action": "craft",
+      "item": "stone_pickaxe",
+      "count": 1,
+      "source": "local-qwen",
+      "model": "qwen3.5-4b",
+      "adapterLoaded": false,
+      "modelMetadata": {
+        "request_id": "ea7793b8-c4f5-4d39-9925-53e6aea1fbc2",
+        "task": "minecraft-survival",
+        "used_adapter": false,
+        "adapter_path": null
+      }
+    },
+    "outcome": "failed",
+    "error": "Missing ingredients for 1 stone_pickaxe",
+    "inventory": [
+      {
+        "name": "spruce_planks",
+        "count": 10
+      },
+      {
+        "name": "crafting_table",
+        "count": 1
+      },
+      {
+        "name": "stick",
+        "count": 4
+      },
+      {
+        "name": "spruce_sapling",
+        "count": 1
+      },
+      {
+        "name": "spruce_log",
+        "count": 7
+      }
+    ],
+    "health": 20,
+    "food": 20,
+    "yolo": {
+      "scope": "COCO only, not trained for Minecraft",
+      "detections": []
+    }
+  },
+  "speech": "石镐没做成，缺材料——背包里只有木板、木棍和原木，一块石头都没有。看来得先想办法弄到圆石才行。",
+  "model": "deepseek-flash",
+  "provider": "cloud",
+  "visionModel": "qwen3.5-4b",
+  "visualObservation": "夜间雪地地形，可见树木、积雪和箱子，底部有进度条。",
+  "expired": false
+}

@@ -1,0 +1,136 @@
+{
+  "generatedAt": "2026-10-12T21:00:27.658Z",
+  "sourceHashes": {
+    "logs/minecraft-autonomy.jsonl": "c33d466f1eabf14f5629e554ce79e64749664333c41b91814be8d0af629ff3ba",
+    "logs/minecraft-session-1791830191222.jsonl": "ab42b472515410d9d2c6e20de6e840206d04d9ec4d719119ff332dd5661f9ee8"
+  },
+  "events": [
+    {
+      "at": "2026-10-12T20:59:30.353Z",
+      "event": "candidate_path_preflight",
+      "purpose": "harvest",
+      "position": {
+        "x": 11,
+        "y": 65,
+        "z": 60
+      },
+      "status": "partial",
+      "cpuMs": 53.2,
+      "totalCpuMs": 53.2,
+      "totalCpuBudgetMs": 80,
+      "candidateCpuBudgetMs": 60,
+      "budgetOverrun": false,
+      "probes": 1,
+      "continued": true,
+      "slices": 10,
+      "maxSliceMs": 5.9,
+      "wallMs": 122.6,
+      "visitedNodes": 93,
+      "taskId": "54012498-4255-4eba-9187-524bc45e8608"
+    },
+    {
+      "at": "2026-10-12T20:59:30.368Z",
+      "event": "candidate_path_preflight",
+      "purpose": "harvest",
+      "position": {
+        "x": 10,
+        "y": 66,
+        "z": 61
+      },
+      "status": "success",
+      "cpuMs": 0.9,
+      "totalCpuMs": 54,
+      "totalCpuBudgetMs": 80,
+      "candidateCpuBudgetMs": 24,
+      "budgetOverrun": false,
+      "probes": 2,
+      "continued": false,
+      "slices": 1,
+      "maxSliceMs": 0.9,
+      "wallMs": 14,
+      "visitedNodes": 1,
+      "taskId": "54012498-4255-4eba-9187-524bc45e8608"
+    },
+    {
+      "at": "2026-10-12T20:59:30.554Z",
+      "event": "candidate_path_preflight",
+      "purpose": "harvest",
+      "position": {
+        "x": 12,
+        "y": 65,
+        "z": 59
+      },
+      "status": "success",
+      "cpuMs": 0.5,
+      "totalCpuMs": 54.5,
+      "totalCpuBudgetMs": 80,
+      "candidateCpuBudgetMs": 24,
+      "budgetOverrun": false,
+      "probes": 3,
+      "continued": false,
+      "slices": 1,
+      "maxSliceMs": 0.5,
+      "wallMs": 1.5,
+      "visitedNodes": 0,
+      "taskId": "54012498-4255-4eba-9187-524bc45e8608"
+    },
+    {
+      "at": "2026-10-12T20:59:30.642Z",
+      "event": "candidate_path_preflight",
+      "purpose": "harvest",
+      "position": {
+        "x": 9,
+        "y": 67,
+        "z": 61
+      },
+      "status": "success",
+      "cpuMs": 2.5,
+      "totalCpuMs": 57,
+      "totalCpuBudgetMs": 80,
+      "candidateCpuBudgetMs": 24,
+      "budgetOverrun": false,
+      "probes": 4,
+      "continued": false,
+      "slices": 1,
+      "maxSliceMs": 2.5,
+      "wallMs": 13.6,
+      "visitedNodes": 4,
+      "taskId": "54012498-4255-4eba-9187-524bc45e8608"
+    },
+    {
+      "at": "2026-10-12T21:00:17.560Z",
+      "event": "candidate_path_preflight",
+      "purpose": "pickup",
+      "position": {
+        "x": 10,
+        "y": 66,
+        "z": 60
+      },
+      "status": "success",
+      "cpuMs": 6.4,
+      "totalCpuMs": 6.4,
+      "totalCpuBudgetMs": 80,
+      "candidateCpuBudgetMs": 24,
+      "budgetOverrun": false,
+      "probes": 1,
+      "continued": false,
+      "slices": 2,
+      "maxSliceMs": 6.4,
+      "wallMs": 30.4,
+      "visitedNodes": 8,
+      "taskId": "96a255ac-535e-4477-8f7c-d162b8b5d5fb"
+    }
+  ],
+  "limits": [
+    "Interim read-only evidence, not complete trial acceptance.",
+    "A continued partial is still unconfirmed; later success preflights do not prove navigation, mining or inventory gain."
+  ],
+  "correlatedTaskOutcome": {
+    "taskId": "54012498-4255-4eba-9187-524bc45e8608",
+    "at": "2026-10-12T20:59:31.328Z",
+    "status": "failed",
+    "error": "Missing correct tool for stone",
+    "inventoryGain": 0,
+    "interpretation": "Continuation was exercised and other candidates were attempted; lack of required pickaxe prevented mining. No harvesting improvement proven."
+  }
+}

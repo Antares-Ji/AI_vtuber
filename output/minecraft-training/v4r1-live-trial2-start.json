@@ -1,0 +1,779 @@
+{
+  "at": "2026-10-12T20:54:14.230Z",
+  "reason": "Same v4r1 model; ranged detection and damage logging hotloaded, no policy prompt/training change; same life history retained",
+  "loop": {
+    "enabled": true,
+    "running": true,
+    "goal": "由本地千问自主规划：安全生存、采集、制作工具、采矿、制作并点燃下界门，进入下界。失败后根据真实状态调整计划。",
+    "deadline": "2026-10-12T23:17:01.000Z",
+    "step": 24,
+    "model": "qwen3.5-4b",
+    "modelLoaded": true,
+    "adapter": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01",
+    "adapterLoaded": true,
+    "lastDecision": {
+      "action": "explore",
+      "direction": "east",
+      "distance": 20
+    },
+    "lastResult": {
+      "taskId": "4878065b-1efb-497f-892b-40f51d213023",
+      "action": {
+        "action": "explore",
+        "direction": "north",
+        "distance": 20
+      },
+      "status": "completed",
+      "result": {
+        "action": {
+          "action": "explore",
+          "direction": "north",
+          "distance": 20
+        },
+        "verified": true,
+        "moved": 18,
+        "from": {
+          "x": 4.5,
+          "y": 71,
+          "z": 31.5
+        },
+        "to": {
+          "x": 2.3,
+          "y": 69.2,
+          "z": 13.5
+        },
+        "remainingThreats": [],
+        "inventoryBefore": [],
+        "inventoryAfter": [],
+        "position": {
+          "x": 2.3,
+          "y": 69.2,
+          "z": 13.5
+        }
+      },
+      "at": "2026-10-12T20:52:47.334Z"
+    },
+    "lastError": null,
+    "latencyMs": 1982,
+    "history": [
+      {
+        "taskId": "f065275c-2cac-48cb-962c-e9480c31a234",
+        "action": {
+          "action": "gather_wood",
+          "count": 4
+        },
+        "status": "failed",
+        "error": "No inventory gain (0 blocks removed): no exposed reachable resource; explore elsewhere",
+        "at": "2026-10-12T20:51:17.584Z"
+      },
+      {
+        "taskId": "5ba36025-1ad0-441f-99eb-005e7be51b07",
+        "action": {
+          "action": "explore",
+          "direction": "east",
+          "distance": 20
+        },
+        "status": "completed",
+        "result": {
+          "action": {
+            "action": "explore",
+            "direction": "east",
+            "distance": 20
+          },
+          "verified": true,
+          "moved": 19,
+          "from": {
+            "x": -3.5,
+            "y": 70,
+            "z": 15.3
+          },
+          "to": {
+            "x": 14.6,
+            "y": 66,
+            "z": 17.6
+          },
+          "remainingThreats": [],
+          "inventoryBefore": [],
+          "inventoryAfter": [],
+          "position": {
+            "x": 14.6,
+            "y": 66,
+            "z": 17.6
+          }
+        },
+        "at": "2026-10-12T20:51:30.813Z"
+      },
+      {
+        "taskId": "afd412c9-a8df-431a-9124-5ce6a1432c09",
+        "action": {
+          "action": "explore",
+          "direction": "east",
+          "distance": 20
+        },
+        "status": "completed",
+        "result": {
+          "action": {
+            "action": "explore",
+            "direction": "east",
+            "distance": 20
+          },
+          "verified": true,
+          "moved": 17,
+          "from": {
+            "x": 14.6,
+            "y": 66,
+            "z": 17.6
+          },
+          "to": {
+            "x": 31.5,
+            "y": 69,
+            "z": 17.5
+          },
+          "remainingThreats": [],
+          "inventoryBefore": [],
+          "inventoryAfter": [],
+          "position": {
+            "x": 31.5,
+            "y": 69,
+            "z": 17.5
+          }
+        },
+        "at": "2026-10-12T20:51:38.806Z"
+      },
+      {
+        "taskId": "fba083ac-892d-476a-8f5e-18bfb709b4e9",
+        "action": {
+          "action": "explore",
+          "direction": "southwest",
+          "distance": 20
+        },
+        "status": "completed",
+        "result": {
+          "action": {
+            "action": "explore",
+            "direction": "southwest",
+            "distance": 20
+          },
+          "verified": true,
+          "moved": 17,
+          "from": {
+            "x": 31.5,
+            "y": 69,
+            "z": 17.5
+          },
+          "to": {
+            "x": 19.7,
+            "y": 70,
+            "z": 29.3
+          },
+          "remainingThreats": [],
+          "inventoryBefore": [],
+          "inventoryAfter": [],
+          "position": {
+            "x": 19.7,
+            "y": 70,
+            "z": 29.3
+          }
+        },
+        "at": "2026-10-12T20:51:46.587Z"
+      },
+      {
+        "taskId": "80e53c7e-2abe-42b8-8ca8-104e0e78a0ab",
+        "action": {
+          "action": "explore",
+          "direction": "north",
+          "distance": 15
+        },
+        "status": "completed",
+        "result": {
+          "action": {
+            "action": "explore",
+            "direction": "north",
+            "distance": 15
+          },
+          "verified": true,
+          "moved": 12,
+          "from": {
+            "x": 19.7,
+            "y": 70,
+            "z": 29.3
+          },
+          "to": {
+            "x": 19.5,
+            "y": 67,
+            "z": 17.5
+          },
+          "remainingThreats": [],
+          "inventoryBefore": [],
+          "inventoryAfter": [],
+          "position": {
+            "x": 19.5,
+            "y": 67,
+            "z": 17.5
+          }
+        },
+        "at": "2026-10-12T20:51:53.521Z"
+      },
+      {
+        "taskId": "1fd02d10-ee7e-4361-be60-dd6b9074dde0",
+        "action": {
+          "action": "explore",
+          "direction": "northwest",
+          "distance": 16
+        },
+        "status": "completed",
+        "result": {
+          "action": {
+            "action": "explore",
+            "direction": "northwest",
+            "distance": 16
+          },
+          "verified": true,
+          "moved": 13,
+          "from": {
+            "x": 19.5,
+            "y": 67,
+            "z": 17.5
+          },
+          "to": {
+            "x": 10.6,
+            "y": 65,
+            "z": 8.6
+          },
+          "remainingThreats": [],
+          "inventoryBefore": [],
+          "inventoryAfter": [],
+          "position": {
+            "x": 10.6,
+            "y": 65,
+            "z": 8.6
+          }
+        },
+        "at": "2026-10-12T20:52:00.147Z"
+      },
+      {
+        "taskId": "25ce7282-af09-4c93-b762-1c3c3d3b3778",
+        "action": {
+          "action": "explore",
+          "direction": "south",
+          "distance": 20
+        },
+        "status": "completed",
+        "result": {
+          "action": {
+            "action": "explore",
+            "direction": "south",
+            "distance": 20
+          },
+          "verified": true,
+          "moved": 18,
+          "from": {
+            "x": 10.6,
+            "y": 65,
+            "z": 8.6
+          },
+          "to": {
+            "x": 10.5,
+            "y": 70,
+            "z": 25.5
+          },
+          "remainingThreats": [],
+          "inventoryBefore": [],
+          "inventoryAfter": [],
+          "position": {
+            "x": 10.5,
+            "y": 70,
+            "z": 25.5
+          }
+        },
+        "at": "2026-10-12T20:52:08.808Z"
+      },
+      {
+        "taskId": "3cdaa20f-c532-42ad-bc4e-e175c5b37b1f",
+        "action": {
+          "action": "mine",
+          "resource": "stone",
+          "count": 4
+        },
+        "status": "failed",
+        "error": "No inventory gain (0 blocks removed): search budget exhausted; reachability unconfirmed; search budget exhausted; reachability unconfirmed",
+        "at": "2026-10-12T20:52:13.405Z"
+      },
+      {
+        "taskId": "5ae34d59-a284-43e2-b43b-e30c78e45ef7",
+        "action": {
+          "action": "explore",
+          "direction": "southwest",
+          "distance": 12
+        },
+        "status": "completed",
+        "result": {
+          "action": {
+            "action": "explore",
+            "direction": "southwest",
+            "distance": 12
+          },
+          "verified": true,
+          "moved": 9,
+          "from": {
+            "x": 10.5,
+            "y": 70,
+            "z": 25.5
+          },
+          "to": {
+            "x": 4.5,
+            "y": 71,
+            "z": 31.5
+          },
+          "remainingThreats": [],
+          "inventoryBefore": [],
+          "inventoryAfter": [],
+          "position": {
+            "x": 4.5,
+            "y": 71,
+            "z": 31.5
+          }
+        },
+        "at": "2026-10-12T20:52:23.142Z"
+      },
+      {
+        "taskId": "746a9b02-cda5-49ce-a93d-0ac146d5ff72",
+        "action": {
+          "action": "mine",
+          "resource": "stone",
+          "count": 4
+        },
+        "status": "failed",
+        "error": "No inventory gain (0 blocks removed): search budget exhausted; reachability unconfirmed; search budget exhausted; reachability unconfirmed",
+        "at": "2026-10-12T20:52:27.542Z"
+      },
+      {
+        "taskId": "e53fdfc6-dfff-4b40-8aee-71f9d5b3a780",
+        "action": {
+          "action": "mine",
+          "resource": "stone",
+          "count": 4
+        },
+        "status": "failed",
+        "error": "No inventory gain (0 blocks removed): search budget exhausted; reachability unconfirmed; search budget exhausted; reachability unconfirmed",
+        "at": "2026-10-12T20:52:35.488Z"
+      },
+      {
+        "taskId": "4878065b-1efb-497f-892b-40f51d213023",
+        "action": {
+          "action": "explore",
+          "direction": "north",
+          "distance": 20
+        },
+        "status": "completed",
+        "result": {
+          "action": {
+            "action": "explore",
+            "direction": "north",
+            "distance": 20
+          },
+          "verified": true,
+          "moved": 18,
+          "from": {
+            "x": 4.5,
+            "y": 71,
+            "z": 31.5
+          },
+          "to": {
+            "x": 2.3,
+            "y": 69.2,
+            "z": 13.5
+          },
+          "remainingThreats": [],
+          "inventoryBefore": [],
+          "inventoryAfter": [],
+          "position": {
+            "x": 2.3,
+            "y": 69.2,
+            "z": 13.5
+          }
+        },
+        "at": "2026-10-12T20:52:47.334Z"
+      }
+    ],
+    "modelHealth": {
+      "ok": true,
+      "model": "qwen3.5-4b",
+      "path": "E:\\Qwen3.5-4B",
+      "quantization": "nf4",
+      "adapter": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01",
+      "adapter_loaded": true,
+      "adapter_scope": "minecraft-survival",
+      "generation": {
+        "active": false,
+        "queued": 0,
+        "max_waiters": 4,
+        "cancelled_running": 0
+      },
+      "generation_busy": false
+    },
+    "updatedAt": "2026-10-12T20:54:14.229Z",
+    "waitingFor": null,
+    "lastDecisionMetadata": {
+      "task": "minecraft-survival",
+      "used_adapter": true,
+      "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01"
+    },
+    "needsRecovery": false
+  },
+  "before": {
+    "connected": true,
+    "mode": "survival",
+    "dimension": "overworld",
+    "health": 20,
+    "food": 20,
+    "oxygen": 20,
+    "position": {
+      "x": 13.7,
+      "y": 66,
+      "z": 11.6
+    },
+    "timeOfDay": 7869,
+    "isNight": false,
+    "inventory": [
+      {
+        "name": "rabbit",
+        "count": 1
+      },
+      {
+        "name": "rabbit_hide",
+        "count": 1
+      }
+    ],
+    "inventoryDiagnostics": {
+      "inventory": {
+        "id": 0,
+        "type": "minecraft:inventory",
+        "inventoryStart": 9,
+        "inventoryEnd": 45,
+        "craftingResultSlot": 0,
+        "slots": [
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          {
+            "name": "rabbit",
+            "type": 1250,
+            "count": 1,
+            "metadata": 0,
+            "slot": 36
+          },
+          {
+            "name": "rabbit_hide",
+            "type": 1254,
+            "count": 1,
+            "metadata": 0,
+            "slot": 37
+          },
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null,
+          null
+        ],
+        "selectedItem": null
+      },
+      "currentWindow": null,
+      "confirmation": "local window model; includes optimistic updates until server reconciliation"
+    },
+    "tools": [],
+    "heldItem": {
+      "name": "rabbit",
+      "durabilityUsed": null
+    },
+    "equipment": [
+      {
+        "name": "rabbit",
+        "durabilityUsed": null
+      }
+    ],
+    "threats": [],
+    "hazards": [],
+    "resources": {
+      "stone": [],
+      "coal": [],
+      "iron": [],
+      "diamond": [],
+      "obsidian": [],
+      "gravel": [],
+      "wood": [
+        {
+          "name": "spruce_log",
+          "position": {
+            "x": 40,
+            "y": 72,
+            "z": -4
+          },
+          "distance": 31
+        },
+        {
+          "name": "spruce_log",
+          "position": {
+            "x": 24,
+            "y": 71,
+            "z": 41
+          },
+          "distance": 32
+        },
+        {
+          "name": "spruce_log",
+          "position": {
+            "x": 24,
+            "y": 76,
+            "z": 41
+          },
+          "distance": 33
+        },
+        {
+          "name": "spruce_log",
+          "position": {
+            "x": 37,
+            "y": 72,
+            "z": -14
+          },
+          "distance": 35
+        }
+      ]
+    },
+    "animals": [],
+    "landmarks": {
+      "evidenceOnly": true,
+      "villageConfirmed": false,
+      "entities": [],
+      "blocks": []
+    },
+    "stations": [],
+    "fluids": {
+      "water": [
+        {
+          "position": {
+            "x": 15,
+            "y": 54,
+            "z": 8
+          },
+          "distance": 13
+        },
+        {
+          "position": {
+            "x": 14,
+            "y": 54,
+            "z": 7
+          },
+          "distance": 13
+        },
+        {
+          "position": {
+            "x": 15,
+            "y": 54,
+            "z": 7
+          },
+          "distance": 13
+        }
+      ],
+      "lava": []
+    },
+    "craftable": [],
+    "recipeHints": [
+      {
+        "item": "stick",
+        "missing": [
+          {
+            "name": "cherry_planks",
+            "count": 2
+          }
+        ],
+        "oneRecipeExample": true
+      },
+      {
+        "item": "crafting_table",
+        "missing": [
+          {
+            "name": "cherry_planks",
+            "count": 4
+          }
+        ],
+        "oneRecipeExample": true
+      },
+      {
+        "item": "wooden_pickaxe",
+        "missing": [
+          {
+            "name": "cherry_planks",
+            "count": 3
+          },
+          {
+            "name": "stick",
+            "count": 2
+          }
+        ],
+        "oneRecipeExample": true
+      },
+      {
+        "item": "stone_pickaxe",
+        "missing": [
+          {
+            "name": "cobbled_deepslate",
+            "count": 3
+          },
+          {
+            "name": "stick",
+            "count": 2
+          }
+        ],
+        "oneRecipeExample": true
+      },
+      {
+        "item": "furnace",
+        "missing": [
+          {
+            "name": "cobbled_deepslate",
+            "count": 8
+          }
+        ],
+        "oneRecipeExample": true
+      },
+      {
+        "item": "iron_pickaxe",
+        "missing": [
+          {
+            "name": "iron_ingot",
+            "count": 3
+          },
+          {
+            "name": "stick",
+            "count": 2
+          }
+        ],
+        "oneRecipeExample": true
+      },
+      {
+        "item": "bucket",
+        "missing": [
+          {
+            "name": "iron_ingot",
+            "count": 3
+          }
+        ],
+        "oneRecipeExample": true
+      },
+      {
+        "item": "flint_and_steel",
+        "missing": [
+          {
+            "name": "iron_ingot",
+            "count": 1
+          },
+          {
+            "name": "flint",
+            "count": 1
+          }
+        ],
+        "oneRecipeExample": true
+      },
+      {
+        "item": "diamond_pickaxe",
+        "missing": [
+          {
+            "name": "diamond",
+            "count": 3
+          },
+          {
+            "name": "stick",
+            "count": 2
+          }
+        ],
+        "oneRecipeExample": true
+      },
+      {
+        "item": "torch",
+        "missing": [
+          {
+            "name": "charcoal",
+            "count": 1
+          },
+          {
+            "name": "stick",
+            "count": 1
+          }
+        ],
+        "oneRecipeExample": true
+      }
+    ],
+    "recentExploration": [],
+    "recentFailures": [],
+    "portalSite": null,
+    "busy": false,
+    "activeTaskId": null,
+    "reactive": {
+      "updatedAt": "2026-10-12T20:54:13.812Z",
+      "sampleIntervalMs": 200,
+      "lifecycleEpoch": 7,
+      "dimension": "overworld",
+      "timeOfDay": 7869,
+      "health": 20,
+      "food": 20,
+      "armed": false,
+      "enabled": true,
+      "mode": "idle",
+      "calming": false,
+      "targetId": null,
+      "entities": [],
+      "escape": null,
+      "timing": {
+        "tickMs": 0.1,
+        "maxTickMs": 0.4,
+        "sampleGapMs": 200.2,
+        "maxSampleGapMs": 215.8,
+        "skippedTicks": 0,
+        "fallbackMs": 0,
+        "maxFallbackMs": 0,
+        "fallbackBudgetMs": 60,
+        "fallbackOverruns": 0,
+        "intervalIsSchedulingTarget": true
+      }
+    },
+    "sessionId": "E:\\Github\\AI_vtuber\\logs\\minecraft-session-1791830191222.jsonl"
+  },
+  "reactiveHash": "53ea06bd1fc177a03cc90b4a0674b580d9c32918b354a7493587690b7e7c9d41"
+}

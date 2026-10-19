@@ -1,0 +1,173 @@
+{
+  "rubric": "minecraft-live-v2-acceptance-1",
+  "from": "2026-10-12T19:04:29.056Z",
+  "to": "2026-10-12T19:07:54.852Z",
+  "cohorts": {},
+  "decisions": 0,
+  "results": 0,
+  "failures": 0,
+  "failureRate": null,
+  "repeatedUnchangedFailures": 0,
+  "repeatedFailureRateAmongAttempts": null,
+  "repeatedFailureEvidence": [],
+  "rejectedDecisions": [],
+  "actionEvidence": [],
+  "safety": {
+    "deaths": 0,
+    "deathEvents": [],
+    "minimumLoggedHealth": 3.517354965209961,
+    "healthTrace": [
+      {
+        "at": "2026-10-12T19:05:02.305Z",
+        "event": "priority_changed",
+        "health": 20
+      },
+      {
+        "at": "2026-10-12T19:05:09.066Z",
+        "event": "escape_blocked",
+        "health": 20,
+        "position": {
+          "x": -27.68598169303459,
+          "y": 63,
+          "z": -54.5
+        }
+      },
+      {
+        "at": "2026-10-12T19:05:29.595Z",
+        "event": "priority_changed",
+        "health": 20
+      },
+      {
+        "at": "2026-10-12T19:05:33.108Z",
+        "event": "escape_blocked",
+        "health": 20,
+        "position": {
+          "x": -65.5,
+          "y": 63,
+          "z": -53.49999999999997
+        }
+      },
+      {
+        "at": "2026-10-12T19:06:32.823Z",
+        "event": "priority_changed",
+        "health": 20
+      },
+      {
+        "at": "2026-10-12T19:06:48.760Z",
+        "event": "priority_changed",
+        "health": 20
+      },
+      {
+        "at": "2026-10-12T19:07:00.959Z",
+        "event": "priority_changed",
+        "health": 20
+      },
+      {
+        "at": "2026-10-12T19:07:02.595Z",
+        "event": "priority_changed",
+        "health": 20
+      },
+      {
+        "at": "2026-10-12T19:07:06.243Z",
+        "event": "priority_changed",
+        "health": 20
+      },
+      {
+        "at": "2026-10-12T19:07:10.767Z",
+        "event": "priority_changed",
+        "health": 20
+      },
+      {
+        "at": "2026-10-12T19:07:31.543Z",
+        "event": "escape_blocked",
+        "health": 17.16666603088379,
+        "position": {
+          "x": -103.5,
+          "y": 63,
+          "z": 18.5
+        }
+      },
+      {
+        "at": "2026-10-12T19:07:32.250Z",
+        "event": "priority_changed",
+        "health": 3.517354965209961
+      },
+      {
+        "at": "2026-10-12T19:07:32.252Z",
+        "event": "trapped_counterattack",
+        "health": 3.517354965209961
+      },
+      {
+        "at": "2026-10-12T19:07:33.344Z",
+        "event": "priority_changed",
+        "health": 3.517354965209961
+      },
+      {
+        "at": "2026-10-12T19:07:38.646Z",
+        "event": "trapped_counterattack",
+        "health": 4.517354965209961
+      }
+    ],
+    "escapeRoutesIssued": 83,
+    "blockedEvents": 3,
+    "threatClearedEvents": 4,
+    "timingLogSamples": 21,
+    "sampledTickMaxMs": 51.9,
+    "sampledGapMaxMs": 215,
+    "observedCumulativeTickMaxMs": 53.2,
+    "observedCumulativeGapMaxMs": 216.2,
+    "observedCumulativeFallbackOverruns": 0,
+    "escapeAcceptance": "routes-observed-review-endpoints-and-threat-clearance"
+  },
+  "limits": [
+    "Offline logs corroborate executor observations; they are not an independent game sensor.",
+    "Completed partial gains count as progress but not full requested quantity.",
+    "Death and timing counts cover only supplied logs and timestamps; sparse timing logs do not support per-tick percentiles.",
+    "Cumulative timing maxima may predate this window until reactive reload; report them separately from sampled window values.",
+    "Different prompts, compact observations, executors or world states confound model-weight comparisons. Only frozen identical-input base/adapter evaluation isolates a weight contrast.",
+    "No danger encountered means escape behavior remains untested. Issuing a route alone does not establish escape success.",
+    "Unknown completion metadata never proves adapter use."
+  ],
+  "sources": {
+    "autonomy": {
+      "path": "logs/minecraft-autonomy.jsonl",
+      "sha256": "43d2dd48011a463c02e17bc5c7f500ff45b07ee423c8795d9833a23a405f790d",
+      "malformedLines": []
+    },
+    "session": {
+      "path": "logs/minecraft-session-1791830191222.jsonl",
+      "sha256": "a359adb364d039eba0f26fd774fac418925957e978e9a833f392bd31ce85a302",
+      "malformedLines": []
+    }
+  },
+  "implementationHashes": {
+    "src/minecraft/survival-planner.js": "e9cf50096b350e65262dfbc948a7b60a8c8ba08cb561cc7d139ffbdc50dfe59a",
+    "src/minecraft/survival-skills.js": "d6131be0fe5d8c541ab8cba7504856d0fc6592d80f6a5055ad4b253f24f04e46",
+    "src/minecraft/reactive-agent.js": "19d8aa309fde5b6e3a8f5cc02c382cd1afaaba1df5c4d66f9da50fc4ae513650",
+    "src/minecraft/autonomy-loop.js": "a7c105b1eb78f60dbe9c29014ccef4bce8dccf932ca421ca6c2cc399b89e280c"
+  },
+  "implementationHashTiming": "Report-time checkout; establish deployment-time hashes separately before attributing changes.",
+  "independentReview": {
+    "conclusion": "Survived several reflex retreat phases, with major injury; not learned-model evidence.",
+    "modelDecisionsDuringWindow": 0,
+    "lowestLoggedHealth": 3.517354965209961,
+    "damageCause": "Unknown: no damage-source event. Creeper nearby and disappeared after abrupt damage is suggestive, not proof.",
+    "observations": [
+      "Initial flee 19:05:02; threat cleared 19:05:37. Same zombie later returned; clearance was temporary, not permanent disengagement.",
+      "19:07:31 blocked snapshot had creeper at 3.43 blocks, spider 3.71, skeleton 3.73, zombie 5.99. Health 17.1667 then 3.51735 at 19:07:32.250.",
+      "83 short routes, 3 blocked events, 4 threat-cleared events; route count does not count 83 successful escapes.",
+      "53.2ms cumulative maximum measured tick, 216.2ms cumulative sample gap, 51.9ms planning maximum, zero reported planning overruns before hot reload."
+    ],
+    "implementationFindings": [
+      "Successful path incorrectly carried candidate cursor into a new origin; fixed reset after success.",
+      "Already reached one-block destinations still incurred failed-plan 800ms backoff; fixed immediate replan on arrival.",
+      "Endpoint checks alone allowed intermediate path proximity to hostiles; added per-node clearance and creeper margin."
+    ],
+    "verificationLimits": [
+      "Patch tests passed but these encounter logs predate the three corrections; they cannot validate the newer fixes.",
+      "No GPU inference, gameplay action or endpoint model request was issued by this review.",
+      "Provided session interval has zero logged deaths, but minimum health was dangerously low.",
+      "Health regeneration to 5.517 was separately observed by root after the logged minimum; not invented as a trace sample here."
+    ]
+  }
+}

@@ -1,0 +1,57 @@
+{
+  "capturedAt": 1791986582034,
+  "evidence": {
+    "goal": "制作一把铁镐。由本地千问自主调整中间计划，最终以背包出现 iron_pickaxe 为验收。",
+    "currentSubgoal": "制作木镐",
+    "action": {
+      "action": "craft",
+      "item": "wooden_pickaxe",
+      "count": 1,
+      "source": "local-qwen",
+      "model": "qwen3.5-4b",
+      "adapterLoaded": true,
+      "modelMetadata": {
+        "task": "minecraft-survival",
+        "used_adapter": true,
+        "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01"
+      }
+    },
+    "outcome": "failed",
+    "error": "Missing ingredients for 1 wooden_pickaxe",
+    "inventory": [
+      {
+        "name": "spruce_planks",
+        "count": 2
+      },
+      {
+        "name": "crafting_table",
+        "count": 1
+      },
+      {
+        "name": "stick",
+        "count": 4
+      },
+      {
+        "name": "spruce_log",
+        "count": 10
+      }
+    ],
+    "health": 20,
+    "food": 20,
+    "yolo": {
+      "scope": "COCO only, not trained for Minecraft",
+      "detections": [
+        {
+          "label": "potted plant",
+          "confidence": 0.363
+        }
+      ]
+    }
+  },
+  "speech": "木镐还差材料，工作台倒是已经在我背包里了。雪地上先别急，我再凑凑手里的木板和木棍。",
+  "model": "deepseek-flash",
+  "provider": "cloud",
+  "visionModel": "qwen3.5-4b",
+  "visualObservation": "游戏画面中可见覆盖积雪的棕色泥土方块构成的地形结构。",
+  "expired": false
+}

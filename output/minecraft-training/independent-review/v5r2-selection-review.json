@@ -1,0 +1,159 @@
+{
+  "scope": "Independent CPU review of frozen47 development inputs, four completed raw prediction files, scorer source, original diagnostic probe inputs/outputs, training report and weight hashes. No GPU/endpoint/game action or original20 access.",
+  "recommendation": {
+    "stableDeployment": "Retain v4r1: neither candidate demonstrates an unqualified reliability improvement.",
+    "boundedNewWeightExperiment": "If proceeding with one explicit experimental live trial, prefer epoch02 over epoch01. Epoch02 has meaningful staircase/torch/table/stone development changes and corrects the actual full-food eat no-op diagnostic; epoch01 has only one new accepted table case and shares the unaffordable planks regression. Keep both regressions visible in acceptance evidence.",
+    "hardGate": "Both candidates pass the predeclared schema and hostile-priority no-regression gates. The food and material regressions still require discretionary severity review; they are not erased by passing those narrower gates.",
+    "notEstablished": "Improved general survival, material understanding, recovery reliability or Nether completion."
+  },
+  "integrity": {
+    "criteriaRecordedAt": "2026-10-12T21:40:21.8023958Z",
+    "evaluationStartAt": "2026-10-12T21:51:10.5068436Z",
+    "dataSha256": "0f5632030e830c29807ee6180007109969414a86ebea09b374904a46a98fe31d",
+    "contractSha256": "9e1e8201acc736250979f351a612252d64d0667fbb7481e9508cc6fce9f1ce44",
+    "originalRowsUnmodified": "47 source rows match all original27+8+12 fields exactly; only comparisonSlice is added.",
+    "rawRecomputation": "scripts/minecraft-training/audit_dev47.js; all188 raw outputs reparsed and checked with runtime validateAction; 0 schema disagreements; independently recomputed accepted totals match final summary.",
+    "metadataLimit": "These are direct-grid calls with set_adapter/disable_adapter; request_metadata.used_adapter is evaluator-produced. It is not independent HTTP response metadata or evidence of a deployed endpoint.",
+    "epoch01WeightSha256": "c0007d5f7a8d21863463f98e994b61e02613fd1d7f140f6bc5338c66f018a134",
+    "epoch02WeightSha256": "6cd0f9ec8dbf15dadc90ebb9102bab347214a82b5ba902adcc615c1d5dc61712",
+    "weightHashesMatchCpuReports": true,
+    "training": "214 rows; resumed v4r1 epoch01; 2epochs/108updates; training report SHA256 of input matches frozen replay2086a5ef...9934877. Loss is not used for selection."
+  },
+  "scores": {
+    "denominators": {
+      "all": 47,
+      "legacy": 27,
+      "v4Allowed": 8,
+      "dense": 12,
+      "hostile": 2,
+      "progression": 40
+    },
+    "base": {
+      "schema": 45,
+      "accepted": 11,
+      "legacyAccepted": 7,
+      "v4Accepted": 2,
+      "denseAccepted": 2,
+      "hostilePass": 2,
+      "progressionAccepted": 8
+    },
+    "v4r1": {
+      "schema": 47,
+      "accepted": 18,
+      "legacyAccepted": 12,
+      "v4Accepted": 4,
+      "denseAccepted": 2,
+      "hostilePass": 2,
+      "progressionAccepted": 12
+    },
+    "epoch01": {
+      "schema": 47,
+      "accepted": 19,
+      "legacyAccepted": 12,
+      "v4Accepted": 4,
+      "denseAccepted": 3,
+      "hostilePass": 2,
+      "progressionAccepted": 13,
+      "v4AcceptedRegressions": 0
+    },
+    "epoch02": {
+      "schema": 47,
+      "accepted": 22,
+      "legacyAccepted": 12,
+      "v4Accepted": 6,
+      "denseAccepted": 4,
+      "hostilePass": 2,
+      "progressionAccepted": 17,
+      "v4AcceptedRegressions": 1
+    }
+  },
+  "epoch02RegressionReview": {
+    "id": "development-v2-0003",
+    "state": "HP20, food7, bread1, iron_pickaxe1, torch8, visible diamond ore8 blocks away, no observed threats.",
+    "v4r1AndEpoch01": {
+      "action": "eat"
+    },
+    "epoch02": {
+      "action": "mine",
+      "resource": "diamond",
+      "count": 3
+    },
+    "severity": "Materially equipped but food-priority regression. It ignores immediately available food before further exertion; no immediate hostile or criticalHP exists in this snapshot, so it is not proof of certain death or an invalid skill. The current executor does not generally reject food7 mining."
+  },
+  "epoch02NewAcceptedReview": [
+    {
+      "id": "development-v2-0021",
+      "change": "coal count4 to3",
+      "meaning": "Count-only exact-match gain; do not count as a new capability."
+    },
+    {
+      "id": "v4r1-dev-07",
+      "change": "explore to dig_staircase",
+      "meaning": "Torch/vitals-equipped descent choice; execution safety still conditional."
+    },
+    {
+      "id": "v4r1-dev-08",
+      "change": "eat to craft torch4",
+      "meaning": "Materials available and torch shortage blocks planned descent; prior eat was edible/feasible too, though not the authored stage action."
+    },
+    {
+      "id": "v5r2-dev-10",
+      "change": "mine stone without tool to craft table1",
+      "meaning": "Concrete feasible prerequisite improvement, also present in epoch01."
+    },
+    {
+      "id": "v5r2-dev-12",
+      "change": "mine coal to mine stone",
+      "meaning": "Stage-preferred resource selection, not correction of an inherently impossible coal action with a wooden pickaxe."
+    }
+  ],
+  "diagnosticProbeReview": [
+    {
+      "probe": "live-probe-1791836151666.json",
+      "state": "HP20 food20; spruce_log1, stick26, wooden_pickaxe1; no planks.",
+      "v4r1": "craft planks4",
+      "epoch01And02": "craft planks8",
+      "finding": "Definite new material-precondition failure. Skill count denotes output gain, not desired total or recipe runs. Output4/log means8 requires2 logs; recipesFor(id,null,action.count,true) rejects with only1 log before clicking. No high-level craft/explore gold is needed to establish this affordability regression."
+    },
+    {
+      "probe": "live-probe-1791838384663.json",
+      "state": "HP20 food20 rabbit1/rabbit_hide1",
+      "v4r1AndEpoch01": "eat",
+      "epoch02": "gather_wood4",
+      "finding": "Avoids an actual full-food no-op. Gather success still depends on reachable resources. Diagnostic only, excluded from aggregate47."
+    },
+    {
+      "probe": "live-probe-1791833435547.json",
+      "finding": "All four choose planks4; no new candidate advantage."
+    },
+    {
+      "probe": "live-probe-1791830746219.json",
+      "finding": "Base gather12; all three adapters explore northeast24. No candidate improvement. Original-input diagnostic differs from the derived legacy row, so their predictions must not be conflated."
+    }
+  ],
+  "persistentWeaknesses": [
+    "Dense low-food9/apple2 case still mines stone for both candidates instead of eating.",
+    "Dense no-tool/resources and empty-resource recovery cases remain wrong; woodRecovery accepted2/14 for all adapters.",
+    "Dense iron-smelting/iron-pick prerequisites still not selected; tool-stage accepted4/5 unchanged across adapters.",
+    "FullFoodNoOpAvoided metric denominator is only1 synthetic case and all models already pass it; it cannot support a broad food-understanding claim. The exact full-food probe is separate evidence.",
+    "Final20 has been used repeatedly and Root previously disclosed incidental label exposure; it must remain post-selection and cannot be called pristine or used to select these weights."
+  ],
+  "deploymentStatus": "Recommendation only; no service or weight deployed by reviewer. Root decides whether a bounded epoch02 trial is justified despite regressions.",
+  "rootDecision": {
+    "kind": "experimental_only",
+    "candidate": "epoch02",
+    "durationMinutes": 20,
+    "stableRecommendationRetained": "v4r1",
+    "knownRisksAcknowledged": [
+      "food7 bread1 eat skipped",
+      "log1 planks8 unaffordable"
+    ],
+    "stopForIndependentReview": [
+      "low food with available food but continued gathering/mining",
+      "repeated same material failure",
+      "death"
+    ],
+    "noManualPolicyCorrection": true,
+    "final20OnlyAfterSelection": true
+  }
+}

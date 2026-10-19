@@ -1,0 +1,31 @@
+{
+  "capturedAt": 1792333671864,
+  "evidence": {
+    "goal": "由千问自主规划并通过Mineflayer执行生存小家目标。首先根据实际危险优先避怪、防护和食物，避免反复死亡丢失物资；再采集、正确制作工具、建屋并配置床箱子火把、熟食、浅矿及返家。全部75种已注册动作开放，由你根据真实观察与执行结果选择；死亡后重新核对库存，先满足配方和工具前置条件，不重复囤木或把破坏方块冒称物品入库。持续运行直到用户明确停止。",
+    "currentSubgoal": "采集橡木原木制作工作台与木板",
+    "action": {
+      "action": "gather_wood",
+      "count": 12
+    },
+    "outcome": "running",
+    "error": null,
+    "inventory": [
+      {
+        "name": "dirt",
+        "count": 1
+      }
+    ],
+    "health": 11.256954193115234,
+    "food": 19,
+    "yolo": {
+      "scope": "COCO only, not trained for Minecraft",
+      "detections": []
+    }
+  },
+  "speech": "夜里在雪地边继续找橡木，背包里还是只有那块泥土，木头还没到手。血量和饱食都还撑得住，先不冒险。",
+  "model": "deepseek-flash",
+  "provider": "cloud",
+  "visionModel": "qwen3.5-4b",
+  "visualObservation": "游戏截图显示夜晚星空下，下方有积雪覆盖的树木和一条绿色进度条。",
+  "expired": false
+}

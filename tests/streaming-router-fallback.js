@@ -1,6 +1,8 @@
 const assert = require("node:assert/strict");
 
 require("../src/config/env").loadEnv();
+// Provider mocks must not opt into this machine's live DNS transport.
+process.env.DEEPSEEK_DNS_MODE = 'system';
 const { streamRoutedReply, selectStreamPreflight } = require("../src/brain/streaming-router");
 
 const context = { persona: "你是测试角色。", worldBook: "", recent: [] };

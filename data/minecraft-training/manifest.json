@@ -1,0 +1,27 @@
+{
+  "name": "minecraft-survival-policy-lora-v1",
+  "scope": "Synthetic next-atomic-skill selection for survival progression toward the Nether; this does not train Mineflayer execution or guarantee world-level success.",
+  "label_schema_source": "src/minecraft/survival-skills.js SURVIVAL_ACTION_SCHEMA; system prompt from src/minecraft/survival-planner.js SURVIVAL_SYSTEM",
+  "all_examples_synthetic": true,
+  "train_examples": 39,
+  "holdout_examples": 20,
+  "holdout_policy": "Holdout scenarios are separately authored and must not be used for training or tuning.",
+  "real_logs_preserved": [
+    {
+      "file": "logs/minecraft-session-1791826100048.jsonl",
+      "fact": "One dropped-log collection timed out after wood harvesting."
+    },
+    {
+      "file": "logs/minecraft-session-1791826189595.jsonl",
+      "fact": "A later crafting-table task was verified; that session also records repeated hostile deaths."
+    },
+    {
+      "file": "logs/minecraft-session-1791827441784.jsonl",
+      "fact": "Defense was enabled, followed by runtime errors and a Spider death."
+    }
+  ],
+  "logs_are_not_training_labels": true,
+  "no_personality_memory_written": true,
+  "base_model": "E:\\Qwen3.5-4B",
+  "adapter_path": "runtime/minecraft-training/adapters/minecraft-survival-v1"
+}

@@ -1,0 +1,25 @@
+{
+  "capturedAt": 1792331581530,
+  "evidence": {
+    "goal": "由本地千问自主决策建立一个生存小家：房屋有床、箱子、火把，采集材料、制作工具、狩猎动物、烹饪并吃食物、浅矿采集后返回家。全部已注册动作均可选择，包括navigate、dig_block、place_block、attack_entity、sleep、container_transfer等；根据真实结果调整，不重复囤木。成功与失败以真实世界和库存证据为准。",
+    "currentSubgoal": null,
+    "action": {
+      "action": "flee"
+    },
+    "outcome": "failed",
+    "error": null,
+    "inventory": [],
+    "health": 20,
+    "food": 20,
+    "yolo": {
+      "scope": "COCO only, not trained for Minecraft",
+      "detections": []
+    }
+  },
+  "speech": "雪地里想撤一步却没走成，背包还是空的，连块木头都没攒上。这开局是真够清贫的。",
+  "model": "deepseek-flash",
+  "provider": "cloud",
+  "visionModel": "qwen3.5-4b",
+  "visualObservation": "游戏画面显示雪地地形，可见积雪覆盖的土块和泥土方块。",
+  "expired": false
+}

@@ -1,0 +1,79 @@
+GPU memory free=14.63 GiB total=15.89 GiB
+Loaded 286 train records; max token length=2237; max_length=2560
+trainable params: 5,308,416 || all params: 4,544,573,952 || trainable%: 0.1168
+progress epoch=1/1 optimizer_step=4 window_loss=0.2167 peak_allocated_gib=5.00
+progress epoch=1/1 optimizer_step=8 window_loss=0.1283 peak_allocated_gib=5.00
+progress epoch=1/1 optimizer_step=12 window_loss=0.2247 peak_allocated_gib=5.00
+progress epoch=1/1 optimizer_step=16 window_loss=0.1025 peak_allocated_gib=5.00
+progress epoch=1/1 optimizer_step=20 window_loss=0.2080 peak_allocated_gib=5.00
+progress epoch=1/1 optimizer_step=24 window_loss=0.2856 peak_allocated_gib=5.00
+progress epoch=1/1 optimizer_step=28 window_loss=0.1389 peak_allocated_gib=5.00
+progress epoch=1/1 optimizer_step=32 window_loss=0.2054 peak_allocated_gib=5.00
+progress epoch=1/1 optimizer_step=36 window_loss=0.0952 peak_allocated_gib=5.00
+progress epoch=1/1 optimizer_step=40 window_loss=0.2775 peak_allocated_gib=5.00
+progress epoch=1/1 optimizer_step=44 window_loss=0.0358 peak_allocated_gib=5.00
+progress epoch=1/1 optimizer_step=48 window_loss=0.1272 peak_allocated_gib=5.00
+progress epoch=1/1 optimizer_step=52 window_loss=0.0528 peak_allocated_gib=5.12
+progress epoch=1/1 optimizer_step=56 window_loss=0.1833 peak_allocated_gib=5.12
+progress epoch=1/1 optimizer_step=60 window_loss=0.1041 peak_allocated_gib=5.12
+progress epoch=1/1 optimizer_step=64 window_loss=0.1244 peak_allocated_gib=5.12
+progress epoch=1/1 optimizer_step=68 window_loss=0.1918 peak_allocated_gib=5.13
+progress epoch=1/1 optimizer_step=72 window_loss=0.0523 peak_allocated_gib=5.13
+epoch 1/1: mean_loss=0.1685 optimizer_steps=72 checkpoint=runtime\minecraft-training\adapters\minecraft-survival-v6r1-weighted-material-candidate\checkpoint-epoch-01
+{
+  "experiment": "minecraft-survival-v6r1-weighted-material-candidate",
+  "base_model_path": "E:\\Qwen3.5-4B",
+  "base_model_type": "qwen3_5",
+  "adapter_path": "runtime\\minecraft-training\\adapters\\minecraft-survival-v6r1-weighted-material-candidate",
+  "training_data": "E:\\Github\\AI_vtuber\\data\\minecraft-training\\train-v6r1-weighted-replay-candidates.jsonl",
+  "training_examples": 286,
+  "holdout_used_for_training": false,
+  "training_provenance_counts": {
+    "real model-selected positive trajectory; completion metadata and correlated skill_verified inventory delta; exact input is training-only": 1,
+    "real model-selected positive trajectory; completion metadata and correlated skill_verified inventory delta; exact input is training-only; explicit 3x emphasis replay copy 2/3": 1,
+    "real model-selected positive trajectory; completion metadata and correlated skill_verified inventory delta; exact input is training-only; explicit 3x emphasis replay copy 3/3": 1,
+    "synthetic; hand-authored from current survival-skills.js and documented low-health deadlock; not a real trajectory": 24,
+    "synthetic; hand-authored no-resource recovery counterfactual": 3,
+    "synthetic; hand-authored positive material-feasibility control": 4,
+    "synthetic; hand-authored recovery planning scenario": 46,
+    "synthetic; hand-authored v2 scenario": 29,
+    "synthetic; hand-authored varied-count material-recovery counterfactual": 18,
+    "synthetic; independent real-probe-like development scenario": 2,
+    "synthetic; independent v4 counterfactual inspired by live failure patterns; not copied from any exact live probe": 16,
+    "synthetic; independently authored dense-state counterfactual; v5r2 registry-grounded food history corrections; no exact live probe copied": 32,
+    "synthetic; independently authored v6r1 material-feasibility counterfactual; not a copied exact live probe": 22,
+    "synthetic; independently authored v6r1 material-feasibility counterfactual; not a copied exact live probe; explicit 3x emphasis replay copy 2/3": 22,
+    "synthetic; independently authored v6r1 material-feasibility counterfactual; not a copied exact live probe; explicit 3x emphasis replay copy 3/3": 22,
+    "synthetic; material-consumption recovery scenario": 2,
+    "synthetic; migrated v1 training example": 38,
+    "teacher-corrected from live model_request/model_completion and inventory evidence; exact input is now training evidence, not unseen evaluation": 1,
+    "teacher-corrected from live model_request/model_completion and inventory evidence; exact input is now training evidence, not unseen evaluation; explicit 3x emphasis replay copy 2/3": 1,
+    "teacher-corrected from live model_request/model_completion and inventory evidence; exact input is now training evidence, not unseen evaluation; explicit 3x emphasis replay copy 3/3": 1
+  },
+  "resume_adapter": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01",
+  "initialization": "continued_from_adapter",
+  "seed": 20261013,
+  "epochs": 1,
+  "max_length": 2560,
+  "lora_rank": 4,
+  "learning_rate": 1e-05,
+  "train_jsonl_sha256": "b1f81297d705e6f3accb02265217f148967730b4936eaa7599aa9ba3244526ac",
+  "history": [
+    {
+      "epoch": 1,
+      "mean_loss": 0.16854001913167588,
+      "optimizer_steps": 72
+    }
+  ],
+  "peak_cuda_allocated_gib": 5.13,
+  "peak_cuda_reserved_gib": 8.04,
+  "elapsed_seconds": 669.4,
+  "torch": "2.11.0+cu128",
+  "cuda": "12.8",
+  "adapter_files": [
+    "adapter_config.json",
+    "adapter_model.safetensors",
+    "README.md"
+  ],
+  "limitation": "Training loss is not a capability metric. Run the independent holdout evaluator and report limitations before claiming improvement."
+}

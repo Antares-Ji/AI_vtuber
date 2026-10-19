@@ -1,0 +1,21 @@
+{
+  "at": "2026-10-12T20:18:39.970Z",
+  "reason": "Same adapter with safe harvest pickup and exact request auditing; loop history resets after main restart",
+  "loop": {
+    "enabled": true,
+    "running": true,
+    "goal": "由本地千问自主规划：安全生存、采集、制作工具、采矿、制作并点燃下界门，进入下界。失败后根据真实状态调整计划。",
+    "deadline": "2026-10-12T23:17:01.000Z",
+    "step": 0,
+    "model": "qwen3.5-4b",
+    "modelLoaded": false,
+    "adapter": null,
+    "adapterLoaded": false,
+    "lastDecision": null,
+    "lastResult": null,
+    "lastError": null,
+    "latencyMs": null,
+    "history": [],
+    "updatedAt": "2026-10-12T20:18:40.013Z"
+  }
+}

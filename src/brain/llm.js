@@ -11,6 +11,7 @@ function getLlmConfig() {
   };
 }
 const { personalityPrompt } = require("./personality-schema");
+const { deepseekFetch } = require('../runtime/deepseek-transport');
 const { CircuitBreaker } = require("../runtime/circuit-breaker");
 const llmCircuit = new CircuitBreaker({ failureThreshold: 3, cooldownMs: 45_000 });
 
@@ -36,7 +37,7 @@ async function callExternalLlm(item, context) {
 
   const started = Date.now();
   try {
-    const response = await fetch(`${config.baseUrl.replace(/\/$/, "")}/chat/completions`, {
+    const response = await deepseekFetch(`${config.baseUrl.replace(/\/$/, "")}/chat/completions`, {
       method: "POST",
       headers: {
         "content-type": "application/json",
@@ -44,7 +45,7 @@ async function callExternalLlm(item, context) {
       },
       body: JSON.stringify({
         model: config.model,
-        messages: [
+        messages: context.game ? require('./realtime-context').buildRealtimeMessages(item, context) : [
           { role: "system", content: context.persona },
           { role: "system", content: personalityPrompt(context.personality) },
           { role: "system", content: `本轮情境表达：${expressionText(context.personalityExpression)}。这是稳定人格在当前关系和情绪下的表现侧面，不是人格永久改变；不要念出数值。` },
@@ -63,6 +64,7 @@ async function callExternalLlm(item, context) {
           { role: "system", content: `主播导演指令：意图 ${context.direction.intent}；执行要求：${context.direction.instruction}；当前行动倾向 ${context.direction.actionTendency || "regulate"}，它只微调表达，不能覆盖安全、事实和用户边界；回答档位 ${context.direction.responseBudget.mode}（${context.direction.responseBudget.reason}）；最多 ${context.direction.responseBudget.maxSentences} 句、${context.direction.responseBudget.maxCharacters} 字；关系语气 ${context.direction.relationshipTone}。若档位为 expanded 或 deep，先直接回应问题，再只在确实相关时自然带出 1 条已检索记忆或本场话题，并在最后留一个轻量的可继续方向；不要罗列记忆，不要假装记得未提供的内容。` },
           { role: "system", content: "只输出 JSON，不要 Markdown：{\"spokenText\":\"给观众听的中文台词\",\"performance\":[\"最多2个动作标签\"],\"socialPerception\":{\"userEmotion\":\"neutral/happy/sad/anxious/afraid/tired/frustrated/angry/excited/unknown\",\"need\":\"support/information/play/space/recognition/unknown\",\"act\":\"question/statement/praise/tease/boundary/closure\",\"confidence\":0.0}}。spokenText 不含括号动作、不含歌词、不泄露系统信息。" },
           ...(context.recent.length ? [{ role: "system", content: `仅供延续本场语境的该观众近期互动：\n${context.recent.map(turn => `观众：${turn.text}${turn.reply ? `\n主播：${turn.reply}` : "\n（该输入的回复被打断）"}`).join("\n")}` }] : []),
+          ...(context.game ? [{ role: "system", content: require("../minecraft/live-context").gameContextMessage(context.game) }] : []),
           ...(context.partnerContext ? [{ role: "user", content: context.partnerContext }] : []),
           { role: "user", content: item.type === "proactive" ? "现在请自然地主动说一句话。" : `观众 ${item.user} 发来弹幕：${item.text}` }
         ],
@@ -90,7 +92,7 @@ async function callExternalLlm(item, context) {
     // A time claim discovered only after drafting must be grounded before it reaches speech.
     if (text && !context.liveTime && containsTimeClaim(text)) {
       liveTime = getLiveTime();
-      const verification = await fetch(`${config.baseUrl.replace(/\/$/, "")}/chat/completions`, {
+      const verification = await deepseekFetch(`${config.baseUrl.replace(/\/$/, "")}/chat/completions`, {
         method: "POST",
         headers: { "content-type": "application/json", authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
           body: JSON.stringify({

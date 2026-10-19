@@ -1,0 +1,35 @@
+{
+  "capturedAt": 1792300270164,
+  "evidence": {
+    "goal": "建立可生活的小家：先安全生存与食物，再依真实库存制作工作台、工具、熔炉、熟肉和火把，选择平坦安全位置造简单小屋，放置床、箱子、火把，最后浅层采矿并安全返回。由你自主分阶段决策。已有材料足够就推进下一阶段，不重复囤积。每5分钟监管反馈，失败先分析再改方法；同因两次失败需诊断而非原样重复。新建房/家具技能仅在能力表可用后调用，缺少技能要说明不能假装完成。生命危险优先避险/找可用食物。",
+    "currentSubgoal": "采集基础木材并尝试制作工作台",
+    "action": {
+      "action": "gather_wood",
+      "count": 4,
+      "source": "local-qwen",
+      "model": "qwen3.5-4b",
+      "adapterLoaded": false,
+      "modelMetadata": {
+        "request_id": "76827e5a-99ba-4402-b6d5-da81786cde1b",
+        "task": "minecraft-survival",
+        "used_adapter": false,
+        "adapter_path": null
+      }
+    },
+    "outcome": "failed",
+    "error": "No inventory gain (0 blocks removed): search budget exhausted; reachability unconfirmed; search budget exhausted; reachability unconfirmed",
+    "inventory": [],
+    "health": 20,
+    "food": 20,
+    "yolo": {
+      "scope": "COCO only, not trained for Minecraft",
+      "detections": []
+    }
+  },
+  "speech": "雪林里绕了半天还是没砍到木头，背包空空的，采集没成。我换个方向再试，先弄到基础木材再说。",
+  "model": "deepseek-flash",
+  "provider": "cloud",
+  "visionModel": "qwen3.5-4b",
+  "visualObservation": "游戏画面显示玩家身处茂密森林，周围是覆盖积雪的地面和树木。",
+  "expired": false
+}

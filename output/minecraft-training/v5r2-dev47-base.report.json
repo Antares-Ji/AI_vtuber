@@ -1,0 +1,18 @@
+{
+  "mode": "direct-grid",
+  "base_model": "E:\\Qwen3.5-4B",
+  "adapter": null,
+  "evaluation_data": "E:\\Github\\AI_vtuber\\output\\minecraft-training\\v5r2-development47.jsonl",
+  "evaluation_contract": "E:\\Github\\AI_vtuber\\data\\minecraft-training\\contract-v3r1.json",
+  "raw_predictions": "E:\\Github\\AI_vtuber\\output\\minecraft-training\\v5r2-dev47-base.jsonl",
+  "n": 47,
+  "exact_action_object_accuracy": 0.1702127659574468,
+  "action_name_accuracy": 0.40425531914893614,
+  "strict_json_schema_valid_rate": 0.9574468085106383,
+  "threat_priority_accuracy": 1.0,
+  "progression_exact_accuracy": 0.125,
+  "threat_cases": 2,
+  "progression_cases": 40,
+  "final_holdout": false,
+  "limitation": "Development-set checkpoint selection only; agreement with authored labels does not demonstrate successful gameplay or broad generalization."
+}

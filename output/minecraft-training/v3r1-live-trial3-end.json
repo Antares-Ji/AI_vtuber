@@ -1,0 +1,276 @@
+{
+  "at": "2026-10-12T20:31:53.877Z",
+  "reason": "GPU handoff for audited v4r1 stage-transition training; repeated absent-prey actions",
+  "loop": {
+    "enabled": false,
+    "running": false,
+    "goal": "由本地千问自主规划：安全生存、采集、制作工具、采矿、制作并点燃下界门，进入下界。失败后根据真实状态调整计划。",
+    "deadline": "2026-10-12T23:17:01.000Z",
+    "step": 15,
+    "model": "qwen3.5-4b",
+    "modelLoaded": true,
+    "adapter": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v3r1-fresh-base\\checkpoint-epoch-02",
+    "adapterLoaded": true,
+    "lastDecision": {
+      "action": "gather_wood",
+      "count": 4
+    },
+    "lastResult": {
+      "taskId": "8fc845b5-d540-4b32-9ea9-4661bdf68073",
+      "action": {
+        "action": "gather_wood",
+        "count": 4
+      },
+      "status": "failed",
+      "error": "Unsafe: critical health; eat or flee first",
+      "at": "2026-10-12T20:31:49.255Z"
+    },
+    "lastError": "Unsafe: critical health; eat or flee first",
+    "latencyMs": 1489,
+    "history": [
+      {
+        "taskId": "6fa4158d-db8a-4559-9250-0b5e9e030917",
+        "action": {
+          "action": "craft",
+          "item": "stick",
+          "count": 6
+        },
+        "status": "failed",
+        "error": "crafted batch inventory: server verification failed",
+        "at": "2026-10-12T20:19:55.977Z"
+      },
+      {
+        "taskId": "b882e15f-6be5-43f3-b48f-cf443f072d59",
+        "action": {
+          "action": "craft",
+          "item": "stick",
+          "count": 4
+        },
+        "status": "failed",
+        "error": "Error: Event updateSlot:0 did not fire within timeout of 20000ms",
+        "at": "2026-10-12T20:20:48.253Z"
+      },
+      {
+        "taskId": "35843793-4241-4dba-b7a1-ed49135b7f03",
+        "action": {
+          "action": "craft",
+          "item": "stick",
+          "count": 8
+        },
+        "status": "failed",
+        "error": "crafted batch inventory: server verification failed",
+        "at": "2026-10-12T20:21:26.581Z"
+      },
+      {
+        "taskId": "320afe05-b27b-403c-9282-be5c8077af67",
+        "action": {
+          "action": "eat"
+        },
+        "status": "failed",
+        "error": "No safe edible food in inventory; hunt and smelt food",
+        "at": "2026-10-12T20:30:51.391Z"
+      },
+      {
+        "taskId": "b9df74dc-807b-445f-b33f-53e350e39f98",
+        "action": {
+          "action": "hunt",
+          "count": 1
+        },
+        "status": "failed",
+        "error": "Emergency hunt requires safe dry supported terrain",
+        "at": "2026-10-12T20:30:57.936Z"
+      },
+      {
+        "taskId": "8e9dda72-e89f-44cb-9ff8-772d864484ad",
+        "action": {
+          "action": "flee"
+        },
+        "status": "completed",
+        "result": {
+          "action": {
+            "action": "flee"
+          },
+          "verified": true,
+          "moved": 21,
+          "from": {
+            "x": -188.5,
+            "y": 63,
+            "z": 2.5
+          },
+          "to": {
+            "x": -167.6,
+            "y": 64,
+            "z": 2.5
+          },
+          "remainingThreats": [],
+          "inventoryBefore": [
+            {
+              "name": "rotten_flesh",
+              "count": 2
+            }
+          ],
+          "inventoryAfter": [
+            {
+              "name": "rotten_flesh",
+              "count": 2
+            }
+          ],
+          "position": {
+            "x": -167.6,
+            "y": 64,
+            "z": 2.5
+          }
+        },
+        "at": "2026-10-12T20:31:08.782Z"
+      },
+      {
+        "taskId": "8e19e706-0a57-421a-b06c-0625a0015db3",
+        "action": {
+          "action": "flee"
+        },
+        "status": "completed",
+        "result": {
+          "action": {
+            "action": "flee"
+          },
+          "verified": true,
+          "moved": 21,
+          "from": {
+            "x": -167.6,
+            "y": 64,
+            "z": 2.5
+          },
+          "to": {
+            "x": -146.6,
+            "y": 67,
+            "z": 2.3
+          },
+          "remainingThreats": [],
+          "inventoryBefore": [
+            {
+              "name": "rotten_flesh",
+              "count": 2
+            }
+          ],
+          "inventoryAfter": [
+            {
+              "name": "rotten_flesh",
+              "count": 2
+            }
+          ],
+          "position": {
+            "x": -146.6,
+            "y": 67,
+            "z": 2.3
+          }
+        },
+        "at": "2026-10-12T20:31:17.397Z"
+      },
+      {
+        "taskId": "8a67f6f9-e5ce-4890-a079-517d5ae09e9f",
+        "action": {
+          "action": "flee"
+        },
+        "status": "completed",
+        "result": {
+          "action": {
+            "action": "flee"
+          },
+          "verified": true,
+          "moved": 22,
+          "from": {
+            "x": -146.6,
+            "y": 67,
+            "z": 2.3
+          },
+          "to": {
+            "x": -124.4,
+            "y": 63.9,
+            "z": 2.4
+          },
+          "remainingThreats": [],
+          "inventoryBefore": [
+            {
+              "name": "rotten_flesh",
+              "count": 2
+            }
+          ],
+          "inventoryAfter": [
+            {
+              "name": "rotten_flesh",
+              "count": 2
+            }
+          ],
+          "position": {
+            "x": -124.4,
+            "y": 63.9,
+            "z": 2.4
+          }
+        },
+        "at": "2026-10-12T20:31:26.168Z"
+      },
+      {
+        "taskId": "1ec52618-e8c0-4608-a0ce-d3b486bf88af",
+        "action": {
+          "action": "eat"
+        },
+        "status": "failed",
+        "error": "No safe edible food in inventory; hunt and smelt food",
+        "at": "2026-10-12T20:31:29.282Z"
+      },
+      {
+        "taskId": "588a2fc3-d992-44f6-b644-2bbb0a686be6",
+        "action": {
+          "action": "hunt",
+          "count": 1
+        },
+        "status": "failed",
+        "error": "No nearby passive animals; explore",
+        "at": "2026-10-12T20:31:35.977Z"
+      },
+      {
+        "taskId": "4e686a94-be36-4ce1-90de-560744f1e4fd",
+        "action": {
+          "action": "eat"
+        },
+        "status": "failed",
+        "error": "No safe edible food in inventory; hunt and smelt food",
+        "at": "2026-10-12T20:31:42.386Z"
+      },
+      {
+        "taskId": "8fc845b5-d540-4b32-9ea9-4661bdf68073",
+        "action": {
+          "action": "gather_wood",
+          "count": 4
+        },
+        "status": "failed",
+        "error": "Unsafe: critical health; eat or flee first",
+        "at": "2026-10-12T20:31:49.255Z"
+      }
+    ],
+    "updatedAt": "2026-10-12T20:31:53.873Z",
+    "waitingFor": null,
+    "modelHealth": {
+      "ok": true,
+      "model": "qwen3.5-4b",
+      "path": "E:\\Qwen3.5-4B",
+      "quantization": "nf4",
+      "adapter": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v3r1-fresh-base\\checkpoint-epoch-02",
+      "adapter_loaded": true,
+      "adapter_scope": "minecraft-survival",
+      "generation": {
+        "active": false,
+        "queued": 0,
+        "max_waiters": 4,
+        "cancelled_running": 0
+      },
+      "generation_busy": false
+    },
+    "lastDecisionMetadata": {
+      "task": "minecraft-survival",
+      "used_adapter": true,
+      "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v3r1-fresh-base\\checkpoint-epoch-02"
+    },
+    "needsRecovery": false
+  }
+}

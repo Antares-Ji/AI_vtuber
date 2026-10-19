@@ -1,0 +1,86 @@
+{
+  "generatedAt": "2026-10-12T19:14:30.339Z",
+  "inspection": "CPU safe_open device=cpu; no inference",
+  "adapters": [
+    {
+      "variant": "final",
+      "reportFile": "output\\minecraft-training\\independent-review\\adapter-v2-final-artifact-audit.json",
+      "source": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v2",
+      "weightsSha256": "5b711a56cbb4a48fe2faf12b5ee8fb70d62b36e1404b8d07229788255b1bf43d",
+      "weightBytes": 42504600,
+      "tensors": 256,
+      "parameters": 10616832,
+      "allFinite": true,
+      "nonzeroLoraBTensors": 128,
+      "healthAvailable": false
+    },
+    {
+      "variant": "checkpoint-epoch-01",
+      "reportFile": "output\\minecraft-training\\independent-review\\adapter-v2-checkpoint-epoch-01-artifact-audit.json",
+      "source": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v2\\checkpoint-epoch-01",
+      "weightsSha256": "14dffb08148b8a49d3f4879c7ea10c6396b444ddc14d19810b44157ce1fa70a1",
+      "weightBytes": 42504600,
+      "tensors": 256,
+      "parameters": 10616832,
+      "allFinite": true,
+      "nonzeroLoraBTensors": 128,
+      "healthAvailable": false
+    },
+    {
+      "variant": "checkpoint-epoch-02",
+      "reportFile": "output\\minecraft-training\\independent-review\\adapter-v2-checkpoint-epoch-02-artifact-audit.json",
+      "source": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v2\\checkpoint-epoch-02",
+      "weightsSha256": "7b96ac10bae54fba21ae79aaa5a5839b3973311e1ac617d3d3d9897ed9359b9d",
+      "weightBytes": 42504600,
+      "tensors": 256,
+      "parameters": 10616832,
+      "allFinite": true,
+      "nonzeroLoraBTensors": 128,
+      "healthAvailable": false
+    },
+    {
+      "variant": "checkpoint-epoch-03",
+      "reportFile": "output\\minecraft-training\\independent-review\\adapter-v2-checkpoint-epoch-03-artifact-audit.json",
+      "source": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v2\\checkpoint-epoch-03",
+      "weightsSha256": "0d917768fa948e9f9a77a4da0ed220fb1addffb591ae097d6d65b5926ee2a662",
+      "weightBytes": 42504600,
+      "tensors": 256,
+      "parameters": 10616832,
+      "allFinite": true,
+      "nonzeroLoraBTensors": 128,
+      "healthAvailable": false
+    },
+    {
+      "variant": "checkpoint-epoch-04",
+      "reportFile": "output\\minecraft-training\\independent-review\\adapter-v2-checkpoint-epoch-04-artifact-audit.json",
+      "source": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v2\\checkpoint-epoch-04",
+      "weightsSha256": "5b711a56cbb4a48fe2faf12b5ee8fb70d62b36e1404b8d07229788255b1bf43d",
+      "weightBytes": 42504600,
+      "tensors": 256,
+      "parameters": 10616832,
+      "allFinite": true,
+      "nonzeroLoraBTensors": 128,
+      "healthAvailable": false
+    }
+  ],
+  "finalEqualsEpoch4": true,
+  "checkpointHashesDistinct": true,
+  "trainingReportFile": "runtime/minecraft-training/adapters/minecraft-survival-v2/training-report.json",
+  "trainingReportSha256": "016343e6defcd74bbbe5fad5408baf3617c094898a2f36c89465cebe68a97855",
+  "trainingDataHashMatches": true,
+  "trainingClaim": {
+    "examples": 124,
+    "continuedFrom": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v1",
+    "epochs": 4,
+    "steps": 124,
+    "elapsedSeconds": 949.1,
+    "peakAllocatedGiB": 4.4
+  },
+  "frozenV1HoldoutSha256": "ffbd010232a4f8cbcdaee4650ea4c938d719b2940bd0cbb7b8fad4b179006e4b",
+  "limits": [
+    "All finite nonzero tensors establish saved nontrivial weights, not capability.",
+    "Training report claims are attributed to the training process; data file hash independently verified.",
+    "11435 health unavailable during audit because service was offline during development evaluation; no adapter loading or request-use claim made.",
+    "Checkpoint selection remains development-set work. Frozen holdout labels were not shared or used for selection."
+  ]
+}

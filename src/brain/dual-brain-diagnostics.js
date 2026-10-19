@@ -1,5 +1,6 @@
 const { classifyComplexity, callLocalLlm } = require("./local-llm");
 const { getLlmConfig } = require("./llm");
+const { deepseekFetch } = require('../runtime/deepseek-transport');
 
 async function runDualBrainDiagnostics() {
   const simpleItem = { user: "验收", text: "晚上好" };
@@ -12,7 +13,7 @@ async function runDualBrainDiagnostics() {
   let cloud = { ok: false, latencyMs: 0, model: cloudConfig.model, error: "Cloud LLM is not configured" };
   if (cloudConfig.enabled) {
     try {
-      const response = await fetch(`${cloudConfig.baseUrl.replace(/\/$/, "")}/chat/completions`, {
+      const response = await deepseekFetch(`${cloudConfig.baseUrl.replace(/\/$/, "")}/chat/completions`, {
         method: "POST",
         headers: { "content-type": "application/json", authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
         body: JSON.stringify({

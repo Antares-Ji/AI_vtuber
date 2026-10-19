@@ -1,0 +1,207 @@
+{
+  "at": "2026-10-12T19:51:08.346Z",
+  "experiment": "base-only live diagnostic ended for audited training handoff",
+  "step": 30,
+  "operatorStop": true,
+  "lastDecision": {
+    "action": "gather_wood",
+    "count": 1
+  },
+  "history": [
+    {
+      "taskId": "7d98c858-cf55-42ce-a9b1-3c849de96265",
+      "action": {
+        "action": "mine",
+        "resource": "stone",
+        "count": 4
+      },
+      "status": "failed",
+      "error": "navigate: timeout",
+      "at": "2026-10-12T19:47:20.578Z"
+    },
+    {
+      "taskId": "e36cd72f-8d41-49ff-a2f5-23e8fb27472c",
+      "action": {
+        "action": "gather_wood",
+        "count": 4
+      },
+      "status": "completed",
+      "result": {
+        "action": {
+          "action": "gather_wood",
+          "count": 4
+        },
+        "verified": true,
+        "gained": 4,
+        "requested": 4,
+        "complete": true,
+        "dug": 4,
+        "items": [
+          "oak_log",
+          "spruce_log",
+          "birch_log",
+          "jungle_log",
+          "acacia_log",
+          "cherry_log",
+          "dark_oak_log",
+          "pale_oak_log",
+          "mangrove_log"
+        ],
+        "inventoryBefore": [
+          {
+            "name": "spruce_log",
+            "count": 2
+          },
+          {
+            "name": "stick",
+            "count": 2
+          },
+          {
+            "name": "spruce_planks",
+            "count": 31
+          },
+          {
+            "name": "wooden_pickaxe",
+            "count": 1
+          },
+          {
+            "name": "cobblestone",
+            "count": 1
+          }
+        ],
+        "inventoryAfter": [
+          {
+            "name": "spruce_log",
+            "count": 6
+          },
+          {
+            "name": "stick",
+            "count": 2
+          },
+          {
+            "name": "spruce_planks",
+            "count": 31
+          },
+          {
+            "name": "wooden_pickaxe",
+            "count": 1
+          },
+          {
+            "name": "cobblestone",
+            "count": 1
+          }
+        ],
+        "position": {
+          "x": 43.5,
+          "y": 81,
+          "z": 64.5
+        }
+      },
+      "at": "2026-10-12T19:48:01.401Z"
+    },
+    {
+      "taskId": "faf040d6-e878-4ff1-ab51-1d466e0736e5",
+      "action": {
+        "action": "craft",
+        "item": "furnace",
+        "count": 1
+      },
+      "status": "failed",
+      "error": "Missing ingredients for 1 furnace",
+      "at": "2026-10-12T19:48:04.963Z"
+    },
+    {
+      "taskId": "96c89e5d-ad09-4f56-af88-8855985ebf0d",
+      "action": {
+        "action": "craft",
+        "item": "planks",
+        "count": 16
+      },
+      "status": "failed",
+      "error": "crafted inventory: server verification failed",
+      "at": "2026-10-12T19:48:18.486Z"
+    },
+    {
+      "taskId": "2f171153-0e3c-40c1-9cf7-7732b88268cf",
+      "action": {
+        "action": "craft",
+        "item": "planks",
+        "count": 16
+      },
+      "status": "failed",
+      "error": "Gather wood before crafting planks",
+      "at": "2026-10-12T19:48:25.602Z"
+    },
+    {
+      "taskId": "790eeca3-9341-4a47-943c-d802dffb1a43",
+      "action": {
+        "action": "craft",
+        "item": "planks",
+        "count": 16
+      },
+      "status": "failed",
+      "error": "Gather wood before crafting planks",
+      "at": "2026-10-12T19:48:32.645Z"
+    },
+    {
+      "taskId": "17874ed7-46e5-42e1-b506-5d6777855f77",
+      "action": {
+        "action": "gather_wood",
+        "count": 12
+      },
+      "status": "failed",
+      "error": "No inventory gain (0 blocks removed): unsafe/unreachable block; unsafe/unreachable block",
+      "at": "2026-10-12T19:49:05.037Z"
+    },
+    {
+      "taskId": "c11a90e4-3688-4213-ad08-242a3a1e5a1a",
+      "action": {
+        "action": "gather_wood",
+        "count": 12
+      },
+      "status": "failed",
+      "error": "No inventory gain (0 blocks removed): unsafe/unreachable block; unsafe/unreachable block",
+      "at": "2026-10-12T19:49:12.256Z"
+    },
+    {
+      "taskId": "7e991d37-b646-4d1f-88c0-695a7c8f5ef1",
+      "action": {
+        "action": "gather_wood",
+        "count": 12
+      },
+      "status": "failed",
+      "error": "No inventory gain (0 blocks removed): unsafe/unreachable block; unsafe/unreachable block",
+      "at": "2026-10-12T19:49:19.504Z"
+    },
+    {
+      "taskId": "d17d44b6-4208-4f52-8d42-9292f6dcdc90",
+      "action": {
+        "action": "gather_wood",
+        "count": 12
+      },
+      "status": "failed",
+      "error": "No inventory gain (0 blocks removed): unsafe/unreachable block; unsafe/unreachable block",
+      "at": "2026-10-12T19:49:52.044Z"
+    },
+    {
+      "taskId": "993ada48-a2be-4aa2-a2c1-af7a19c902bd",
+      "action": {
+        "action": "gather_wood",
+        "count": 12
+      },
+      "status": "failed",
+      "error": "No inventory gain (0 blocks removed): unsafe/unreachable block; unsafe/unreachable block",
+      "at": "2026-10-12T19:50:25.228Z"
+    },
+    {
+      "taskId": "a6c2d14c-48f0-43e3-af38-f53f7952801d",
+      "action": {
+        "action": "gather_wood",
+        "count": 1
+      },
+      "status": "failed",
+      "error": "No inventory gain (0 blocks removed): unsafe/unreachable block; unsafe/unreachable block",
+      "at": "2026-10-12T19:50:57.572Z"
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+{
+  "at": "2026-10-12T22:56:26.100Z",
+  "source": "immutable live175cell diagnostic with installed1.21.11 registry/movements; outsidegrid unknown",
+  "results": [
+    {
+      "configuredMaxDrop": 1,
+      "moves": []
+    },
+    {
+      "configuredMaxDrop": 2,
+      "moves": [
+        {
+          "x": 58,
+          "y": 113,
+          "z": 86,
+          "feetDrop": 1,
+          "toBreak": [],
+          "toPlace": []
+        },
+        {
+          "x": 60,
+          "y": 113,
+          "z": 86,
+          "feetDrop": 1,
+          "toBreak": [],
+          "toPlace": []
+        },
+        {
+          "x": 59,
+          "y": 113,
+          "z": 85,
+          "feetDrop": 1,
+          "toBreak": [],
+          "toPlace": []
+        },
+        {
+          "x": 59,
+          "y": 113,
+          "z": 87,
+          "feetDrop": 1,
+          "toBreak": [],
+          "toPlace": []
+        }
+      ]
+    }
+  ]
+}

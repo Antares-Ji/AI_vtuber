@@ -1,0 +1,44 @@
+{
+  "capturedAt": 1791981551025,
+  "evidence": {
+    "goal": "利用当前库存制作木镐，再寻找可达圆石。已有木板足够时不要继续做木板。提前给出最多三步计划，遇到失败就换方案。",
+    "action": "craft",
+    "outcome": "running",
+    "inventory": [
+      {
+        "name": "spruce_planks",
+        "count": 20
+      },
+      {
+        "name": "stick",
+        "count": 8
+      },
+      {
+        "name": "wooden_pickaxe",
+        "count": 1
+      },
+      {
+        "name": "wooden_pickaxe",
+        "count": 1
+      },
+      {
+        "name": "spruce_log",
+        "count": 19
+      }
+    ],
+    "health": 20,
+    "food": 20,
+    "yolo": {
+      "scope": "COCO only, not trained for Minecraft",
+      "detections": [
+        {
+          "label": "bench",
+          "confidence": 0.67
+        }
+      ]
+    }
+  },
+  "speech": "眼前只有孤零零的长椅，四周静得有些诡异。  \n我得赶紧去搜点圆石，不然这镐头拿不动。  \n……真希望别是那种会突然跳出来的家伙。",
+  "expired": false,
+  "model": "qwen3.5-4b"
+}

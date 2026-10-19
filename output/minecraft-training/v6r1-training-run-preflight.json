@@ -1,0 +1,46 @@
+{
+  "at": "2026-10-12T22:28:13.286558Z",
+  "status": "preflight-passed; one training run authorized",
+  "port11435": "unoccupied",
+  "targetOutput": "output/minecraft-training/minecraft-survival-v6r1-weighted-material-candidate",
+  "python": "E:\\Github\\AI_vtuber\\runtime\\local-llm\\.venv\\Scripts\\python.exe",
+  "trainingScript": "scripts/minecraft-training/train_lora.py",
+  "trainScriptSha256": "79251a053cc61ffb7a10c266ad9ba325239730fabb0349583cbc3f6c492910ec",
+  "dataset": "data/minecraft-training/train-v6r1-weighted-replay-candidates.jsonl",
+  "datasetSha256": "b1f81297d705e6f3accb02265217f148967730b4936eaa7599aa9ba3244526ac",
+  "rows": 286,
+  "parentAdapter": "runtime/minecraft-training/adapters/minecraft-survival-v4r1-replay-candidate/checkpoint-epoch-01",
+  "parentAdapterSha256": "48bbd148184987a3abdcf2a3e193c61690d36b1f078ce70e18ac62f395d7e14b",
+  "parentConfigSha256": "af23e4d29a50769299553eb6bbaa7f39d18b6d9285d8a828f9148b7a3a37dcd5",
+  "baseModel": "E:/Qwen3.5-4B",
+  "baseConfigSha256": "ddc63e1c717afa86c865bb5e01313d89d72bb53b97ad4a8a03ba8510c0621670",
+  "runtimeTorchCuda": [
+    "2.11.0+cu128 12.8 True",
+    "(15712911360, 17066033152)"
+  ],
+  "trainingConfig": {
+    "epochs": 1,
+    "seed": 20261013,
+    "minFreeGiB": 6,
+    "learningRate": 1E-05,
+    "maxLength": 2560,
+    "gradientAccumulation": 4,
+    "experiment": "minecraft-survival-v6r1-weighted-material-candidate",
+    "rank": 4
+  },
+  "pipFreeze": null,
+  "runtimeTrainingPython": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\.venv\\Scripts\\python.exe",
+  "trainingEnvironment": "{'python': 'E:\\\\Github\\\\AI_vtuber\\\\runtime\\\\minecraft-training\\\\.venv\\\\Scripts\\\\python.exe', 'torch': '2.11.0+cu128', 'cuda': '12.8', 'cuda_available': True, 'mem_info': (15712911360, 17066033152), 'packages': {'transformers': '5.16.1', 'peft': '0.21.2', 'accelerate': '1.14.0', 'bitsandbytes': '0.50.2'}}",
+  "firstAttempt": {
+    "pid": 149112,
+    "status": "failed before model load or CUDA allocation",
+    "reason": "ModuleNotFoundError: peft absent from local-llm venv",
+    "stdout": "output/minecraft-training/v6r1-training.stdout.log",
+    "stderr": "output/minecraft-training/v6r1-training.stderr.log"
+  },
+  "correctiveAttempt": {
+    "status": "preflight-passed; starting single authorized run in existing dedicated training venv",
+    "datasetSha256": "b1f81297d705e6f3accb02265217f148967730b4936eaa7599aa9ba3244526ac",
+    "parentAdapterSha256": "48bbd148184987a3abdcf2a3e193c61690d36b1f078ce70e18ac62f395d7e14b"
+  }
+}

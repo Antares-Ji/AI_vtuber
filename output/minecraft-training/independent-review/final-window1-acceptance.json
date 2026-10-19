@@ -1,0 +1,1158 @@
+{
+  "at": "2026-10-12T23:03:18.301Z",
+  "verdict": "FAILED survival and progression. Descent executor repair demonstrated departure from prior tree crown; autonomous flee task cancelled and later reflex defense died.",
+  "window": {
+    "start": "2026-10-12T22:50:15.538Z",
+    "end": "2026-10-12T23:01:22.665Z",
+    "deathAt": "2026-10-12T23:01:20.648Z",
+    "watchdogStopAt": "2026-10-12T23:01:22.665Z",
+    "initialLife": 9,
+    "finalLife": 10,
+    "maintenancePauses": [
+      {
+        "start": "2026-10-12T22:55:04.725Z",
+        "end": "2026-10-12T22:56:08.266Z",
+        "reason": "Short maintenance pause to load timing and read-only terrain diagnostics; no policy change"
+      },
+      {
+        "start": "2026-10-12T22:59:46.096Z",
+        "end": "2026-10-12T23:00:16.062Z",
+        "reason": "Pause for actual one-block descent execution fix; no model-policy change"
+      }
+    ],
+    "hotloads": [
+      {
+        "at": "2026-10-12T22:55:23.568Z",
+        "event": "skills_reloaded",
+        "connected": true
+      },
+      {
+        "at": "2026-10-12T22:59:58.423Z",
+        "event": "skills_reloaded",
+        "connected": true
+      }
+    ]
+  },
+  "model": {
+    "adapter": "minecraft-survival-v4r1-replay-candidate/checkpoint-epoch-01",
+    "weightSha256": "48bbd148184987a3abdcf2a3e193c61690d36b1f078ce70e18ac62f395d7e14b",
+    "requests": 44,
+    "completions": 44,
+    "actualUsedAdapterTrue": 44,
+    "actualAdapterPaths": [
+      "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01"
+    ],
+    "decisions": 44,
+    "latencyMs": {
+      "median": 1947,
+      "min": 1295,
+      "max": 2475
+    }
+  },
+  "execution": {
+    "started": 43,
+    "finished": 43,
+    "statuses": {
+      "failed": 42,
+      "cancelled": 1
+    },
+    "autonomyResults": 43,
+    "completedVerified": 0,
+    "materialGain": 0,
+    "netherEntered": false,
+    "missingResultDecision": [
+      {
+        "at": "2026-10-12T22:55:04.137Z",
+        "requestId": "2e36313a-787f-4ed9-a5c5-08d4efe8ae27",
+        "action": {
+          "action": "flee"
+        },
+        "disposition": "Maintenance pause before task dispatch; no corresponding session skill_started, not an executed failure"
+      }
+    ],
+    "actions": {
+      "flee": 22,
+      "explore": 20,
+      "gather_wood": 2
+    }
+  },
+  "descentEvidence": {
+    "requestId": "bcdf2a4d-b60c-4448-b79b-139fdd410ec7",
+    "taskId": "5bbea574-85ad-4e2d-bc7c-c50f287b4462",
+    "started": "2026-10-12T23:00:18.767Z",
+    "preempted": "2026-10-12T23:00:19.356Z",
+    "before": {
+      "position": {
+        "x": 59.5,
+        "y": 114,
+        "z": 86.5
+      },
+      "health": 9.499998092651367,
+      "food": 17
+    },
+    "after": {
+      "position": {
+        "x": 59.5,
+        "y": 113,
+        "z": 87.6
+      },
+      "health": 9.499998092651367,
+      "food": 17
+    },
+    "taskStatus": "cancelled",
+    "interpretation": "Real one-block descent during model-selected flee; task interrupted by skeleton23.9m reflex. Later reflex descended through107,106,105 with unchangedhp until23:00:56.242. Does not count as completed flee or learned model gain."
+  },
+  "death": {
+    "serverMessage": {
+      "at": "2026-10-12T23:01:20.646Z",
+      "event": "server_message",
+      "text": "SuiGeBot was shot by Skeleton"
+    },
+    "event": {
+      "at": "2026-10-12T23:01:20.648Z",
+      "event": "death",
+      "safetyWillResume": true,
+      "lifecycleEpoch": 10
+    },
+    "damage": [
+      {
+        "at": "2026-10-12T23:00:56.242Z",
+        "event": "reactive_damage_observed",
+        "previousHealth": 9.499998092651367,
+        "health": 5.499998092651367,
+        "food": 17,
+        "position": {
+          "x": 60.5,
+          "y": 105,
+          "z": 92.50021802758798
+        },
+        "enabled": true,
+        "mode": "flee",
+        "targetId": 56961,
+        "lifecycleEpoch": 9,
+        "nearby": [
+          {
+            "id": 56961,
+            "name": "skeleton",
+            "position": {
+              "x": 66.64857280621712,
+              "y": 106,
+              "z": 83.53325061490376
+            },
+            "distance": 10.918399705702903
+          }
+        ],
+        "nearbyCount": 1,
+        "observationRadius": 24,
+        "damageSource": "unknown",
+        "terrain": [
+          {
+            "x": 61,
+            "y": 105,
+            "z": 92,
+            "floor": "grass_block",
+            "feet": "snow",
+            "head": "air"
+          },
+          {
+            "x": 59,
+            "y": 105,
+            "z": 92,
+            "floor": "air",
+            "feet": "air",
+            "head": "air"
+          },
+          {
+            "x": 60,
+            "y": 105,
+            "z": 93,
+            "floor": "air",
+            "feet": "air",
+            "head": "air"
+          },
+          {
+            "x": 60,
+            "y": 105,
+            "z": 91,
+            "floor": "grass_block",
+            "feet": "snow",
+            "head": "air"
+          }
+        ]
+      },
+      {
+        "at": "2026-10-12T23:01:17.643Z",
+        "event": "reactive_damage_observed",
+        "previousHealth": 5.499998092651367,
+        "health": 1.4999980926513672,
+        "food": 17,
+        "position": {
+          "x": 60.663910671921464,
+          "y": 105,
+          "z": 92.50021802758559
+        },
+        "enabled": true,
+        "mode": "flee",
+        "targetId": 56961,
+        "lifecycleEpoch": 9,
+        "nearby": [
+          {
+            "id": 56961,
+            "name": "skeleton",
+            "position": {
+              "x": 63.70001700798635,
+              "y": 106,
+              "z": 89.30000001192093
+            },
+            "distance": 4.5231998664306206
+          },
+          {
+            "id": 57426,
+            "name": "arrow",
+            "position": {
+              "x": 66.94992837444876,
+              "y": 105.01939453929663,
+              "z": 94.6277924510078
+            },
+            "distance": 6.636336913677715
+          },
+          {
+            "id": 57208,
+            "name": "arrow",
+            "position": {
+              "x": 62.0500939505102,
+              "y": 107.45689453929663,
+              "z": 86.36870115995407
+            },
+            "distance": 6.749320999709114
+          },
+          {
+            "id": 57199,
+            "name": "arrow",
+            "position": {
+              "x": 56.5560348056335,
+              "y": 105.05000000074506,
+              "z": 100.89684126645122
+            },
+            "distance": 9.347749779939765
+          },
+          {
+            "id": 57249,
+            "name": "arrow",
+            "position": {
+              "x": 65.66989348141196,
+              "y": 102.05000000074506,
+              "z": 103.54759004369492
+            },
+            "distance": 12.482259104298155
+          }
+        ],
+        "nearbyCount": 5,
+        "observationRadius": 24,
+        "damageSource": "unknown",
+        "terrain": [
+          {
+            "x": 61,
+            "y": 105,
+            "z": 92,
+            "floor": "grass_block",
+            "feet": "snow",
+            "head": "air"
+          },
+          {
+            "x": 59,
+            "y": 105,
+            "z": 92,
+            "floor": "air",
+            "feet": "air",
+            "head": "air"
+          },
+          {
+            "x": 60,
+            "y": 105,
+            "z": 93,
+            "floor": "air",
+            "feet": "air",
+            "head": "air"
+          },
+          {
+            "x": 60,
+            "y": 105,
+            "z": 91,
+            "floor": "grass_block",
+            "feet": "snow",
+            "head": "air"
+          }
+        ]
+      },
+      {
+        "at": "2026-10-12T23:01:20.647Z",
+        "event": "reactive_damage_observed",
+        "previousHealth": 1.4999980926513672,
+        "health": 0,
+        "food": 17,
+        "position": {
+          "x": 60.663910671921464,
+          "y": 105,
+          "z": 92.50021802758559
+        },
+        "enabled": true,
+        "mode": "flee",
+        "targetId": 56961,
+        "lifecycleEpoch": 9,
+        "nearby": [
+          {
+            "id": 56961,
+            "name": "skeleton",
+            "position": {
+              "x": 63.70001700798635,
+              "y": 106,
+              "z": 89.30000001192093
+            },
+            "distance": 4.5231998664306206
+          },
+          {
+            "id": 57426,
+            "name": "arrow",
+            "position": {
+              "x": 66.94992837444876,
+              "y": 105.01939453929663,
+              "z": 94.6277924510078
+            },
+            "distance": 6.636336913677715
+          },
+          {
+            "id": 57208,
+            "name": "arrow",
+            "position": {
+              "x": 62.0500939505102,
+              "y": 107.45689453929663,
+              "z": 86.36870115995407
+            },
+            "distance": 6.749320999709114
+          },
+          {
+            "id": 57199,
+            "name": "arrow",
+            "position": {
+              "x": 56.5560348056335,
+              "y": 105.05000000074506,
+              "z": 100.89684126645122
+            },
+            "distance": 9.347749779939765
+          },
+          {
+            "id": 57249,
+            "name": "arrow",
+            "position": {
+              "x": 65.66989348141196,
+              "y": 102.05000000074506,
+              "z": 103.54759004369492
+            },
+            "distance": 12.482259104298155
+          }
+        ],
+        "nearbyCount": 5,
+        "observationRadius": 24,
+        "damageSource": "unknown",
+        "terrain": [
+          {
+            "x": 61,
+            "y": 105,
+            "z": 92,
+            "floor": "grass_block",
+            "feet": "snow",
+            "head": "air"
+          },
+          {
+            "x": 59,
+            "y": 105,
+            "z": 92,
+            "floor": "air",
+            "feet": "air",
+            "head": "air"
+          },
+          {
+            "x": 60,
+            "y": 105,
+            "z": 93,
+            "floor": "air",
+            "feet": "air",
+            "head": "air"
+          },
+          {
+            "x": 60,
+            "y": 105,
+            "z": 91,
+            "floor": "grass_block",
+            "feet": "snow",
+            "head": "air"
+          }
+        ]
+      }
+    ],
+    "leafClearing": [
+      {
+        "at": "2026-10-12T23:01:11.405Z",
+        "event": "escape_leaf_native_settled",
+        "leafAwaitMs": 310.4,
+        "cancellationRequested": false,
+        "reason": null
+      },
+      {
+        "at": "2026-10-12T23:01:11.406Z",
+        "event": "escape_leaf_removed",
+        "block": "spruce_leaves",
+        "position": {
+          "x": 65,
+          "y": 106,
+          "z": 92
+        },
+        "verified": true,
+        "leavesCleared": 1
+      },
+      {
+        "at": "2026-10-12T23:01:12.036Z",
+        "event": "escape_leaf_native_settled",
+        "leafAwaitMs": 312,
+        "cancellationRequested": false,
+        "reason": null
+      },
+      {
+        "at": "2026-10-12T23:01:12.037Z",
+        "event": "escape_leaf_removed",
+        "block": "spruce_leaves",
+        "position": {
+          "x": 66,
+          "y": 106,
+          "z": 92
+        },
+        "verified": true,
+        "leavesCleared": 2
+      }
+    ],
+    "finalReflex": "Narrow strip x60..66,y105,z92.5; short routes revisited without sustained separation; two leaves removed, then skeleton arrow death. No subsequent progression tasks."
+  },
+  "timing": {
+    "postReloadSamples": [
+      {
+        "at": "2026-10-12T23:00:19.151Z",
+        "event": "reactive_timing",
+        "configuredIntervalMs": 200,
+        "tickMs": 0.1,
+        "maxTickMs": 7.7,
+        "sampleGapMs": 384.4,
+        "maxSampleGapMs": 764,
+        "skippedTicks": 0,
+        "fallbackMs": 0,
+        "maxFallbackMs": 0,
+        "fallbackBudgetMs": 60,
+        "fallbackOverruns": 0,
+        "leafAwaitMs": 0,
+        "maxLeafAwaitMs": 0,
+        "logCallbackMs": 0.4,
+        "maxLogCallbackMs": 7.6,
+        "tickLogCallbackMs": 0,
+        "fallbackLogCallbackMs": 0,
+        "fallbackCandidateMs": 0,
+        "fallbackSearchMs": 0,
+        "maxSearchSliceMs": 0,
+        "fallbackDispatchMs": 0,
+        "intervalIsSchedulingTarget": true
+      },
+      {
+        "at": "2026-10-12T23:00:29.288Z",
+        "event": "reactive_timing",
+        "configuredIntervalMs": 200,
+        "tickMs": 47,
+        "maxTickMs": 47,
+        "sampleGapMs": 213.5,
+        "maxSampleGapMs": 764,
+        "skippedTicks": 0,
+        "fallbackMs": 46.8,
+        "maxFallbackMs": 46.8,
+        "fallbackBudgetMs": 60,
+        "fallbackOverruns": 0,
+        "leafAwaitMs": 0,
+        "maxLeafAwaitMs": 0,
+        "logCallbackMs": 6.1,
+        "maxLogCallbackMs": 7.6,
+        "tickLogCallbackMs": 6.1449000015854836,
+        "fallbackLogCallbackMs": 6.1,
+        "fallbackCandidateMs": 0.5,
+        "fallbackSearchMs": 40,
+        "maxSearchSliceMs": 7.3,
+        "fallbackDispatchMs": 0,
+        "intervalIsSchedulingTarget": true
+      },
+      {
+        "at": "2026-10-12T23:00:39.369Z",
+        "event": "reactive_timing",
+        "configuredIntervalMs": 200,
+        "tickMs": 0.2,
+        "maxTickMs": 47.7,
+        "sampleGapMs": 201.2,
+        "maxSampleGapMs": 764,
+        "skippedTicks": 0,
+        "fallbackMs": 0.5,
+        "maxFallbackMs": 46.8,
+        "fallbackBudgetMs": 60,
+        "fallbackOverruns": 0,
+        "leafAwaitMs": 0,
+        "maxLeafAwaitMs": 0,
+        "logCallbackMs": 7.9,
+        "maxLogCallbackMs": 7.9,
+        "tickLogCallbackMs": 0,
+        "fallbackLogCallbackMs": 0,
+        "fallbackCandidateMs": 0.4,
+        "fallbackSearchMs": 0,
+        "maxSearchSliceMs": 7.3,
+        "fallbackDispatchMs": 0,
+        "intervalIsSchedulingTarget": true
+      },
+      {
+        "at": "2026-10-12T23:00:49.470Z",
+        "event": "reactive_timing",
+        "configuredIntervalMs": 200,
+        "tickMs": 0.3,
+        "maxTickMs": 47.7,
+        "sampleGapMs": 201.5,
+        "maxSampleGapMs": 764,
+        "skippedTicks": 0,
+        "fallbackMs": 0.5,
+        "maxFallbackMs": 46.8,
+        "fallbackBudgetMs": 60,
+        "fallbackOverruns": 0,
+        "leafAwaitMs": 0,
+        "maxLeafAwaitMs": 0,
+        "logCallbackMs": 6.6,
+        "maxLogCallbackMs": 7.9,
+        "tickLogCallbackMs": 0,
+        "fallbackLogCallbackMs": 0,
+        "fallbackCandidateMs": 0.4,
+        "fallbackSearchMs": 0,
+        "maxSearchSliceMs": 7.3,
+        "fallbackDispatchMs": 0,
+        "intervalIsSchedulingTarget": true
+      },
+      {
+        "at": "2026-10-12T23:00:59.514Z",
+        "event": "reactive_timing",
+        "configuredIntervalMs": 200,
+        "tickMs": 0.5,
+        "maxTickMs": 47.7,
+        "sampleGapMs": 201.4,
+        "maxSampleGapMs": 764,
+        "skippedTicks": 0,
+        "fallbackMs": 0.4,
+        "maxFallbackMs": 46.8,
+        "fallbackBudgetMs": 60,
+        "fallbackOverruns": 0,
+        "leafAwaitMs": 0,
+        "maxLeafAwaitMs": 0,
+        "logCallbackMs": 6.3,
+        "maxLogCallbackMs": 7.9,
+        "tickLogCallbackMs": 0,
+        "fallbackLogCallbackMs": 0,
+        "fallbackCandidateMs": 0.3,
+        "fallbackSearchMs": 0,
+        "maxSearchSliceMs": 7.3,
+        "fallbackDispatchMs": 0,
+        "intervalIsSchedulingTarget": true
+      },
+      {
+        "at": "2026-10-12T23:01:09.683Z",
+        "event": "reactive_timing",
+        "configuredIntervalMs": 200,
+        "tickMs": 2.8,
+        "maxTickMs": 47.7,
+        "sampleGapMs": 201.6,
+        "maxSampleGapMs": 764,
+        "skippedTicks": 0,
+        "fallbackMs": 2.5,
+        "maxFallbackMs": 46.8,
+        "fallbackBudgetMs": 60,
+        "fallbackOverruns": 0,
+        "leafAwaitMs": 0,
+        "maxLeafAwaitMs": 0,
+        "logCallbackMs": 0.6,
+        "maxLogCallbackMs": 7.9,
+        "tickLogCallbackMs": 0.6367999985814095,
+        "fallbackLogCallbackMs": 0.6,
+        "fallbackCandidateMs": 0.5,
+        "fallbackSearchMs": 1.2,
+        "maxSearchSliceMs": 7.3,
+        "fallbackDispatchMs": 0,
+        "intervalIsSchedulingTarget": true
+      },
+      {
+        "at": "2026-10-12T23:01:11.406Z",
+        "event": "reactive_timing",
+        "configuredIntervalMs": 200,
+        "tickMs": 312.5,
+        "maxTickMs": 312.5,
+        "sampleGapMs": 202.1,
+        "maxSampleGapMs": 764,
+        "skippedTicks": 1,
+        "fallbackMs": 0.8,
+        "maxFallbackMs": 46.8,
+        "fallbackBudgetMs": 60,
+        "fallbackOverruns": 0,
+        "leafAwaitMs": 310.4,
+        "maxLeafAwaitMs": 310.4,
+        "logCallbackMs": 0.3,
+        "maxLogCallbackMs": 7.9,
+        "tickLogCallbackMs": 0.7821999993175268,
+        "fallbackLogCallbackMs": 0,
+        "fallbackCandidateMs": 0.4,
+        "fallbackSearchMs": 0,
+        "maxSearchSliceMs": 7.3,
+        "fallbackDispatchMs": 0,
+        "intervalIsSchedulingTarget": true
+      },
+      {
+        "at": "2026-10-12T23:01:12.037Z",
+        "event": "reactive_timing",
+        "configuredIntervalMs": 200,
+        "tickMs": 339.2,
+        "maxTickMs": 339.2,
+        "sampleGapMs": 200.2,
+        "maxSampleGapMs": 764,
+        "skippedTicks": 2,
+        "fallbackMs": 25.9,
+        "maxFallbackMs": 46.8,
+        "fallbackBudgetMs": 60,
+        "fallbackOverruns": 0,
+        "leafAwaitMs": 312,
+        "maxLeafAwaitMs": 312,
+        "logCallbackMs": 0.3,
+        "maxLogCallbackMs": 7.9,
+        "tickLogCallbackMs": 0.9651999995112419,
+        "fallbackLogCallbackMs": 0,
+        "fallbackCandidateMs": 0.3,
+        "fallbackSearchMs": 25.5,
+        "maxSearchSliceMs": 7.3,
+        "fallbackDispatchMs": 0,
+        "intervalIsSchedulingTarget": true
+      },
+      {
+        "at": "2026-10-12T23:01:22.062Z",
+        "event": "reactive_timing",
+        "configuredIntervalMs": 200,
+        "tickMs": 0.1,
+        "maxTickMs": 339.5,
+        "sampleGapMs": 200.8,
+        "maxSampleGapMs": 764,
+        "skippedTicks": 2,
+        "fallbackMs": 0.5,
+        "maxFallbackMs": 50.8,
+        "fallbackBudgetMs": 60,
+        "fallbackOverruns": 0,
+        "leafAwaitMs": 0,
+        "maxLeafAwaitMs": 312,
+        "logCallbackMs": 0.4,
+        "maxLogCallbackMs": 7.9,
+        "tickLogCallbackMs": 0,
+        "fallbackLogCallbackMs": 0,
+        "fallbackCandidateMs": 0.5,
+        "fallbackSearchMs": 0,
+        "maxSearchSliceMs": 7.3,
+        "fallbackDispatchMs": 0,
+        "intervalIsSchedulingTarget": true
+      }
+    ],
+    "limitations": [
+      "Cumulative maxima reset at reload; do not merge into a single like-for-like performance metric.",
+      "Final cumulative tick339.5ms includes native leaf await up to312ms; fallbackmax50.8ms/overrun0, logmax7.9ms, samplegap764ms. These are measured maxima, not hard scheduling guarantees.",
+      "Earlier window had synchronous observer/logger/OS possible gaps; watchdog switched to status separately."
+    ]
+  },
+  "trace": [
+    {
+      "at": "2026-10-12T22:50:17.479Z",
+      "requestId": "d68452f3-1b36-4cec-8065-504f9c9174fa",
+      "action": {
+        "action": "flee"
+      },
+      "taskId": "3c528e80-cc15-4ff3-995c-eee293c62b11",
+      "status": "failed",
+      "error": "Exploration did not produce meaningful displacement"
+    },
+    {
+      "at": "2026-10-12T22:50:26.204Z",
+      "requestId": "9f5b6b8e-7efc-450c-9238-da0315241c34",
+      "action": {
+        "action": "flee"
+      },
+      "taskId": "b172c055-d6b1-4b25-b36f-5933b996071e",
+      "status": "failed",
+      "error": "Exploration did not produce meaningful displacement"
+    },
+    {
+      "at": "2026-10-12T22:50:34.724Z",
+      "requestId": "9c129f12-53a6-4ce9-b8aa-fc80b63731b8",
+      "action": {
+        "action": "flee"
+      },
+      "taskId": "483d5aa3-915d-4fb0-9bb8-fc046cd1af4c",
+      "status": "failed",
+      "error": "Exploration did not produce meaningful displacement"
+    },
+    {
+      "at": "2026-10-12T22:51:08.843Z",
+      "requestId": "5bb57bf7-abde-4262-9e9b-2e4ef69e56a5",
+      "action": {
+        "action": "explore",
+        "direction": "south",
+        "distance": 16
+      },
+      "taskId": "72765ddb-5eaa-4c5b-a5b7-4fbfbfc14ef1",
+      "status": "failed",
+      "error": "Exploration did not produce meaningful displacement"
+    },
+    {
+      "at": "2026-10-12T22:51:18.107Z",
+      "requestId": "56eed967-2507-4202-a97e-33ffc215c299",
+      "action": {
+        "action": "explore",
+        "direction": "northwest",
+        "distance": 20
+      },
+      "taskId": "cd651487-9acf-469f-97da-3727aff15d00",
+      "status": "failed",
+      "error": "Exploration did not produce meaningful displacement"
+    },
+    {
+      "at": "2026-10-12T22:51:27.204Z",
+      "requestId": "373c8e1f-d21b-44b6-be22-5da072d92d32",
+      "action": {
+        "action": "flee"
+      },
+      "taskId": "1a5334a0-a94e-48cd-a0bc-da361285bd92",
+      "status": "failed",
+      "error": "Exploration did not produce meaningful displacement"
+    },
+    {
+      "at": "2026-10-12T22:51:36.420Z",
+      "requestId": "6477d360-9224-4780-9944-d5d92a31d029",
+      "action": {
+        "action": "explore",
+        "direction": "east",
+        "distance": 16
+      },
+      "taskId": "b0d04875-fcda-4af2-8d2b-e28f76b2d7ff",
+      "status": "failed",
+      "error": "Exploration did not produce meaningful displacement"
+    },
+    {
+      "at": "2026-10-12T22:51:45.610Z",
+      "requestId": "d8c26407-08e2-4458-81cd-8abb24bb35ff",
+      "action": {
+        "action": "flee"
+      },
+      "taskId": "1a43093d-9678-4905-805f-21bb3099ccc5",
+      "status": "failed",
+      "error": "Exploration did not produce meaningful displacement"
+    },
+    {
+      "at": "2026-10-12T22:51:55.082Z",
+      "requestId": "c1d100fe-a58c-4d38-bab9-1fdba8ffe6e0",
+      "action": {
+        "action": "explore",
+        "direction": "west",
+        "distance": 20
+      },
+      "taskId": "06dead6a-17f2-46ad-9f70-e05241dca3dd",
+      "status": "failed",
+      "error": "Exploration did not produce meaningful displacement"
+    },
+    {
+      "at": "2026-10-12T22:52:04.747Z",
+      "requestId": "674432e9-a02f-4818-aaf9-e4f24513edbc",
+      "action": {
+        "action": "explore",
+        "direction": "south",
+        "distance": 24
+      },
+      "taskId": "112ea889-30dc-4309-ade8-5358f2b28bda",
+      "status": "failed",
+      "error": "Exploration did not produce meaningful displacement"
+    },
+    {
+      "at": "2026-10-12T22:52:13.242Z",
+      "requestId": "c6bd2c93-2c74-48ba-b0fe-1496c1a77848",
+      "action": {
+        "action": "flee"
+      },
+      "taskId": "a9878aa5-c6ca-49e6-bcff-804b03d129de",
+      "status": "failed",
+      "error": "Exploration did not produce meaningful displacement"
+    },
+    {
+      "at": "2026-10-12T22:52:22.436Z",
+      "requestId": "5658dc21-205c-4237-a64f-f0951141395f",
+      "action": {
+        "action": "explore",
+        "direction": "northwest",
+        "distance": 20
+      },
+      "taskId": "f49835f7-6a13-430f-912e-220b2ba0aeeb",
+      "status": "failed",
+      "error": "Exploration did not produce meaningful displacement"
+    },
+    {
+      "at": "2026-10-12T22:52:32.335Z",
+      "requestId": "a067982a-2fd8-4fa4-894c-c8b70473a88e",
+      "action": {
+        "action": "explore",
+        "direction": "east",
+        "distance": 16
+      },
+      "taskId": "5fe465c4-82ba-4763-936b-419bb4782ef9",
+      "status": "failed",
+      "error": "Exploration did not produce meaningful displacement"
+    },
+    {
+      "at": "2026-10-12T22:52:41.162Z",
+      "requestId": "25e104d6-8d58-49b3-9e27-3b9eed0a23d5",
+      "action": {
+        "action": "gather_wood",
+        "count": 4
+      },
+      "taskId": "463c9558-b9ed-4dc8-801a-f86abe813cb1",
+      "status": "failed",
+      "error": "No inventory gain (0 blocks removed): search budget exhausted; reachability unconfirmed; search budget exhausted; reachability unconfirmed"
+    },
+    {
+      "at": "2026-10-12T22:52:51.012Z",
+      "requestId": "a740a5e1-725c-4f0d-a4fc-56b68f4e3dd2",
+      "action": {
+        "action": "explore",
+        "direction": "northeast",
+        "distance": 20
+      },
+      "taskId": "93b50e7e-006b-4b9e-b331-25dbfc79b498",
+      "status": "failed",
+      "error": "Exploration did not produce meaningful displacement"
+    },
+    {
+      "at": "2026-10-12T22:53:00.371Z",
+      "requestId": "56f9dc5a-7671-47b7-96c3-6722907c81ed",
+      "action": {
+        "action": "explore",
+        "direction": "southwest",
+        "distance": 20
+      },
+      "taskId": "f32f63cb-dc42-4ed5-9d16-ceb2a438788f",
+      "status": "failed",
+      "error": "Exploration did not produce meaningful displacement"
+    },
+    {
+      "at": "2026-10-12T22:53:10.267Z",
+      "requestId": "30149987-d959-4409-994c-f22c2a492912",
+      "action": {
+        "action": "explore",
+        "direction": "south",
+        "distance": 20
+      },
+      "taskId": "a2a58ac2-9cbf-45df-921f-2d295fb7dcf7",
+      "status": "failed",
+      "error": "Exploration did not produce meaningful displacement"
+    },
+    {
+      "at": "2026-10-12T22:53:19.366Z",
+      "requestId": "bd036e99-997a-4a87-a2d1-9fd9b2efd0ad",
+      "action": {
+        "action": "flee"
+      },
+      "taskId": "66d4caf3-5867-489e-afec-3c66b8fd5d51",
+      "status": "failed",
+      "error": "Exploration did not produce meaningful displacement"
+    },
+    {
+      "at": "2026-10-12T22:53:28.733Z",
+      "requestId": "886a7e88-299c-4f38-a170-4b5d3f70ad58",
+      "action": {
+        "action": "flee"
+      },
+      "taskId": "b48fd5af-6037-464c-84b1-fe7ff94a073c",
+      "status": "failed",
+      "error": "Exploration did not produce meaningful displacement"
+    },
+    {
+      "at": "2026-10-12T22:53:38.337Z",
+      "requestId": "0eb0d7e8-d645-4145-9c19-1e1c62e53c3d",
+      "action": {
+        "action": "explore",
+        "direction": "north",
+        "distance": 24
+      },
+      "taskId": "9ee048a8-2479-4fb9-b62c-c1bf27cff314",
+      "status": "failed",
+      "error": "Exploration did not produce meaningful displacement"
+    },
+    {
+      "at": "2026-10-12T22:53:48.143Z",
+      "requestId": "322cc745-aac9-4cdc-8ca4-e5f4fd21455a",
+      "action": {
+        "action": "gather_wood",
+        "count": 4
+      },
+      "taskId": "5d9d0bd4-073a-4a40-969d-d1360271e8d4",
+      "status": "failed",
+      "error": "No inventory gain (0 blocks removed): search budget exhausted; reachability unconfirmed; search budget exhausted; reachability unconfirmed"
+    },
+    {
+      "at": "2026-10-12T22:53:59.260Z",
+      "requestId": "2d8f9ac7-58f4-430c-9c44-d5916d5d07b1",
+      "action": {
+        "action": "explore",
+        "direction": "east",
+        "distance": 20
+      },
+      "taskId": "3247dccc-16c0-4b1d-8993-edb9b42bd828",
+      "status": "failed",
+      "error": "Exploration did not produce meaningful displacement"
+    },
+    {
+      "at": "2026-10-12T22:54:09.098Z",
+      "requestId": "aab57f5e-e6e7-4933-9532-05b45ebe55db",
+      "action": {
+        "action": "explore",
+        "direction": "west",
+        "distance": 12
+      },
+      "taskId": "7ba684ad-8218-40d0-afe2-fdeedd591585",
+      "status": "failed",
+      "error": "Exploration did not produce meaningful displacement"
+    },
+    {
+      "at": "2026-10-12T22:54:18.362Z",
+      "requestId": "583c011e-dcb2-4ffd-930a-fa40d2173447",
+      "action": {
+        "action": "explore",
+        "direction": "south",
+        "distance": 16
+      },
+      "taskId": "22587191-fe6a-490d-ae99-c4a68bfafe81",
+      "status": "failed",
+      "error": "Exploration did not produce meaningful displacement"
+    },
+    {
+      "at": "2026-10-12T22:54:27.586Z",
+      "requestId": "19410663-8604-497c-a6bb-6db2d2575154",
+      "action": {
+        "action": "flee"
+      },
+      "taskId": "927c1bde-79fc-4fae-899b-79b8345d1552",
+      "status": "failed",
+      "error": "Exploration did not produce meaningful displacement"
+    },
+    {
+      "at": "2026-10-12T22:54:36.233Z",
+      "requestId": "870adb0c-67bf-493d-a046-cc82e8601946",
+      "action": {
+        "action": "flee"
+      },
+      "taskId": "3a8a9c57-ec7e-49e0-a0ce-0e3747c954a7",
+      "status": "failed",
+      "error": "Exploration did not produce meaningful displacement"
+    },
+    {
+      "at": "2026-10-12T22:54:45.618Z",
+      "requestId": "0286eeff-6bc2-4038-84bf-3ed3ba245db0",
+      "action": {
+        "action": "explore",
+        "direction": "north",
+        "distance": 24
+      },
+      "taskId": "0f6917df-a2b4-49f7-a031-d84a28d2ae82",
+      "status": "failed",
+      "error": "Exploration did not produce meaningful displacement"
+    },
+    {
+      "at": "2026-10-12T22:54:55.484Z",
+      "requestId": "be54ea61-e176-44dd-afb9-2875e3aee54e",
+      "action": {
+        "action": "explore",
+        "direction": "east",
+        "distance": 16
+      },
+      "taskId": "d8493d77-d53b-4721-b1e2-9d4d9a09ee74",
+      "status": "failed",
+      "error": "Exploration did not produce meaningful displacement"
+    },
+    {
+      "at": "2026-10-12T22:55:04.137Z",
+      "requestId": "2e36313a-787f-4ed9-a5c5-08d4efe8ae27",
+      "action": {
+        "action": "flee"
+      },
+      "status": "undispatched maintenance pause"
+    },
+    {
+      "at": "2026-10-12T22:56:10.197Z",
+      "requestId": "5880967b-2292-46dd-a4fb-85527bfd9b10",
+      "action": {
+        "action": "flee"
+      },
+      "taskId": "40aa9126-c43c-498b-a57e-9cc876e6f6b6",
+      "status": "failed",
+      "error": "Exploration did not produce meaningful displacement"
+    },
+    {
+      "at": "2026-10-12T22:56:18.666Z",
+      "requestId": "5309b101-599e-4bee-9074-0b5979536446",
+      "action": {
+        "action": "flee"
+      },
+      "taskId": "d7f52f33-e258-442c-a54e-294da96e1049",
+      "status": "failed",
+      "error": "Exploration did not produce meaningful displacement"
+    },
+    {
+      "at": "2026-10-12T22:56:27.249Z",
+      "requestId": "1f75a7e2-9b30-45ba-9fd9-94d073a430cb",
+      "action": {
+        "action": "flee"
+      },
+      "taskId": "2e691807-4761-403e-a44d-a0a7026827cc",
+      "status": "failed",
+      "error": "Exploration did not produce meaningful displacement"
+    },
+    {
+      "at": "2026-10-12T22:57:01.675Z",
+      "requestId": "f7523a01-db63-4454-be01-c91c4260361c",
+      "action": {
+        "action": "explore",
+        "direction": "south",
+        "distance": 12
+      },
+      "taskId": "4e726361-b46d-4613-8a75-bc9b913aa65e",
+      "status": "failed",
+      "error": "Exploration did not produce meaningful displacement"
+    },
+    {
+      "at": "2026-10-12T22:57:11.260Z",
+      "requestId": "a48f794a-6f0c-43f0-8dc3-5e5345ff7b36",
+      "action": {
+        "action": "explore",
+        "direction": "west",
+        "distance": 16
+      },
+      "taskId": "92193688-164b-4ebb-bc80-b3e75dd50a2c",
+      "status": "failed",
+      "error": "Exploration did not produce meaningful displacement"
+    },
+    {
+      "at": "2026-10-12T22:57:20.697Z",
+      "requestId": "cba37d10-f659-4da9-a4db-46545be0efd5",
+      "action": {
+        "action": "flee"
+      },
+      "taskId": "ebbfbf24-4691-4f69-8b6a-f4397ae61d58",
+      "status": "failed",
+      "error": "Exploration did not produce meaningful displacement"
+    },
+    {
+      "at": "2026-10-12T22:57:29.468Z",
+      "requestId": "bebf1eaf-d4a4-48a2-a99b-637b2e140e81",
+      "action": {
+        "action": "flee"
+      },
+      "taskId": "d0e14db0-2bf9-4a9a-9a5b-7aa037059a80",
+      "status": "failed",
+      "error": "Exploration did not produce meaningful displacement"
+    },
+    {
+      "at": "2026-10-12T22:57:39.089Z",
+      "requestId": "0a6444d6-011d-491c-b4af-0db81b1bf906",
+      "action": {
+        "action": "explore",
+        "direction": "northeast",
+        "distance": 20
+      },
+      "taskId": "49f52780-cfb4-48f9-828d-7e07cfd94349",
+      "status": "failed",
+      "error": "Exploration did not produce meaningful displacement"
+    },
+    {
+      "at": "2026-10-12T22:57:49.240Z",
+      "requestId": "15133b7e-1379-47b7-bbac-6d43be0b730a",
+      "action": {
+        "action": "explore",
+        "direction": "north",
+        "distance": 20
+      },
+      "taskId": "efa401da-a6dd-46dc-860e-94c0556089e8",
+      "status": "failed",
+      "error": "Exploration did not produce meaningful displacement"
+    },
+    {
+      "at": "2026-10-12T22:57:58.053Z",
+      "requestId": "29049671-c50e-49d0-8cda-3582bda169c4",
+      "action": {
+        "action": "flee"
+      },
+      "taskId": "8bd7ea11-846c-48b0-aedb-06e0ca6876c8",
+      "status": "failed",
+      "error": "Exploration did not produce meaningful displacement"
+    },
+    {
+      "at": "2026-10-12T22:58:06.968Z",
+      "requestId": "baa7b2c2-97c0-4cce-8712-5bbcacce91d7",
+      "action": {
+        "action": "flee"
+      },
+      "taskId": "bac24d2d-0ef5-41c6-bff8-01a5299305b7",
+      "status": "failed",
+      "error": "Exploration did not produce meaningful displacement"
+    },
+    {
+      "at": "2026-10-12T22:58:15.751Z",
+      "requestId": "96a0f8fb-c90d-48fa-a7ea-13f54e48f963",
+      "action": {
+        "action": "flee"
+      },
+      "taskId": "7fc869cb-4191-488a-b4a7-5f30c44284da",
+      "status": "failed",
+      "error": "Exploration did not produce meaningful displacement"
+    },
+    {
+      "at": "2026-10-12T22:58:49.569Z",
+      "requestId": "3e209ab4-b8a3-4389-9aad-907ecc059168",
+      "action": {
+        "action": "flee"
+      },
+      "taskId": "7385ec12-f2a3-474b-992e-d67574009764",
+      "status": "failed",
+      "error": "Exploration did not produce meaningful displacement"
+    },
+    {
+      "at": "2026-10-12T22:59:23.371Z",
+      "requestId": "f5820957-9cc8-43ee-951f-428427d28d45",
+      "action": {
+        "action": "flee"
+      },
+      "taskId": "2e043d24-b6bd-49b9-81e8-81c6e741dd1e",
+      "status": "failed",
+      "error": "Exploration did not produce meaningful displacement"
+    },
+    {
+      "at": "2026-10-12T23:00:18.169Z",
+      "requestId": "bcdf2a4d-b60c-4448-b79b-139fdd410ec7",
+      "action": {
+        "action": "flee"
+      },
+      "taskId": "5bbea574-85ad-4e2d-bc7c-c50f287b4462",
+      "status": "cancelled",
+      "error": "This operation was aborted"
+    }
+  ],
+  "limits": [
+    "All real actions selected by localQwen; reviewer executed none.",
+    "No inventory gained in this window.",
+    "Final death is failure of reactive escape; first two healthpacket sources unknown, fatal servermessage identifiesSkeleton.",
+    "Successful executor descent must not be counted as weight improvement or safe survival."
+  ]
+}

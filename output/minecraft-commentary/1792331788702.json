@@ -1,0 +1,39 @@
+{
+  "capturedAt": 1792331788702,
+  "evidence": {
+    "goal": "由本地千问自主决策建立一个生存小家：房屋有床、箱子、火把，采集材料、制作工具、狩猎动物、烹饪并吃食物、浅矿采集后返回家。全部已注册动作均可选择，包括navigate、dig_block、place_block、attack_entity、sleep、container_transfer等；根据真实结果调整，不重复囤木。成功与失败以真实世界和库存证据为准。",
+    "currentSubgoal": "移动至安全区域并采集木材",
+    "action": {
+      "action": "gather_wood",
+      "count": 12
+    },
+    "outcome": "running",
+    "error": null,
+    "inventory": [
+      {
+        "name": "snowball",
+        "count": 13
+      },
+      {
+        "name": "bone",
+        "count": 2
+      },
+      {
+        "name": "spruce_log",
+        "count": 3
+      }
+    ],
+    "health": 20,
+    "food": 20,
+    "yolo": {
+      "scope": "COCO only, not trained for Minecraft",
+      "detections": []
+    }
+  },
+  "speech": "我还在雪地里往安全处挪，继续收云杉木，背包里就三根原木，盖小屋这点料还差得远呢。",
+  "model": "deepseek-flash",
+  "provider": "cloud",
+  "visionModel": "qwen3.5-4b",
+  "visualObservation": "画面显示第一人称视角下，玩家身处被绿色藤蔓覆盖的木质结构内，前方是积雪覆盖的丘陵地形。",
+  "expired": false
+}

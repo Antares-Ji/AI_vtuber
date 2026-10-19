@@ -1,0 +1,464 @@
+{
+  "at": "2026-10-12T21:29:16.109Z",
+  "reason": "GPU exclusive training of independently audited rich-state v5r2; bot and safety remain connected",
+  "loop": {
+    "enabled": false,
+    "running": true,
+    "goal": "由本地千问自主规划：安全生存、采集、制作工具、采矿、制作并点燃下界门，进入下界。失败后根据真实状态调整计划。",
+    "deadline": "2026-10-12T23:17:01.000Z",
+    "step": 16,
+    "model": "qwen3.5-4b",
+    "modelLoaded": true,
+    "adapter": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01",
+    "adapterLoaded": true,
+    "lastDecision": {
+      "action": "gather_wood",
+      "count": 4
+    },
+    "lastResult": {
+      "taskId": "301a4573-c74b-467a-9f5a-60127a19b563",
+      "action": {
+        "action": "explore",
+        "direction": "northeast",
+        "distance": 24
+      },
+      "status": "completed",
+      "result": {
+        "action": {
+          "action": "explore",
+          "direction": "northeast",
+          "distance": 24
+        },
+        "verified": true,
+        "moved": 22,
+        "from": {
+          "x": 9.5,
+          "y": 65,
+          "z": -14.5
+        },
+        "to": {
+          "x": 24.5,
+          "y": 69,
+          "z": -29.5
+        },
+        "remainingThreats": [],
+        "inventoryBefore": [],
+        "inventoryAfter": [],
+        "position": {
+          "x": 24.5,
+          "y": 69,
+          "z": -29.5
+        }
+      },
+      "at": "2026-10-12T21:28:48.744Z"
+    },
+    "lastError": null,
+    "latencyMs": 1800,
+    "history": [
+      {
+        "taskId": "db15b586-d495-41d6-afed-aa1a44d832f5",
+        "action": {
+          "action": "explore",
+          "direction": "northwest",
+          "distance": 20
+        },
+        "status": "completed",
+        "result": {
+          "action": {
+            "action": "explore",
+            "direction": "northwest",
+            "distance": 20
+          },
+          "verified": true,
+          "moved": 17,
+          "from": {
+            "x": 18.5,
+            "y": 66,
+            "z": 7.5
+          },
+          "to": {
+            "x": 6.5,
+            "y": 64,
+            "z": -4.5
+          },
+          "remainingThreats": [],
+          "inventoryBefore": [],
+          "inventoryAfter": [],
+          "position": {
+            "x": 6.5,
+            "y": 64,
+            "z": -4.5
+          }
+        },
+        "at": "2026-10-12T21:27:28.363Z"
+      },
+      {
+        "taskId": "854ca82e-a10c-4f12-b3ef-664fb580e930",
+        "action": {
+          "action": "explore",
+          "direction": "south",
+          "distance": 20
+        },
+        "status": "completed",
+        "result": {
+          "action": {
+            "action": "explore",
+            "direction": "south",
+            "distance": 20
+          },
+          "verified": true,
+          "moved": 17,
+          "from": {
+            "x": 6.5,
+            "y": 64,
+            "z": -4.5
+          },
+          "to": {
+            "x": 6.5,
+            "y": 63.9,
+            "z": 12.6
+          },
+          "remainingThreats": [],
+          "inventoryBefore": [],
+          "inventoryAfter": [],
+          "position": {
+            "x": 6.5,
+            "y": 63.9,
+            "z": 12.6
+          }
+        },
+        "at": "2026-10-12T21:27:36.242Z"
+      },
+      {
+        "taskId": "439b9796-7f4d-4625-b77c-9dbf2a9e281d",
+        "action": {
+          "action": "explore",
+          "direction": "northeast",
+          "distance": 24
+        },
+        "status": "completed",
+        "result": {
+          "action": {
+            "action": "explore",
+            "direction": "northeast",
+            "distance": 24
+          },
+          "verified": true,
+          "moved": 21,
+          "from": {
+            "x": 6.5,
+            "y": 63,
+            "z": 12.6
+          },
+          "to": {
+            "x": 21.5,
+            "y": 65,
+            "z": -2.5
+          },
+          "remainingThreats": [],
+          "inventoryBefore": [],
+          "inventoryAfter": [],
+          "position": {
+            "x": 21.5,
+            "y": 65,
+            "z": -2.5
+          }
+        },
+        "at": "2026-10-12T21:27:44.743Z"
+      },
+      {
+        "taskId": "7716c8cb-f792-4b16-b7a9-de46e1b16193",
+        "action": {
+          "action": "explore",
+          "direction": "southwest",
+          "distance": 16
+        },
+        "status": "completed",
+        "result": {
+          "action": {
+            "action": "explore",
+            "direction": "southwest",
+            "distance": 16
+          },
+          "verified": true,
+          "moved": 13,
+          "from": {
+            "x": 21.5,
+            "y": 65,
+            "z": -2.5
+          },
+          "to": {
+            "x": 12.4,
+            "y": 65.9,
+            "z": 6.6
+          },
+          "remainingThreats": [],
+          "inventoryBefore": [],
+          "inventoryAfter": [],
+          "position": {
+            "x": 12.4,
+            "y": 65.9,
+            "z": 6.6
+          }
+        },
+        "at": "2026-10-12T21:27:51.870Z"
+      },
+      {
+        "taskId": "3536472a-4d2f-4c6b-b9c1-9901cc4bfb64",
+        "action": {
+          "action": "gather_wood",
+          "count": 4
+        },
+        "status": "failed",
+        "error": "No inventory gain (0 blocks removed): search budget/timeout; reachability unconfirmed; search budget/timeout; reachability unconfirmed",
+        "at": "2026-10-12T21:27:56.194Z"
+      },
+      {
+        "taskId": "4dadebf0-ff23-430d-a53e-9c6e0c5cac1f",
+        "action": {
+          "action": "explore",
+          "direction": "northeast",
+          "distance": 24
+        },
+        "status": "completed",
+        "result": {
+          "action": {
+            "action": "explore",
+            "direction": "northeast",
+            "distance": 24
+          },
+          "verified": true,
+          "moved": 21,
+          "from": {
+            "x": 12.4,
+            "y": 65,
+            "z": 6.6
+          },
+          "to": {
+            "x": 27.5,
+            "y": 66,
+            "z": -8.5
+          },
+          "remainingThreats": [],
+          "inventoryBefore": [],
+          "inventoryAfter": [],
+          "position": {
+            "x": 27.5,
+            "y": 66,
+            "z": -8.5
+          }
+        },
+        "at": "2026-10-12T21:28:08.308Z"
+      },
+      {
+        "taskId": "8d81dd5b-ae5c-493b-8273-bc60e5bee1d4",
+        "action": {
+          "action": "explore",
+          "direction": "southwest",
+          "distance": 20
+        },
+        "status": "completed",
+        "result": {
+          "action": {
+            "action": "explore",
+            "direction": "southwest",
+            "distance": 20
+          },
+          "verified": true,
+          "moved": 17,
+          "from": {
+            "x": 27.5,
+            "y": 66,
+            "z": -8.5
+          },
+          "to": {
+            "x": 15.5,
+            "y": 66,
+            "z": 3.5
+          },
+          "remainingThreats": [],
+          "inventoryBefore": [],
+          "inventoryAfter": [],
+          "position": {
+            "x": 15.5,
+            "y": 66,
+            "z": 3.5
+          }
+        },
+        "at": "2026-10-12T21:28:16.082Z"
+      },
+      {
+        "taskId": "164c7650-1e08-4a61-9ef9-71252d7379ed",
+        "action": {
+          "action": "explore",
+          "direction": "northeast",
+          "distance": 24
+        },
+        "status": "completed",
+        "result": {
+          "action": {
+            "action": "explore",
+            "direction": "northeast",
+            "distance": 24
+          },
+          "verified": true,
+          "moved": 21,
+          "from": {
+            "x": 15.5,
+            "y": 66,
+            "z": 3.5
+          },
+          "to": {
+            "x": 30.5,
+            "y": 67,
+            "z": -11.5
+          },
+          "remainingThreats": [],
+          "inventoryBefore": [],
+          "inventoryAfter": [],
+          "position": {
+            "x": 30.5,
+            "y": 67,
+            "z": -11.5
+          }
+        },
+        "at": "2026-10-12T21:28:24.840Z"
+      },
+      {
+        "taskId": "67417b78-95ad-4aac-967f-b0d20e0c5dfd",
+        "action": {
+          "action": "explore",
+          "direction": "southwest",
+          "distance": 16
+        },
+        "status": "completed",
+        "result": {
+          "action": {
+            "action": "explore",
+            "direction": "southwest",
+            "distance": 16
+          },
+          "verified": true,
+          "moved": 13,
+          "from": {
+            "x": 30.5,
+            "y": 67,
+            "z": -11.5
+          },
+          "to": {
+            "x": 21.5,
+            "y": 65,
+            "z": -2.5
+          },
+          "remainingThreats": [],
+          "inventoryBefore": [],
+          "inventoryAfter": [],
+          "position": {
+            "x": 21.5,
+            "y": 65,
+            "z": -2.5
+          }
+        },
+        "at": "2026-10-12T21:28:31.616Z"
+      },
+      {
+        "taskId": "df0498fc-6fa8-41ae-9b0d-a10b3c2ddcdb",
+        "action": {
+          "action": "explore",
+          "direction": "northwest",
+          "distance": 20
+        },
+        "status": "completed",
+        "result": {
+          "action": {
+            "action": "explore",
+            "direction": "northwest",
+            "distance": 20
+          },
+          "verified": true,
+          "moved": 17,
+          "from": {
+            "x": 21.5,
+            "y": 65,
+            "z": -2.5
+          },
+          "to": {
+            "x": 9.5,
+            "y": 65,
+            "z": -14.5
+          },
+          "remainingThreats": [],
+          "inventoryBefore": [],
+          "inventoryAfter": [],
+          "position": {
+            "x": 9.5,
+            "y": 65,
+            "z": -14.5
+          }
+        },
+        "at": "2026-10-12T21:28:39.322Z"
+      },
+      {
+        "taskId": "301a4573-c74b-467a-9f5a-60127a19b563",
+        "action": {
+          "action": "explore",
+          "direction": "northeast",
+          "distance": 24
+        },
+        "status": "completed",
+        "result": {
+          "action": {
+            "action": "explore",
+            "direction": "northeast",
+            "distance": 24
+          },
+          "verified": true,
+          "moved": 22,
+          "from": {
+            "x": 9.5,
+            "y": 65,
+            "z": -14.5
+          },
+          "to": {
+            "x": 24.5,
+            "y": 69,
+            "z": -29.5
+          },
+          "remainingThreats": [],
+          "inventoryBefore": [],
+          "inventoryAfter": [],
+          "position": {
+            "x": 24.5,
+            "y": 69,
+            "z": -29.5
+          }
+        },
+        "at": "2026-10-12T21:28:48.744Z"
+      }
+    ],
+    "modelHealth": {
+      "ok": true,
+      "model": "qwen3.5-4b",
+      "path": "E:\\Qwen3.5-4B",
+      "quantization": "nf4",
+      "adapter": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01",
+      "adapter_loaded": true,
+      "adapter_scope": "minecraft-survival",
+      "generation": {
+        "active": false,
+        "queued": 0,
+        "max_waiters": 4,
+        "cancelled_running": 0
+      },
+      "generation_busy": false
+    },
+    "updatedAt": "2026-10-12T21:29:16.105Z",
+    "waitingFor": null,
+    "lastDecisionMetadata": {
+      "task": "minecraft-survival",
+      "used_adapter": true,
+      "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01"
+    },
+    "needsRecovery": false
+  }
+}

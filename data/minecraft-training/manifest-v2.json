@@ -1,0 +1,28 @@
+{
+  "name": "minecraft-survival-policy-lora-v2",
+  "contract": "data/minecraft-training/contract-v2.json",
+  "contract_sha256": "f2bb844a1309e0bad904541acc67b10e24fbb52e73ac04df753ff8c6845d587f",
+  "train_examples": 124,
+  "development_examples": 26,
+  "holdout_examples": 20,
+  "synthetic_only": true,
+  "training_composition": {
+    "migrated_v1_training": 39,
+    "recovery_v2_hand_authored": 51,
+    "tool_tier_and_safe_mining": 30,
+    "rich_state_live_probe_analogs": 4
+  },
+  "development_policy": "Fresh hand-authored development set for checkpoint selection, including the exact read-only live probe and a separate similar scenario; neither is used in training. Keep final independent holdout evaluation separate and do not tune on it.",
+  "v1_holdout_in_training": false,
+  "v1_train_jsonl_sha256_before": "89a5a7dd3182de5a7c0ebf31cca12c34f8d003e8a119f00ed480838ef29766e0",
+  "sources": {
+    "v1_training": "data/minecraft-training/train.jsonl",
+    "recovery_v2": "data/minecraft-training/recovery-v2-scenarios.json",
+    "real_live_probe_dev": "output/minecraft-training/live-probe-1791830746219.json"
+  },
+  "all_training_examples_synthetic": true,
+  "development_includes_real_case": true,
+  "v1_examples_derived": true,
+  "normalization": "All generated train/dev states receive an explicit synthetic origin position when absent, distances are recomputed from state.position, then states are compacted with survival-planner.compactObservation; this removes runtime-only and reactive entity noise.",
+  "limits": "Synthetic action-label agreement plus one real read-only regression prompt; neither measures Mineflayer execution success or broad generalization. Keep v1 train.jsonl and holdout.jsonl unchanged."
+}

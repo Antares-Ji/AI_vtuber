@@ -1,0 +1,14 @@
+{
+  "train": "E:\\Github\\AI_vtuber\\data\\minecraft-training\\train-v5r1-candidates.jsonl",
+  "dev": "E:\\Github\\AI_vtuber\\data\\minecraft-training\\development-v5r1-candidates.jsonl",
+  "replay": "E:\\Github\\AI_vtuber\\data\\minecraft-training\\train-v5r1-replay-candidates.jsonl",
+  "manifest": "E:\\Github\\AI_vtuber\\data\\minecraft-training\\manifest-v5r1-candidates.json",
+  "trainSha256": "39a25fab7a8ad951b3a1094d1717ae41a17eaa78771c8142638ad78bc909b647",
+  "developmentSha256": "ceb50aaff7bcb4322e5d091e85440039a91c839b3739be7ec7a11cf8edac64e8",
+  "replaySha256": "48acfb5ae76098d4def88f35cb42f7a25c87db85d11f11159b3324183e9b4277",
+  "rows": [
+    32,
+    12,
+    214
+  ]
+}

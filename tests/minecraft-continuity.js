@@ -1,0 +1,30 @@
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
+const { AutonomyLoop } = require('../src/minecraft/autonomy-loop');
+const { VisualCommentary } = require('../src/minecraft/visual-commentary');
+(async () => {
+  const commentary = new VisualCommentary();
+  commentary.queued('current');
+  assert.equal(commentary.playbackEnded('old'), false);
+  const before = Date.now();
+  assert.equal(commentary.playbackEnded('current'), true);
+  assert.ok(commentary.nextAt >= before + 10000);
+  assert.equal(commentary.playbackEnded('current'), false);
+  let plans = 0, fail = false;
+  const state = { connected: true, health: 20, food: 20, position: { x: 0, y: 64, z: 0 }, inventory: [], sessionId: 'test', dimension: 'overworld', reactive: { enabled: true, mode: 'idle', lifecycleEpoch: 0 } };
+  const loop = new AutonomyLoop({ logDir: fs.mkdtempSync(path.join(os.tmpdir(), 'continuity-')), planner: async (_, options) => {
+    plans++; options.onPlan([{ action: 'explore', direction: 'east', distance: 8 }]); return { action: 'observe' };
+  }, request: async route => route === '/observe' ? structuredClone(state) : route.startsWith('/task') ? { status: fail ? 'failed' : 'completed', result: { verified: !fail } } : {} });
+  loop.modelHealth = async () => {};
+  const signal = new AbortController().signal;
+  await loop.step('test', signal); await loop.step('test', signal);
+  assert.equal(plans, 1, 'second action uses model lookahead');
+  await loop.step('test', signal); state.reactive.lifecycleEpoch++;
+  await loop.step('test', signal);
+  assert.equal(plans, 3, 'respawn invalidates queued action');
+  loop.addAudienceSuggestion('change goal'); assert.equal(loop.lookahead, null);
+  fail = true; await loop.step('test', signal); assert.equal(loop.lookahead, null);
+  console.log('PASS: playback-end cadence, stale receipt, lookahead reuse, respawn, suggestion and failure invalidation');
+})().catch(error => { console.error(error); process.exitCode = 1; });

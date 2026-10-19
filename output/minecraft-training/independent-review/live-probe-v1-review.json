@@ -1,0 +1,10 @@
+{
+  "source": "output/minecraft-training/live-probe-1791830746219.json",
+  "readOnlyProbe": true,
+  "sameInputForBothModels": true,
+  "observationFacts": {"health":20,"food":20,"animalsObserved":0,"woodObserved":true,"nearestWoodDistance":21,"recentRepeatedHuntFailures":true},
+  "baseline": {"usedAdapter":false,"action":{"action":"gather_wood","count":12},"latencyMs":1949,"semanticVerdict":"pass","reason":"Observed nearby wood, empty inventory and no close threats make bounded wood gathering a feasible survival prerequisite. Navigation remains to be checked by execution."},
+  "adapterV1": {"usedAdapter":true,"action":{"action":"hunt","count":3},"latencyMs":2370,"semanticVerdict":"fail","reason":"No supported passive animal is observed and recent matching hunts already failed. Repeating this skill ignores an explicit missing prerequisite."},
+  "interpretation":"This identical-input real-state example is a concrete regression for the adapter despite its better small synthetic holdout score. It is not a population estimate. It motivates independently evaluating live-state recovery and input compactness; it does not justify changing or training on the frozen holdout.",
+  "limits":["Neither probe executed a game action.","The raw planner state includes repeated fish entities and failed-action history; an input-compaction ablation must hold the underlying snapshot fixed.","Later live runs also include executor and observation changes, so their progress cannot be attributed solely to adapter weights."]
+}

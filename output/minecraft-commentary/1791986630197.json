@@ -1,0 +1,43 @@
+{
+  "capturedAt": 1791986630197,
+  "evidence": {
+    "goal": "制作一把铁镐。由本地千问自主调整中间计划，最终以背包出现 iron_pickaxe 为验收。",
+    "currentSubgoal": "采集木原木制作木镐",
+    "action": {
+      "action": "gather_wood",
+      "count": 4
+    },
+    "outcome": "running",
+    "error": null,
+    "inventory": [
+      {
+        "name": "spruce_planks",
+        "count": 2
+      },
+      {
+        "name": "crafting_table",
+        "count": 1
+      },
+      {
+        "name": "stick",
+        "count": 4
+      },
+      {
+        "name": "spruce_log",
+        "count": 10
+      }
+    ],
+    "health": 20,
+    "food": 20,
+    "yolo": {
+      "scope": "COCO only, not trained for Minecraft",
+      "detections": []
+    }
+  },
+  "speech": "雪地里继续凑木头，背包里原木和木棍都够一些了，木镐的材料应该快齐了。",
+  "model": "deepseek-flash",
+  "provider": "cloud",
+  "visionModel": "qwen3.5-4b",
+  "visualObservation": "像素风格雪地森林场景，可见树木、积雪地面及天空。",
+  "expired": false
+}

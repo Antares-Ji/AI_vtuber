@@ -1,0 +1,34 @@
+{
+  "scope": "CPU-only source/log review and mock controller tests. No model endpoint, game action, reload or restart.",
+  "observedIncident": {
+    "dateUtc": "2026-10-12",
+    "position": { "x": 2.3, "y": 73, "z": 200.73 },
+    "stalledEdge": "(2, 73, 200)->(1, 73, 199)",
+    "repeatedRouteEventsUtc": ["21:26:57.510", "21:26:59.108", "21:27:00.720"],
+    "reusedStalledEdge": true,
+    "destination": { "x": -4, "y": 73, "z": 200 },
+    "healthTrace": [8.1770658493042, 5.177065849304199, 2.177065849304199, 0],
+    "deathUtc": "21:27:03.947",
+    "serverDeathMessage": "SuiGeBot was slain by Zombie",
+    "terrain": "West neighbor feet/head oak_log; north/south/east feet leaf_litter and head air."
+  },
+  "confirmedSourceBug": "Every issued route reset candidateCursor=0, including a deferred reusedStalledEdge route. Each fallback examines at most four candidates. Thus repeated stationary stalls can continually recheck the same top four and never inspect later candidates. The stalled-edge memory was functioning; resetting the rotating search cursor defeated its ability to discover alternative destinations outside the first batch.",
+  "patch": "Only fresh non-stalled-prefix routes reset the cursor. Deferred reused-stalled routes preserve the advanced cursor, permitting the next bounded attempt to inspect later candidates. Added candidatesExamined/candidateCount/nextCandidateCursor diagnostics.",
+  "unchangedConstraints": [
+    "Fallback total CPU target60ms, existing per-search slice/time limits and at most4 candidates per attempt remain unchanged; overruns remain measured rather than a hard guarantee.",
+    "No digging logs, no relaxed dry/support/hazard/threat clearance checks, no towers or bridging.",
+    "Stalled route remains a temporary fallback if no checked alternative or permitted leaf exit exists; no permanent exclusion of the sole available route.",
+    "Existing edge expiry, leaf native lock/cancellation, close counterattack and model/executor division remain unchanged."
+  ],
+  "installedPathfinderFinding": "movements.getMoveDiagonal checks the lower-cost of two orthogonal side corridors; a diagonal can be returned with a blocked block on the other side. The incident's oak_log and offset position are compatible with a corner-movement problem, but logged data do not establish exact physics or prove it caused the stall. No speculative collision-rule patch was made.",
+  "tests": [
+    "minecraft-reactive-escape.js PASS: new fixture has more than four destinations; first four share stalled prefix, fifth has distinct prefix; after provisional reuse cursor stays4 and fifth is subsequently inspected/selected.",
+    "Existing unique same-prefix fallback, expiry, genuine waypoint progress, knockback non-progress, safe leaf alternative, noPath rotation and CPU measurement tests remain passing.",
+    "minecraft-reactive.js PASS."
+  ],
+  "limits": [
+    "Old logs did not capture candidate counts or search cursor, so actual availability of a safe later candidate in this encounter is unknown.",
+    "This fixes a demonstrated starvation path in code; it does not prove the observed death would have been prevented.",
+    "Source-only patch awaits Root review/deployment."
+  ]
+}

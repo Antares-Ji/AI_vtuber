@@ -1,0 +1,62 @@
+{
+  "run": "minecraft-survival-v6r1-weighted-material-candidate",
+  "status": "completed successfully",
+  "attempt1": {
+    "pid": 149112,
+    "environment": "E:\\Github\\AI_vtuber\\runtime\\local-llm\\.venv\\Scripts\\python.exe",
+    "exitReason": "ModuleNotFoundError: peft; failed before model load/CUDA allocation",
+    "logs": [
+      "output/minecraft-training/v6r1-training.stdout.log",
+      "output/minecraft-training/v6r1-training.stderr.log"
+    ]
+  },
+  "attempt2": {
+    "pid": 187596,
+    "workerPid": 187968,
+    "workerParentPid": 187596,
+    "environment": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\.venv\\Scripts\\python.exe",
+    "versions": {
+      "torch": "2.11.0+cu128",
+      "cuda": "12.8",
+      "transformers": "5.16.1",
+      "peft": "0.21.2",
+      "accelerate": "1.14.0",
+      "bitsandbytes": "0.50.2"
+    },
+    "adapterOutput": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v6r1-weighted-material-candidate",
+    "adapterOutputExpected": "runtime/minecraft-training/adapters/minecraft-survival-v6r1-weighted-material-candidate",
+    "data": "data/minecraft-training/train-v6r1-weighted-replay-candidates.jsonl",
+    "dataSha256": "b1f81297d705e6f3accb02265217f148967730b4936eaa7599aa9ba3244526ac",
+    "parent": "runtime/minecraft-training/adapters/minecraft-survival-v4r1-replay-candidate/checkpoint-epoch-01",
+    "parentSha256": "48bbd148184987a3abdcf2a3e193c61690d36b1f078ce70e18ac62f395d7e14b",
+    "trainingScript": "scripts/minecraft-training/train_lora.py",
+    "trainScriptSha256": "79251a053cc61ffb7a10c266ad9ba325239730fabb0349583cbc3f6c492910ec",
+    "config": {
+      "rank": 4,
+      "learningRate": 1E-05,
+      "epochs": 1,
+      "gradientAccumulation": 4,
+      "maxLength": 2560,
+      "seed": 20261013,
+      "minFreeGiB": 6
+    },
+    "stdout": "output/minecraft-training/v6r1-training-attempt2.stdout.log",
+    "stderr": "output/minecraft-training/v6r1-training-attempt2.stderr.log",
+    "launchRecord": "output/minecraft-training/v6r1-training-launch-attempt2.json",
+    "status": "completed",
+    "adapterSha256": "e1af96aa5523aeb42f3546092f50e684065b61213627082866ee3ede13f65f8d",
+    "trainingSeconds": 669.4,
+    "optimizerSteps": 72,
+    "meanLoss": 0.16854001913167588,
+    "peakAllocatedGiB": 5.13,
+    "peakReservedGiB": 8.04,
+    "trainingReportSha256": "86685ca4e61c31578d831ad7430899c9840c721b59467b89e9f76d312d86b46a"
+  },
+  "developmentComparison": {
+    "data": "output/minecraft-training/v6r1-development57.jsonl",
+    "sha256": "0abc77696228f1ab5c62b919f5aeb2b4295b17e91f84bb149b202bff7ebb2ef5",
+    "rows": 57,
+    "manifest": "output/minecraft-training/v6r1-development57-manifest.json",
+    "holdoutRead": false
+  }
+}

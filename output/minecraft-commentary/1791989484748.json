@@ -1,0 +1,49 @@
+{
+  "capturedAt": 1791989484748,
+  "evidence": {
+    "goal": "从当前真实背包开始，采集足够原木，合成木板，再合成一个工作台。优先保证安全和饱食度。每一步根据实际库存和配方决定数量，缺料不要重复合成。",
+    "currentSubgoal": "采集安全原木",
+    "action": {
+      "action": "craft",
+      "item": "planks",
+      "count": 16
+    },
+    "outcome": "running",
+    "error": null,
+    "inventory": [
+      {
+        "name": "spruce_planks",
+        "count": 8
+      },
+      {
+        "name": "spruce_log",
+        "count": 40
+      },
+      {
+        "name": "snowball",
+        "count": 16
+      },
+      {
+        "name": "snowball",
+        "count": 2
+      }
+    ],
+    "health": 12.128706932067871,
+    "food": 17,
+    "yolo": {
+      "scope": "COCO only, not trained for Minecraft",
+      "detections": [
+        {
+          "label": "umbrella",
+          "confidence": 0.311
+        }
+      ]
+    }
+  },
+  "speech": "雪地里原木够多了，我先用云杉木板凑齐做工作台的材料，血量和饱食度都还稳得住。",
+  "model": "deepseek-flash",
+  "provider": "cloud",
+  "visionModel": "qwen3.5-4b",
+  "visualObservation": "游戏画面显示雪块与泥土方块构成的地形，底部有绿色进度条。",
+  "expired": false
+}

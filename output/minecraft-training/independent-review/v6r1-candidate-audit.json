@@ -1,0 +1,432 @@
+{
+  "generatedAt": "2026-10-12T22:23:45.917Z",
+  "status": "PASS for a candidate training experiment",
+  "hashes": {
+    "train": "e2c0594f0d7953f45c1b623ae305284289771f0a94e95ee7fe01eeaaf5b6e75d",
+    "development": "cd208f0a3d46e5f165dd1d6d0095f4caa132342a350210e0fd3d21ef59ad0e3d",
+    "weightedReplay": "b1f81297d705e6f3accb02265217f148967730b4936eaa7599aa9ba3244526ac"
+  },
+  "errors": [],
+  "checks": [
+    {
+      "id": "v6r1-train-live-teacher-01",
+      "action": {
+        "action": "gather_wood",
+        "count": 3
+      },
+      "sourceFaithful": true
+    },
+    {
+      "id": "v6r1-train-live-success-01",
+      "action": {
+        "action": "craft",
+        "item": "wooden_pickaxe",
+        "count": 1
+      },
+      "sourceFaithful": true
+    },
+    {
+      "id": "v6r1-train-01",
+      "action": {
+        "action": "gather_wood",
+        "count": 3
+      },
+      "sourceFaithful": false
+    },
+    {
+      "id": "v6r1-train-02",
+      "action": {
+        "action": "explore",
+        "direction": "south",
+        "distance": 20
+      },
+      "sourceFaithful": false
+    },
+    {
+      "id": "v6r1-train-03",
+      "action": {
+        "action": "craft",
+        "item": "planks",
+        "count": 4
+      },
+      "sourceFaithful": false
+    },
+    {
+      "id": "v6r1-train-04",
+      "action": {
+        "action": "dig_staircase",
+        "direction": "south",
+        "steps": 4
+      },
+      "sourceFaithful": false
+    },
+    {
+      "id": "v6r1-train-05",
+      "action": {
+        "action": "explore",
+        "direction": "west",
+        "distance": 24
+      },
+      "sourceFaithful": false
+    },
+    {
+      "id": "v6r1-train-06",
+      "action": {
+        "action": "craft",
+        "item": "planks",
+        "count": 4
+      },
+      "sourceFaithful": false
+    },
+    {
+      "id": "v6r1-train-07",
+      "action": {
+        "action": "craft",
+        "item": "planks",
+        "count": 8
+      },
+      "sourceFaithful": false
+    },
+    {
+      "id": "v6r1-train-08",
+      "action": {
+        "action": "gather_wood",
+        "count": 3
+      },
+      "sourceFaithful": false
+    },
+    {
+      "id": "v6r1-train-09",
+      "action": {
+        "action": "craft",
+        "item": "stick",
+        "count": 2
+      },
+      "sourceFaithful": false
+    },
+    {
+      "id": "v6r1-train-10",
+      "action": {
+        "action": "explore",
+        "direction": "north",
+        "distance": 20
+      },
+      "sourceFaithful": false
+    },
+    {
+      "id": "v6r1-train-11",
+      "action": {
+        "action": "eat"
+      },
+      "sourceFaithful": false
+    },
+    {
+      "id": "v6r1-train-12",
+      "action": {
+        "action": "gather_wood",
+        "count": 4
+      },
+      "sourceFaithful": false
+    },
+    {
+      "id": "v6r1-train-13",
+      "action": {
+        "action": "craft",
+        "item": "crafting_table",
+        "count": 1
+      },
+      "sourceFaithful": false
+    },
+    {
+      "id": "v6r1-train-14",
+      "action": {
+        "action": "craft",
+        "item": "wooden_pickaxe",
+        "count": 1
+      },
+      "sourceFaithful": false
+    },
+    {
+      "id": "v6r1-train-15",
+      "action": {
+        "action": "craft",
+        "item": "wooden_pickaxe",
+        "count": 1
+      },
+      "sourceFaithful": false
+    },
+    {
+      "id": "v6r1-train-16",
+      "action": {
+        "action": "craft",
+        "item": "stone_pickaxe",
+        "count": 1
+      },
+      "sourceFaithful": false
+    },
+    {
+      "id": "v6r1-train-17",
+      "action": {
+        "action": "mine",
+        "resource": "stone",
+        "count": 1
+      },
+      "sourceFaithful": false
+    },
+    {
+      "id": "v6r1-train-18",
+      "action": {
+        "action": "mine",
+        "resource": "iron",
+        "count": 3
+      },
+      "sourceFaithful": false
+    },
+    {
+      "id": "v6r1-train-19",
+      "action": {
+        "action": "eat"
+      },
+      "sourceFaithful": false
+    },
+    {
+      "id": "v6r1-train-20",
+      "action": {
+        "action": "craft",
+        "item": "stone_pickaxe",
+        "count": 1
+      },
+      "sourceFaithful": false
+    },
+    {
+      "id": "v6r1-train-21",
+      "action": {
+        "action": "craft",
+        "item": "planks",
+        "count": 1
+      },
+      "sourceFaithful": false
+    },
+    {
+      "id": "v6r1-train-22",
+      "action": {
+        "action": "gather_wood",
+        "count": 2
+      },
+      "sourceFaithful": false
+    },
+    {
+      "id": "v6r1-dev-01",
+      "action": {
+        "action": "craft",
+        "item": "stick",
+        "count": 2
+      },
+      "sourceFaithful": false
+    },
+    {
+      "id": "v6r1-dev-02",
+      "action": {
+        "action": "gather_wood",
+        "count": 3
+      },
+      "sourceFaithful": false
+    },
+    {
+      "id": "v6r1-dev-03",
+      "action": {
+        "action": "explore",
+        "direction": "east",
+        "distance": 24
+      },
+      "sourceFaithful": false
+    },
+    {
+      "id": "v6r1-dev-04",
+      "action": {
+        "action": "craft",
+        "item": "planks",
+        "count": 4
+      },
+      "sourceFaithful": false
+    },
+    {
+      "id": "v6r1-dev-05",
+      "action": {
+        "action": "eat"
+      },
+      "sourceFaithful": false
+    },
+    {
+      "id": "v6r1-dev-06",
+      "action": {
+        "action": "gather_wood",
+        "count": 4
+      },
+      "sourceFaithful": false
+    },
+    {
+      "id": "v6r1-dev-07",
+      "action": {
+        "action": "craft",
+        "item": "wooden_pickaxe",
+        "count": 1
+      },
+      "sourceFaithful": false
+    },
+    {
+      "id": "v6r1-dev-08",
+      "action": {
+        "action": "craft",
+        "item": "stone_pickaxe",
+        "count": 1
+      },
+      "sourceFaithful": false
+    },
+    {
+      "id": "v6r1-dev-09",
+      "action": {
+        "action": "craft",
+        "item": "iron_pickaxe",
+        "count": 1
+      },
+      "sourceFaithful": false
+    },
+    {
+      "id": "v6r1-dev-10",
+      "action": {
+        "action": "mine",
+        "resource": "coal",
+        "count": 3
+      },
+      "sourceFaithful": false
+    }
+  ],
+  "acceptedVariants": 359,
+  "referenceInputs": 155,
+  "overlap": {
+    "exact": [],
+    "normalized": []
+  },
+  "trainingNormalizedDuplicates": [
+    [
+      "v6r1-train-02",
+      "v6r1-train-05"
+    ]
+  ],
+  "prefixPreserved": true,
+  "weights": [
+    {
+      "id": "v6r1-train-live-teacher-01",
+      "copies": 3
+    },
+    {
+      "id": "v6r1-train-live-success-01",
+      "copies": 3
+    },
+    {
+      "id": "v6r1-train-01",
+      "copies": 3
+    },
+    {
+      "id": "v6r1-train-02",
+      "copies": 3
+    },
+    {
+      "id": "v6r1-train-03",
+      "copies": 3
+    },
+    {
+      "id": "v6r1-train-04",
+      "copies": 3
+    },
+    {
+      "id": "v6r1-train-05",
+      "copies": 3
+    },
+    {
+      "id": "v6r1-train-06",
+      "copies": 3
+    },
+    {
+      "id": "v6r1-train-07",
+      "copies": 3
+    },
+    {
+      "id": "v6r1-train-08",
+      "copies": 3
+    },
+    {
+      "id": "v6r1-train-09",
+      "copies": 3
+    },
+    {
+      "id": "v6r1-train-10",
+      "copies": 3
+    },
+    {
+      "id": "v6r1-train-11",
+      "copies": 3
+    },
+    {
+      "id": "v6r1-train-12",
+      "copies": 3
+    },
+    {
+      "id": "v6r1-train-13",
+      "copies": 3
+    },
+    {
+      "id": "v6r1-train-14",
+      "copies": 3
+    },
+    {
+      "id": "v6r1-train-15",
+      "copies": 3
+    },
+    {
+      "id": "v6r1-train-16",
+      "copies": 3
+    },
+    {
+      "id": "v6r1-train-17",
+      "copies": 3
+    },
+    {
+      "id": "v6r1-train-18",
+      "copies": 3
+    },
+    {
+      "id": "v6r1-train-19",
+      "copies": 3
+    },
+    {
+      "id": "v6r1-train-20",
+      "copies": 3
+    },
+    {
+      "id": "v6r1-train-21",
+      "copies": 3
+    },
+    {
+      "id": "v6r1-train-22",
+      "copies": 3
+    }
+  ],
+  "priorCraftsChecked": 57,
+  "weighting": {
+    "original": 214,
+    "newUnique": 24,
+    "newWeighted": 72,
+    "total": 286,
+    "newFraction": 0.2517482517482518,
+    "realInputWeightedFraction": 0.02097902097902098
+  },
+  "limits": [
+    "22 synthetic rows are not22 independent normalized scenarios; train02/train05 differ only by absolute coordinates and valid exploration direction label.",
+    "One real teacher correction is unexecuted; one positive demonstration has real task-correlated inventory evidence. Both exact inputs are now training evidence, not holdout.",
+    "Path geometry remains an executor check; shallow staircase y64->60 with healthy vitals/usable pickaxe is an allowed attempt, not guaranteed passage.",
+    "No original20 read and no model/endpoint/GPU operations.",
+    "Passing static conditions cannot establish learning, safe gameplay or broad generalization."
+  ]
+}

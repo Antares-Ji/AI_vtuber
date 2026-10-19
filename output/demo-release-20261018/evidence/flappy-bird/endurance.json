@@ -1,0 +1,59 @@
+{
+  "created_at": "2026-10-18T16:13:51.460229+00:00",
+  "policy": "guarded",
+  "model_sha256": "a0adb00810f7dbcd9d50ff6bcdcaa5cc5a4186a75fa0178f7f022d28f99bfab0",
+  "agent_source_sha256": "d926b377394b48e453b544165838a4767e99e9e702f7742c5de18e0e4e250079",
+  "game_source_sha256": "eb77e48ca3d0a3df82cb9bc24a34fa6a0d13656ede387868c16b340a26b0d7e9",
+  "package_versions": {
+    "flappy-bird-gymnasium": "0.4.0",
+    "gymnasium": "1.4.0",
+    "numpy": "2.4.6",
+    "pygame": "2.6.1"
+  },
+  "settings": {
+    "pipe_gap": 100,
+    "use_lidar": false,
+    "render": false,
+    "target_pipes": 10000,
+    "seed_start": 40000,
+    "requested_episodes": 1,
+    "max_steps": 1000000
+  },
+  "episodes": [
+    {
+      "seed": 40000,
+      "score": 10000,
+      "steps": 376691,
+      "initial_observation": [
+        1.0,
+        0.21484375,
+        0.41015625,
+        1.0,
+        0.0,
+        1.0,
+        1.0,
+        0.0,
+        1.0,
+        0.4765625,
+        -0.9,
+        0.5
+      ],
+      "game_seconds": 12556.37,
+      "reason": "target_reached_alive",
+      "reward": 46669.1,
+      "guard_interventions": 11,
+      "no_safe_continuation": 0,
+      "wall_seconds": 9.363
+    }
+  ],
+  "status": "completed",
+  "summary": {
+    "episodes": 1,
+    "min_score": 10000,
+    "mean_score": 10000.0,
+    "max_score": 10000,
+    "collisions": 0,
+    "successes": 1
+  },
+  "wall_seconds": 9.378
+}

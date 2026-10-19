@@ -1,0 +1,7 @@
+V3 fresh-base training attempt 01 — ABORTED BEFORE CHECKPOINT
+Started 2026-10-13 03:37:50 Asia/Shanghai; stopped 03:42:43.
+PID 142036; fresh base, 176 rows, 2 epochs requested, rank 4, LR 2e-5, max length 1536.
+GPU free at start 14.63 GiB. Reached epoch 1 optimizer step 36/44; peak allocated 4.30 GiB.
+Window loss: step4 .3467; 8 .2179; 12 .1474; 16 .1194; 20 .3754; 24 .2692; 28 .2342; 32 .3038; 36 .2622.
+Stopped after Astra found inherited wrong labels: train-v2-0043/0044 mine coal without a pickaxe; train-v2-0107 hunt with no visible animals.
+No epoch checkpoint or adapter weights were saved. GPU training process is gone and inference service remains offline.

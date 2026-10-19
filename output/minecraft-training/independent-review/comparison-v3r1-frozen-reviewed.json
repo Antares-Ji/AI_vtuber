@@ -1,0 +1,98 @@
+{
+  "generatedAt": "2026-10-12T20:10:08.367Z",
+  "rubric": "unchanged independent-semantic-feasibility-v1",
+  "summary": [
+    {
+      "name": "base",
+      "n": 20,
+      "semantic": {
+        "pass": 6,
+        "fail": 13,
+        "uncertain": 1
+      },
+      "semanticPassRate": 0.3,
+      "exactRate": 0.15,
+      "schemaRate": 0.85,
+      "latencyMs": {
+        "median": 1339.0500000000002,
+        "p95": 1488.3,
+        "max": 1541.8
+      },
+      "predictionsFile": "output/minecraft-training/baseline.jsonl",
+      "reviewFile": "output/minecraft-training/independent-review/baseline-review.json"
+    },
+    {
+      "name": "adapter-v1",
+      "n": 20,
+      "semantic": {
+        "pass": 15,
+        "fail": 3,
+        "uncertain": 2
+      },
+      "semanticPassRate": 0.75,
+      "exactRate": 0.45,
+      "schemaRate": 1,
+      "latencyMs": {
+        "median": 1352.85,
+        "p95": 1608.2,
+        "max": 6531.4
+      },
+      "predictionsFile": "output/minecraft-training/adapter-v1.jsonl",
+      "reviewFile": "output/minecraft-training/independent-review/adapter-v1-review.json"
+    },
+    {
+      "name": "adapter-v2-epoch03",
+      "n": 20,
+      "semantic": {
+        "pass": 15,
+        "fail": 3,
+        "uncertain": 2
+      },
+      "semanticPassRate": 0.75,
+      "exactRate": 0.4,
+      "schemaRate": 1,
+      "latencyMs": {
+        "median": 1235.55,
+        "p95": 1514.3,
+        "max": 1588.7
+      },
+      "predictionsFile": "output/minecraft-training/independent-review/adapter-v2-epoch03-frozen-holdout.jsonl",
+      "reviewFile": "output/minecraft-training/independent-review/adapter-v2-epoch03-review.json"
+    },
+    {
+      "name": "adapter-v3r1-epoch02",
+      "n": 20,
+      "semantic": {
+        "pass": 14,
+        "fail": 4,
+        "uncertain": 2
+      },
+      "semanticPassRate": 0.7,
+      "exactRate": 0.3,
+      "schemaRate": 1,
+      "latencyMs": {
+        "median": 1331.95,
+        "p95": 1546.7,
+        "max": 1645.5
+      },
+      "predictionsFile": "output/minecraft-training/independent-review/adapter-v3r1-epoch02-frozen-holdout.jsonl",
+      "reviewFile": "output/minecraft-training/independent-review/adapter-v3r1-epoch02-review.json",
+      "perCompletionAdapterConfirmed": 20
+    }
+  ],
+  "v2PerCompletionMetadata": {
+    "count": 20,
+    "allUsedAdapter": true,
+    "paths": [
+      "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v2\\checkpoint-epoch-03"
+    ]
+  },
+  "conclusion": "V2 epoch03 ties V1 on independent semantic passes (15/20); exact labels decline 9/20 to 8/20. Schema remains 20/20. No claim of improvement over V1 on this frozen holdout.",
+  "limitations": [
+    "Same original v1 prompt/messages/schema and fixed rubric; current live planner uses richer inputs and additional executor skills.",
+    "Two geometry-inconsistent fixtures remain uncertain for all relevant predictions.",
+    "Small synthetic sample; independent annotations must not be used for further tuning.",
+    "V2 live repeated missing-material failure remains a separate negative result despite 75% semantic holdout score."
+  ],
+  "v3r1Interpretation": "Same original20messages/schema and unchangedpredeclaredrubric: v3r1 semantic14/20 versus v1/v2 15/20; no improvement over prioradapters on thisholdout. Baseline semantic6/20. Uncertain fixtures retained. Development checkpointselection and newexecutor/liveinput changes must not be attributed to weights alone. No further tuning from perholdout annotations."
+}

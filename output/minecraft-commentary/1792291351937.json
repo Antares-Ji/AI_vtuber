@@ -1,0 +1,63 @@
+{
+  "capturedAt": 1792291351937,
+  "evidence": {
+    "goal": "建立可生活的小家：先安全生存与食物，再依真实库存制作工作台、工具、熔炉、熟肉和火把，选择平坦安全位置造简单小屋，放置床、箱子、火把，最后浅层采矿并安全返回。由你自主分阶段决策。已有材料足够就推进下一阶段，不重复囤积。每5分钟监管反馈，失败先分析再改方法；同因两次失败需诊断而非原样重复。新建房/家具技能仅在能力表可用后调用，缺少技能要说明不能假装完成。生命危险优先避险/找可用食物。",
+    "currentSubgoal": "采集圆石制作熔炉与火把",
+    "action": {
+      "action": "gather_wood",
+      "count": 8,
+      "source": "local-qwen",
+      "model": "qwen3.5-4b",
+      "adapterLoaded": false,
+      "modelMetadata": {
+        "task": "minecraft-survival",
+        "used_adapter": false,
+        "adapter_path": null
+      }
+    },
+    "outcome": "failed",
+    "error": "No exposed resource candidates in loaded search radius; reachability not tested",
+    "inventory": [
+      {
+        "name": "stick",
+        "count": 2
+      },
+      {
+        "name": "wooden_pickaxe",
+        "count": 1
+      },
+      {
+        "name": "oak_planks",
+        "count": 31
+      },
+      {
+        "name": "spruce_log",
+        "count": 1
+      },
+      {
+        "name": "oak_log",
+        "count": 6
+      },
+      {
+        "name": "birch_log",
+        "count": 14
+      },
+      {
+        "name": "crafting_table",
+        "count": 2
+      }
+    ],
+    "health": 19.16666603088379,
+    "food": 16,
+    "yolo": {
+      "scope": "COCO only, not trained for Minecraft",
+      "detections": []
+    }
+  },
+  "speech": "附近没找到能直接砍的树，木头暂时采不成了。背包里木头还够，我先看看能不能凑出熔炉要用的圆石。",
+  "model": "deepseek-flash",
+  "provider": "cloud",
+  "visionModel": "qwen3.5-4b",
+  "visualObservation": "游戏画面显示玩家身处茂密森林，周围是覆盖积雪的地面和树木。",
+  "expired": false
+}

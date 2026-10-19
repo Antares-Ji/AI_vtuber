@@ -1,0 +1,121 @@
+{
+  "dataset": "minecraft-survival-v5r2-candidates",
+  "status": "candidate data frozen; v5r2 training and dev47 comparison completed; no checkpoint selected or deployed",
+  "contract": "Current runtime SURVIVAL_ACTION_SCHEMA + compactObservation + decisionMessages; no system/schema change in this dataset builder.",
+  "provenance": "synthetic; independently authored dense-state counterfactual; v5r2 registry-grounded food history corrections; no exact live probe copied",
+  "trainingRows": 32,
+  "developmentRows": 12,
+  "replayRows": 214,
+  "trainingSha256": "2fcdd67d983f255630d648593ced18dd6bf0e7d2c0cc2ab9fb422ed256a94898",
+  "developmentSha256": "9f64e517f955735756caf808fb0af006a63b3dce77ef15b15805e35ec0638ba3",
+  "replaySha256": "2086a5efe8cefdf2e10f99fd2e3b7cd0aabb6bf4eb91fdab0d21e1b1a9934877",
+  "frozenReplayPrefix": {
+    "path": "train-v4r1-replay-candidates.jsonl",
+    "sha256": "9f76783df423a873e0d4387763a0b5dec10d8c1a8e3fc0517dd924be3cc032fe",
+    "bytes": 1017649,
+    "bytePrefixPreserved": true
+  },
+  "scopeBalance": {
+    "trainFood": 8,
+    "trainToolPrerequisite": 8,
+    "trainResourceRecovery": 6,
+    "trainRecipeHintEnum": 6,
+    "trainStageProgress": 4,
+    "devRowsById": [
+      "v5r2-dev-01",
+      "v5r2-dev-02",
+      "v5r2-dev-03",
+      "v5r2-dev-04",
+      "v5r2-dev-05",
+      "v5r2-dev-06",
+      "v5r2-dev-07",
+      "v5r2-dev-08",
+      "v5r2-dev-09",
+      "v5r2-dev-10",
+      "v5r2-dev-11",
+      "v5r2-dev-12"
+    ]
+  },
+  "tokenTarget": "CPU tokenizer audit: new train prompts 1586–2112 (31/32 within 1800–2600), dev prompts 1871–2097; full sequences max 2129 train and 2114 dev. 2304 tokens covers every new train/dev/replay sequence without truncating assistant labels. Actual authorized run used max_length=2560 after GPU preflight.",
+  "limits": [
+    "Synthetic actions indicate a useful/materially feasible decision, not guaranteed path or block physics success.",
+    "Exact live probes remain development-only and are not copied here.",
+    "Recent result entries describe zero inventory delta unless explicitly reported; all six are matched to prior history and current state is not credited with unrecorded gains.",
+    "The fresh recentResults schema includes alreadyFull, foodBefore, and foodAfter from the current runtime planner.",
+    "Every food-recovery history in this candidate set is synthetic, not a claim of observed gameplay; foodBefore/foodAfter values are derived from local minecraft-data registry foodPoints (cooked chicken +6, bread +5, raw mutton +2, apple +4).",
+    "Raw-rabbit low-food recovery is excluded from this synthetic dataset; the current runtime includes rabbit in FOODS, so earlier executor rejection evidence is stale and should not be treated as current."
+  ],
+  "sourceHashes": {
+    "survivalPlanner": "7003728b698e0006849c0960e1e79392c9dda479362fe74712da3f9f8021f630",
+    "survivalSkills": "de343d62a0ab4bc771102a9f0d45bcb1814daf5692a26aa7b378a00e3c6a2541",
+    "priorReplay": "9f76783df423a873e0d4387763a0b5dec10d8c1a8e3fc0517dd924be3cc032fe"
+  },
+  "validation": {
+    "schemaValidatedAtBuild": true,
+    "generatedFromRuntimeDecisionMessages": true,
+    "noHoldoutRead": true,
+    "localSemanticPreflightPending": false,
+    "independentSemanticPreflightPending": false,
+    "tokenLengthsVerified": true,
+    "assistantLabelsFullyPreservedAt2304": true,
+    "gpuTrainingOrEvaluationPerformed": true,
+    "trainingDataNotChanged": true
+  },
+  "tokenAudit": {
+    "maxLengthCoverage": {
+      "at2560": "all train/dev/replay sequences",
+      "at2304": "all train/dev/replay sequences"
+    },
+    "method": "Qwen AutoProcessor tokenizer with inference chat template, CPU only; full assistant labels checked",
+    "path": "output/minecraft-training/v5r2-candidate-token-audit.json",
+    "sha256": "8b668629f2a942b45cdc06e15aa973a47242c90ae047925f8ce14a4ec6f74b92"
+  },
+  "semanticPreflight": {
+    "status": "passed",
+    "path": "output/minecraft-training/v5r2-candidate-semantic-preflight.json",
+    "sha256": "d0e0914e676c0f5092e302243dd575327783f74efd03b11d2ee9dd40a6119d82",
+    "independentReview": "passed; see independentReview report"
+  },
+  "revisionHistory": [
+    {
+      "reason": "Astra review found three development action-set maxima that exceeded available materials.",
+      "supersededBy": "v5r2-final",
+      "developmentSha256": "03cd57657bf39c88a517fa9c1f9cc0b3cd7c9668f572d34fe221f455f44053ab",
+      "changes": [
+        "dev09 planks count set expanded to 1..16, bounded by 4 oak logs (maximum 16 planks).",
+        "dev10 crafting_table count set changed from broad craft range to fixed 1.",
+        "dev11 iron_pickaxe count set changed from broad craft range to fixed 1."
+      ],
+      "trainingSha256Unchanged": true,
+      "revision": "v5r2-initial"
+    }
+  ],
+  "finalEvaluationSelectionPerformed": false,
+  "gpuTrainingOrEvaluationPerformed": true,
+  "independentReview": {
+    "path": "output/minecraft-training/independent-review/v5r2-candidate-audit.json",
+    "scope": "44 selected train/dev labels, history, registry food values, action-set material bounds, overlap, frozen prefix",
+    "limits": [
+      "No holdout labels read, no endpoint/GPU evaluation.",
+      "Synthetic path geometry does not guarantee reachability.",
+      "Scenario independence and generalization are not established."
+    ],
+    "status": "passed",
+    "sha256": "fc87747620638cdefae0683b9ae1073040c035747ec0d71cd26eb1aeb1d9281a"
+  },
+  "trainingRun": {
+    "processRecord": "output/minecraft-training/v5r2-training-process.json",
+    "holdoutUsed": false,
+    "experiment": "minecraft-survival-v5r2-dense-replay-candidate",
+    "runRecord": "output/minecraft-training/v5r2-training-run-preflight.json",
+    "status": "completed; dev47 comparison complete; checkpoint selection and deployment pending root review",
+    "outputPath": "runtime/minecraft-training/adapters/minecraft-survival-v5r2-dense-replay-candidate",
+    "trainingDataSha256": "2086a5efe8cefdf2e10f99fd2e3b7cd0aabb6bf4eb91fdab0d21e1b1a9934877",
+    "trainingReport": "runtime/minecraft-training/adapters/minecraft-survival-v5r2-dense-replay-candidate/training-report.json",
+    "trainingReportSha256": "0e9b546322a208c01f19e4fb5d8a05d81de78ea06283096a555e5eadc617fa05",
+    "comparisonReport": "output/minecraft-training/v5r2-development47-summary.json",
+    "probeDiagnosticsReport": "output/minecraft-training/v5r2-live-probe-diagnostics-summary.json",
+    "selectionStatus": "not selected; root review required",
+    "finalHoldoutUsed": false
+  }
+}

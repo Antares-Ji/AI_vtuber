@@ -1,0 +1,28 @@
+{
+  "capturedAt": 1792331070247,
+  "evidence": {
+    "goal": "由本地千问自主决策建立一个生存小家：房屋有床、箱子、火把，采集材料、制作工具、狩猎动物、烹饪并吃食物、浅矿采集后返回家。全部已注册动作均可选择，包括navigate、dig_block、place_block、attack_entity、sleep、container_transfer等；根据真实结果调整，不重复囤木。成功与失败以真实世界和库存证据为准。",
+    "currentSubgoal": "移动至安全位置并采集石料",
+    "action": {
+      "action": "navigate",
+      "x": 18,
+      "y": 61,
+      "z": -9
+    },
+    "outcome": "running",
+    "error": null,
+    "inventory": [],
+    "health": 20,
+    "food": 20,
+    "yolo": {
+      "scope": "COCO only, not trained for Minecraft",
+      "detections": []
+    }
+  },
+  "speech": "我正往安全位置移动，准备先采点石料；不过背包还是空的，工具得先备齐才行。",
+  "model": "deepseek-flash",
+  "provider": "cloud",
+  "visionModel": "qwen3.5-4b",
+  "visualObservation": "画面显示一个分叉的树状结构，包含三个标有“YW-2”、“YW-3”、“YW-4”的节点。",
+  "expired": false
+}

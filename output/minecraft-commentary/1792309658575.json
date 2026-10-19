@@ -1,0 +1,36 @@
+{
+  "capturedAt": 1792309658575,
+  "evidence": {
+    "goal": "建立可生活的小家：先安全生存与食物，再依真实库存制作工作台、工具、熔炉、熟肉和火把，选择平坦安全位置造简单小屋，放置床、箱子、火把，最后浅层采矿并安全返回。由你自主分阶段决策。已有材料足够就推进下一阶段，不重复囤积。每5分钟监管反馈，失败先分析再改方法；同因两次失败需诊断而非原样重复。新建房/家具技能仅在能力表可用后调用，缺少技能要说明不能假装完成。生命危险优先避险/找可用食物。",
+    "currentSubgoal": "采集基础木材制作工作台",
+    "action": {
+      "action": "craft",
+      "item": "planks",
+      "count": 16,
+      "source": "local-qwen",
+      "model": "qwen3.5-4b",
+      "adapterLoaded": false,
+      "modelMetadata": {
+        "request_id": "bbe5800f-b1cb-4a8e-a9d9-2017e5610702",
+        "task": "minecraft-survival",
+        "used_adapter": false,
+        "adapter_path": null
+      }
+    },
+    "outcome": "failed",
+    "error": "Missing ingredients for planks",
+    "inventory": [],
+    "health": 20,
+    "food": 20,
+    "yolo": {
+      "scope": "COCO only, not trained for Minecraft",
+      "detections": []
+    }
+  },
+  "speech": "树就在眼前，可背包还是空的，刚才想直接做木板也失败了。我先老老实实找能砍的树干，木头到手再说。",
+  "model": "deepseek-flash",
+  "provider": "cloud",
+  "visionModel": "qwen3.5-4b",
+  "visualObservation": "游戏画面显示玩家身处茂密森林，周围是覆盖积雪的地面和树木。",
+  "expired": false
+}

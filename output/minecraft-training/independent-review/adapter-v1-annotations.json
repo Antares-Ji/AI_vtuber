@@ -1,0 +1,22 @@
+[
+  {"id":"holdout-001","verdict":"uncertain","reason":"Gathering six rather than seven logs is a useful allowed alternative. As in the baseline review, the fixture reports a resource five blocks away whose coordinates are about 128 blocks from the player. Conditional on the reported nearby resource being correct, this choice passes."},
+  {"id":"holdout-002","verdict":"pass","reason":"Four birch logs afford eight planks. The smaller requested batch is useful and within available ingredients."},
+  {"id":"holdout-003","verdict":"pass","reason":"Seven spruce planks afford one crafting table. This resolves a required station prerequisite."},
+  {"id":"holdout-004","verdict":"uncertain","reason":"A wooden pickaxe can harvest stone and ten instead of twelve is an allowed partial count. However the fixture gives the stone y=91 while the bot is y=64 and reports only fourteen blocks distance; the geometry is inconsistent, and the current executor skips targets more than four blocks above its current height. Conditional on a genuinely reachable exposed stone location, the choice passes."},
+  {"id":"holdout-005","verdict":"fail","reason":"The mine.resource enum is now valid, but inventory contains no pickaxe. Iron cannot be harvested before making the affordable stone pickaxe."},
+  {"id":"holdout-006","verdict":"pass","reason":"Three raw iron, two charcoal and a furnace afford smelting two ingots. The smaller batch is safe and useful."},
+  {"id":"holdout-007","verdict":"pass","reason":"The legal iron target is observed at a consistent nearby position and a stone pickaxe is available. Requesting eight rather than five allows a useful partial mining result."},
+  {"id":"holdout-008","verdict":"pass","reason":"Eating available baked potatoes appropriately addresses low food before other tasks."},
+  {"id":"holdout-009","verdict":"pass","reason":"Retreat appropriately addresses the nearby spider and limited health."},
+  {"id":"holdout-010","verdict":"pass","reason":"No required gravel is observed after a prior search. Exploring northeast instead of the reference northwest is a plausible new direction; no evidence uniquely requires northwest."},
+  {"id":"holdout-011","verdict":"pass","reason":"Exploring west for absent iron is feasible and diversifies from the recent eastward exploration."},
+  {"id":"holdout-012","verdict":"pass","reason":"As in the baseline, eating an available apple at five health and eight food is useful with no observed nearby threat. Flee is not uniquely correct."},
+  {"id":"holdout-013","verdict":"pass","reason":"Observed gravel can be harvested for flint without a special tool. A bounded count of eight instead of five remains useful."},
+  {"id":"holdout-014","verdict":"fail","reason":"The portal-building skill requires flint_and_steel, which is absent. The adapter repeats the same missing-igniter mistake as the baseline."},
+  {"id":"holdout-015","verdict":"pass","reason":"All inventory prerequisites for a portal attempt are present; flat-site verification is delegated to the bounded skill, without assuming live construction would succeed."},
+  {"id":"holdout-016","verdict":"pass","reason":"An active nearby portal is observed and no immediate hazard is reported. Entering directly advances the goal."},
+  {"id":"holdout-017","verdict":"fail","reason":"Food is already twenty and the Nether-entry goal is already satisfied. The eat skill would return alreadyFull without improving survival or verifying the goal."},
+  {"id":"holdout-018","verdict":"pass","reason":"Hunting the observed passive prey addresses food four with no edible inventory. Two prey is within the bounded hunt contract."},
+  {"id":"holdout-019","verdict":"pass","reason":"Two raw iron, one coal and a furnace afford smelting one ingot. The action now respects the ore-to-ingot prerequisite."},
+  {"id":"holdout-020","verdict":"pass","reason":"Retreat correctly takes precedence over eating in the presence of the nearby zombie and creeper."}
+]

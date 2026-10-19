@@ -1,0 +1,57 @@
+{
+  "capturedAt": 1792329963996,
+  "evidence": {
+    "goal": "由本地千问自主决策建立一个生存小家：房屋有床、箱子、火把，采集材料、制作工具、狩猎动物、烹饪并吃食物、浅矿采集后返回家。全部已注册动作均可选择，包括navigate、dig_block、place_block、attack_entity、sleep、container_transfer等；根据真实结果调整，不重复囤木。成功与失败以真实世界和库存证据为准。",
+    "currentSubgoal": "craft wooden_pickaxe",
+    "action": {
+      "action": "craft",
+      "item": "stick",
+      "count": 4,
+      "source": "local-qwen",
+      "model": "qwen3.5-4b",
+      "adapterLoaded": false,
+      "modelMetadata": {
+        "request_id": "0383038e-70bd-4c07-b67c-becdffb03fe1",
+        "task": "minecraft-survival",
+        "used_adapter": false,
+        "adapter_path": null
+      }
+    },
+    "outcome": "completed",
+    "error": null,
+    "inventory": [
+      {
+        "name": "spruce_planks",
+        "count": 10
+      },
+      {
+        "name": "crafting_table",
+        "count": 1
+      },
+      {
+        "name": "stick",
+        "count": 4
+      },
+      {
+        "name": "spruce_log",
+        "count": 4
+      },
+      {
+        "name": "spruce_sapling",
+        "count": 2
+      }
+    ],
+    "health": 20,
+    "food": 20,
+    "yolo": {
+      "scope": "COCO only, not trained for Minecraft",
+      "detections": []
+    }
+  },
+  "speech": "木棍已经做出四根了，背包里还有十块云杉木板。我正按计划准备做木镐，材料应该够，就看这一步能不能成。",
+  "model": "deepseek-flash",
+  "provider": "cloud",
+  "visionModel": "qwen3.5-4b",
+  "visualObservation": "画面显示一个分叉的树状结构，包含三个标有“YW-2”、“YW-3”、“YW-4”的节点。",
+  "expired": false
+}

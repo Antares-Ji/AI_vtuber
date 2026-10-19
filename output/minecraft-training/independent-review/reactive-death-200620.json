@@ -1,0 +1,244 @@
+{
+  "from": "2026-10-12T20:04:20.750Z",
+  "to": "2026-10-12T20:08:20.750Z",
+  "source": {
+    "path": "logs/minecraft-session-1791830191222.jsonl",
+    "sha256": "ba2b48fe0fb0cb95de46eb7db59b020948e1220b18365725be1fa296622f68e8"
+  },
+  "modelDecisions": 0,
+  "death": {
+    "at": "2026-10-12T20:06:20.750Z",
+    "event": "death",
+    "safetyWillResume": true,
+    "lifecycleEpoch": 3
+  },
+  "serverDeathMessage": {
+    "at": "2026-10-12T20:06:20.747Z",
+    "event": "server_message",
+    "text": "SuiGeBot was blown up by Creeper"
+  },
+  "respawn": {
+    "at": "2026-10-12T20:06:20.803Z",
+    "event": "status",
+    "position": {
+      "x": 21.5,
+      "y": 65,
+      "z": 0.5
+    },
+    "mode": "survival",
+    "players": [
+      {
+        "name": "Antares_Ji"
+      },
+      {
+        "name": "SuiGeBot",
+        "position": {
+          "x": 21.5,
+          "y": 65,
+          "z": 0.5
+        }
+      }
+    ]
+  },
+  "routes": 161,
+  "blocked": 15,
+  "noPathEvents": 0,
+  "oscillation": {
+    "from": "2026-10-12T20:04:51Z",
+    "to": "2026-10-12T20:06:08.4Z",
+    "routes": 137,
+    "oneStepRoutes": 136,
+    "nonIncreasingSeparation": 77,
+    "destinations": {
+      "{\"x\":9,\"y\":81,\"z\":159}": 21,
+      "{\"x\":10,\"y\":81,\"z\":160}": 42,
+      "{\"x\":11,\"y\":81,\"z\":160}": 45,
+      "{\"x\":12,\"y\":81,\"z\":160}": 26,
+      "{\"x\":9,\"y\":81,\"z\":158}": 2,
+      "{\"x\":10,\"y\":82,\"z\":159}": 1
+    }
+  },
+  "healthTrace": [
+    {
+      "at": "2026-10-12T20:06:13.461Z",
+      "event": "escape_short_route",
+      "health": 17,
+      "position": {
+        "x": 12.309370289247598,
+        "y": 81,
+        "z": 160.50635893396117
+      }
+    },
+    {
+      "at": "2026-10-12T20:06:14.465Z",
+      "event": "escape_short_route",
+      "health": 17,
+      "position": {
+        "x": 12.981376952476458,
+        "y": 82,
+        "z": 156.86328736824967
+      }
+    },
+    {
+      "at": "2026-10-12T20:06:14.868Z",
+      "event": "escape_short_route",
+      "health": 17,
+      "position": {
+        "x": 12.519659893165372,
+        "y": 82,
+        "z": 155.63795335157218
+      }
+    },
+    {
+      "at": "2026-10-12T20:06:15.312Z",
+      "event": "escape_blocked",
+      "health": 17,
+      "position": {
+        "x": 11.504326107814421,
+        "y": 82,
+        "z": 154.5
+      }
+    },
+    {
+      "at": "2026-10-12T20:06:16.106Z",
+      "event": "escape_short_route",
+      "health": 17,
+      "position": {
+        "x": 11.504326107814421,
+        "y": 82,
+        "z": 154.5
+      }
+    },
+    {
+      "at": "2026-10-12T20:06:16.519Z",
+      "event": "escape_short_route",
+      "health": 17,
+      "position": {
+        "x": 11.501657859596705,
+        "y": 82,
+        "z": 153.6850326260769
+      }
+    },
+    {
+      "at": "2026-10-12T20:06:16.709Z",
+      "event": "escape_short_route",
+      "health": 17,
+      "position": {
+        "x": 11.500990795256232,
+        "y": 82,
+        "z": 153.1257328694863
+      }
+    },
+    {
+      "at": "2026-10-12T20:06:17.771Z",
+      "event": "trapped_counterattack",
+      "health": 15
+    },
+    {
+      "at": "2026-10-12T20:06:18.566Z",
+      "event": "trapped_counterattack",
+      "health": 9
+    },
+    {
+      "at": "2026-10-12T20:06:19.375Z",
+      "event": "trapped_counterattack",
+      "health": 6
+    },
+    {
+      "at": "2026-10-12T20:06:20.194Z",
+      "event": "trapped_counterattack",
+      "health": 3
+    }
+  ],
+  "lastBlocked": {
+    "at": "2026-10-12T20:06:15.312Z",
+    "event": "escape_blocked",
+    "position": {
+      "x": 11.504326107814421,
+      "y": 82,
+      "z": 154.5
+    },
+    "health": 17,
+    "noPathCount": 0,
+    "triedSites": 158,
+    "leavesCleared": 0,
+    "terrain": [
+      {
+        "x": 12,
+        "y": 82,
+        "z": 154,
+        "floor": "oak_leaves",
+        "feet": "oak_leaves",
+        "head": "oak_leaves"
+      },
+      {
+        "x": 10,
+        "y": 82,
+        "z": 154,
+        "floor": "air",
+        "feet": "air",
+        "head": "air"
+      },
+      {
+        "x": 11,
+        "y": 82,
+        "z": 155,
+        "floor": "oak_leaves",
+        "feet": "air",
+        "head": "air"
+      },
+      {
+        "x": 11,
+        "y": 82,
+        "z": 153,
+        "floor": "oak_leaves",
+        "feet": "air",
+        "head": "air"
+      }
+    ],
+    "threats": [
+      {
+        "id": 30160,
+        "name": "zombie",
+        "position": {
+          "x": 16.30000001192093,
+          "y": 81.75325194001198,
+          "z": 152.11263042409297
+        },
+        "distance": 5.362733099045907
+      },
+      {
+        "id": 30619,
+        "name": "zombie",
+        "position": {
+          "x": 13.11619315692396,
+          "y": 81.85499104083252,
+          "z": 159.78047979982617
+        },
+        "distance": 5.522916792657312
+      },
+      {
+        "id": 30279,
+        "name": "creeper",
+        "position": {
+          "x": 17.47511873574875,
+          "y": 79.41999998688698,
+          "z": 153.38864042686598
+        },
+        "distance": 6.598627491702708
+      }
+    ]
+  },
+  "timing": {
+    "maxCumulativeTickMs": 37.9,
+    "maxCumulativeGapMs": 667.6,
+    "fallbackOverruns": 0
+  },
+  "finding": "The server attributes the fatal blow to a Creeper. Reflex fallback repeatedly reached a handful of canopy endpoints; movement greater than0.5 refreshed lastProgressAt although threat separation did not improve. Successful endpoints are not in failedEscapeSites and candidateCursor resets0, allowing repeated backtracking. This is observed ineffective escape, not a proved avoidable death or a model decision.",
+  "limits": [
+    "Full terrain and every damage event were not recorded; preceding damage sources and a safe alternative route cannot be established.",
+    "No code changes made for this review.",
+    "Cumulative timing maxima can predate this interval; scheduling target is not a latency guarantee.",
+    "Death occurred before the20:09:20.955 trained-live interval but belongs in the full five-hour result."
+  ]
+}

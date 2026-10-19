@@ -1,0 +1,33 @@
+{
+  "capturedAt": "2026-10-18T17:36:04.349Z",
+  "userRequestedStop": true,
+  "loop": {
+    "enabled": false,
+    "running": false,
+    "step": 0,
+    "lastError": null
+  },
+  "bot": {
+    "connected": false,
+    "busy": false,
+    "health": 20,
+    "food": 20,
+    "inventory": [],
+    "position": {
+      "x": 54.5,
+      "y": 73,
+      "z": -83.5
+    },
+    "reactiveEnabled": false
+  },
+  "capabilities": {
+    "count": 75,
+    "expanded": true
+  },
+  "automationStatus": "PAUSED",
+  "guide": {
+    "queuedSuggestions": 3,
+    "consumedByModel": false
+  },
+  "note": "After explicit STOP; no reconnect or repair attempted. Prior startup approval block remains historical; no restart is authorized."
+}

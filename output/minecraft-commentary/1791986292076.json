@@ -1,0 +1,31 @@
+{
+  "capturedAt": 1791986292076,
+  "evidence": {
+    "goal": "制作一把铁镐。由本地千问自主调整中间计划，最终以背包出现 iron_pickaxe 为验收。",
+    "currentSubgoal": "采集云杉原木制作工作台",
+    "action": {
+      "action": "gather_wood",
+      "count": 4
+    },
+    "outcome": "running",
+    "error": null,
+    "inventory": [
+      {
+        "name": "spruce_log",
+        "count": 5
+      }
+    ],
+    "health": 20,
+    "food": 20,
+    "yolo": {
+      "scope": "COCO only, not trained for Minecraft",
+      "detections": []
+    }
+  },
+  "speech": "雪地里正试着砍云杉木，背包里已经有五根原木了，够做工作台。就是这雪下得有点晃眼。",
+  "model": "deepseek-flash",
+  "provider": "cloud",
+  "visionModel": "qwen3.5-4b",
+  "visualObservation": "雪地森林场景中，玩家正站在覆盖积雪的泥土与青苔方块旁，远处有树木和飘落的雪花。",
+  "expired": false
+}

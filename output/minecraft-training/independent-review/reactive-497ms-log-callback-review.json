@@ -1,0 +1,43 @@
+{
+  "at": "2026-10-12T22:52:58.712Z",
+  "status": "measurement patch tested; not deployed by reviewer; not a performance fix",
+  "sourceSha256": "d50830f04207f9115d82e9f658ac957363e322f03e0ddfaa049d14095a660518",
+  "incident": {
+    "routeLogAt": "2026-10-12T22:45:37.728Z",
+    "timingLogAt": "2026-10-12T22:45:38.223Z",
+    "tickMs": 497.9,
+    "fallbackMs": 497.6,
+    "fallbackOverruns": 1,
+    "searchAlreadyCompletedBeforeRouteLog": true
+  },
+  "evidence": [
+    "issueRoute calls setMovements/setGoal then log(escape_short_route). After that log returns, only finishPlanning and return precede tick finalization.",
+    "Resident session logger stamps at before JSON.stringify -> appendFileSync -> console.log. 495ms between that stamp and timing stamp is consistent with log callback I/O or OS/GC pause inside its wall interval.",
+    "No substage samples from historical callback, so cannot separate disk, stdout, GC or scheduling; do not claim AStar caused the delay.",
+    "Installed AStar checks cooperative deadlines between nodes. getPathFromTo includes collision-index preparation before AStar creation; no hard interruption guarantee."
+  ],
+  "patch": {
+    "logCallbackMs": true,
+    "maxLogCallbackMs": true,
+    "tickLogCallbackMs": true,
+    "fallbackLogCallbackMs": true,
+    "fallbackCandidateMs": true,
+    "fallbackSearchMs": true,
+    "maxSearchSliceMs": true,
+    "fallbackDispatchMs": true,
+    "totalTickAndOverrunPreserved": true,
+    "noAddedLogEvents": true,
+    "timingOwnWrite": "cannot be in same emitted record; retained in live snapshot and cumulative max for next record"
+  },
+  "tests": [
+    "495ms simulated route-log stall correctly counted as log callback; totalfallback495/tick495/overrun1, search0, no recursive output",
+    "90ms timing-event own write retained in snapshot maxTick/maxLog",
+    "minecraft-reactive.js PASS",
+    "minecraft-reactive-escape.js PASS"
+  ],
+  "futureMaintenance": "Use a dedicated asynchronous append queue or worker for the resident session log, preserving event creation timestamps, order, bounded backpressure and explicit write errors. Do not merely defer the same synchronous callback with setImmediate. Existing resident closure cannot be safely replaced by the current module-only hotreload; no reconnect/restart performed.",
+  "limits": [
+    "Wall-clock substage durations still include OS scheduling/GC pauses and are not CPU-time samples.",
+    "No live latency improvement claim; current 200ms interval and60ms planning target remain cooperative rather than hard guarantees."
+  ]
+}

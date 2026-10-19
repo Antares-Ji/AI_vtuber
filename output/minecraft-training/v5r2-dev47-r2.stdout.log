@@ -1,0 +1,277 @@
+GPU memory free=14.63 GiB total=15.89 GiB
+base: evaluated 1/47
+base: evaluated 2/47
+base: evaluated 3/47
+base: evaluated 4/47
+base: evaluated 5/47
+base: evaluated 6/47
+base: evaluated 7/47
+base: evaluated 8/47
+base: evaluated 9/47
+base: evaluated 10/47
+base: evaluated 11/47
+base: evaluated 12/47
+base: evaluated 13/47
+base: evaluated 14/47
+base: evaluated 15/47
+base: evaluated 16/47
+base: evaluated 17/47
+base: evaluated 18/47
+base: evaluated 19/47
+base: evaluated 20/47
+base: evaluated 21/47
+base: evaluated 22/47
+base: evaluated 23/47
+base: evaluated 24/47
+base: evaluated 25/47
+base: evaluated 26/47
+base: evaluated 27/47
+base: evaluated 28/47
+base: evaluated 29/47
+base: evaluated 30/47
+base: evaluated 31/47
+base: evaluated 32/47
+base: evaluated 33/47
+base: evaluated 34/47
+base: evaluated 35/47
+base: evaluated 36/47
+base: evaluated 37/47
+base: evaluated 38/47
+base: evaluated 39/47
+base: evaluated 40/47
+base: evaluated 41/47
+base: evaluated 42/47
+base: evaluated 43/47
+base: evaluated 44/47
+base: evaluated 45/47
+base: evaluated 46/47
+base: evaluated 47/47
+{
+  "mode": "direct-grid",
+  "base_model": "E:\\Qwen3.5-4B",
+  "adapter": null,
+  "evaluation_data": "E:\\Github\\AI_vtuber\\output\\minecraft-training\\v5r2-development47.jsonl",
+  "evaluation_contract": "E:\\Github\\AI_vtuber\\data\\minecraft-training\\contract-v3r1.json",
+  "raw_predictions": "E:\\Github\\AI_vtuber\\output\\minecraft-training\\v5r2-dev47-base.jsonl",
+  "n": 47,
+  "exact_action_object_accuracy": 0.1702127659574468,
+  "action_name_accuracy": 0.40425531914893614,
+  "strict_json_schema_valid_rate": 0.9574468085106383,
+  "threat_priority_accuracy": 1.0,
+  "progression_exact_accuracy": 0.125,
+  "threat_cases": 2,
+  "progression_cases": 40,
+  "final_holdout": false,
+  "limitation": "Development-set checkpoint selection only; agreement with authored labels does not demonstrate successful gameplay or broad generalization."
+}
+v4r1: evaluated 1/47
+v4r1: evaluated 2/47
+v4r1: evaluated 3/47
+v4r1: evaluated 4/47
+v4r1: evaluated 5/47
+v4r1: evaluated 6/47
+v4r1: evaluated 7/47
+v4r1: evaluated 8/47
+v4r1: evaluated 9/47
+v4r1: evaluated 10/47
+v4r1: evaluated 11/47
+v4r1: evaluated 12/47
+v4r1: evaluated 13/47
+v4r1: evaluated 14/47
+v4r1: evaluated 15/47
+v4r1: evaluated 16/47
+v4r1: evaluated 17/47
+v4r1: evaluated 18/47
+v4r1: evaluated 19/47
+v4r1: evaluated 20/47
+v4r1: evaluated 21/47
+v4r1: evaluated 22/47
+v4r1: evaluated 23/47
+v4r1: evaluated 24/47
+v4r1: evaluated 25/47
+v4r1: evaluated 26/47
+v4r1: evaluated 27/47
+v4r1: evaluated 28/47
+v4r1: evaluated 29/47
+v4r1: evaluated 30/47
+v4r1: evaluated 31/47
+v4r1: evaluated 32/47
+v4r1: evaluated 33/47
+v4r1: evaluated 34/47
+v4r1: evaluated 35/47
+v4r1: evaluated 36/47
+v4r1: evaluated 37/47
+v4r1: evaluated 38/47
+v4r1: evaluated 39/47
+v4r1: evaluated 40/47
+v4r1: evaluated 41/47
+v4r1: evaluated 42/47
+v4r1: evaluated 43/47
+v4r1: evaluated 44/47
+v4r1: evaluated 45/47
+v4r1: evaluated 46/47
+v4r1: evaluated 47/47
+{
+  "mode": "direct-grid",
+  "base_model": "E:\\Qwen3.5-4B",
+  "adapter": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01",
+  "evaluation_data": "E:\\Github\\AI_vtuber\\output\\minecraft-training\\v5r2-development47.jsonl",
+  "evaluation_contract": "E:\\Github\\AI_vtuber\\data\\minecraft-training\\contract-v3r1.json",
+  "raw_predictions": "E:\\Github\\AI_vtuber\\output\\minecraft-training\\v5r2-dev47-v4r1.jsonl",
+  "n": 47,
+  "exact_action_object_accuracy": 0.2765957446808511,
+  "action_name_accuracy": 0.5957446808510638,
+  "strict_json_schema_valid_rate": 1.0,
+  "threat_priority_accuracy": 1.0,
+  "progression_exact_accuracy": 0.175,
+  "threat_cases": 2,
+  "progression_cases": 40,
+  "final_holdout": false,
+  "limitation": "Development-set checkpoint selection only; agreement with authored labels does not demonstrate successful gameplay or broad generalization."
+}
+epoch-01: evaluated 1/47
+epoch-01: evaluated 2/47
+epoch-01: evaluated 3/47
+epoch-01: evaluated 4/47
+epoch-01: evaluated 5/47
+epoch-01: evaluated 6/47
+epoch-01: evaluated 7/47
+epoch-01: evaluated 8/47
+epoch-01: evaluated 9/47
+epoch-01: evaluated 10/47
+epoch-01: evaluated 11/47
+epoch-01: evaluated 12/47
+epoch-01: evaluated 13/47
+epoch-01: evaluated 14/47
+epoch-01: evaluated 15/47
+epoch-01: evaluated 16/47
+epoch-01: evaluated 17/47
+epoch-01: evaluated 18/47
+epoch-01: evaluated 19/47
+epoch-01: evaluated 20/47
+epoch-01: evaluated 21/47
+epoch-01: evaluated 22/47
+epoch-01: evaluated 23/47
+epoch-01: evaluated 24/47
+epoch-01: evaluated 25/47
+epoch-01: evaluated 26/47
+epoch-01: evaluated 27/47
+epoch-01: evaluated 28/47
+epoch-01: evaluated 29/47
+epoch-01: evaluated 30/47
+epoch-01: evaluated 31/47
+epoch-01: evaluated 32/47
+epoch-01: evaluated 33/47
+epoch-01: evaluated 34/47
+epoch-01: evaluated 35/47
+epoch-01: evaluated 36/47
+epoch-01: evaluated 37/47
+epoch-01: evaluated 38/47
+epoch-01: evaluated 39/47
+epoch-01: evaluated 40/47
+epoch-01: evaluated 41/47
+epoch-01: evaluated 42/47
+epoch-01: evaluated 43/47
+epoch-01: evaluated 44/47
+epoch-01: evaluated 45/47
+epoch-01: evaluated 46/47
+epoch-01: evaluated 47/47
+{
+  "mode": "direct-grid",
+  "base_model": "E:\\Qwen3.5-4B",
+  "adapter": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v5r2-dense-replay-candidate\\checkpoint-epoch-01",
+  "evaluation_data": "E:\\Github\\AI_vtuber\\output\\minecraft-training\\v5r2-development47.jsonl",
+  "evaluation_contract": "E:\\Github\\AI_vtuber\\data\\minecraft-training\\contract-v3r1.json",
+  "raw_predictions": "E:\\Github\\AI_vtuber\\output\\minecraft-training\\v5r2-dev47-epoch-01.jsonl",
+  "n": 47,
+  "exact_action_object_accuracy": 0.2978723404255319,
+  "action_name_accuracy": 0.5957446808510638,
+  "strict_json_schema_valid_rate": 1.0,
+  "threat_priority_accuracy": 1.0,
+  "progression_exact_accuracy": 0.2,
+  "threat_cases": 2,
+  "progression_cases": 40,
+  "final_holdout": false,
+  "limitation": "Development-set checkpoint selection only; agreement with authored labels does not demonstrate successful gameplay or broad generalization."
+}
+epoch-02: evaluated 1/47
+epoch-02: evaluated 2/47
+epoch-02: evaluated 3/47
+epoch-02: evaluated 4/47
+epoch-02: evaluated 5/47
+epoch-02: evaluated 6/47
+epoch-02: evaluated 7/47
+epoch-02: evaluated 8/47
+epoch-02: evaluated 9/47
+epoch-02: evaluated 10/47
+epoch-02: evaluated 11/47
+epoch-02: evaluated 12/47
+epoch-02: evaluated 13/47
+epoch-02: evaluated 14/47
+epoch-02: evaluated 15/47
+epoch-02: evaluated 16/47
+epoch-02: evaluated 17/47
+epoch-02: evaluated 18/47
+epoch-02: evaluated 19/47
+epoch-02: evaluated 20/47
+epoch-02: evaluated 21/47
+epoch-02: evaluated 22/47
+epoch-02: evaluated 23/47
+epoch-02: evaluated 24/47
+epoch-02: evaluated 25/47
+epoch-02: evaluated 26/47
+epoch-02: evaluated 27/47
+epoch-02: evaluated 28/47
+epoch-02: evaluated 29/47
+epoch-02: evaluated 30/47
+epoch-02: evaluated 31/47
+epoch-02: evaluated 32/47
+epoch-02: evaluated 33/47
+epoch-02: evaluated 34/47
+epoch-02: evaluated 35/47
+epoch-02: evaluated 36/47
+epoch-02: evaluated 37/47
+epoch-02: evaluated 38/47
+epoch-02: evaluated 39/47
+epoch-02: evaluated 40/47
+epoch-02: evaluated 41/47
+epoch-02: evaluated 42/47
+epoch-02: evaluated 43/47
+epoch-02: evaluated 44/47
+epoch-02: evaluated 45/47
+epoch-02: evaluated 46/47
+epoch-02: evaluated 47/47
+{
+  "mode": "direct-grid",
+  "base_model": "E:\\Qwen3.5-4B",
+  "adapter": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v5r2-dense-replay-candidate\\checkpoint-epoch-02",
+  "evaluation_data": "E:\\Github\\AI_vtuber\\output\\minecraft-training\\v5r2-development47.jsonl",
+  "evaluation_contract": "E:\\Github\\AI_vtuber\\data\\minecraft-training\\contract-v3r1.json",
+  "raw_predictions": "E:\\Github\\AI_vtuber\\output\\minecraft-training\\v5r2-dev47-epoch-02.jsonl",
+  "n": 47,
+  "exact_action_object_accuracy": 0.2978723404255319,
+  "action_name_accuracy": 0.6808510638297872,
+  "strict_json_schema_valid_rate": 1.0,
+  "threat_priority_accuracy": 1.0,
+  "progression_exact_accuracy": 0.225,
+  "threat_cases": 2,
+  "progression_cases": 40,
+  "final_holdout": false,
+  "limitation": "Development-set checkpoint selection only; agreement with authored labels does not demonstrate successful gameplay or broad generalization."
+}
+diagnostic probe=live-probe-1791830746219.json model=base schema_valid=True latency_ms=1500.0
+diagnostic probe=live-probe-1791830746219.json model=v4r1 schema_valid=True latency_ms=2144.4
+diagnostic probe=live-probe-1791830746219.json model=epoch-01 schema_valid=True latency_ms=2172.2
+diagnostic probe=live-probe-1791830746219.json model=epoch-02 schema_valid=True latency_ms=2141.8
+diagnostic probe=live-probe-1791833435547.json model=base schema_valid=True latency_ms=1386.7
+diagnostic probe=live-probe-1791833435547.json model=v4r1 schema_valid=True latency_ms=1706.1
+diagnostic probe=live-probe-1791833435547.json model=epoch-01 schema_valid=True latency_ms=1761.2
+diagnostic probe=live-probe-1791833435547.json model=epoch-02 schema_valid=True latency_ms=1664.2
+diagnostic probe=live-probe-1791836151666.json model=base schema_valid=True latency_ms=1417.8
+diagnostic probe=live-probe-1791836151666.json model=v4r1 schema_valid=True latency_ms=1833.2
+diagnostic probe=live-probe-1791836151666.json model=epoch-01 schema_valid=True latency_ms=1789.8
+diagnostic probe=live-probe-1791836151666.json model=epoch-02 schema_valid=True latency_ms=1761.8
+diagnostic probe=live-probe-1791838384663.json model=base schema_valid=True latency_ms=1332.0
+diagnostic probe=live-probe-1791838384663.json model=v4r1 schema_valid=True latency_ms=1195.3
+diagnostic probe=live-probe-1791838384663.json model=epoch-01 schema_valid=True latency_ms=1208.5
+diagnostic probe=live-probe-1791838384663.json model=epoch-02 schema_valid=True latency_ms=1665.6

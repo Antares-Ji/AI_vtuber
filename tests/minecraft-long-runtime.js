@@ -1,0 +1,48 @@
+'use strict';
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const os = require('node:os');
+const path = require('node:path');
+const { AutonomyLoop } = require('../src/minecraft/autonomy-loop');
+async function main() {
+  const requests = [];
+  let plannedGoal;
+  const observation = { connected: true, busy: false, health: 20, food: 20, sessionId: 'test', dimension: 'overworld', inventory: [{ name: 'crafting_table', count: 1 }] };
+  const loop = new AutonomyLoop({ logDir: fs.mkdtempSync(path.join(os.tmpdir(), 'mc-runtime-')), planner: async (_, options) => { plannedGoal = options.goal; return { action: 'explore', direction: 'north', distance: 8 }; }, request: async (route) => {
+    requests.push(route);
+    if (route === '/observe') return structuredClone(observation);
+    if (route.startsWith('/task')) return { status: 'completed', result: { verified: true } };
+    return {};
+  } });
+  loop.modelHealth = async () => {};
+  loop.state.enabled = true; loop.state.goal = '制作工作台'; loop.state.completionItem = 'crafting_table';
+  loop.state.history = [{ status: 'completed', action: { action: 'gather_wood' } }];
+  loop.controller = new AbortController();
+  loop.state.deadline = new Date(Date.now() + 30).toISOString(); loop.armDeadline();
+  const before = Date.now();
+  await loop.start({ durationMinutes: 720, continuous: true });
+  assert.ok(Date.parse(loop.state.deadline) >= before + 720 * 60000);
+  assert.equal(loop.state.history.length, 1);
+  await new Promise(resolve => setTimeout(resolve, 60));
+  assert.equal(loop.controller.signal.aborted, false, 'old deadline must not abort extended run');
+  await assert.rejects(loop.start({ durationMinutes: 721 }), /时长/);
+  await assert.rejects(loop.start({ goal: '覆盖目标', durationMinutes: 10 }), /已有目标/);
+  await loop.step(loop.state.goal, loop.controller.signal);
+  assert.equal(loop.state.enabled, true);
+  assert.equal(loop.state.goalCompleted, true);
+  assert.equal(JSON.parse(plannedGoal).verifiedMilestone, 'crafting_table');
+  assert.ok(requests.includes('/skill'), 'Qwen still chooses actions after milestone');
+  loop.state.deadline = new Date(Date.now() + 10).toISOString(); loop.armDeadline();
+  await new Promise(resolve => setTimeout(resolve, 30));
+  assert.equal(loop.controller.signal.aborted, true);
+  await loop.stop();
+  assert.ok(!requests.some(route => /disconnect|quit/.test(route)));
+  const expired = new AutonomyLoop({ logDir: loop.logDir, request: async route => { requests.push(route); return {}; } });
+  expired.state.deadline = new Date(Date.now() + 20).toISOString();
+  expired.step = async (_, signal) => { expired.activeTaskId = 'active-test'; await new Promise(resolve => signal.addEventListener('abort', resolve, { once: true })); };
+  await expired.start(); await expired.pending;
+  assert.ok(requests.includes('/cancel-task'));
+  assert.equal(expired.state.enabled, false);
+  console.log('PASS: 12h authorization, active extension, preserved goal/history, continuous milestone planning, deadline cancellation without disconnect.');
+}
+main().catch(error => { console.error(error); process.exitCode = 1; });

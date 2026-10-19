@@ -1,0 +1,1928 @@
+{
+  "rubric": "minecraft-live-v2-acceptance-1",
+  "from": "2026-10-12T20:49:48.913Z",
+  "to": "2026-10-12T20:52:56.072Z",
+  "cohorts": {
+    "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01": {
+      "decisions": 24,
+      "results": 23,
+      "failed": 5,
+      "corroborated": 18,
+      "progress": 18
+    }
+  },
+  "decisions": 24,
+  "results": 23,
+  "failures": 5,
+  "failureRate": 0.21739130434782608,
+  "repeatedUnchangedFailures": 1,
+  "repeatedFailureRateAmongAttempts": 0.043478260869565216,
+  "repeatedFailureEvidence": [
+    {
+      "previousTaskId": "746a9b02-cda5-49ce-a93d-0ac146d5ff72",
+      "taskId": "e53fdfc6-dfff-4b40-8aee-71f9d5b3a780",
+      "intent": {
+        "action": "mine",
+        "resource": "stone",
+        "count": 4
+      },
+      "error": "No inventory gain (0 blocks removed): search budget exhausted; reachability unconfirmed; search budget exhausted; reachability unconfirmed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01"
+    }
+  ],
+  "rejectedDecisions": [],
+  "actionEvidence": [
+    {
+      "taskId": "9fc0eca8-3029-494b-b41b-4d62db27897c",
+      "at": "2026-10-12T20:49:55.902Z",
+      "action": {
+        "action": "explore",
+        "direction": "south",
+        "distance": 24
+      },
+      "status": "completed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": true,
+      "inventorySource": "executor-local",
+      "inventoryDelta": {},
+      "corroborated": true,
+      "progress": true,
+      "reason": "action-specific-evidence-present"
+    },
+    {
+      "taskId": "bb02d41a-aa78-48a9-90b2-a54ee98c2553",
+      "at": "2026-10-12T20:50:03.627Z",
+      "action": {
+        "action": "explore",
+        "direction": "north",
+        "distance": 20
+      },
+      "status": "completed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": true,
+      "inventorySource": "executor-local",
+      "inventoryDelta": {},
+      "corroborated": true,
+      "progress": true,
+      "reason": "action-specific-evidence-present"
+    },
+    {
+      "taskId": "8a399578-67d4-4221-8583-213d6f43e211",
+      "at": "2026-10-12T20:50:10.872Z",
+      "action": {
+        "action": "explore",
+        "direction": "northwest",
+        "distance": 20
+      },
+      "status": "completed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": true,
+      "inventorySource": "executor-local",
+      "inventoryDelta": {},
+      "corroborated": true,
+      "progress": true,
+      "reason": "action-specific-evidence-present"
+    },
+    {
+      "taskId": "1d8a8496-c5a3-4fa7-b3a5-50beea75f266",
+      "at": "2026-10-12T20:50:19.727Z",
+      "action": {
+        "action": "explore",
+        "direction": "east",
+        "distance": 24
+      },
+      "status": "completed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": true,
+      "inventorySource": "executor-local",
+      "inventoryDelta": {},
+      "corroborated": true,
+      "progress": true,
+      "reason": "action-specific-evidence-present"
+    },
+    {
+      "taskId": "6b4eb194-d384-4007-8ddf-e6c8470e8be1",
+      "at": "2026-10-12T20:50:23.868Z",
+      "action": {
+        "action": "gather_wood",
+        "count": 4
+      },
+      "status": "failed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": false,
+      "inventorySource": "outer-observation-may-include-inference-time",
+      "inventoryDelta": {},
+      "corroborated": false,
+      "progress": false,
+      "reason": "not-completed-and-verified"
+    },
+    {
+      "taskId": "5258f937-77c6-47dc-b1f2-6f4084f108cb",
+      "at": "2026-10-12T20:50:33.513Z",
+      "action": {
+        "action": "explore",
+        "direction": "south",
+        "distance": 16
+      },
+      "status": "completed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": true,
+      "inventorySource": "executor-local",
+      "inventoryDelta": {},
+      "corroborated": true,
+      "progress": true,
+      "reason": "action-specific-evidence-present"
+    },
+    {
+      "taskId": "03917d03-f13f-431e-b758-63255c66b3f4",
+      "at": "2026-10-12T20:50:41.063Z",
+      "action": {
+        "action": "explore",
+        "direction": "west",
+        "distance": 20
+      },
+      "status": "completed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": true,
+      "inventorySource": "executor-local",
+      "inventoryDelta": {},
+      "corroborated": true,
+      "progress": true,
+      "reason": "action-specific-evidence-present"
+    },
+    {
+      "taskId": "8d8d165e-65ab-4a4e-b6d6-f9b5f5fc6341",
+      "at": "2026-10-12T20:50:49.157Z",
+      "action": {
+        "action": "explore",
+        "direction": "southwest",
+        "distance": 20
+      },
+      "status": "completed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": true,
+      "inventorySource": "executor-local",
+      "inventoryDelta": {},
+      "corroborated": true,
+      "progress": true,
+      "reason": "action-specific-evidence-present"
+    },
+    {
+      "taskId": "1da9973e-9bfd-41ed-a14e-93ac4ab4e437",
+      "at": "2026-10-12T20:50:56.428Z",
+      "action": {
+        "action": "explore",
+        "direction": "north",
+        "distance": 16
+      },
+      "status": "completed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": true,
+      "inventorySource": "executor-local",
+      "inventoryDelta": {},
+      "corroborated": true,
+      "progress": true,
+      "reason": "action-specific-evidence-present"
+    },
+    {
+      "taskId": "3c41c561-569c-404c-a4cb-d938caae38d3",
+      "at": "2026-10-12T20:51:03.544Z",
+      "action": {
+        "action": "explore",
+        "direction": "northwest",
+        "distance": 20
+      },
+      "status": "completed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": true,
+      "inventorySource": "executor-local",
+      "inventoryDelta": {},
+      "corroborated": true,
+      "progress": true,
+      "reason": "action-specific-evidence-present"
+    },
+    {
+      "taskId": "0128a152-e010-435c-bb2b-f513ee6ae0bb",
+      "at": "2026-10-12T20:51:13.449Z",
+      "action": {
+        "action": "explore",
+        "direction": "south",
+        "distance": 24
+      },
+      "status": "completed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": true,
+      "inventorySource": "executor-local",
+      "inventoryDelta": {},
+      "corroborated": true,
+      "progress": true,
+      "reason": "action-specific-evidence-present"
+    },
+    {
+      "taskId": "f065275c-2cac-48cb-962c-e9480c31a234",
+      "at": "2026-10-12T20:51:17.584Z",
+      "action": {
+        "action": "gather_wood",
+        "count": 4
+      },
+      "status": "failed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": false,
+      "inventorySource": "outer-observation-may-include-inference-time",
+      "inventoryDelta": {},
+      "corroborated": false,
+      "progress": false,
+      "reason": "not-completed-and-verified"
+    },
+    {
+      "taskId": "5ba36025-1ad0-441f-99eb-005e7be51b07",
+      "at": "2026-10-12T20:51:30.813Z",
+      "action": {
+        "action": "explore",
+        "direction": "east",
+        "distance": 20
+      },
+      "status": "completed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": true,
+      "inventorySource": "executor-local",
+      "inventoryDelta": {},
+      "corroborated": true,
+      "progress": true,
+      "reason": "action-specific-evidence-present"
+    },
+    {
+      "taskId": "afd412c9-a8df-431a-9124-5ce6a1432c09",
+      "at": "2026-10-12T20:51:38.806Z",
+      "action": {
+        "action": "explore",
+        "direction": "east",
+        "distance": 20
+      },
+      "status": "completed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": true,
+      "inventorySource": "executor-local",
+      "inventoryDelta": {},
+      "corroborated": true,
+      "progress": true,
+      "reason": "action-specific-evidence-present"
+    },
+    {
+      "taskId": "fba083ac-892d-476a-8f5e-18bfb709b4e9",
+      "at": "2026-10-12T20:51:46.587Z",
+      "action": {
+        "action": "explore",
+        "direction": "southwest",
+        "distance": 20
+      },
+      "status": "completed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": true,
+      "inventorySource": "executor-local",
+      "inventoryDelta": {},
+      "corroborated": true,
+      "progress": true,
+      "reason": "action-specific-evidence-present"
+    },
+    {
+      "taskId": "80e53c7e-2abe-42b8-8ca8-104e0e78a0ab",
+      "at": "2026-10-12T20:51:53.521Z",
+      "action": {
+        "action": "explore",
+        "direction": "north",
+        "distance": 15
+      },
+      "status": "completed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": true,
+      "inventorySource": "executor-local",
+      "inventoryDelta": {},
+      "corroborated": true,
+      "progress": true,
+      "reason": "action-specific-evidence-present"
+    },
+    {
+      "taskId": "1fd02d10-ee7e-4361-be60-dd6b9074dde0",
+      "at": "2026-10-12T20:52:00.147Z",
+      "action": {
+        "action": "explore",
+        "direction": "northwest",
+        "distance": 16
+      },
+      "status": "completed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": true,
+      "inventorySource": "executor-local",
+      "inventoryDelta": {},
+      "corroborated": true,
+      "progress": true,
+      "reason": "action-specific-evidence-present"
+    },
+    {
+      "taskId": "25ce7282-af09-4c93-b762-1c3c3d3b3778",
+      "at": "2026-10-12T20:52:08.808Z",
+      "action": {
+        "action": "explore",
+        "direction": "south",
+        "distance": 20
+      },
+      "status": "completed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": true,
+      "inventorySource": "executor-local",
+      "inventoryDelta": {},
+      "corroborated": true,
+      "progress": true,
+      "reason": "action-specific-evidence-present"
+    },
+    {
+      "taskId": "3cdaa20f-c532-42ad-bc4e-e175c5b37b1f",
+      "at": "2026-10-12T20:52:13.405Z",
+      "action": {
+        "action": "mine",
+        "resource": "stone",
+        "count": 4
+      },
+      "status": "failed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": false,
+      "inventorySource": "outer-observation-may-include-inference-time",
+      "inventoryDelta": {},
+      "corroborated": false,
+      "progress": false,
+      "reason": "not-completed-and-verified"
+    },
+    {
+      "taskId": "5ae34d59-a284-43e2-b43b-e30c78e45ef7",
+      "at": "2026-10-12T20:52:23.142Z",
+      "action": {
+        "action": "explore",
+        "direction": "southwest",
+        "distance": 12
+      },
+      "status": "completed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": true,
+      "inventorySource": "executor-local",
+      "inventoryDelta": {},
+      "corroborated": true,
+      "progress": true,
+      "reason": "action-specific-evidence-present"
+    },
+    {
+      "taskId": "746a9b02-cda5-49ce-a93d-0ac146d5ff72",
+      "at": "2026-10-12T20:52:27.542Z",
+      "action": {
+        "action": "mine",
+        "resource": "stone",
+        "count": 4
+      },
+      "status": "failed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": false,
+      "inventorySource": "outer-observation-may-include-inference-time",
+      "inventoryDelta": {},
+      "corroborated": false,
+      "progress": false,
+      "reason": "not-completed-and-verified"
+    },
+    {
+      "taskId": "e53fdfc6-dfff-4b40-8aee-71f9d5b3a780",
+      "at": "2026-10-12T20:52:35.488Z",
+      "action": {
+        "action": "mine",
+        "resource": "stone",
+        "count": 4
+      },
+      "status": "failed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": false,
+      "inventorySource": "outer-observation-may-include-inference-time",
+      "inventoryDelta": {},
+      "corroborated": false,
+      "progress": false,
+      "reason": "not-completed-and-verified"
+    },
+    {
+      "taskId": "4878065b-1efb-497f-892b-40f51d213023",
+      "at": "2026-10-12T20:52:47.334Z",
+      "action": {
+        "action": "explore",
+        "direction": "north",
+        "distance": 20
+      },
+      "status": "completed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": true,
+      "inventorySource": "executor-local",
+      "inventoryDelta": {},
+      "corroborated": true,
+      "progress": true,
+      "reason": "action-specific-evidence-present"
+    }
+  ],
+  "safety": {
+    "deaths": 0,
+    "deathEvents": [],
+    "minimumLoggedHealth": null,
+    "healthTrace": [],
+    "escapeRoutesIssued": 0,
+    "blockedEvents": 0,
+    "threatClearedEvents": 0,
+    "timingLogSamples": 18,
+    "sampledTickMaxMs": 0.2,
+    "sampledGapMaxMs": 332.9,
+    "observedCumulativeTickMaxMs": 0.7,
+    "observedCumulativeGapMaxMs": 479.9,
+    "observedCumulativeFallbackOverruns": 0,
+    "escapeAcceptance": "not-exercised",
+    "actionBoundaryHealth": [
+      20,
+      20,
+      20,
+      20,
+      20,
+      20,
+      20,
+      20,
+      20,
+      20,
+      20,
+      20,
+      20,
+      20,
+      20,
+      20,
+      20,
+      20,
+      20,
+      20,
+      20,
+      20,
+      20,
+      20,
+      20,
+      20,
+      20,
+      20,
+      20,
+      20,
+      20,
+      20,
+      20,
+      20,
+      20,
+      20,
+      20,
+      20,
+      20,
+      20,
+      20,
+      20,
+      20,
+      20,
+      20,
+      20
+    ],
+    "minimumActionBoundaryHealth": 20,
+    "runtimeReloadsInsideWindow": []
+  },
+  "limits": [
+    "Offline logs corroborate executor observations; they are not an independent game sensor.",
+    "Completed partial gains count as progress but not full requested quantity.",
+    "Death and timing counts cover only supplied logs and timestamps; sparse timing logs do not support per-tick percentiles.",
+    "Cumulative timing maxima may predate this window until reactive reload; report them separately from sampled window values.",
+    "Different prompts, compact observations, executors or world states confound model-weight comparisons. Only frozen identical-input base/adapter evaluation isolates a weight contrast.",
+    "No danger encountered means escape behavior remains untested. Issuing a route alone does not establish escape success.",
+    "Unknown completion metadata never proves adapter use.",
+    "The generic actionEvidence section uses autonomy result events only; fullCompletionAudit adds schema rejections and exact session cancellation sidecars without rewriting original logs.",
+    "Exploration displacement confirms movement, not resource discovery or long-term goal advancement.",
+    "No same-world controlled weight comparison: world states, runtime fixes and retained/reset history differ between windows."
+  ],
+  "generatedAt": "2026-10-12T21:00:27.652Z",
+  "sources": {
+    "sourceHashes": {
+      "logs/minecraft-autonomy.jsonl": "c33d466f1eabf14f5629e554ce79e64749664333c41b91814be8d0af629ff3ba",
+      "logs/minecraft-session-1791830191222.jsonl": "ab42b472515410d9d2c6e20de6e840206d04d9ec4d719119ff332dd5661f9ee8"
+    },
+    "startArtifact": "output/minecraft-training/v4r1-live-trial-start.json",
+    "endArtifact": "output/minecraft-training/v4r1-live-trial-end.json",
+    "startArtifactSha256": "15a14b1cb5c991bd2cc88ce2039898c672a3253420dbe33d40de4f34fc72a8f1",
+    "endArtifactSha256": "dbc3eff44ff64a4afd9ed4a514a25290ad0f81bff4954d67b273e1bbbc5cbca2"
+  },
+  "deployedSourceHashes": {
+    "src/minecraft/autonomy-loop.js": "4c171df6c3ee8d3b5c495f5a8bd7f6aaa522bca6eb14c1663f8620af852dd90c",
+    "src/minecraft/survival-planner.js": "279563bb965f8b908aeb2d8896744ccd6cb3fa123b0912c8828a8fce0a0ff9fb",
+    "src/minecraft/reactive-agent.js": "fac165a0a79d9d69f81c8b6aef0bc553d8bd8060dae04b571f877ab421bb73ae",
+    "src/minecraft/survival-skills.js": "9a4bf388f84cbf480f2cd754c585c4fe65265fb45b63dde33194f97a6792716a",
+    "src/minecraft/inventory-craft.js": "76a9e14a4f7f16bd69d50a3f58bd60dbe9a25e489b6c97839248081a33f6647b",
+    "src/minecraft/inventory-diagnostics.js": "14baee14ea203bbb27d47823696087054af42d9f0e4a2b89c56b6ffa2f7b3a0a"
+  },
+  "fullCompletionAudit": {
+    "completionCount": 24,
+    "acceptedDecisions": 24,
+    "schemaRejected": 0,
+    "actualUsedAdapterTrue": 24,
+    "adapterPaths": [
+      "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01"
+    ],
+    "statusCounts": {
+      "completed": 18,
+      "failed": 5,
+      "cancelled": 1
+    },
+    "rows": [
+      {
+        "requestId": "8c45708c-a840-40fd-8dd9-aab1f64e9b13",
+        "at": "2026-10-12T20:49:50.842Z",
+        "step": 1,
+        "raw": "{\"action\":\"explore\",\"direction\":\"south\",\"distance\":24}",
+        "metadata": {
+          "task": "minecraft-survival",
+          "used_adapter": true,
+          "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01"
+        },
+        "action": {
+          "action": "explore",
+          "direction": "south",
+          "distance": 24
+        },
+        "status": "completed",
+        "error": null,
+        "taskId": "9fc0eca8-3029-494b-b41b-4d62db27897c",
+        "resultAt": "2026-10-12T20:49:55.902Z",
+        "inventoryBefore": [],
+        "inventoryAfter": [],
+        "planningState": {
+          "health": 20,
+          "food": 20,
+          "position": {
+            "x": 24.5,
+            "y": 65,
+            "z": -0.5
+          },
+          "inventory": []
+        },
+        "result": {
+          "action": {
+            "action": "explore",
+            "direction": "south",
+            "distance": 24
+          },
+          "verified": true,
+          "moved": 21,
+          "from": {
+            "x": 24.5,
+            "y": 65,
+            "z": -0.5
+          },
+          "to": {
+            "x": 24.5,
+            "y": 68,
+            "z": 20.4
+          },
+          "remainingThreats": [],
+          "inventoryBefore": [],
+          "inventoryAfter": [],
+          "position": {
+            "x": 24.5,
+            "y": 68,
+            "z": 20.4
+          }
+        }
+      },
+      {
+        "requestId": "85304cca-ad7b-427e-9a4a-7e637d4b48a3",
+        "at": "2026-10-12T20:49:59.473Z",
+        "step": 2,
+        "raw": "{\"action\":\"explore\",\"direction\":\"north\",\"distance\":20}",
+        "metadata": {
+          "task": "minecraft-survival",
+          "used_adapter": true,
+          "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01"
+        },
+        "action": {
+          "action": "explore",
+          "direction": "north",
+          "distance": 20
+        },
+        "status": "completed",
+        "error": null,
+        "taskId": "bb02d41a-aa78-48a9-90b2-a54ee98c2553",
+        "resultAt": "2026-10-12T20:50:03.627Z",
+        "inventoryBefore": [],
+        "inventoryAfter": [],
+        "planningState": {
+          "health": 20,
+          "food": 20,
+          "position": {
+            "x": 24.5,
+            "y": 68,
+            "z": 20.4
+          },
+          "inventory": []
+        },
+        "result": {
+          "action": {
+            "action": "explore",
+            "direction": "north",
+            "distance": 20
+          },
+          "verified": true,
+          "moved": 17,
+          "from": {
+            "x": 24.5,
+            "y": 68,
+            "z": 20.4
+          },
+          "to": {
+            "x": 24.5,
+            "y": 66,
+            "z": 3.5
+          },
+          "remainingThreats": [],
+          "inventoryBefore": [],
+          "inventoryAfter": [],
+          "position": {
+            "x": 24.5,
+            "y": 66,
+            "z": 3.5
+          }
+        }
+      },
+      {
+        "requestId": "ff4f78e6-7bdd-4ea8-b82f-c072687bba74",
+        "at": "2026-10-12T20:50:07.009Z",
+        "step": 3,
+        "raw": "{\"action\":\"explore\",\"direction\":\"northwest\",\"distance\":20}",
+        "metadata": {
+          "task": "minecraft-survival",
+          "used_adapter": true,
+          "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01"
+        },
+        "action": {
+          "action": "explore",
+          "direction": "northwest",
+          "distance": 20
+        },
+        "status": "completed",
+        "error": null,
+        "taskId": "8a399578-67d4-4221-8583-213d6f43e211",
+        "resultAt": "2026-10-12T20:50:10.872Z",
+        "inventoryBefore": [],
+        "inventoryAfter": [],
+        "planningState": {
+          "health": 20,
+          "food": 20,
+          "position": {
+            "x": 24.5,
+            "y": 66,
+            "z": 3.5
+          },
+          "inventory": []
+        },
+        "result": {
+          "action": {
+            "action": "explore",
+            "direction": "northwest",
+            "distance": 20
+          },
+          "verified": true,
+          "moved": 17,
+          "from": {
+            "x": 24.5,
+            "y": 66,
+            "z": 3.5
+          },
+          "to": {
+            "x": 12.5,
+            "y": 65,
+            "z": -8.5
+          },
+          "remainingThreats": [],
+          "inventoryBefore": [],
+          "inventoryAfter": [],
+          "position": {
+            "x": 12.5,
+            "y": 65,
+            "z": -8.5
+          }
+        }
+      },
+      {
+        "requestId": "6e912f97-d786-484c-8200-ae746ad038c6",
+        "at": "2026-10-12T20:50:14.332Z",
+        "step": 4,
+        "raw": "{\"action\":\"explore\",\"direction\":\"east\",\"distance\":24}",
+        "metadata": {
+          "task": "minecraft-survival",
+          "used_adapter": true,
+          "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01"
+        },
+        "action": {
+          "action": "explore",
+          "direction": "east",
+          "distance": 24
+        },
+        "status": "completed",
+        "error": null,
+        "taskId": "1d8a8496-c5a3-4fa7-b3a5-50beea75f266",
+        "resultAt": "2026-10-12T20:50:19.727Z",
+        "inventoryBefore": [],
+        "inventoryAfter": [],
+        "planningState": {
+          "health": 20,
+          "food": 20,
+          "position": {
+            "x": 12.5,
+            "y": 65,
+            "z": -8.5
+          },
+          "inventory": []
+        },
+        "result": {
+          "action": {
+            "action": "explore",
+            "direction": "east",
+            "distance": 24
+          },
+          "verified": true,
+          "moved": 22,
+          "from": {
+            "x": 12.5,
+            "y": 65,
+            "z": -8.5
+          },
+          "to": {
+            "x": 34.3,
+            "y": 67,
+            "z": -6.5
+          },
+          "remainingThreats": [],
+          "inventoryBefore": [],
+          "inventoryAfter": [],
+          "position": {
+            "x": 34.3,
+            "y": 67,
+            "z": -6.5
+          }
+        }
+      },
+      {
+        "requestId": "5f94de90-84c8-4017-922a-7f2493a533a5",
+        "at": "2026-10-12T20:50:23.196Z",
+        "step": 5,
+        "raw": "{\"action\":\"gather_wood\",\"count\":4}",
+        "metadata": {
+          "task": "minecraft-survival",
+          "used_adapter": true,
+          "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01"
+        },
+        "action": {
+          "action": "gather_wood",
+          "count": 4
+        },
+        "status": "failed",
+        "error": "No inventory gain (0 blocks removed): target above safe height; towers forbidden; search budget/timeout; reachability unconfirmed",
+        "taskId": "6b4eb194-d384-4007-8ddf-e6c8470e8be1",
+        "resultAt": "2026-10-12T20:50:23.868Z",
+        "inventoryBefore": [],
+        "inventoryAfter": [],
+        "planningState": {
+          "health": 20,
+          "food": 20,
+          "position": {
+            "x": 34.3,
+            "y": 67,
+            "z": -6.5
+          },
+          "inventory": []
+        },
+        "result": null
+      },
+      {
+        "requestId": "5ee25cb7-ce2d-4407-b77b-4e0213c5ec5c",
+        "at": "2026-10-12T20:50:30.711Z",
+        "step": 6,
+        "raw": "{\"action\":\"explore\",\"direction\":\"south\",\"distance\":16}",
+        "metadata": {
+          "task": "minecraft-survival",
+          "used_adapter": true,
+          "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01"
+        },
+        "action": {
+          "action": "explore",
+          "direction": "south",
+          "distance": 16
+        },
+        "status": "completed",
+        "error": null,
+        "taskId": "5258f937-77c6-47dc-b1f2-6f4084f108cb",
+        "resultAt": "2026-10-12T20:50:33.513Z",
+        "inventoryBefore": [],
+        "inventoryAfter": [],
+        "planningState": {
+          "health": 20,
+          "food": 20,
+          "position": {
+            "x": 34.3,
+            "y": 67,
+            "z": -6.5
+          },
+          "inventory": []
+        },
+        "result": {
+          "action": {
+            "action": "explore",
+            "direction": "south",
+            "distance": 16
+          },
+          "verified": true,
+          "moved": 13,
+          "from": {
+            "x": 34.3,
+            "y": 67,
+            "z": -6.5
+          },
+          "to": {
+            "x": 34.5,
+            "y": 67,
+            "z": 6.3
+          },
+          "remainingThreats": [],
+          "inventoryBefore": [],
+          "inventoryAfter": [],
+          "position": {
+            "x": 34.5,
+            "y": 67,
+            "z": 6.3
+          }
+        }
+      },
+      {
+        "requestId": "96983016-f50d-4a04-ac3e-43059f0b0e53",
+        "at": "2026-10-12T20:50:36.948Z",
+        "step": 7,
+        "raw": "{\"action\":\"explore\",\"direction\":\"west\",\"distance\":20}",
+        "metadata": {
+          "task": "minecraft-survival",
+          "used_adapter": true,
+          "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01"
+        },
+        "action": {
+          "action": "explore",
+          "direction": "west",
+          "distance": 20
+        },
+        "status": "completed",
+        "error": null,
+        "taskId": "03917d03-f13f-431e-b758-63255c66b3f4",
+        "resultAt": "2026-10-12T20:50:41.063Z",
+        "inventoryBefore": [],
+        "inventoryAfter": [],
+        "planningState": {
+          "health": 20,
+          "food": 20,
+          "position": {
+            "x": 34.5,
+            "y": 67,
+            "z": 6.3
+          },
+          "inventory": []
+        },
+        "result": {
+          "action": {
+            "action": "explore",
+            "direction": "west",
+            "distance": 20
+          },
+          "verified": true,
+          "moved": 17,
+          "from": {
+            "x": 34.5,
+            "y": 67,
+            "z": 6.3
+          },
+          "to": {
+            "x": 17.5,
+            "y": 66,
+            "z": 6.5
+          },
+          "remainingThreats": [],
+          "inventoryBefore": [],
+          "inventoryAfter": [],
+          "position": {
+            "x": 17.5,
+            "y": 66,
+            "z": 6.5
+          }
+        }
+      },
+      {
+        "requestId": "7d6857ac-24ef-44a1-91b7-269b20a19e4f",
+        "at": "2026-10-12T20:50:44.630Z",
+        "step": 8,
+        "raw": "{\"action\":\"explore\",\"direction\":\"southwest\",\"distance\":20}",
+        "metadata": {
+          "task": "minecraft-survival",
+          "used_adapter": true,
+          "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01"
+        },
+        "action": {
+          "action": "explore",
+          "direction": "southwest",
+          "distance": 20
+        },
+        "status": "completed",
+        "error": null,
+        "taskId": "8d8d165e-65ab-4a4e-b6d6-f9b5f5fc6341",
+        "resultAt": "2026-10-12T20:50:49.157Z",
+        "inventoryBefore": [],
+        "inventoryAfter": [],
+        "planningState": {
+          "health": 20,
+          "food": 20,
+          "position": {
+            "x": 17.5,
+            "y": 66,
+            "z": 6.5
+          },
+          "inventory": []
+        },
+        "result": {
+          "action": {
+            "action": "explore",
+            "direction": "southwest",
+            "distance": 20
+          },
+          "verified": true,
+          "moved": 18,
+          "from": {
+            "x": 17.5,
+            "y": 66,
+            "z": 6.5
+          },
+          "to": {
+            "x": 6.5,
+            "y": 68,
+            "z": 20.4
+          },
+          "remainingThreats": [],
+          "inventoryBefore": [],
+          "inventoryAfter": [],
+          "position": {
+            "x": 6.5,
+            "y": 68,
+            "z": 20.4
+          }
+        }
+      },
+      {
+        "requestId": "e819c21c-44e3-4bc1-8fbe-102c21f07664",
+        "at": "2026-10-12T20:50:52.795Z",
+        "step": 9,
+        "raw": "{\"action\":\"explore\",\"direction\":\"north\",\"distance\":16}",
+        "metadata": {
+          "task": "minecraft-survival",
+          "used_adapter": true,
+          "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01"
+        },
+        "action": {
+          "action": "explore",
+          "direction": "north",
+          "distance": 16
+        },
+        "status": "completed",
+        "error": null,
+        "taskId": "1da9973e-9bfd-41ed-a14e-93ac4ab4e437",
+        "resultAt": "2026-10-12T20:50:56.428Z",
+        "inventoryBefore": [],
+        "inventoryAfter": [],
+        "planningState": {
+          "health": 20,
+          "food": 20,
+          "position": {
+            "x": 6.5,
+            "y": 68,
+            "z": 20.4
+          },
+          "inventory": []
+        },
+        "result": {
+          "action": {
+            "action": "explore",
+            "direction": "north",
+            "distance": 16
+          },
+          "verified": true,
+          "moved": 14,
+          "from": {
+            "x": 6.5,
+            "y": 68,
+            "z": 20.4
+          },
+          "to": {
+            "x": 8.5,
+            "y": 65,
+            "z": 6.5
+          },
+          "remainingThreats": [],
+          "inventoryBefore": [],
+          "inventoryAfter": [],
+          "position": {
+            "x": 8.5,
+            "y": 65,
+            "z": 6.5
+          }
+        }
+      },
+      {
+        "requestId": "3c1eb7d5-e0b8-4b39-a57a-3036d521386e",
+        "at": "2026-10-12T20:51:00.049Z",
+        "step": 10,
+        "raw": "{\"action\":\"explore\",\"direction\":\"northwest\",\"distance\":20}",
+        "metadata": {
+          "task": "minecraft-survival",
+          "used_adapter": true,
+          "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01"
+        },
+        "action": {
+          "action": "explore",
+          "direction": "northwest",
+          "distance": 20
+        },
+        "status": "completed",
+        "error": null,
+        "taskId": "3c41c561-569c-404c-a4cb-d938caae38d3",
+        "resultAt": "2026-10-12T20:51:03.544Z",
+        "inventoryBefore": [],
+        "inventoryAfter": [],
+        "planningState": {
+          "health": 20,
+          "food": 20,
+          "position": {
+            "x": 8.5,
+            "y": 65,
+            "z": 6.5
+          },
+          "inventory": []
+        },
+        "result": {
+          "action": {
+            "action": "explore",
+            "direction": "northwest",
+            "distance": 20
+          },
+          "verified": true,
+          "moved": 17,
+          "from": {
+            "x": 8.5,
+            "y": 65,
+            "z": 6.5
+          },
+          "to": {
+            "x": -3.5,
+            "y": 63,
+            "z": -5.5
+          },
+          "remainingThreats": [],
+          "inventoryBefore": [],
+          "inventoryAfter": [],
+          "position": {
+            "x": -3.5,
+            "y": 63,
+            "z": -5.5
+          }
+        }
+      },
+      {
+        "requestId": "88a22c10-a416-4d98-9f40-f279beb6d857",
+        "at": "2026-10-12T20:51:06.865Z",
+        "step": 11,
+        "raw": "{\"action\":\"explore\",\"direction\":\"south\",\"distance\":24}",
+        "metadata": {
+          "task": "minecraft-survival",
+          "used_adapter": true,
+          "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01"
+        },
+        "action": {
+          "action": "explore",
+          "direction": "south",
+          "distance": 24
+        },
+        "status": "completed",
+        "error": null,
+        "taskId": "0128a152-e010-435c-bb2b-f513ee6ae0bb",
+        "resultAt": "2026-10-12T20:51:13.449Z",
+        "inventoryBefore": [],
+        "inventoryAfter": [],
+        "planningState": {
+          "health": 20,
+          "food": 20,
+          "position": {
+            "x": -3.5,
+            "y": 63,
+            "z": -5.5
+          },
+          "inventory": []
+        },
+        "result": {
+          "action": {
+            "action": "explore",
+            "direction": "south",
+            "distance": 24
+          },
+          "verified": true,
+          "moved": 22,
+          "from": {
+            "x": -3.5,
+            "y": 63,
+            "z": -5.5
+          },
+          "to": {
+            "x": -3.5,
+            "y": 70,
+            "z": 15.3
+          },
+          "remainingThreats": [],
+          "inventoryBefore": [],
+          "inventoryAfter": [],
+          "position": {
+            "x": -3.5,
+            "y": 70,
+            "z": 15.3
+          }
+        }
+      },
+      {
+        "requestId": "1fb0b684-0c55-4e04-a49b-ef7c6524dfa1",
+        "at": "2026-10-12T20:51:16.937Z",
+        "step": 12,
+        "raw": "{\"action\":\"gather_wood\",\"count\":4}",
+        "metadata": {
+          "task": "minecraft-survival",
+          "used_adapter": true,
+          "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01"
+        },
+        "action": {
+          "action": "gather_wood",
+          "count": 4
+        },
+        "status": "failed",
+        "error": "No inventory gain (0 blocks removed): no exposed reachable resource; explore elsewhere",
+        "taskId": "f065275c-2cac-48cb-962c-e9480c31a234",
+        "resultAt": "2026-10-12T20:51:17.584Z",
+        "inventoryBefore": [],
+        "inventoryAfter": [],
+        "planningState": {
+          "health": 20,
+          "food": 20,
+          "position": {
+            "x": -3.5,
+            "y": 70,
+            "z": 15.3
+          },
+          "inventory": []
+        },
+        "result": null
+      },
+      {
+        "requestId": "61367d2b-359e-45a8-961f-2d4118d2e0fa",
+        "at": "2026-10-12T20:51:24.650Z",
+        "step": 13,
+        "raw": "{\"action\":\"explore\",\"direction\":\"east\",\"distance\":20}",
+        "metadata": {
+          "task": "minecraft-survival",
+          "used_adapter": true,
+          "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01"
+        },
+        "action": {
+          "action": "explore",
+          "direction": "east",
+          "distance": 20
+        },
+        "status": "completed",
+        "error": null,
+        "taskId": "5ba36025-1ad0-441f-99eb-005e7be51b07",
+        "resultAt": "2026-10-12T20:51:30.813Z",
+        "inventoryBefore": [],
+        "inventoryAfter": [],
+        "planningState": {
+          "health": 20,
+          "food": 20,
+          "position": {
+            "x": -3.5,
+            "y": 70,
+            "z": 15.3
+          },
+          "inventory": []
+        },
+        "result": {
+          "action": {
+            "action": "explore",
+            "direction": "east",
+            "distance": 20
+          },
+          "verified": true,
+          "moved": 19,
+          "from": {
+            "x": -3.5,
+            "y": 70,
+            "z": 15.3
+          },
+          "to": {
+            "x": 14.6,
+            "y": 66,
+            "z": 17.6
+          },
+          "remainingThreats": [],
+          "inventoryBefore": [],
+          "inventoryAfter": [],
+          "position": {
+            "x": 14.6,
+            "y": 66,
+            "z": 17.6
+          }
+        }
+      },
+      {
+        "requestId": "d091f39d-93f1-4a34-bb8d-823c5a59f857",
+        "at": "2026-10-12T20:51:34.570Z",
+        "step": 14,
+        "raw": "{\"action\":\"explore\",\"direction\":\"east\",\"distance\":20}",
+        "metadata": {
+          "task": "minecraft-survival",
+          "used_adapter": true,
+          "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01"
+        },
+        "action": {
+          "action": "explore",
+          "direction": "east",
+          "distance": 20
+        },
+        "status": "completed",
+        "error": null,
+        "taskId": "afd412c9-a8df-431a-9124-5ce6a1432c09",
+        "resultAt": "2026-10-12T20:51:38.806Z",
+        "inventoryBefore": [],
+        "inventoryAfter": [],
+        "planningState": {
+          "health": 20,
+          "food": 20,
+          "position": {
+            "x": 14.6,
+            "y": 66,
+            "z": 17.6
+          },
+          "inventory": []
+        },
+        "result": {
+          "action": {
+            "action": "explore",
+            "direction": "east",
+            "distance": 20
+          },
+          "verified": true,
+          "moved": 17,
+          "from": {
+            "x": 14.6,
+            "y": 66,
+            "z": 17.6
+          },
+          "to": {
+            "x": 31.5,
+            "y": 69,
+            "z": 17.5
+          },
+          "remainingThreats": [],
+          "inventoryBefore": [],
+          "inventoryAfter": [],
+          "position": {
+            "x": 31.5,
+            "y": 69,
+            "z": 17.5
+          }
+        }
+      },
+      {
+        "requestId": "56c6c719-e0d6-4521-92ed-3cec2113d964",
+        "at": "2026-10-12T20:51:42.449Z",
+        "step": 15,
+        "raw": "{\"action\":\"explore\",\"direction\":\"southwest\",\"distance\":20}",
+        "metadata": {
+          "task": "minecraft-survival",
+          "used_adapter": true,
+          "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01"
+        },
+        "action": {
+          "action": "explore",
+          "direction": "southwest",
+          "distance": 20
+        },
+        "status": "completed",
+        "error": null,
+        "taskId": "fba083ac-892d-476a-8f5e-18bfb709b4e9",
+        "resultAt": "2026-10-12T20:51:46.587Z",
+        "inventoryBefore": [],
+        "inventoryAfter": [],
+        "planningState": {
+          "health": 20,
+          "food": 20,
+          "position": {
+            "x": 31.5,
+            "y": 69,
+            "z": 17.5
+          },
+          "inventory": []
+        },
+        "result": {
+          "action": {
+            "action": "explore",
+            "direction": "southwest",
+            "distance": 20
+          },
+          "verified": true,
+          "moved": 17,
+          "from": {
+            "x": 31.5,
+            "y": 69,
+            "z": 17.5
+          },
+          "to": {
+            "x": 19.7,
+            "y": 70,
+            "z": 29.3
+          },
+          "remainingThreats": [],
+          "inventoryBefore": [],
+          "inventoryAfter": [],
+          "position": {
+            "x": 19.7,
+            "y": 70,
+            "z": 29.3
+          }
+        }
+      },
+      {
+        "requestId": "ca548542-d84c-45a2-a134-1f0aab174a15",
+        "at": "2026-10-12T20:51:50.263Z",
+        "step": 16,
+        "raw": "{\"action\":\"explore\",\"direction\":\"north\",\"distance\":15}",
+        "metadata": {
+          "task": "minecraft-survival",
+          "used_adapter": true,
+          "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01"
+        },
+        "action": {
+          "action": "explore",
+          "direction": "north",
+          "distance": 15
+        },
+        "status": "completed",
+        "error": null,
+        "taskId": "80e53c7e-2abe-42b8-8ca8-104e0e78a0ab",
+        "resultAt": "2026-10-12T20:51:53.521Z",
+        "inventoryBefore": [],
+        "inventoryAfter": [],
+        "planningState": {
+          "health": 20,
+          "food": 20,
+          "position": {
+            "x": 19.7,
+            "y": 70,
+            "z": 29.3
+          },
+          "inventory": []
+        },
+        "result": {
+          "action": {
+            "action": "explore",
+            "direction": "north",
+            "distance": 15
+          },
+          "verified": true,
+          "moved": 12,
+          "from": {
+            "x": 19.7,
+            "y": 70,
+            "z": 29.3
+          },
+          "to": {
+            "x": 19.5,
+            "y": 67,
+            "z": 17.5
+          },
+          "remainingThreats": [],
+          "inventoryBefore": [],
+          "inventoryAfter": [],
+          "position": {
+            "x": 19.5,
+            "y": 67,
+            "z": 17.5
+          }
+        }
+      },
+      {
+        "requestId": "41272313-0549-44e2-80ee-93f9cb6a5494",
+        "at": "2026-10-12T20:51:57.185Z",
+        "step": 17,
+        "raw": "{\"action\":\"explore\",\"direction\":\"northwest\",\"distance\":16}",
+        "metadata": {
+          "task": "minecraft-survival",
+          "used_adapter": true,
+          "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01"
+        },
+        "action": {
+          "action": "explore",
+          "direction": "northwest",
+          "distance": 16
+        },
+        "status": "completed",
+        "error": null,
+        "taskId": "1fd02d10-ee7e-4361-be60-dd6b9074dde0",
+        "resultAt": "2026-10-12T20:52:00.147Z",
+        "inventoryBefore": [],
+        "inventoryAfter": [],
+        "planningState": {
+          "health": 20,
+          "food": 20,
+          "position": {
+            "x": 19.5,
+            "y": 67,
+            "z": 17.5
+          },
+          "inventory": []
+        },
+        "result": {
+          "action": {
+            "action": "explore",
+            "direction": "northwest",
+            "distance": 16
+          },
+          "verified": true,
+          "moved": 13,
+          "from": {
+            "x": 19.5,
+            "y": 67,
+            "z": 17.5
+          },
+          "to": {
+            "x": 10.6,
+            "y": 65,
+            "z": 8.6
+          },
+          "remainingThreats": [],
+          "inventoryBefore": [],
+          "inventoryAfter": [],
+          "position": {
+            "x": 10.6,
+            "y": 65,
+            "z": 8.6
+          }
+        }
+      },
+      {
+        "requestId": "5fc23468-8f35-4198-8e66-4d86742b434f",
+        "at": "2026-10-12T20:52:03.678Z",
+        "step": 18,
+        "raw": "{\"action\":\"explore\",\"direction\":\"south\",\"distance\":20}",
+        "metadata": {
+          "task": "minecraft-survival",
+          "used_adapter": true,
+          "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01"
+        },
+        "action": {
+          "action": "explore",
+          "direction": "south",
+          "distance": 20
+        },
+        "status": "completed",
+        "error": null,
+        "taskId": "25ce7282-af09-4c93-b762-1c3c3d3b3778",
+        "resultAt": "2026-10-12T20:52:08.808Z",
+        "inventoryBefore": [],
+        "inventoryAfter": [],
+        "planningState": {
+          "health": 20,
+          "food": 20,
+          "position": {
+            "x": 10.6,
+            "y": 65,
+            "z": 8.6
+          },
+          "inventory": []
+        },
+        "result": {
+          "action": {
+            "action": "explore",
+            "direction": "south",
+            "distance": 20
+          },
+          "verified": true,
+          "moved": 18,
+          "from": {
+            "x": 10.6,
+            "y": 65,
+            "z": 8.6
+          },
+          "to": {
+            "x": 10.5,
+            "y": 70,
+            "z": 25.5
+          },
+          "remainingThreats": [],
+          "inventoryBefore": [],
+          "inventoryAfter": [],
+          "position": {
+            "x": 10.5,
+            "y": 70,
+            "z": 25.5
+          }
+        }
+      },
+      {
+        "requestId": "19c961c8-0dd3-4326-bb87-1f0695544a79",
+        "at": "2026-10-12T20:52:12.528Z",
+        "step": 19,
+        "raw": "{\"action\":\"mine\",\"resource\":\"stone\",\"count\":4}",
+        "metadata": {
+          "task": "minecraft-survival",
+          "used_adapter": true,
+          "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01"
+        },
+        "action": {
+          "action": "mine",
+          "resource": "stone",
+          "count": 4
+        },
+        "status": "failed",
+        "error": "No inventory gain (0 blocks removed): search budget exhausted; reachability unconfirmed; search budget exhausted; reachability unconfirmed",
+        "taskId": "3cdaa20f-c532-42ad-bc4e-e175c5b37b1f",
+        "resultAt": "2026-10-12T20:52:13.405Z",
+        "inventoryBefore": [],
+        "inventoryAfter": [],
+        "planningState": {
+          "health": 20,
+          "food": 20,
+          "position": {
+            "x": 10.5,
+            "y": 70,
+            "z": 25.5
+          },
+          "inventory": []
+        },
+        "result": null
+      },
+      {
+        "requestId": "1547dc30-ec27-4ca2-abb5-2ea287e72572",
+        "at": "2026-10-12T20:52:20.729Z",
+        "step": 20,
+        "raw": "{\"action\":\"explore\",\"direction\":\"southwest\",\"distance\":12}",
+        "metadata": {
+          "task": "minecraft-survival",
+          "used_adapter": true,
+          "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01"
+        },
+        "action": {
+          "action": "explore",
+          "direction": "southwest",
+          "distance": 12
+        },
+        "status": "completed",
+        "error": null,
+        "taskId": "5ae34d59-a284-43e2-b43b-e30c78e45ef7",
+        "resultAt": "2026-10-12T20:52:23.142Z",
+        "inventoryBefore": [],
+        "inventoryAfter": [],
+        "planningState": {
+          "health": 20,
+          "food": 20,
+          "position": {
+            "x": 10.5,
+            "y": 70,
+            "z": 25.5
+          },
+          "inventory": []
+        },
+        "result": {
+          "action": {
+            "action": "explore",
+            "direction": "southwest",
+            "distance": 12
+          },
+          "verified": true,
+          "moved": 9,
+          "from": {
+            "x": 10.5,
+            "y": 70,
+            "z": 25.5
+          },
+          "to": {
+            "x": 4.5,
+            "y": 71,
+            "z": 31.5
+          },
+          "remainingThreats": [],
+          "inventoryBefore": [],
+          "inventoryAfter": [],
+          "position": {
+            "x": 4.5,
+            "y": 71,
+            "z": 31.5
+          }
+        }
+      },
+      {
+        "requestId": "3162f6c5-53d1-4440-9044-c225f731eac9",
+        "at": "2026-10-12T20:52:26.659Z",
+        "step": 21,
+        "raw": "{\"action\":\"mine\",\"resource\":\"stone\",\"count\":4}",
+        "metadata": {
+          "task": "minecraft-survival",
+          "used_adapter": true,
+          "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01"
+        },
+        "action": {
+          "action": "mine",
+          "resource": "stone",
+          "count": 4
+        },
+        "status": "failed",
+        "error": "No inventory gain (0 blocks removed): search budget exhausted; reachability unconfirmed; search budget exhausted; reachability unconfirmed",
+        "taskId": "746a9b02-cda5-49ce-a93d-0ac146d5ff72",
+        "resultAt": "2026-10-12T20:52:27.542Z",
+        "inventoryBefore": [],
+        "inventoryAfter": [],
+        "planningState": {
+          "health": 20,
+          "food": 20,
+          "position": {
+            "x": 4.5,
+            "y": 71,
+            "z": 31.5
+          },
+          "inventory": []
+        },
+        "result": null
+      },
+      {
+        "requestId": "969361cd-8c31-4865-b1a6-49661aec3658",
+        "at": "2026-10-12T20:52:34.605Z",
+        "step": 22,
+        "raw": "{\"action\":\"mine\",\"resource\":\"stone\",\"count\":4}",
+        "metadata": {
+          "task": "minecraft-survival",
+          "used_adapter": true,
+          "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01"
+        },
+        "action": {
+          "action": "mine",
+          "resource": "stone",
+          "count": 4
+        },
+        "status": "failed",
+        "error": "No inventory gain (0 blocks removed): search budget exhausted; reachability unconfirmed; search budget exhausted; reachability unconfirmed",
+        "taskId": "e53fdfc6-dfff-4b40-8aee-71f9d5b3a780",
+        "resultAt": "2026-10-12T20:52:35.488Z",
+        "inventoryBefore": [],
+        "inventoryAfter": [],
+        "planningState": {
+          "health": 20,
+          "food": 20,
+          "position": {
+            "x": 4.5,
+            "y": 71,
+            "z": 31.5
+          },
+          "inventory": []
+        },
+        "result": null
+      },
+      {
+        "requestId": "dc01eb98-e3d0-45d7-a0cd-3919605a0db1",
+        "at": "2026-10-12T20:52:43.067Z",
+        "step": 23,
+        "raw": "{\"action\":\"explore\",\"direction\":\"north\",\"distance\":20}",
+        "metadata": {
+          "task": "minecraft-survival",
+          "used_adapter": true,
+          "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01"
+        },
+        "action": {
+          "action": "explore",
+          "direction": "north",
+          "distance": 20
+        },
+        "status": "completed",
+        "error": null,
+        "taskId": "4878065b-1efb-497f-892b-40f51d213023",
+        "resultAt": "2026-10-12T20:52:47.334Z",
+        "inventoryBefore": [],
+        "inventoryAfter": [],
+        "planningState": {
+          "health": 20,
+          "food": 20,
+          "position": {
+            "x": 4.5,
+            "y": 71,
+            "z": 31.5
+          },
+          "inventory": []
+        },
+        "result": {
+          "action": {
+            "action": "explore",
+            "direction": "north",
+            "distance": 20
+          },
+          "verified": true,
+          "moved": 18,
+          "from": {
+            "x": 4.5,
+            "y": 71,
+            "z": 31.5
+          },
+          "to": {
+            "x": 2.3,
+            "y": 69.2,
+            "z": 13.5
+          },
+          "remainingThreats": [],
+          "inventoryBefore": [],
+          "inventoryAfter": [],
+          "position": {
+            "x": 2.3,
+            "y": 69.2,
+            "z": 13.5
+          }
+        }
+      },
+      {
+        "requestId": "b7232c56-c2c3-42f9-81fc-6f254127e2fa",
+        "at": "2026-10-12T20:52:51.163Z",
+        "step": 24,
+        "raw": "{\"action\":\"explore\",\"direction\":\"east\",\"distance\":20}",
+        "metadata": {
+          "task": "minecraft-survival",
+          "used_adapter": true,
+          "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01"
+        },
+        "action": {
+          "action": "explore",
+          "direction": "east",
+          "distance": 20
+        },
+        "status": "cancelled",
+        "error": "This operation was aborted",
+        "taskId": "3e8853f4-81a5-4894-8acd-7207a1035601",
+        "resultAt": "2026-10-12T20:52:56.068Z",
+        "inventoryBefore": [],
+        "inventoryAfter": [
+          {
+            "name": "rabbit",
+            "count": 1
+          },
+          {
+            "name": "rabbit_hide",
+            "count": 1
+          }
+        ],
+        "planningState": {
+          "health": 20,
+          "food": 20,
+          "position": {
+            "x": 2.3,
+            "y": 69,
+            "z": 13.5
+          },
+          "inventory": []
+        },
+        "result": null,
+        "resultEvidenceSource": "session-sidecar, not invented autonomy result"
+      }
+    ],
+    "sessionSidecars": [
+      {
+        "requestId": "b7232c56-c2c3-42f9-81fc-6f254127e2fa",
+        "step": 24,
+        "started": {
+          "at": "2026-10-12T20:52:51.492Z",
+          "event": "skill_started",
+          "taskId": "3e8853f4-81a5-4894-8acd-7207a1035601",
+          "action": {
+            "action": "explore",
+            "direction": "east",
+            "distance": 20
+          }
+        },
+        "finished": {
+          "at": "2026-10-12T20:52:56.068Z",
+          "event": "skill_finished",
+          "taskId": "3e8853f4-81a5-4894-8acd-7207a1035601",
+          "action": {
+            "action": "explore",
+            "direction": "east",
+            "distance": 20
+          },
+          "status": "cancelled",
+          "startedAt": "2026-10-12T20:52:51.492Z",
+          "error": "This operation was aborted",
+          "finishedAt": "2026-10-12T20:52:56.068Z"
+        },
+        "failed": {
+          "at": "2026-10-12T20:52:56.067Z",
+          "event": "skill_failed",
+          "action": {
+            "action": "explore",
+            "direction": "east",
+            "distance": 20
+          },
+          "error": "This operation was aborted",
+          "inventoryBefore": [],
+          "inventoryAfter": [
+            {
+              "name": "rabbit",
+              "count": 1
+            },
+            {
+              "name": "rabbit_hide",
+              "count": 1
+            }
+          ],
+          "taskId": "3e8853f4-81a5-4894-8acd-7207a1035601"
+        }
+      }
+    ]
+  },
+  "inventoryConclusion": {
+    "initial": [],
+    "finalObserved": [
+      {
+        "name": "rabbit",
+        "count": 1
+      },
+      {
+        "name": "rabbit_hide",
+        "count": 1
+      }
+    ],
+    "craftingCompleted": 0,
+    "miningGainConfirmed": 0,
+    "woodGainConfirmed": 0,
+    "huntActions": 0,
+    "netherEntered": false
+  },
+  "independentInterpretation": [
+    "24 accepted decisions:18 completed exploration moves,5 failures,1 maintenance cancellation. Autonomy recorded23 results; exact session task sidecar supplies the cancelled24th, within the cutoff.",
+    "Two gather attempts and three stone mining attempts yielded no inventory gain. Completed exploration alone is not tool/Nether progression.",
+    "Rabbit+hide first appear between inventoryBefore/After of cancelled exploration24. No hunt action occurred. This is incidental inventory acquisition with source/cause unknown, not verified hunting or skill success.",
+    "All24 actual completion metadata show selected v4r1 adapter. No death/damage/escape or runtime reload within this exact interval."
+  ]
+}

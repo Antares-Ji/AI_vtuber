@@ -1,0 +1,359 @@
+{
+  "generatedAt": "2026-10-12T21:24:55.857Z",
+  "sources": {
+    "train-v5r2-candidates.jsonl": "2fcdd67d983f255630d648593ced18dd6bf0e7d2c0cc2ab9fb422ed256a94898",
+    "development-v5r2-candidates.jsonl": "9f64e517f955735756caf808fb0af006a63b3dce77ef15b15805e35ec0638ba3",
+    "train-v5r2-replay-candidates.jsonl": "2086a5efe8cefdf2e10f99fd2e3b7cd0aabb6bf4eb91fdab0d21e1b1a9934877"
+  },
+  "rows": {
+    "train": 32,
+    "dev": 12,
+    "replay": 214
+  },
+  "prefix182BytesPreserved": true,
+  "references": {
+    "count": 145,
+    "files": [
+      "data/minecraft-training/development-v2.jsonl",
+      "data/minecraft-training/development-v3.jsonl",
+      "data/minecraft-training/development-v3r1.jsonl",
+      "data/minecraft-training/development-v4-candidates.jsonl",
+      "data/minecraft-training/development-v4r1-candidates.jsonl",
+      "data/minecraft-training/development-v5-candidates.jsonl",
+      "data/minecraft-training/development-v5r1-candidates.jsonl",
+      "data/minecraft-training/development-v5r2-candidates.jsonl",
+      "output/minecraft-training/live-probe-1791830746219.json",
+      "output/minecraft-training/live-probe-1791833435547.json",
+      "output/minecraft-training/live-probe-1791835670704.json",
+      "output/minecraft-training/live-probe-1791836151666.json",
+      "output/minecraft-training/live-probe-1791838384663-history-ablation.json",
+      "output/minecraft-training/live-probe-1791838384663.json"
+    ]
+  },
+  "overlap": {
+    "new32CanonicalFullPrompt": [],
+    "new32CanonicalUserPayload": [],
+    "new32TranslationTimeNormalizedPayload": [],
+    "all214CanonicalFullPrompt": []
+  },
+  "checks": [
+    {
+      "id": "v5r2-train-01",
+      "selectedAction": "feasible",
+      "stateMatchesRuntimeCompact": true,
+      "historyCount": 6
+    },
+    {
+      "id": "v5r2-train-02",
+      "selectedAction": "feasible",
+      "stateMatchesRuntimeCompact": true,
+      "historyCount": 6
+    },
+    {
+      "id": "v5r2-train-03",
+      "selectedAction": "feasible",
+      "stateMatchesRuntimeCompact": true,
+      "historyCount": 6
+    },
+    {
+      "id": "v5r2-train-04",
+      "selectedAction": "feasible",
+      "stateMatchesRuntimeCompact": true,
+      "historyCount": 6
+    },
+    {
+      "id": "v5r2-train-05",
+      "selectedAction": "feasible",
+      "stateMatchesRuntimeCompact": true,
+      "historyCount": 6
+    },
+    {
+      "id": "v5r2-train-06",
+      "selectedAction": "feasible",
+      "stateMatchesRuntimeCompact": true,
+      "historyCount": 6
+    },
+    {
+      "id": "v5r2-train-07",
+      "selectedAction": "feasible",
+      "stateMatchesRuntimeCompact": true,
+      "historyCount": 6
+    },
+    {
+      "id": "v5r2-train-08",
+      "selectedAction": "feasible",
+      "stateMatchesRuntimeCompact": true,
+      "historyCount": 6
+    },
+    {
+      "id": "v5r2-train-09",
+      "selectedAction": "feasible",
+      "stateMatchesRuntimeCompact": true,
+      "historyCount": 6
+    },
+    {
+      "id": "v5r2-train-10",
+      "selectedAction": "feasible",
+      "stateMatchesRuntimeCompact": true,
+      "historyCount": 6
+    },
+    {
+      "id": "v5r2-train-11",
+      "selectedAction": "feasible",
+      "stateMatchesRuntimeCompact": true,
+      "historyCount": 6
+    },
+    {
+      "id": "v5r2-train-12",
+      "selectedAction": "feasible",
+      "stateMatchesRuntimeCompact": true,
+      "historyCount": 6
+    },
+    {
+      "id": "v5r2-train-13",
+      "selectedAction": "feasible",
+      "stateMatchesRuntimeCompact": true,
+      "historyCount": 6
+    },
+    {
+      "id": "v5r2-train-14",
+      "selectedAction": "feasible",
+      "stateMatchesRuntimeCompact": true,
+      "historyCount": 6
+    },
+    {
+      "id": "v5r2-train-15",
+      "selectedAction": "feasible",
+      "stateMatchesRuntimeCompact": true,
+      "historyCount": 6
+    },
+    {
+      "id": "v5r2-train-16",
+      "selectedAction": "feasible",
+      "stateMatchesRuntimeCompact": true,
+      "historyCount": 6
+    },
+    {
+      "id": "v5r2-train-17",
+      "selectedAction": "feasible",
+      "stateMatchesRuntimeCompact": true,
+      "historyCount": 6
+    },
+    {
+      "id": "v5r2-train-18",
+      "selectedAction": "feasible",
+      "stateMatchesRuntimeCompact": true,
+      "historyCount": 6
+    },
+    {
+      "id": "v5r2-train-19",
+      "selectedAction": "feasible",
+      "stateMatchesRuntimeCompact": true,
+      "historyCount": 6
+    },
+    {
+      "id": "v5r2-train-20",
+      "selectedAction": "feasible",
+      "stateMatchesRuntimeCompact": true,
+      "historyCount": 6
+    },
+    {
+      "id": "v5r2-train-21",
+      "selectedAction": "feasible",
+      "stateMatchesRuntimeCompact": true,
+      "historyCount": 6
+    },
+    {
+      "id": "v5r2-train-22",
+      "selectedAction": "feasible",
+      "stateMatchesRuntimeCompact": true,
+      "historyCount": 6
+    },
+    {
+      "id": "v5r2-train-23",
+      "selectedAction": "feasible",
+      "stateMatchesRuntimeCompact": true,
+      "historyCount": 6
+    },
+    {
+      "id": "v5r2-train-24",
+      "selectedAction": "feasible",
+      "stateMatchesRuntimeCompact": true,
+      "historyCount": 6
+    },
+    {
+      "id": "v5r2-train-25",
+      "selectedAction": "feasible",
+      "stateMatchesRuntimeCompact": true,
+      "historyCount": 6
+    },
+    {
+      "id": "v5r2-train-26",
+      "selectedAction": "feasible",
+      "stateMatchesRuntimeCompact": true,
+      "historyCount": 6
+    },
+    {
+      "id": "v5r2-train-27",
+      "selectedAction": "feasible",
+      "stateMatchesRuntimeCompact": true,
+      "historyCount": 6
+    },
+    {
+      "id": "v5r2-train-28",
+      "selectedAction": "feasible",
+      "stateMatchesRuntimeCompact": true,
+      "historyCount": 6
+    },
+    {
+      "id": "v5r2-train-29",
+      "selectedAction": "feasible",
+      "stateMatchesRuntimeCompact": true,
+      "historyCount": 6
+    },
+    {
+      "id": "v5r2-train-30",
+      "selectedAction": "feasible",
+      "stateMatchesRuntimeCompact": true,
+      "historyCount": 6
+    },
+    {
+      "id": "v5r2-train-31",
+      "selectedAction": "feasible",
+      "stateMatchesRuntimeCompact": true,
+      "historyCount": 6
+    },
+    {
+      "id": "v5r2-train-32",
+      "selectedAction": "feasible",
+      "stateMatchesRuntimeCompact": true,
+      "historyCount": 6
+    },
+    {
+      "id": "v5r2-dev-01",
+      "selectedAction": "feasible",
+      "stateMatchesRuntimeCompact": true,
+      "historyCount": 6
+    },
+    {
+      "id": "v5r2-dev-02",
+      "selectedAction": "feasible",
+      "stateMatchesRuntimeCompact": true,
+      "historyCount": 6
+    },
+    {
+      "id": "v5r2-dev-03",
+      "selectedAction": "feasible",
+      "stateMatchesRuntimeCompact": true,
+      "historyCount": 6
+    },
+    {
+      "id": "v5r2-dev-04",
+      "selectedAction": "feasible",
+      "stateMatchesRuntimeCompact": true,
+      "historyCount": 6
+    },
+    {
+      "id": "v5r2-dev-05",
+      "selectedAction": "feasible",
+      "stateMatchesRuntimeCompact": true,
+      "historyCount": 6
+    },
+    {
+      "id": "v5r2-dev-06",
+      "selectedAction": "feasible",
+      "stateMatchesRuntimeCompact": true,
+      "historyCount": 6
+    },
+    {
+      "id": "v5r2-dev-07",
+      "selectedAction": "feasible",
+      "stateMatchesRuntimeCompact": true,
+      "historyCount": 6
+    },
+    {
+      "id": "v5r2-dev-08",
+      "selectedAction": "feasible",
+      "stateMatchesRuntimeCompact": true,
+      "historyCount": 6
+    },
+    {
+      "id": "v5r2-dev-09",
+      "selectedAction": "feasible",
+      "stateMatchesRuntimeCompact": true,
+      "historyCount": 6
+    },
+    {
+      "id": "v5r2-dev-10",
+      "selectedAction": "feasible",
+      "stateMatchesRuntimeCompact": true,
+      "historyCount": 6
+    },
+    {
+      "id": "v5r2-dev-11",
+      "selectedAction": "feasible",
+      "stateMatchesRuntimeCompact": true,
+      "historyCount": 6
+    },
+    {
+      "id": "v5r2-dev-12",
+      "selectedAction": "feasible",
+      "stateMatchesRuntimeCompact": true,
+      "historyCount": 6
+    }
+  ],
+  "foodCases": [
+    {
+      "id": "v5r2-train-05",
+      "name": "cooked_chicken",
+      "points": 6,
+      "before": 7,
+      "after": 13,
+      "current": 13
+    },
+    {
+      "id": "v5r2-train-06",
+      "name": "bread",
+      "points": 5,
+      "before": 8,
+      "after": 13,
+      "current": 13
+    },
+    {
+      "id": "v5r2-train-08",
+      "name": "mutton",
+      "points": 2,
+      "before": 6,
+      "after": 8,
+      "current": 8
+    },
+    {
+      "id": "v5r2-dev-02",
+      "name": "apple",
+      "points": 4,
+      "before": 5,
+      "after": 9,
+      "current": 9
+    }
+  ],
+  "previousFindingsResolved": [
+    "train19 now has empty mineral lists",
+    "train26 missing stick2 retained",
+    "bread/cooked_chicken/mutton/apple histories now use registry foodPoints and current food equals last foodAfter",
+    "Before training, dev09 allowed outputs expanded1..16; dev10 and dev11 limited1. All reference actions included and accepted craft counts affordable."
+  ],
+  "remainingFindings": [],
+  "disposition": "PASS for bounded candidate experiment: all44 reference labels feasible, current acceptance sets internally consistent, food/history corrections verified; training and replay hashes unchanged by dev-only correction.",
+  "limits": [
+    "No final20/holdout read, model endpoint/GPU or dataset writes.",
+    "Passing overlap checks proves no exact or defined normalized copy, not independence of scenario ideas or broad generalization.",
+    "Synthetic path geometry is not a guarantee of actual reachability.",
+    "Raw rabbit recovery is an executor fix, excluded from training and not a policy failure. Manifest wording about current FOODS is stale after actual21:16 rabbit success, but no training-label impact."
+  ],
+  "allowedActionSets": {
+    "enumeratedSchemaValidActions": 716,
+    "goldIncluded": 12,
+    "allAcceptedCraftCountsAffordable": true,
+    "checkedDevelopmentSha256": "9f64e517f955735756caf808fb0af006a63b3dce77ef15b15805e35ec0638ba3"
+  }
+}

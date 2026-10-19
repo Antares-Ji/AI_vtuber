@@ -1,0 +1,81 @@
+{
+  "train-v6r1-candidates.jsonl": {
+    "rows": 24,
+    "promptTokens": {
+      "min": 1486,
+      "median": 1583.5,
+      "max": 2219,
+      "mean": 1610.5
+    },
+    "fullSequenceTokens": {
+      "min": 1503,
+      "median": 1593.5,
+      "max": 2237,
+      "mean": 1625.6
+    },
+    "assistantLabelTokens": {
+      "min": 7,
+      "max": 18,
+      "mean": 15.1
+    },
+    "completeAt2560": 24,
+    "longestIds": [
+      "v6r1-train-live-success-01",
+      "v6r1-train-live-teacher-01",
+      "v6r1-train-22"
+    ]
+  },
+  "development-v6r1-candidates.jsonl": {
+    "rows": 10,
+    "promptTokens": {
+      "min": 1502,
+      "median": 1606.0,
+      "max": 1652,
+      "mean": 1592.5
+    },
+    "fullSequenceTokens": {
+      "min": 1519,
+      "median": 1617.0,
+      "max": 1665,
+      "mean": 1607.4
+    },
+    "assistantLabelTokens": {
+      "min": 7,
+      "max": 18,
+      "mean": 14.9
+    },
+    "completeAt2560": 10,
+    "longestIds": [
+      "v6r1-dev-02",
+      "v6r1-dev-10",
+      "v6r1-dev-01"
+    ]
+  },
+  "train-v6r1-weighted-replay-candidates.jsonl": {
+    "rows": 286,
+    "promptTokens": {
+      "min": 1013,
+      "median": 1133.0,
+      "max": 2219,
+      "mean": 1327.5
+    },
+    "fullSequenceTokens": {
+      "min": 1020,
+      "median": 1147.5,
+      "max": 2237,
+      "mean": 1341.8
+    },
+    "assistantLabelTokens": {
+      "min": 7,
+      "max": 19,
+      "mean": 14.3
+    },
+    "completeAt2560": 286,
+    "longestIds": [
+      "v6r1-train-live-success-01",
+      "v6r1-oversample-02-a",
+      "v6r1-oversample-02-b"
+    ]
+  },
+  "status": "CPU tokenizer only; assistant labels kept whole; final holdout not accessed; no GPU inference or training."
+}

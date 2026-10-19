@@ -1,0 +1,30 @@
+{
+  "at": "2026-10-18T16:20:10.903Z",
+  "guide": "docs/minecraft-survival-step-guide.md",
+  "sha256": "21b2b3abe7c4f7229ea055b71b5ac36efdbcd833ec5eb9e7d996646abb95a2f6",
+  "scope": "complete execution core and compact planning conventions",
+  "receipts": [
+    {
+      "accepted": true,
+      "influenced": true,
+      "applied": "next-planning-step",
+      "chars": 398
+    },
+    {
+      "accepted": true,
+      "influenced": true,
+      "applied": "next-planning-step",
+      "chars": 389
+    },
+    {
+      "accepted": true,
+      "influenced": true,
+      "applied": "next-planning-step",
+      "chars": 339
+    }
+  ],
+  "verifiedSuggestions": 3,
+  "loopEnabled": false,
+  "loopRunning": false,
+  "consumedByModel": false
+}

@@ -1,0 +1,261 @@
+{
+  "generatedAt": "2026-10-12T21:12:23.785Z",
+  "sources": {
+    "train-v5-candidates.jsonl": "600b85f096219d193b084724ae56d23dee00e6d9f72b2f196948eca242af5b7f",
+    "development-v5-candidates.jsonl": "f79d6068ffb3dc442fb43e32cfd0cb9517c7d26b5d43fb0323f1b2dc7abe46e6",
+    "train-v5-replay-candidates.jsonl": "c75ec265597d719a341bd967b024a7dc0ae9107b2c685004ecc9067bcf794ee6"
+  },
+  "rows": {
+    "train": 32,
+    "dev": 12,
+    "replay": 214
+  },
+  "prior182BytePrefixPreserved": true,
+  "overlap": {
+    "canonicalTrainDev": [],
+    "translationAndTimeNormalizedTrainDev": [],
+    "normalization": "Canonical JSON keys plus translate every x/y/z from current player origin rounded0.1 and omit timeOfDay; retain all materials/actions/history/schema."
+  },
+  "checks": [
+    {
+      "id": "v5-train-01",
+      "labelMaterialsAndFood": "pass",
+      "historyEntries": 6
+    },
+    {
+      "id": "v5-train-02",
+      "labelMaterialsAndFood": "pass",
+      "historyEntries": 6
+    },
+    {
+      "id": "v5-train-03",
+      "labelMaterialsAndFood": "pass",
+      "historyEntries": 6
+    },
+    {
+      "id": "v5-train-04",
+      "labelMaterialsAndFood": "pass",
+      "historyEntries": 6
+    },
+    {
+      "id": "v5-train-05",
+      "labelMaterialsAndFood": "pass",
+      "historyEntries": 6
+    },
+    {
+      "id": "v5-train-06",
+      "labelMaterialsAndFood": "pass",
+      "historyEntries": 6
+    },
+    {
+      "id": "v5-train-07",
+      "labelMaterialsAndFood": "pass",
+      "historyEntries": 6
+    },
+    {
+      "id": "v5-train-08",
+      "labelMaterialsAndFood": "pass",
+      "historyEntries": 6
+    },
+    {
+      "id": "v5-train-09",
+      "labelMaterialsAndFood": "pass",
+      "historyEntries": 6
+    },
+    {
+      "id": "v5-train-10",
+      "labelMaterialsAndFood": "pass",
+      "historyEntries": 6
+    },
+    {
+      "id": "v5-train-11",
+      "labelMaterialsAndFood": "pass",
+      "historyEntries": 6
+    },
+    {
+      "id": "v5-train-12",
+      "labelMaterialsAndFood": "pass",
+      "historyEntries": 6
+    },
+    {
+      "id": "v5-train-13",
+      "labelMaterialsAndFood": "pass",
+      "historyEntries": 6
+    },
+    {
+      "id": "v5-train-14",
+      "labelMaterialsAndFood": "pass",
+      "historyEntries": 6
+    },
+    {
+      "id": "v5-train-15",
+      "labelMaterialsAndFood": "pass",
+      "historyEntries": 6
+    },
+    {
+      "id": "v5-train-16",
+      "labelMaterialsAndFood": "pass",
+      "historyEntries": 6
+    },
+    {
+      "id": "v5-train-17",
+      "labelMaterialsAndFood": "pass",
+      "historyEntries": 6
+    },
+    {
+      "id": "v5-train-18",
+      "labelMaterialsAndFood": "pass",
+      "historyEntries": 6
+    },
+    {
+      "id": "v5-train-19",
+      "labelMaterialsAndFood": "pass",
+      "historyEntries": 6
+    },
+    {
+      "id": "v5-train-20",
+      "labelMaterialsAndFood": "pass",
+      "historyEntries": 6
+    },
+    {
+      "id": "v5-train-21",
+      "labelMaterialsAndFood": "pass",
+      "historyEntries": 6
+    },
+    {
+      "id": "v5-train-22",
+      "labelMaterialsAndFood": "pass",
+      "historyEntries": 6
+    },
+    {
+      "id": "v5-train-23",
+      "labelMaterialsAndFood": "pass",
+      "historyEntries": 6
+    },
+    {
+      "id": "v5-train-24",
+      "labelMaterialsAndFood": "pass",
+      "historyEntries": 6
+    },
+    {
+      "id": "v5-train-25",
+      "labelMaterialsAndFood": "pass",
+      "historyEntries": 6
+    },
+    {
+      "id": "v5-train-26",
+      "labelMaterialsAndFood": "pass",
+      "historyEntries": 6
+    },
+    {
+      "id": "v5-train-27",
+      "labelMaterialsAndFood": "pass",
+      "historyEntries": 6
+    },
+    {
+      "id": "v5-train-28",
+      "labelMaterialsAndFood": "pass",
+      "historyEntries": 6
+    },
+    {
+      "id": "v5-train-29",
+      "labelMaterialsAndFood": "pass",
+      "historyEntries": 6
+    },
+    {
+      "id": "v5-train-30",
+      "labelMaterialsAndFood": "pass",
+      "historyEntries": 6
+    },
+    {
+      "id": "v5-train-31",
+      "labelMaterialsAndFood": "pass",
+      "historyEntries": 6
+    },
+    {
+      "id": "v5-train-32",
+      "labelMaterialsAndFood": "pass",
+      "historyEntries": 6
+    },
+    {
+      "id": "v5-dev-01",
+      "labelMaterialsAndFood": "pass",
+      "historyEntries": 6
+    },
+    {
+      "id": "v5-dev-02",
+      "labelMaterialsAndFood": "pass",
+      "historyEntries": 6
+    },
+    {
+      "id": "v5-dev-03",
+      "labelMaterialsAndFood": "pass",
+      "historyEntries": 6
+    },
+    {
+      "id": "v5-dev-04",
+      "labelMaterialsAndFood": "pass",
+      "historyEntries": 6
+    },
+    {
+      "id": "v5-dev-05",
+      "labelMaterialsAndFood": "pass",
+      "historyEntries": 6
+    },
+    {
+      "id": "v5-dev-06",
+      "labelMaterialsAndFood": "pass",
+      "historyEntries": 6
+    },
+    {
+      "id": "v5-dev-07",
+      "labelMaterialsAndFood": "pass",
+      "historyEntries": 6
+    },
+    {
+      "id": "v5-dev-08",
+      "labelMaterialsAndFood": "pass",
+      "historyEntries": 6
+    },
+    {
+      "id": "v5-dev-09",
+      "labelMaterialsAndFood": "pass",
+      "historyEntries": 6
+    },
+    {
+      "id": "v5-dev-10",
+      "labelMaterialsAndFood": "pass",
+      "historyEntries": 6
+    },
+    {
+      "id": "v5-dev-11",
+      "labelMaterialsAndFood": "pass",
+      "historyEntries": 6
+    },
+    {
+      "id": "v5-dev-12",
+      "labelMaterialsAndFood": "pass",
+      "historyEntries": 6
+    }
+  ],
+  "findings": [
+    {
+      "id": "v5-train-26",
+      "severity": "correct-state-hint",
+      "detail": "wooden_pickaxe missing list omits stick2 although inventory has no sticks. Label planks12 remains affordable."
+    },
+    {
+      "id": "v5-train-19",
+      "severity": "correct-provenance-rationale",
+      "detail": "Rationale claims no visible minerals, while six mineral categories are populated. Label explore is not hard-infeasible, but absent-resource premise is false."
+    }
+  ],
+  "limitations": [
+    "Synthetic ore geometry is arithmetically consistent and within loaded-observation radius but physical generation/path reachability is not established.",
+    "Craftable uses requiresTable flag for material-only possibility, matching current recipesFor(...,true); a listed craftable with no station is not by itself a contradiction.",
+    "Some feasible labels are not unique/optimal: gather supply or explore may be selected while mineral upgrades are also possible. Do not score dev alternatives as physically impossible solely for differing intent.",
+    "History has six synthetic entries with no claimed positive inventory gain; it is not a replay of real gameplay.",
+    "No final20 read, GPU inference/training or dataset modifications performed."
+  ],
+  "disposition": "Correct the two concrete inconsistencies in a versioned candidate, then recheck hashes. No impossible selected material/food action found across44."
+}

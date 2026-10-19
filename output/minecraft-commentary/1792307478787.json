@@ -1,0 +1,57 @@
+{
+  "capturedAt": 1792307478787,
+  "evidence": {
+    "goal": "建立可生活的小家：先安全生存与食物，再依真实库存制作工作台、工具、熔炉、熟肉和火把，选择平坦安全位置造简单小屋，放置床、箱子、火把，最后浅层采矿并安全返回。由你自主分阶段决策。已有材料足够就推进下一阶段，不重复囤积。每5分钟监管反馈，失败先分析再改方法；同因两次失败需诊断而非原样重复。新建房/家具技能仅在能力表可用后调用，缺少技能要说明不能假装完成。生命危险优先避险/找可用食物。",
+    "currentSubgoal": "制作木棍与工作台，采集圆石",
+    "action": {
+      "action": "craft",
+      "item": "stick",
+      "count": 8,
+      "source": "local-qwen",
+      "model": "qwen3.5-4b",
+      "adapterLoaded": false,
+      "modelMetadata": {
+        "request_id": "d829faa1-5e74-4818-b622-e764bb9642c0",
+        "task": "minecraft-survival",
+        "used_adapter": false,
+        "adapter_path": null
+      }
+    },
+    "outcome": "failed",
+    "error": "Missing ingredients for 8 stick",
+    "inventory": [
+      {
+        "name": "stick",
+        "count": 6
+      },
+      {
+        "name": "wooden_pickaxe",
+        "count": 1
+      },
+      {
+        "name": "spruce_planks",
+        "count": 1
+      },
+      {
+        "name": "spruce_log",
+        "count": 44
+      },
+      {
+        "name": "crafting_table",
+        "count": 2
+      }
+    ],
+    "health": 20,
+    "food": 20,
+    "yolo": {
+      "scope": "COCO only, not trained for Minecraft",
+      "detections": []
+    }
+  },
+  "speech": "木棍没做成，材料还差一点；工作台倒是有两个了。先找找附近有没有裸露的石头，挖点圆石回来才能做石镐。",
+  "model": "deepseek-flash",
+  "provider": "cloud",
+  "visionModel": "qwen3.5-4b",
+  "visualObservation": "游戏画面显示玩家身处茂密森林，周围是覆盖积雪的地面和树木。",
+  "expired": false
+}

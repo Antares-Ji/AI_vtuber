@@ -1,0 +1,12 @@
+✔ canceling a goal clears an old bridge return target (0.949ms)
+✔ normal block updates retain the active bridge return target (0.977ms)
+✔ stop clears the old return target and goal (0.442ms)
+✔ a delayed placement cannot restore a canceled return target (0.5039ms)
+ℹ tests 4
+ℹ suites 0
+ℹ pass 4
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 71.1481

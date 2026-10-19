@@ -2,6 +2,9 @@ const { Movements, goals } = require('mineflayer-pathfinder');
 
 // A bounded, deterministic first game task. Model decisions are not needed.
 async function makeWorkbench(bot, { signal, log = () => {} } = {}) {
+  if (bot.game?.gameMode !== 'survival') throw new Error('Harvesting requires survival mode');
+  const deadline = new AbortController();
+  signal = signal ? AbortSignal.any([signal, deadline.signal]) : deadline.signal;
   const check = () => signal?.throwIfAborted();
   const count = name => bot.inventory.items().filter(item => item.name === name).reduce((n, item) => n + item.count, 0);
   const step = async (name, action, timeoutMs = 30000) => {
@@ -12,7 +15,14 @@ async function makeWorkbench(bot, { signal, log = () => {} } = {}) {
       const result = await Promise.race([
         Promise.resolve().then(() => { check(); return action(); }),
         new Promise((_, reject) => {
-          timer = setTimeout(() => reject(new Error(`${name}: timeout`)), timeoutMs);
+          timer = setTimeout(() => {
+            const error = new Error(`${name}: timeout`);
+            deadline.abort(error);
+            bot.pathfinder.setGoal(null);
+            bot.clearControlStates();
+            try { bot.stopDigging(); } catch {}
+            reject(error);
+          }, timeoutMs);
           abort = () => reject(signal.reason || new Error('cancelled'));
           signal?.addEventListener('abort', abort, { once: true });
           if (signal?.aborted) abort();
@@ -63,7 +73,7 @@ async function makeWorkbench(bot, { signal, log = () => {} } = {}) {
   if (!block || block.name !== candidate.name || !bot.canDigBlock(block)) throw new Error('Tree changed or cannot be reached for digging');
   const beforeLogs = count(block.name);
   await step('harvest_log', () => bot.dig(block));
-  await step('approach_drop', () => bot.pathfinder.goto(new goals.GoalNear(block.position.x, block.position.y, block.position.z, 1)));
+  await step('approach_drop', () => bot.pathfinder.goto(new goals.GoalBlock(block.position.x, block.position.y, block.position.z)));
   await step('collect_log', async () => {
     while (count(block.name) <= beforeLogs) { check(); await bot.waitForTicks(2); }
   }, 10000);

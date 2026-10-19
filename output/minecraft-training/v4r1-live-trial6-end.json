@@ -1,0 +1,660 @@
+{
+  "at": "2026-10-12T22:20:33.4007199Z",
+  "reason": "End v4 comparison trajectory: verified wooden pickaxe recovery followed by continued plank/stick overproduction without stone progression; prepare audited corrective training",
+  "loop": {
+    "enabled": false,
+    "running": true,
+    "goal": "由本地千问自主规划：安全生存、采集、制作工具、采矿、制作并点燃下界门，进入下界。失败后根据真实状态调整计划。",
+    "deadline": "2026-10-12T23:17:01Z",
+    "step": 86,
+    "model": "qwen3.5-4b",
+    "modelLoaded": true,
+    "adapter": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01",
+    "adapterLoaded": true,
+    "lastDecision": {
+      "action": "gather_wood",
+      "count": 4
+    },
+    "lastResult": {
+      "taskId": "61054e2a-d3c0-45f9-ad5f-6913fe274df8",
+      "action": {
+        "action": "gather_wood",
+        "count": 4
+      },
+      "status": "failed",
+      "error": "No inventory gain (0 blocks removed): search budget exhausted; reachability unconfirmed; search budget exhausted; reachability unconfirmed",
+      "at": "2026-10-12T22:20:01.296Z"
+    },
+    "lastError": "No inventory gain (0 blocks removed): search budget exhausted; reachability unconfirmed; search budget exhausted; reachability unconfirmed",
+    "latencyMs": 1835,
+    "history": [
+      {
+        "taskId": "db005ab6-a146-41cf-98b5-1c872fc7c1af",
+        "action": {
+          "action": "gather_wood",
+          "count": 4
+        },
+        "status": "completed",
+        "result": {
+          "action": {
+            "action": "gather_wood",
+            "count": 4
+          },
+          "verified": true,
+          "gained": 4,
+          "requested": 4,
+          "complete": true,
+          "dug": 4,
+          "items": [
+            "oak_log",
+            "spruce_log",
+            "birch_log",
+            "jungle_log",
+            "acacia_log",
+            "cherry_log",
+            "dark_oak_log",
+            "pale_oak_log",
+            "mangrove_log"
+          ],
+          "gainAttribution": "inventory delta; individual dropped-item origin not proven",
+          "inventoryBefore": [
+            {
+              "name": "stick",
+              "count": 64
+            },
+            {
+              "name": "stick",
+              "count": 40
+            },
+            {
+              "name": "crafting_table",
+              "count": 1
+            },
+            {
+              "name": "wooden_pickaxe",
+              "count": 1
+            },
+            {
+              "name": "wooden_pickaxe",
+              "count": 1
+            },
+            {
+              "name": "brown_mushroom",
+              "count": 1
+            }
+          ],
+          "inventoryAfter": [
+            {
+              "name": "stick",
+              "count": 64
+            },
+            {
+              "name": "stick",
+              "count": 40
+            },
+            {
+              "name": "crafting_table",
+              "count": 1
+            },
+            {
+              "name": "wooden_pickaxe",
+              "count": 1
+            },
+            {
+              "name": "wooden_pickaxe",
+              "count": 1
+            },
+            {
+              "name": "brown_mushroom",
+              "count": 1
+            },
+            {
+              "name": "spruce_log",
+              "count": 4
+            }
+          ],
+          "position": {
+            "x": -88.5,
+            "y": 63,
+            "z": -56.5
+          }
+        },
+        "at": "2026-10-12T22:18:11.397Z"
+      },
+      {
+        "taskId": "f3771155-fef4-41c7-b97f-34220e9c13c4",
+        "action": {
+          "action": "craft",
+          "item": "planks",
+          "count": 8
+        },
+        "status": "completed",
+        "result": {
+          "action": {
+            "action": "craft",
+            "item": "planks",
+            "count": 8
+          },
+          "verified": true,
+          "item": "spruce_planks",
+          "gained": 8,
+          "inventoryConfirmation": "server_full_window_per_click",
+          "inventoryBefore": [
+            {
+              "name": "stick",
+              "count": 64
+            },
+            {
+              "name": "stick",
+              "count": 40
+            },
+            {
+              "name": "crafting_table",
+              "count": 1
+            },
+            {
+              "name": "wooden_pickaxe",
+              "count": 1
+            },
+            {
+              "name": "wooden_pickaxe",
+              "count": 1
+            },
+            {
+              "name": "brown_mushroom",
+              "count": 1
+            },
+            {
+              "name": "spruce_log",
+              "count": 4
+            }
+          ],
+          "inventoryAfter": [
+            {
+              "name": "spruce_planks",
+              "count": 8
+            },
+            {
+              "name": "stick",
+              "count": 64
+            },
+            {
+              "name": "stick",
+              "count": 40
+            },
+            {
+              "name": "crafting_table",
+              "count": 1
+            },
+            {
+              "name": "wooden_pickaxe",
+              "count": 1
+            },
+            {
+              "name": "wooden_pickaxe",
+              "count": 1
+            },
+            {
+              "name": "brown_mushroom",
+              "count": 1
+            },
+            {
+              "name": "spruce_log",
+              "count": 2
+            }
+          ],
+          "position": {
+            "x": -88.5,
+            "y": 63,
+            "z": -56.5
+          }
+        },
+        "at": "2026-10-12T22:18:16.642Z"
+      },
+      {
+        "taskId": "a5be6059-44f4-4c02-bba3-8c611b4604d4",
+        "action": {
+          "action": "craft",
+          "item": "planks",
+          "count": 8
+        },
+        "status": "completed",
+        "result": {
+          "action": {
+            "action": "craft",
+            "item": "planks",
+            "count": 8
+          },
+          "verified": true,
+          "item": "spruce_planks",
+          "gained": 8,
+          "inventoryConfirmation": "server_full_window_per_click",
+          "inventoryBefore": [
+            {
+              "name": "spruce_planks",
+              "count": 8
+            },
+            {
+              "name": "stick",
+              "count": 64
+            },
+            {
+              "name": "stick",
+              "count": 40
+            },
+            {
+              "name": "crafting_table",
+              "count": 1
+            },
+            {
+              "name": "wooden_pickaxe",
+              "count": 1
+            },
+            {
+              "name": "wooden_pickaxe",
+              "count": 1
+            },
+            {
+              "name": "brown_mushroom",
+              "count": 1
+            },
+            {
+              "name": "spruce_log",
+              "count": 2
+            }
+          ],
+          "inventoryAfter": [
+            {
+              "name": "spruce_planks",
+              "count": 16
+            },
+            {
+              "name": "stick",
+              "count": 64
+            },
+            {
+              "name": "stick",
+              "count": 40
+            },
+            {
+              "name": "crafting_table",
+              "count": 1
+            },
+            {
+              "name": "wooden_pickaxe",
+              "count": 1
+            },
+            {
+              "name": "wooden_pickaxe",
+              "count": 1
+            },
+            {
+              "name": "brown_mushroom",
+              "count": 1
+            }
+          ],
+          "position": {
+            "x": -88.5,
+            "y": 63,
+            "z": -56.5
+          }
+        },
+        "at": "2026-10-12T22:18:21.713Z"
+      },
+      {
+        "taskId": "77d6e223-31d0-4dd8-bd2a-ebc0c437e6aa",
+        "action": {
+          "action": "craft",
+          "item": "stick",
+          "count": 16
+        },
+        "status": "completed",
+        "result": {
+          "action": {
+            "action": "craft",
+            "item": "stick",
+            "count": 16
+          },
+          "verified": true,
+          "item": "stick",
+          "gained": 16,
+          "inventoryConfirmation": "server_full_window_per_click",
+          "inventoryBefore": [
+            {
+              "name": "spruce_planks",
+              "count": 16
+            },
+            {
+              "name": "stick",
+              "count": 64
+            },
+            {
+              "name": "stick",
+              "count": 40
+            },
+            {
+              "name": "crafting_table",
+              "count": 1
+            },
+            {
+              "name": "wooden_pickaxe",
+              "count": 1
+            },
+            {
+              "name": "wooden_pickaxe",
+              "count": 1
+            },
+            {
+              "name": "brown_mushroom",
+              "count": 1
+            }
+          ],
+          "inventoryAfter": [
+            {
+              "name": "spruce_planks",
+              "count": 8
+            },
+            {
+              "name": "stick",
+              "count": 64
+            },
+            {
+              "name": "stick",
+              "count": 56
+            },
+            {
+              "name": "crafting_table",
+              "count": 1
+            },
+            {
+              "name": "wooden_pickaxe",
+              "count": 1
+            },
+            {
+              "name": "wooden_pickaxe",
+              "count": 1
+            },
+            {
+              "name": "brown_mushroom",
+              "count": 1
+            }
+          ],
+          "position": {
+            "x": -88.5,
+            "y": 63,
+            "z": -56.5
+          }
+        },
+        "at": "2026-10-12T22:18:27.879Z"
+      },
+      {
+        "taskId": "338caf8e-f1ae-4f18-bbfc-9bf26ec3d6ee",
+        "action": {
+          "action": "craft",
+          "item": "stick",
+          "count": 16
+        },
+        "status": "completed",
+        "result": {
+          "action": {
+            "action": "craft",
+            "item": "stick",
+            "count": 16
+          },
+          "verified": true,
+          "item": "stick",
+          "gained": 16,
+          "inventoryConfirmation": "server_full_window_per_click",
+          "inventoryBefore": [
+            {
+              "name": "spruce_planks",
+              "count": 8
+            },
+            {
+              "name": "stick",
+              "count": 64
+            },
+            {
+              "name": "stick",
+              "count": 56
+            },
+            {
+              "name": "crafting_table",
+              "count": 1
+            },
+            {
+              "name": "wooden_pickaxe",
+              "count": 1
+            },
+            {
+              "name": "wooden_pickaxe",
+              "count": 1
+            },
+            {
+              "name": "brown_mushroom",
+              "count": 1
+            }
+          ],
+          "inventoryAfter": [
+            {
+              "name": "stick",
+              "count": 64
+            },
+            {
+              "name": "stick",
+              "count": 64
+            },
+            {
+              "name": "crafting_table",
+              "count": 1
+            },
+            {
+              "name": "stick",
+              "count": 8
+            },
+            {
+              "name": "wooden_pickaxe",
+              "count": 1
+            },
+            {
+              "name": "wooden_pickaxe",
+              "count": 1
+            },
+            {
+              "name": "brown_mushroom",
+              "count": 1
+            }
+          ],
+          "position": {
+            "x": -88.5,
+            "y": 63,
+            "z": -56.5
+          }
+        },
+        "at": "2026-10-12T22:18:34.219Z"
+      },
+      {
+        "action": null,
+        "status": "rejected",
+        "error": "Invalid item=\"cherry_planks\". Allowed: planks,stick,crafting_table,wooden_pickaxe,stone_pickaxe,stone_axe,stone_sword,furnace,iron_pickaxe,iron_axe,iron_sword,iron_helmet,iron_chestplate,iron_leggings,iron_boots,... (full enum in schema)",
+        "at": "2026-10-12T22:18:38.447Z"
+      },
+      {
+        "taskId": "92de0693-7d77-4674-b874-1ace05821a48",
+        "action": {
+          "action": "craft",
+          "item": "planks",
+          "count": 8
+        },
+        "status": "failed",
+        "error": "Gather wood before crafting planks",
+        "at": "2026-10-12T22:18:46.206Z"
+      },
+      {
+        "taskId": "ec983d9a-6b55-4845-9b09-2c92470ea2f5",
+        "action": {
+          "action": "gather_wood",
+          "count": 4
+        },
+        "status": "completed",
+        "result": {
+          "action": {
+            "action": "gather_wood",
+            "count": 4
+          },
+          "verified": true,
+          "gained": 1,
+          "requested": 4,
+          "complete": false,
+          "dug": 1,
+          "items": [
+            "oak_log",
+            "spruce_log",
+            "birch_log",
+            "jungle_log",
+            "acacia_log",
+            "cherry_log",
+            "dark_oak_log",
+            "pale_oak_log",
+            "mangrove_log"
+          ],
+          "gainAttribution": "inventory delta; individual dropped-item origin not proven",
+          "inventoryBefore": [
+            {
+              "name": "stick",
+              "count": 64
+            },
+            {
+              "name": "stick",
+              "count": 64
+            },
+            {
+              "name": "crafting_table",
+              "count": 1
+            },
+            {
+              "name": "stick",
+              "count": 8
+            },
+            {
+              "name": "wooden_pickaxe",
+              "count": 1
+            },
+            {
+              "name": "wooden_pickaxe",
+              "count": 1
+            },
+            {
+              "name": "brown_mushroom",
+              "count": 1
+            }
+          ],
+          "inventoryAfter": [
+            {
+              "name": "stick",
+              "count": 64
+            },
+            {
+              "name": "stick",
+              "count": 64
+            },
+            {
+              "name": "crafting_table",
+              "count": 1
+            },
+            {
+              "name": "stick",
+              "count": 8
+            },
+            {
+              "name": "wooden_pickaxe",
+              "count": 1
+            },
+            {
+              "name": "wooden_pickaxe",
+              "count": 1
+            },
+            {
+              "name": "brown_mushroom",
+              "count": 1
+            },
+            {
+              "name": "spruce_log",
+              "count": 1
+            }
+          ],
+          "position": {
+            "x": -88.5,
+            "y": 63,
+            "z": -56.5
+          }
+        },
+        "at": "2026-10-12T22:18:58.597Z"
+      },
+      {
+        "taskId": "47ed26f5-34dc-4b68-a178-1609fe3feba2",
+        "action": {
+          "action": "gather_wood",
+          "count": 4
+        },
+        "status": "failed",
+        "error": "No inventory gain (1 blocks removed): search budget exhausted; reachability unconfirmed; search budget exhausted; reachability unconfirmed",
+        "at": "2026-10-12T22:19:13.081Z"
+      },
+      {
+        "taskId": "62693abc-1019-4ab5-9717-3b14347f215a",
+        "action": {
+          "action": "gather_wood",
+          "count": 4
+        },
+        "status": "failed",
+        "error": "No inventory gain (0 blocks removed): search budget exhausted; reachability unconfirmed; search budget exhausted; reachability unconfirmed",
+        "at": "2026-10-12T22:19:20.821Z"
+      },
+      {
+        "taskId": "0741ca1f-5316-43a2-a403-d718e486184e",
+        "action": {
+          "action": "gather_wood",
+          "count": 4
+        },
+        "status": "failed",
+        "error": "No inventory gain (0 blocks removed): search budget exhausted; reachability unconfirmed; search budget exhausted; reachability unconfirmed",
+        "at": "2026-10-12T22:19:28.682Z"
+      },
+      {
+        "taskId": "61054e2a-d3c0-45f9-ad5f-6913fe274df8",
+        "action": {
+          "action": "gather_wood",
+          "count": 4
+        },
+        "status": "failed",
+        "error": "No inventory gain (0 blocks removed): search budget exhausted; reachability unconfirmed; search budget exhausted; reachability unconfirmed",
+        "at": "2026-10-12T22:20:01.296Z"
+      }
+    ],
+    "modelHealth": {
+      "ok": true,
+      "model": "qwen3.5-4b",
+      "path": "E:\\Qwen3.5-4B",
+      "quantization": "nf4",
+      "adapter": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01",
+      "adapter_loaded": true,
+      "adapter_scope": "minecraft-survival",
+      "generation": {
+        "active": false,
+        "queued": 0,
+        "max_waiters": 4,
+        "cancelled_running": 0
+      },
+      "generation_busy": false
+    },
+    "updatedAt": "2026-10-12T22:20:33.387Z",
+    "waitingFor": null,
+    "lastDecisionMetadata": {
+      "task": "minecraft-survival",
+      "used_adapter": true,
+      "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01"
+    },
+    "needsRecovery": true
+  }
+}

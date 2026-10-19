@@ -1,0 +1,182 @@
+{
+  "started_at": "2026-10-12T20:47:24.434484+00:00",
+  "adapter": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01",
+  "generation": {
+    "temperature": 0,
+    "max_tokens": 128,
+    "task": "minecraft-survival"
+  },
+  "sources_sha256": {
+    "E:\\Github\\AI_vtuber\\data\\minecraft-training\\holdout.jsonl": "ffbd010232a4f8cbcdaee4650ea4c938d719b2940bd0cbb7b8fad4b179006e4b",
+    "E:\\Github\\AI_vtuber\\data\\minecraft-training\\contract-v1.json": "7c9d4f4ab64c19904142155df959de1a00331364be1d12bea5aed7fee1949fbf",
+    "E:\\Github\\AI_vtuber\\output\\minecraft-training\\independent-review\\rubric-v1.json": "3427949d6c18c941a57d573cccfd8582f12a8949353138cf7fb69f1d17c3e295"
+  },
+  "requests": [
+    {
+      "id": "holdout-001",
+      "started_at": "2026-10-12T20:47:24.503424+00:00",
+      "finished_at": "2026-10-12T20:47:30.067425+00:00",
+      "status": 200,
+      "live_step_before": 0,
+      "used_adapter": true
+    },
+    {
+      "id": "holdout-002",
+      "started_at": "2026-10-12T20:47:31.086295+00:00",
+      "finished_at": "2026-10-12T20:47:32.463977+00:00",
+      "status": 200,
+      "live_step_before": 0,
+      "used_adapter": true
+    },
+    {
+      "id": "holdout-003",
+      "started_at": "2026-10-12T20:47:33.503430+00:00",
+      "finished_at": "2026-10-12T20:47:34.944080+00:00",
+      "status": 200,
+      "live_step_before": 0,
+      "used_adapter": true
+    },
+    {
+      "id": "holdout-004",
+      "started_at": "2026-10-12T20:47:35.966056+00:00",
+      "finished_at": "2026-10-12T20:47:37.342784+00:00",
+      "status": 200,
+      "live_step_before": 0,
+      "used_adapter": true
+    },
+    {
+      "id": "holdout-005",
+      "started_at": "2026-10-12T20:47:38.371824+00:00",
+      "finished_at": "2026-10-12T20:47:39.697756+00:00",
+      "status": 200,
+      "live_step_before": 0,
+      "used_adapter": true
+    },
+    {
+      "id": "holdout-006",
+      "started_at": "2026-10-12T20:47:40.746809+00:00",
+      "finished_at": "2026-10-12T20:47:42.247400+00:00",
+      "status": 200,
+      "live_step_before": 0,
+      "used_adapter": true
+    },
+    {
+      "id": "holdout-007",
+      "started_at": "2026-10-12T20:47:43.275468+00:00",
+      "finished_at": "2026-10-12T20:47:44.590758+00:00",
+      "status": 200,
+      "live_step_before": 0,
+      "used_adapter": true
+    },
+    {
+      "id": "holdout-008",
+      "started_at": "2026-10-12T20:47:45.595878+00:00",
+      "finished_at": "2026-10-12T20:47:46.363411+00:00",
+      "status": 200,
+      "live_step_before": 0,
+      "used_adapter": true
+    },
+    {
+      "id": "holdout-009",
+      "started_at": "2026-10-12T20:47:47.403043+00:00",
+      "finished_at": "2026-10-12T20:47:48.288227+00:00",
+      "status": 200,
+      "live_step_before": 0,
+      "used_adapter": true
+    },
+    {
+      "id": "holdout-010",
+      "started_at": "2026-10-12T20:47:49.311038+00:00",
+      "finished_at": "2026-10-12T20:47:50.806960+00:00",
+      "status": 200,
+      "live_step_before": 0,
+      "used_adapter": true
+    },
+    {
+      "id": "holdout-011",
+      "started_at": "2026-10-12T20:47:51.812395+00:00",
+      "finished_at": "2026-10-12T20:47:53.286276+00:00",
+      "status": 200,
+      "live_step_before": 0,
+      "used_adapter": true
+    },
+    {
+      "id": "holdout-012",
+      "started_at": "2026-10-12T20:47:54.314001+00:00",
+      "finished_at": "2026-10-12T20:47:55.091126+00:00",
+      "status": 200,
+      "live_step_before": 0,
+      "used_adapter": true
+    },
+    {
+      "id": "holdout-013",
+      "started_at": "2026-10-12T20:47:56.112741+00:00",
+      "finished_at": "2026-10-12T20:47:57.505391+00:00",
+      "status": 200,
+      "live_step_before": 0,
+      "used_adapter": true
+    },
+    {
+      "id": "holdout-014",
+      "started_at": "2026-10-12T20:47:58.522563+00:00",
+      "finished_at": "2026-10-12T20:47:59.379637+00:00",
+      "status": 200,
+      "live_step_before": 0,
+      "used_adapter": true
+    },
+    {
+      "id": "holdout-015",
+      "started_at": "2026-10-12T20:48:00.395201+00:00",
+      "finished_at": "2026-10-12T20:48:01.227143+00:00",
+      "status": 200,
+      "live_step_before": 0,
+      "used_adapter": true
+    },
+    {
+      "id": "holdout-016",
+      "started_at": "2026-10-12T20:48:02.271605+00:00",
+      "finished_at": "2026-10-12T20:48:03.152180+00:00",
+      "status": 200,
+      "live_step_before": 0,
+      "used_adapter": true
+    },
+    {
+      "id": "holdout-017",
+      "started_at": "2026-10-12T20:48:04.182882+00:00",
+      "finished_at": "2026-10-12T20:48:04.933335+00:00",
+      "status": 200,
+      "live_step_before": 0,
+      "used_adapter": true
+    },
+    {
+      "id": "holdout-018",
+      "started_at": "2026-10-12T20:48:05.982987+00:00",
+      "finished_at": "2026-10-12T20:48:07.014560+00:00",
+      "status": 200,
+      "live_step_before": 0,
+      "used_adapter": true
+    },
+    {
+      "id": "holdout-019",
+      "started_at": "2026-10-12T20:48:08.046942+00:00",
+      "finished_at": "2026-10-12T20:48:09.569511+00:00",
+      "status": 200,
+      "live_step_before": 0,
+      "used_adapter": true
+    },
+    {
+      "id": "holdout-020",
+      "started_at": "2026-10-12T20:48:10.601330+00:00",
+      "finished_at": "2026-10-12T20:48:11.487154+00:00",
+      "status": 200,
+      "live_step_before": 0,
+      "used_adapter": true
+    }
+  ],
+  "limits": [
+    "Sequential endpoint requests; no model loaded by this script.",
+    "Admission checks are best-effort; gameplay can race between preflight and submission.",
+    "Transport/503 errors are retries or audit interruption, never fabricated model failures."
+  ],
+  "finished_at": "2026-10-12T20:48:12.488161+00:00"
+}

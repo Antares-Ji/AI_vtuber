@@ -1,0 +1,131 @@
+{
+  "rows": 24,
+  "minPromptTokens": 1654,
+  "maxPromptTokens": 2635,
+  "meanPromptTokens": 2175.0,
+  "maxUserChars": 5621,
+  "tokenizerMaxLength": 262144,
+  "noClientTruncationConfigured": true,
+  "perStep": [
+    {
+      "step": 1,
+      "prompt_tokens": 1654,
+      "user_chars": 2508
+    },
+    {
+      "step": 2,
+      "prompt_tokens": 1828,
+      "user_chars": 2959
+    },
+    {
+      "step": 3,
+      "prompt_tokens": 1717,
+      "user_chars": 2703
+    },
+    {
+      "step": 4,
+      "prompt_tokens": 1871,
+      "user_chars": 3123
+    },
+    {
+      "step": 5,
+      "prompt_tokens": 1859,
+      "user_chars": 3114
+    },
+    {
+      "step": 6,
+      "prompt_tokens": 1964,
+      "user_chars": 3541
+    },
+    {
+      "step": 7,
+      "prompt_tokens": 2090,
+      "user_chars": 3873
+    },
+    {
+      "step": 8,
+      "prompt_tokens": 2056,
+      "user_chars": 3763
+    },
+    {
+      "step": 9,
+      "prompt_tokens": 2177,
+      "user_chars": 4045
+    },
+    {
+      "step": 10,
+      "prompt_tokens": 2143,
+      "user_chars": 3937
+    },
+    {
+      "step": 11,
+      "prompt_tokens": 2026,
+      "user_chars": 3665
+    },
+    {
+      "step": 12,
+      "prompt_tokens": 2066,
+      "user_chars": 3710
+    },
+    {
+      "step": 13,
+      "prompt_tokens": 2125,
+      "user_chars": 3938
+    },
+    {
+      "step": 14,
+      "prompt_tokens": 2234,
+      "user_chars": 4205
+    },
+    {
+      "step": 15,
+      "prompt_tokens": 2397,
+      "user_chars": 4600
+    },
+    {
+      "step": 16,
+      "prompt_tokens": 2395,
+      "user_chars": 4602
+    },
+    {
+      "step": 17,
+      "prompt_tokens": 2399,
+      "user_chars": 4605
+    },
+    {
+      "step": 18,
+      "prompt_tokens": 2192,
+      "user_chars": 4089
+    },
+    {
+      "step": 19,
+      "prompt_tokens": 2389,
+      "user_chars": 4557
+    },
+    {
+      "step": 20,
+      "prompt_tokens": 2473,
+      "user_chars": 4914
+    },
+    {
+      "step": 21,
+      "prompt_tokens": 2471,
+      "user_chars": 4915
+    },
+    {
+      "step": 22,
+      "prompt_tokens": 2553,
+      "user_chars": 5266
+    },
+    {
+      "step": 23,
+      "prompt_tokens": 2635,
+      "user_chars": 5621
+    },
+    {
+      "step": 24,
+      "prompt_tokens": 2487,
+      "user_chars": 5229
+    }
+  ]
+}

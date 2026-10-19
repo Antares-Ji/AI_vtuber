@@ -1,0 +1,878 @@
+{
+  "rubric": "minecraft-live-v2-acceptance-1",
+  "from": "2026-10-12T19:26:29.000Z",
+  "to": "2026-10-12T19:30:19.939Z",
+  "cohorts": {
+    "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v2\\checkpoint-epoch-03": {
+      "decisions": 8,
+      "results": 8,
+      "failed": 5,
+      "corroborated": 3,
+      "progress": 3
+    }
+  },
+  "decisions": 8,
+  "results": 8,
+  "failures": 5,
+  "failureRate": 0.625,
+  "repeatedUnchangedFailures": 4,
+  "repeatedFailureRateAmongAttempts": 0.5,
+  "repeatedFailureEvidence": [
+    {
+      "previousTaskId": "4bdc94c8-0e86-4691-9a9d-d0dc785105ee",
+      "taskId": "9f665a80-73c3-458e-bd59-fcfda0712edd",
+      "intent": {
+        "action": "craft",
+        "item": "crafting_table",
+        "count": 1
+      },
+      "error": "Missing ingredients for 1 crafting_table",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v2\\checkpoint-epoch-03"
+    },
+    {
+      "previousTaskId": "9f665a80-73c3-458e-bd59-fcfda0712edd",
+      "taskId": "04aba059-2630-45e8-8362-7f9627867452",
+      "intent": {
+        "action": "craft",
+        "item": "crafting_table",
+        "count": 1
+      },
+      "error": "Missing ingredients for 1 crafting_table",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v2\\checkpoint-epoch-03"
+    },
+    {
+      "previousTaskId": "04aba059-2630-45e8-8362-7f9627867452",
+      "taskId": "f0b80bc5-d106-419a-8634-978d3f0e0041",
+      "intent": {
+        "action": "craft",
+        "item": "crafting_table",
+        "count": 1
+      },
+      "error": "Missing ingredients for 1 crafting_table",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v2\\checkpoint-epoch-03"
+    },
+    {
+      "previousTaskId": "f0b80bc5-d106-419a-8634-978d3f0e0041",
+      "taskId": "d6a7b66a-622e-49cf-93f1-b6aee0a78cd9",
+      "intent": {
+        "action": "craft",
+        "item": "crafting_table",
+        "count": 1
+      },
+      "error": "Missing ingredients for 1 crafting_table",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v2\\checkpoint-epoch-03"
+    }
+  ],
+  "rejectedDecisions": [],
+  "actionEvidence": [
+    {
+      "taskId": "bfb364b3-8279-4c3d-8d81-9cdadd1b9442",
+      "at": "2026-10-12T19:28:36.992Z",
+      "action": {
+        "action": "gather_wood",
+        "count": 4
+      },
+      "status": "completed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v2\\checkpoint-epoch-03",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": true,
+      "inventorySource": "executor-local",
+      "inventoryDelta": {
+        "spruce_log": 4
+      },
+      "corroborated": true,
+      "progress": true,
+      "reason": "action-specific-evidence-present"
+    },
+    {
+      "taskId": "0c3eb554-8c49-44ac-9f20-c37c41665a6c",
+      "at": "2026-10-12T19:28:41.184Z",
+      "action": {
+        "action": "craft",
+        "item": "planks",
+        "count": 4
+      },
+      "status": "completed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v2\\checkpoint-epoch-03",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": true,
+      "inventorySource": "executor-local",
+      "inventoryDelta": {
+        "spruce_log": -1,
+        "spruce_planks": 4
+      },
+      "corroborated": true,
+      "progress": true,
+      "reason": "action-specific-evidence-present"
+    },
+    {
+      "taskId": "f6de784f-42c3-4e1c-b7ac-3940fa47e36b",
+      "at": "2026-10-12T19:28:45.113Z",
+      "action": {
+        "action": "craft",
+        "item": "stick",
+        "count": 2
+      },
+      "status": "completed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v2\\checkpoint-epoch-03",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": true,
+      "inventorySource": "executor-local",
+      "inventoryDelta": {
+        "spruce_planks": -2,
+        "stick": 4
+      },
+      "corroborated": true,
+      "progress": true,
+      "reason": "action-specific-evidence-present"
+    },
+    {
+      "taskId": "4bdc94c8-0e86-4691-9a9d-d0dc785105ee",
+      "at": "2026-10-12T19:28:48.860Z",
+      "action": {
+        "action": "craft",
+        "item": "crafting_table",
+        "count": 1
+      },
+      "status": "failed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v2\\checkpoint-epoch-03",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": false,
+      "inventorySource": "outer-observation-may-include-inference-time",
+      "inventoryDelta": {},
+      "corroborated": false,
+      "progress": false,
+      "reason": "not-completed-and-verified"
+    },
+    {
+      "taskId": "9f665a80-73c3-458e-bd59-fcfda0712edd",
+      "at": "2026-10-12T19:28:56.189Z",
+      "action": {
+        "action": "craft",
+        "item": "crafting_table",
+        "count": 1
+      },
+      "status": "failed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v2\\checkpoint-epoch-03",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": false,
+      "inventorySource": "outer-observation-may-include-inference-time",
+      "inventoryDelta": {},
+      "corroborated": false,
+      "progress": false,
+      "reason": "not-completed-and-verified"
+    },
+    {
+      "taskId": "04aba059-2630-45e8-8362-7f9627867452",
+      "at": "2026-10-12T19:29:03.498Z",
+      "action": {
+        "action": "craft",
+        "item": "crafting_table",
+        "count": 1
+      },
+      "status": "failed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v2\\checkpoint-epoch-03",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": false,
+      "inventorySource": "outer-observation-may-include-inference-time",
+      "inventoryDelta": {},
+      "corroborated": false,
+      "progress": false,
+      "reason": "not-completed-and-verified"
+    },
+    {
+      "taskId": "f0b80bc5-d106-419a-8634-978d3f0e0041",
+      "at": "2026-10-12T19:29:36.005Z",
+      "action": {
+        "action": "craft",
+        "item": "crafting_table",
+        "count": 1
+      },
+      "status": "failed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v2\\checkpoint-epoch-03",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": false,
+      "inventorySource": "outer-observation-may-include-inference-time",
+      "inventoryDelta": {},
+      "corroborated": false,
+      "progress": false,
+      "reason": "not-completed-and-verified"
+    },
+    {
+      "taskId": "d6a7b66a-622e-49cf-93f1-b6aee0a78cd9",
+      "at": "2026-10-12T19:30:08.443Z",
+      "action": {
+        "action": "craft",
+        "item": "crafting_table",
+        "count": 1
+      },
+      "status": "failed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v2\\checkpoint-epoch-03",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": false,
+      "inventorySource": "outer-observation-may-include-inference-time",
+      "inventoryDelta": {},
+      "corroborated": false,
+      "progress": false,
+      "reason": "not-completed-and-verified"
+    }
+  ],
+  "safety": {
+    "deaths": 0,
+    "deathEvents": [],
+    "minimumLoggedHealth": 19.5,
+    "healthTrace": [
+      {
+        "at": "2026-10-12T19:26:29.057Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": 79.50000000000013,
+          "y": 92,
+          "z": 72.9503542651428
+        }
+      },
+      {
+        "at": "2026-10-12T19:26:29.268Z",
+        "event": "priority_changed",
+        "health": 20
+      },
+      {
+        "at": "2026-10-12T19:26:29.270Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": 79.50000000000013,
+          "y": 92,
+          "z": 73.5
+        }
+      },
+      {
+        "at": "2026-10-12T19:26:30.293Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": 79.5,
+          "y": 91,
+          "z": 72.33659370574438
+        }
+      },
+      {
+        "at": "2026-10-12T19:26:30.493Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": 79.49999999999994,
+          "y": 91,
+          "z": 72.01223317820923
+        }
+      },
+      {
+        "at": "2026-10-12T19:26:30.698Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": 79.49999999999994,
+          "y": 91,
+          "z": 71.5
+        }
+      },
+      {
+        "at": "2026-10-12T19:26:31.113Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": 79.50000000000006,
+          "y": 91,
+          "z": 72.31497854544739
+        }
+      },
+      {
+        "at": "2026-10-12T19:26:31.314Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": 79.49999999999997,
+          "y": 91,
+          "z": 71.5
+        }
+      },
+      {
+        "at": "2026-10-12T19:26:31.515Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": 79.50000000000003,
+          "y": 91,
+          "z": 72.05930099831127
+        }
+      },
+      {
+        "at": "2026-10-12T19:26:31.715Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": 79.49999999999994,
+          "y": 91,
+          "z": 71.5
+        }
+      },
+      {
+        "at": "2026-10-12T19:26:31.917Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": 79.50000000000006,
+          "y": 91,
+          "z": 72.05930099831127
+        }
+      },
+      {
+        "at": "2026-10-12T19:26:32.119Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": 79.49999999999997,
+          "y": 91,
+          "z": 71.5
+        }
+      },
+      {
+        "at": "2026-10-12T19:26:32.322Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": 79.50000000000003,
+          "y": 91,
+          "z": 72.31497854544739
+        }
+      },
+      {
+        "at": "2026-10-12T19:26:32.743Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": 79.50000000000003,
+          "y": 92.12159999847412,
+          "z": 72.93288136508001
+        }
+      },
+      {
+        "at": "2026-10-12T19:26:32.942Z",
+        "event": "escape_blocked",
+        "health": 20,
+        "position": {
+          "x": 79.50000000000003,
+          "y": 92,
+          "z": 73.5
+        }
+      },
+      {
+        "at": "2026-10-12T19:26:38.671Z",
+        "event": "escape_blocked",
+        "health": 20,
+        "position": {
+          "x": 79.50000000000003,
+          "y": 92,
+          "z": 73.5
+        }
+      },
+      {
+        "at": "2026-10-12T19:26:44.404Z",
+        "event": "escape_blocked",
+        "health": 20,
+        "position": {
+          "x": 79.50000000000003,
+          "y": 92,
+          "z": 73.5
+        }
+      },
+      {
+        "at": "2026-10-12T19:26:50.143Z",
+        "event": "escape_blocked",
+        "health": 20,
+        "position": {
+          "x": 79.50000000000003,
+          "y": 92,
+          "z": 73.5
+        }
+      },
+      {
+        "at": "2026-10-12T19:26:52.261Z",
+        "event": "priority_changed",
+        "health": 20
+      },
+      {
+        "at": "2026-10-12T19:26:55.907Z",
+        "event": "escape_blocked",
+        "health": 20,
+        "position": {
+          "x": 79.50000000000003,
+          "y": 92,
+          "z": 73.5
+        }
+      },
+      {
+        "at": "2026-10-12T19:27:01.656Z",
+        "event": "escape_blocked",
+        "health": 20,
+        "position": {
+          "x": 79.50000000000003,
+          "y": 92,
+          "z": 73.5
+        }
+      },
+      {
+        "at": "2026-10-12T19:27:07.383Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": 79.50000000000003,
+          "y": 92,
+          "z": 73.5
+        }
+      },
+      {
+        "at": "2026-10-12T19:27:08.618Z",
+        "event": "escape_blocked",
+        "health": 20,
+        "position": {
+          "x": 79.57942005307483,
+          "y": 91,
+          "z": 69.62359700898773
+        }
+      },
+      {
+        "at": "2026-10-12T19:27:11.902Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": 79.57942005307483,
+          "y": 91,
+          "z": 69.62359700898773
+        }
+      },
+      {
+        "at": "2026-10-12T19:27:12.103Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": 79.52908881868281,
+          "y": 91,
+          "z": 70.5
+        }
+      },
+      {
+        "at": "2026-10-12T19:27:13.118Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": 79.51775038445469,
+          "y": 91,
+          "z": 71.3373938856823
+        }
+      },
+      {
+        "at": "2026-10-12T19:27:13.322Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": 79.50941244823986,
+          "y": 91,
+          "z": 72.5
+        }
+      },
+      {
+        "at": "2026-10-12T19:27:13.725Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": 79.50498339862244,
+          "y": 92.12159999847412,
+          "z": 72.93287418247023
+        }
+      },
+      {
+        "at": "2026-10-12T19:27:13.926Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": 79.50498339862244,
+          "y": 92,
+          "z": 73.5
+        }
+      },
+      {
+        "at": "2026-10-12T19:27:14.748Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": 78.96464271941467,
+          "y": 91,
+          "z": 72.2284341433
+        }
+      },
+      {
+        "at": "2026-10-12T19:27:14.949Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": 79.5,
+          "y": 91,
+          "z": 72.5
+        }
+      },
+      {
+        "at": "2026-10-12T19:27:15.413Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": 79.50000000000013,
+          "y": 92,
+          "z": 73.5
+        }
+      },
+      {
+        "at": "2026-10-12T19:27:16.234Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": 78.96286708454228,
+          "y": 91,
+          "z": 72.2259431932916
+        }
+      },
+      {
+        "at": "2026-10-12T19:27:16.435Z",
+        "event": "escape_blocked",
+        "health": 20,
+        "position": {
+          "x": 79.5,
+          "y": 91,
+          "z": 72.5
+        }
+      },
+      {
+        "at": "2026-10-12T19:27:22.178Z",
+        "event": "escape_blocked",
+        "health": 20,
+        "position": {
+          "x": 79.5,
+          "y": 91,
+          "z": 72.5
+        }
+      },
+      {
+        "at": "2026-10-12T19:27:22.983Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": 79.5,
+          "y": 91,
+          "z": 72.5
+        }
+      },
+      {
+        "at": "2026-10-12T19:27:23.387Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": 79.50000000000013,
+          "y": 92.12159999847412,
+          "z": 72.93288136508001
+        }
+      },
+      {
+        "at": "2026-10-12T19:27:23.588Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": 79.50000000000013,
+          "y": 92,
+          "z": 73.5
+        }
+      },
+      {
+        "at": "2026-10-12T19:27:24.397Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": 78.96286708454228,
+          "y": 91,
+          "z": 72.2259431932916
+        }
+      },
+      {
+        "at": "2026-10-12T19:27:24.598Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": 79.5,
+          "y": 91,
+          "z": 72.5
+        }
+      },
+      {
+        "at": "2026-10-12T19:27:25.000Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": 79.50000000000013,
+          "y": 92,
+          "z": 73.5
+        }
+      },
+      {
+        "at": "2026-10-12T19:27:25.807Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": 78.96286708454228,
+          "y": 91,
+          "z": 72.2259431932916
+        }
+      },
+      {
+        "at": "2026-10-12T19:27:26.211Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": 78.55258638575016,
+          "y": 91,
+          "z": 73.01470908783713
+        }
+      },
+      {
+        "at": "2026-10-12T19:27:26.613Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": 78.48385750699768,
+          "y": 91,
+          "z": 74.32117313937486
+        }
+      },
+      {
+        "at": "2026-10-12T19:27:26.813Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": 78.49186168473756,
+          "y": 91,
+          "z": 73.5
+        }
+      },
+      {
+        "at": "2026-10-12T19:27:27.821Z",
+        "event": "escape_blocked",
+        "health": 20,
+        "position": {
+          "x": 78.49486344683763,
+          "y": 91,
+          "z": 74.33773735048885
+        }
+      },
+      {
+        "at": "2026-10-12T19:27:29.500Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": 78.49486344683763,
+          "y": 91,
+          "z": 74.33773735048885
+        }
+      },
+      {
+        "at": "2026-10-12T19:27:29.701Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": 78.497198158313,
+          "y": 91,
+          "z": 73.5
+        }
+      },
+      {
+        "at": "2026-10-12T19:27:30.329Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": 79.5,
+          "y": 91,
+          "z": 72.46708110516235
+        }
+      },
+      {
+        "at": "2026-10-12T19:27:30.669Z",
+        "event": "priority_changed",
+        "health": 20
+      },
+      {
+        "at": "2026-10-12T19:27:34.936Z",
+        "event": "priority_changed",
+        "health": 19.5
+      },
+      {
+        "at": "2026-10-12T19:27:36.980Z",
+        "event": "escape_short_route",
+        "health": 19.833332061767578,
+        "position": {
+          "x": 63.444260334164774,
+          "y": 91.23152379758702,
+          "z": 85.5
+        }
+      },
+      {
+        "at": "2026-10-12T19:27:38.449Z",
+        "event": "escape_short_route",
+        "health": 19.833332061767578,
+        "position": {
+          "x": 59.54242985117801,
+          "y": 91,
+          "z": 89.01172334398667
+        }
+      },
+      {
+        "at": "2026-10-12T19:27:39.293Z",
+        "event": "escape_blocked",
+        "health": 19.833332061767578,
+        "position": {
+          "x": 58.36744479326889,
+          "y": 90,
+          "z": 89.5
+        }
+      },
+      {
+        "at": "2026-10-12T19:27:40.244Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": 58.36744479326889,
+          "y": 90,
+          "z": 89.5
+        }
+      },
+      {
+        "at": "2026-10-12T19:27:41.895Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": 56.49367478260809,
+          "y": 89,
+          "z": 87.49007358398613
+        }
+      },
+      {
+        "at": "2026-10-12T19:27:42.488Z",
+        "event": "priority_changed",
+        "health": 20
+      },
+      {
+        "at": "2026-10-12T19:27:43.093Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": 55.005566397521164,
+          "y": 90,
+          "z": 86.58377946527084
+        }
+      },
+      {
+        "at": "2026-10-12T19:27:44.114Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": 57.57186708313301,
+          "y": 90,
+          "z": 88.37747705281036
+        }
+      },
+      {
+        "at": "2026-10-12T19:27:44.504Z",
+        "event": "escape_blocked",
+        "health": 20,
+        "position": {
+          "x": 58.5,
+          "y": 90,
+          "z": 89.5
+        }
+      },
+      {
+        "at": "2026-10-12T19:27:45.310Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": 58.5,
+          "y": 90,
+          "z": 89.5
+        }
+      },
+      {
+        "at": "2026-10-12T19:27:45.917Z",
+        "event": "priority_changed",
+        "health": 20
+      },
+      {
+        "at": "2026-10-12T19:27:46.526Z",
+        "event": "escape_short_route",
+        "health": 20,
+        "position": {
+          "x": 59.3963210037525,
+          "y": 91,
+          "z": 89.49999999999982
+        }
+      },
+      {
+        "at": "2026-10-12T19:27:46.995Z",
+        "event": "priority_changed",
+        "health": 20
+      }
+    ],
+    "escapeRoutesIssued": 45,
+    "blockedEvents": 12,
+    "threatClearedEvents": 1,
+    "timingLogSamples": 24,
+    "sampledTickMaxMs": 2.5,
+    "sampledGapMaxMs": 214.6,
+    "observedCumulativeTickMaxMs": 54.3,
+    "observedCumulativeGapMaxMs": 420.3,
+    "observedCumulativeFallbackOverruns": 0,
+    "escapeAcceptance": "routes-observed-review-endpoints-and-threat-clearance"
+  },
+  "limits": [
+    "Offline logs corroborate executor observations; they are not an independent game sensor.",
+    "Completed partial gains count as progress but not full requested quantity.",
+    "Death and timing counts cover only supplied logs and timestamps; sparse timing logs do not support per-tick percentiles.",
+    "Cumulative timing maxima may predate this window until reactive reload; report them separately from sampled window values.",
+    "Different prompts, compact observations, executors or world states confound model-weight comparisons. Only frozen identical-input base/adapter evaluation isolates a weight contrast.",
+    "No danger encountered means escape behavior remains untested. Issuing a route alone does not establish escape success.",
+    "Unknown completion metadata never proves adapter use."
+  ],
+  "sources": {
+    "autonomy": {
+      "path": "logs/minecraft-autonomy.jsonl",
+      "sha256": "8e6af4583f4275417510d6409ffa603af7721112406712b9228c3d5d9564ebd6",
+      "malformedLines": []
+    },
+    "session": {
+      "path": "logs/minecraft-session-1791830191222.jsonl",
+      "sha256": "27920d6a6c2f72f536f6cf4996adbe182dc1689d846070e8e568d6e5a452c822",
+      "malformedLines": []
+    }
+  },
+  "implementationHashes": {
+    "src/minecraft/survival-planner.js": "e9cf50096b350e65262dfbc948a7b60a8c8ba08cb561cc7d139ffbdc50dfe59a",
+    "src/minecraft/survival-skills.js": "5ad241b765c1a250466b995d710095d31757aa08f1e4d928993917b9105dc267",
+    "src/minecraft/reactive-agent.js": "a9bf34b973a57b64aebd2612ba9cc90efce2eef125b004a1517e27d4ddae7a32",
+    "src/minecraft/autonomy-loop.js": "a7c105b1eb78f60dbe9c29014ccef4bce8dccf932ca421ca6c2cc399b89e280c"
+  },
+  "implementationHashTiming": "Report-time checkout; establish deployment-time hashes separately before attributing changes."
+}

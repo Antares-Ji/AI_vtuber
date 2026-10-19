@@ -1,0 +1,18 @@
+{
+  "mode": "direct-grid",
+  "base_model": "E:\\Qwen3.5-4B",
+  "adapter": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01",
+  "evaluation_data": "E:\\Github\\AI_vtuber\\output\\minecraft-training\\v4r1-stage-probe-diagnostic.jsonl",
+  "evaluation_contract": "E:\\Github\\AI_vtuber\\data\\minecraft-training\\contract-v3r1.json",
+  "raw_predictions": "output\\minecraft-training\\v4r1-comparison\\v4r1-stage-probe-v4r1.jsonl",
+  "n": 1,
+  "exact_action_object_accuracy": 0.0,
+  "action_name_accuracy": 0.0,
+  "strict_json_schema_valid_rate": 1.0,
+  "threat_priority_accuracy": null,
+  "progression_exact_accuracy": 0.0,
+  "threat_cases": 0,
+  "progression_cases": 1,
+  "final_holdout": false,
+  "limitation": "Development-set checkpoint selection only; agreement with authored labels does not demonstrate successful gameplay or broad generalization."
+}

@@ -1,0 +1,33 @@
+{
+  "capturedAt": 1791981376329,
+  "evidence": {
+    "goal": "按最新背包继续制作可负担的工具，最多提前计划三步。不可达的树不要重复采集，换方向或使用已有木材。遇敌优先避险。",
+    "inventory": [
+      {
+        "name": "spruce_planks",
+        "count": 4
+      },
+      {
+        "name": "stick",
+        "count": 8
+      },
+      {
+        "name": "crafting_table",
+        "count": 1
+      },
+      {
+        "name": "spruce_log",
+        "count": 20
+      }
+    ],
+    "health": 20,
+    "food": 20,
+    "yolo": {
+      "scope": "COCO only, not trained for Minecraft",
+      "detections": []
+    }
+  },
+  "speech": "我站在树荫下，背包里还剩下足够的原木和木棍，正好能继续做工具。不过这片区域看起来有点安静，我打算换个方向去看看，免得错过什么危险。",
+  "expired": false,
+  "model": "qwen3.5-4b"
+}

@@ -1,0 +1,455 @@
+{
+  "at": "2026-10-12T19:26:29.175Z",
+  "health": {
+    "ok": true,
+    "model": "qwen3.5-4b",
+    "path": "E:\\Qwen3.5-4B",
+    "quantization": "nf4",
+    "adapter": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v2\\checkpoint-epoch-03",
+    "adapter_loaded": true,
+    "adapter_scope": "minecraft-survival",
+    "generation": {
+      "active": false,
+      "queued": 0,
+      "max_waiters": 4,
+      "cancelled_running": 1
+    },
+    "generation_busy": false
+  },
+  "hashes": {
+    "src/minecraft/autonomy-loop.js": "a7c105b1eb78f60dbe9c29014ccef4bce8dccf932ca421ca6c2cc399b89e280c",
+    "src/minecraft/survival-planner.js": "e9cf50096b350e65262dfbc948a7b60a8c8ba08cb561cc7d139ffbdc50dfe59a",
+    "src/minecraft/survival-skills.js": "5ad241b765c1a250466b995d710095d31757aa08f1e4d928993917b9105dc267",
+    "src/minecraft/reactive-agent.js": "19d8aa309fde5b6e3a8f5cc02c382cd1afaaba1df5c4d66f9da50fc4ae513650",
+    "src/local_llm/server.py": "71b44fe4c66c0aae7c7c43812baf1d00c168304b2212920ead49a41fb8bce19c",
+    "src/local_llm/generation_gate.py": "0e3be8f66e4e36fbeb3b002ce1bef5e36639d51880190147b8c2ad1301d1b0c9",
+    "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v2\\checkpoint-epoch-03\\adapter_model.safetensors": "0d917768fa948e9f9a77a4da0ed220fb1addffb591ae097d6d65b5926ee2a662"
+  },
+  "readOnlyProbe": {
+    "state": {
+      "connected": true,
+      "mode": "survival",
+      "dimension": "overworld",
+      "health": 20,
+      "food": 20,
+      "oxygen": 400,
+      "position": {
+        "x": 79.5,
+        "y": 92,
+        "z": 73.5
+      },
+      "timeOfDay": 22549,
+      "isNight": true,
+      "inventory": [],
+      "tools": [],
+      "heldItem": null,
+      "equipment": [],
+      "threats": [
+        {
+          "id": 24826,
+          "name": "zombie",
+          "distance": 11.8,
+          "position": {
+            "x": 67.7,
+            "y": 91,
+            "z": 72.5
+          }
+        },
+        {
+          "id": 25115,
+          "name": "skeleton",
+          "distance": 12,
+          "position": {
+            "x": 76.7,
+            "y": 99,
+            "z": 64.2
+          }
+        }
+      ],
+      "hazards": [],
+      "resources": {
+        "stone": [
+          {
+            "name": "stone",
+            "position": {
+              "x": 79,
+              "y": 92,
+              "z": 74
+            },
+            "distance": 1
+          },
+          {
+            "name": "stone",
+            "position": {
+              "x": 79,
+              "y": 91,
+              "z": 73
+            },
+            "distance": 1
+          },
+          {
+            "name": "stone",
+            "position": {
+              "x": 79,
+              "y": 91,
+              "z": 74
+            },
+            "distance": 1
+          },
+          {
+            "name": "stone",
+            "position": {
+              "x": 79,
+              "y": 93,
+              "z": 74
+            },
+            "distance": 1
+          }
+        ],
+        "coal": [
+          {
+            "name": "coal_ore",
+            "position": {
+              "x": 75,
+              "y": 87,
+              "z": 72
+            },
+            "distance": 7
+          },
+          {
+            "name": "coal_ore",
+            "position": {
+              "x": 74,
+              "y": 88,
+              "z": 72
+            },
+            "distance": 7
+          },
+          {
+            "name": "coal_ore",
+            "position": {
+              "x": 73,
+              "y": 87,
+              "z": 72
+            },
+            "distance": 8
+          },
+          {
+            "name": "coal_ore",
+            "position": {
+              "x": 73,
+              "y": 87,
+              "z": 71
+            },
+            "distance": 9
+          }
+        ],
+        "iron": [
+          {
+            "name": "iron_ore",
+            "position": {
+              "x": 83,
+              "y": 92,
+              "z": 82
+            },
+            "distance": 9
+          }
+        ],
+        "diamond": [],
+        "obsidian": [],
+        "gravel": [
+          {
+            "name": "gravel",
+            "position": {
+              "x": 70,
+              "y": 93,
+              "z": 68
+            },
+            "distance": 11
+          },
+          {
+            "name": "gravel",
+            "position": {
+              "x": 69,
+              "y": 93,
+              "z": 69
+            },
+            "distance": 11
+          }
+        ],
+        "wood": [
+          {
+            "name": "spruce_log",
+            "position": {
+              "x": 89,
+              "y": 103,
+              "z": 73
+            },
+            "distance": 15
+          },
+          {
+            "name": "spruce_log",
+            "position": {
+              "x": 89,
+              "y": 104,
+              "z": 73
+            },
+            "distance": 15
+          },
+          {
+            "name": "spruce_log",
+            "position": {
+              "x": 73,
+              "y": 106,
+              "z": 74
+            },
+            "distance": 15
+          },
+          {
+            "name": "spruce_log",
+            "position": {
+              "x": 74,
+              "y": 108,
+              "z": 69
+            },
+            "distance": 18
+          }
+        ]
+      },
+      "animals": [],
+      "landmarks": {
+        "evidenceOnly": true,
+        "villageConfirmed": false,
+        "entities": [],
+        "blocks": []
+      },
+      "stations": [],
+      "fluids": {
+        "water": [],
+        "lava": []
+      },
+      "craftable": [],
+      "recipeHints": [
+        {
+          "item": "stick",
+          "missing": [
+            {
+              "name": "cherry_planks",
+              "count": 2
+            }
+          ],
+          "oneRecipeExample": true
+        },
+        {
+          "item": "crafting_table",
+          "missing": [
+            {
+              "name": "cherry_planks",
+              "count": 4
+            }
+          ],
+          "oneRecipeExample": true
+        },
+        {
+          "item": "wooden_pickaxe",
+          "missing": [
+            {
+              "name": "cherry_planks",
+              "count": 3
+            },
+            {
+              "name": "stick",
+              "count": 2
+            }
+          ],
+          "oneRecipeExample": true
+        },
+        {
+          "item": "stone_pickaxe",
+          "missing": [
+            {
+              "name": "cobbled_deepslate",
+              "count": 3
+            },
+            {
+              "name": "stick",
+              "count": 2
+            }
+          ],
+          "oneRecipeExample": true
+        },
+        {
+          "item": "furnace",
+          "missing": [
+            {
+              "name": "cobbled_deepslate",
+              "count": 8
+            }
+          ],
+          "oneRecipeExample": true
+        },
+        {
+          "item": "iron_pickaxe",
+          "missing": [
+            {
+              "name": "iron_ingot",
+              "count": 3
+            },
+            {
+              "name": "stick",
+              "count": 2
+            }
+          ],
+          "oneRecipeExample": true
+        },
+        {
+          "item": "bucket",
+          "missing": [
+            {
+              "name": "iron_ingot",
+              "count": 3
+            }
+          ],
+          "oneRecipeExample": true
+        },
+        {
+          "item": "flint_and_steel",
+          "missing": [
+            {
+              "name": "iron_ingot",
+              "count": 1
+            },
+            {
+              "name": "flint",
+              "count": 1
+            }
+          ],
+          "oneRecipeExample": true
+        },
+        {
+          "item": "diamond_pickaxe",
+          "missing": [
+            {
+              "name": "diamond",
+              "count": 3
+            },
+            {
+              "name": "stick",
+              "count": 2
+            }
+          ],
+          "oneRecipeExample": true
+        },
+        {
+          "item": "torch",
+          "missing": [
+            {
+              "name": "charcoal",
+              "count": 1
+            },
+            {
+              "name": "stick",
+              "count": 1
+            }
+          ],
+          "oneRecipeExample": true
+        }
+      ],
+      "recentExploration": [],
+      "recentFailures": [],
+      "portalSite": null,
+      "busy": false,
+      "activeTaskId": null,
+      "reactive": {
+        "updatedAt": "2026-10-12T19:26:27.634Z",
+        "sampleIntervalMs": 200,
+        "lifecycleEpoch": 2,
+        "dimension": "overworld",
+        "timeOfDay": 22549,
+        "health": 20,
+        "food": 20,
+        "armed": false,
+        "enabled": true,
+        "mode": "flee",
+        "calming": false,
+        "targetId": 24826,
+        "entities": [
+          {
+            "id": 24826,
+            "name": "zombie",
+            "position": {
+              "x": 67.73337024481717,
+              "y": 91,
+              "z": 72.46532858557433
+            },
+            "distance": 11.847265737965337
+          },
+          {
+            "id": 25115,
+            "name": "skeleton",
+            "position": {
+              "x": 76.68181682066279,
+              "y": 99,
+              "z": 64.21879558810602
+            },
+            "distance": 11.960062386877192
+          },
+          {
+            "id": 17820,
+            "name": "rabbit",
+            "position": {
+              "x": 80.99300357669576,
+              "y": 104.63501167427887,
+              "z": 75.99877005325915
+            },
+            "distance": 12.96678847594831
+          },
+          {
+            "id": 25116,
+            "name": "creeper",
+            "position": {
+              "x": 64.73938858425522,
+              "y": 101,
+              "z": 60.46727173960039
+            },
+            "distance": 21.645297028270825
+          }
+        ],
+        "escape": {
+          "strategy": "short_safe_site",
+          "noPathCount": 0,
+          "triedSites": 87,
+          "leavesCleared": 0,
+          "blocked": false,
+          "site": {
+            "x": 79,
+            "y": 92,
+            "z": 73
+          }
+        },
+        "timing": {
+          "tickMs": 4.6,
+          "maxTickMs": 54.3,
+          "sampleGapMs": 199.6,
+          "maxSampleGapMs": 216.3,
+          "skippedTicks": 0,
+          "fallbackMs": 1.9,
+          "maxFallbackMs": 51.5,
+          "fallbackBudgetMs": 60,
+          "fallbackOverruns": 0,
+          "intervalIsSchedulingTarget": true
+        }
+      },
+      "sessionId": "E:\\Github\\AI_vtuber\\logs\\minecraft-session-1791830191222.jsonl"
+    },
+    "action": {
+      "action": "flee"
+    },
+    "metadata": {
+      "task": "minecraft-survival",
+      "used_adapter": true,
+      "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v2\\checkpoint-epoch-03"
+    }
+  },
+  "runtimeNote": "Main stale/recovery checks loaded; bot emergency explore source has not yet been hotloaded because reflex active; next reload must be logged."
+}

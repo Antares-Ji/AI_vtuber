@@ -1,0 +1,41 @@
+{
+  "probe": "live-probe-1791838384663.json",
+  "source_path": "E:\\Github\\AI_vtuber\\output\\minecraft-training\\live-probe-1791838384663.json",
+  "at": "2026-10-12T20:53:04.663Z",
+  "raw": "{\"action\":\"gather_wood\",\"count\":4}",
+  "predicted": {
+    "action": "gather_wood",
+    "count": 4
+  },
+  "schema_valid": true,
+  "latency_ms": 1665.6,
+  "request_metadata": {
+    "task": "minecraft-survival",
+    "used_adapter": true,
+    "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v5r2-dense-replay-candidate\\checkpoint-epoch-02"
+  },
+  "diagnostic_only": true,
+  "hard_gold_label": null,
+  "original_results_for_context": [
+    {
+      "task": null,
+      "latencyMs": 1441,
+      "metadata": {
+        "task": null,
+        "used_adapter": false,
+        "adapter_path": null
+      },
+      "content": "{\"action\":\"gather_wood\",\"count\":4}"
+    },
+    {
+      "task": "minecraft-survival",
+      "latencyMs": 1170,
+      "metadata": {
+        "task": "minecraft-survival",
+        "used_adapter": true,
+        "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01"
+      },
+      "content": "{\"action\":\"eat\"}"
+    }
+  ]
+}

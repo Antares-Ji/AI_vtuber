@@ -1,0 +1,26 @@
+{
+  "capturedAt": 1792339183425,
+  "evidence": {
+    "goal": "由千问自主规划并通过Mineflayer执行生存小家目标。首先根据实际危险优先避怪、防护和食物，避免反复死亡丢失物资；再采集、正确制作工具、建屋并配置床箱子火把、熟食、浅矿及返家。全部75种已注册动作开放，由你根据真实观察与执行结果选择；死亡后重新核对库存，先满足配方和工具前置条件，不重复囤木或把破坏方块冒称物品入库。持续运行直到用户明确停止。",
+    "currentSubgoal": null,
+    "action": {
+      "action": "gather_wood",
+      "count": 12
+    },
+    "outcome": "completed",
+    "error": null,
+    "inventory": [],
+    "health": 20,
+    "food": 20,
+    "yolo": {
+      "scope": "COCO only, not trained for Minecraft",
+      "detections": []
+    }
+  },
+  "speech": "刚回游戏，背包还是空的，那批木头确实没进包。我重新去砍一轮，等物品真到手了再算数。",
+  "model": "deepseek-flash",
+  "provider": "cloud",
+  "visionModel": "qwen3.5-4b",
+  "visualObservation": "游戏菜单界面显示“回到游戏”、“进度”、“统计信息”等选项按钮。",
+  "expired": false
+}

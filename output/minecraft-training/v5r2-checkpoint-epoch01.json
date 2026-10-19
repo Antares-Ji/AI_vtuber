@@ -1,0 +1,14 @@
+{
+  "recordedAt": "2026-10-12T21:41:46.3844968Z",
+  "epoch": 1,
+  "meanLoss": 0.1656,
+  "optimizerSteps": 54,
+  "peakAllocatedGiB": 5.05,
+  "adapterPath": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v5r2-dense-replay-candidate\\checkpoint-epoch-01",
+  "adapterConfigRank": 4,
+  "adapterFileBytes": 21270808,
+  "adapterSha256": "c0007d5f7a8d21863463f98e994b61e02613fd1d7f140f6bc5338c66f018a134",
+  "status": "saved; epoch2 continuing",
+  "sourceRun": "output/minecraft-training/v5r2-training-run-preflight.json",
+  "dataSha256": "2086a5efe8cefdf2e10f99fd2e3b7cd0aabb6bf4eb91fdab0d21e1b1a9934877"
+}

@@ -1,0 +1,594 @@
+{
+  "generatedAt": "2026-10-12T22:11:10.940Z",
+  "scope": "Recovery evidence only, not full still-running trial6 acceptance",
+  "from": "2026-10-12T22:07:34Z",
+  "through": "2026-10-12T22:09:27.167Z",
+  "actualAdapter": "minecraft-survival-v4r1-replay-candidate/checkpoint-epoch-01",
+  "allAdapterMetadataTrue": true,
+  "events": [
+    {
+      "at": "2026-10-12T22:07:40.884Z",
+      "taskId": "dba0e149-ebea-4bd4-a699-6281a7382d9a",
+      "action": {
+        "action": "craft",
+        "item": "stick",
+        "count": 4
+      },
+      "status": "completed",
+      "result": {
+        "action": {
+          "action": "craft",
+          "item": "stick",
+          "count": 4
+        },
+        "verified": true,
+        "item": "stick",
+        "gained": 4,
+        "inventoryConfirmation": "server_full_window_per_click",
+        "inventoryBefore": [
+          {
+            "name": "spruce_planks",
+            "count": 2
+          },
+          {
+            "name": "stick",
+            "count": 4
+          }
+        ],
+        "inventoryAfter": [
+          {
+            "name": "stick",
+            "count": 8
+          }
+        ],
+        "position": {
+          "x": -9.5,
+          "y": 63,
+          "z": -22.7
+        }
+      }
+    },
+    {
+      "at": "2026-10-12T22:07:49.097Z",
+      "taskId": "2c4d7b38-6ca5-4587-b634-b7d14c0f7c2b",
+      "action": {
+        "action": "explore",
+        "direction": "northwest",
+        "distance": 24
+      },
+      "status": "completed",
+      "result": {
+        "action": {
+          "action": "explore",
+          "direction": "northwest",
+          "distance": 24
+        },
+        "verified": true,
+        "moved": 21,
+        "from": {
+          "x": -9.5,
+          "y": 63,
+          "z": -22.7
+        },
+        "to": {
+          "x": -24.5,
+          "y": 63,
+          "z": -37.5
+        },
+        "remainingThreats": [],
+        "inventoryBefore": [
+          {
+            "name": "stick",
+            "count": 8
+          }
+        ],
+        "inventoryAfter": [
+          {
+            "name": "stick",
+            "count": 8
+          }
+        ],
+        "position": {
+          "x": -24.5,
+          "y": 63,
+          "z": -37.5
+        }
+      }
+    },
+    {
+      "at": "2026-10-12T22:07:58.715Z",
+      "taskId": "67edcc82-a567-448e-a210-5f1f88e743e6",
+      "action": {
+        "action": "explore",
+        "direction": "northwest",
+        "distance": 24
+      },
+      "status": "completed",
+      "result": {
+        "action": {
+          "action": "explore",
+          "direction": "northwest",
+          "distance": 24
+        },
+        "verified": true,
+        "moved": 22,
+        "from": {
+          "x": -24.5,
+          "y": 63,
+          "z": -37.5
+        },
+        "to": {
+          "x": -40.5,
+          "y": 64,
+          "z": -52.3
+        },
+        "remainingThreats": [],
+        "inventoryBefore": [
+          {
+            "name": "stick",
+            "count": 8
+          }
+        ],
+        "inventoryAfter": [
+          {
+            "name": "stick",
+            "count": 8
+          }
+        ],
+        "position": {
+          "x": -40.5,
+          "y": 64,
+          "z": -52.3
+        }
+      }
+    },
+    {
+      "at": "2026-10-12T22:08:23.059Z",
+      "taskId": "26fa6b89-c839-4451-8e27-b0b7006cfe8f",
+      "action": {
+        "action": "gather_wood",
+        "count": 4
+      },
+      "status": "failed",
+      "error": "dig: timeout",
+      "result": {
+        "verifiedPartial": true,
+        "gained": 1,
+        "items": [
+          "oak_log",
+          "spruce_log",
+          "birch_log",
+          "jungle_log",
+          "acacia_log",
+          "cherry_log",
+          "dark_oak_log",
+          "pale_oak_log",
+          "mangrove_log"
+        ],
+        "inventoryBefore": [
+          {
+            "name": "stick",
+            "count": 8
+          }
+        ],
+        "inventoryAfter": [
+          {
+            "name": "stick",
+            "count": 8
+          },
+          {
+            "name": "spruce_log",
+            "count": 1
+          }
+        ],
+        "complete": false
+      }
+    },
+    {
+      "at": "2026-10-12T22:08:30.711Z",
+      "taskId": "2e07ad49-38e9-4334-99f4-0719999a1abe",
+      "action": {
+        "action": "craft",
+        "item": "planks",
+        "count": 4
+      },
+      "status": "completed",
+      "result": {
+        "action": {
+          "action": "craft",
+          "item": "planks",
+          "count": 4
+        },
+        "verified": true,
+        "item": "spruce_planks",
+        "gained": 4,
+        "inventoryConfirmation": "server_full_window_per_click",
+        "inventoryBefore": [
+          {
+            "name": "stick",
+            "count": 8
+          },
+          {
+            "name": "spruce_log",
+            "count": 1
+          }
+        ],
+        "inventoryAfter": [
+          {
+            "name": "spruce_planks",
+            "count": 4
+          },
+          {
+            "name": "stick",
+            "count": 8
+          }
+        ],
+        "position": {
+          "x": -38.5,
+          "y": 63,
+          "z": -49.4
+        }
+      }
+    },
+    {
+      "at": "2026-10-12T22:08:34.413Z",
+      "taskId": "3c614eef-f9c6-4401-8bb6-ea48eb185531",
+      "action": {
+        "action": "craft",
+        "item": "planks",
+        "count": 4
+      },
+      "status": "failed",
+      "error": "Gather wood before crafting planks"
+    },
+    {
+      "at": "2026-10-12T22:09:00.961Z",
+      "taskId": "038419b4-e24d-4f61-a973-f5aa3c7aa2f9",
+      "action": {
+        "action": "gather_wood",
+        "count": 4
+      },
+      "status": "completed",
+      "result": {
+        "action": {
+          "action": "gather_wood",
+          "count": 4
+        },
+        "verified": true,
+        "gained": 2,
+        "requested": 4,
+        "complete": false,
+        "dug": 3,
+        "items": [
+          "oak_log",
+          "spruce_log",
+          "birch_log",
+          "jungle_log",
+          "acacia_log",
+          "cherry_log",
+          "dark_oak_log",
+          "pale_oak_log",
+          "mangrove_log"
+        ],
+        "gainAttribution": "inventory delta; individual dropped-item origin not proven",
+        "inventoryBefore": [
+          {
+            "name": "spruce_planks",
+            "count": 4
+          },
+          {
+            "name": "stick",
+            "count": 8
+          }
+        ],
+        "inventoryAfter": [
+          {
+            "name": "spruce_planks",
+            "count": 4
+          },
+          {
+            "name": "stick",
+            "count": 8
+          },
+          {
+            "name": "spruce_log",
+            "count": 2
+          }
+        ],
+        "position": {
+          "x": -36.5,
+          "y": 63,
+          "z": -48.5
+        }
+      }
+    },
+    {
+      "at": "2026-10-12T22:09:05.197Z",
+      "taskId": "a84a86b8-b2f0-4a46-aaa3-0b79a00f15f0",
+      "action": {
+        "action": "craft",
+        "item": "planks",
+        "count": 4
+      },
+      "status": "completed",
+      "result": {
+        "action": {
+          "action": "craft",
+          "item": "planks",
+          "count": 4
+        },
+        "verified": true,
+        "item": "spruce_planks",
+        "gained": 4,
+        "inventoryConfirmation": "server_full_window_per_click",
+        "inventoryBefore": [
+          {
+            "name": "spruce_planks",
+            "count": 4
+          },
+          {
+            "name": "stick",
+            "count": 8
+          },
+          {
+            "name": "spruce_log",
+            "count": 2
+          }
+        ],
+        "inventoryAfter": [
+          {
+            "name": "spruce_planks",
+            "count": 8
+          },
+          {
+            "name": "stick",
+            "count": 8
+          },
+          {
+            "name": "spruce_log",
+            "count": 1
+          }
+        ],
+        "position": {
+          "x": -36.5,
+          "y": 63,
+          "z": -48.5
+        }
+      }
+    },
+    {
+      "at": "2026-10-12T22:09:09.215Z",
+      "taskId": "a028e256-94da-452d-bbd4-3af04f5bf3b2",
+      "action": {
+        "action": "craft",
+        "item": "planks",
+        "count": 4
+      },
+      "status": "completed",
+      "result": {
+        "action": {
+          "action": "craft",
+          "item": "planks",
+          "count": 4
+        },
+        "verified": true,
+        "item": "spruce_planks",
+        "gained": 4,
+        "inventoryConfirmation": "server_full_window_per_click",
+        "inventoryBefore": [
+          {
+            "name": "spruce_planks",
+            "count": 8
+          },
+          {
+            "name": "stick",
+            "count": 8
+          },
+          {
+            "name": "spruce_log",
+            "count": 1
+          }
+        ],
+        "inventoryAfter": [
+          {
+            "name": "spruce_planks",
+            "count": 12
+          },
+          {
+            "name": "stick",
+            "count": 8
+          }
+        ],
+        "position": {
+          "x": -36.5,
+          "y": 63,
+          "z": -48.5
+        }
+      }
+    },
+    {
+      "at": "2026-10-12T22:09:18.375Z",
+      "taskId": "fb0c381e-c6ab-4af3-a10e-56c3d796adbf",
+      "action": {
+        "action": "craft",
+        "item": "wooden_pickaxe",
+        "count": 1
+      },
+      "status": "completed",
+      "result": {
+        "action": {
+          "action": "craft",
+          "item": "wooden_pickaxe",
+          "count": 1
+        },
+        "verified": true,
+        "item": "wooden_pickaxe",
+        "gained": 1,
+        "inventoryConfirmation": "native_crafting_table_sync",
+        "inventoryBefore": [
+          {
+            "name": "spruce_planks",
+            "count": 12
+          },
+          {
+            "name": "stick",
+            "count": 8
+          }
+        ],
+        "inventoryAfter": [
+          {
+            "name": "stick",
+            "count": 6
+          },
+          {
+            "name": "spruce_planks",
+            "count": 9
+          },
+          {
+            "name": "wooden_pickaxe",
+            "count": 1
+          }
+        ],
+        "position": {
+          "x": -45.3,
+          "y": 63,
+          "z": -36.5
+        }
+      }
+    },
+    {
+      "at": "2026-10-12T22:09:22.758Z",
+      "taskId": "1b90f29c-7286-4432-be6f-62ae59e5beb0",
+      "action": {
+        "action": "craft",
+        "item": "stick",
+        "count": 4
+      },
+      "status": "completed",
+      "result": {
+        "action": {
+          "action": "craft",
+          "item": "stick",
+          "count": 4
+        },
+        "verified": true,
+        "item": "stick",
+        "gained": 4,
+        "inventoryConfirmation": "server_full_window_per_click",
+        "inventoryBefore": [
+          {
+            "name": "stick",
+            "count": 6
+          },
+          {
+            "name": "spruce_planks",
+            "count": 9
+          },
+          {
+            "name": "wooden_pickaxe",
+            "count": 1
+          }
+        ],
+        "inventoryAfter": [
+          {
+            "name": "stick",
+            "count": 10
+          },
+          {
+            "name": "spruce_planks",
+            "count": 7
+          },
+          {
+            "name": "wooden_pickaxe",
+            "count": 1
+          }
+        ],
+        "position": {
+          "x": -45.3,
+          "y": 63,
+          "z": -36.5
+        }
+      }
+    },
+    {
+      "at": "2026-10-12T22:09:27.167Z",
+      "taskId": "16b55c1f-cbb4-47cf-b1a2-1aed3ec1ad78",
+      "action": {
+        "action": "craft",
+        "item": "stick",
+        "count": 4
+      },
+      "status": "completed",
+      "result": {
+        "action": {
+          "action": "craft",
+          "item": "stick",
+          "count": 4
+        },
+        "verified": true,
+        "item": "stick",
+        "gained": 4,
+        "inventoryConfirmation": "server_full_window_per_click",
+        "inventoryBefore": [
+          {
+            "name": "stick",
+            "count": 10
+          },
+          {
+            "name": "spruce_planks",
+            "count": 7
+          },
+          {
+            "name": "wooden_pickaxe",
+            "count": 1
+          }
+        ],
+        "inventoryAfter": [
+          {
+            "name": "stick",
+            "count": 14
+          },
+          {
+            "name": "spruce_planks",
+            "count": 5
+          },
+          {
+            "name": "wooden_pickaxe",
+            "count": 1
+          }
+        ],
+        "position": {
+          "x": -45.3,
+          "y": 63,
+          "z": -36.5
+        }
+      }
+    }
+  ],
+  "woodenPickaxe": {
+    "taskId": "fb0c381e-c6ab-4af3-a10e-56c3d796adbf",
+    "sessionVerifiedAt": "2026-10-12T22:09:18.187Z",
+    "autonomyResultAt": "2026-10-12T22:09:18.375Z",
+    "confirmation": "native_crafting_table_sync",
+    "ingredientsConsumed": {
+      "spruce_planks": 3,
+      "stick": 2
+    },
+    "outputGained": {
+      "wooden_pickaxe": 1
+    },
+    "existingTableApproach": {
+      "x": -45.3,
+      "y": 63,
+      "z": -36.5
+    }
+  },
+  "limits": [
+    "This progress belongs to restored v4r1, not v5r2.",
+    "Prior v5 real failure history was retained; inputs/world states differ, so live window comparison is not a pure weight contrast.",
+    "gather4 at22:08:23 failed with verifiedPartial gain1; gather4 at22:09:00 returned gain2 complete:false. Neither fulfills requested4.",
+    "No new table crafted in this evidence chain; native3x3 uses an existing nearby station.",
+    "Later repeated sticks/planks are not stone-tool progression.",
+    "Once used as demonstrations in v6 training, these exact live requests/windows are training evidence, not new independent holdout."
+  ]
+}

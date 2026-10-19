@@ -1,0 +1,188 @@
+{
+  "createdAt": "2026-10-12T21:31:57.8774301Z",
+  "status": "training-completed",
+  "experiment": "minecraft-survival-v5r2-dense-replay-candidate",
+  "baseModelPath": "E:\\Qwen3.5-4B",
+  "trainingData": "E:\\Github\\AI_vtuber\\data\\minecraft-training\\train-v5r2-replay-candidates.jsonl",
+  "trainingRows": 214,
+  "trainingDataSha256": "2086a5efe8cefdf2e10f99fd2e3b7cd0aabb6bf4eb91fdab0d21e1b1a9934877",
+  "resumeAdapter": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01",
+  "resumeAdapterRank": 4,
+  "resumeAdapterConfig": {
+    "alora_invocation_tokens": null,
+    "alpha_pattern": {},
+    "arrow_config": null,
+    "auto_mapping": null,
+    "base_model_name_or_path": "E:\\Qwen3.5-4B",
+    "bias": "none",
+    "corda_config": null,
+    "ensure_weight_tying": false,
+    "eva_config": null,
+    "exclude_modules": null,
+    "fan_in_fan_out": false,
+    "inference_mode": true,
+    "init_lora_weights": true,
+    "kasa_config": null,
+    "layer_replication": null,
+    "layers_pattern": null,
+    "layers_to_transform": null,
+    "loftq_config": {},
+    "lora_alpha": 8,
+    "lora_bias": false,
+    "lora_dropout": 0.05,
+    "lora_ga_config": null,
+    "megatron_config": null,
+    "megatron_core": "megatron.core",
+    "modules_to_save": null,
+    "monteclora_config": null,
+    "peft_type": "LORA",
+    "peft_version": "0.21.2",
+    "qalora_group_size": 16,
+    "r": 4,
+    "rank_pattern": {},
+    "revision": null,
+    "target_modules": [
+      "q_proj",
+      "gate_proj",
+      "v_proj",
+      "up_proj",
+      "k_proj",
+      "down_proj",
+      "o_proj"
+    ],
+    "target_parameters": null,
+    "task_type": "CAUSAL_LM",
+    "trainable_token_indices": null,
+    "use_bdlora": null,
+    "use_dora": false,
+    "use_qalora": false,
+    "use_rslora": false,
+    "velora_config": null
+  },
+  "output": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v5r2-dense-replay-candidate",
+  "outputMustNotExist": true,
+  "config": {
+    "gradientAccumulation": 4,
+    "minFreeGiB": 6,
+    "checkpointEachEpoch": true,
+    "epochs": 2,
+    "rank": 4,
+    "learningRate": 1E-05,
+    "maxLength": 2560,
+    "seed": 20261013
+  },
+  "gpuMemoryBefore": "4415, 11563",
+  "pythonEnvironment": {
+    "python": "3.12.13 (main, May 10 2026, 19:35:37) [MSC v.1944 64 bit (AMD64)]",
+    "torch": "2.11.0+cu128",
+    "cuda": "12.8",
+    "transformers": "5.16.1",
+    "peft": "0.21.2",
+    "bitsandbytes": "0.50.2",
+    "accelerate": "1.14.0",
+    "cuda_available": true,
+    "cuda_mem_info_bytes": [
+      15712911360,
+      17066033152
+    ]
+  },
+  "fileSha256": {
+    "runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01\\adapter_config.json": "af23e4d29a50769299553eb6bbaa7f39d18b6d9285d8a828f9148b7a3a37dcd5",
+    "data/minecraft-training/train-v5r2-replay-candidates.jsonl": "2086a5efe8cefdf2e10f99fd2e3b7cd0aabb6bf4eb91fdab0d21e1b1a9934877",
+    "scripts/minecraft-training/train_lora.py": "79251a053cc61ffb7a10c266ad9ba325239730fabb0349583cbc3f6c492910ec",
+    "runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01\\adapter_model.safetensors": "48bbd148184987a3abdcf2a3e193c61690d36b1f078ce70e18ac62f395d7e14b"
+  },
+  "policy": {
+    "autoDeploy": false,
+    "holdoutUsedForTraining": false,
+    "checkpointSelectionByTrainingLoss": false,
+    "holdoutRead": false
+  },
+  "parentProcessStatus": {
+    "port11435Listening": false,
+    "observedServerPids": []
+  },
+  "trainingProcess": {
+    "startedAt": "2026-10-12T21:32:41.3364241Z",
+    "pid": 178192,
+    "python": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\.venv\\Scripts\\python.exe",
+    "commandLine": "\"E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\.venv\\Scripts\\python.exe\" scripts/minecraft-training/train_lora.py --allow-gpu-training --min-free-gib 6 --output E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v5r2-dense-replay-candidate --data E:\\Github\\AI_vtuber\\data\\minecraft-training\\train-v5r2-replay-candidates.jsonl --resume-adapter E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01 --experiment minecraft-survival-v5r2-dense-replay-candidate --epochs 2 --max-length 2560 --rank 4 --learning-rate 0.00001 --gradient-accumulation 4 --log-every-steps 4",
+    "workingDirectory": "E:\\Github\\AI_vtuber",
+    "stdout": "E:\\Github\\AI_vtuber\\output\\minecraft-training\\v5r2-train.stdout.log",
+    "stderr": "E:\\Github\\AI_vtuber\\output\\minecraft-training\\v5r2-train.stderr.log",
+    "output": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v5r2-dense-replay-candidate",
+    "status": "running"
+  },
+  "finishedAt": "2026-10-12T21:50:21.3826226Z",
+  "trainingReport": {
+    "experiment": "minecraft-survival-v5r2-dense-replay-candidate",
+    "base_model_path": "E:\\Qwen3.5-4B",
+    "base_model_type": "qwen3_5",
+    "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v5r2-dense-replay-candidate",
+    "training_data": "E:\\Github\\AI_vtuber\\data\\minecraft-training\\train-v5r2-replay-candidates.jsonl",
+    "training_examples": 214,
+    "holdout_used_for_training": false,
+    "training_provenance_counts": {
+      "synthetic; hand-authored from current survival-skills.js and documented low-health deadlock; not a real trajectory": 24,
+      "synthetic; hand-authored no-resource recovery counterfactual": 3,
+      "synthetic; hand-authored positive material-feasibility control": 4,
+      "synthetic; hand-authored recovery planning scenario": 46,
+      "synthetic; hand-authored v2 scenario": 29,
+      "synthetic; hand-authored varied-count material-recovery counterfactual": 18,
+      "synthetic; independent real-probe-like development scenario": 2,
+      "synthetic; independent v4 counterfactual inspired by live failure patterns; not copied from any exact live probe": 16,
+      "synthetic; independently authored dense-state counterfactual; v5r2 registry-grounded food history corrections; no exact live probe copied": 32,
+      "synthetic; material-consumption recovery scenario": 2,
+      "synthetic; migrated v1 training example": 38
+    },
+    "resume_adapter": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01",
+    "initialization": "continued_from_adapter",
+    "seed": 20261013,
+    "epochs": 2,
+    "max_length": 2560,
+    "lora_rank": 4,
+    "learning_rate": 1E-05,
+    "train_jsonl_sha256": "2086a5efe8cefdf2e10f99fd2e3b7cd0aabb6bf4eb91fdab0d21e1b1a9934877",
+    "history": [
+      {
+        "epoch": 1,
+        "mean_loss": 0.1655709617622969,
+        "optimizer_steps": 54
+      },
+      {
+        "epoch": 2,
+        "mean_loss": 0.14286407523141972,
+        "optimizer_steps": 108
+      }
+    ],
+    "peak_cuda_allocated_gib": 5.05,
+    "peak_cuda_reserved_gib": 7.64,
+    "elapsed_seconds": 994.4,
+    "torch": "2.11.0+cu128",
+    "cuda": "12.8",
+    "adapter_files": [
+      "adapter_config.json",
+      "adapter_model.safetensors",
+      "README.md"
+    ],
+    "limitation": "Training loss is not a capability metric. Run the independent holdout evaluator and report limitations before claiming improvement."
+  },
+  "trainingReportSha256": "0e9b546322a208c01f19e4fb5d8a05d81de78ea06283096a555e5eadc617fa05",
+  "checkpoints": [
+    {
+      "weightAudit": "output/minecraft-training/v5r2-epoch01-weight-audit.json",
+      "weightsBytes": 21270808,
+      "path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v5r2-dense-replay-candidate\\checkpoint-epoch-01",
+      "configSha256": "a88ec12861da7cf74c58697a2ba30df7871a2438696d15b2417870841a9f880a",
+      "weightsSha256": "c0007d5f7a8d21863463f98e994b61e02613fd1d7f140f6bc5338c66f018a134"
+    },
+    {
+      "weightAudit": "output/minecraft-training/v5r2-epoch02-weight-audit.json",
+      "weightsBytes": 21270808,
+      "path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v5r2-dense-replay-candidate\\checkpoint-epoch-02",
+      "configSha256": "a88ec12861da7cf74c58697a2ba30df7871a2438696d15b2417870841a9f880a",
+      "weightsSha256": "6cd0f9ec8dbf15dadc90ebb9102bab347214a82b5ba902adcc615c1d5dc61712"
+    }
+  ],
+  "exitCode": "not captured by hidden launcher; successful completion evidenced by final training-report.json and saved output"
+}

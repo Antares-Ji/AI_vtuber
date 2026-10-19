@@ -1,0 +1,67 @@
+{
+  "schemaAndStateErrors": [],
+  "replayOriginal166Identical": true,
+  "replayNew16Identical": true,
+  "overlap": {
+    "trainDev": [],
+    "trainOldTrain": [],
+    "trainOldDev": [],
+    "devOldTrain": [],
+    "devOldDev": [],
+    "withinTrain": [],
+    "withinDev": []
+  },
+  "exactProbeStateMatches": [],
+  "materialReview": "All action golds have execution materials/health/food/tool-tier/torch count and observed resource within40. No foot-column/overhead candidate. No known-hostile/hazard labels. Terrain remains unobserved; mine/explore/staircase permit attempts not guarantee.",
+  "blockingIssues": [
+    {
+      "ids": [
+        "v4-train-11",
+        "v4-dev-06"
+      ],
+      "issue": "planks gold unnecessary despite stone-pickaxe ingredients+table; conflicts claimed stage-advancement rationale"
+    },
+    {
+      "ids": [
+        "v4-train-03",
+        "v4-train-14",
+        "v4-dev-02",
+        "v4-train-05"
+      ],
+      "issue": "stone/iron tool maxDurability incorrectly59"
+    },
+    {
+      "ids": [
+        "v4-train-12"
+      ],
+      "issue": "inventory contains zero-count stick impossible for inventory.items()"
+    },
+    {
+      "ids": [
+        "v4-train-01",
+        "v4-train-02",
+        "v4-train-03",
+        "v4-train-04",
+        "v4-train-05",
+        "v4-train-06",
+        "v4-train-07",
+        "v4-train-08",
+        "v4-train-09",
+        "v4-train-10",
+        "v4-train-11",
+        "v4-train-12",
+        "v4-train-15",
+        "v4-dev-01",
+        "v4-dev-02",
+        "v4-dev-03",
+        "v4-dev-04",
+        "v4-dev-05",
+        "v4-dev-06",
+        "v4-dev-08"
+      ],
+      "issue": "crafting table block positions contain half coordinates unlike actual block.position"
+    }
+  ],
+  "directionSet": "Dev03 east excluded as exploration preference only; no failed east route or hazard proves infeasibility. Other dirs/distances are permitted attempts subject to runtime safety.",
+  "verdict": "revise before training; frozen originals not modified"
+}

@@ -1,0 +1,20 @@
+{
+  "status": "Recorded before v6r1 development predictions; training authorization already granted",
+  "candidate": "minecraft-survival-v6r1-weighted-material-candidate/checkpoint-epoch-01",
+  "parentAndComparison": "minecraft-survival-v4r1-replay-candidate/checkpoint-epoch-01",
+  "frozenNewDevelopmentSha256": "cd208f0a3d46e5f165dd1d6d0095f4caa132342a350210e0fd3d21ef59ad0e3d",
+  "frozenPrior47Sha256": "0f5632030e830c29807ee6180007109969414a86ebea09b374904a46a98fe31d",
+  "trainingReplaySha256": "b1f81297d705e6f3accb02265217f148967730b4936eaa7599aa9ba3244526ac",
+  "rules": [
+    "Compare parent and candidate on the same frozen 57 inputs; all acceptance counts require valid runtime schema plus the frozen allowed action set or exact label.",
+    "Reject new invalid-output or threat-priority regressions. Independently inspect every formerly accepted action that becomes rejected, including food recovery and material feasibility.",
+    "Deploy for a bounded live experiment only when there is a defensible improvement in material recovery or progression without a new critical safety or material-feasibility regression. Retain the previous rollback model otherwise; retaining it does not mean it has passed autonomous survival acceptance.",
+    "Report new10, prior47, food, material and progression slices separately. Do not select by training loss or a larger total score alone.",
+    "The four earlier exact live probes remain diagnostic, not hard-gold aggregate metrics. Concrete unaffordable outputs are still material regressions even when the high-level next step is ambiguous.",
+    "The two real inputs promoted into training are training-fit diagnostics only. They cannot count as unseen evaluation or real-game success for the new weights.",
+    "Do not use original20 for checkpoint selection. Any post-selection check must disclose prior reuse and root's earlier incidental label exposure.",
+    "Live acceptance requires local Qwen decisions and server-verified tool execution. Stop a bounded trial for death, repeated unchanged missing-material failures, or low food with available safe food repeatedly ignored for continued mining/gathering. Do not manually correct game actions to produce a passing run.",
+    "The overall experiment deadline remains 2026-10-12T23:17:01Z (07:17:01 Asia/Shanghai). Stop the autonomy loop at that deadline while retaining the Minecraft connection and safety controller."
+  ],
+  "recordedAt": "2026-10-12T22:28:18.3192599Z"
+}

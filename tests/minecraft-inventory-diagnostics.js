@@ -1,0 +1,14 @@
+'use strict';
+const assert = require('node:assert/strict');
+const { EventEmitter } = require('node:events');
+const { inventoryDiagnostics, traceCraftInventory } = require('../src/minecraft/inventory-diagnostics');
+const { compactObservation } = require('../src/minecraft/survival-planner');
+const bot = { _client: new EventEmitter(), inventory: { id: 0, slots: [null, { name: 'spruce_planks', count: 2 }], selectedItem: { name: 'spruce_planks', count: 27 }, items: () => [] } };
+const before = JSON.stringify(bot.inventory), result = inventoryDiagnostics(bot), trace = [];
+assert.equal(result.inventory.slots[1].count, 2); assert.equal(result.inventory.selectedItem.count, 27);
+assert.equal(JSON.stringify(bot.inventory), before, 'snapshot never changes window');
+const stop = traceCraftInventory(bot, e => trace.push(e));
+bot._client.emit('window_items', { windowId: 0, stateId: 12 }); stop();
+assert.equal(trace.length, 3); assert.equal(trace[1].packet.stateId, 12); assert.equal(bot._client.listenerCount('window_items'), 0);
+assert.equal(compactObservation({ inventory: [], inventoryDiagnostics: result }).inventoryDiagnostics, undefined, 'diagnostics never reach policy input');
+console.log('Read-only inventory diagnostics passed: craft slots/cursor, packet ids, listener cleanup, excluded from model input.');

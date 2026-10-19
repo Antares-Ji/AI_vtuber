@@ -1,0 +1,23 @@
+{
+  "capturedAt": 1791983443176,
+  "evidence": {
+    "goal": "制作一把铁镐。由本地千问根据真实背包、世界观察和执行结果，自主决定和调整全部中间阶段与步骤；最终以背包实际出现 iron_pickaxe 为验收。",
+    "action": "gather_wood",
+    "outcome": "running",
+    "inventory": [
+      {
+        "name": "spruce_log",
+        "count": 2
+      }
+    ],
+    "health": 20,
+    "food": 20,
+    "yolo": {
+      "scope": "COCO only, not trained for Minecraft",
+      "detections": []
+    }
+  },
+  "speech": "看来我刚才的采集策略不太对，背包里只有雪松原木，没看到铁锭。  \n我打算先回到村庄找铁匠，看看能不能用木头换铁锭。  \n毕竟生存模式里，找到铁锭才是关键。",
+  "expired": false,
+  "model": "qwen3.5-4b"
+}

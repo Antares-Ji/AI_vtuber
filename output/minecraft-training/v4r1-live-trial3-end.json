@@ -1,0 +1,216 @@
+{
+  "at": "2026-10-12T21:07:11.633Z",
+  "reason": "Maintenance for supported natural-slope harvesting and honest full-food result projection",
+  "loop": {
+    "enabled": false,
+    "running": false,
+    "goal": "由本地千问自主规划：安全生存、采集、制作工具、采矿、制作并点燃下界门，进入下界。失败后根据真实状态调整计划。",
+    "deadline": "2026-10-12T23:17:01.000Z",
+    "step": 41,
+    "model": "qwen3.5-4b",
+    "modelLoaded": true,
+    "adapter": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01",
+    "adapterLoaded": true,
+    "lastDecision": {
+      "action": "flee"
+    },
+    "lastResult": {
+      "taskId": "26e3e37c-c9da-4181-9b19-1727f414ea29",
+      "action": {
+        "action": "hunt",
+        "count": 2
+      },
+      "status": "failed",
+      "error": "Emergency hunt stopped: hostile within 24 blocks",
+      "at": "2026-10-12T21:07:04.474Z"
+    },
+    "lastError": "推理期间出现危险，本次决策作废，安全层正在避险",
+    "latencyMs": 1420,
+    "history": [
+      {
+        "taskId": "6849a538-2ba8-474b-bc2e-42c9f30a4422",
+        "action": {
+          "action": "eat"
+        },
+        "status": "failed",
+        "error": "No safe edible food in inventory; hunt and smelt food",
+        "at": "2026-10-12T21:04:06.840Z"
+      },
+      {
+        "taskId": "5ac39095-b790-4e19-bbc4-2bb4c01ea473",
+        "action": {
+          "action": "hunt",
+          "count": 1
+        },
+        "status": "failed",
+        "error": "Emergency hunt stopped: hostile within 24 blocks",
+        "at": "2026-10-12T21:04:13.703Z"
+      },
+      {
+        "taskId": "b7f2254b-4566-465c-a22c-d172339861f3",
+        "action": {
+          "action": "flee"
+        },
+        "status": "cancelled",
+        "error": "This operation was aborted",
+        "at": "2026-10-12T21:04:27.194Z"
+      },
+      {
+        "taskId": "187d604c-716b-42b0-88e0-0f571196f5f4",
+        "action": {
+          "action": "eat"
+        },
+        "status": "failed",
+        "error": "No safe edible food in inventory; hunt and smelt food",
+        "at": "2026-10-12T21:05:00.615Z"
+      },
+      {
+        "taskId": "98c73d38-1d90-4806-b0bf-6e6180412f92",
+        "action": {
+          "action": "eat"
+        },
+        "status": "failed",
+        "error": "No safe edible food in inventory; hunt and smelt food",
+        "at": "2026-10-12T21:05:07.414Z"
+      },
+      {
+        "taskId": "e732fa68-5742-48e6-a200-e888d43d7a68",
+        "action": {
+          "action": "eat"
+        },
+        "status": "failed",
+        "error": "No safe edible food in inventory; hunt and smelt food",
+        "at": "2026-10-12T21:05:14.234Z"
+      },
+      {
+        "taskId": "00503f00-2630-4fa0-ac61-919dd1a92591",
+        "action": {
+          "action": "hunt",
+          "count": 1
+        },
+        "status": "failed",
+        "error": "Emergency hunt stopped: hostile within 24 blocks",
+        "at": "2026-10-12T21:06:16.822Z"
+      },
+      {
+        "taskId": "e85775bf-4860-43a2-8fdd-93e2cbf81278",
+        "action": {
+          "action": "flee"
+        },
+        "status": "completed",
+        "result": {
+          "action": {
+            "action": "flee"
+          },
+          "verified": true,
+          "moved": 21,
+          "from": {
+            "x": 40.3,
+            "y": 70,
+            "z": 189.2
+          },
+          "to": {
+            "x": 59.5,
+            "y": 67.9,
+            "z": 197.5
+          },
+          "remainingThreats": [],
+          "inventoryBefore": [
+            {
+              "name": "rabbit",
+              "count": 1
+            },
+            {
+              "name": "rabbit_hide",
+              "count": 1
+            },
+            {
+              "name": "gravel",
+              "count": 4
+            }
+          ],
+          "inventoryAfter": [
+            {
+              "name": "rabbit",
+              "count": 1
+            },
+            {
+              "name": "rabbit_hide",
+              "count": 1
+            },
+            {
+              "name": "gravel",
+              "count": 4
+            }
+          ],
+          "position": {
+            "x": 59.5,
+            "y": 67.9,
+            "z": 197.5
+          }
+        },
+        "at": "2026-10-12T21:06:28.809Z"
+      },
+      {
+        "action": {
+          "action": "hunt",
+          "count": 1
+        },
+        "status": "rejected",
+        "error": "推理期间出现危险，本次决策作废，安全层正在避险",
+        "at": "2026-10-12T21:06:32.785Z"
+      },
+      {
+        "taskId": "b2101799-795c-4d5c-b8a0-5aabb7dd0a49",
+        "action": {
+          "action": "eat"
+        },
+        "status": "failed",
+        "error": "No safe edible food in inventory; hunt and smelt food",
+        "at": "2026-10-12T21:06:57.228Z"
+      },
+      {
+        "taskId": "26e3e37c-c9da-4181-9b19-1727f414ea29",
+        "action": {
+          "action": "hunt",
+          "count": 2
+        },
+        "status": "failed",
+        "error": "Emergency hunt stopped: hostile within 24 blocks",
+        "at": "2026-10-12T21:07:04.474Z"
+      },
+      {
+        "action": {
+          "action": "flee"
+        },
+        "status": "rejected",
+        "error": "推理期间出现危险，本次决策作废，安全层正在避险",
+        "at": "2026-10-12T21:07:11.271Z"
+      }
+    ],
+    "modelHealth": {
+      "ok": true,
+      "model": "qwen3.5-4b",
+      "path": "E:\\Qwen3.5-4B",
+      "quantization": "nf4",
+      "adapter": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01",
+      "adapter_loaded": true,
+      "adapter_scope": "minecraft-survival",
+      "generation": {
+        "active": false,
+        "queued": 0,
+        "max_waiters": 4,
+        "cancelled_running": 0
+      },
+      "generation_busy": false
+    },
+    "updatedAt": "2026-10-12T21:07:11.630Z",
+    "waitingFor": null,
+    "lastDecisionMetadata": {
+      "task": "minecraft-survival",
+      "used_adapter": true,
+      "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01"
+    },
+    "needsRecovery": false
+  }
+}

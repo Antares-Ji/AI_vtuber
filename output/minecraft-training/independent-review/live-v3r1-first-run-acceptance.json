@@ -1,0 +1,864 @@
+{
+  "rubric": "minecraft-live-v2-acceptance-1",
+  "from": "2026-10-12T20:09:20.955Z",
+  "to": "2026-10-12T20:15:48.043Z",
+  "cohorts": {
+    "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v3r1-fresh-base\\checkpoint-epoch-02": {
+      "decisions": 35,
+      "results": 35,
+      "failed": 11,
+      "corroborated": 24,
+      "progress": 24
+    }
+  },
+  "decisions": 35,
+  "results": 35,
+  "failures": 11,
+  "failureRate": 0.3142857142857143,
+  "repeatedUnchangedFailures": 1,
+  "repeatedFailureRateAmongAttempts": 0.02857142857142857,
+  "repeatedFailureEvidence": [
+    {
+      "previousTaskId": "9129cc16-b3f1-4b90-a7d0-100a50110718",
+      "taskId": "3ff82c8d-e058-44d7-a8a2-cbe491ae8f57",
+      "intent": {
+        "action": "craft",
+        "item": "planks",
+        "count": 4
+      },
+      "error": "Gather wood before crafting planks",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v3r1-fresh-base\\checkpoint-epoch-02"
+    }
+  ],
+  "rejectedDecisions": [],
+  "actionEvidence": [
+    {
+      "taskId": "e99d3484-1e3d-43b3-bca6-a7e34e092729",
+      "at": "2026-10-12T20:09:23.454Z",
+      "action": {
+        "action": "gather_wood",
+        "count": 4
+      },
+      "status": "failed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v3r1-fresh-base\\checkpoint-epoch-02",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": false,
+      "inventorySource": "outer-observation-may-include-inference-time",
+      "inventoryDelta": {},
+      "corroborated": false,
+      "progress": false,
+      "reason": "not-completed-and-verified"
+    },
+    {
+      "taskId": "f2674abc-3169-492d-ba24-2d2801762695",
+      "at": "2026-10-12T20:09:35.179Z",
+      "action": {
+        "action": "flee"
+      },
+      "status": "completed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v3r1-fresh-base\\checkpoint-epoch-02",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": true,
+      "inventorySource": "executor-local",
+      "inventoryDelta": {},
+      "corroborated": true,
+      "progress": true,
+      "reason": "action-specific-evidence-present"
+    },
+    {
+      "taskId": "3ba7e689-c0a9-4c6c-be2e-d593269662a2",
+      "at": "2026-10-12T20:09:43.027Z",
+      "action": {
+        "action": "explore",
+        "direction": "south",
+        "distance": 20
+      },
+      "status": "completed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v3r1-fresh-base\\checkpoint-epoch-02",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": true,
+      "inventorySource": "executor-local",
+      "inventoryDelta": {},
+      "corroborated": true,
+      "progress": true,
+      "reason": "action-specific-evidence-present"
+    },
+    {
+      "taskId": "318e1e21-0f94-45b6-ba6c-d4779e1bcc11",
+      "at": "2026-10-12T20:10:53.807Z",
+      "action": {
+        "action": "gather_wood",
+        "count": 4
+      },
+      "status": "completed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v3r1-fresh-base\\checkpoint-epoch-02",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": true,
+      "inventorySource": "executor-local",
+      "inventoryDelta": {
+        "spruce_log": 1
+      },
+      "corroborated": true,
+      "progress": true,
+      "reason": "action-specific-evidence-present",
+      "partial": true
+    },
+    {
+      "taskId": "9ae3f86c-b8c1-4fe6-a0e2-0e783bcbebf1",
+      "at": "2026-10-12T20:10:57.806Z",
+      "action": {
+        "action": "craft",
+        "item": "planks",
+        "count": 4
+      },
+      "status": "completed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v3r1-fresh-base\\checkpoint-epoch-02",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": true,
+      "inventorySource": "executor-local",
+      "inventoryDelta": {
+        "spruce_log": -1,
+        "spruce_planks": 4
+      },
+      "corroborated": true,
+      "progress": true,
+      "reason": "action-specific-evidence-present"
+    },
+    {
+      "taskId": "eecf8446-d06e-4761-8076-08c997c302ca",
+      "at": "2026-10-12T20:11:01.639Z",
+      "action": {
+        "action": "craft",
+        "item": "stick",
+        "count": 4
+      },
+      "status": "completed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v3r1-fresh-base\\checkpoint-epoch-02",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": true,
+      "inventorySource": "executor-local",
+      "inventoryDelta": {
+        "spruce_planks": -2,
+        "stick": 4
+      },
+      "corroborated": true,
+      "progress": true,
+      "reason": "action-specific-evidence-present"
+    },
+    {
+      "taskId": "cad8ecc4-569a-40b1-b8e7-e2a7852d87c3",
+      "at": "2026-10-12T20:11:05.298Z",
+      "action": {
+        "action": "craft",
+        "item": "crafting_table",
+        "count": 1
+      },
+      "status": "failed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v3r1-fresh-base\\checkpoint-epoch-02",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": false,
+      "inventorySource": "outer-observation-may-include-inference-time",
+      "inventoryDelta": {},
+      "corroborated": false,
+      "progress": false,
+      "reason": "not-completed-and-verified"
+    },
+    {
+      "taskId": "9129cc16-b3f1-4b90-a7d0-100a50110718",
+      "at": "2026-10-12T20:11:12.393Z",
+      "action": {
+        "action": "craft",
+        "item": "planks",
+        "count": 4
+      },
+      "status": "failed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v3r1-fresh-base\\checkpoint-epoch-02",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": false,
+      "inventorySource": "outer-observation-may-include-inference-time",
+      "inventoryDelta": {},
+      "corroborated": false,
+      "progress": false,
+      "reason": "not-completed-and-verified"
+    },
+    {
+      "taskId": "3ff82c8d-e058-44d7-a8a2-cbe491ae8f57",
+      "at": "2026-10-12T20:11:19.698Z",
+      "action": {
+        "action": "craft",
+        "item": "planks",
+        "count": 4
+      },
+      "status": "failed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v3r1-fresh-base\\checkpoint-epoch-02",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": false,
+      "inventorySource": "outer-observation-may-include-inference-time",
+      "inventoryDelta": {},
+      "corroborated": false,
+      "progress": false,
+      "reason": "not-completed-and-verified"
+    },
+    {
+      "taskId": "56861c78-da01-4fb3-9b1b-c7de1c0e442f",
+      "at": "2026-10-12T20:11:26.898Z",
+      "action": {
+        "action": "craft",
+        "item": "crafting_table",
+        "count": 1
+      },
+      "status": "failed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v3r1-fresh-base\\checkpoint-epoch-02",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": false,
+      "inventorySource": "outer-observation-may-include-inference-time",
+      "inventoryDelta": {},
+      "corroborated": false,
+      "progress": false,
+      "reason": "not-completed-and-verified"
+    },
+    {
+      "taskId": "22e189f1-dc06-43c0-bad6-7e78ecedd7ff",
+      "at": "2026-10-12T20:12:07.918Z",
+      "action": {
+        "action": "gather_wood",
+        "count": 4
+      },
+      "status": "completed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v3r1-fresh-base\\checkpoint-epoch-02",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": true,
+      "inventorySource": "executor-local",
+      "inventoryDelta": {
+        "spruce_log": 4
+      },
+      "corroborated": true,
+      "progress": true,
+      "reason": "action-specific-evidence-present"
+    },
+    {
+      "taskId": "21f28764-293c-4d63-8518-c7ae76e52fa5",
+      "at": "2026-10-12T20:12:12.148Z",
+      "action": {
+        "action": "craft",
+        "item": "planks",
+        "count": 4
+      },
+      "status": "completed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v3r1-fresh-base\\checkpoint-epoch-02",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": true,
+      "inventorySource": "executor-local",
+      "inventoryDelta": {
+        "spruce_planks": 4,
+        "spruce_log": -1
+      },
+      "corroborated": true,
+      "progress": true,
+      "reason": "action-specific-evidence-present"
+    },
+    {
+      "taskId": "a1e5101d-4921-43d3-9a48-a422037b0136",
+      "at": "2026-10-12T20:12:16.106Z",
+      "action": {
+        "action": "craft",
+        "item": "planks",
+        "count": 4
+      },
+      "status": "completed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v3r1-fresh-base\\checkpoint-epoch-02",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": true,
+      "inventorySource": "executor-local",
+      "inventoryDelta": {
+        "spruce_planks": 4,
+        "spruce_log": -1
+      },
+      "corroborated": true,
+      "progress": true,
+      "reason": "action-specific-evidence-present"
+    },
+    {
+      "taskId": "385d0a1c-ab9a-4459-a1de-4e1acc32efaa",
+      "at": "2026-10-12T20:12:20.075Z",
+      "action": {
+        "action": "craft",
+        "item": "planks",
+        "count": 4
+      },
+      "status": "completed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v3r1-fresh-base\\checkpoint-epoch-02",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": true,
+      "inventorySource": "executor-local",
+      "inventoryDelta": {
+        "spruce_planks": 4,
+        "spruce_log": -1
+      },
+      "corroborated": true,
+      "progress": true,
+      "reason": "action-specific-evidence-present"
+    },
+    {
+      "taskId": "7b47b5ca-f3ec-4b91-a02d-d42d6138bc46",
+      "at": "2026-10-12T20:12:24.001Z",
+      "action": {
+        "action": "craft",
+        "item": "stick",
+        "count": 4
+      },
+      "status": "completed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v3r1-fresh-base\\checkpoint-epoch-02",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": true,
+      "inventorySource": "executor-local",
+      "inventoryDelta": {
+        "spruce_planks": -2,
+        "stick": 4
+      },
+      "corroborated": true,
+      "progress": true,
+      "reason": "action-specific-evidence-present"
+    },
+    {
+      "taskId": "034e4c31-67dd-4257-a11d-de25f18deab0",
+      "at": "2026-10-12T20:12:28.020Z",
+      "action": {
+        "action": "craft",
+        "item": "crafting_table",
+        "count": 1
+      },
+      "status": "completed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v3r1-fresh-base\\checkpoint-epoch-02",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": true,
+      "inventorySource": "executor-local",
+      "inventoryDelta": {
+        "spruce_planks": -4,
+        "crafting_table": 1
+      },
+      "corroborated": true,
+      "progress": true,
+      "reason": "action-specific-evidence-present"
+    },
+    {
+      "taskId": "483b0d7c-d73b-458b-94f4-e6be1f985521",
+      "at": "2026-10-12T20:12:33.023Z",
+      "action": {
+        "action": "craft",
+        "item": "wooden_pickaxe",
+        "count": 1
+      },
+      "status": "completed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v3r1-fresh-base\\checkpoint-epoch-02",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": true,
+      "inventorySource": "executor-local",
+      "inventoryDelta": {
+        "spruce_planks": -3,
+        "stick": -2,
+        "crafting_table": -1,
+        "wooden_pickaxe": 1
+      },
+      "corroborated": true,
+      "progress": true,
+      "reason": "action-specific-evidence-present"
+    },
+    {
+      "taskId": "95759859-a0a3-4d7f-aed7-682a8fd30522",
+      "at": "2026-10-12T20:12:42.915Z",
+      "action": {
+        "action": "craft",
+        "item": "planks",
+        "count": 4
+      },
+      "status": "failed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v3r1-fresh-base\\checkpoint-epoch-02",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": false,
+      "inventorySource": "outer-observation-may-include-inference-time",
+      "inventoryDelta": {
+        "spruce_log": -1
+      },
+      "corroborated": false,
+      "progress": false,
+      "reason": "not-completed-and-verified"
+    },
+    {
+      "taskId": "9954fdd1-b062-4e51-a70c-637bcd37b069",
+      "at": "2026-10-12T20:13:20.588Z",
+      "action": {
+        "action": "gather_wood",
+        "count": 6
+      },
+      "status": "completed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v3r1-fresh-base\\checkpoint-epoch-02",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": true,
+      "inventorySource": "executor-local",
+      "inventoryDelta": {
+        "spruce_planks": 4,
+        "spruce_log": 3
+      },
+      "corroborated": true,
+      "progress": true,
+      "reason": "action-specific-evidence-present",
+      "partial": true
+    },
+    {
+      "taskId": "0e810775-ccea-46a3-8479-2cbb96736549",
+      "at": "2026-10-12T20:13:54.476Z",
+      "action": {
+        "action": "gather_wood",
+        "count": 6
+      },
+      "status": "completed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v3r1-fresh-base\\checkpoint-epoch-02",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": true,
+      "inventorySource": "executor-local",
+      "inventoryDelta": {
+        "spruce_log": 1
+      },
+      "corroborated": true,
+      "progress": true,
+      "reason": "action-specific-evidence-present",
+      "partial": true
+    },
+    {
+      "taskId": "d2bdc59c-8e84-49a4-805d-317bffe3d8d9",
+      "at": "2026-10-12T20:13:58.650Z",
+      "action": {
+        "action": "craft",
+        "item": "planks",
+        "count": 4
+      },
+      "status": "completed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v3r1-fresh-base\\checkpoint-epoch-02",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": true,
+      "inventorySource": "executor-local",
+      "inventoryDelta": {
+        "spruce_planks": 4,
+        "spruce_log": -1
+      },
+      "corroborated": true,
+      "progress": true,
+      "reason": "action-specific-evidence-present"
+    },
+    {
+      "taskId": "79ca7e45-d382-4e52-a087-2b4baaa83d3b",
+      "at": "2026-10-12T20:14:02.657Z",
+      "action": {
+        "action": "craft",
+        "item": "planks",
+        "count": 4
+      },
+      "status": "completed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v3r1-fresh-base\\checkpoint-epoch-02",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": true,
+      "inventorySource": "executor-local",
+      "inventoryDelta": {
+        "spruce_planks": 4,
+        "spruce_log": -1
+      },
+      "corroborated": true,
+      "progress": true,
+      "reason": "action-specific-evidence-present"
+    },
+    {
+      "taskId": "2609b350-25f3-40e0-ace5-419fd3b6c7de",
+      "at": "2026-10-12T20:14:06.520Z",
+      "action": {
+        "action": "craft",
+        "item": "planks",
+        "count": 4
+      },
+      "status": "completed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v3r1-fresh-base\\checkpoint-epoch-02",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": true,
+      "inventorySource": "executor-local",
+      "inventoryDelta": {
+        "spruce_planks": 4,
+        "spruce_log": -1
+      },
+      "corroborated": true,
+      "progress": true,
+      "reason": "action-specific-evidence-present"
+    },
+    {
+      "taskId": "40238798-b927-4ce8-9960-e3386baec602",
+      "at": "2026-10-12T20:14:10.182Z",
+      "action": {
+        "action": "craft",
+        "item": "planks",
+        "count": 8
+      },
+      "status": "failed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v3r1-fresh-base\\checkpoint-epoch-02",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": false,
+      "inventorySource": "outer-observation-may-include-inference-time",
+      "inventoryDelta": {},
+      "corroborated": false,
+      "progress": false,
+      "reason": "not-completed-and-verified"
+    },
+    {
+      "taskId": "d2779208-b777-4a42-b1f5-04bb8857cfab",
+      "at": "2026-10-12T20:14:17.469Z",
+      "action": {
+        "action": "craft",
+        "item": "stick",
+        "count": 4
+      },
+      "status": "completed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v3r1-fresh-base\\checkpoint-epoch-02",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": true,
+      "inventorySource": "executor-local",
+      "inventoryDelta": {
+        "stick": 4,
+        "spruce_planks": -2
+      },
+      "corroborated": true,
+      "progress": true,
+      "reason": "action-specific-evidence-present"
+    },
+    {
+      "taskId": "7dde8af6-78f6-4384-bdf6-327e99c41750",
+      "at": "2026-10-12T20:14:21.245Z",
+      "action": {
+        "action": "craft",
+        "item": "stick",
+        "count": 4
+      },
+      "status": "completed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v3r1-fresh-base\\checkpoint-epoch-02",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": true,
+      "inventorySource": "executor-local",
+      "inventoryDelta": {
+        "stick": 4,
+        "spruce_planks": -2
+      },
+      "corroborated": true,
+      "progress": true,
+      "reason": "action-specific-evidence-present"
+    },
+    {
+      "taskId": "c9bd859e-3794-48ca-b5df-6d2c229c00c9",
+      "at": "2026-10-12T20:14:32.925Z",
+      "action": {
+        "action": "gather_wood",
+        "count": 3
+      },
+      "status": "failed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v3r1-fresh-base\\checkpoint-epoch-02",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": false,
+      "inventorySource": "outer-observation-may-include-inference-time",
+      "inventoryDelta": {},
+      "corroborated": false,
+      "progress": false,
+      "reason": "not-completed-and-verified"
+    },
+    {
+      "taskId": "181105db-09e6-4dea-a51f-55a1a2056c90",
+      "at": "2026-10-12T20:15:07.787Z",
+      "action": {
+        "action": "gather_wood",
+        "count": 4
+      },
+      "status": "completed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v3r1-fresh-base\\checkpoint-epoch-02",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": true,
+      "inventorySource": "executor-local",
+      "inventoryDelta": {
+        "spruce_log": 4
+      },
+      "corroborated": true,
+      "progress": true,
+      "reason": "action-specific-evidence-present"
+    },
+    {
+      "taskId": "e3f34246-401d-4a28-ab21-46c59339dc24",
+      "at": "2026-10-12T20:15:11.796Z",
+      "action": {
+        "action": "craft",
+        "item": "planks",
+        "count": 4
+      },
+      "status": "completed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v3r1-fresh-base\\checkpoint-epoch-02",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": true,
+      "inventorySource": "executor-local",
+      "inventoryDelta": {
+        "spruce_planks": 4,
+        "spruce_log": -1
+      },
+      "corroborated": true,
+      "progress": true,
+      "reason": "action-specific-evidence-present"
+    },
+    {
+      "taskId": "ec788267-d65f-421f-bb48-a860931913d2",
+      "at": "2026-10-12T20:15:15.667Z",
+      "action": {
+        "action": "craft",
+        "item": "planks",
+        "count": 4
+      },
+      "status": "completed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v3r1-fresh-base\\checkpoint-epoch-02",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": true,
+      "inventorySource": "executor-local",
+      "inventoryDelta": {
+        "spruce_planks": 4,
+        "spruce_log": -1
+      },
+      "corroborated": true,
+      "progress": true,
+      "reason": "action-specific-evidence-present"
+    },
+    {
+      "taskId": "5322c459-86ce-4bdc-b35d-f20a26395b8f",
+      "at": "2026-10-12T20:15:19.499Z",
+      "action": {
+        "action": "craft",
+        "item": "planks",
+        "count": 8
+      },
+      "status": "completed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v3r1-fresh-base\\checkpoint-epoch-02",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": true,
+      "inventorySource": "executor-local",
+      "inventoryDelta": {
+        "spruce_planks": 8,
+        "spruce_log": -2
+      },
+      "corroborated": true,
+      "progress": true,
+      "reason": "action-specific-evidence-present"
+    },
+    {
+      "taskId": "3f555e57-af5e-4393-8066-19c1108d5674",
+      "at": "2026-10-12T20:15:23.053Z",
+      "action": {
+        "action": "craft",
+        "item": "planks",
+        "count": 8
+      },
+      "status": "failed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v3r1-fresh-base\\checkpoint-epoch-02",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": false,
+      "inventorySource": "outer-observation-may-include-inference-time",
+      "inventoryDelta": {},
+      "corroborated": false,
+      "progress": false,
+      "reason": "not-completed-and-verified"
+    },
+    {
+      "taskId": "31ce3208-84d1-40c2-ab39-85938887bfed",
+      "at": "2026-10-12T20:15:30.762Z",
+      "action": {
+        "action": "craft",
+        "item": "stick",
+        "count": 8
+      },
+      "status": "completed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v3r1-fresh-base\\checkpoint-epoch-02",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": true,
+      "inventorySource": "executor-local",
+      "inventoryDelta": {
+        "stick": 8,
+        "spruce_planks": -4
+      },
+      "corroborated": true,
+      "progress": true,
+      "reason": "action-specific-evidence-present"
+    },
+    {
+      "taskId": "a5d3590a-ac06-46be-8191-8256acd5e38d",
+      "at": "2026-10-12T20:15:34.304Z",
+      "action": {
+        "action": "craft",
+        "item": "planks",
+        "count": 8
+      },
+      "status": "failed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v3r1-fresh-base\\checkpoint-epoch-02",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": false,
+      "inventorySource": "outer-observation-may-include-inference-time",
+      "inventoryDelta": {},
+      "corroborated": false,
+      "progress": false,
+      "reason": "not-completed-and-verified"
+    },
+    {
+      "taskId": "80c0b679-ddb7-40d8-9555-48ac5b3315ca",
+      "at": "2026-10-12T20:15:47.789Z",
+      "action": {
+        "action": "craft",
+        "item": "stick",
+        "count": 8
+      },
+      "status": "failed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v3r1-fresh-base\\checkpoint-epoch-02",
+      "healthBefore": 20,
+      "healthAfter": 20,
+      "executorVerified": false,
+      "inventorySource": "executor-local",
+      "inventoryDelta": {
+        "stick": 4,
+        "spruce_planks": -29
+      },
+      "corroborated": false,
+      "progress": false,
+      "reason": "not-completed-and-verified"
+    }
+  ],
+  "safety": {
+    "deaths": 0,
+    "deathEvents": [],
+    "minimumLoggedHealth": null,
+    "healthTrace": [],
+    "escapeRoutesIssued": 0,
+    "blockedEvents": 0,
+    "threatClearedEvents": 0,
+    "timingLogSamples": 39,
+    "sampledTickMaxMs": 0.2,
+    "sampledGapMaxMs": 269.9,
+    "observedCumulativeTickMaxMs": 37.9,
+    "observedCumulativeGapMaxMs": 667.6,
+    "observedCumulativeFallbackOverruns": 0,
+    "escapeAcceptance": "not-exercised"
+  },
+  "limits": [
+    "Offline logs corroborate executor observations; they are not an independent game sensor.",
+    "Completed partial gains count as progress but not full requested quantity.",
+    "Death and timing counts cover only supplied logs and timestamps; sparse timing logs do not support per-tick percentiles.",
+    "Cumulative timing maxima may predate this window until reactive reload; report them separately from sampled window values.",
+    "Different prompts, compact observations, executors or world states confound model-weight comparisons. Only frozen identical-input base/adapter evaluation isolates a weight contrast.",
+    "No danger encountered means escape behavior remains untested. Issuing a route alone does not establish escape success.",
+    "Unknown completion metadata never proves adapter use."
+  ],
+  "sources": {
+    "autonomy": {
+      "path": "logs/minecraft-autonomy.jsonl",
+      "sha256": "3de35948d4aabb878e49abedce71c5fa9eabef598da4fad0fbceb4c6127f4542",
+      "malformedLines": []
+    },
+    "session": {
+      "path": "logs/minecraft-session-1791830191222.jsonl",
+      "sha256": "c6c7d8a98c93bd7d4b33ea1779093cda887e62aa469109dec7c29d45d529f54e",
+      "malformedLines": []
+    }
+  },
+  "implementationHashes": {
+    "src/minecraft/survival-planner.js": "279563bb965f8b908aeb2d8896744ccd6cb3fa123b0912c8828a8fce0a0ff9fb",
+    "src/minecraft/survival-skills.js": "f86498b129d1c53a17194f19ca8c25d71a1b05bf71e330cb74fe2e600a0d9909",
+    "src/minecraft/reactive-agent.js": "a9bf34b973a57b64aebd2612ba9cc90efce2eef125b004a1517e27d4ddae7a32",
+    "src/minecraft/autonomy-loop.js": "e88220e022cb6c6c34b432f41889931a93ceb0d48baf6738e01a53c8485703fe"
+  },
+  "implementationHashTiming": "Report-time checkout; establish deployment-time hashes separately before attributing changes.",
+  "independentReview": {
+    "runtime": "No hotreload within supplied window; deployed code hashes in v3r1-deployment.json; report-time source already includes undeployed pickup edit.",
+    "intervention": "No manual progression in supplied trial (orchestrator declaration).",
+    "fullQuantityCompleted": 21,
+    "completedPartial": [
+      {
+        "taskId": "318e1e21-0f94-45b6-ba6c-d4779e1bcc11",
+        "action": {
+          "action": "gather_wood",
+          "count": 4
+        },
+        "gained": 1,
+        "dug": 9
+      },
+      {
+        "taskId": "9954fdd1-b062-4e51-a70c-637bcd37b069",
+        "action": {
+          "action": "gather_wood",
+          "count": 6
+        },
+        "gained": 3,
+        "dug": 5
+      },
+      {
+        "taskId": "0e810775-ccea-46a3-8479-2cbb96736549",
+        "action": {
+          "action": "gather_wood",
+          "count": 6
+        },
+        "gained": 1,
+        "dug": 4
+      }
+    ],
+    "failedPositivePartial": [
+      {
+        "taskId": "80c0b679-ddb7-40d8-9555-48ac5b3315ca",
+        "action": {
+          "action": "craft",
+          "item": "stick",
+          "count": 8
+        },
+        "gained": 4
+      }
+    ],
+    "actionsByType": {
+      "gather_wood": 7,
+      "flee": 1,
+      "explore": 1,
+      "craft": 26
+    },
+    "minimumActionBoundaryHealth": 20,
+    "conclusion": "Autonomous crafting table and wooden pickaxe achieved. No mine action, no stone-tier progress, no Nether. Subsequent wood/plank/stick loop is non-progression despite real positive inventory deltas. Different world/input/executor conditions prevent attribution against earlier base trial.",
+    "craftLimitation": "Craft planks4 failed at20:12:42 after log consumption; four planks appeared in following gather observation. This is compatible with delayed inventory update but does not identify cause or retrospectively verify failed craft. Final failed stick8 had verifiedPartial gained4 plus -29 planks delta, indicating inventory reconciliation remains unresolved.",
+    "safety": "No deaths during interval and action-boundary health20; zero reactive short routes means escape fix not validated. Prior20:06:20 creeper death remains part of overall experiment.",
+    "firstWoodenPickaxe": "2026-10-12T20:12:33.023Z"
+  }
+}

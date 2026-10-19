@@ -1,0 +1,224 @@
+{
+  "rubric": "minecraft-live-v2-acceptance-1",
+  "from": "2026-10-12T20:30:50.020Z",
+  "to": "2026-10-12T20:31:53.877Z",
+  "cohorts": {
+    "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v3r1-fresh-base\\checkpoint-epoch-02": {
+      "decisions": 9,
+      "results": 9,
+      "failed": 6,
+      "corroborated": 3,
+      "progress": 3
+    }
+  },
+  "decisions": 9,
+  "results": 9,
+  "failures": 6,
+  "failureRate": 0.6666666666666666,
+  "repeatedUnchangedFailures": 0,
+  "repeatedFailureRateAmongAttempts": 0,
+  "repeatedFailureEvidence": [],
+  "rejectedDecisions": [],
+  "actionEvidence": [
+    {
+      "taskId": "320afe05-b27b-403c-9282-be5c8077af67",
+      "at": "2026-10-12T20:30:51.391Z",
+      "action": {
+        "action": "eat"
+      },
+      "status": "failed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v3r1-fresh-base\\checkpoint-epoch-02",
+      "healthBefore": 1,
+      "healthAfter": 1,
+      "executorVerified": false,
+      "inventorySource": "outer-observation-may-include-inference-time",
+      "inventoryDelta": {},
+      "corroborated": false,
+      "progress": false,
+      "reason": "not-completed-and-verified"
+    },
+    {
+      "taskId": "b9df74dc-807b-445f-b33f-53e350e39f98",
+      "at": "2026-10-12T20:30:57.936Z",
+      "action": {
+        "action": "hunt",
+        "count": 1
+      },
+      "status": "failed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v3r1-fresh-base\\checkpoint-epoch-02",
+      "healthBefore": 1,
+      "healthAfter": 1,
+      "executorVerified": false,
+      "inventorySource": "outer-observation-may-include-inference-time",
+      "inventoryDelta": {},
+      "corroborated": false,
+      "progress": false,
+      "reason": "not-completed-and-verified"
+    },
+    {
+      "taskId": "8e9dda72-e89f-44cb-9ff8-772d864484ad",
+      "at": "2026-10-12T20:31:08.782Z",
+      "action": {
+        "action": "flee"
+      },
+      "status": "completed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v3r1-fresh-base\\checkpoint-epoch-02",
+      "healthBefore": 1,
+      "healthAfter": 1,
+      "executorVerified": true,
+      "inventorySource": "executor-local",
+      "inventoryDelta": {},
+      "corroborated": true,
+      "progress": true,
+      "reason": "action-specific-evidence-present"
+    },
+    {
+      "taskId": "8e19e706-0a57-421a-b06c-0625a0015db3",
+      "at": "2026-10-12T20:31:17.397Z",
+      "action": {
+        "action": "flee"
+      },
+      "status": "completed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v3r1-fresh-base\\checkpoint-epoch-02",
+      "healthBefore": 1,
+      "healthAfter": 1,
+      "executorVerified": true,
+      "inventorySource": "executor-local",
+      "inventoryDelta": {},
+      "corroborated": true,
+      "progress": true,
+      "reason": "action-specific-evidence-present"
+    },
+    {
+      "taskId": "8a67f6f9-e5ce-4890-a079-517d5ae09e9f",
+      "at": "2026-10-12T20:31:26.168Z",
+      "action": {
+        "action": "flee"
+      },
+      "status": "completed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v3r1-fresh-base\\checkpoint-epoch-02",
+      "healthBefore": 1,
+      "healthAfter": 1,
+      "executorVerified": true,
+      "inventorySource": "executor-local",
+      "inventoryDelta": {},
+      "corroborated": true,
+      "progress": true,
+      "reason": "action-specific-evidence-present"
+    },
+    {
+      "taskId": "1ec52618-e8c0-4608-a0ce-d3b486bf88af",
+      "at": "2026-10-12T20:31:29.282Z",
+      "action": {
+        "action": "eat"
+      },
+      "status": "failed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v3r1-fresh-base\\checkpoint-epoch-02",
+      "healthBefore": 1,
+      "healthAfter": 1,
+      "executorVerified": false,
+      "inventorySource": "outer-observation-may-include-inference-time",
+      "inventoryDelta": {},
+      "corroborated": false,
+      "progress": false,
+      "reason": "not-completed-and-verified"
+    },
+    {
+      "taskId": "588a2fc3-d992-44f6-b644-2bbb0a686be6",
+      "at": "2026-10-12T20:31:35.977Z",
+      "action": {
+        "action": "hunt",
+        "count": 1
+      },
+      "status": "failed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v3r1-fresh-base\\checkpoint-epoch-02",
+      "healthBefore": 1,
+      "healthAfter": 1,
+      "executorVerified": false,
+      "inventorySource": "outer-observation-may-include-inference-time",
+      "inventoryDelta": {},
+      "corroborated": false,
+      "progress": false,
+      "reason": "not-completed-and-verified"
+    },
+    {
+      "taskId": "4e686a94-be36-4ce1-90de-560744f1e4fd",
+      "at": "2026-10-12T20:31:42.386Z",
+      "action": {
+        "action": "eat"
+      },
+      "status": "failed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v3r1-fresh-base\\checkpoint-epoch-02",
+      "healthBefore": 1,
+      "healthAfter": 1,
+      "executorVerified": false,
+      "inventorySource": "outer-observation-may-include-inference-time",
+      "inventoryDelta": {},
+      "corroborated": false,
+      "progress": false,
+      "reason": "not-completed-and-verified"
+    },
+    {
+      "taskId": "8fc845b5-d540-4b32-9ea9-4661bdf68073",
+      "at": "2026-10-12T20:31:49.255Z",
+      "action": {
+        "action": "gather_wood",
+        "count": 4
+      },
+      "status": "failed",
+      "cohort": "adapter:E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v3r1-fresh-base\\checkpoint-epoch-02",
+      "healthBefore": 1,
+      "healthAfter": 1,
+      "executorVerified": false,
+      "inventorySource": "outer-observation-may-include-inference-time",
+      "inventoryDelta": {},
+      "corroborated": false,
+      "progress": false,
+      "reason": "not-completed-and-verified"
+    }
+  ],
+  "safety": {
+    "deaths": 0,
+    "deathEvents": [],
+    "minimumLoggedHealth": null,
+    "healthTrace": [],
+    "escapeRoutesIssued": 0,
+    "blockedEvents": 0,
+    "threatClearedEvents": 0,
+    "timingLogSamples": 7,
+    "sampledTickMaxMs": 0.3,
+    "sampledGapMaxMs": 215,
+    "observedCumulativeTickMaxMs": 0.4,
+    "observedCumulativeGapMaxMs": 412,
+    "observedCumulativeFallbackOverruns": 0,
+    "escapeAcceptance": "not-exercised"
+  },
+  "limits": [
+    "Offline logs corroborate executor observations; they are not an independent game sensor.",
+    "Completed partial gains count as progress but not full requested quantity.",
+    "Death and timing counts cover only supplied logs and timestamps; sparse timing logs do not support per-tick percentiles.",
+    "Cumulative timing maxima may predate this window until reactive reload; report them separately from sampled window values.",
+    "Different prompts, compact observations, executors or world states confound model-weight comparisons. Only frozen identical-input base/adapter evaluation isolates a weight contrast.",
+    "No danger encountered means escape behavior remains untested. Issuing a route alone does not establish escape success.",
+    "Unknown completion metadata never proves adapter use."
+  ],
+  "sources": {
+    "autonomy": {
+      "path": "logs/minecraft-autonomy.jsonl",
+      "sha256": "99dc68fda2bdf6ca20f407e81746bbeff65d0b0fcdd5fe7ef20bf0dc71d2b111",
+      "malformedLines": []
+    },
+    "session": {
+      "path": "logs/minecraft-session-1791830191222.jsonl",
+      "sha256": "c34262f86bd41c5925886ec95a922c58df08308bed8005e6232f994dc978f0fb",
+      "malformedLines": []
+    }
+  },
+  "implementationHashes": {
+    "src/minecraft/survival-planner.js": "279563bb965f8b908aeb2d8896744ccd6cb3fa123b0912c8828a8fce0a0ff9fb",
+    "src/minecraft/survival-skills.js": "9a4bf388f84cbf480f2cd754c585c4fe65265fb45b63dde33194f97a6792716a",
+    "src/minecraft/reactive-agent.js": "fac165a0a79d9d69f81c8b6aef0bc553d8bd8060dae04b571f877ab421bb73ae",
+    "src/minecraft/autonomy-loop.js": "4c171df6c3ee8d3b5c495f5a8bd7f6aaa522bca6eb14c1663f8620af852dd90c"
+  },
+  "implementationHashTiming": "Report-time checkout; establish deployment-time hashes separately before attributing changes."
+}

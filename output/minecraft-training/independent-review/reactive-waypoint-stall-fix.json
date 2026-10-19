@@ -1,0 +1,27 @@
+{
+  "at": "2026-10-12T20:37:30.318Z",
+  "evidenceWindow": [
+    "2026-10-12T20:22:11.011Z",
+    "2026-10-12T20:22:20.745Z"
+  ],
+  "source": "logs/minecraft-session-1791830191222.jsonl",
+  "finding": "Six no-progress detections already occurred at nearly fixed32.3,72,-68.81; endpoint changes repeatedly accepted computed routes, delaying leaf recovery until hostile distance0.83. Logs did not include old waypoints, so shared-prefix mechanism is code-level diagnosis, not proven path reconstruction.",
+  "changes": [
+    "Track actual path_update waypoints and monotonic improvement to next point instead of raw knockback/displacement.",
+    "Remember stalled origin-next segment for6s; defer shared-prefix candidates while searching up to4 candidate queries in existing60ms cooperative budget.",
+    "When only already-stalled first segments remain and a safe leaf exit is available, use existing guarded2-leaf/3-attempt recovery before retrying; otherwise preserve one verified route as explicit reusedStalledEdge fallback.",
+    "Log firstWaypoint/routeEdge/reusedStalledEdge and stall waypointIndex/waypointDistance/stalledMs/terrain."
+  ],
+  "tests": [
+    "shared-prefix destination change deferred for different segment",
+    "stationary computed route noPath count zero detected",
+    "knockback away/back not progress",
+    "real waypoint distance improvement avoids extra reset",
+    "safe leaf recovery ahead of repeated shared prefix",
+    "only-route fallback retained and memory expires",
+    "path_update listener disposed",
+    "existing CPU overrun measurement and terrain guards pass"
+  ],
+  "liveStatus": "Source ready for separate hotreload; no live escape success claimed.",
+  "lifeMemoryReview": "Loop clears policy history/recovery state on session/epoch/dimension boundary before waiting/planning, retains audit records. Existing life-memory and loop tests pass."
+}

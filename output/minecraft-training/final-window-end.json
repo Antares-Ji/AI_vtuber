@@ -1,0 +1,224 @@
+{
+  "at": "2026-10-12T23:02:10.740Z",
+  "reason": "Death stopped by watchdog; no successful survival acceptance",
+  "observation": {
+    "connected": true,
+    "busy": false,
+    "activeTaskId": null,
+    "position": {
+      "x": 20.5,
+      "y": 66,
+      "z": 2.5
+    },
+    "mode": "survival",
+    "health": 20,
+    "food": 20,
+    "reactive": {
+      "updatedAt": "2026-10-12T23:02:10.553Z",
+      "sampleIntervalMs": 200,
+      "lifecycleEpoch": 10,
+      "dimension": "overworld",
+      "timeOfDay": 17388,
+      "health": 20,
+      "food": 20,
+      "armed": false,
+      "enabled": true,
+      "mode": "idle",
+      "calming": false,
+      "targetId": null,
+      "entities": [],
+      "escape": null,
+      "timing": {
+        "tickMs": 0.3,
+        "maxTickMs": 339.5,
+        "sampleGapMs": 210.2,
+        "maxSampleGapMs": 764,
+        "skippedTicks": 2,
+        "fallbackMs": 0.5,
+        "maxFallbackMs": 50.8,
+        "fallbackBudgetMs": 60,
+        "fallbackOverruns": 0,
+        "leafAwaitMs": 0,
+        "maxLeafAwaitMs": 312,
+        "logCallbackMs": 0.5,
+        "maxLogCallbackMs": 7.9,
+        "tickLogCallbackMs": 0,
+        "fallbackLogCallbackMs": 0,
+        "fallbackCandidateMs": 0.5,
+        "fallbackSearchMs": 0,
+        "maxSearchSliceMs": 7.3,
+        "fallbackDispatchMs": 0,
+        "intervalIsSchedulingTarget": true
+      }
+    },
+    "inventory": [],
+    "logPath": "E:\\Github\\AI_vtuber\\logs\\minecraft-session-1791830191222.jsonl"
+  },
+  "loop": {
+    "enabled": false,
+    "running": false,
+    "goal": "由本地千问自主规划：安全生存、采集、制作工具、采矿、制作并点燃下界门，进入下界。失败后根据真实状态调整计划。",
+    "deadline": "2026-10-12T23:17:01.000Z",
+    "step": 130,
+    "model": "qwen3.5-4b",
+    "modelLoaded": true,
+    "adapter": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01",
+    "adapterLoaded": true,
+    "lastDecision": {
+      "action": "flee"
+    },
+    "lastResult": {
+      "taskId": "5bbea574-85ad-4e2d-bc7c-c50f287b4462",
+      "action": {
+        "action": "flee"
+      },
+      "status": "cancelled",
+      "error": "This operation was aborted",
+      "at": "2026-10-12T23:00:20.059Z"
+    },
+    "lastError": null,
+    "latencyMs": 1482,
+    "history": [
+      {
+        "taskId": "4e726361-b46d-4613-8a75-bc9b913aa65e",
+        "action": {
+          "action": "explore",
+          "direction": "south",
+          "distance": 12
+        },
+        "status": "failed",
+        "error": "Exploration did not produce meaningful displacement",
+        "at": "2026-10-12T22:57:03.261Z"
+      },
+      {
+        "taskId": "92193688-164b-4ebb-bc80-b3e75dd50a2c",
+        "action": {
+          "action": "explore",
+          "direction": "west",
+          "distance": 16
+        },
+        "status": "failed",
+        "error": "Exploration did not produce meaningful displacement",
+        "at": "2026-10-12T22:57:13.350Z"
+      },
+      {
+        "taskId": "ebbfbf24-4691-4f69-8b6a-f4397ae61d58",
+        "action": {
+          "action": "flee"
+        },
+        "status": "failed",
+        "error": "Exploration did not produce meaningful displacement",
+        "at": "2026-10-12T22:57:22.220Z"
+      },
+      {
+        "taskId": "d0e14db0-2bf9-4a9a-9a5b-7aa037059a80",
+        "action": {
+          "action": "flee"
+        },
+        "status": "failed",
+        "error": "Exploration did not produce meaningful displacement",
+        "at": "2026-10-12T22:57:30.995Z"
+      },
+      {
+        "taskId": "49f52780-cfb4-48f9-828d-7e07cfd94349",
+        "action": {
+          "action": "explore",
+          "direction": "northeast",
+          "distance": 20
+        },
+        "status": "failed",
+        "error": "Exploration did not produce meaningful displacement",
+        "at": "2026-10-12T22:57:41.199Z"
+      },
+      {
+        "taskId": "efa401da-a6dd-46dc-860e-94c0556089e8",
+        "action": {
+          "action": "explore",
+          "direction": "north",
+          "distance": 20
+        },
+        "status": "failed",
+        "error": "Exploration did not produce meaningful displacement",
+        "at": "2026-10-12T22:57:50.800Z"
+      },
+      {
+        "taskId": "8bd7ea11-846c-48b0-aedb-06e0ca6876c8",
+        "action": {
+          "action": "flee"
+        },
+        "status": "failed",
+        "error": "Exploration did not produce meaningful displacement",
+        "at": "2026-10-12T22:57:59.561Z"
+      },
+      {
+        "taskId": "bac24d2d-0ef5-41c6-bff8-01a5299305b7",
+        "action": {
+          "action": "flee"
+        },
+        "status": "failed",
+        "error": "Exploration did not produce meaningful displacement",
+        "at": "2026-10-12T22:58:08.552Z"
+      },
+      {
+        "taskId": "7fc869cb-4191-488a-b4a7-5f30c44284da",
+        "action": {
+          "action": "flee"
+        },
+        "status": "failed",
+        "error": "Exploration did not produce meaningful displacement",
+        "at": "2026-10-12T22:58:17.243Z"
+      },
+      {
+        "taskId": "7385ec12-f2a3-474b-992e-d67574009764",
+        "action": {
+          "action": "flee"
+        },
+        "status": "failed",
+        "error": "Exploration did not produce meaningful displacement",
+        "at": "2026-10-12T22:58:51.060Z"
+      },
+      {
+        "taskId": "2e043d24-b6bd-49b9-81e8-81c6e741dd1e",
+        "action": {
+          "action": "flee"
+        },
+        "status": "failed",
+        "error": "Exploration did not produce meaningful displacement",
+        "at": "2026-10-12T22:59:24.934Z"
+      },
+      {
+        "taskId": "5bbea574-85ad-4e2d-bc7c-c50f287b4462",
+        "action": {
+          "action": "flee"
+        },
+        "status": "cancelled",
+        "error": "This operation was aborted",
+        "at": "2026-10-12T23:00:20.059Z"
+      }
+    ],
+    "modelHealth": {
+      "ok": true,
+      "model": "qwen3.5-4b",
+      "path": "E:\\Qwen3.5-4B",
+      "quantization": "nf4",
+      "adapter": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01",
+      "adapter_loaded": true,
+      "adapter_scope": "minecraft-survival",
+      "generation": {
+        "active": false,
+        "queued": 0,
+        "max_waiters": 4,
+        "cancelled_running": 0
+      },
+      "generation_busy": false
+    },
+    "updatedAt": "2026-10-12T23:01:22.665Z",
+    "waitingFor": "safety-reflex",
+    "lastDecisionMetadata": {
+      "task": "minecraft-survival",
+      "used_adapter": true,
+      "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01"
+    },
+    "needsRecovery": true
+  }
+}

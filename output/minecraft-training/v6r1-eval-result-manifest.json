@@ -1,0 +1,29 @@
+{
+  "status": "comparison complete; process exited; no service deployed",
+  "completedAt": "2026-10-12T22:46:51.9137394Z",
+  "launchManifest": "output/minecraft-training/v6r1-eval-launch.json",
+  "data": "output/minecraft-training/v6r1-development57.jsonl",
+  "dataSha256": "0abc77696228f1ab5c62b919f5aeb2b4295b17e91f84bb149b202bff7ebb2ef5",
+  "models": {
+    "v6r1Epoch01": "runtime/minecraft-training/adapters/minecraft-survival-v6r1-weighted-material-candidate/checkpoint-epoch-01",
+    "v4r1": "runtime/minecraft-training/adapters/minecraft-survival-v4r1-replay-candidate/checkpoint-epoch-01"
+  },
+  "outputs": {
+    "v6r1-dev57-probe-live-probe-1791833435547-v6r1-epoch01.json": "573bc1737f5d72978f19c3c79350ce06e5c0bfc144aa4a1b246ff8d6527c4c7b",
+    "v6r1-dev57-probe-live-probe-1791836151666-v4r1.json": "fc64da8ec37b40aab12a10dd92d0cfd0b7741129eb2ca62270ba5fa68cef0522",
+    "v6r1-dev57-v4r1.report.json": "83d95418b5d9efaa80056125bb4721245b1e778fc4cb11e4dad02d4f03b1367f",
+    "v6r1-dev57-v6r1-epoch01.jsonl": "40b502022384bbd4c311deef8bcbed077246cdae54abd74154c3ea772302d154",
+    "v6r1-dev57-probe-live-probe-1791830746219-v6r1-epoch01.json": "ea8ad774fdc5eef6f22d9d6dd102265ddf58fd86d4aa8a17d3bd5b97a71b08c3",
+    "v6r1-dev57-v6r1-epoch01.report.json": "b137498ae890890c7232b1fab10e01e54475406749acfc300c664325bc7f26f8",
+    "v6r1-development57-summary.json": "141ef5d89627bc3682863786c6f92a80d1e6e2d8db56f21616a95775c2ed2ab2",
+    "v6r1-dev57-v4r1.jsonl": "dfb46eef541e073a1abe3c885786f57d74e0b3a1f1e277c825dc182d28e192ec",
+    "v6r1-dev57-probe-live-probe-1791833435547-v4r1.json": "9039b32b1829a86e20704e502fafdeeeb116f8c9f641c878852d5c8b229233b1",
+    "v6r1-dev57-probe-live-probe-1791830746219-v4r1.json": "7ca5d08bedc3148cbebe100c4a3f5116c5be0e42af14ff88d8187b978cbf2188",
+    "v6r1-dev57-probe-live-probe-1791838384663-v6r1-epoch01.json": "623bbb52f3c36663ea83fd193c06f57d33da1d1224de6b6cd00593473d9d667a",
+    "v6r1-dev57-probe-live-probe-1791838384663-v4r1.json": "0f2e86fe6a31f6f18a10c069718b6fa40eec7492542fbf6787594cc43f53c160",
+    "v6r1-dev57-probe-live-probe-1791836151666-v6r1-epoch01.json": "08ab24ab8ab1aedcecbc73a1fbf67a1a6303051e49fe6b8515fd4442b7fd8877"
+  },
+  "diagnosticCount": 8,
+  "final20Read": false,
+  "diagnosticsOnly": true
+}

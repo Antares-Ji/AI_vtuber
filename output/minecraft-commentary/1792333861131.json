@@ -1,0 +1,31 @@
+{
+  "capturedAt": 1792333861131,
+  "evidence": {
+    "goal": "由千问自主规划并通过Mineflayer执行生存小家目标。首先根据实际危险优先避怪、防护和食物，避免反复死亡丢失物资；再采集、正确制作工具、建屋并配置床箱子火把、熟食、浅矿及返家。全部75种已注册动作开放，由你根据真实观察与执行结果选择；死亡后重新核对库存，先满足配方和工具前置条件，不重复囤木或把破坏方块冒称物品入库。持续运行直到用户明确停止。",
+    "currentSubgoal": "移动至安全区域并采集木材",
+    "action": {
+      "action": "gather_wood",
+      "count": 12
+    },
+    "outcome": "running",
+    "error": null,
+    "inventory": [
+      {
+        "name": "spruce_log",
+        "count": 1
+      }
+    ],
+    "health": 20,
+    "food": 20,
+    "yolo": {
+      "scope": "COCO only, not trained for Minecraft",
+      "detections": []
+    }
+  },
+  "speech": "我正在往安全的地方走，顺手砍些云杉木，背包里目前就一根木头，还得再攒点才够用。",
+  "model": "deepseek-flash",
+  "provider": "cloud",
+  "visionModel": "qwen3.5-4b",
+  "visualObservation": "Minecraft游戏画面显示，玩家正站在一条河流旁的悬崖边缘，周围是起伏的草地和树木。",
+  "expired": false
+}

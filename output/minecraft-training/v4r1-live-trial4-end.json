@@ -1,0 +1,977 @@
+{
+  "at": "2026-10-12T21:24:30.299Z",
+  "reason": "Main process186472 absent and port3000 not listening; bot3001 and model11435 still online. Actual process exit time/cause unknown.",
+  "lastAutonomyEventAt": "2026-10-12T21:19:38.895Z",
+  "loop": {
+    "enabled": true,
+    "running": true,
+    "goal": "由本地千问自主规划：安全生存、采集、制作工具、采矿、制作并点燃下界门，进入下界。失败后根据真实状态调整计划。",
+    "deadline": "2026-10-12T23:17:01.000Z",
+    "step": 46,
+    "model": "qwen3.5-4b",
+    "modelLoaded": true,
+    "adapter": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01",
+    "adapterLoaded": true,
+    "lastDecision": {
+      "action": "explore",
+      "direction": "northwest",
+      "distance": 24
+    },
+    "lastResult": {
+      "taskId": "bce4f766-cb6b-4b00-b49d-4b13954ba352",
+      "action": {
+        "action": "explore",
+        "direction": "northwest",
+        "distance": 24
+      },
+      "status": "completed",
+      "result": {
+        "action": {
+          "action": "explore",
+          "direction": "northwest",
+          "distance": 24
+        },
+        "verified": true,
+        "moved": 22,
+        "from": {
+          "x": 67.6,
+          "y": 66,
+          "z": 199.7
+        },
+        "to": {
+          "x": 53.5,
+          "y": 68,
+          "z": 182.5
+        },
+        "remainingThreats": [],
+        "inventoryBefore": [
+          {
+            "name": "stick",
+            "count": 10
+          },
+          {
+            "name": "oak_planks",
+            "count": 7
+          },
+          {
+            "name": "wooden_pickaxe",
+            "count": 1
+          },
+          {
+            "name": "rabbit_hide",
+            "count": 1
+          },
+          {
+            "name": "gravel",
+            "count": 4
+          }
+        ],
+        "inventoryAfter": [
+          {
+            "name": "stick",
+            "count": 10
+          },
+          {
+            "name": "oak_planks",
+            "count": 7
+          },
+          {
+            "name": "wooden_pickaxe",
+            "count": 1
+          },
+          {
+            "name": "rabbit_hide",
+            "count": 1
+          },
+          {
+            "name": "gravel",
+            "count": 4
+          }
+        ],
+        "position": {
+          "x": 53.5,
+          "y": 68,
+          "z": 182.5
+        }
+      },
+      "at": "2026-10-12T21:19:35.360Z"
+    },
+    "lastError": null,
+    "latencyMs": 2149,
+    "history": [
+      {
+        "taskId": "5e4b43f9-1b33-432e-8dc6-de245bb22c9e",
+        "action": {
+          "action": "flee"
+        },
+        "status": "completed",
+        "result": {
+          "action": {
+            "action": "flee"
+          },
+          "verified": true,
+          "moved": 22,
+          "from": {
+            "x": 36.5,
+            "y": 71,
+            "z": 185.5
+          },
+          "to": {
+            "x": 58.3,
+            "y": 68,
+            "z": 183.5
+          },
+          "remainingThreats": [],
+          "inventoryBefore": [
+            {
+              "name": "stick",
+              "count": 8
+            },
+            {
+              "name": "oak_log",
+              "count": 4
+            },
+            {
+              "name": "rabbit_hide",
+              "count": 1
+            },
+            {
+              "name": "gravel",
+              "count": 4
+            }
+          ],
+          "inventoryAfter": [
+            {
+              "name": "stick",
+              "count": 8
+            },
+            {
+              "name": "oak_log",
+              "count": 4
+            },
+            {
+              "name": "rabbit_hide",
+              "count": 1
+            },
+            {
+              "name": "gravel",
+              "count": 4
+            }
+          ],
+          "position": {
+            "x": 58.3,
+            "y": 68,
+            "z": 183.5
+          }
+        },
+        "at": "2026-10-12T21:18:16.968Z"
+      },
+      {
+        "taskId": "9b75e5cd-9a71-4b56-b4ad-cda5d75a4308",
+        "action": {
+          "action": "craft",
+          "item": "planks",
+          "count": 4
+        },
+        "status": "completed",
+        "result": {
+          "action": {
+            "action": "craft",
+            "item": "planks",
+            "count": 4
+          },
+          "verified": true,
+          "item": "oak_planks",
+          "gained": 4,
+          "inventoryConfirmation": "server_full_window_per_click",
+          "inventoryBefore": [
+            {
+              "name": "stick",
+              "count": 8
+            },
+            {
+              "name": "oak_log",
+              "count": 4
+            },
+            {
+              "name": "rabbit_hide",
+              "count": 1
+            },
+            {
+              "name": "gravel",
+              "count": 4
+            }
+          ],
+          "inventoryAfter": [
+            {
+              "name": "oak_planks",
+              "count": 4
+            },
+            {
+              "name": "stick",
+              "count": 8
+            },
+            {
+              "name": "oak_log",
+              "count": 3
+            },
+            {
+              "name": "rabbit_hide",
+              "count": 1
+            },
+            {
+              "name": "gravel",
+              "count": 4
+            }
+          ],
+          "position": {
+            "x": 58.3,
+            "y": 68,
+            "z": 183.5
+          }
+        },
+        "at": "2026-10-12T21:18:21.583Z"
+      },
+      {
+        "taskId": "795856bc-fb08-439e-b7f6-0a5fc12b264b",
+        "action": {
+          "action": "craft",
+          "item": "planks",
+          "count": 4
+        },
+        "status": "completed",
+        "result": {
+          "action": {
+            "action": "craft",
+            "item": "planks",
+            "count": 4
+          },
+          "verified": true,
+          "item": "oak_planks",
+          "gained": 4,
+          "inventoryConfirmation": "server_full_window_per_click",
+          "inventoryBefore": [
+            {
+              "name": "oak_planks",
+              "count": 4
+            },
+            {
+              "name": "stick",
+              "count": 8
+            },
+            {
+              "name": "oak_log",
+              "count": 3
+            },
+            {
+              "name": "rabbit_hide",
+              "count": 1
+            },
+            {
+              "name": "gravel",
+              "count": 4
+            }
+          ],
+          "inventoryAfter": [
+            {
+              "name": "oak_planks",
+              "count": 8
+            },
+            {
+              "name": "stick",
+              "count": 8
+            },
+            {
+              "name": "oak_log",
+              "count": 2
+            },
+            {
+              "name": "rabbit_hide",
+              "count": 1
+            },
+            {
+              "name": "gravel",
+              "count": 4
+            }
+          ],
+          "position": {
+            "x": 58.3,
+            "y": 68,
+            "z": 183.5
+          }
+        },
+        "at": "2026-10-12T21:18:26.014Z"
+      },
+      {
+        "taskId": "eb47bf98-a392-4f9c-8f2b-ab72ffa57332",
+        "action": {
+          "action": "craft",
+          "item": "planks",
+          "count": 4
+        },
+        "status": "completed",
+        "result": {
+          "action": {
+            "action": "craft",
+            "item": "planks",
+            "count": 4
+          },
+          "verified": true,
+          "item": "oak_planks",
+          "gained": 4,
+          "inventoryConfirmation": "server_full_window_per_click",
+          "inventoryBefore": [
+            {
+              "name": "oak_planks",
+              "count": 8
+            },
+            {
+              "name": "stick",
+              "count": 8
+            },
+            {
+              "name": "oak_log",
+              "count": 2
+            },
+            {
+              "name": "rabbit_hide",
+              "count": 1
+            },
+            {
+              "name": "gravel",
+              "count": 4
+            }
+          ],
+          "inventoryAfter": [
+            {
+              "name": "oak_planks",
+              "count": 12
+            },
+            {
+              "name": "stick",
+              "count": 8
+            },
+            {
+              "name": "oak_log",
+              "count": 1
+            },
+            {
+              "name": "rabbit_hide",
+              "count": 1
+            },
+            {
+              "name": "gravel",
+              "count": 4
+            }
+          ],
+          "position": {
+            "x": 58.3,
+            "y": 68,
+            "z": 183.5
+          }
+        },
+        "at": "2026-10-12T21:18:30.449Z"
+      },
+      {
+        "taskId": "05f4f4e3-0503-4aa2-b2f8-f58e0f3a0080",
+        "action": {
+          "action": "craft",
+          "item": "planks",
+          "count": 4
+        },
+        "status": "completed",
+        "result": {
+          "action": {
+            "action": "craft",
+            "item": "planks",
+            "count": 4
+          },
+          "verified": true,
+          "item": "oak_planks",
+          "gained": 4,
+          "inventoryConfirmation": "server_full_window_per_click",
+          "inventoryBefore": [
+            {
+              "name": "oak_planks",
+              "count": 12
+            },
+            {
+              "name": "stick",
+              "count": 8
+            },
+            {
+              "name": "oak_log",
+              "count": 1
+            },
+            {
+              "name": "rabbit_hide",
+              "count": 1
+            },
+            {
+              "name": "gravel",
+              "count": 4
+            }
+          ],
+          "inventoryAfter": [
+            {
+              "name": "oak_planks",
+              "count": 16
+            },
+            {
+              "name": "stick",
+              "count": 8
+            },
+            {
+              "name": "rabbit_hide",
+              "count": 1
+            },
+            {
+              "name": "gravel",
+              "count": 4
+            }
+          ],
+          "position": {
+            "x": 58.3,
+            "y": 68,
+            "z": 183.5
+          }
+        },
+        "at": "2026-10-12T21:18:34.943Z"
+      },
+      {
+        "taskId": "16248140-a36e-4842-b9eb-4fc0d0499cb4",
+        "action": {
+          "action": "craft",
+          "item": "stick",
+          "count": 4
+        },
+        "status": "completed",
+        "result": {
+          "action": {
+            "action": "craft",
+            "item": "stick",
+            "count": 4
+          },
+          "verified": true,
+          "item": "stick",
+          "gained": 4,
+          "inventoryConfirmation": "server_full_window_per_click",
+          "inventoryBefore": [
+            {
+              "name": "oak_planks",
+              "count": 16
+            },
+            {
+              "name": "stick",
+              "count": 8
+            },
+            {
+              "name": "rabbit_hide",
+              "count": 1
+            },
+            {
+              "name": "gravel",
+              "count": 4
+            }
+          ],
+          "inventoryAfter": [
+            {
+              "name": "oak_planks",
+              "count": 14
+            },
+            {
+              "name": "stick",
+              "count": 12
+            },
+            {
+              "name": "rabbit_hide",
+              "count": 1
+            },
+            {
+              "name": "gravel",
+              "count": 4
+            }
+          ],
+          "position": {
+            "x": 58.3,
+            "y": 68,
+            "z": 183.5
+          }
+        },
+        "at": "2026-10-12T21:18:39.661Z"
+      },
+      {
+        "taskId": "3381e74e-5e7b-4833-be0b-aa7ea97330f6",
+        "action": {
+          "action": "craft",
+          "item": "crafting_table",
+          "count": 1
+        },
+        "status": "completed",
+        "result": {
+          "action": {
+            "action": "craft",
+            "item": "crafting_table",
+            "count": 1
+          },
+          "verified": true,
+          "item": "crafting_table",
+          "gained": 1,
+          "inventoryConfirmation": "server_full_window_per_click",
+          "inventoryBefore": [
+            {
+              "name": "oak_planks",
+              "count": 14
+            },
+            {
+              "name": "stick",
+              "count": 12
+            },
+            {
+              "name": "rabbit_hide",
+              "count": 1
+            },
+            {
+              "name": "gravel",
+              "count": 4
+            }
+          ],
+          "inventoryAfter": [
+            {
+              "name": "oak_planks",
+              "count": 10
+            },
+            {
+              "name": "stick",
+              "count": 12
+            },
+            {
+              "name": "crafting_table",
+              "count": 1
+            },
+            {
+              "name": "rabbit_hide",
+              "count": 1
+            },
+            {
+              "name": "gravel",
+              "count": 4
+            }
+          ],
+          "position": {
+            "x": 58.3,
+            "y": 68,
+            "z": 183.5
+          }
+        },
+        "at": "2026-10-12T21:18:44.836Z"
+      },
+      {
+        "taskId": "b38fd4e4-074f-46d1-88fa-19ee1c7f2ed6",
+        "action": {
+          "action": "craft",
+          "item": "wooden_pickaxe",
+          "count": 1
+        },
+        "status": "completed",
+        "result": {
+          "action": {
+            "action": "craft",
+            "item": "wooden_pickaxe",
+            "count": 1
+          },
+          "verified": true,
+          "item": "wooden_pickaxe",
+          "gained": 1,
+          "inventoryConfirmation": "native_crafting_table_sync",
+          "inventoryBefore": [
+            {
+              "name": "oak_planks",
+              "count": 10
+            },
+            {
+              "name": "stick",
+              "count": 12
+            },
+            {
+              "name": "crafting_table",
+              "count": 1
+            },
+            {
+              "name": "rabbit_hide",
+              "count": 1
+            },
+            {
+              "name": "gravel",
+              "count": 4
+            }
+          ],
+          "inventoryAfter": [
+            {
+              "name": "stick",
+              "count": 10
+            },
+            {
+              "name": "oak_planks",
+              "count": 7
+            },
+            {
+              "name": "wooden_pickaxe",
+              "count": 1
+            },
+            {
+              "name": "rabbit_hide",
+              "count": 1
+            },
+            {
+              "name": "gravel",
+              "count": 4
+            }
+          ],
+          "position": {
+            "x": 58.3,
+            "y": 68,
+            "z": 183.5
+          }
+        },
+        "at": "2026-10-12T21:18:50.324Z"
+      },
+      {
+        "taskId": "50965ea4-ba53-4d7b-9279-59c268e3b928",
+        "action": {
+          "action": "explore",
+          "direction": "south",
+          "distance": 24
+        },
+        "status": "completed",
+        "result": {
+          "action": {
+            "action": "explore",
+            "direction": "south",
+            "distance": 24
+          },
+          "verified": true,
+          "moved": 22,
+          "from": {
+            "x": 58.3,
+            "y": 68,
+            "z": 183.5
+          },
+          "to": {
+            "x": 56.5,
+            "y": 66,
+            "z": 205.5
+          },
+          "remainingThreats": [],
+          "inventoryBefore": [
+            {
+              "name": "stick",
+              "count": 10
+            },
+            {
+              "name": "oak_planks",
+              "count": 7
+            },
+            {
+              "name": "wooden_pickaxe",
+              "count": 1
+            },
+            {
+              "name": "rabbit_hide",
+              "count": 1
+            },
+            {
+              "name": "gravel",
+              "count": 4
+            }
+          ],
+          "inventoryAfter": [
+            {
+              "name": "stick",
+              "count": 10
+            },
+            {
+              "name": "oak_planks",
+              "count": 7
+            },
+            {
+              "name": "wooden_pickaxe",
+              "count": 1
+            },
+            {
+              "name": "rabbit_hide",
+              "count": 1
+            },
+            {
+              "name": "gravel",
+              "count": 4
+            }
+          ],
+          "position": {
+            "x": 56.5,
+            "y": 66,
+            "z": 205.5
+          }
+        },
+        "at": "2026-10-12T21:18:59.937Z"
+      },
+      {
+        "taskId": "32a8d355-4bc5-43d7-b5df-f3e9efffc699",
+        "action": {
+          "action": "explore",
+          "direction": "northwest",
+          "distance": 20
+        },
+        "status": "completed",
+        "result": {
+          "action": {
+            "action": "explore",
+            "direction": "northwest",
+            "distance": 20
+          },
+          "verified": true,
+          "moved": 17,
+          "from": {
+            "x": 56.5,
+            "y": 66,
+            "z": 205.5
+          },
+          "to": {
+            "x": 44.5,
+            "y": 69,
+            "z": 193.5
+          },
+          "remainingThreats": [],
+          "inventoryBefore": [
+            {
+              "name": "stick",
+              "count": 10
+            },
+            {
+              "name": "oak_planks",
+              "count": 7
+            },
+            {
+              "name": "wooden_pickaxe",
+              "count": 1
+            },
+            {
+              "name": "rabbit_hide",
+              "count": 1
+            },
+            {
+              "name": "gravel",
+              "count": 4
+            }
+          ],
+          "inventoryAfter": [
+            {
+              "name": "stick",
+              "count": 10
+            },
+            {
+              "name": "oak_planks",
+              "count": 7
+            },
+            {
+              "name": "wooden_pickaxe",
+              "count": 1
+            },
+            {
+              "name": "rabbit_hide",
+              "count": 1
+            },
+            {
+              "name": "gravel",
+              "count": 4
+            }
+          ],
+          "position": {
+            "x": 44.5,
+            "y": 69,
+            "z": 193.5
+          }
+        },
+        "at": "2026-10-12T21:19:08.766Z"
+      },
+      {
+        "taskId": "f86c3721-0e2b-43c4-99e6-919658e47311",
+        "action": {
+          "action": "flee"
+        },
+        "status": "completed",
+        "result": {
+          "action": {
+            "action": "flee"
+          },
+          "verified": true,
+          "moved": 24,
+          "from": {
+            "x": 44.5,
+            "y": 69,
+            "z": 193.5
+          },
+          "to": {
+            "x": 67.6,
+            "y": 66,
+            "z": 199.7
+          },
+          "remainingThreats": [],
+          "inventoryBefore": [
+            {
+              "name": "stick",
+              "count": 10
+            },
+            {
+              "name": "oak_planks",
+              "count": 7
+            },
+            {
+              "name": "wooden_pickaxe",
+              "count": 1
+            },
+            {
+              "name": "rabbit_hide",
+              "count": 1
+            },
+            {
+              "name": "gravel",
+              "count": 4
+            }
+          ],
+          "inventoryAfter": [
+            {
+              "name": "stick",
+              "count": 10
+            },
+            {
+              "name": "oak_planks",
+              "count": 7
+            },
+            {
+              "name": "wooden_pickaxe",
+              "count": 1
+            },
+            {
+              "name": "rabbit_hide",
+              "count": 1
+            },
+            {
+              "name": "gravel",
+              "count": 4
+            }
+          ],
+          "position": {
+            "x": 67.6,
+            "y": 66,
+            "z": 199.7
+          }
+        },
+        "at": "2026-10-12T21:19:21.952Z"
+      },
+      {
+        "taskId": "bce4f766-cb6b-4b00-b49d-4b13954ba352",
+        "action": {
+          "action": "explore",
+          "direction": "northwest",
+          "distance": 24
+        },
+        "status": "completed",
+        "result": {
+          "action": {
+            "action": "explore",
+            "direction": "northwest",
+            "distance": 24
+          },
+          "verified": true,
+          "moved": 22,
+          "from": {
+            "x": 67.6,
+            "y": 66,
+            "z": 199.7
+          },
+          "to": {
+            "x": 53.5,
+            "y": 68,
+            "z": 182.5
+          },
+          "remainingThreats": [],
+          "inventoryBefore": [
+            {
+              "name": "stick",
+              "count": 10
+            },
+            {
+              "name": "oak_planks",
+              "count": 7
+            },
+            {
+              "name": "wooden_pickaxe",
+              "count": 1
+            },
+            {
+              "name": "rabbit_hide",
+              "count": 1
+            },
+            {
+              "name": "gravel",
+              "count": 4
+            }
+          ],
+          "inventoryAfter": [
+            {
+              "name": "stick",
+              "count": 10
+            },
+            {
+              "name": "oak_planks",
+              "count": 7
+            },
+            {
+              "name": "wooden_pickaxe",
+              "count": 1
+            },
+            {
+              "name": "rabbit_hide",
+              "count": 1
+            },
+            {
+              "name": "gravel",
+              "count": 4
+            }
+          ],
+          "position": {
+            "x": 53.5,
+            "y": 68,
+            "z": 182.5
+          }
+        },
+        "at": "2026-10-12T21:19:35.360Z"
+      }
+    ],
+    "modelHealth": {
+      "ok": true,
+      "model": "qwen3.5-4b",
+      "path": "E:\\Qwen3.5-4B",
+      "quantization": "nf4",
+      "adapter": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01",
+      "adapter_loaded": true,
+      "adapter_scope": "minecraft-survival",
+      "generation": {
+        "active": false,
+        "queued": 0,
+        "max_waiters": 4,
+        "cancelled_running": 0
+      },
+      "generation_busy": false
+    },
+    "updatedAt": "2026-10-12T21:19:38.895Z",
+    "waitingFor": "safety-reflex",
+    "lastDecisionMetadata": {
+      "task": "minecraft-survival",
+      "used_adapter": true,
+      "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01"
+    },
+    "needsRecovery": false
+  }
+}

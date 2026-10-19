@@ -1,0 +1,22 @@
+{
+  "recordedAt": "2026-10-12T21:40:21.8023958Z",
+  "status": "criteria recorded before any v5r2 development predictions",
+  "candidates": [
+    "base",
+    "v4r1",
+    "v5r2-epoch-01",
+    "v5r2-epoch-02"
+  ],
+  "selectionData": "v5r2-development47.jsonl",
+  "selectionDataSha256": "0f5632030e830c29807ee6180007109969414a86ebea09b374904a46a98fe31d",
+  "rules": [
+    "Use schema-valid accepted action sets, with exact action labels only when no allowed set exists. Training loss is not a deployment criterion.",
+    "Reject a new checkpoint for deployment if it introduces an invalid-output or threat-priority regression relative to v4r1 on the fixed development inputs.",
+    "Compare each formerly accepted development action that becomes rejected, not merely aggregate score. Record the practical severity before selecting.",
+    "Prioritize actual food-state understanding, tool prerequisites, feasible resource recovery and refusal of unavailable tasks. Report each slice denominator.",
+    "Exact live probes are diagnostic only. Ambiguous wood/plank stage probes have no hard gold label and do not enter the aggregate score.",
+    "Prefer retaining v4r1 if no new checkpoint has a defensible behavior advantage. A selected new checkpoint authorizes only a bounded live trial, not a claim of survival or Nether completion.",
+    "Original20 endpoint checks occur only after checkpoint selection and do not tune this run. Prior repeated use and root's incidental earlier label exposure limit claims of an untouched holdout.",
+    "The real acceptance requires local Qwen selecting actions, Mineflayer executing with server-confirmed effects, inventory/tool progression and survival. No manual progression, cheats or silent substitution of base outputs."
+  ]
+}

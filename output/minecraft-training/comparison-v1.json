@@ -1,0 +1,29 @@
+{
+  "baseline": "output\\minecraft-training\\baseline.report.json",
+  "adapter": "output\\minecraft-training\\adapter-v1.report.json",
+  "holdout_file": "E:\\Github\\AI_vtuber\\data\\minecraft-training\\holdout.jsonl",
+  "n": 20,
+  "metrics": {
+    "exact_action_object_accuracy": {
+      "base": 0.15,
+      "adapter": 0.45,
+      "delta": 0.30000000000000004
+    },
+    "strict_json_schema_valid_rate": {
+      "base": 0.85,
+      "adapter": 1.0,
+      "delta": 0.15000000000000002
+    },
+    "threat_priority_accuracy": {
+      "base": 1.0,
+      "adapter": 1.0,
+      "delta": 0.0
+    },
+    "progression_exact_accuracy": {
+      "base": 0.06666666666666667,
+      "adapter": 0.4,
+      "delta": 0.33333333333333337
+    }
+  },
+  "interpretation": "Small synthetic holdout comparison. A positive delta is agreement improvement on these authored labels only; it does not prove better Minecraft gameplay or generalization."
+}

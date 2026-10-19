@@ -1,0 +1,30 @@
+{
+  "experiment": "minecraft-survival-policy-v3-fresh-base",
+  "contract": "data/minecraft-training/contract-v3.json",
+  "contract_sha256": "f03a9ad49366b7993a1c3632eaa917f3b7e6386f50635a2f52eb3f3513a5ed57",
+  "train_examples": 176,
+  "development_examples": 34,
+  "training_composition": {
+    "reformatted_v2_training_only": 124,
+    "emergency_recovery_candidates_synthetic": 24,
+    "material_recovery_and_positive_controls_synthetic": 28
+  },
+  "source_hashes": {
+    "train-v2.jsonl": "a0fe89f89f0c3faacaa5bf8eb89c720debf8b8dc182699f30184d2d134daec71",
+    "emergency-recovery-v3-candidates.json": "b4ee46defcd5cafb2b3f6363c7c769882da37014d7be302885a236a25411e875"
+  },
+  "development_composition": {
+    "frozen_v2_development_rows_unchanged": 26,
+    "new_immutable_real_material_probe": 1,
+    "independent_emergency_boundary_cases": 7
+  },
+  "development_sources": [
+    "data/minecraft-training/development-v2.jsonl",
+    "output/minecraft-training/live-probe-1791833435547.json",
+    "data/minecraft-training/emergency-recovery-v3-candidates.json:suggestedDevelopmentCases"
+  ],
+  "development_expected_policy": "Frozen v2 rows remain unchanged; the older live probe is already represented there. The new live prompt uses the same-input historical base response as reference. Seven independent boundary cases are reported separately.",
+  "initialization": "fresh base only; no v1/v2 adapter resume",
+  "holdout_used": false,
+  "limitations": "Synthetic training examples, a frozen 26-row development comparison, one additional fixed real read-only prompt, and seven independent synthetic executor boundary cases. Label agreement and two historical outputs do not guarantee Minecraft survival improvement. Do not use final holdout for selection."
+}

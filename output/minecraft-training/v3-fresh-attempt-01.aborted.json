@@ -1,0 +1,43 @@
+{
+  "experiment": "minecraft-survival-policy-v3-fresh-base",
+  "status": "ABORTED_BEFORE_CHECKPOINT",
+  "reason": "Astra audit found inherited v2 action labels that violate executor preconditions; this run must not produce a candidate adapter.",
+  "started_local": "2026-10-13 03:37:50 Asia/Shanghai",
+  "stopped_local": "2026-10-13 03:42:43 Asia/Shanghai",
+  "training_pid": 142036,
+  "configuration": {
+    "initialization": "fresh base; no resume adapter",
+    "data": "data/minecraft-training/train-v3.jsonl",
+    "data_rows": 176,
+    "epochs_requested": 2,
+    "rank": 4,
+    "learning_rate": 0.00002,
+    "max_length": 1536,
+    "free_gpu_gib_at_start": 14.63
+  },
+  "progress": {
+    "completed_optimizer_steps": 36,
+    "epoch_checkpoint_saved": false,
+    "adapter_weights_saved": false,
+    "peak_allocated_gib": 4.3,
+    "window_losses_by_optimizer_step": {
+      "4": 0.3467,
+      "8": 0.2179,
+      "12": 0.1474,
+      "16": 0.1194,
+      "20": 0.3754,
+      "24": 0.2692,
+      "28": 0.2342,
+      "32": 0.3038,
+      "36": 0.2622
+    }
+  },
+  "audit_findings": [
+    "train-v2-0043: mine coal without any pickaxe/tool",
+    "train-v2-0044: mine coal without any pickaxe/tool",
+    "train-v2-0107: hunt when state.animals is empty"
+  ],
+  "frozen_data_unchanged": ["train-v3.jsonl", "development-v3.jsonl", "train-v2.jsonl", "development-v2.jsonl", "holdout.jsonl"],
+  "no_holdout_access": true,
+  "gpu_released": true
+}

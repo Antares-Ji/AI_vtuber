@@ -1,0 +1,36 @@
+{
+  "capturedAt": 1792333737292,
+  "evidence": {
+    "goal": "由千问自主规划并通过Mineflayer执行生存小家目标。首先根据实际危险优先避怪、防护和食物，避免反复死亡丢失物资；再采集、正确制作工具、建屋并配置床箱子火把、熟食、浅矿及返家。全部75种已注册动作开放，由你根据真实观察与执行结果选择；死亡后重新核对库存，先满足配方和工具前置条件，不重复囤木或把破坏方块冒称物品入库。持续运行直到用户明确停止。",
+    "currentSubgoal": "探索安全区域并采集木材",
+    "action": {
+      "action": "explore",
+      "direction": "northwest",
+      "distance": 24
+    },
+    "outcome": "running",
+    "error": null,
+    "inventory": [
+      {
+        "name": "dirt",
+        "count": 1
+      },
+      {
+        "name": "snowball",
+        "count": 14
+      }
+    ],
+    "health": 12.256954193115234,
+    "food": 16,
+    "yolo": {
+      "scope": "COCO only, not trained for Minecraft",
+      "detections": []
+    }
+  },
+  "speech": "我正往西北边走着，想找片能砍的树；背包里还是只有泥土和雪球，木头没到手。雪地空荡荡的，先走稳点。",
+  "model": "deepseek-flash",
+  "provider": "cloud",
+  "visionModel": "qwen3.5-4b",
+  "visualObservation": "游戏画面显示雪地地形，远处有树木和水面，天空布满云层。",
+  "expired": false
+}

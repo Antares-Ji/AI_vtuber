@@ -1,0 +1,212 @@
+{
+  "at": "2026-10-12T19:44:27.105Z",
+  "experiment": "base-only live diagnostic",
+  "health": {
+    "ok": true,
+    "model": "qwen3.5-4b",
+    "path": "E:\\Qwen3.5-4B",
+    "quantization": "nf4",
+    "adapter": null,
+    "adapter_loaded": false,
+    "adapter_scope": "none",
+    "generation": {
+      "active": false,
+      "queued": 0,
+      "max_waiters": 4,
+      "cancelled_running": 0
+    },
+    "generation_busy": false
+  },
+  "startStep": 8,
+  "priorHistory": [
+    {
+      "taskId": "bfb364b3-8279-4c3d-8d81-9cdadd1b9442",
+      "action": {
+        "action": "gather_wood",
+        "count": 4
+      },
+      "status": "completed",
+      "result": {
+        "action": {
+          "action": "gather_wood",
+          "count": 4
+        },
+        "verified": true,
+        "gained": 4,
+        "requested": 4,
+        "complete": true,
+        "dug": 5,
+        "items": [
+          "oak_log",
+          "spruce_log",
+          "birch_log",
+          "jungle_log",
+          "acacia_log",
+          "cherry_log",
+          "dark_oak_log",
+          "pale_oak_log",
+          "mangrove_log"
+        ],
+        "inventoryBefore": [],
+        "inventoryAfter": [
+          {
+            "name": "spruce_log",
+            "count": 4
+          }
+        ],
+        "position": {
+          "x": 60.5,
+          "y": 96,
+          "z": 99.5
+        }
+      },
+      "at": "2026-10-12T19:28:36.992Z"
+    },
+    {
+      "taskId": "0c3eb554-8c49-44ac-9f20-c37c41665a6c",
+      "action": {
+        "action": "craft",
+        "item": "planks",
+        "count": 4
+      },
+      "status": "completed",
+      "result": {
+        "action": {
+          "action": "craft",
+          "item": "planks",
+          "count": 4
+        },
+        "verified": true,
+        "item": "spruce_planks",
+        "gained": 4,
+        "inventoryBefore": [
+          {
+            "name": "spruce_log",
+            "count": 4
+          }
+        ],
+        "inventoryAfter": [
+          {
+            "name": "spruce_log",
+            "count": 3
+          },
+          {
+            "name": "spruce_planks",
+            "count": 4
+          }
+        ],
+        "position": {
+          "x": 60.5,
+          "y": 96,
+          "z": 99.5
+        }
+      },
+      "at": "2026-10-12T19:28:41.184Z"
+    },
+    {
+      "taskId": "f6de784f-42c3-4e1c-b7ac-3940fa47e36b",
+      "action": {
+        "action": "craft",
+        "item": "stick",
+        "count": 2
+      },
+      "status": "completed",
+      "result": {
+        "action": {
+          "action": "craft",
+          "item": "stick",
+          "count": 2
+        },
+        "verified": true,
+        "item": "stick",
+        "gained": 4,
+        "inventoryBefore": [
+          {
+            "name": "spruce_log",
+            "count": 3
+          },
+          {
+            "name": "spruce_planks",
+            "count": 4
+          }
+        ],
+        "inventoryAfter": [
+          {
+            "name": "spruce_log",
+            "count": 3
+          },
+          {
+            "name": "spruce_planks",
+            "count": 2
+          },
+          {
+            "name": "stick",
+            "count": 4
+          }
+        ],
+        "position": {
+          "x": 60.5,
+          "y": 96,
+          "z": 99.5
+        }
+      },
+      "at": "2026-10-12T19:28:45.113Z"
+    },
+    {
+      "taskId": "4bdc94c8-0e86-4691-9a9d-d0dc785105ee",
+      "action": {
+        "action": "craft",
+        "item": "crafting_table",
+        "count": 1
+      },
+      "status": "failed",
+      "error": "Missing ingredients for 1 crafting_table",
+      "at": "2026-10-12T19:28:48.860Z"
+    },
+    {
+      "taskId": "9f665a80-73c3-458e-bd59-fcfda0712edd",
+      "action": {
+        "action": "craft",
+        "item": "crafting_table",
+        "count": 1
+      },
+      "status": "failed",
+      "error": "Missing ingredients for 1 crafting_table",
+      "at": "2026-10-12T19:28:56.189Z"
+    },
+    {
+      "taskId": "04aba059-2630-45e8-8362-7f9627867452",
+      "action": {
+        "action": "craft",
+        "item": "crafting_table",
+        "count": 1
+      },
+      "status": "failed",
+      "error": "Missing ingredients for 1 crafting_table",
+      "at": "2026-10-12T19:29:03.498Z"
+    },
+    {
+      "taskId": "f0b80bc5-d106-419a-8634-978d3f0e0041",
+      "action": {
+        "action": "craft",
+        "item": "crafting_table",
+        "count": 1
+      },
+      "status": "failed",
+      "error": "Missing ingredients for 1 crafting_table",
+      "at": "2026-10-12T19:29:36.005Z"
+    },
+    {
+      "taskId": "d6a7b66a-622e-49cf-93f1-b6aee0a78cd9",
+      "action": {
+        "action": "craft",
+        "item": "crafting_table",
+        "count": 1
+      },
+      "status": "failed",
+      "error": "Missing ingredients for 1 crafting_table",
+      "at": "2026-10-12T19:30:08.443Z"
+    }
+  ],
+  "goal": "由本地千问自主规划：安全生存、采集、制作工具、采矿、制作并点燃下界门，进入下界。失败后根据真实状态调整计划。"
+}

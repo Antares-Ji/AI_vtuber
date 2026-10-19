@@ -1,0 +1,36 @@
+{
+  "capturedAt": 1791988711489,
+  "evidence": {
+    "goal": "从当前真实背包开始，采集足够原木，合成木板，再合成一个工作台。优先保证安全和饱食度。每一步根据实际库存和配方决定数量，缺料不要重复合成。",
+    "currentSubgoal": "向东南方向探索寻找原木",
+    "action": {
+      "action": "explore",
+      "direction": "southeast",
+      "distance": 20
+    },
+    "outcome": "running",
+    "error": null,
+    "inventory": [],
+    "health": 20,
+    "food": 20,
+    "yolo": {
+      "scope": "COCO only, not trained for Minecraft",
+      "detections": [
+        {
+          "label": "toilet",
+          "confidence": 0.386
+        },
+        {
+          "label": "toilet",
+          "confidence": 0.333
+        }
+      ]
+    }
+  },
+  "speech": "我正朝东南方向走二十格找原木，背包还是空的，连块木头都没见着。这雪地真够荒的，希望前面能有点树。",
+  "model": "deepseek-flash",
+  "provider": "cloud",
+  "visionModel": "qwen3.5-4b",
+  "visualObservation": "画面显示《我的世界》中，雪块与泥土方块构成的地形，右侧有木箱和工具。",
+  "expired": false
+}

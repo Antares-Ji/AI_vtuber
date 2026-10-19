@@ -1,0 +1,52 @@
+{
+  "dataset": "minecraft-survival-v4-candidates",
+  "status": "candidate-only; awaiting independent Astra audit and root review; not used for training",
+  "contract": "Frozen current SURVIVAL_ACTION_SCHEMA and survival-planner decisionMessages; no schema or system prompt change",
+  "provenance": "synthetic; independent v4 counterfactual inspired by live failure patterns; not copied from any exact live probe",
+  "trainingRows": 16,
+  "developmentRows": 8,
+  "trainSha256": "3dffa65c7275651b57b410e6edb8af29c9629759b6389e4a612e375febfc162a",
+  "developmentSha256": "e0e7f04cc7594db5afec51ef27ce395e9d27218b7df966a0a52584e281d57363",
+  "replayRows": 182,
+  "replaySha256": "de9e06d84b6a14fdd9f000d5412382a7cb9918d0f82b496b7855121da17aa91d",
+  "frozenInputReferences": {
+    "v3r1TrainSha256": "a6962d31f9e865ef846c72672811ff7b9ba48677dc2905c759275762c940f823",
+    "v3r1DevelopmentSha256": "174d8feaeadf842fa3caab546e4654284a9159d608f5ab8f0dc76e671a04f0f2",
+    "liveTrialR2Sha256": "b1d4e02a90a2e5809c84c015e30b908aefa4e93215dd97dcd146432a7d11af17",
+    "exactSameStateProbe": "output/minecraft-training/live-probe-1791836151666.json (development only; never a train row)"
+  },
+  "promptOverlap": {
+    "candidateTrainWithinSet": 0,
+    "candidateDevWithinSet": 0,
+    "candidateTrainVsDev": 0,
+    "candidateTrainVsFrozenV3r1Train": 0,
+    "candidateTrainVsFrozenV3r1Development": 0,
+    "candidateDevVsFrozenV3r1Train": 0,
+    "candidateDevVsFrozenV3r1Development": 0
+  },
+  "runtimeSourceHashes": {
+    "survivalPlanner": "279563bb965f8b908aeb2d8896744ccd6cb3fa123b0912c8828a8fce0a0ff9fb",
+    "survivalSkills": "ef073228071d9ab7ba2c46c108ea7d1947350c4af4146db4b6db819bb1338fff"
+  },
+  "frozenContractHashes": {
+    "contractVersion": "3.1",
+    "systemPromptSha256": "92640ee8390594cdfb188c7f20f4c9af0421e01dfa7de5ff8a04ef28804b259a",
+    "actionSchemaSha256": "7e482f50f0e5e4f1e88392c6ee1462b39eae2fde01d460fe3b44233e368a445f",
+    "runtimePromptMatchesFrozen": true,
+    "runtimeSchemaMatchesFrozen": true
+  },
+  "proposal": "If approved after independent audit: replay unchanged train-v3r1 (166 rows) plus these 16 candidates via train-v4-replay-candidates.jsonl; resume from v3r1 epoch-02 at learning rate 1e-5 for one epoch, save into a new output directory. No GPU work was started.",
+  "suggestedCommand": "runtime/minecraft-training/.venv/Scripts/python.exe scripts/minecraft-training/train_lora.py --allow-gpu-training --min-free-gib 6.0 --data data/minecraft-training/train-v4-replay-candidates.jsonl --output runtime/minecraft-training/adapters/minecraft-survival-v4-replay-candidate --resume-adapter runtime/minecraft-training/adapters/minecraft-survival-v3r1-fresh-base/checkpoint-epoch-02 --epochs 1 --max-length 1536 --rank 4 --learning-rate 1e-5 --experiment minecraft-survival-v4-replay-candidate --log-every-steps 4 (proposal only; do not run before audit/root approval)",
+  "validation": {
+    "schemaValid": true,
+    "messagesBuiltWithRuntimePlanner": true,
+    "distancesDerivedFromPositions": true,
+    "trainDevInputOverlap": 0
+  },
+  "notes": [
+    "Train actions are strict single labels. Dev rows carry expectedActionSet for accepted direction/resource/count classes; custom semantic scoring is required, since the generic evaluator exact-matches one action.",
+    "Mine targets are synthetic observation fixtures with positions inside the perception radius. Visibility, exposure, path reachability, and world physics remain runtime checks.",
+    "Staircase gold means permitted attempt only. Hidden adjacent block geometry cannot be inferred from observations and must not be scored as model guarantee.",
+    "No exact live probe state or response was copied into train data; dev coordinates/inventory/history differ from training."
+  ]
+}

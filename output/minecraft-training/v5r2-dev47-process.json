@@ -1,0 +1,22 @@
+{
+  "startedAt": "2026-10-12T21:50:38.7020223Z",
+  "wrapperPid": 162552,
+  "workerPid": null,
+  "commandLine": null,
+  "dataPath": "E:\\Github\\AI_vtuber\\output\\minecraft-training\\v5r2-development47.jsonl",
+  "dataSha256": "0f5632030e830c29807ee6180007109969414a86ebea09b374904a46a98fe31d",
+  "models": [
+    "base",
+    "v4r1",
+    "epoch-01",
+    "epoch-02"
+  ],
+  "diagnosticProbes": [
+    "live-probe-1791830746219.json",
+    "live-probe-1791833435547.json",
+    "live-probe-1791836151666.json",
+    "live-probe-1791838384663.json"
+  ],
+  "status": "running",
+  "outputPrefix": "v5r2-dev47"
+}

@@ -1,0 +1,36 @@
+{
+  "capturedAt": 1791986456149,
+  "evidence": {
+    "goal": "制作一把铁镐。由本地千问自主调整中间计划，最终以背包出现 iron_pickaxe 为验收。",
+    "currentSubgoal": "采集云杉原木制作工作台",
+    "action": {
+      "action": "craft",
+      "item": "planks",
+      "count": 8
+    },
+    "outcome": "running",
+    "error": null,
+    "inventory": [
+      {
+        "name": "spruce_planks",
+        "count": 4
+      },
+      {
+        "name": "spruce_log",
+        "count": 11
+      }
+    ],
+    "health": 20,
+    "food": 20,
+    "yolo": {
+      "scope": "COCO only, not trained for Minecraft",
+      "detections": []
+    }
+  },
+  "speech": "雪夜里正试着把云杉木板凑够，好做工作台——背包里木板还差一点，这次能不能成还得看结果。",
+  "model": "deepseek-flash",
+  "provider": "cloud",
+  "visionModel": "qwen3.5-4b",
+  "visualObservation": "雪夜中，玩家正站在覆盖积雪的方块上，周围是高大的树木。",
+  "expired": false
+}

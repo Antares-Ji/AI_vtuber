@@ -1,0 +1,31 @@
+{
+  "capturedAt": 1791986353106,
+  "evidence": {
+    "goal": "制作一把铁镐。由本地千问自主调整中间计划，最终以背包出现 iron_pickaxe 为验收。",
+    "currentSubgoal": "采集云杉原木制作工作台",
+    "action": {
+      "action": "gather_wood",
+      "count": 4
+    },
+    "outcome": "running",
+    "error": null,
+    "inventory": [
+      {
+        "name": "spruce_log",
+        "count": 7
+      }
+    ],
+    "health": 20,
+    "food": 20,
+    "yolo": {
+      "scope": "COCO only, not trained for Minecraft",
+      "detections": []
+    }
+  },
+  "speech": "正仰头砍这棵云杉呢，背包里七根原木够做工作台了，先收手不砍了。雪地反光晃得我眼睛发酸，慢慢来。",
+  "model": "deepseek-flash",
+  "provider": "cloud",
+  "visionModel": "qwen3.5-4b",
+  "visualObservation": "游戏画面中，天空下悬浮着一棵巨大的树，周围有云朵和飘落的白色粒子。",
+  "expired": false
+}

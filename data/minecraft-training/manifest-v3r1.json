@@ -1,0 +1,50 @@
+{
+  "experiment": "minecraft-survival-policy-v3r1-fresh-base",
+  "contract": "data/minecraft-training/contract-v3r1.json",
+  "contract_sha256": "9e1e8201acc736250979f351a612252d64d0667fbb7481e9508cc6fce9f1ce44",
+  "train_examples": 166,
+  "development_examples": 27,
+  "training_composition": {
+    "audited_v2_training_derived": 117,
+    "emergency_recovery_synthetic_candidates": 24,
+    "material_recovery_and_positive_controls_synthetic": 25
+  },
+  "excluded_source_ids": {
+    "train-v2-0015": "resource lies beyond the observation/action range; do not invent a nearer resource",
+    "train-v2-0043": "coal mining requires a pickaxe; state has none in inventory/tools/heldItem/equipment",
+    "train-v2-0044": "coal mining requires a pickaxe; state has none in inventory/tools/heldItem/equipment",
+    "train-v2-0061": "resource lies beyond the observation/action range; do not invent a nearer resource",
+    "train-v2-0062": "resource lies beyond the observation/action range; do not invent a nearer resource",
+    "train-v2-0087": "lava fixture lies beyond the observation/cooling-site range; do not invent a nearer hazard",
+    "train-v2-0107": "hunt requires a visible allowed animal; state animals is empty"
+  },
+  "excluded_duplicate_material_ids": {
+    "MAT3-17": "duplicate normalized input/action of MAT3-13",
+    "MAT3-20": "duplicate normalized input/action of MAT3-16",
+    "MAT3-24": "duplicate normalized input with non-unique direction label also represented by MAT3-21"
+  },
+  "corrected_input_ids": {
+    "ER3-006": "converted malformed threat/hazard z coordinate to numeric 0; source candidate retained unchanged",
+    "ER3-007": "converted malformed threat/hazard z coordinate to numeric 0; source candidate retained unchanged",
+    "ER3-015": "converted malformed threat/hazard z coordinate to numeric 0; source candidate retained unchanged",
+    "ER3-023": "converted malformed threat/hazard z coordinate to numeric 0; source candidate retained unchanged"
+  },
+  "source_hashes": {
+    "train-v2.jsonl": "a0fe89f89f0c3faacaa5bf8eb89c720debf8b8dc182699f30184d2d134daec71",
+    "development-v2.jsonl": "1dd1b7b255fd8ef3357b6799a3e4dbe4f49a01534493ed0120833961fde09b9d",
+    "emergency-recovery-v3-candidates.json": "b4ee46defcd5cafb2b3f6363c7c769882da37014d7be302885a236a25411e875"
+  },
+  "development_composition": {
+    "frozen_v2_rows_unchanged": 26,
+    "new_real_material_probe": 1
+  },
+  "executor_diagnostics": {
+    "path": "data/minecraft-training/executor-diagnostics-v3r1.jsonl",
+    "count": 7,
+    "excluded_from_policy_score": true,
+    "supplemental_policy_reference": "ER3-DEV-07 only; report separately"
+  },
+  "initialization": "fresh base; no v1/v2 adapter resume",
+  "holdout_used": false,
+  "limitations": "Synthetic training examples and 27 development prompts (26 frozen plus one real immutable prompt). Metrics measure label agreement, not gameplay success. Executor boundary diagnostics are not policy gold; no final holdout was accessed."
+}

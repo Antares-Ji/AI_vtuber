@@ -1,0 +1,47 @@
+{
+  "generatedAt": "2026-10-12T21:16:42.842Z",
+  "source": "src/minecraft/reactive-agent.js",
+  "sha256": "a5f183958782321d309ad84bdb80c7c9b83ec16ab9018dd65f5acc3f7c104edd",
+  "incident": {
+    "start": "2026-10-12T21:03:09.104Z",
+    "leafRemoved": "2026-10-12T21:03:09.766Z",
+    "timingAt": "2026-10-12T21:03:09.767Z",
+    "tickWallMs": 662.9,
+    "skippedTicks": 3,
+    "fallbackMs": 0.5,
+    "maxFallbackMs": 51.2,
+    "fallbackOverruns": 0,
+    "subsequentCumulativeSampleGapMs": 861.6,
+    "conclusion": "Awaited native leaf dig dominates this tick wall interval. It is not evidence of a 662.9ms synchronous A* or GPU block. The 861.6ms actual reaction sampling gap remains real."
+  },
+  "nativeEvidence": {
+    "source": "node_modules/mineflayer/lib/plugins/digging.js",
+    "semantics": "dig awaits lookAt before setting targetDigBlock. stopDigging is effective after that target exists: cancels protocol digging, timers/listener and rejects diggingTask.promise. Before it exists stopDigging may be noop."
+  },
+  "change": [
+    "Leaf operation uses forced look, bounded50ms loaded-entity/health watcher and1200ms cancellation request. No world scan or extra progress action.",
+    "If health falls or hostile is within3.5, request stopDigging; actual native promise must settle before another action.",
+    "Persistent per-bot Symbol barrier protects controller replacement while a native leaf operation remains pending. Halt/dispose clears watcher/timer and requests cancellation.",
+    "leafAwaitMs/maxLeafAwaitMs separately record native call wall interval; original tickMs/sampleGapMs remain unchanged. This subinterval can include native synchronous setup and is not CPU measurement."
+  ],
+  "tests": {
+    "commands": [
+      "node tests/minecraft-reactive.js",
+      "node tests/minecraft-reactive-escape.js"
+    ],
+    "result": "pass",
+    "coverage": [
+      "drop-health and hostile-approach cancellation during delayed native dig",
+      "no next route before native settlement, including new controller after dispose",
+      "watcher stops on disposal, barrier released only after native settles",
+      "await duration remains visible",
+      "existing route budget/safety/ranged/hysteresis suite"
+    ]
+  },
+  "limits": [
+    "Uncooperative native operation cannot be forcibly settled. After cancellation request, controller remains blocked until native settlement rather than falsely releasing lock.",
+    "50ms watcher and200ms tick are scheduling targets; measured intervals may exceed them.",
+    "No live escape improvement verified. Existing 21:03 injury/route evidence must remain in full encounter audit.",
+    "Root deploys source when safe; this artifact is not deployment confirmation."
+  ]
+}

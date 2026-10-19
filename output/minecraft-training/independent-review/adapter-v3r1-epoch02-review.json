@@ -1,0 +1,275 @@
+{
+  "generatedAt": "2026-10-12T20:09:47.282Z",
+  "rubric": "independent-semantic-feasibility-v1",
+  "sources": {
+    "predictions": "E:\\Github\\AI_vtuber\\output\\minecraft-training\\independent-review\\adapter-v3r1-epoch02-frozen-holdout.jsonl",
+    "annotations": "E:\\Github\\AI_vtuber\\output\\minecraft-training\\independent-review\\adapter-v3r1-epoch02-annotations.json",
+    "rubric": "E:\\Github\\AI_vtuber\\output\\minecraft-training\\independent-review\\rubric-v1.json",
+    "holdout": "E:\\Github\\AI_vtuber\\data\\minecraft-training\\holdout.jsonl"
+  },
+  "sha256": {
+    "predictions": "b93b4d22e2ca7b8bd5864614739c93200978ba9086f17baac0881c57deffddd9",
+    "annotations": "ea835ee86ebf5d77e3af89cec871a7339aec958dfef52586fafe272125b96dd3",
+    "rubric": "3427949d6c18c941a57d573cccfd8582f12a8949353138cf7fb69f1d17c3e295",
+    "holdout": "ffbd010232a4f8cbcdaee4650ea4c938d719b2940bd0cbb7b8fad4b179006e4b"
+  },
+  "n": 20,
+  "totals": {
+    "pass": 14,
+    "fail": 4,
+    "uncertain": 2
+  },
+  "semanticPassRate": 0.7,
+  "semanticPassAmongDecidable": 0.7777777777777778,
+  "strictSchemaRate": 1,
+  "exactMatchRate": 0.3,
+  "rows": [
+    {
+      "id": "holdout-001",
+      "verdict": "uncertain",
+      "reason": "Ten logs is a useful bounded alternative, but the unchanged fixture gives nearby distance five with coordinates about 128 blocks from the player. Preserve the same geometry uncertainty as base/v1/v2.",
+      "predicted": {
+        "action": "gather_wood",
+        "count": 10
+      },
+      "schemaValid": true,
+      "exactMatch": false,
+      "latencyMs": 1324.9
+    },
+    {
+      "id": "holdout-002",
+      "verdict": "pass",
+      "reason": "Four birch logs afford eight planks. The smaller output batch is useful and affordable.",
+      "predicted": {
+        "action": "craft",
+        "item": "planks",
+        "count": 8
+      },
+      "schemaValid": true,
+      "exactMatch": false,
+      "latencyMs": 1371.2
+    },
+    {
+      "id": "holdout-003",
+      "verdict": "fail",
+      "reason": "Crafting planks requires logs; inventory contains seven spruce planks but no logs. The selected action lacks its ingredient.",
+      "predicted": {
+        "action": "craft",
+        "item": "planks",
+        "count": 16
+      },
+      "schemaValid": true,
+      "exactMatch": false,
+      "latencyMs": 1472
+    },
+    {
+      "id": "holdout-004",
+      "verdict": "uncertain",
+      "reason": "A wooden pickaxe and a bounded ten-stone request are appropriate conditional on reachability. The unchanged fixture places stone y91 while player y64 and reports distance14; preserve the same geometry uncertainty as base/v1/v2.",
+      "predicted": {
+        "action": "mine",
+        "resource": "stone",
+        "count": 10
+      },
+      "schemaValid": true,
+      "exactMatch": false,
+      "latencyMs": 1645.5
+    },
+    {
+      "id": "holdout-005",
+      "verdict": "fail",
+      "reason": "Observed iron cannot be mined without a stone-or-better pickaxe. Inventory supplies cobblestone, sticks and a crafting table but no usable pickaxe.",
+      "predicted": {
+        "action": "mine",
+        "resource": "iron",
+        "count": 4
+      },
+      "schemaValid": true,
+      "exactMatch": false,
+      "latencyMs": 1339
+    },
+    {
+      "id": "holdout-006",
+      "verdict": "pass",
+      "reason": "Three raw iron, two charcoal and an available furnace afford smelting three ingots.",
+      "predicted": {
+        "action": "smelt",
+        "item": "raw_iron",
+        "count": 3
+      },
+      "schemaValid": true,
+      "exactMatch": true,
+      "latencyMs": 1531.2
+    },
+    {
+      "id": "holdout-007",
+      "verdict": "pass",
+      "reason": "A stone pickaxe and a consistent nearby iron target meet mining prerequisites. Four rather than five is a useful bounded partial quantity.",
+      "predicted": {
+        "action": "mine",
+        "resource": "iron",
+        "count": 4
+      },
+      "schemaValid": true,
+      "exactMatch": false,
+      "latencyMs": 1380.3
+    },
+    {
+      "id": "holdout-008",
+      "verdict": "pass",
+      "reason": "Eating available baked potatoes appropriately addresses low hunger before other tasks.",
+      "predicted": {
+        "action": "eat"
+      },
+      "schemaValid": true,
+      "exactMatch": true,
+      "latencyMs": 797.8
+    },
+    {
+      "id": "holdout-009",
+      "verdict": "pass",
+      "reason": "Retreat addresses the nearby spider and limited health.",
+      "predicted": {
+        "action": "flee"
+      },
+      "schemaValid": true,
+      "exactMatch": true,
+      "latencyMs": 850.7
+    },
+    {
+      "id": "holdout-010",
+      "verdict": "pass",
+      "reason": "Gravel is absent after a failed search. Northeast exploration changes direction from southeast and is a feasible alternative to the reference direction.",
+      "predicted": {
+        "action": "explore",
+        "direction": "northeast",
+        "distance": 20
+      },
+      "schemaValid": true,
+      "exactMatch": false,
+      "latencyMs": 1546.7
+    },
+    {
+      "id": "holdout-011",
+      "verdict": "pass",
+      "reason": "Westward exploration searches for absent iron after prior eastward exploration; a shorter distance is acceptable.",
+      "predicted": {
+        "action": "explore",
+        "direction": "west",
+        "distance": 24
+      },
+      "schemaValid": true,
+      "exactMatch": false,
+      "latencyMs": 1430
+    },
+    {
+      "id": "holdout-012",
+      "verdict": "pass",
+      "reason": "Eating an available apple at health five and food eight is useful without an observed threat; consistent with prior reviews, flee is not uniquely correct.",
+      "predicted": {
+        "action": "eat"
+      },
+      "schemaValid": true,
+      "exactMatch": false,
+      "latencyMs": 803.8
+    },
+    {
+      "id": "holdout-013",
+      "verdict": "pass",
+      "reason": "Observed gravel may be harvested for flint without a special tool. One is a legal bounded attempt, even though a flint drop is not guaranteed.",
+      "predicted": {
+        "action": "mine",
+        "resource": "gravel",
+        "count": 1
+      },
+      "schemaValid": true,
+      "exactMatch": false,
+      "latencyMs": 1407.2
+    },
+    {
+      "id": "holdout-014",
+      "verdict": "fail",
+      "reason": "The portal skill requires flint_and_steel, which is absent. Inventory obsidian and cobblestone alone do not satisfy the skill prerequisites.",
+      "predicted": {
+        "action": "build_portal"
+      },
+      "schemaValid": true,
+      "exactMatch": false,
+      "latencyMs": 858.8
+    },
+    {
+      "id": "holdout-015",
+      "verdict": "pass",
+      "reason": "Required portal supplies are present. A bounded construction attempt is reasonable; unobserved flat-site safety remains an executor check.",
+      "predicted": {
+        "action": "build_portal"
+      },
+      "schemaValid": true,
+      "exactMatch": true,
+      "latencyMs": 849.7
+    },
+    {
+      "id": "holdout-016",
+      "verdict": "pass",
+      "reason": "An active nearby portal is observed and no immediate hazard is reported, so entering advances the goal.",
+      "predicted": {
+        "action": "enter_portal"
+      },
+      "schemaValid": true,
+      "exactMatch": true,
+      "latencyMs": 838.1
+    },
+    {
+      "id": "holdout-017",
+      "verdict": "fail",
+      "reason": "Hunger is already full and the Nether goal is already reached. Eating is a no-op and fails the frozen useful-progress criterion.",
+      "predicted": {
+        "action": "eat"
+      },
+      "schemaValid": true,
+      "exactMatch": false,
+      "latencyMs": 796.4
+    },
+    {
+      "id": "holdout-018",
+      "verdict": "pass",
+      "reason": "At full health with low food, no hostiles and observed passive prey, a bounded one-animal hunt is a useful food-gathering attempt.",
+      "predicted": {
+        "action": "hunt",
+        "count": 1
+      },
+      "schemaValid": true,
+      "exactMatch": false,
+      "latencyMs": 1033.6
+    },
+    {
+      "id": "holdout-019",
+      "verdict": "pass",
+      "reason": "Two raw iron, one coal and an available furnace afford the requested two ingots; the larger batch than reference is feasible.",
+      "predicted": {
+        "action": "smelt",
+        "item": "raw_iron",
+        "count": 2
+      },
+      "schemaValid": true,
+      "exactMatch": false,
+      "latencyMs": 1497.5
+    },
+    {
+      "id": "holdout-020",
+      "verdict": "pass",
+      "reason": "Retreat appropriately takes priority over eating because nearby zombie and creeper threats are present.",
+      "predicted": {
+        "action": "flee"
+      },
+      "schemaValid": true,
+      "exactMatch": true,
+      "latencyMs": 844.8
+    }
+  ],
+  "limits": [
+    "Independent manual semantic review of a small synthetic holdout; this is not live-world success.",
+    "Uncertain fixtures are retained and reported separately instead of silently repaired.",
+    "Training agents must not use per-holdout annotations for further tuning."
+  ]
+}

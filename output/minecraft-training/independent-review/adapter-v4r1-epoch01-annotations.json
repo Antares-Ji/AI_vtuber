@@ -1,0 +1,102 @@
+[
+  {
+    "id": "holdout-001",
+    "verdict": "uncertain",
+    "reason": "Six logs is a useful bounded alternative, but the unchanged fixture gives nearby distance five with coordinates about 128 blocks from the player. Preserve the same geometry uncertainty as base/v1/v2/v3r1."
+  },
+  {
+    "id": "holdout-002",
+    "verdict": "pass",
+    "reason": "Four birch logs afford eight planks. The smaller output batch is useful and affordable."
+  },
+  {
+    "id": "holdout-003",
+    "verdict": "fail",
+    "reason": "Crafting planks requires logs; inventory contains seven spruce planks but no logs. The selected action lacks its ingredient."
+  },
+  {
+    "id": "holdout-004",
+    "verdict": "uncertain",
+    "reason": "A wooden pickaxe and a bounded ten-stone request are appropriate conditional on reachability. The unchanged fixture places stone y91 while player y64 and reports distance14; preserve the same geometry uncertainty as base/v1/v2."
+  },
+  {
+    "id": "holdout-005",
+    "verdict": "fail",
+    "reason": "Observed iron cannot be mined without a stone-or-better pickaxe. Inventory supplies cobblestone, sticks and a crafting table but no usable pickaxe."
+  },
+  {
+    "id": "holdout-006",
+    "verdict": "pass",
+    "reason": "Three raw iron, two charcoal and an available furnace afford smelting three ingots."
+  },
+  {
+    "id": "holdout-007",
+    "verdict": "pass",
+    "reason": "A stone pickaxe and a consistent nearby iron target meet mining prerequisites. Four rather than five is a useful bounded partial quantity."
+  },
+  {
+    "id": "holdout-008",
+    "verdict": "pass",
+    "reason": "Eating available baked potatoes appropriately addresses low hunger before other tasks."
+  },
+  {
+    "id": "holdout-009",
+    "verdict": "pass",
+    "reason": "Retreat addresses the nearby spider and limited health."
+  },
+  {
+    "id": "holdout-010",
+    "verdict": "pass",
+    "reason": "Gravel is absent after a failed search. Northeast exploration changes direction from southeast and is a feasible alternative to the reference direction."
+  },
+  {
+    "id": "holdout-011",
+    "verdict": "pass",
+    "reason": "Westward exploration searches for absent iron after prior eastward exploration; a shorter distance is acceptable."
+  },
+  {
+    "id": "holdout-012",
+    "verdict": "pass",
+    "reason": "Eating an available apple at health five and food eight is useful without an observed threat; consistent with prior reviews, flee is not uniquely correct."
+  },
+  {
+    "id": "holdout-013",
+    "verdict": "pass",
+    "reason": "Observed gravel may be harvested for flint without a special tool. One is a legal bounded attempt, even though a flint drop is not guaranteed."
+  },
+  {
+    "id": "holdout-014",
+    "verdict": "fail",
+    "reason": "The portal skill requires flint_and_steel, which is absent. Inventory obsidian and cobblestone alone do not satisfy the skill prerequisites."
+  },
+  {
+    "id": "holdout-015",
+    "verdict": "pass",
+    "reason": "Required portal supplies are present. A bounded construction attempt is reasonable; unobserved flat-site safety remains an executor check."
+  },
+  {
+    "id": "holdout-016",
+    "verdict": "pass",
+    "reason": "An active nearby portal is observed and no immediate hazard is reported, so entering advances the goal."
+  },
+  {
+    "id": "holdout-017",
+    "verdict": "fail",
+    "reason": "Hunger is already full and the Nether goal is already reached. Eating is a no-op and fails the frozen useful-progress criterion."
+  },
+  {
+    "id": "holdout-018",
+    "verdict": "pass",
+    "reason": "At full health with low food, no hostiles and observed passive prey, a bounded one-animal hunt is a useful food-gathering attempt."
+  },
+  {
+    "id": "holdout-019",
+    "verdict": "pass",
+    "reason": "Two raw iron, one coal and an available furnace afford the requested two ingots; the larger batch than reference is feasible."
+  },
+  {
+    "id": "holdout-020",
+    "verdict": "pass",
+    "reason": "Retreat appropriately takes priority over eating because nearby zombie and creeper threats are present."
+  }
+]

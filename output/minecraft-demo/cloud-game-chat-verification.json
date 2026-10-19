@@ -1,0 +1,24 @@
+{
+  "at": "2026-10-14T13:49:25.046Z",
+  "isolated": true,
+  "route": {
+    "route": "cloud",
+    "reason": "live-game-gpu-offload",
+    "score": 1
+  },
+  "provider": "deepseek",
+  "mode": "external",
+  "latencyMs": 1560,
+  "text": "这场游戏的目标是做出一把铁镐，现在计划停在“先观察环境确认安全路径”这步，暂时是暂停状态，还没遇到明确失败。",
+  "goal": "制作一把铁镐。由本地千问自主调整中间计划，最终以背包出现 iron_pickaxe 为验收。",
+  "streaming": {
+    "firstTokenMs": 708,
+    "totalMs": 1194,
+    "text": "现在游戏暂停了，我正观察环境确认安全路径，准备做铁镐。背包还是空的，血量满、饥饿值也够，先看看周围安不安全再动手。",
+    "route": {
+      "route": "cloud",
+      "reason": "live-game-gpu-offload",
+      "score": 1
+    }
+  }
+}

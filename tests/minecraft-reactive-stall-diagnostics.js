@@ -1,0 +1,16 @@
+'use strict';
+const assert=require('node:assert/strict'),{EventEmitter}=require('node:events'),{Vec3}=require('vec3');
+const {ReactiveAgent}=require('../src/minecraft/reactive-agent');
+const bot=new EventEmitter();let reads=0,controls=0;const logs=[];
+bot.entity={position:new Vec3(.5,64,.5),velocity:new Vec3(0,.2,0),onGround:false};bot.controlState={jump:true,forward:true};
+bot.blockAt=()=>{reads++;return {name:'air',boundingBox:'empty'}};bot.setControlState=()=>controls++;bot.clearControlStates=()=>controls++;
+const agent=Object.create(ReactiveAgent.prototype);agent.bot=bot;agent.log=e=>logs.push(e);
+agent.escape={site:new Vec3(1,65,0),startedAt:0,lastProgressAt:0,routeEdge:'test',routeProgress:{index:2,points:Array.from({length:20},(_,i)=>new Vec3(i,64,0))},lastPathEvidence:{at:100,status:'success',pathLength:20,nodes:[{x:1,y:65,z:0}]}};
+const listeners=bot.eventNames().length;
+agent.logStallDiagnostics(2000);agent.logStallDiagnostics(2200);agent.logStallDiagnostics(6999);
+assert.equal(logs.length,1);assert.equal(reads,20);assert.equal(logs[0].trackedRemainingNodes.length,6);assert.equal(logs[0].lastPathUpdate.ageMs,1900);
+assert.equal(logs[0].controls.jump,true);assert.equal(logs[0].onGround,false);
+agent.logStallDiagnostics(7000);assert.equal(logs.length,2);assert.equal(reads,40);
+assert.equal(controls,0);assert.equal(bot.eventNames().length,listeners);
+assert(JSON.stringify(logs[0]).length<4000);
+console.log('PASS bounded stall diagnostic: 20 reads, 5s throttle, six nodes, no controls or listeners.');

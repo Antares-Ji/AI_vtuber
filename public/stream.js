@@ -250,6 +250,7 @@ function parseWavHeader(bytes) {
 async function playStreamingWav(response, epoch, onFirstAudio = null) {
   if (!response.body) throw new Error("streaming TTS response has no body");
   ttsAudioContext ||= new AudioContext();
+  await applyOutputDevice();
   await ttsAudioContext.resume();
   const reader = response.body.getReader();
   let pending = new Uint8Array();
@@ -321,6 +322,7 @@ async function playStreamingWav(response, epoch, onFirstAudio = null) {
 async function startAmplitudeLipSync(audio) {
   try {
     ttsAudioContext ||= new AudioContext();
+    await applyOutputDevice();
     await ttsAudioContext.resume();
     const source = ttsAudioContext.createMediaElementSource(audio);
     const analyser = ttsAudioContext.createAnalyser();
@@ -436,7 +438,7 @@ async function poll() {
   chatModeLabel.textContent = state.scene?.chatSuspended ? "主动陪聊：等待回应" : "主动陪聊";
   brainStatus.textContent = dualBrainLabel;
   brainStatus.title = `上一轮：${llm.lastMode || "尚无"}${llm.model ? ` / ${llm.model}` : ""}`;
-  if (!voiceCall && !isAsrBusy && (!mediaRecorder || mediaRecorder.state === "inactive")) {
+  if (!voiceCall && !isAsrBusy && Date.now() >= Number(voiceStatus.dataset.holdUntil || 0) && (!mediaRecorder || mediaRecorder.state === "inactive")) {
     streamingAsrStatus = state.asr?.streaming?.ready ? state.asr.streaming : null;
     voiceStatus.textContent = state.asr.backendReady
       ? streamingAsrStatus ? `本地识别已就绪：${state.asr.backend.model}（原生流式可用）` : `本地识别已就绪：${state.asr.backend.model}`
@@ -492,16 +494,20 @@ async function releaseConversation() {
   }
 }
 
+function callHasPriority() { return Boolean(voiceCall && (voiceCall.ending || !voiceCall.controller?.isActive || voiceCall.speaking || voiceCall.pending || voiceCall.continuedText || activeReplyController)); }
 async function readNextOwned() {
   const revision = presentation.revision;
   const isRecording = mediaRecorder?.state === "recording" || isAsrBusy;
   const isTyping = document.activeElement === danmakuInput && (danmakuInput.value.trim() || Date.now() < typingHoldUntil);
-  if (voiceCall || isReading || isRecording || isTyping || presentation.changing) return;
+  if (callHasPriority() || isReading || isRecording || isTyping || presentation.changing) return;
   isReading = true;
   let spoke = false;
   try {
-    const result = await api("/api/next", { method: "POST", body: JSON.stringify({ preferFresh: true }) });
-    if (voiceCall || revision !== presentation.revision || presentation.changing) return;
+    const result = await api(voiceCall ? "/api/minecraft/commentary/next" : "/api/next", { method: "POST", body: JSON.stringify({ preferFresh: true }) });
+    if (callHasPriority() || revision !== presentation.revision || presentation.changing) {
+      if (result.commentaryId) void api('/api/minecraft/commentary/playback-ended', { method: 'POST', body: JSON.stringify({ id: result.commentaryId }) }).catch(() => {});
+      return;
+    }
     if (result.reply && !presentation.isCurrent(result.reply.delivery || result.reply.personaRuntime)) return;
     if (result.idle) return;
     showDanmaku(result.item);
@@ -515,6 +521,7 @@ async function readNextOwned() {
       spoke = await speak(result.reply.text, { ...result.reply.performance?.profile, delivery: result.reply.delivery || result.reply.personaRuntime });
     } finally {
       clearTimeout(speechTimeout);
+      if (result.commentaryId) void api('/api/minecraft/commentary/playback-ended', { method: 'POST', body: JSON.stringify({ id: result.commentaryId }) }).catch(() => {});
     }
     if (revision === presentation.revision) { clearInterval(speakingTimer); setLive2DMouth(false); }
   } finally {
@@ -738,6 +745,9 @@ async function submitDanmaku(text) {
       body: JSON.stringify({ user: viewerName.value.trim() || "测试观众", text, type: "chat", training: trainingMemory.checked, delivery: "stream" })
     });
     showDanmaku(created.item);
+    if (typeof window !== 'undefined' && window.parent !== window) {
+      try { window.parent.postMessage({ type: 'suige-voice-transcript', text }, window.parent.location.origin); } catch { /* No cross-origin embedding authority. */ }
+    }
     danmakuInput.value = "";
     await readNextStreaming(created.item.id);
     await poll();
@@ -834,7 +844,39 @@ async function refreshMicrophoneChoices() {
   });
   microphoneSelect.value = [...microphoneSelect.options].some(option => option.value === selected) ? selected : "";
   if (microphoneSelect.value) localStorage.setItem("streamer-microphone-id", microphoneSelect.value);
+  const output = document.getElementById('speakerDeviceSelect');
+  if (output) {
+    const selectedOutput = localStorage.getItem('streamer-speaker-id') || '';
+    output.replaceChildren(new Option('系统默认输出', ''));
+    devices.filter(device => device.kind === 'audiooutput').forEach((device, index) => output.add(new Option(device.label || `扬声器 ${index + 1}`, device.deviceId)));
+    output.value = [...output.options].some(option => option.value === selectedOutput) ? selectedOutput : '';
+    localStorage.setItem('streamer-speaker-id', output.value);
+    output.disabled = typeof AudioContext.prototype.setSinkId !== 'function';
+  }
 }
+
+async function applyOutputDevice() {
+  const sinkId = localStorage.getItem('streamer-speaker-id') || '';
+  if (ttsAudioContext?.setSinkId && ttsAudioContext.sinkId !== sinkId) await ttsAudioContext.setSinkId(sinkId);
+}
+
+const speakerDeviceSelect = document.createElement('select');
+speakerDeviceSelect.id = 'speakerDeviceSelect';
+speakerDeviceSelect.setAttribute('aria-label', '主播音频输出');
+microphoneSelect.after(speakerDeviceSelect);
+speakerDeviceSelect.addEventListener('change', async () => {
+  const previous = localStorage.getItem('streamer-speaker-id') || '';
+  localStorage.setItem('streamer-speaker-id', speakerDeviceSelect.value);
+  try {
+    ttsAudioContext ||= new AudioContext();
+    await applyOutputDevice();
+    voiceStatus.textContent = `主播输出：${speakerDeviceSelect.selectedOptions[0]?.textContent}（系统机器声音仍跟随系统默认）`;
+  } catch (error) {
+    localStorage.setItem('streamer-speaker-id', previous);
+    speakerDeviceSelect.value = previous;
+    voiceStatus.textContent = `切换输出失败：${error.message}`;
+  }
+});
 
 function applyVoiceProvider(provider, announce = true) {
   voiceProvider = provider === "gpt-sovits" ? "gpt-sovits" : "browser";
@@ -1093,6 +1135,9 @@ async function processVoiceCallTurn(call, blob, sequence, revision, continuation
   voiceStatus.textContent = `第 ${sequence} 段：${text}`;
   const combined = call.continuedText + text;
   call.continuedText = "";
+  if (typeof window !== 'undefined' && window.parent !== window) {
+    try { window.parent.postMessage({ type: 'suige-voice-transcript', text: combined }, window.parent.location.origin); } catch { /* No cross-origin embedding authority. */ }
+  }
   await readNextStreaming(null, { path, body: { sequence, text: combined }, startedAt: segmentedAt });
 }
 
@@ -1139,12 +1184,14 @@ async function startVoiceCall() {
     call.ready.catch(() => {});
     call.controller = new VoiceCallController({
       constraints: { audio: microphoneConstraints() },
-      onSpeechStart: () => interruptVoiceCall(call),
-      onLevel: ({ rms, threshold, voiceRms }) => {
+      onSpeechStart: () => { call.speaking = true; interruptVoiceCall(call); },
+      onLevel: ({ rms, threshold, voiceRms, speaking }) => {
+        call.speaking = Boolean(speaking);
         micMeterFill.style.width = `${Math.min(100, rms * 900)}%`;
         if (typeof voiceCallCalibration !== "undefined") {
           const db = value => value > 0 ? `${Math.round(20 * Math.log10(value))} dBFS` : "学习中";
-          voiceCallCalibration.textContent = `输入 ${db(rms)} · 正常音量 ${db(voiceRms)} · 触发阈值 ${db(threshold)} / 持续 120ms`;
+          const device = call.controller?.stream?.getAudioTracks()[0]?.label || '麦克风';
+          voiceCallCalibration.textContent = `${device} · 输入 ${db(rms)} · 正常音量 ${db(voiceRms)} · 触发阈值 ${db(threshold)} / 持续 120ms`;
         }
       },
       onStatus: status => {
@@ -1189,6 +1236,7 @@ async function startVoiceCall() {
     microphoneSelect.disabled = false;
     sendDanmaku.disabled = false;
     voiceStatus.textContent = `无法开始通话：${error.message}`;
+    voiceStatus.dataset.holdUntil = String(Date.now() + 30000);
   }
 }
 
@@ -1204,6 +1252,7 @@ speechOutputToggle.addEventListener("change", () => setAudioOutput(speechOutputT
 voiceProviderSelect.addEventListener("change", () => applyVoiceProvider(voiceProviderSelect.value));
 microphoneSelect.addEventListener("change", () => {
   localStorage.setItem("streamer-microphone-id", microphoneSelect.value);
+  voiceStatus.dataset.holdUntil = String(Date.now() + 30000);
   voiceStatus.textContent = microphoneSelect.value ? `已选择：${microphoneSelect.selectedOptions[0]?.textContent || "麦克风"}` : "已选择系统默认麦克风";
 });
 audioOutputChannel?.addEventListener("message", event => {

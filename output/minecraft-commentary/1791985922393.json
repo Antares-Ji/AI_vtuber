@@ -1,0 +1,18 @@
+{
+  "capturedAt": 1791985922393,
+  "evidence": {
+    "goal": "制作一把铁镐。由本地千问自主调整中间计划，最终以背包出现 iron_pickaxe 为验收。",
+    "action": "flee",
+    "outcome": "running",
+    "inventory": [],
+    "health": 0.9999980926513672,
+    "food": 17,
+    "yolo": {
+      "scope": "COCO only, not trained for Minecraft",
+      "detections": []
+    }
+  },
+  "speech": "画面太暗看不清了，我得先找火把照明。  \n打算挖块石头合成石镐，毕竟铁镐还需要铁锭呢。  \n别担心，我饿着肚子也能挖矿的。",
+  "expired": false,
+  "model": "qwen3.5-4b"
+}

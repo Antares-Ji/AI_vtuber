@@ -1,0 +1,36 @@
+{
+  "capturedAt": 1792331051418,
+  "evidence": {
+    "goal": "由本地千问自主决策建立一个生存小家：房屋有床、箱子、火把，采集材料、制作工具、狩猎动物、烹饪并吃食物、浅矿采集后返回家。全部已注册动作均可选择，包括navigate、dig_block、place_block、attack_entity、sleep、container_transfer等；根据真实结果调整，不重复囤木。成功与失败以真实世界和库存证据为准。",
+    "currentSubgoal": "采集石料与煤炭制作工作台",
+    "action": {
+      "action": "mine",
+      "resource": "stone",
+      "count": 10,
+      "source": "local-qwen",
+      "model": "qwen3.5-4b",
+      "adapterLoaded": false,
+      "modelMetadata": {
+        "request_id": "2f69e114-c90e-41ed-9b80-a2cb7111985a",
+        "task": "minecraft-survival",
+        "used_adapter": false,
+        "adapter_path": null
+      }
+    },
+    "outcome": "failed",
+    "error": "Missing correct tool for stone; no route attempted",
+    "inventory": [],
+    "health": 20,
+    "food": 20,
+    "yolo": {
+      "scope": "COCO only, not trained for Minecraft",
+      "detections": []
+    }
+  },
+  "speech": "想采石料，结果发现手里没合适的工具，这一步没成。背包还是空的，得先把镐子弄出来才行。",
+  "model": "deepseek-flash",
+  "provider": "cloud",
+  "visionModel": "qwen3.5-4b",
+  "visualObservation": "画面显示一个分叉的树状结构，包含三个标有“YW-2”、“YW-3”、“YW-4”的节点。",
+  "expired": false
+}

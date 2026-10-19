@@ -1,0 +1,62 @@
+{
+  "status": "preflight-passed; one authorized same-process v4r1/v6r1 comparison",
+  "startedAt": "2026-10-12T22:42:30.5417602Z",
+  "python": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\.venv\\Scripts\\python.exe",
+  "torchCudaMemInfo": "(15712911360, 17066033152)",
+  "models": {
+    "v6r1Epoch01": {
+      "path": "runtime/minecraft-training/adapters/minecraft-survival-v6r1-weighted-material-candidate/checkpoint-epoch-01",
+      "weightsSha256": "e1af96aa5523aeb42f3546092f50e684065b61213627082866ee3ede13f65f8d"
+    },
+    "v4r1": {
+      "path": "runtime/minecraft-training/adapters/minecraft-survival-v4r1-replay-candidate/checkpoint-epoch-01",
+      "weightsSha256": "48bbd148184987a3abdcf2a3e193c61690d36b1f078ce70e18ac62f395d7e14b"
+    }
+  },
+  "evaluation": {
+    "scoredBase": false,
+    "holdoutRead": false,
+    "comparisonScriptSha256": "ec01463d6a0acd389151d1904a2f71df1cac221c50c0b206150746912404cd88",
+    "contract": "data/minecraft-training/contract-v3r1.json",
+    "contractSha256": "9e1e8201acc736250979f351a612252d64d0667fbb7481e9508cc6fce9f1ce44",
+    "summarizerSha256": "9511a9164914aa3e1c1d7406b0ed7e480c44b09d1af2d18e7d0781d2e28ba62a",
+    "rows": 57,
+    "dataSha256": "0abc77696228f1ab5c62b919f5aeb2b4295b17e91f84bb149b202bff7ebb2ef5",
+    "data": "output/minecraft-training/v6r1-development57.jsonl"
+  },
+  "diagnosticProbes": [
+    "output/minecraft-training/live-probe-1791830746219.json",
+    "output/minecraft-training/live-probe-1791833435547.json",
+    "output/minecraft-training/live-probe-1791836151666.json",
+    "output/minecraft-training/live-probe-1791838384663.json"
+  ],
+  "arguments": [
+    "scripts/minecraft-training/compare_dev_grid.py",
+    "--data",
+    "output/minecraft-training/v6r1-development57.jsonl",
+    "--contract",
+    "data/minecraft-training/contract-v3r1.json",
+    "--output-dir",
+    "output/minecraft-training",
+    "--output-prefix",
+    "v6r1-dev57",
+    "--skip-base",
+    "--allow-gpu-inference",
+    "--min-free-gib",
+    "6",
+    "--adapter",
+    "v4r1=runtime/minecraft-training/adapters/minecraft-survival-v4r1-replay-candidate/checkpoint-epoch-01",
+    "--adapter",
+    "v6r1-epoch01=runtime/minecraft-training/adapters/minecraft-survival-v6r1-weighted-material-candidate/checkpoint-epoch-01",
+    "--probe-diagnostics",
+    "output/minecraft-training/live-probe-1791830746219.json",
+    "--probe-diagnostics",
+    "output/minecraft-training/live-probe-1791833435547.json",
+    "--probe-diagnostics",
+    "output/minecraft-training/live-probe-1791836151666.json",
+    "--probe-diagnostics",
+    "output/minecraft-training/live-probe-1791838384663.json"
+  ],
+  "stdout": "output/minecraft-training/v6r1-eval.stdout.log",
+  "stderr": "output/minecraft-training/v6r1-eval.stderr.log"
+}

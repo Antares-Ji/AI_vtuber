@@ -1,0 +1,493 @@
+{
+  "at": "2026-10-12T23:14:46.202Z",
+  "reason": "Stop criterion met: repeated crafting_table failure with unchanged insufficient planks2/stick4; deadline remains 23:17:01Z",
+  "observation": {
+    "connected": true,
+    "busy": false,
+    "activeTaskId": null,
+    "position": {
+      "x": 66.52863482602345,
+      "y": 77,
+      "z": 12.5
+    },
+    "mode": "survival",
+    "health": 20,
+    "food": 20,
+    "reactive": {
+      "updatedAt": "2026-10-12T23:14:46.043Z",
+      "sampleIntervalMs": 200,
+      "lifecycleEpoch": 20,
+      "dimension": "overworld",
+      "timeOfDay": 8508,
+      "health": 20,
+      "food": 20,
+      "armed": false,
+      "enabled": true,
+      "mode": "idle",
+      "calming": false,
+      "targetId": null,
+      "entities": [
+        {
+          "id": 59541,
+          "name": "item",
+          "mounted": false,
+          "position": {
+            "x": 64.23578882386559,
+            "y": 77,
+            "z": 13.522000581540143
+          },
+          "distance": 2.510304359690208
+        },
+        {
+          "id": 59570,
+          "name": "item",
+          "mounted": false,
+          "position": {
+            "x": 69.84552941037906,
+            "y": 78,
+            "z": 11.601893860694952
+          },
+          "distance": 3.5788803166891436
+        }
+      ],
+      "escape": null,
+      "timing": {
+        "tickMs": 0.6,
+        "maxTickMs": 56,
+        "sampleGapMs": 199.8,
+        "maxSampleGapMs": 580.9,
+        "skippedTicks": 0,
+        "fallbackMs": 28.5,
+        "maxFallbackMs": 54,
+        "fallbackBudgetMs": 60,
+        "fallbackOverruns": 0,
+        "leafAwaitMs": 0,
+        "maxLeafAwaitMs": 0,
+        "logCallbackMs": 0.5,
+        "maxLogCallbackMs": 7.6,
+        "tickLogCallbackMs": 0,
+        "fallbackLogCallbackMs": 0.5,
+        "fallbackCandidateMs": 0.4,
+        "fallbackSearchMs": 27.5,
+        "maxSearchSliceMs": 13.3,
+        "fallbackDispatchMs": 0,
+        "intervalIsSchedulingTarget": true
+      }
+    },
+    "inventory": [
+      {
+        "name": "spruce_planks",
+        "count": 2
+      },
+      {
+        "name": "stick",
+        "count": 4
+      }
+    ],
+    "logPath": "E:\\Github\\AI_vtuber\\logs\\minecraft-session-1791830191222.jsonl"
+  },
+  "loop": {
+    "enabled": false,
+    "running": false,
+    "goal": "由本地千问自主规划：安全生存、采集、制作工具、采矿、制作并点燃下界门，进入下界。失败后根据真实状态调整计划。",
+    "deadline": "2026-10-12T23:17:01.000Z",
+    "step": 165,
+    "model": "qwen3.5-4b",
+    "modelLoaded": true,
+    "adapter": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01",
+    "adapterLoaded": true,
+    "lastDecision": {
+      "action": "craft",
+      "item": "crafting_table",
+      "count": 1
+    },
+    "lastResult": {
+      "taskId": "02b55fbb-1367-4e05-8a2b-1f729fbb5185",
+      "action": {
+        "action": "craft",
+        "item": "crafting_table",
+        "count": 1
+      },
+      "status": "failed",
+      "error": "Missing ingredients for 1 crafting_table",
+      "at": "2026-10-12T23:14:33.687Z"
+    },
+    "lastError": "Missing ingredients for 1 crafting_table",
+    "latencyMs": 2250,
+    "history": [
+      {
+        "taskId": "a1c8e5f3-7084-4b29-a258-60ee3143c045",
+        "action": {
+          "action": "explore",
+          "direction": "south",
+          "distance": 15
+        },
+        "status": "completed",
+        "result": {
+          "action": {
+            "action": "explore",
+            "direction": "south",
+            "distance": 15
+          },
+          "verified": true,
+          "moved": 13,
+          "from": {
+            "x": 54.4,
+            "y": 80,
+            "z": 22.6
+          },
+          "to": {
+            "x": 52.5,
+            "y": 81,
+            "z": 35.3
+          },
+          "remainingThreats": [],
+          "inventoryBefore": [],
+          "inventoryAfter": [],
+          "position": {
+            "x": 52.5,
+            "y": 81,
+            "z": 35.3
+          }
+        },
+        "at": "2026-10-12T23:12:14.029Z"
+      },
+      {
+        "taskId": "61e4ae15-4a04-4453-b617-8ffe6d1fec18",
+        "action": {
+          "action": "explore",
+          "direction": "east",
+          "distance": 15
+        },
+        "status": "completed",
+        "result": {
+          "action": {
+            "action": "explore",
+            "direction": "east",
+            "distance": 15
+          },
+          "verified": true,
+          "moved": 16,
+          "from": {
+            "x": 52.5,
+            "y": 81,
+            "z": 35.3
+          },
+          "to": {
+            "x": 67.3,
+            "y": 87,
+            "z": 32.5
+          },
+          "remainingThreats": [],
+          "inventoryBefore": [],
+          "inventoryAfter": [],
+          "position": {
+            "x": 67.3,
+            "y": 87,
+            "z": 32.5
+          }
+        },
+        "at": "2026-10-12T23:12:24.734Z"
+      },
+      {
+        "taskId": "2ee641ad-62da-48d2-ae42-bebdf4479442",
+        "action": {
+          "action": "explore",
+          "direction": "south",
+          "distance": 15
+        },
+        "status": "completed",
+        "result": {
+          "action": {
+            "action": "explore",
+            "direction": "south",
+            "distance": 15
+          },
+          "verified": true,
+          "moved": 14,
+          "from": {
+            "x": 67.3,
+            "y": 87,
+            "z": 32.5
+          },
+          "to": {
+            "x": 67.5,
+            "y": 94,
+            "z": 44.5
+          },
+          "remainingThreats": [],
+          "inventoryBefore": [],
+          "inventoryAfter": [],
+          "position": {
+            "x": 67.5,
+            "y": 94,
+            "z": 44.5
+          }
+        },
+        "at": "2026-10-12T23:12:35.041Z"
+      },
+      {
+        "taskId": "669de0b9-fd2e-42a5-bab8-581f18655538",
+        "action": {
+          "action": "flee"
+        },
+        "status": "completed",
+        "result": {
+          "action": {
+            "action": "flee"
+          },
+          "verified": true,
+          "moved": 25,
+          "from": {
+            "x": 67.5,
+            "y": 94,
+            "z": 44.5
+          },
+          "to": {
+            "x": 63.5,
+            "y": 80.9,
+            "z": 23.3
+          },
+          "remainingThreats": [],
+          "inventoryBefore": [],
+          "inventoryAfter": [],
+          "position": {
+            "x": 63.5,
+            "y": 80.9,
+            "z": 23.3
+          }
+        },
+        "at": "2026-10-12T23:12:46.112Z"
+      },
+      {
+        "taskId": "0cdf1652-e575-4490-bab6-efcc111f34da",
+        "action": {
+          "action": "explore",
+          "direction": "north",
+          "distance": 15
+        },
+        "status": "completed",
+        "result": {
+          "action": {
+            "action": "explore",
+            "direction": "north",
+            "distance": 15
+          },
+          "verified": true,
+          "moved": 12,
+          "from": {
+            "x": 63.5,
+            "y": 80,
+            "z": 23.3
+          },
+          "to": {
+            "x": 63.5,
+            "y": 77,
+            "z": 11.5
+          },
+          "remainingThreats": [],
+          "inventoryBefore": [],
+          "inventoryAfter": [],
+          "position": {
+            "x": 63.5,
+            "y": 77,
+            "z": 11.5
+          }
+        },
+        "at": "2026-10-12T23:12:54.539Z"
+      },
+      {
+        "taskId": "a009ee82-d7de-42b4-a326-a80fbdf20971",
+        "action": {
+          "action": "gather_wood",
+          "count": 4
+        },
+        "status": "completed",
+        "result": {
+          "action": {
+            "action": "gather_wood",
+            "count": 4
+          },
+          "verified": true,
+          "gained": 1,
+          "requested": 4,
+          "complete": false,
+          "dug": 4,
+          "items": [
+            "oak_log",
+            "spruce_log",
+            "birch_log",
+            "jungle_log",
+            "acacia_log",
+            "cherry_log",
+            "dark_oak_log",
+            "pale_oak_log",
+            "mangrove_log"
+          ],
+          "gainAttribution": "inventory delta; individual dropped-item origin not proven",
+          "inventoryBefore": [],
+          "inventoryAfter": [
+            {
+              "name": "spruce_log",
+              "count": 1
+            }
+          ],
+          "position": {
+            "x": 66.5,
+            "y": 77,
+            "z": 12.5
+          }
+        },
+        "at": "2026-10-12T23:13:32.186Z"
+      },
+      {
+        "taskId": "6c4eb571-e1e0-4ae5-b6b3-a09532914e49",
+        "action": {
+          "action": "craft",
+          "item": "planks",
+          "count": 4
+        },
+        "status": "completed",
+        "result": {
+          "action": {
+            "action": "craft",
+            "item": "planks",
+            "count": 4
+          },
+          "verified": true,
+          "item": "spruce_planks",
+          "gained": 4,
+          "inventoryConfirmation": "server_full_window_per_click",
+          "inventoryBefore": [
+            {
+              "name": "spruce_log",
+              "count": 1
+            }
+          ],
+          "inventoryAfter": [
+            {
+              "name": "spruce_planks",
+              "count": 4
+            }
+          ],
+          "position": {
+            "x": 66.5,
+            "y": 77,
+            "z": 12.5
+          }
+        },
+        "at": "2026-10-12T23:13:37.464Z"
+      },
+      {
+        "taskId": "7df90de6-aca9-42cd-97a2-596b72cbb893",
+        "action": {
+          "action": "craft",
+          "item": "stick",
+          "count": 4
+        },
+        "status": "completed",
+        "result": {
+          "action": {
+            "action": "craft",
+            "item": "stick",
+            "count": 4
+          },
+          "verified": true,
+          "item": "stick",
+          "gained": 4,
+          "inventoryConfirmation": "server_full_window_per_click",
+          "inventoryBefore": [
+            {
+              "name": "spruce_planks",
+              "count": 4
+            }
+          ],
+          "inventoryAfter": [
+            {
+              "name": "spruce_planks",
+              "count": 2
+            },
+            {
+              "name": "stick",
+              "count": 4
+            }
+          ],
+          "position": {
+            "x": 66.5,
+            "y": 77,
+            "z": 12.5
+          }
+        },
+        "at": "2026-10-12T23:13:41.928Z"
+      },
+      {
+        "taskId": "3e21f01c-1d51-47f7-934d-e77d48dd152c",
+        "action": {
+          "action": "craft",
+          "item": "crafting_table",
+          "count": 1
+        },
+        "status": "failed",
+        "error": "Missing ingredients for 1 crafting_table",
+        "at": "2026-10-12T23:13:45.978Z"
+      },
+      {
+        "taskId": "86172db8-ef73-4b53-b791-eea8e759f930",
+        "action": {
+          "action": "craft",
+          "item": "crafting_table",
+          "count": 1
+        },
+        "status": "failed",
+        "error": "Missing ingredients for 1 crafting_table",
+        "at": "2026-10-12T23:13:53.472Z"
+      },
+      {
+        "taskId": "17b333e2-435f-4c33-9711-7eb59c213fad",
+        "action": {
+          "action": "craft",
+          "item": "crafting_table",
+          "count": 1
+        },
+        "status": "failed",
+        "error": "Missing ingredients for 1 crafting_table",
+        "at": "2026-10-12T23:14:01.105Z"
+      },
+      {
+        "taskId": "02b55fbb-1367-4e05-8a2b-1f729fbb5185",
+        "action": {
+          "action": "craft",
+          "item": "crafting_table",
+          "count": 1
+        },
+        "status": "failed",
+        "error": "Missing ingredients for 1 crafting_table",
+        "at": "2026-10-12T23:14:33.687Z"
+      }
+    ],
+    "modelHealth": {
+      "ok": true,
+      "model": "qwen3.5-4b",
+      "path": "E:\\Qwen3.5-4B",
+      "quantization": "nf4",
+      "adapter": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01",
+      "adapter_loaded": true,
+      "adapter_scope": "minecraft-survival",
+      "generation": {
+        "active": false,
+        "queued": 0,
+        "max_waiters": 4,
+        "cancelled_running": 1
+      },
+      "generation_busy": false
+    },
+    "updatedAt": "2026-10-12T23:14:46.194Z",
+    "waitingFor": null,
+    "lastDecisionMetadata": {
+      "task": "minecraft-survival",
+      "used_adapter": true,
+      "adapter_path": "E:\\Github\\AI_vtuber\\runtime\\minecraft-training\\adapters\\minecraft-survival-v4r1-replay-candidate\\checkpoint-epoch-01"
+    },
+    "needsRecovery": true
+  }
+}
