@@ -95,6 +95,7 @@ python tests/test_native_vision_schema.py
 python tests/test_native_model_config.py
 python tests/test_native_player_ocr.py
 python tests/test_native_hand_ocr.py
+python tests/test_native_battle_ocr.py
 python -m pip install -r scripts/sts2/requirements-map-cv.txt
 python tests/test_native_map_cv.py
 ```
@@ -177,3 +178,15 @@ python scripts/restart-native-vision.py --ocr-check
 自主循环现在仅在上一次悬停目标确实为 card 时扩大手牌裁剪并调用完整读牌；敌人和其他目标悬停不会触发卡牌详情读取。手牌 OCR 另外排除已知的类型/状态标题候选，包含本次实际观察到的“易伤”，并记录 rejected_status_targets；不生成被遮挡卡牌的替代位置或名称。这是有限的语义过滤，尚不能覆盖所有浮窗与新状态。
 
 `tooltip-hand-replay-1793398093880.json` 对出错截图分别按旧的扩大裁剪和正常手牌裁剪调用真实 API，两次均返回 200，错误的“易伤”候选被移除，保留两张可见防御，状态为 partial_or_unknown。没有把被覆盖的第三张牌补回来，也没有发送输入。新增自主循环回归验证悬停敌人不会读牌；手牌/玩家 OCR 回归现为13项，自主流程回归34项。后续仍需改善敌人意图识别，并继续验证技能释放的实际效果。
+
+## 敌人生命与头顶数字分离
+
+运行 `1793398162575` 的角色回复曾将视觉描述“头顶显示18”解释成“18生命”，而该帧生命条被展开牌的力量提示遮住。新增 battle 模式的同帧本地 OCR API 读取，将高置信生命分数按敌人身体下方的位置唯一匹配；一个分数对应多个敌人、多个候选分数、与原视觉明确分数冲突、低置信或缺失均保持未知。不会把头顶单个数字、能量分数或玩家生命当成敌人生命，不根据旧帧补值，也不推断攻击意图。
+
+敌人目标增加 enemy.hp/max_hp/health_status，规范化 label 明确生命值；原始含混文字保存在 visual_description 中。角色提示要求将头顶数字与生命区分。OCR 不可用时敌人生命保持未知并记录 unavailable；原模型的敌人位置不变。health 的 battleOcrCheck 报告实际开关。battle 模式要求完整客户区截图，避免局部坐标与 OCR 原图坐标混用。
+
+`enemy-health-replay-1793398502611.json` 通过正式视觉 API 回放两帧：遮挡帧 `1793398230415246700` 返回生命未知；无遮挡帧 `1793398309229470500` 两只敌人分别得到7/39与5/55。随后把修正后的遮挡观测交给真实 DeepSeek API，模型返回合法悬停，没有再声称18生命；整个回放没有发送游戏输入。这不是对未知生命的恢复，也不证明角色已作最优决策。
+
+新增7项敌人 OCR 测试覆盖头顶数字、玩家/能量干扰、歧义对应、明确分数冲突、无效/缺失文字及零生命；三类 OCR 共20项通过，自主流程34项通过。独立 OCR 仍可能误读，几何匹配只适用于当前界面布局。
+
+同一实机运行已验证释放区域修复的一次实际进展：观察 `1793398271305474300` 的防御由角色拖至模型提供的 `[420,500]`，下一帧能量2→1、手牌3→2。随后角色打出预备打击，能量1→0，并结束回合。格挡读数仍未知，未据此宣称格挡数值或整场胜利已核验。

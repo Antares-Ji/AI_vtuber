@@ -26,7 +26,7 @@ def main():
     placement=({'device_map':{'':0},'quantization_config':BitsAndBytesConfig(load_in_4bit=True,bnb_4bit_quant_type='nf4',bnb_4bit_use_double_quant=True,bnb_4bit_compute_dtype=torch.bfloat16)} if a.four_bit else {'device_map':'auto','max_memory':{0:f'{a.gpu_gib}GiB','cpu':'24GiB'}})
     model=Qwen3VLForConditionalGeneration.from_pretrained(model_dir,local_files_only=True,dtype=torch.bfloat16,attn_implementation='sdpa',**placement)
     lock=threading.Lock();OUT.mkdir(parents=True,exist_ok=True)
-    state={'ready':True,'busy':False,'sceneSupport':True,'handSupport':True,'battleSupport':True,'mapGroundingSupport':True,'playerSupport':True,'playerOcrCheck':a.ocr_check,'handOcrCheck':a.ocr_check,'model':model_dir.name,'precision':'NF4' if a.four_bit else 'BF16 CPU offload','source':'local_weights','last':None}
+    state={'ready':True,'busy':False,'sceneSupport':True,'handSupport':True,'battleSupport':True,'mapGroundingSupport':True,'playerSupport':True,'playerOcrCheck':a.ocr_check,'handOcrCheck':a.ocr_check,'battleOcrCheck':a.ocr_check,'model':model_dir.name,'precision':'NF4' if a.four_bit else 'BF16 CPU offload','source':'local_weights','last':None}
     class Handler(BaseHTTPRequestHandler):
         def log_message(self,*args): pass
         def reply(self,code,obj):
@@ -49,6 +49,7 @@ def main():
                 body=json.loads(self.rfile.read(size));file=Path(body['image']).resolve()
                 if not file.is_relative_to(RUNS.resolve()) or file.suffix.lower() not in ('.jpg','.png'):raise ValueError('Only native game screenshots accepted')
                 im=Image.open(file).convert('RGB');original=im.size;crop=body.get('crop')
+                if body.get('mode')=='battle' and crop:raise ValueError('Battle mode requires a whole client frame')
                 if crop:
                     if len(crop)!=4 or any(type(v) not in (float,int) or not 0<=v<=1 for v in crop) or crop[0]>=crop[2] or crop[1]>=crop[3]:raise ValueError('Invalid crop')
                     im=im.crop((round(crop[0]*im.width),round(crop[1]*im.height),round(crop[2]*im.width),round(crop[3]*im.height)))
@@ -128,19 +129,21 @@ targets是数组，每项必须包含id、label、point、enabled四个字段。
                     except ValueError as ex:
                         normalization_error=str(ex)
                         parsed=None
-                if a.ocr_check and body.get('mode') in ('player','hand') and parsed is not None:
+                if a.ocr_check and body.get('mode') in ('player','hand','battle') and parsed is not None:
                     from native_player_ocr import corroborate_player
                     from native_hand_ocr import corroborate_hand
+                    from native_battle_ocr import enemy_health
                     try:
                         request=urllib.request.Request('http://127.0.0.1:17647/read',data=json.dumps({'image':str(file),'crop':crop or [0,0,1,1]}).encode(),headers={'Content-Type':'application/json'})
                         with urllib.request.urlopen(request,timeout=5) as response:ocr=json.loads(response.read(1048577))
                         if Path(ocr.get('source_image','')).resolve()!=file or ocr.get('crop')!=(crop or [0,0,1,1]):raise ValueError('OCR frame or crop mismatch')
-                        checked=(corroborate_player if body.get('mode')=='player' else corroborate_hand)(parsed,ocr)
+                        checked={'player':corroborate_player,'hand':corroborate_hand,'battle':enemy_health}[body['mode']](parsed,ocr)
                         ocr_check={**checked['ocr_check'],'record':ocr.get('record'),'model':ocr.get('model')}
                         parsed={**checked,'ocr_check':ocr_check}
                     except Exception as ex:
                         ocr_check={'status':'unavailable','reason':str(ex)}
                         if body.get('mode')=='player':parsed={'player':{'hp':None,'max_hp':None,'block':None},'ocr_check':ocr_check}
+                        elif body.get('mode')=='battle':parsed={**enemy_health(parsed,{}),'ocr_check':ocr_check}
                         else:
                             parsed=None
                             normalization_error='Hand OCR unavailable: '+str(ex)
