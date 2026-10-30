@@ -3,10 +3,13 @@ import re
 from functools import lru_cache
 from native_player_ocr import ocr_lines
 
-_NON_TITLES={'攻击','技能','能力','格挡','力量','敏捷','能量','消耗','保留','虚无','不可打出','回合结束','结束回合'}
+_NON_TITLES={'攻击','技能','能力','格挡','力量','敏捷','能量','消耗','保留','虚无','不可打出','回合结束','结束回合','易伤','虚弱','脆弱'}
 
 def corroborate_hand(parsed, ocr):
-    targets=parsed['targets']
+    # A status tooltip can cover a card and fool both readers. Do not turn a
+    # known UI/status heading into a card target, even if both models agree.
+    targets=[t for t in parsed['targets'] if t['card'].get('name') not in _NON_TITLES]
+    rejected=len(parsed['targets'])-len(targets)
     titles=[]
     for text,score,(x0,y0,x1,y1) in ocr_lines(ocr):
         if score<.9 or y0<550 or y1>900 or text in _NON_TITLES:continue
@@ -49,5 +52,5 @@ def corroborate_hand(parsed, ocr):
         result.append({**target,'label':name or '未读清的手牌','point':point,
                        'card':{'name':name,'cost':target['card'].get('cost'),'type':None,'description':None},
                        'name_source':'local_ocr' if name else 'unknown'})
-    return {**parsed,'targets':result,'ocr_check':{'status':'corroborated' if matched==len(targets) else 'partial_or_unknown',
-            'matched_titles':matched,'reason':'unique_current_frame_title_association'}}
+    return {**parsed,'targets':result,'ocr_check':{'status':'corroborated' if matched==len(targets) and not rejected else 'partial_or_unknown',
+            'matched_titles':matched,'rejected_status_targets':rejected,'reason':'unique_current_frame_title_association'}}

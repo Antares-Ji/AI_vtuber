@@ -78,6 +78,21 @@ test('hover conflicts are filtered before the next role API decision',async()=>{
   }});
   agent.start();await agent.task;assert.equal(plans,2);assert.equal(agent.state.stage,'finished');
 });
+test('enemy hover never authorizes expanded hand crops or card inspection',async()=>{
+  let plans=0,handReads=0,cardReads=0;
+  const agent=new NativeAutonomy({pause:async()=>{},decide:async()=>++plans===1?{kind:'hover',targetId:'enemy'}:{kind:'stop'},request:async(route,body)=>{
+    if(route==='vision-state')return {ready:true,sceneSupport:true};
+    if(route==='read-card'){
+      if(body.mode==='hand'){handReads++;assert.deepEqual(body.crop,[0,.72,1,1]);}
+      if(body.mode==='card')cardReads++;
+      return {parsed:visionFor(body)};
+    }
+    if(body.kind==='capture')return {id:String(plans),status:'captured_only'};
+    assert.equal(body.kind,'hover');return {id:'input',status:'awaiting_visual_review'};
+  }});
+  agent.start();await agent.task;
+  assert.equal(plans,2);assert.equal(handReads,2);assert.equal(cardReads,0);assert.equal(agent.state.stage,'finished');
+});
 test('player crop is read through the API and remains separate from energy before role planning',async()=>{
   let playerReads=0;
   const agent=new NativeAutonomy({decide:async(v)=>{

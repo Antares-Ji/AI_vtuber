@@ -13,6 +13,12 @@ def read(targets,lines):
     return corroborate_hand({'scene':'battle','targets':targets},{'lines':lines})
 
 class HandOCRTests(unittest.TestCase):
+    def test_status_tooltip_agreement_does_not_create_a_card_target(self):
+        result=read([target(1,413,830,'防御'),target(2,538,817,'易伤')],
+                    [line('防御',401,806,25),line('易伤',574,800,24)])
+        self.assertEqual([t['card']['name'] for t in result['targets']],['防御'])
+        self.assertEqual(result['ocr_check']['rejected_status_targets'],1)
+        self.assertEqual(result['ocr_check']['status'],'partial_or_unknown')
     def test_actual_expanded_defend_layout_corrects_drift(self):
         result=read([target(1,385,685.6),target(2,539,832),target(3,600,832)],
                     [line('防御',401,622),line('格挡',498,622),line('技能',406,812,20,24),

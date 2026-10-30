@@ -379,7 +379,7 @@ inspectionContext是本段仅悬停期间已读清牌面的比较笔记，不是
       const result = await call('action',{...action,frameId:frame.id});
       if (!['awaiting_visual_review','captured_only'].includes(result.status)) throw Error(result.error || '原生键鼠执行中止');
       history.push({before:view,decision,result:{id:result.id,status:result.status},verification:'await_next_observation'});
-      hoveredPoint=decision.kind==='hover'?action.to:null;
+      hoveredPoint=decision.kind==='hover'&&view.targets.find(t=>t.id===decision.targetId)?.kind==='card'?action.to:null;
       log({event:'input_completed',resultId:result.id,verified:false});
       this.state.stage='observing-next-frame'; await this.pause(1000);
     }
