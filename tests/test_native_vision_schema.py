@@ -4,6 +4,15 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'scripts/sts2'))
 from native_vision_schema import hand_targets,whole_point,scene_observation
 
 class VisionSchemaTest(unittest.TestCase):
+    def test_end_turn_button_is_not_evidence_that_battle_has_ended(self):
+        for label in ['结束第1回合','结束回合','End Turn']:
+            value={'scene':'room','summary':'战斗结束','targets':[{'id':'t1','label':label,'point':[890,810]}]}
+            fixed=scene_observation(value)
+            self.assertEqual(fixed['scene'],'battle')
+            self.assertEqual(fixed['scene_correction'],'room_conflicts_with_visible_end_turn_control')
+            self.assertEqual(value['scene'],'room')
+        value={'scene':'room','targets':[{'id':'t1','label':'前进','point':[890,810]}]}
+        self.assertEqual(scene_observation(value),value)
     def test_scene_coordinates_without_labels_are_not_silently_accepted(self):
         with self.assertRaises(ValueError):scene_observation({'scene':'reward','points':[[436,379]]})
         result=scene_observation({'scene':'reward','points':[['金币',436,379]]})

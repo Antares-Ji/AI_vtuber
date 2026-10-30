@@ -1,16 +1,28 @@
 """Normalize model coordinates to the original screenshot, never invent targets."""
 import math
+import re
 
 def scene_observation(parsed):
-    if not isinstance(parsed, dict) or 'points' not in parsed: return parsed
-    points=parsed['points']
-    if not isinstance(points,list) or len(points)>8: raise ValueError('Invalid scene target list')
-    targets=[]
-    for index,item in enumerate(points):
-        if not isinstance(item,list) or len(item)!=3 or not isinstance(item[0],str) or not item[0].strip():
-            raise ValueError('Scene coordinates require visible target labels')
-        targets.append({'id':'t'+str(index+1),'label':item[0],'point':whole_point(item[1:]),'enabled':True})
-    return {**{key:value for key,value in parsed.items() if key!='points'},'targets':targets}
+    if not isinstance(parsed, dict):return parsed
+    if 'points' in parsed:
+        points=parsed['points']
+        if not isinstance(points,list) or len(points)>8: raise ValueError('Invalid scene target list')
+        targets=[]
+        for index,item in enumerate(points):
+            if not isinstance(item,list) or len(item)!=3 or not isinstance(item[0],str) or not item[0].strip():
+                raise ValueError('Scene coordinates require visible target labels')
+            targets.append({'id':'t'+str(index+1),'label':item[0],'point':whole_point(item[1:]),'enabled':True})
+        parsed={**{key:value for key,value in parsed.items() if key!='points'},'targets':targets}
+    # The caption on a live button is an available command, not an outcome.
+    # Correct only an exact observed control label, never an inferred game state.
+    if parsed.get('scene')=='room' and isinstance(parsed.get('targets'),list):
+        for target in parsed['targets']:
+            if not isinstance(target,dict):continue
+            label=target.get('label')
+            if isinstance(label,str) and re.fullmatch(r'结束(?:第\d+)?回合|endturn',re.sub(r'\s+','',label),re.I):
+                whole_point(target.get('point'))
+                return {**parsed,'scene':'battle','summary':'观察到结束回合按钮，继续读取战场和手牌。','scene_correction':'room_conflicts_with_visible_end_turn_control'}
+    return parsed
 
 def whole_point(point, crop=None):
     if not isinstance(point, list) or len(point) != 2 or any(type(v) not in (int, float) or not math.isfinite(v) or not 0 <= v <= 1000 for v in point):

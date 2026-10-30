@@ -1,8 +1,30 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { NativeAutonomy, observation, actionFor, attachInspectedCard, collapseRepeatedTargets, actionOptions, attachGroundedCard, plannerObservation } = require('../src/sts2/native-autonomy');
+const { NativeAutonomy, observation, actionFor, attachInspectedCard, collapseRepeatedTargets, actionOptions, attachGroundedCard, plannerObservation, groundedMapObservation } = require('../src/sts2/native-autonomy');
 const view = { scene:'battle',summary:'hand',frameId:'1',energy:1,targets:[{id:'card',kind:'card',label:'打击',point:[400,900],card:{name:'打击',cost:1,type:'攻击',description:'造成6点伤害。',observedFrameId:'1'}},{id:'enemy',kind:'enemy',label:'敌人',point:[700,500]}] };
 const visionFor = (body, current=view) => body.mode==='energy' ? {energy:1} : body.mode==='battle' ? {...current,targets:current.targets.filter(t=>t.kind!=='card')} : body.mode==='hand' ? {...current,targets:current.targets.filter(t=>t.kind==='card')} : current;
+const groundedMap=()=>({parsed:{scene:'map',targets:[{id:'N1',label:'问号',point:[410,509],grounding:'local_cv_qwen',directly_connected:true}],map_grounding:{source:'local_cv_qwen',marker_id:'R1',marker_point:[412,630]}},pixel_candidates:{red:[{id:'R1',point:[412,630]}],dark:[{id:'N1',point:[410,509]}]}});
+test('grounded map requires selected IDs and coordinates to match current pixel evidence',()=>{
+  assert.equal(groundedMapObservation(groundedMap()).targets[0].id,'N1');
+  assert.equal(plannerObservation(groundedMap().parsed).map_grounding.marker_point,undefined);
+  for(const mutate of [r=>{r.pixel_candidates.dark=[];},r=>{r.parsed.targets[0].point=[400,450];},r=>{r.parsed.targets[0].directly_connected=false;},r=>{r.parsed.map_grounding.marker_point=[400,500];}]) {
+    const result=groundedMap();mutate(result);assert.throws(()=>groundedMapObservation(result),/地图/);
+  }
+});
+test('map pixel and local-model API evidence lets the role choose a node and then observe a new room',async()=>{
+  let captures=0,input;
+  const agent=new NativeAutonomy({pause:async()=>{},decide:async(v)=>v.scene==='map'?{kind:'click',targetId:'N1'}:{kind:'stop'},request:async(route,body)=>{
+    if(route==='vision-state')return {ready:true,sceneSupport:true,mapGroundingSupport:true};
+    if(route==='read-card'){
+      assert.equal(body.target,undefined);
+      if(captures===2)return {parsed:{scene:'event',targets:[]}};
+      return body.mode==='map-grounded'?groundedMap():{parsed:{scene:'map',targets:[]}};
+    }
+    if(body.kind==='capture')return {id:String(++captures),status:'captured_only'};
+    input=body;return {id:'input',status:'awaiting_visual_review'};
+  }});
+  agent.start({maxSteps:3});await agent.task;assert.equal(agent.state.stage,'finished');assert.equal(captures,2);assert.deepEqual(input.to,[.410,.509]);
+});
 test('a cleared room forwards its visible button without route-map node grounding',async()=>{
   const room={scene:'room',summary:'战后房间',targets:[{id:'forward',label:'前进',point:[850,700]}]};let input;
   const agent=new NativeAutonomy({pause:async()=>{},decide:async(v)=>{assert.equal(v.scene,'room');return {kind:'click',targetId:'forward'};},request:async(route,body)=>{

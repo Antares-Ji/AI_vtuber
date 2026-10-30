@@ -94,7 +94,26 @@ function actionOptions(view) {
 
 function plannerObservation(view) {
   const {points,targets,...facts}=view;
+  if(facts.map_grounding) {
+    const {marker_point,...evidence}=facts.map_grounding;
+    facts.map_grounding=evidence;
+  }
   return {...facts,targets:targets.map(({point,...target})=>target)};
+}
+
+function groundedMapObservation(result) {
+  const view=observation(result?.parsed), evidence=view.map_grounding, pixels=result.pixel_candidates;
+  const same=(a,b)=>Array.isArray(a)&&Array.isArray(b)&&a.length===2&&b.length===2&&a.every((n,i)=>n===b[i]);
+  if(view.scene!=='map'||evidence?.source!=='local_cv_qwen'||!Array.isArray(pixels?.red)||!Array.isArray(pixels?.dark)||!view.targets.length) throw Error('缺少本帧地图像素定位证据');
+  const marker=pixels.red.find(t=>t.id===evidence.marker_id);
+  if(!marker||!same(marker.point,evidence.marker_point)||marker.point.some(n=>typeof n!=='number'||!Number.isFinite(n)||n<0||n>1000))throw Error('地图当前位置标记未对应像素候选');
+  for(const target of view.targets) {
+    const pixel=pixels.dark.find(t=>t.id===target.id);
+    if(target.grounding!=='local_cv_qwen'||target.directly_connected!==true||!pixel||!same(target.point,pixel.point))throw Error('地图目标未对应本帧像素候选');
+    const gap=marker.point[1]-target.point[1];
+    if(gap<15||gap>350)throw Error('地图目标不在当前位置上方的候选范围');
+  }
+  return view;
 }
 
 function attachGroundedCard(view, parsed, hover, located) {
@@ -180,7 +199,7 @@ class NativeAutonomy {
       }
       if (!frame.id || frame.status !== 'captured_only') throw Error('未获得可用游戏截图');
       this.state.stage='seeing';
-      let vision, view;
+      let vision, view, mapPixelsVerified=false;
       for (let attempt=0; attempt<2; attempt++) {
         vision = await call('read-card',{frameId:frame.id,mode:'scene'});
         try { view = observation(['map','battle'].includes(vision.parsed?.scene) ? {...vision.parsed,targets:[]} : vision.parsed); break; }
@@ -196,8 +215,10 @@ class NativeAutonomy {
       if (navigationObservations > 8) throw Error('地图与房间连续八次观察未进入新场景，已停止；需检查本地地图识别');
       if (view.scene === 'map') {
         this.state.stage='map-reading';
-        vision=await call('read-card',{frameId:frame.id,mode:'map'});
-        view=observation(vision.parsed);
+        vision=await call('read-card',{frameId:frame.id,mode:health.mapGroundingSupport?'map-grounded':'map'});
+        view=health.mapGroundingSupport?groundedMapObservation(vision):observation(vision.parsed);
+        mapPixelsVerified=health.mapGroundingSupport===true;
+        log({event:'map_read',frameId:frame.id,record:vision.record,pixelGrounded:mapPixelsVerified});
         if (view.scene !== 'map' || !view.targets.length) throw Error('本地模型未识别出可靠的下一步地图节点');
         if (history.length>=2 && history.slice(-2).every(h=>h.before?.scene==='map' && !h.rejected && h.decision.kind==='click' && h.decision.targetId!=='map-return')) {
           const back=await call('read-card',{frameId:frame.id,target:'左侧红色返回箭头按钮'});
@@ -262,7 +283,7 @@ class NativeAutonomy {
           history.push({decision,rejected:true,error:error.message,note:'尚未发送任何键鼠输入，重新依据可用动作规划。'});
         }
       }
-      if (action && ['click','hover'].includes(decision.kind) && view.scene === 'map' && decision.targetId !== 'map-return') {
+      if (action && ['click','hover'].includes(decision.kind) && view.scene === 'map' && decision.targetId !== 'map-return' && !mapPixelsVerified) {
         this.state.stage='target-grounding';
         const selected=view.targets.find(t=>t.id===decision.targetId);
         const rank=[...view.targets].sort((a,b)=>a.point[0]-b.point[0]).findIndex(t=>t.id===selected.id)+1;
@@ -299,4 +320,4 @@ class NativeAutonomy {
     this.state.stage='step-limit';
   }
 }
-module.exports = { NativeAutonomy, observation, actionFor, attachInspectedCard, collapseRepeatedTargets, actionOptions, attachGroundedCard, plannerObservation };
+module.exports = { NativeAutonomy, observation, actionFor, attachInspectedCard, collapseRepeatedTargets, actionOptions, attachGroundedCard, plannerObservation, groundedMapObservation };
