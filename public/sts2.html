@@ -1,0 +1,20 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>姬岁歌的尖塔直播间</title><link rel="stylesheet" href="/sts2.css"></head>
+<body><main>
+<header><a class="brand" href="/">姬岁歌的直播间</a><span>杀戮尖塔 2</span><a href="http://127.0.0.1:15527/">游戏控制台</a></header>
+<section class="intro"><div><h1>这次，由我来爬塔。</h1><p>一边出牌，一边和你聊聊这局。</p></div><div class="live-state"><i id="liveDot"></i><span id="liveStatus">正在连接游戏</span></div></section>
+<div class="layout"><section class="stage-area" aria-label="主播与游戏画面">
+<div class="stage"><img id="preview" alt="杀戮尖塔 2 游戏与姬岁歌 Live2D 合成画面"><div id="previewEmpty"><strong>把主播请上场</strong><p>连接直播场景后，游戏、主播和字幕会出现在这里。</p><button id="setup" type="button">连接直播场景</button></div><button id="fullscreen" type="button" aria-label="全屏查看直播画面">全屏</button></div>
+<div class="stage-note"><span id="previewStatus">等待 OBS 画面</span><span>此处约 1 帧/秒预览，OBS 保持原采集帧率</span></div>
+<section class="speech"><span id="speechLabel">岁歌的解说</span><p id="speech">等待新的解说</p></section>
+<div class="vitals"><span>角色 <b id="character">—</b></span><span>生命 <b id="hp">—</b></span><span>能量 <b id="energy">—</b></span><span>进度 <b id="floor">—</b></span></div>
+<form id="chat"><label for="chatText">和岁歌聊一句</label><div><input id="chatText" maxlength="120" placeholder="这回合你准备怎么打？" autocomplete="off" required><button type="submit">发送</button></div><small id="chatStatus">聊天会结合这局游戏状态，游戏动作由规划器决定。</small></form>
+</section><aside>
+<h2>这一局</h2><p id="phase">读取游戏现场…</p>
+<label for="goal">游玩目标</label><textarea id="goal" rows="3" maxlength="1000">以铁甲战士完成当前单人冒险，合理规划并争取胜利。</textarea>
+<label for="steps">最多决策次数</label><input id="steps" type="number" min="1" max="500" value="100">
+<label class="toggle"><input id="narration" type="checkbox" checked> 边玩边解说</label>
+<div class="buttons"><button id="start" type="button">开始游玩</button><button id="stop" type="button">停止</button></div>
+<p id="feedback" role="status"></p>
+<section class="action"><h2>当前打算</h2><p id="intent">还没有新的计划</p><small id="sync">等待主播上场</small></section>
+<details><summary>连接与诊断</summary><button id="reconnect" type="button">重新连接直播场景</button><p id="diagnostic">等待状态</p><p>语音使用项目已有 GPT-SoVITS。录制、推流仍由 OBS 控制。</p></details>
+</aside></div></main><script src="/sts2.js"></script></body></html>

@@ -1,0 +1,37 @@
+[
+  {
+    "id": "intro",
+    "at": 0.6,
+    "text": "这是我制作的人工智能虚拟主播项目。接下来演示弹幕输入、语音通话，以及杀戮尖塔二的游戏互动。",
+    "file": "narration-intro.mp3",
+    "duration": 8.328
+  },
+  {
+    "id": "chat",
+    "at": 14.5,
+    "text": "先输入文字弹幕。主播的回复，会同步显示在聊天区和角色字幕里。",
+    "file": "narration-chat.mp3",
+    "duration": 6.048
+  },
+  {
+    "id": "call",
+    "at": 75.3,
+    "text": "接着开启语音通话，查看麦克风收音和识别状态。",
+    "file": "narration-call.mp3",
+    "duration": 4.536
+  },
+  {
+    "id": "game",
+    "at": 116.2,
+    "text": "最后，演示杀戮尖塔二的游戏画面与语音指令。",
+    "file": "narration-game.mp3",
+    "duration": 4.752
+  },
+  {
+    "id": "outro",
+    "at": 232.2,
+    "text": "以上是本次项目实录。弹幕输入、语音通话和游戏互动，在同一个工作台里完成演示。",
+    "file": "narration-outro.mp3",
+    "duration": 7.488
+  }
+]

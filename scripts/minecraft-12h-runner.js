@@ -4,6 +4,7 @@ const fs = require('node:fs');
 const path = require('node:path');
 const http = require('node:http');
 const { AutonomyLoop, controlRequest } = require('../src/minecraft/autonomy-loop');
+const { MinecraftEngine } = require('../src/minecraft/astra-jev');
 const root = path.resolve(__dirname, '..');
 const logDir = path.join(root, 'logs/minecraft-12h');
 const stopFile = path.join(logDir, 'STOP');
@@ -39,7 +40,7 @@ async function main() {
   const observation = await controlRequest('/observe');
   if (!observation.connected) throw new Error('Minecraft is disconnected');
   fs.mkdirSync(logDir, { recursive: true });
-  loop = new AutonomyLoop({ logDir });
+  loop = new AutonomyLoop({ logDir, engine: new MinecraftEngine() });
   await loop.modelHealth(new AbortController().signal);
   if (process.argv.includes('--resume')) {
     const authorization = JSON.parse(fs.readFileSync(path.join(logDir, 'authorization.json')));
@@ -55,7 +56,7 @@ async function main() {
   } else {
     await loop.start({ goal: previous.goal, completionItem: previous.completionItem || 'crafting_table', durationMinutes: 720, continuous: true });
   }
-  fs.writeFileSync(path.join(logDir, 'authorization.json'), JSON.stringify({ pid: process.pid, startedAt: new Date(began).toISOString(), deadline: loop.state.deadline, goal: loop.state.goal, executor: 'local-qwen', mode: 'game-practice-not-weight-training', statusUrl: 'http://127.0.0.1:3003/status' }, null, 2));
+  fs.writeFileSync(path.join(logDir, 'authorization.json'), JSON.stringify({ pid: process.pid, startedAt: new Date(began).toISOString(), deadline: loop.state.deadline, goal: loop.state.goal, executor: loop.snapshot().provider, mode: 'game-practice-not-weight-training', statusUrl: 'http://127.0.0.1:3003/status' }, null, 2));
   console.log(JSON.stringify({ event: 'started', deadline: loop.state.deadline, pid: process.pid }));
   guard = setInterval(async () => {
     if (checking) return;

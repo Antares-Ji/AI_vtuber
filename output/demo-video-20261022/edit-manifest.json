@@ -1,0 +1,203 @@
+{
+  "source": "C:\\Users\\Antares.Ji\\Videos\\2026-10-22 21-24-09.mp4",
+  "duration": 240,
+  "segments": [
+    {
+      "file": "seg-00-intro.mp4",
+      "duration": 10,
+      "kind": "card",
+      "title": "AI 虚拟主播|项目功能实录",
+      "timeline_in": 0,
+      "timeline_out": 10
+    },
+    {
+      "file": "seg-01-chapter-chat.mp4",
+      "duration": 4,
+      "kind": "card",
+      "title": "输入弹幕",
+      "timeline_in": 10,
+      "timeline_out": 14
+    },
+    {
+      "file": "seg-02-chat-setup.mp4",
+      "duration": 26,
+      "kind": "source",
+      "source_in": 10,
+      "source_out": 36,
+      "crop": [
+        850,
+        80,
+        1740,
+        1160
+      ],
+      "title": "输入弹幕",
+      "timeline_in": 14,
+      "timeline_out": 40
+    },
+    {
+      "file": "seg-03-chat-reply.mp4",
+      "duration": 35,
+      "kind": "source",
+      "source_in": 43,
+      "source_out": 78,
+      "crop": [
+        850,
+        80,
+        1740,
+        1160
+      ],
+      "title": "文字输入语音回复",
+      "timeline_in": 40,
+      "timeline_out": 75
+    },
+    {
+      "file": "seg-04-chapter-call.mp4",
+      "duration": 4,
+      "kind": "card",
+      "title": "语音通话",
+      "timeline_in": 75,
+      "timeline_out": 79
+    },
+    {
+      "file": "seg-05-call-setup.mp4",
+      "duration": 25,
+      "kind": "source",
+      "source_in": 90,
+      "source_out": 115,
+      "crop": [
+        850,
+        80,
+        1740,
+        1160
+      ],
+      "title": "开启语音通话",
+      "timeline_in": 79,
+      "timeline_out": 104
+    },
+    {
+      "file": "seg-06-call-live.mp4",
+      "duration": 12,
+      "kind": "source",
+      "source_in": 121,
+      "source_out": 133,
+      "crop": [
+        1295,
+        110,
+        1230,
+        1000
+      ],
+      "title": "实时收音",
+      "timeline_in": 104,
+      "timeline_out": 116
+    },
+    {
+      "file": "seg-07-chapter-game.mp4",
+      "duration": 4,
+      "kind": "card",
+      "title": "杀戮尖塔 2",
+      "timeline_in": 116,
+      "timeline_out": 120
+    },
+    {
+      "file": "seg-08-game-window.mp4",
+      "duration": 3,
+      "kind": "source-still",
+      "source_frame": 133,
+      "title": "杀戮尖塔 2游戏画面",
+      "timeline_in": 120,
+      "timeline_out": 123
+    },
+    {
+      "file": "seg-09-game-context.mp4",
+      "duration": 20,
+      "kind": "source",
+      "source_in": 158,
+      "source_out": 178,
+      "crop": [
+        1060,
+        155,
+        1740,
+        1160
+      ],
+      "title": "游戏画面与语音互动",
+      "timeline_in": 123,
+      "timeline_out": 143
+    },
+    {
+      "file": "seg-10-game-commands.mp4",
+      "duration": 26,
+      "kind": "source",
+      "source_in": 178,
+      "source_out": 204,
+      "crop": [
+        1060,
+        155,
+        1740,
+        1160
+      ],
+      "title": "语音指令与状态反馈",
+      "timeline_in": 143,
+      "timeline_out": 169
+    },
+    {
+      "file": "seg-11-game-clarify.mp4",
+      "duration": 20,
+      "kind": "source",
+      "source_in": 204,
+      "source_out": 224,
+      "crop": [
+        1060,
+        155,
+        1740,
+        1160
+      ],
+      "title": "对话澄清",
+      "timeline_in": 169,
+      "timeline_out": 189
+    },
+    {
+      "file": "seg-12-game-interrupt.mp4",
+      "duration": 26,
+      "kind": "source",
+      "source_in": 224,
+      "source_out": 250,
+      "crop": [
+        1060,
+        155,
+        1740,
+        1160
+      ],
+      "title": "暂停与打断反馈",
+      "timeline_in": 189,
+      "timeline_out": 215
+    },
+    {
+      "file": "seg-13-game-final.mp4",
+      "duration": 17,
+      "kind": "source",
+      "source_in": 250,
+      "source_out": 267,
+      "crop": [
+        1060,
+        155,
+        1740,
+        1160
+      ],
+      "title": "语音交互继续回应",
+      "timeline_in": 215,
+      "timeline_out": 232
+    },
+    {
+      "file": "seg-14-outro.mp4",
+      "duration": 8,
+      "kind": "card",
+      "title": "让交互发生|在同一个舞台",
+      "timeline_in": 232,
+      "timeline_out": 240
+    }
+  ],
+  "sample_source": [
+    61.8,
+    74.4
+  ]
+}

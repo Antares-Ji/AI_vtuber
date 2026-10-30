@@ -1,0 +1,26 @@
+plugins {
+    id 'java-library'
+    id 'application'
+}
+// The standalone entry reads the same release version as the multi-loader build.
+if (rootProject == project) {
+    def release = new Properties()
+    file('../gradle.properties').withInputStream { release.load(it) }
+    group = 'dev.mcplayeragent'
+    version = release.getProperty('agent_version')
+}
+repositories { mavenCentral() }
+java { toolchain { languageVersion=JavaLanguageVersion.of(21) }; withSourcesJar() }
+tasks.withType(JavaCompile).configureEach { options.encoding='UTF-8'; options.release=21 }
+tasks.withType(Test).configureEach { useJUnitPlatform() }
+application { mainClass='dev.mcplayeragent.harness.HarnessMain' }
+tasks.named('jar', Jar) {
+    from(projectDir.parentFile) { include 'LICENSE', 'COPYING', 'NOTICE' }
+}
+
+dependencies {
+    api 'com.google.code.gson:gson:2.10.1'
+    testImplementation platform('org.junit:junit-bom:5.11.4')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}

@@ -1,0 +1,77 @@
+{
+  "pages": 21,
+  "chapters": 18,
+  "tables": 17,
+  "characters": 14918,
+  "team": [
+    "杨若朝",
+    "徐嘉盛",
+    "李岱松",
+    "姬祥",
+    "刘瑞麒",
+    "张涵",
+    "肖鹏希",
+    "吴越",
+    "张乐溪"
+  ],
+  "visual_review": "All 21 pages inspected; no overflow, clipping, blank pages or table splits",
+  "financial_model": [
+    {
+      "quarter": 1,
+      "tips": 1200,
+      "members": 0,
+      "merch": 0,
+      "brand": 0,
+      "revenue": 1200,
+      "cost": 13000,
+      "balance": -11800,
+      "cumulative_after_launch": -36800
+    },
+    {
+      "quarter": 2,
+      "tips": 3000,
+      "members": 0,
+      "merch": 0,
+      "brand": 0,
+      "revenue": 3000,
+      "cost": 13000,
+      "balance": -10000,
+      "cumulative_after_launch": -46800
+    },
+    {
+      "quarter": 3,
+      "tips": 5300,
+      "members": 5250,
+      "merch": 5000,
+      "brand": 0,
+      "revenue": 15550,
+      "cost": 16500,
+      "balance": -950,
+      "cumulative_after_launch": -47750
+    },
+    {
+      "quarter": 4,
+      "tips": 7900,
+      "members": 14000,
+      "merch": 10000,
+      "brand": 10000,
+      "revenue": 41900,
+      "cost": 20000,
+      "balance": 21900,
+      "cumulative_after_launch": -25850
+    }
+  ],
+  "changes": [
+    "自营角色IP商业模式",
+    "国际国内对标与目标观众估算",
+    "封面版本说明删除和否定句清理",
+    "九人团队更新",
+    "一年收支预测",
+    "原画Live2D及AI辅助开发预算",
+    "校内试播与吸引力评价",
+    "打赏会员周边与联动",
+    "20点每周五天人机直播",
+    "高光切片与社群运营",
+    "实施路线移除赛事安排"
+  ]
+}

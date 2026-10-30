@@ -1,0 +1,24 @@
+﻿[Script Info]
+ScriptType: v4.00+
+PlayResX: 1920
+PlayResY: 1080
+WrapStyle: 0
+[V4+ Styles]
+Format: Name,Fontname,Fontsize,PrimaryColour,SecondaryColour,OutlineColour,BackColour,Bold,Italic,Underline,StrikeOut,ScaleX,ScaleY,Spacing,Angle,BorderStyle,Outline,Shadow,Alignment,MarginL,MarginR,MarginV,Encoding
+Style: Narr,Microsoft YaHei,28,&H00F6F6F0,&H000000FF,&H00101B1D,&HC0101B1D,0,0,0,0,100,100,0,0,3,8,0,2,80,80,66,1
+Style: Tag,Microsoft YaHei,20,&H00CAE09C,&H000000FF,&H00101B1D,&H60101B1D,0,0,0,0,100,100,0,0,3,5,0,7,80,80,105,1
+[Events]
+Format: Layer,Start,End,Style,Name,MarginL,MarginR,MarginV,Effect,Text
+Dialogue: 1,0:00:00.60,0:00:08.83,Tag,,0,0,0,,AI 旁白
+Dialogue: 2,0:00:00.60,0:00:03.71,Narr,,0,0,0,,这是我制作的人工智能虚拟主播项目。
+Dialogue: 2,0:00:03.71,0:00:08.83,Narr,,0,0,0,,接下来演示弹幕输入、语音通话，以及杀戮尖塔二的游戏互动。
+Dialogue: 1,0:00:14.50,0:00:20.45,Tag,,0,0,0,,AI 旁白
+Dialogue: 2,0:00:14.50,0:00:16.09,Narr,,0,0,0,,先输入文字弹幕。
+Dialogue: 2,0:00:16.09,0:00:20.45,Narr,,0,0,0,,主播的回复，会同步显示在聊天区和角色字幕里。
+Dialogue: 1,0:01:15.30,0:01:19.74,Tag,,0,0,0,,AI 旁白
+Dialogue: 2,0:01:15.30,0:01:19.74,Narr,,0,0,0,,接着开启语音通话，查看麦克风收音和识别状态。
+Dialogue: 1,0:01:56.20,0:02:00.85,Tag,,0,0,0,,AI 旁白
+Dialogue: 2,0:01:56.20,0:02:00.85,Narr,,0,0,0,,最后，演示杀戮尖塔二的游戏画面与语音指令。
+Dialogue: 1,0:03:52.20,0:03:59.59,Tag,,0,0,0,,AI 旁白
+Dialogue: 2,0:03:52.20,0:03:54.14,Narr,,0,0,0,,以上是本次项目实录。
+Dialogue: 2,0:03:54.14,0:03:59.59,Narr,,0,0,0,,弹幕输入、语音通话和游戏互动，在同一个工作台里完成演示。

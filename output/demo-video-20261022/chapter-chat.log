@@ -1,0 +1,23 @@
+Input #0, png_pipe, from 'E:\Github\AI_vtuber\output\demo-video-20261022\chapter-chat.png':
+  Duration: N/A, bitrate: N/A
+  Stream #0:0: Video: png, rgb24(pc, gbr/unknown/unknown), 1920x1080, 30 fps, 30 tbr, 30 tbn
+Input #1, lavfi, from 'anullsrc=r=48000:cl=stereo':
+  Duration: N/A, start: 0.000000, bitrate: 768 kb/s
+  Stream #1:0: Audio: pcm_u8, 48000 Hz, stereo, u8, 768 kb/s
+Stream mapping:
+  Stream #0:0 -> #0:0 (png (native) -> h264 (h264_nvenc))
+  Stream #1:0 -> #0:1 (pcm_u8 (native) -> aac (native))
+Output #0, mp4, to 'E:\Github\AI_vtuber\output\demo-video-20261022\seg-01-chapter-chat.mp4':
+  Metadata:
+    encoder         : Lavf61.7.100
+  Stream #0:0: Video: h264 (Main) (avc1 / 0x31637661), yuv420p(tv, progressive), 1920x1080, q=2-31, 30 fps, 15360 tbn
+      Metadata:
+        encoder         : Lavc61.19.100 h264_nvenc
+      Side data:
+        cpb: bitrate max/min/avg: 0/0/0 buffer size: 0 vbv_delay: N/A
+  Stream #0:1: Audio: aac (LC) (mp4a / 0x6134706D), 48000 Hz, stereo, fltp, 192 kb/s
+      Metadata:
+        encoder         : Lavc61.19.100 aac
+[out#0/mp4 @ 00000269d9d5da80] video:222KiB audio:1KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 2.536688%
+frame=  120 fps=0.0 q=15.0 Lsize=     229KiB time=00:00:03.90 bitrate= 481.0kbits/s speed= 9.9x    
+[aac @ 00000269dbecef40] Qavg: 65536.000

@@ -1,0 +1,35 @@
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from 'C:\Users\Antares.Ji\Videos\2026-10-22 21-24-09.mp4':
+  Metadata:
+    major_brand     : iso4
+    minor_version   : 0
+    compatible_brands: iso4isomobs1iso2avc1mp41
+    creation_time   : 2026-10-23T04:24:09.000000Z
+    encoder         : OBS Studio (32.1.2)
+  Duration: 00:04:31.80, start: 0.000000, bitrate: 6041 kb/s
+  Stream #0:0[0x1](und): Video: h264 (High) (avc1 / 0x31637661), yuv420p(tv, bt709, progressive), 3440x1440 [SAR 1:1 DAR 43:18], 6000 kb/s, 30 fps, 30 tbr, 30 tbn (default)
+      Metadata:
+        creation_time   : 2026-10-23T04:24:09.000000Z
+        handler_name    : OBS Video Handler
+        vendor_id       : [0][0][0][0]
+        encoder         : obs_nvenc_h264_tex
+  Stream #0:1[0x2](und): Audio: aac (LC) (mp4a / 0x6134706D), 48000 Hz, stereo, fltp, 33 kb/s (default)
+      Metadata:
+        creation_time   : 2026-10-23T04:24:09.000000Z
+        handler_name    : OBS Audio Handler
+        vendor_id       : [0][0][0][0]
+Stream mapping:
+  Stream #0:1 -> #0:0 (aac (native) -> pcm_s16le (native))
+Output #0, wav, to 'E:\Github\AI_vtuber\output\demo-video-20261022\GPT-SoVITS实时语音样例_原片原声.wav':
+  Metadata:
+    major_brand     : iso4
+    minor_version   : 0
+    compatible_brands: iso4isomobs1iso2avc1mp41
+    ISFT            : Lavf61.7.100
+  Stream #0:0(und): Audio: pcm_s16le ([1][0][0][0] / 0x0001), 48000 Hz, stereo, s16, 1536 kb/s (default)
+      Metadata:
+        creation_time   : 2026-10-23T04:24:09.000000Z
+        handler_name    : OBS Audio Handler
+        vendor_id       : [0][0][0][0]
+        encoder         : Lavc61.19.100 pcm_s16le
+[out#0/wav @ 000001dac4ff3600] video:0KiB audio:2362KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 0.003224%
+size=    2363KiB time=00:00:12.60 bitrate=1536.0kbits/s speed= 808x    

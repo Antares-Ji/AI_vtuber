@@ -1,0 +1,4 @@
+[
+  {"action":"key","key":"D","hold":0.1},
+  {"action":"wait","duration":0.6}
+]

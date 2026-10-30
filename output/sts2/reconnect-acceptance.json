@@ -1,0 +1,53 @@
+{
+  "at": "2026-10-21T02:31:02.087Z",
+  "running": true,
+  "steps": 4,
+  "error": null,
+  "lastResult": {
+    "at": "2026-10-21T02:31:00.505Z",
+    "tool": "menu_select",
+    "result": {
+      "status": "ok",
+      "message": "Embarking on run"
+    }
+  },
+  "streamer": {
+    "enabled": true,
+    "pending": {
+      "id": "054abf5a-5df2-4ca7-a863-3131802d08a2",
+      "line": "铁甲战士已选好，确认出发。",
+      "emotion": "focused",
+      "state": "started",
+      "tool": "menu_select"
+    },
+    "last": {
+      "id": "d9ca9a36-23d5-4880-b877-f13b22c8789e",
+      "at": "2026-10-21T02:30:54.928Z",
+      "state": "ended",
+      "line": "选铁甲战士，稳健开局。",
+      "emotion": "focused",
+      "tool": "menu_select",
+      "args": {
+        "option": "IRONCLAD"
+      },
+      "scene": "menu"
+    },
+    "lastReceipt": {
+      "id": "054abf5a-5df2-4ca7-a863-3131802d08a2",
+      "phase": "started",
+      "at": "2026-10-21T02:31:00.420Z"
+    }
+  },
+  "game": {
+    "scene": "unknown",
+    "menu": null,
+    "run": {
+      "act": 1,
+      "floor": 0,
+      "ascension": 0
+    },
+    "hp": 80
+  },
+  "previewStatus": 200,
+  "previewBytes": 40393
+}

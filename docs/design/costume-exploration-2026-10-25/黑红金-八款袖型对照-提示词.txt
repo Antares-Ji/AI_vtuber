@@ -1,0 +1,16 @@
+Mode: built-in image_gen
+Create a polished clear fashion illustration comparison chart of EIGHT different SLEEVE TYPES for a cute Western fantasy anime girl's costume. The user wants to choose sleeves, not a complete character. Landscape white or warm off-white canvas, precise 4 columns x 2 rows grid, generous whitespace and consistent size. Each panel shows the SAME cropped shoulder, upper arm, forearm and relaxed hand from a slight front three-quarter angle, with a small visible fragment of the same charcoal bodice. No face, no full character, no legs. Anatomically sound single arm in each panel. Clothing concept is youthful Western fantasy, clean simple line art, flat colors and very light shading, easy for a costume artist to interpret.
+Shared palette across ALL panels: charcoal BLACK main fabric, muted crimson RED lining or ties, restrained warm golden YELLOW piping and little gold fasteners. No big bright adjacent red-yellow blocks. Same simple small diamond-shaped gold ornament when needed. Design variations focus on sleeve SHAPE and LENGTH, rather than excessive decoration.
+Top centered Chinese title exactly: "黑红金 · 袖型对照"
+Panel layout and Chinese captions exactly, numbered 01 through 08:
+TOP ROW:
+01 泡泡袖 — a short rounded PUFF SLEEVE, visibly puffed at shoulder, gathers and fitted band around upper arm, red narrow bow and gold hem.
+02 喇叭袖 — BELL SLEEVE, fitted upper arm, progressively widening toward a broad flared wrist opening, visible dark red lining, thin gold hem. Flare starts below elbow and is clearly distinct from a frill.
+03 短袖 — plain SHORT SLEEVE, simple straight relaxed sleeve ending mid upper arm, minimal gold edge and red piping. Not puffed.
+04 无袖 — SLEEVELESS, neat broad shoulder strap and bound armhole, entire bare arm visible without any cuff or detached sleeve. Clearly no sleeve.
+BOTTOM ROW:
+05 长袖 — ordinary LONG SLEEVE, softly fitted straight fabric from shoulder down to wrist with a small closed cuff, no puff, no flare.
+06 灯笼袖 — long LANTERN/BISHOP SLEEVE, voluminous softly rounded lower sleeve gathered into a fitted wrist cuff, red cuff with gold trim. Distinctly long and full.
+07 荷叶袖 — short RUFFLE/FLUTTER SLEEVE, two airy curved flounces at shoulder and upper arm, black outer flounce, dark red lower flounce, gold edges, bare forearm.
+08 分离袖 — DETACHED SLEEVE: visible bare shoulder and distinct band around mid upper arm, sleeve begins BELOW band leaving an obvious gap from bodice; loose forearm sleeve with modest wrist flare. Small matching red ties and gold clasp. Clear detached construction, not an attached bell sleeve.
+Caption each panel clearly BELOW its illustration, no text across clothing. Use accurate readable Chinese typography, consistent understated dark font, numbered headings with optional small muted gold number accents. No extra words, no gibberish. Preserve consistent arm pose and scale and ensure all eight silhouettes are unmistakably different and faithful to their names. No sexy posing, no elaborate jewelry, no heavy armor, no logos or watermark.

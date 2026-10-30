@@ -1,0 +1,55 @@
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from 'E:\Github\AI_vtuber\output\demo-video-20261022\picture-edit.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf61.7.100
+  Duration: 00:04:00.02, start: 0.000000, bitrate: 1265 kb/s
+  Stream #0:0[0x1](und): Video: h264 (Main) (avc1 / 0x31637661), yuv420p(progressive), 1920x1080 [SAR 1:1 DAR 16:9], 1214 kb/s, 30 fps, 30 tbr, 15360 tbn (default)
+      Metadata:
+        handler_name    : VideoHandler
+        vendor_id       : [0][0][0][0]
+        encoder         : Lavc61.19.100 h264_nvenc
+  Stream #0:1[0x2](und): Audio: aac (LC) (mp4a / 0x6134706D), 48000 Hz, stereo, fltp, 42 kb/s (default)
+      Metadata:
+        handler_name    : SoundHandler
+        vendor_id       : [0][0][0][0]
+[mp3 @ 00000298f4d7e200] Estimating duration from bitrate, this may be inaccurate
+Input #1, mp3, from 'E:\Github\AI_vtuber\output\demo-video-20261022\narration-intro.mp3':
+  Duration: 00:00:08.33, start: 0.000000, bitrate: 48 kb/s
+  Stream #1:0: Audio: mp3 (mp3float), 24000 Hz, mono, fltp, 48 kb/s
+[mp3 @ 00000298f5499180] Estimating duration from bitrate, this may be inaccurate
+Input #2, mp3, from 'E:\Github\AI_vtuber\output\demo-video-20261022\narration-chat.mp3':
+  Duration: 00:00:06.05, start: 0.000000, bitrate: 48 kb/s
+  Stream #2:0: Audio: mp3 (mp3float), 24000 Hz, mono, fltp, 48 kb/s
+[mp3 @ 00000298f4e07f80] Estimating duration from bitrate, this may be inaccurate
+Input #3, mp3, from 'E:\Github\AI_vtuber\output\demo-video-20261022\narration-call.mp3':
+  Duration: 00:00:04.54, start: 0.000000, bitrate: 48 kb/s
+  Stream #3:0: Audio: mp3 (mp3float), 24000 Hz, mono, fltp, 48 kb/s
+[mp3 @ 00000298f4d77600] Estimating duration from bitrate, this may be inaccurate
+Input #4, mp3, from 'E:\Github\AI_vtuber\output\demo-video-20261022\narration-game.mp3':
+  Duration: 00:00:04.75, start: 0.000000, bitrate: 48 kb/s
+  Stream #4:0: Audio: mp3 (mp3float), 24000 Hz, mono, fltp, 48 kb/s
+[mp3 @ 00000298f50f7a00] Estimating duration from bitrate, this may be inaccurate
+Input #5, mp3, from 'E:\Github\AI_vtuber\output\demo-video-20261022\narration-outro.mp3':
+  Duration: 00:00:07.49, start: 0.000000, bitrate: 48 kb/s
+  Stream #5:0: Audio: mp3 (mp3float), 24000 Hz, mono, fltp, 48 kb/s
+Stream mapping:
+  Stream #0:1 (aac) -> aresample:default
+  Stream #1:0 (mp3float) -> loudnorm:default
+  Stream #2:0 (mp3float) -> loudnorm:default
+  Stream #3:0 (mp3float) -> loudnorm:default
+  Stream #4:0 (mp3float) -> loudnorm:default
+  Stream #5:0 (mp3float) -> loudnorm:default
+  atrim:default -> Stream #0:0 (pcm_s16le)
+Output #0, wav, to 'E:\Github\AI_vtuber\output\demo-video-20261022\final-mix.wav':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    ISFT            : Lavf61.7.100
+  Stream #0:0: Audio: pcm_s16le ([1][0][0][0] / 0x0001), 48000 Hz, stereo, s16, 1536 kb/s
+      Metadata:
+        encoder         : Lavc61.19.100 pcm_s16le
+[out#0/wav @ 00000298f5499440] video:0KiB audio:45076KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 0.000169%
+size=   45076KiB time=00:04:00.00 bitrate=1538.6kbits/s speed= 555x    

@@ -1,0 +1,101 @@
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const path = require('node:path');
+const os = require('node:os');
+const { MinecraftEngine } = require('../src/minecraft/astra-jev');
+const { planDeepseek, config } = require('../src/minecraft/deepseek-planner');
+const { AutonomyLoop } = require('../src/minecraft/autonomy-loop');
+const { plan: planCommand } = require('../src/minecraft/qwen-bridge');
+const root = fs.mkdtempSync(path.join(os.tmpdir(), 'mc-deepseek-'));
+const env = { OPENAI_BASE_URL: 'https://api.deepseek.com', OPENAI_API_KEY: 'test-secret', OPENAI_MODEL: 'deepseek-chat' };
+const proposal = { subgoal: '观察', reason: '检查状态', plan: [{ action: 'observe' }] };
+const response = value => Response.json({ model: 'deepseek-chat', choices: [{ finish_reason: 'stop', message: { content: JSON.stringify(value) } }] });
+(async () => {
+  const e = new MinecraftEngine({ file: path.join(root, 'engine.json'), env, fetchImpl: async (url, options) => {
+    assert.equal(url, 'https://api.deepseek.com/chat/completions');
+    assert.equal(options.headers.authorization, 'Bearer test-secret');
+    assert.equal(JSON.parse(options.body).model, 'deepseek-chat');
+    return response(proposal);
+  } });
+  e.save({ provider: 'deepseek' });
+  assert(!fs.readFileSync(e.file, 'utf8').includes('test-secret'));
+  assert(!JSON.stringify(e.status()).includes('test-secret'));
+  await e.test(AbortSignal.timeout(2000));
+  assert.equal(e.modelState().modelLoaded, true);
+  assert.equal(e.modelState().provider, 'deepseek');
+  assert.deepEqual(await e.plan({}, { signal: AbortSignal.timeout(2000) }), { action: 'observe' });
+  // Dedicated game credentials must work even when general chat uses OpenAI.
+  const file = path.join(root, 'dedicated.json'), callbacks = [], cloudCalls = [];
+  const dedicatedEnv = { OPENAI_API_KEY: 'unrelated-chat-key', OPENAI_BASE_URL: 'https://api.openai.com/v1', OPENAI_MODEL: 'other-model' };
+  let nextAction = { action: 'gather_wood', count: 1 };
+  const dedicated = new MinecraftEngine({ file, env: dedicatedEnv, fetchImpl: async (url, options) => {
+    assert.equal(url, 'https://api.deepseek.com/chat/completions');
+    assert.equal(options.headers.authorization, 'Bearer game-only-key');
+    const body = JSON.parse(options.body); cloudCalls.push(body);
+    assert.equal(body.model, 'deepseek-flash');
+    assert.equal(body.thinking.type, 'disabled');
+    assert.equal(body.task, undefined, 'local Qwen task extensions must not reach DeepSeek');
+    assert.equal(options.redirect, 'error');
+    return response({ ...proposal, plan: [nextAction] });
+  } });
+  assert.equal(dedicated.status().provider, 'deepseek');
+  dedicated.save({ provider: 'deepseek', apiKey: 'game-only-key' });
+  assert.equal(dedicated.status().keySource, 'local-file');
+  assert.equal(new MinecraftEngine({ file, env: dedicatedEnv }).key(), 'game-only-key');
+  dedicated.save({ provider: 'deepseek', apiKey: '' });
+  assert.equal(dedicated.key(), 'game-only-key', 'blank input preserves key');
+  dedicated.save({ provider: 'astra', apiKey: 'astra-only-key' });
+  assert.equal(dedicated.key(), 'astra-only-key');
+  dedicated.save({ provider: 'deepseek' });
+  assert.equal(dedicated.key(), 'game-only-key', 'provider keys remain isolated');
+  assert(!JSON.stringify(dedicated.status()).includes('game-only-key'));
+  const observed = { connected: true, sessionId: 'same', dimension: 'overworld', health: 20, food: 20, inventory: [], reactive: { enabled: true, mode: 'idle', lifecycleEpoch: 1 } };
+  const gameCalls = [];
+  let stale = false, observationCount = 0, waiting = false;
+  const loop = new AutonomyLoop({ engine: dedicated, logDir: root, request: async (route, payload) => {
+    gameCalls.push({ route, payload });
+    if (route === '/observe') return { ...observed, sessionId: stale && ++observationCount > 1 ? 'changed' : 'same' };
+    if (route.startsWith('/task')) return { status: waiting ? 'running' : 'completed', result: { verified: true } };
+    return { accepted: true };
+  } });
+  const result = await loop.runOnce('采一块木头', AbortSignal.timeout(2000));
+  assert.equal(result.decision.source, 'deepseek');
+  assert.deepEqual(gameCalls.find(row => row.route === '/skill').payload.action, nextAction);
+  assert.equal(result.verified, true);
+  assert.equal(loop.snapshot().model, 'deepseek-flash');
+  assert.equal(cloudCalls.length, 1, 'game health must not call local Qwen');
+  stale = true;
+  await assert.rejects(loop.runOnce('继续采集', AbortSignal.timeout(2000)), /状态已变化/);
+  assert.equal(gameCalls.filter(row => row.route === '/skill').length, 1);
+  stale = false; waiting = true;
+  const stop = new AbortController();
+  const task = loop.runOnce('继续采集', stop.signal);
+  setTimeout(() => stop.abort(), 25);
+  await assert.rejects(task, { name: 'AbortError' });
+  assert(gameCalls.some(row => row.route === '/cancel-task'));
+  nextAction = { action: 'observe' };
+  await dedicated.plan(observed, { onRequest: row => callbacks.push(row), onCompletion: row => callbacks.push(row) });
+  assert(!JSON.stringify(callbacks).includes('game-only-key'));
+  assert(!fs.readFileSync(path.join(root, 'minecraft-autonomy.jsonl'), 'utf8').includes('game-only-key'));
+  dedicated.save({ provider: 'deepseek', clearKey: true });
+  assert.equal(dedicated.config.deepseekApiKey, '');
+  assert.equal(dedicated.verification, null);
+  assert.equal(config({ DEEPSEEK_API_KEY: 'env-game-key', OPENAI_BASE_URL: 'https://api.openai.com/v1' }).model, 'deepseek-flash');
+  assert.equal(config({ DEEPSEEK_API_KEY: 'env-game-key', DEEPSEEK_MODEL: 'custom-model', DEEPSEEK_BASE_URL: 'https://api.deepseek.com/v1' }).url, 'https://api.deepseek.com/v1/chat/completions');
+  assert.throws(() => config({}), /DeepSeek API Key/);
+  const priorFetch = global.fetch;
+  global.fetch = async () => { throw Error('fixed commands must not call a model'); };
+  try {
+    for (const [text, action] of [['查看状态', 'status'], ['自动防卫', 'defend'], ['停止', 'stop']]) {
+      assert.equal((await planCommand(text, observed)).action, action);
+    }
+  } finally { global.fetch = priorFetch; }
+  await assert.rejects(planDeepseek({}, {}, { ...env, OPENAI_BASE_URL: 'https://example.com' }), /官方/);
+  await assert.rejects(planDeepseek({}, { probe: true }, env, async () => response({ ...proposal, plan: [{ action: 'gather_wood', count: 1 }] })), /不适用/);
+  await assert.rejects(planDeepseek({}, {}, env, async () => response({ ...proposal, plan: [{ action: 'observe' }, { action: 'observe' }] })), /格式/);
+  await assert.rejects(planDeepseek({}, {}, env, async () => Response.json({ choices: [{ finish_reason: 'length', message: { content: '{}' } }] })), /未完整/);
+  await assert.rejects(planDeepseek({}, {}, env, async () => new Response('test-secret', { status: 401 })), /^Error: DeepSeek HTTP 401$/);
+  const cancel = new AbortController(); cancel.abort();
+  await assert.rejects(planDeepseek({}, { signal: cancel.signal }, env, async () => { throw Error('must not fetch'); }), { name: 'AbortError' });
+  console.log('DeepSeek: dedicated keys, API-to-Mineflayer loop, no local game inference, stale-state rejection, task cancellation, strict parsing and secret isolation passed.');
+})().catch(error => { console.error(error); process.exitCode = 1; }).finally(() => fs.rmSync(root, { recursive: true, force: true }));

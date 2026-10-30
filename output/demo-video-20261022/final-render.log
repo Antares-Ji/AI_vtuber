@@ -1,0 +1,96 @@
+-filter_complex_script is deprecated, use -/filter_complex final-filter.txt instead
+[Parsed_subtitles_0 @ 000001f75a9516c0] libass API version: 0x1703000
+[Parsed_subtitles_0 @ 000001f75a9516c0] libass source: commit: 0.17.3-32-g5298859c298d3c570d8d7e3b883a0d63490659b8
+[Parsed_subtitles_0 @ 000001f75a9516c0] Shaper: FriBidi 1.0.16 (SIMPLE) HarfBuzz-ng 10.0.1 (COMPLEX)
+[Parsed_subtitles_0 @ 000001f75a9516c0] Using font provider directwrite (with GDI)
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from 'E:\Github\AI_vtuber\output\demo-video-20261022\picture-edit.mp4':
+  Metadata:
+    major_brand     : isom
+    minor_version   : 512
+    compatible_brands: isomiso2avc1mp41
+    encoder         : Lavf61.7.100
+  Duration: 00:04:00.02, start: 0.000000, bitrate: 1265 kb/s
+  Stream #0:0[0x1](und): Video: h264 (Main) (avc1 / 0x31637661), yuv420p(progressive), 1920x1080 [SAR 1:1 DAR 16:9], 1214 kb/s, 30 fps, 30 tbr, 15360 tbn (default)
+      Metadata:
+        handler_name    : VideoHandler
+        vendor_id       : [0][0][0][0]
+        encoder         : Lavc61.19.100 h264_nvenc
+  Stream #0:1[0x2](und): Audio: aac (LC) (mp4a / 0x6134706D), 48000 Hz, stereo, fltp, 42 kb/s (default)
+      Metadata:
+        handler_name    : SoundHandler
+        vendor_id       : [0][0][0][0]
+[aist#1:0/pcm_s16le @ 000001f75a952340] Guessed Channel Layout: stereo
+Input #1, wav, from 'E:\Github\AI_vtuber\output\demo-video-20261022\final-mix.wav':
+  Metadata:
+    encoder         : Lavf61.7.100
+  Duration: 00:04:00.41, bitrate: 1536 kb/s
+  Stream #1:0: Audio: pcm_s16le ([1][0][0][0] / 0x0001), 48000 Hz, stereo, s16, 1536 kb/s
+Input #2, ffmetadata, from 'E:\Github\AI_vtuber\output\demo-video-20261022\chapters.ffmeta':
+  Metadata:
+    title           : AI虚拟主播项目演示｜弹幕·语音·杀戮尖塔2
+    comment         : AI旁白只用于开场与衔接；演示段保留原片GPT-SoVITS原声。
+  Duration: 00:04:00.00, start: 0.000000, bitrate: 0 kb/s
+  Chapters:
+    Chapter #2:0: start 0.000000, end 10.000000
+      Metadata:
+        title           : 项目介绍
+    Chapter #2:1: start 10.000000, end 75.000000
+      Metadata:
+        title           : 弹幕输入与GPT-SoVITS原声
+    Chapter #2:2: start 75.000000, end 116.000000
+      Metadata:
+        title           : 语音通话
+    Chapter #2:3: start 116.000000, end 232.000000
+      Metadata:
+        title           : 杀戮尖塔2画面与语音指令
+    Chapter #2:4: start 232.000000, end 240.000000
+      Metadata:
+        title           : 结束
+Stream mapping:
+  Stream #0:0 (h264) -> subtitles:default
+  subtitles:default -> Stream #0:0 (h264_nvenc)
+  Stream #1:0 -> #0:1 (pcm_s16le (native) -> aac (native))
+[Parsed_subtitles_0 @ 000001f75b771ac0] libass API version: 0x1703000
+[Parsed_subtitles_0 @ 000001f75b771ac0] libass source: commit: 0.17.3-32-g5298859c298d3c570d8d7e3b883a0d63490659b8
+[Parsed_subtitles_0 @ 000001f75b771ac0] Shaper: FriBidi 1.0.16 (SIMPLE) HarfBuzz-ng 10.0.1 (COMPLEX)
+[Parsed_subtitles_0 @ 000001f75b771ac0] Using font provider directwrite (with GDI)
+Output #0, mp4, to 'AI虚拟主播项目演示_4分钟.mp4':
+  Metadata:
+    title           : AI虚拟主播项目演示｜弹幕·语音·杀戮尖塔2
+    comment         : AI旁白只用于开场与衔接；演示段保留原片GPT-SoVITS原声。
+    encoder         : Lavf61.7.100
+  Chapters:
+    Chapter #0:0: start 0.000000, end 10.000000
+      Metadata:
+        title           : 项目介绍
+    Chapter #0:1: start 10.000000, end 75.000000
+      Metadata:
+        title           : 弹幕输入与GPT-SoVITS原声
+    Chapter #0:2: start 75.000000, end 116.000000
+      Metadata:
+        title           : 语音通话
+    Chapter #0:3: start 116.000000, end 232.000000
+      Metadata:
+        title           : 杀戮尖塔2画面与语音指令
+    Chapter #0:4: start 232.000000, end 240.000000
+      Metadata:
+        title           : 结束
+  Stream #0:0: Video: h264 (Main) (avc1 / 0x31637661), yuv420p(tv, progressive), 1920x1080 [SAR 1:1 DAR 16:9], q=2-31, 30 fps, 15360 tbn
+      Metadata:
+        encoder         : Lavc61.19.100 h264_nvenc
+      Side data:
+        cpb: bitrate max/min/avg: 0/0/0 buffer size: 0 vbv_delay: N/A
+  Stream #0:1: Audio: aac (LC) (mp4a / 0x6134706D), 48000 Hz, stereo, fltp, 192 kb/s
+      Metadata:
+        encoder         : Lavc61.19.100 aac
+[Parsed_subtitles_0 @ 000001f75b771ac0] fontselect: (Microsoft YaHei, 400, 0) -> MicrosoftYaHei, 0, MicrosoftYaHei
+frame=  203 fps=0.0 q=15.0 size=     256KiB time=00:00:06.66 bitrate= 314.8kbits/s dup=1 drop=0 speed=12.8x    [fc#0 @ 000001f75a9504c0] Reconfiguring filter graph because video parameters changed to yuv420p(tv, bt709), 1920x1080
+[Parsed_subtitles_0 @ 000001f75b7722c0] libass API version: 0x1703000
+[Parsed_subtitles_0 @ 000001f75b7722c0] libass source: commit: 0.17.3-32-g5298859c298d3c570d8d7e3b883a0d63490659b8
+[Parsed_subtitles_0 @ 000001f75b7722c0] Shaper: FriBidi 1.0.16 (SIMPLE) HarfBuzz-ng 10.0.1 (COMPLEX)
+[Parsed_subtitles_0 @ 000001f75b7722c0] Using font provider directwrite (with GDI)
+[Parsed_subtitles_0 @ 000001f75b7722c0] fontselect: (Microsoft YaHei, 400, 0) -> MicrosoftYaHei, 0, MicrosoftYaHei
+frame=  493 fps=480 q=15.0 size=    2560KiB time=00:00:16.33 bitrate=1284.1kbits/s dup=1 drop=0 speed=15.9x    frame=  788 fps=511 q=12.0 size=    4608KiB time=00:00:26.16 bitrate=1442.7kbits/s dup=1 drop=0 speed=  17x    frame= 1080 fps=526 q=15.0 size=    6400KiB time=00:00:35.90 bitrate=1460.5kbits/s dup=1 drop=0 speed=17.5x    frame= 1376 fps=536 q=12.0 size=    8192KiB time=00:00:45.76 bitrate=1466.4kbits/s dup=1 drop=0 speed=17.8x    frame= 1679 fps=542 q=15.0 size=    9472KiB time=00:00:55.86 bitrate=1389.0kbits/s dup=1 drop=0 speed=  18x    frame= 1972 fps=547 q=12.0 size=   10752KiB time=00:01:05.63 bitrate=1342.0kbits/s dup=1 drop=0 speed=18.2x    frame= 2276 fps=551 q=12.0 size=   12288KiB time=00:01:15.76 bitrate=1328.6kbits/s dup=1 drop=0 speed=18.3x    frame= 2572 fps=554 q=15.0 size=   13824KiB time=00:01:25.63 bitrate=1322.5kbits/s dup=1 drop=0 speed=18.4x    frame= 2867 fps=556 q=15.0 size=   15104KiB time=00:01:35.46 bitrate=1296.1kbits/s dup=1 drop=0 speed=18.5x    frame= 3164 fps=558 q=15.0 size=   16896KiB time=00:01:45.36 bitrate=1313.6kbits/s dup=1 drop=0 speed=18.6x    frame= 3458 fps=560 q=15.0 size=   19712KiB time=00:01:55.16 bitrate=1402.2kbits/s dup=1 drop=0 speed=18.6x    frame= 3764 fps=561 q=12.0 size=   21760KiB time=00:02:05.36 bitrate=1421.9kbits/s dup=1 drop=0 speed=18.7x    frame= 4059 fps=562 q=15.0 size=   23296KiB time=00:02:15.20 bitrate=1411.6kbits/s dup=1 drop=0 speed=18.7x    frame= 4355 fps=563 q=15.0 size=   24576KiB time=00:02:25.06 bitrate=1387.8kbits/s dup=1 drop=0 speed=18.8x    frame= 4651 fps=564 q=15.0 size=   26112KiB time=00:02:34.93 bitrate=1380.7kbits/s dup=1 drop=0 speed=18.8x    frame= 4955 fps=565 q=15.0 size=   27392KiB time=00:02:45.06 bitrate=1359.4kbits/s dup=1 drop=0 speed=18.8x    frame= 5249 fps=565 q=15.0 size=   28672KiB time=00:02:54.86 bitrate=1343.2kbits/s dup=1 drop=0 speed=18.8x    frame= 5547 fps=566 q=15.0 size=   30464KiB time=00:03:04.80 bitrate=1350.4kbits/s dup=1 drop=0 speed=18.9x    frame= 5839 fps=567 q=15.0 size=   31744KiB time=00:03:14.53 bitrate=1336.8kbits/s dup=1 drop=0 speed=18.9x    frame= 6136 fps=567 q=15.0 size=   33024KiB time=00:03:24.43 bitrate=1323.3kbits/s dup=1 drop=0 speed=18.9x    frame= 6441 fps=568 q=15.0 size=   34560KiB time=00:03:34.60 bitrate=1319.3kbits/s dup=1 drop=0 speed=18.9x    frame= 6738 fps=568 q=12.0 size=   36352KiB time=00:03:44.50 bitrate=1326.5kbits/s dup=1 drop=0 speed=18.9x    frame= 7035 fps=568 q=15.0 size=   37632KiB time=00:03:54.40 bitrate=1315.2kbits/s dup=1 drop=0 speed=18.9x    [mp4 @ 000001f75a9db740] Starting second pass: moving the moov atom to the beginning of the file
+[out#0/mp4 @ 000001f75a9db640] video:36096KiB audio:1892KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 0.686425%
+frame= 7200 fps=568 q=15.0 Lsize=   38249KiB time=00:03:59.90 bitrate=1306.1kbits/s dup=1 drop=0 speed=18.9x    
+[aac @ 000001f75b0c3700] Qavg: 47418.191

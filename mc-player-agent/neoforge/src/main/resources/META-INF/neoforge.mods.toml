@@ -1,0 +1,22 @@
+modLoader="javafml"
+loaderVersion="[4,)"
+license="LGPL-3.0-only"
+[[mods]]
+modId="mcplayeragent"
+version="${version}"
+displayName="MC Player Agent"
+description="Mission-driven first-person player automation with verified receipts and per-world execution journals"
+[[mixins]]
+config="mcplayeragent.mixins.json"
+[[dependencies.mcplayeragent]]
+modId="neoforge"
+type="required"
+versionRange="[21.1.233,)"
+ordering="NONE"
+side="BOTH"
+[[dependencies.mcplayeragent]]
+modId="minecraft"
+type="required"
+versionRange="[1.21.1]"
+ordering="NONE"
+side="BOTH"

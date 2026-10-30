@@ -1,0 +1,29 @@
+[
+  {
+    "orders": 10,
+    "customer_months": 30,
+    "revenue": 119970,
+    "direct_cost": 37000,
+    "contribution": 82970,
+    "fixed": 200000,
+    "operating_balance": -117030
+  },
+  {
+    "orders": 40,
+    "customer_months": 300,
+    "revenue": 839700,
+    "direct_cost": 238000,
+    "contribution": 601700,
+    "fixed": 600000,
+    "operating_balance": 1700
+  },
+  {
+    "orders": 90,
+    "customer_months": 900,
+    "revenue": 2339100,
+    "direct_cost": 648000,
+    "contribution": 1691100,
+    "fixed": 1200000,
+    "operating_balance": 491100
+  }
+]

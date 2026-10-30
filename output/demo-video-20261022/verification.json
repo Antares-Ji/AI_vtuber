@@ -1,0 +1,90 @@
+{
+  "main": {
+    "path": "E:\\Github\\AI_vtuber\\output\\demo-video-20261022\\AI虚拟主播项目演示_4分钟.mp4",
+    "duration": "240.000000",
+    "frames": "7200",
+    "video": "h264",
+    "resolution": [
+      1920,
+      1080
+    ],
+    "audio": "aac",
+    "sample_rate": "48000",
+    "bytes": 39166955,
+    "full_decode": "passed",
+    "chapters": [
+      "项目介绍",
+      "弹幕输入与GPT-SoVITS原声",
+      "语音通话",
+      "杀戮尖塔2画面与语音指令",
+      "结束"
+    ]
+  },
+  "sample": {
+    "path": "E:\\Github\\AI_vtuber\\output\\demo-video-20261022\\GPT-SoVITS实时语音样例_原片实录.mp4",
+    "duration": "12.600000",
+    "frames": "378",
+    "video": "h264",
+    "resolution": [
+      1920,
+      1080
+    ],
+    "audio": "aac",
+    "sample_rate": "48000",
+    "bytes": 1965831,
+    "full_decode": "passed",
+    "chapters": []
+  },
+  "audio_spot_checks": [
+    {
+      "range": [
+        0,
+        10
+      ],
+      "type": "opening",
+      "asr": "这是我制作的人工智能虚拟主播项目。接下来演示弹幕输入、语音通话以及杀戮尖塔2的游戏互动。"
+    },
+    {
+      "range": [
+        14,
+        22
+      ],
+      "type": "chat-narration",
+      "asr": "先输入文字弹幕，主播的回复会同步显示在聊天区和角色字幕里。"
+    },
+    {
+      "range": [
+        58,
+        73
+      ],
+      "type": "original-gptsovits",
+      "asr": "我是鸡碎哥，现在说话的是天朝纪碎这一面，你可以叫我碎，正在打杀戮间塔2刚开了狂墓，接下来想用攻击排换格挡，稳住这回合。"
+    },
+    {
+      "range": [
+        75,
+        81
+      ],
+      "type": "call-narration",
+      "asr": "接着开启语音通话，查看麦克风收音和识别状态。"
+    },
+    {
+      "range": [
+        116,
+        122
+      ],
+      "type": "game-narration",
+      "asr": "最后，演示杀戮监塔2的游戏画面与语音指令。"
+    },
+    {
+      "range": [
+        232,
+        240
+      ],
+      "type": "ending",
+      "asr": "以上是本次项目实录，弹幕输入语音通话和游戏互动，在同一个工作台里完成演示。"
+    }
+  ],
+  "ai_narration_seconds": 31.152,
+  "ai_narration_ratio": 0.1298
+}

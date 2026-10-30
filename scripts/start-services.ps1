@@ -6,6 +6,8 @@ $asrScript = Join-Path $PSScriptRoot "start-asr.ps1"
 $localLlmScript = Join-Path $PSScriptRoot "start-local-llm.ps1"
 $gptSovitsScript = Join-Path $PSScriptRoot "start-gpt-sovits.ps1"
 $serverScript = Join-Path $projectRoot "src\server.js"
+$localLlmEnabled = (& node -e "require(process.argv[1]).loadEnv(); console.log(require(process.argv[2]).getLocalLlmConfig().enabled)" (Join-Path $projectRoot 'src/config/env.js') (Join-Path $projectRoot 'src/brain/local-llm.js')) -eq 'true'
+if ($LASTEXITCODE -ne 0) { throw 'Could not read local model enable flag.' }
 
 New-Item -ItemType Directory -Force -Path $logsDir | Out-Null
 
@@ -45,7 +47,7 @@ function Wait-ForListeningPort([string]$Name, [int]$Port, [int]$TimeoutSeconds) 
 
 Set-Location $projectRoot
 
-if (Test-Path (Join-Path $projectRoot "runtime\local-llm\.venv\Scripts\python.exe")) {
+if ($localLlmEnabled -and (Test-Path (Join-Path $projectRoot "runtime\local-llm\.venv\Scripts\python.exe"))) {
   if (Test-ListeningPort 11435) {
     Write-Host "Local Qwen is already listening on port 11435."
   } else {
@@ -106,6 +108,6 @@ if (Test-ListeningPort 3000) {
 
 Wait-ForEndpoint "Main server" "http://127.0.0.1:3000/api/health" 30
 Wait-ForEndpoint "ASR" "http://127.0.0.1:10095/health" 120
-Wait-ForEndpoint "Local Qwen" "http://127.0.0.1:11435/health" 240
+if ($localLlmEnabled) { Wait-ForEndpoint "Local Qwen" "http://127.0.0.1:11435/health" 240 }
 Wait-ForListeningPort "GPT-SoVITS" 9880 180
 Write-Host "All services are running in the background."

@@ -1,0 +1,47 @@
+Input #0, mov,mp4,m4a,3gp,3g2,mj2, from 'C:\Users\Antares.Ji\Videos\2026-10-22 21-24-09.mp4':
+  Metadata:
+    major_brand     : iso4
+    minor_version   : 0
+    compatible_brands: iso4isomobs1iso2avc1mp41
+    creation_time   : 2026-10-23T04:24:09.000000Z
+    encoder         : OBS Studio (32.1.2)
+  Duration: 00:04:31.80, start: 0.000000, bitrate: 6041 kb/s
+  Stream #0:0[0x1](und): Video: h264 (High) (avc1 / 0x31637661), yuv420p(tv, bt709, progressive), 3440x1440 [SAR 1:1 DAR 43:18], 6000 kb/s, 30 fps, 30 tbr, 30 tbn (default)
+      Metadata:
+        creation_time   : 2026-10-23T04:24:09.000000Z
+        handler_name    : OBS Video Handler
+        vendor_id       : [0][0][0][0]
+        encoder         : obs_nvenc_h264_tex
+  Stream #0:1[0x2](und): Audio: aac (LC) (mp4a / 0x6134706D), 48000 Hz, stereo, fltp, 33 kb/s (default)
+      Metadata:
+        creation_time   : 2026-10-23T04:24:09.000000Z
+        handler_name    : OBS Audio Handler
+        vendor_id       : [0][0][0][0]
+Input #1, png_pipe, from 'E:\Github\AI_vtuber\output\demo-video-20261022\layout-call-live.png':
+  Duration: N/A, bitrate: N/A
+  Stream #1:0: Video: png, rgb24(pc, gbr/unknown/unknown), 1920x1080, 30 fps, 30 tbr, 30 tbn
+Stream mapping:
+  Stream #0:0 (h264) -> crop:default
+  Stream #1:0 (png) -> overlay
+  format:default -> Stream #0:0 (h264_nvenc)
+  Stream #0:1 -> #0:1 (aac (native) -> aac (native))
+Output #0, mp4, to 'E:\Github\AI_vtuber\output\demo-video-20261022\seg-06-call-live.mp4':
+  Metadata:
+    major_brand     : iso4
+    minor_version   : 0
+    compatible_brands: iso4isomobs1iso2avc1mp41
+    encoder         : Lavf61.7.100
+  Stream #0:0: Video: h264 (Main) (avc1 / 0x31637661), yuv420p(tv, bt709/unknown/unknown, progressive), 1920x1080, q=2-31, 30 fps, 15360 tbn
+      Metadata:
+        encoder         : Lavc61.19.100 h264_nvenc
+      Side data:
+        cpb: bitrate max/min/avg: 0/0/0 buffer size: 0 vbv_delay: N/A
+  Stream #0:1(und): Audio: aac (LC) (mp4a / 0x6134706D), 48000 Hz, stereo, fltp, 192 kb/s (default)
+      Metadata:
+        creation_time   : 2026-10-23T04:24:09.000000Z
+        handler_name    : OBS Audio Handler
+        vendor_id       : [0][0][0][0]
+        encoder         : Lavc61.19.100 aac
+frame=   88 fps=0.0 q=15.0 size=     768KiB time=00:00:02.83 bitrate=2220.6kbits/s speed=5.51x    [out#0/mp4 @ 0000027fbebf0ec0] video:3899KiB audio:5KiB subtitle:0KiB other streams:0KiB global headers:0KiB muxing overhead: 0.365832%
+frame=  360 fps=350 q=12.0 Lsize=    3918KiB time=00:00:11.90 bitrate=2697.4kbits/s speed=11.6x    
+[aac @ 0000027fbec4a640] Qavg: 65479.695

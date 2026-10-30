@@ -1,0 +1,16 @@
+制作方式：内置 image_gen
+修改范围：第五套灰绿古风服设，仅调整配色为红黄黑白主色，保留少量绿色玉饰点缀。
+
+Use case: precise-object-edit / color-only recoloring.
+Input image 1 is the EDIT TARGET: the complete three-view character costume design sheet.
+USER REQUEST: change only the outfit's color palette from gray/sage/green to the character's original RED, YELLOW, BLACK and WHITE main palette, with just a SMALL amount of GREEN as decorative jade accents.
+STRICTLY PRESERVE the exact character, face, hairstyle, heterochromatic red/gold eyes, skin colors, anatomy, expressions, poses, garment silhouette, tailoring, flowing fabric shapes, embroidered motifs, layers, ornaments, rendering style, canvas composition, and all three views (large upper-body at left, full-body front center, full-body back right). Do not redesign, add, remove, simplify, crop, or move any element. All views must have the same matching recolor.
+COLOR MAPPING:
+- Sage/gray-green shoulder mantle and major outer-robe panels become rich deep lacquer RED/burgundy (#A23F45), with original material shading preserved. Both shoulders must clearly show the new red main color in the upper-body crop.
+- Dark pine-green waist wrap and central skirt layers become deep charcoal BLACK (#252024), with subtle original embroidery retained.
+- Select existing secondary gray/sage overlapping fabric strips and inner-lining panels become visible warm amber/mellow YELLOW cloth (#C99A4A): a restrained but clearly visible band along shoulder-mantle lining/edge, a narrow vertical inner garment panel, and one existing skirt inset. Yellow is actual colored fabric, not only metallic gold piping. Aim for an elegant balanced red/black costume with white relief and yellow accents, never flat flag stripes.
+- Keep the existing inner blouse and substantial airy sleeve fabric warm WHITE/ivory (#F3EBDD), lightly shadowed, to frame the face and preserve airiness. Existing gray botanical embroidery on white can become subtle charcoal/soft warm gold without altering its shapes.
+- Existing red tassels remain deep red. Former large green ribbons become black or burgundy; a few tiny cords may remain muted jade green.
+- Retain jade ring, little jade beads and a few small gemstone details as muted pale GREEN. Green must be only small ornamental accents, under about 5% of garment area, never an entire sleeve, shoulder or skirt panel.
+- Existing metal ornaments may harmonize to antique bronze/gold, retaining exact shapes and highlights. Keep hair, skin, original hair streak, red/gold eyes and background unchanged.
+Emphasize readable upper-body black/red/white contrast with warm yellow fabric visible near shoulders. Preserve delicate gradients, silk transparency and elegant embroidered texture. No additional text, no watermark, no new objects. Output the edited three-view sheet only.

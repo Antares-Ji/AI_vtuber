@@ -1,0 +1,1382 @@
+{
+  "baseline": "E:\\Github\\AI_vtuber\\output\\kunshan-20261020\\final\\昆山杯-潮生智能-商业计划书.docx",
+  "clean": "E:\\Github\\AI_vtuber\\output\\kunshan-20261020\\final\\昆山杯-潮生智能-商业计划书-人机共播修订版.docx",
+  "output": "E:\\Github\\AI_vtuber\\output\\kunshan-20261020\\final\\昆山杯-潮生智能-商业计划书-人机共播修订版-修改标红版.docx",
+  "marked_paragraphs": [
+    {
+      "paragraph": 2,
+      "red_characters": 14,
+      "total_characters": 14,
+      "text": "姬岁歌真人与AI共同直播项目"
+    },
+    {
+      "paragraph": 4,
+      "red_characters": 4,
+      "total_characters": 4,
+      "text": "项目摘要"
+    },
+    {
+      "paragraph": 5,
+      "red_characters": 89,
+      "total_characters": 109,
+      "text": "潮生智能以原创角色姬岁歌为核心，开发真人与AI共同直播的互动娱乐节目。真人主动设题、造梗并推动现场情节，AI以岁与歌两种人格表达参与中文对话、弹幕互动和真实游戏任务。观众持续观看的是双方怎样合作、争论、认错和兑现约定。"
+    },
+    {
+      "paragraph": 6,
+      "red_characters": 133,
+      "total_characters": 133,
+      "text": "项目拟在Bilibili与抖音双平台直播，以北京时间20:00至22:00为初期档期，每周五场。完整直播与高光切片共同获客，角色关系和观众共创推动回访，收入来自礼物与付费留言、会员、周边及品牌和游戏合作。双平台开播及真实事件接入作为上线交付，尚不宣称完成商业化运行。"
+    },
+    {
+      "paragraph": 7,
+      "red_characters": 83,
+      "total_characters": 98,
+      "text": "现阶段已有对话、人格与记忆、语音、Live2D舞台和导演工作台等工程基础，部分游戏任务有可核对记录。近期优先交付可观看的人机共播样例，补齐中文接梗评测、原创视觉声线与平台联调，再进入固定公开运营。"
+    },
+    {
+      "paragraph": 8,
+      "red_characters": 54,
+      "total_characters": 94,
+      "text": "计划争取10万元启动支持。基准测算为首个完整运营年度收入61,650元，日常运营与周边履约支出62,500元，另计25,000元启动投入。以上为目标预算；资金、真人工时和实际回款按月复盘。"
+    },
+    {
+      "paragraph": 11,
+      "red_characters": 8,
+      "total_characters": 8,
+      "text": "一 项目背景\t3"
+    },
+    {
+      "paragraph": 12,
+      "red_characters": 13,
+      "total_characters": 13,
+      "text": "二 市场规模与竞品分析\t4"
+    },
+    {
+      "paragraph": 13,
+      "red_characters": 8,
+      "total_characters": 8,
+      "text": "三 产品介绍\t6"
+    },
+    {
+      "paragraph": 14,
+      "red_characters": 9,
+      "total_characters": 9,
+      "text": "四 团队介绍\t10"
+    },
+    {
+      "paragraph": 15,
+      "red_characters": 4,
+      "total_characters": 9,
+      "text": "五 商业模式\t11"
+    },
+    {
+      "paragraph": 16,
+      "red_characters": 11,
+      "total_characters": 11,
+      "text": "六 市场战略规划\t17"
+    },
+    {
+      "paragraph": 17,
+      "red_characters": 12,
+      "total_characters": 12,
+      "text": "公开来源与工程证据\t20"
+    },
+    {
+      "paragraph": 18,
+      "red_characters": 11,
+      "total_characters": 11,
+      "text": "后续演示提炼提纲\t22"
+    },
+    {
+      "paragraph": 19,
+      "red_characters": 8,
+      "total_characters": 8,
+      "text": "商业模式阅读索引"
+    },
+    {
+      "paragraph": 20,
+      "red_characters": 12,
+      "total_characters": 12,
+      "text": "收入结构与付费对象\t11"
+    },
+    {
+      "paragraph": 21,
+      "red_characters": 15,
+      "total_characters": 15,
+      "text": "游戏选择与直播内容商品化\t12"
+    },
+    {
+      "paragraph": 22,
+      "red_characters": 15,
+      "total_characters": 15,
+      "text": "打赏与付费留言的运营细节\t13"
+    },
+    {
+      "paragraph": 23,
+      "red_characters": 13,
+      "total_characters": 13,
+      "text": "会员与周边的持续经营\t14"
+    },
+    {
+      "paragraph": 24,
+      "red_characters": 9,
+      "total_characters": 15,
+      "text": "品牌直播与游戏合作的交付\t15"
+    },
+    {
+      "paragraph": 25,
+      "red_characters": 12,
+      "total_characters": 12,
+      "text": "预算与首年收支测算\t16"
+    },
+    {
+      "paragraph": 26,
+      "red_characters": 8,
+      "total_characters": 8,
+      "text": "产品介绍阅读索引"
+    },
+    {
+      "paragraph": 27,
+      "red_characters": 68,
+      "total_characters": 68,
+      "text": "观众界面与人机节目体验  第6页\n后台调试与导演工作台  第7页\n技术栈怎样支撑实际节目  第8页\n人格化与中文接梗的研发验证  第9页"
+    },
+    {
+      "paragraph": 29,
+      "red_characters": 6,
+      "total_characters": 6,
+      "text": "一 项目背景"
+    },
+    {
+      "paragraph": 30,
+      "red_characters": 84,
+      "total_characters": 84,
+      "text": "我们面向喜欢游戏、角色成长和现场互动的中文观众，提供可持续追更的人机搭档节目。项目要解决的问题是：AI能回答问题之后，怎样继续制造值得看、值得分享，并能按期交付的内容。"
+    },
+    {
+      "paragraph": 31,
+      "red_characters": 12,
+      "total_characters": 12,
+      "text": "真人与AI共同直播的优势"
+    },
+    {
+      "paragraph": 32,
+      "red_characters": 121,
+      "total_characters": 121,
+      "text": "真人擅长根据现场气氛设题、追问和转场，能解释情境并承担真实反应；AI能够以稳定角色设定回应，并在真实任务中给出不同于搭档预期的选择。双方互相触发，使一个回答发展为有铺垫、有反转、有结果的节目。技术对节目效果的贡献要通过完整片段和观众回访检验。"
+    },
+    {
+      "paragraph": 34,
+      "red_characters": 38,
+      "total_characters": 38,
+      "text": "节目机制示意  真人主动创造情境  AI保留即兴回应  由结果产生可接续内容"
+    },
+    {
+      "paragraph": 35,
+      "red_characters": 15,
+      "total_characters": 15,
+      "text": "从人与人互动中保留可共情的部分"
+    },
+    {
+      "paragraph": 36,
+      "red_characters": 111,
+      "total_characters": 111,
+      "text": "人与人联动的吸引力常来自默契、分歧和互相理解。本项目保留这些可观察关系：真人会惊讶、着急、认错，也会照顾搭档的表达空间；AI通过好奇、坚持、承认判断偏差和记起约定呈现人格化。AI的情绪属于角色表达，能力与进度仍按事实说明。"
+    },
+    {
+      "paragraph": 37,
+      "red_characters": 12,
+      "total_characters": 12,
+      "text": "为什么需要持续投入本地化"
+    },
+    {
+      "paragraph": 38,
+      "red_characters": 117,
+      "total_characters": 117,
+      "text": "中文开口只是基础。一个梗可能同时依赖谐音、弹幕上下文、游戏局势、搭档关系和说话时机。项目需要长期筛选角色适用的表达，记录观众真正产生反应的片段，避免把网上流行语机械塞进回复。真人主动造梗为AI提供可理解的现场条件，降低空泛聊天的概率。"
+    },
+    {
+      "paragraph": 40,
+      "red_characters": 11,
+      "total_characters": 11,
+      "text": "二 市场规模与竞品分析"
+    },
+    {
+      "paragraph": 41,
+      "red_characters": 12,
+      "total_characters": 12,
+      "text": "用少量数据说明机会的存在"
+    },
+    {
+      "paragraph": 42,
+      "red_characters": 72,
+      "total_characters": 116,
+      "text": "YouTube官方披露，2024年其300个虚拟创作者样本在视频、直播与Shorts中合计获得超过150亿次观看。这说明虚拟角色有跨内容形式的观看需求；样本包括多种虚拟创作者，不能直接等同于AI主播市场规模或本项目收入空间。[S1]"
+    },
+    {
+      "paragraph": 43,
+      "red_characters": 103,
+      "total_characters": 103,
+      "text": "Bilibili2026年第二季度业绩披露，月活跃用户约3.71亿。平台用户规模提供分发背景，实际可服务人群仍需从中文游戏、VUP及AI互动兴趣中筛选，不能把平台全部用户计算成姬岁歌的潜在付费观众。[S2]"
+    },
+    {
+      "paragraph": 44,
+      "red_characters": 10,
+      "total_characters": 10,
+      "text": "可服务人群与进入路径"
+    },
+    {
+      "paragraph": 45,
+      "red_characters": 101,
+      "total_characters": 101,
+      "text": "首批服务两类观众：一类愿意持续追看角色与搭档关系，另一类先被游戏反转和AI意外反应吸引。B站承接较完整的游戏过程、连载与社群，抖音直播和短片用更快的情境入口触达陌生观众；两端都要提供持续直播和原生互动。"
+    },
+    {
+      "paragraph": 46,
+      "red_characters": 100,
+      "total_characters": 100,
+      "text": "初期以校内外成年受试者和自愿进入直播的陌生观众验证需求。首轮30人按既往观看习惯分层，观察自由观看、角色与事件回忆以及七天回访。校内熟人前测单独记录，不并入正式陌生人验证，也不把口头好评当成实际留存。"
+    },
+    {
+      "paragraph": 47,
+      "red_characters": 13,
+      "total_characters": 13,
+      "text": "市场规模如何落实为经营目标"
+    },
+    {
+      "paragraph": 48,
+      "red_characters": 109,
+      "total_characters": 109,
+      "text": "短期先证明节目有人愿意看、会记住并再次回来，再扩大曝光。原增长测算为全年约200条重点切片、15万主阵地年末关注目标，属于进取目标。公开运营后使用两平台真实播放、关注和回访重估，不根据行业观看总量直接外推粉丝或付费率。"
+    },
+    {
+      "paragraph": 49,
+      "red_characters": 83,
+      "total_characters": 83,
+      "text": "WWW 2025的VUP观众研究为粉丝社区与付费行为提供外部参照，研究对象并非本项目的AI直播观众。它支持提前观察核心粉丝与持续参与，不能替代本项目受众测试。[S3]"
+    },
+    {
+      "paragraph": 51,
+      "red_characters": 10,
+      "total_characters": 10,
+      "text": "市场规模中的竞品分析"
+    },
+    {
+      "paragraph": 52,
+      "red_characters": 20,
+      "total_characters": 20,
+      "text": "Neuro的优势是角色与关系已经形成内容"
+    },
+    {
+      "paragraph": 53,
+      "red_characters": 102,
+      "total_characters": 122,
+      "text": "Neuro-sama及Evil Neuro已有鲜明人物关系，官方站覆盖直播、视频、音乐与商品入口。值得学习的是角色与真人创作者的长期互动，以及从直播延伸到作品和商品的经营方式。姬岁歌当前的节目积累、粉丝基础和跨媒介经营成熟度都需要追赶。[S4]"
+    },
+    {
+      "paragraph": 54,
+      "red_characters": 15,
+      "total_characters": 15,
+      "text": "中文本土化与直播时间是进入切口"
+    },
+    {
+      "paragraph": 55,
+      "red_characters": 139,
+      "total_characters": 139,
+      "text": "本项目选择原生中文语境、本地游戏话题与北京时间晚间互动。把一个既有国际角色迁入中文场景，需要同时维持声线、性格、说话习惯和粉丝熟悉的关系；直接翻译未必能保留原有笑点。我们将中文本土化视为持续的内容投入，以观众能否理解、愿意互动和回访评价效果；对手的具体语言能力以其实际节目为准。"
+    },
+    {
+      "paragraph": 56,
+      "red_characters": 158,
+      "total_characters": 158,
+      "text": "2026年10月24日查询的第三方排期样本中，10月24日18:00 UTC与10月25日19:00 UTC分别对应北京时间次日02:00与03:00。它们说明部分时段与国内晚间观看不重合，不能推为所有直播场次的固定安排；排期以官方Twitch临时公告为准。姬岁歌拟争取20:00至22:00的现场互动位置。[S5]"
+    },
+    {
+      "paragraph": 57,
+      "red_characters": 20,
+      "total_characters": 20,
+      "text": "Lumi与Nox说明国内技术门槛已经提高"
+    },
+    {
+      "paragraph": 58,
+      "red_characters": 92,
+      "total_characters": 112,
+      "text": "Lumi_Nox公开项目包含双AI实时语音、发言仲裁、观众与角色记忆以及游戏桥接。记忆和语音接口本身不足以构成我们的独有优势。姬岁歌应把真人主动造梗、双人格在同一角色中的表现，以及中文接梗的实际效果落实为可观看样片。[S6]"
+    },
+    {
+      "paragraph": 59,
+      "red_characters": 11,
+      "total_characters": 11,
+      "text": "和普通真人主播比较什么"
+    },
+    {
+      "paragraph": 60,
+      "red_characters": 133,
+      "total_characters": 133,
+      "text": "真人主播具有成熟表达和现场判断，AI独立直播需要解决节奏与稳定性，人机共播则增加策划、配合和技术维护成本。我们的优势假设是互动反差与连续角色关系能提高内容辨识和回访。内部将比较相近任务和时长的样片，以实际观看与制作投入判断收益，现阶段不宣称已全面胜过真人或AI主播。"
+    },
+    {
+      "paragraph": 62,
+      "red_characters": 16,
+      "total_characters": 16,
+      "text": "三 产品介绍 观众界面与节目体验"
+    },
+    {
+      "paragraph": 63,
+      "red_characters": 90,
+      "total_characters": 90,
+      "text": "观众首先接触的是完整节目。直播画面以真实游戏或互动主题为主体，配合姬岁歌形象、真人搭档声音或头像、字幕与当晚目标。弹幕、关注和礼物使用各平台自己的入口。真人是否露脸由节目安排决定。"
+    },
+    {
+      "paragraph": 65,
+      "red_characters": 33,
+      "total_characters": 33,
+      "text": "观众界面方案示意  用于表达信息分工  不是已经上线的完整产品截图"
+    },
+    {
+      "paragraph": 66,
+      "red_characters": 10,
+      "total_characters": 10,
+      "text": "一段完整互动怎样发生"
+    },
+    {
+      "paragraph": 67,
+      "red_characters": 104,
+      "total_characters": 104,
+      "text": "真人提出“先当队长还是先干活”的木剑挑战，AI回应后在实际游戏中采集和制作；观众预测结果，真人根据进度追问。成功后回收开场的玩笑，失败则一起核对缺少的材料。观众既能看见反差，也能理解任务的真实结果和下次约定。"
+    },
+    {
+      "paragraph": 68,
+      "red_characters": 10,
+      "total_characters": 10,
+      "text": "已有前台与待交付部分"
+    },
+    {
+      "paragraph": 69,
+      "red_characters": 121,
+      "total_characters": 121,
+      "text": "工程已有Live2D舞台、字幕、弹幕显示和语音控制；首页仍包含本地测试入口。overlay=1样式可隐藏控制区用于OBS叠加。完整的双平台画面适配、原创角色成品、真人搭档布局及平台原生交互联调仍需验收，不能把本地调试页面直接作为商业直播成品。"
+    },
+    {
+      "paragraph": 71,
+      "red_characters": 15,
+      "total_characters": 15,
+      "text": "产品介绍 后台调试与导演工作台"
+    },
+    {
+      "paragraph": 72,
+      "red_characters": 92,
+      "total_characters": 92,
+      "text": "后台服务团队，观众端服务观看。导演工作台应让主持、人格运营、技术和值班运营围绕同一场节目协作，查看任务、消息、语音、游戏事实和高光记录；调试参数、错误日志及模型配置不进入观众直播画面。"
+    },
+    {
+      "paragraph": 74,
+      "red_characters": 33,
+      "total_characters": 33,
+      "text": "后台工作流示意  现有工程可作为基础  双平台与商业账单模块需补齐"
+    },
+    {
+      "paragraph": 75,
+      "red_characters": 12,
+      "total_characters": 12,
+      "text": "现有页面分别承担什么职责"
+    },
+    {
+      "paragraph": 76,
+      "red_characters": 139,
+      "total_characters": 139,
+      "text": "首页与OBS叠加层承担角色舞台与字幕；games.html组织游戏画面、模型方案、聊天及任务停止；studio.html提供候选记忆审核、大脑诊断、连续经历和直播运行；debug.html用于开发调试。这些页面在信息和权限上仍需进一步梳理，隐藏控制区不等于已经完成后台权限隔离。"
+    },
+    {
+      "paragraph": 77,
+      "red_characters": 11,
+      "total_characters": 11,
+      "text": "商业开播需要补齐的工作"
+    },
+    {
+      "paragraph": 78,
+      "red_characters": 101,
+      "total_characters": 101,
+      "text": "双平台消息标记来源，礼物事件核对去重、撤回和退款状态，观众建议经确认后再影响任务；播前检查观众画面只包含批准内容，播后按时间戳导出高光与交付记录。商业收入以平台结算账单为准，模型口播感谢不承担记账职责。"
+    },
+    {
+      "paragraph": 80,
+      "red_characters": 15,
+      "total_characters": 15,
+      "text": "产品介绍 技术栈迁移到实际节目"
+    },
+    {
+      "paragraph": 82,
+      "red_characters": 29,
+      "total_characters": 29,
+      "text": "技术到节目流程示意  每个模块都对应观众可感知的行为与结果"
+    },
+    {
+      "paragraph": 83,
+      "red_characters": 7,
+      "total_characters": 7,
+      "text": "聊天与人物表达"
+    },
+    {
+      "paragraph": 84,
+      "red_characters": 144,
+      "total_characters": 144,
+      "text": "Node.js服务与网页舞台连接输入、调度和展示。SenseVoice语音识别支持把真人语音送入上下文，模型路由结合人格与现场任务生成回应；GPT-SoVITS或系统TTS负责朗读，Live2D与字幕呈现角色。实际使用的声线、模型及延迟必须按试播版本说明，模块存在不等于所有组合都已稳定。"
+    },
+    {
+      "paragraph": 85,
+      "red_characters": 11,
+      "total_characters": 11,
+      "text": "游戏与记忆形成连续内容"
+    },
+    {
+      "paragraph": 86,
+      "red_characters": 136,
+      "total_characters": 136,
+      "text": "Minecraft以DeepSeek等规划方案与Mineflayer执行衔接，动作经过程序检查并读取结果；STS2有工具动作与口播回执快照。SQLite保存经人工确认的共同事件，供下次接续。场上讲话依据真实游戏状态，准备、尝试和完成采用不同表达，避免让模型把计划说成成果。"
+    },
+    {
+      "paragraph": 87,
+      "red_characters": 11,
+      "total_characters": 11,
+      "text": "当前可演示与下一步验收"
+    },
+    {
+      "paragraph": 88,
+      "red_characters": 113,
+      "total_characters": 113,
+      "text": "可核对材料包括中文对话与角色状态模块、记忆审核入口、语音调度代码和部分实机任务。待验收内容包括连续中文接梗效果、原创视觉与授权声线整合、双平台真实事件与稳定播出。完整游戏通关、任意游戏适配、商业转化及长期留存不列为已实现成果。"
+    },
+    {
+      "paragraph": 90,
+      "red_characters": 15,
+      "total_characters": 15,
+      "text": "产品介绍 人格化与中文接梗验证"
+    },
+    {
+      "paragraph": 91,
+      "red_characters": 11,
+      "total_characters": 11,
+      "text": "AI和真人的人性化一面"
+    },
+    {
+      "paragraph": 92,
+      "red_characters": 97,
+      "total_characters": 106,
+      "text": "岁偏向好奇、观察和理解，歌偏向坚持、选择与守护。她们需要在场景中表现立场：好奇时追问理由，失误时承认偏差，承诺过的事在下一场有进展。真人也呈现自己的困惑、胜负欲和关心，允许与AI意见不同，再通过实际行动推进关系。"
+    },
+    {
+      "paragraph": 93,
+      "red_characters": 14,
+      "total_characters": 14,
+      "text": "为什么接梗是专门的本地化工作"
+    },
+    {
+      "paragraph": 94,
+      "red_characters": 117,
+      "total_characters": 117,
+      "text": "梗能否成立取决于共享语境、包袱方向与回应时机。中文谐音和游戏术语可能依赖语音识别，反话和观众调侃需要关系判断，老梗需要可靠来源和使用节制；同一句话由岁或歌说出还应有不同态度。大模型能生成中文只说明具备语言基础，不能据此证明会自然接梗。"
+    },
+    {
+      "paragraph": 95,
+      "red_characters": 13,
+      "total_characters": 13,
+      "text": "先用真人造梗提供可测试场景"
+    },
+    {
+      "paragraph": 96,
+      "red_characters": 121,
+      "total_characters": 121,
+      "text": "第一步准备谐音、认真误解、反向挑战、角色分歧和旧事回收等场景，同时放入普通对话作为对照。第二步给出当晚任务、观众来源和角色立场，由AI即兴回应。第三步让真人根据回答继续互动，并记录是否出现解释笑话、答非所问、过度顺从、重复老梗或错过接话时机。"
+    },
+    {
+      "paragraph": 97,
+      "red_characters": 11,
+      "total_characters": 11,
+      "text": "从样本到真实试播的验证"
+    },
+    {
+      "paragraph": 98,
+      "red_characters": 120,
+      "total_characters": 120,
+      "text": "先安排不少于30个中文场景，每种人格分别生成并由内容人员复核；保留未见过的场景检验迁移。再制作两段时长、画面与声音相近的样片，首轮30名成年受试者交叉观看。一次只比较一项变化，例如有无主动造梗或有无共同记忆，避免同时变动多项后无法解释结果。"
+    },
+    {
+      "paragraph": 99,
+      "red_characters": 119,
+      "total_characters": 119,
+      "text": "记录语境理解、人格一致、自然接续、首次可听回应等待与重复情况；受试者自由回忆具体片段，观察可选观看和七天回访。自动评分用于定位问题，真人反馈与实际行为决定是否保留。节目形成的有效梗经来源审核、复测后再复用，尚未形成的测评数据不填写成功率。"
+    },
+    {
+      "paragraph": 101,
+      "red_characters": 6,
+      "total_characters": 6,
+      "text": "四 团队介绍"
+    },
+    {
+      "paragraph": 102,
+      "red_characters": 108,
+      "total_characters": 108,
+      "text": "九人团队按项目职责设置执行、技术与运营岗位。首席执行官统筹资源与方向，技术总监负责系统实现和验收，运营总监负责节目排期与跨工作线交付；主持和导演按场次轮值。以下为本计划中的团队岗位安排，公司设立后的正式任职另行确认。"
+    },
+    {
+      "paragraph": 104,
+      "red_characters": 31,
+      "total_characters": 31,
+      "text": "团队组织与岗位分工  内容 音频  视觉和研发按同一场节目协作"
+    },
+    {
+      "paragraph": 105,
+      "red_characters": 8,
+      "total_characters": 8,
+      "text": "每场节目怎样协作"
+    },
+    {
+      "paragraph": 106,
+      "red_characters": 134,
+      "total_characters": 134,
+      "text": "播前由运营总监组织任务、主持、抛梗与交付审阅，技术总监确认依赖服务和接管流程；人格内容负责人检查角色回应，视觉与音频负责人核对舞台。播后视频负责人筛选高光，市场商务负责人汇总观看与合作数据，CEO决定下一轮投入。成员投入工时单独记录，避免把协作成本隐藏在现金预算之外。"
+    },
+    {
+      "paragraph": 108,
+      "red_characters": 16,
+      "total_characters": 16,
+      "text": "五 商业模式 收入结构与付费对象"
+    },
+    {
+      "paragraph": 109,
+      "red_characters": 90,
+      "total_characters": 90,
+      "text": "团队经营原创人机搭档IP及其内容。观众为喜欢的现场互动和持续参与付费，企业为接触目标观众、完成主题内容与使用角色资产付费。可持续收入依赖节目回访和交付质量，技术能力先服务内容生产。"
+    },
+    {
+      "paragraph": 111,
+      "red_characters": 35,
+      "total_characters": 35,
+      "text": "商业模式结构  观众付费与企业付费分别核算  不将礼物面额当作主播实收"
+    },
+    {
+      "paragraph": 112,
+      "red_characters": 9,
+      "total_characters": 9,
+      "text": "观众为什么愿意支持"
+    },
+    {
+      "paragraph": 113,
+      "red_characters": 113,
+      "total_characters": 113,
+      "text": "打赏回应当场的有趣表现，付费留言提供平台允许的醒目表达，会员支持持续追看与明确权益，周边保存角色和共同事件。真人主动造梗、AI即兴接梗产生值得传播的片段；跨场任务与人物关系提供回来的理由，权益与商品把这种关系转成可交付的产品。"
+    },
+    {
+      "paragraph": 114,
+      "red_characters": 11,
+      "total_characters": 11,
+      "text": "企业为什么选择这档节目"
+    },
+    {
+      "paragraph": 115,
+      "red_characters": 102,
+      "total_characters": 102,
+      "text": "品牌可以把主题写进人机共同任务，让真人解释、AI选择、观众参与，形成直播段落与二次传播素材。竞争点应是可验证的受众、自然的节目表达和可靠履约；数据未形成时先做小范围样例，不承诺观看人数、带货量或转化结果。"
+    },
+    {
+      "paragraph": 117,
+      "red_characters": 15,
+      "total_characters": 15,
+      "text": "商业模式 游戏选择与内容商品化"
+    },
+    {
+      "paragraph": 118,
+      "red_characters": 15,
+      "total_characters": 15,
+      "text": "选择游戏先看能否形成可卖的内容"
+    },
+    {
+      "paragraph": 119,
+      "red_characters": 108,
+      "total_characters": 108,
+      "text": "优先选择有稳定观看需求、能制造直播效果、AI当前能够执行、观众容易参与的游戏类型。流量潜力决定新观众机会，明确任务和失败反馈决定切片效果，接入与维护成本决定能否持续播出。热度只是筛选条件，不能弥补长期卡顿和缺少互动。"
+    },
+    {
+      "paragraph": 120,
+      "red_characters": 10,
+      "total_characters": 10,
+      "text": "开放世界用于成长连载"
+    },
+    {
+      "paragraph": 121,
+      "red_characters": 122,
+      "total_characters": 122,
+      "text": "Minecraft适合共同目标、建造约定和观众建议，场景可延续到下一场，名场面与成果也可用于纪念内容。现有工程有采木与木剑制作等记录；复杂建家、生存稳定性仍需验证。初期选择材料与时限明确的短任务，把等待和恢复控制在可主持范围内，再扩成长线栏目。"
+    },
+    {
+      "paragraph": 122,
+      "red_characters": 13,
+      "total_characters": 13,
+      "text": "策略与回合制用于分歧和预测"
+    },
+    {
+      "paragraph": 123,
+      "red_characters": 107,
+      "total_characters": 107,
+      "text": "以STS2等已接入原型为起点，让真人与AI先判断出牌或路线，邀请观众预测，再由结果回收分歧。回合边界便于讨论和剪辑，适合主题体验合作。18次成功动作与口播结束回执仅证明局部链路，完整场次和游戏推广能力需要另行验收。"
+    },
+    {
+      "paragraph": 124,
+      "red_characters": 13,
+      "total_characters": 13,
+      "text": "轻量挑战用于短片与节奏补充"
+    },
+    {
+      "paragraph": 125,
+      "red_characters": 116,
+      "total_characters": 116,
+      "text": "Flappy Bird已有约定条件下的独立策略验收，适合短挑战和榜单话题，但不能据此声称已与人格语音完整整合。轻量游戏可填补节目节奏，不能只展示分数而缺少人机交流。反应与多人派对类列入候选，待适配、现场效果与游戏使用要求评估后安排。"
+    },
+    {
+      "paragraph": 126,
+      "red_characters": 9,
+      "total_characters": 9,
+      "text": "流量与效果怎样验证"
+    },
+    {
+      "paragraph": 127,
+      "red_characters": 118,
+      "total_characters": 118,
+      "text": "公开运营前对两平台相同观察窗口采集候选游戏的活跃直播、可获取观看、短片中位表现与同量级创作者更新情况，标明日期。内部同长度试播比较留存、有效互动、每场可用切片及制作工时。优先保留既有观看需求又能讲出完整故事的栏目，再安排投流和商务样片。"
+    },
+    {
+      "paragraph": 129,
+      "red_characters": 14,
+      "total_characters": 14,
+      "text": "商业模式 打赏与付费留言细节"
+    },
+    {
+      "paragraph": 130,
+      "red_characters": 9,
+      "total_characters": 9,
+      "text": "付费入口与收入范围"
+    },
+    {
+      "paragraph": 131,
+      "red_characters": 124,
+      "total_characters": 124,
+      "text": "B站侧规划使用平台提供的礼物、付费留言及大航海等可开通能力；抖音侧使用其直播礼物及账号实际可用权益。会员类收入与普通礼物分开记录。具体价格、分成、开通条件与提现周期以账号当期规则和合同为准，不设置一个跨平台通用的“充值即到账”比例。[S7][S8]"
+    },
+    {
+      "paragraph": 132,
+      "red_characters": 9,
+      "total_characters": 9,
+      "text": "收到礼物后怎样回应"
+    },
+    {
+      "paragraph": 133,
+      "red_characters": 117,
+      "total_characters": 117,
+      "text": "礼物事件先核对来源与重复状态，再进入感谢队列。AI按角色风格作简短感谢，真人结合节目节奏接话；连续小额事件可合并，在任务间隙集中回应。付费留言先检查能否展示和回答，再在合适节点回应。关键游戏动作与已有发言受保护，礼物不能无限打断节目。"
+    },
+    {
+      "paragraph": 134,
+      "red_characters": 107,
+      "total_characters": 107,
+      "text": "感谢可以关联真实片段，例如“刚才你看见我差点翻车了”。回应不承诺私下关系，不把打赏绑定角色的爱意、痛苦或输赢，也不以消极游戏操作诱导送礼。公开任务与基本互动应让未付费观众也能参与，商业权益通过清晰规则交付。[S9]"
+    },
+    {
+      "paragraph": 135,
+      "red_characters": 13,
+      "total_characters": 13,
+      "text": "技术事件和平台账单分别处理"
+    },
+    {
+      "paragraph": 136,
+      "red_characters": 106,
+      "total_characters": 106,
+      "text": "现有B站适配层可归一化弹幕、礼物、付费留言与大航海事件，但不能据模拟事件证明真实直播间已接通。当前归一化结果以类型和文本为主，事件唯一标识、金额、订单生命周期、去重与退款对账需补齐；抖音真实事件接入也列为待交付。"
+    },
+    {
+      "paragraph": 137,
+      "red_characters": 93,
+      "total_characters": 93,
+      "text": "上线验收至少覆盖重复事件只回应一次、合并礼物不漏记、跨平台来源可辨、异常重连可追溯及账单可核对。感谢队列的显示值只用于节目，收入由平台结算单确认；退回、冻结或未结算金额不能作为可用现金。"
+    },
+    {
+      "paragraph": 138,
+      "red_characters": 10,
+      "total_characters": 10,
+      "text": "打赏测算怎样落到经营"
+    },
+    {
+      "paragraph": 139,
+      "red_characters": 119,
+      "total_characters": 119,
+      "text": "按场记录有效观看、实际支持人数、净结算收入和感谢造成的中断。内部测算可以使用“有效观众×实际付费比例×人均净收入”，各参数都来自同一平台、同一观察期。第一阶段检验是否出现自愿重复支持，不以礼物流水替代收入，也不把舰长或订阅再计入普通打赏。"
+    },
+    {
+      "paragraph": 141,
+      "red_characters": 15,
+      "total_characters": 15,
+      "text": "商业模式 会员与周边的持续经营"
+    },
+    {
+      "paragraph": 142,
+      "red_characters": 12,
+      "total_characters": 12,
+      "text": "会员提供可兑现的持续参与"
+    },
+    {
+      "paragraph": 143,
+      "red_characters": 95,
+      "total_characters": 115,
+      "text": "会员权益优先使用表情、纪念徽章、月度幕后内容和明确排期的活动，围绕人物关系与共同事件展开。普通观众持续获得完整公开节目。大航海、订阅或其他会员形式以各平台实际可开通能力为准，两平台各自结算，账号名称相同也不能直接当作同一付费用户。"
+    },
+    {
+      "paragraph": 144,
+      "red_characters": 95,
+      "total_characters": 106,
+      "text": "约10万主阵地关注为团队原设的商业化升级节点，不是平台统一准入门槛。需求与交付条件具备时可先做小规模测试；若增长不足，会员和商品收入预测同步顺延。重点观察次月续费、权益使用和运营工时，避免推出过多难以兑现的承诺。"
+    },
+    {
+      "paragraph": 145,
+      "red_characters": 12,
+      "total_characters": 12,
+      "text": "周边从可识别的名场面开始"
+    },
+    {
+      "paragraph": 146,
+      "red_characters": 117,
+      "total_characters": 117,
+      "text": "首批考虑立牌、徽章和纪念卡，将观众确实记住的台词、开播节点或共同任务变为图案。原画、模型、声音和联动素材先确认使用范围，导演核对梗的上下文，运营收集需求后小批量预售。商品写明款式、数量、预计交期与售后，收到回款后仍预留生产和退款资金。"
+    },
+    {
+      "paragraph": 147,
+      "red_characters": 11,
+      "total_characters": 11,
+      "text": "分别核算复购与商品贡献"
+    },
+    {
+      "paragraph": 148,
+      "red_characters": 136,
+      "total_characters": 136,
+      "text": "会员收入按平台净到账减权益直接成本，周边按销售减制作、包装、物流和售后成本计算贡献。全年会员按385个会员月、每月净到账50元测算，50元是情景假设，不是当前平台定价或承诺收益。周边按15,000元销售、10,500元制作履约安排，约4,500元差额还未覆盖团队日常成本。"
+    },
+    {
+      "paragraph": 149,
+      "red_characters": 11,
+      "total_characters": 11,
+      "text": "避免收入与人气重复计算"
+    },
+    {
+      "paragraph": 150,
+      "red_characters": 100,
+      "total_characters": 100,
+      "text": "礼物与付费留言、会员订阅、商品销售、品牌合作分列台账。纪念商品和会员内容可能来自同一场直播，但实际到账只能按订单计一次。每月同时报告续费、退款、履约和可用现金，以持续支持检验角色关系能否形成经营基础。"
+    },
+    {
+      "paragraph": 152,
+      "red_characters": 9,
+      "total_characters": 14,
+      "text": "商业模式 品牌直播与游戏合作"
+    },
+    {
+      "paragraph": 153,
+      "red_characters": 6,
+      "total_characters": 6,
+      "text": "品牌主题直播"
+    },
+    {
+      "paragraph": 154,
+      "red_characters": 115,
+      "total_characters": 115,
+      "text": "把合作主题转成角色可以参与的任务。真人介绍产品事实、规则和体验背景，主动设置可展开的挑战；AI以角色视角回应和选择，观众投票或预测。初期拟交付一个完整直播段落、两条重点切片与一份效果报告，具体数量、时长和使用范围在单次合作中确认。"
+    },
+    {
+      "paragraph": 155,
+      "red_characters": 6,
+      "total_characters": 6,
+      "text": "游戏体验合作"
+    },
+    {
+      "paragraph": 156,
+      "red_characters": 118,
+      "total_characters": 118,
+      "text": "围绕已验收的游戏类型组织人机体验回，展示真实选择、讨论和结果。真人解释规则并串场，AI的行动受实际接口与版本能力限制。发布前核对游戏画面、音乐与素材用途，交付直播录屏片段、反应切片和活动总结；未完成适配的游戏先做测试，不能直接承诺可播。"
+    },
+    {
+      "paragraph": 157,
+      "red_characters": 9,
+      "total_characters": 9,
+      "text": "系列栏目和IP授权"
+    },
+    {
+      "paragraph": 158,
+      "red_characters": 110,
+      "total_characters": 110,
+      "text": "当单次合作的观看与回访成立，可扩展为多场连载，让未完成任务带来下次期待。角色、台词或共同事件的授权单独约定素材、用途、期限及衍生范围。直播执行费与素材授权费分别定价，避免一次报价包含无限使用。现阶段先整理样片与权利清单。"
+    },
+    {
+      "paragraph": 159,
+      "red_characters": 11,
+      "total_characters": 11,
+      "text": "从需求到结案的交付流程"
+    },
+    {
+      "paragraph": 160,
+      "red_characters": 105,
+      "total_characters": 105,
+      "text": "市场商务确认目标人群与评价方式，运营组织主持、人格与导演编排，技术确认版本和接管；播前核对品牌事实，播中标记交付时间戳，播后剪辑并提交报告。AI即兴不替代产品信息核验，涉及功效、价格或合作承诺的表达由真人确认。"
+    },
+    {
+      "paragraph": 161,
+      "red_characters": 5,
+      "total_characters": 5,
+      "text": "报价与回款"
+    },
+    {
+      "paragraph": 162,
+      "red_characters": 123,
+      "total_characters": 123,
+      "text": "基准计划仍按首年两次、每次5,000元的目标测算，实际收入以签约及结算为准。报价覆盖策划、主持、模型语音、剪辑、运营和约定授权，逐项核算直接成本与回款周期。先向品牌展示实际受众和节目样例，再谈观看、互动或点击目标；只有取得可归因数据时才报告转化。"
+    },
+    {
+      "paragraph": 164,
+      "red_characters": 14,
+      "total_characters": 14,
+      "text": "商业模式 预算与首年收支测算"
+    },
+    {
+      "paragraph": 165,
+      "red_characters": 72,
+      "total_characters": 72,
+      "text": "测算覆盖首个完整运营年度，保留原预算口径；双平台费用先在同一预算内试跑，用实际带宽、工具和人力需求复核后再扩大。下表是目标情景，不是已实现收入。"
+    },
+    {
+      "paragraph": 167,
+      "red_characters": 5,
+      "total_characters": 9,
+      "text": "全年现金与资金用途"
+    },
+    {
+      "paragraph": 168,
+      "red_characters": 76,
+      "total_characters": 129,
+      "text": "全年收入61,650元，其中普通打赏17,400元、会员19,250元、周边15,000元、商业合作10,000元。运营支出52,000元，周边制作履约10,500元，运营现金余额为负850元；另计首播资产与工具25,000元，首年现金缺口为25,850元。"
+    },
+    {
+      "paragraph": 169,
+      "red_characters": 141,
+      "total_characters": 141,
+      "text": "10万元启动支持拟用于原画8,000元、Live2D及表情14,000元、开发工具3,000元、年度日常运营52,000元、周边周转10,500元和机动资金12,500元。日常运营含模型语音云服务18,000元、剪辑社群补贴12,000元、推广18,000元及活动杂费4,000元。"
+    },
+    {
+      "paragraph": 170,
+      "red_characters": 13,
+      "total_characters": 13,
+      "text": "投入效率与增长不足时的安排"
+    },
+    {
+      "paragraph": 171,
+      "red_characters": 91,
+      "total_characters": 110,
+      "text": "约250场、500小时排期对应日常现金约208元每场、104元每小时；这不含成员完整薪酬，不能当作完整制作成本。每场另外登记真人主持、策划、开发和剪辑工时。单次合作贡献按净收入减直接成本评估，账号礼物面额不参与现金计算。"
+    },
+    {
+      "paragraph": 172,
+      "red_characters": 125,
+      "total_characters": 125,
+      "text": "按季度并将25,000元启动投入置于期初，基准累计现金缺口峰值约47,750元。若会员与合作延后，按8,000元打赏、40,000元日常支出及25,000元启动投入安排，资金缺口约57,000元；相应推迟预售和可变推广，避免把未到账收入用于长期承诺。"
+    },
+    {
+      "paragraph": 174,
+      "red_characters": 14,
+      "total_characters": 14,
+      "text": "六 市场战略规划 双平台直播"
+    },
+    {
+      "paragraph": 175,
+      "red_characters": 75,
+      "total_characters": 93,
+      "text": "国内运营以B站与抖音双平台直播为目标，共享角色和任务事实，分别设计画面、消息接入与收入记录。初期拟每周二至周六北京时间20:00至22:00开播；周一用于研发和企划，周日复盘与素材整理。"
+    },
+    {
+      "paragraph": 177,
+      "red_characters": 32,
+      "total_characters": 32,
+      "text": "双平台运营方案  同时开播须完成账号权限 推流 音视频与事件联调"
+    },
+    {
+      "paragraph": 178,
+      "red_characters": 8,
+      "total_characters": 8,
+      "text": "两端都是直播阵地"
+    },
+    {
+      "paragraph": 179,
+      "red_characters": 113,
+      "total_characters": 113,
+      "text": "B站用较完整的游戏过程、角色关系和社群讨论承接追更，抖音用快速说明情境、明确反应和阶段结果降低陌生观众的理解成本。抖音包含原生直播与弹幕互动，短片用于直播前后触达。两端分别使用适合平台的横竖画面，不能只把横屏界面机械裁成竖屏。"
+    },
+    {
+      "paragraph": 180,
+      "red_characters": 11,
+      "total_characters": 11,
+      "text": "开播前完成可检验的连接"
+    },
+    {
+      "paragraph": 181,
+      "red_characters": 119,
+      "total_characters": 119,
+      "text": "先核对两个账号的开播权限与适用要求，使用平台允许的推流方式。实际测试音画同步、角色字幕、重复音频、断线恢复及两端观众消息，确认舞台控制不被播出。当前工程的OBS和B站适配是基础，尚不等于已经验收双路持续直播；上线目标和已完成状态分开记录。"
+    },
+    {
+      "paragraph": 182,
+      "red_characters": 9,
+      "total_characters": 9,
+      "text": "统一节目与分别复盘"
+    },
+    {
+      "paragraph": 183,
+      "red_characters": 100,
+      "total_characters": 108,
+      "text": "主持根据标记来源回应两端观众，导演避免重复任务和冲突指令。每周发布4至5条重点切片，保留真人抛梗、AI回应和结局。播放、关注、支持人数与收入分别统计，跨平台账号未经授权匹配不强行合并，以各自回访判断是否值得继续投入。"
+    },
+    {
+      "paragraph": 185,
+      "red_characters": 14,
+      "total_characters": 14,
+      "text": "市场战略规划 阶段目标与增长"
+    },
+    {
+      "paragraph": 186,
+      "red_characters": 11,
+      "total_characters": 11,
+      "text": "首月完成可以评价的节目"
+    },
+    {
+      "paragraph": 187,
+      "red_characters": 122,
+      "total_characters": 122,
+      "text": "先完善原创形象与授权声线首版，挑选一类短游戏任务和两个人机栏目，形成3场内部试播及至少10个切片候选。完成中文接梗场景检查和首轮受众体验，逐场保留不成功的触发点、退出原因及技术异常。双平台联调与内容试播并行，但开始固定公开运营以实际验收为前提。"
+    },
+    {
+      "paragraph": 188,
+      "red_characters": 14,
+      "total_characters": 14,
+      "text": "公开运营前三个月建立复播习惯"
+    },
+    {
+      "paragraph": 189,
+      "red_characters": 104,
+      "total_characters": 104,
+      "text": "按已落实人力稳定开播，优先保留观众能记住、愿意接续的栏目，再小额推广表现较好的切片。原计划争取2.5万主阵地关注，执行时同时看七天回访、直播停留与有效关注成本；曝光增长而回访不增长时，先调整内容，再增加投流。"
+    },
+    {
+      "paragraph": 190,
+      "red_characters": 14,
+      "total_characters": 14,
+      "text": "第四至六个月验证可重复的增长"
+    },
+    {
+      "paragraph": 191,
+      "red_characters": 95,
+      "total_characters": 109,
+      "text": "逐步形成游戏主线、挑战、弹幕预测和旧事回收的固定节目结构，选择同量级真人主播联动，比较人机互动与人与人联动怎样共同带来观众。原计划约六个月争取10万主阵地关注；若实际落后，调整商业收入起点和支出，不把目标写成确定结果。"
+    },
+    {
+      "paragraph": 192,
+      "red_characters": 13,
+      "total_characters": 13,
+      "text": "第七至十二个月形成经营记录"
+    },
+    {
+      "paragraph": 193,
+      "red_characters": 121,
+      "total_characters": 121,
+      "text": "在需求成立后测试会员与小批量预售周边，推出有实际受众样例的品牌主题直播。年末15万关注作为进取目标；比规模更需要证明的是会员续费、商品履约、单次合作贡献及再次合作。海外传播放在国内双平台稳定之后，先用字幕样片观察需求，再决定是否投入海外直播。"
+    },
+    {
+      "paragraph": 194,
+      "red_characters": 10,
+      "total_characters": 10,
+      "text": "推广预算跟随内容表现"
+    },
+    {
+      "paragraph": 195,
+      "red_characters": 101,
+      "total_characters": 106,
+      "text": "全年推广预算18,000元分批使用。先比较自然流量下的完播、真实评论与关注，投放后再看回访和直播参与，不能只用曝光汇报成绩。运营按月发布同一口径的观看、支出、回款和改进记录，CEO依据现金与节目效果决定后续投入。"
+    },
+    {
+      "paragraph": 197,
+      "red_characters": 13,
+      "total_characters": 13,
+      "text": "市场战略规划 可行性与验收"
+    },
+    {
+      "paragraph": 198,
+      "red_characters": 12,
+      "total_characters": 12,
+      "text": "工程证据证明哪些部分可行"
+    },
+    {
+      "paragraph": 199,
+      "red_characters": 78,
+      "total_characters": 132,
+      "text": "Minecraft实机记录支持模型规划、动作执行及原木和木剑入库；STS2的2026年10月20日快照记录18次成功动作与一条口播结束回执；Flappy Bird有独立策略验收。上述证据支持不同模块和局部任务可运行，不证明已经能任意游戏长期自主直播。[I1至I3]"
+    },
+    {
+      "paragraph": 200,
+      "red_characters": 112,
+      "total_characters": 112,
+      "text": "首页、游戏工作台与导演工作台的源文件支持界面和调度设计已有基础，记忆候选机制支持来源审核与接续。将它们组合成自然的人机节目仍需现场测试。技术栈的可行性、观众愿看和商业能收入分别验收，避免用其中一项替代另外两项。[I4至I6]"
+    },
+    {
+      "paragraph": 201,
+      "red_characters": 9,
+      "total_characters": 9,
+      "text": "观众验收与接梗复测"
+    },
+    {
+      "paragraph": 202,
+      "red_characters": 91,
+      "total_characters": 132,
+      "text": "首轮30名成年观众按观看习惯分层，随机平衡两段各6分钟样片的观看顺序，规定体验后可自由继续观看或结束。预设迭代门槛仍为自由观看中位数3分钟、至少15人记住角色特点或事件、至少6人在七天内主动回看满60秒。这些是团队决策目标，报告保留有效分母、退出、缺失和技术故障。"
+    },
+    {
+      "paragraph": 203,
+      "red_characters": 102,
+      "total_characters": 102,
+      "text": "目前P001仅形成一份熟人口述前测记录，成年条件、同意和样片体验尚待确认，不计为正式验证结果。后续增加校外陌生观众，对中文接梗和角色关系单独复测，只有达到重复观看与稳定制作要求时才扩大排期和预算。[I7]"
+    },
+    {
+      "paragraph": 204,
+      "red_characters": 13,
+      "total_characters": 13,
+      "text": "把主要失败条件放进执行安排"
+    },
+    {
+      "paragraph": 205,
+      "red_characters": 100,
+      "total_characters": 100,
+      "text": "接梗生硬时回到具体场景与样本，不靠堆流行语修补；语音延迟时缩短回复、调整调度并由真人续场；游戏卡住时停止该任务、核对状态并切到备用栏目。双平台事件不可用时先完成连接问题，避免把本地注入模拟成真实弹幕。"
+    },
+    {
+      "paragraph": 206,
+      "red_characters": 85,
+      "total_characters": 85,
+      "text": "品牌交付有明确范围、素材授权和结算记录；观众画面标明AI角色与真人分工。公司化和全职投入在固定开播、留存、回款及成员职责形成连续记录后再扩大，以实际证据决定下一阶段规模。"
+    },
+    {
+      "paragraph": 208,
+      "red_characters": 9,
+      "total_characters": 9,
+      "text": "公开资料与链接引用"
+    },
+    {
+      "paragraph": 209,
+      "red_characters": 66,
+      "total_characters": 79,
+      "text": "公开资料查询日期为2026年10月24日。正文中的事实、团队判断与目标测算分别表述；排期、平台能力和账号权限在执行时再次核对。链接指向具体资料，不使用搜索页。"
+    },
+    {
+      "paragraph": 210,
+      "red_characters": 32,
+      "total_characters": 54,
+      "text": "[S1] YouTube Culture and Trends  2025年4月17日  虚拟创作者观看样本"
+    },
+    {
+      "paragraph": 211,
+      "red_characters": 30,
+      "total_characters": 30,
+      "text": "用于说明2024年样本的观看行为，不作AI主播独立市场规模。"
+    },
+    {
+      "paragraph": 212,
+      "red_characters": 35,
+      "total_characters": 35,
+      "text": "[S2] Bilibili  2026年第二季度业绩公告  SEC披露"
+    },
+    {
+      "paragraph": 213,
+      "red_characters": 23,
+      "total_characters": 23,
+      "text": "引用月活跃用户约3.71亿，仅作平台规模背景。"
+    },
+    {
+      "paragraph": 214,
+      "red_characters": 7,
+      "total_characters": 49,
+      "text": "[S3] Wei与Tyson  Virtual Stars Real Fans  WWW 2025"
+    },
+    {
+      "paragraph": 215,
+      "red_characters": 27,
+      "total_characters": 27,
+      "text": "研究B站VUP观众与粉丝社区，不能替代本项目受众验证。"
+    },
+    {
+      "paragraph": 216,
+      "red_characters": 23,
+      "total_characters": 39,
+      "text": "[S4] Vedal AI  Neuro sama与Evil Neuro官方站"
+    },
+    {
+      "paragraph": 217,
+      "red_characters": 21,
+      "total_characters": 21,
+      "text": "用于人物、直播、音乐与商品入口的公开对标。"
+    },
+    {
+      "paragraph": 218,
+      "red_characters": 27,
+      "total_characters": 27,
+      "text": "[S5] Neuro第三方排期样本  Sync2Cal"
+    },
+    {
+      "paragraph": 219,
+      "red_characters": 49,
+      "total_characters": 49,
+      "text": "样本18:00及19:00 UTC换算为北京时间次日02:00及03:00；页面显示时区可能变化。"
+    },
+    {
+      "paragraph": 220,
+      "red_characters": 17,
+      "total_characters": 24,
+      "text": "[S5补充] Vedal官方Twitch排期入口"
+    },
+    {
+      "paragraph": 221,
+      "red_characters": 17,
+      "total_characters": 17,
+      "text": "实际场次与临时变动以官方公告为准。"
+    },
+    {
+      "paragraph": 223,
+      "red_characters": 10,
+      "total_characters": 10,
+      "text": "平台资料与本项目证据"
+    },
+    {
+      "paragraph": 224,
+      "red_characters": 22,
+      "total_characters": 22,
+      "text": "[S6] Lumi Nox公开仓库与项目说明"
+    },
+    {
+      "paragraph": 225,
+      "red_characters": 25,
+      "total_characters": 25,
+      "text": "支持其双AI语音、发言调度、记忆与游戏基础的对标。"
+    },
+    {
+      "paragraph": 226,
+      "red_characters": 23,
+      "total_characters": 23,
+      "text": "[S7] Bilibili开放平台直播事件文档"
+    },
+    {
+      "paragraph": 227,
+      "red_characters": 28,
+      "total_characters": 28,
+      "text": "用于核对弹幕、礼物与付费事件字段；不是收入结算比例依据。"
+    },
+    {
+      "paragraph": 228,
+      "red_characters": 20,
+      "total_characters": 20,
+      "text": "[S8] 抖音开放平台直播SDK功能介绍"
+    },
+    {
+      "paragraph": 229,
+      "red_characters": 31,
+      "total_characters": 31,
+      "text": "说明礼物等互动能力，不代表本项目已取得接入权限或主播结算条件。"
+    },
+    {
+      "paragraph": 230,
+      "red_characters": 13,
+      "total_characters": 13,
+      "text": "[S9] 抖音直播行为规范"
+    },
+    {
+      "paragraph": 231,
+      "red_characters": 29,
+      "total_characters": 29,
+      "text": "用于直播行为与打赏设计边界；执行以账号适用的现行规则为准。"
+    },
+    {
+      "paragraph": 232,
+      "red_characters": 3,
+      "total_characters": 7,
+      "text": "本项目工程索引"
+    },
+    {
+      "paragraph": 233,
+      "red_characters": 377,
+      "total_characters": 479,
+      "text": "[I1] docs/minecraft-deepseek.md与logs/minecraft-deepseek-live-run.json：规划、真实动作及库存变化。\n[I2] output/sts2/streamer-acceptance.json：2026年10月20日动作与口播回执快照。\n[I3] docs/demo-summary-20261018.md及对应游戏验收文件：Flappy Bird条件与未完成范围。\n[I4] public/index.html、stream.css、games.html、studio.html：舞台、叠加层、游戏与导演界面。\n[I5] src/live/runtime.js与src/brain/capabilities.js：B站事件归一化及平台接入边界。\n[I6] src/brain/memory-candidates.js与相关运行时：记忆来源、人工确认及角色状态。\n[I7] output/kunshan-20261020/research/P001-pretest.json：熟人口述前测及缺失字段。"
+    },
+    {
+      "paragraph": 235,
+      "red_characters": 8,
+      "total_characters": 8,
+      "text": "后续演示提炼提纲"
+    },
+    {
+      "paragraph": 236,
+      "red_characters": 93,
+      "total_characters": 93,
+      "text": "以下为商业计划书向演示材料的提炼安排，供后续制作使用。正文按约9页组织，产品介绍4页，其余五部分各尽量1页；封面和结束页如需增加，另行安排。演示采用白底、无动画、文字少且重点突出的形式。"
+    },
+    {
+      "paragraph": 237,
+      "red_characters": 8,
+      "total_characters": 8,
+      "text": "第1页 项目背景"
+    },
+    {
+      "paragraph": 238,
+      "red_characters": 62,
+      "total_characters": 62,
+      "text": "讲清面向谁、提供什么节目、为什么真人与AI需要搭档。以主动造梗、即兴接梗、真实结果和观众回访的流程图为主，对应计划书第3页。"
+    },
+    {
+      "paragraph": 239,
+      "red_characters": 13,
+      "total_characters": 13,
+      "text": "第2页 市场规模与竞品分析"
+    },
+    {
+      "paragraph": 240,
+      "red_characters": 69,
+      "total_characters": 69,
+      "text": "保留少量可引用数据，结合Neuro的内容优势、国内观看时段和中文本土化切口。承认成熟度差距，避免写成Neuro不能说中文，对应第4至5页。"
+    },
+    {
+      "paragraph": 241,
+      "red_characters": 10,
+      "total_characters": 10,
+      "text": "第3至6页 产品介绍"
+    },
+    {
+      "paragraph": 242,
+      "red_characters": 109,
+      "total_characters": 109,
+      "text": "第3页呈现观众体验与人机关系；第4页区分观众界面和后台工作台；第5页用技术到实践流程讲实时聊天、形象、弹幕与游戏；第6页用证据说明已实现能力、中文接梗试验和待开发部分。优先使用界面示意、流程和真实证据，对应第6至9页。"
+    },
+    {
+      "paragraph": 243,
+      "red_characters": 8,
+      "total_characters": 8,
+      "text": "第7页 团队介绍"
+    },
+    {
+      "paragraph": 244,
+      "red_characters": 46,
+      "total_characters": 46,
+      "text": "使用组织图展示CEO、技术总监、运营总监及其余成员岗位，每人说明一个主要交付，对应第10页。"
+    },
+    {
+      "paragraph": 245,
+      "red_characters": 3,
+      "total_characters": 8,
+      "text": "第8页 商业模式"
+    },
+    {
+      "paragraph": 246,
+      "red_characters": 84,
+      "total_characters": 84,
+      "text": "用收入结构图展示礼物与会员、周边、品牌直播和游戏合作；配一个具体互动任务例子，说明游戏为何有流量潜力与节目效果。保留关键收入和成本口径，细节由计划书第11至16页支持。"
+    },
+    {
+      "paragraph": 247,
+      "red_characters": 10,
+      "total_characters": 10,
+      "text": "第9页 市场战略规划"
+    },
+    {
+      "paragraph": 248,
+      "red_characters": 85,
+      "total_characters": 85,
+      "text": "展示B站与抖音双平台直播、切片回流及阶段验收，用时间线说明从内部试播到公开运营和商业合作的推进，对应第17至19页。底部保留关键来源链接，图中注明方案、原型或已验收状态。"
+    },
+    {
+      "paragraph": 249,
+      "red_characters": 4,
+      "total_characters": 4,
+      "text": "项目 元"
+    },
+    {
+      "paragraph": 250,
+      "red_characters": 4,
+      "total_characters": 4,
+      "text": "第一季度"
+    },
+    {
+      "paragraph": 251,
+      "red_characters": 4,
+      "total_characters": 4,
+      "text": "第二季度"
+    },
+    {
+      "paragraph": 252,
+      "red_characters": 4,
+      "total_characters": 4,
+      "text": "第三季度"
+    },
+    {
+      "paragraph": 253,
+      "red_characters": 4,
+      "total_characters": 4,
+      "text": "第四季度"
+    },
+    {
+      "paragraph": 254,
+      "red_characters": 10,
+      "total_characters": 10,
+      "text": "礼物与付费留言净到账"
+    },
+    {
+      "paragraph": 259,
+      "red_characters": 5,
+      "total_characters": 5,
+      "text": "会员净到账"
+    },
+    {
+      "paragraph": 269,
+      "red_characters": 1,
+      "total_characters": 6,
+      "text": "商业合作收款"
+    },
+    {
+      "paragraph": 279,
+      "red_characters": 2,
+      "total_characters": 6,
+      "text": "日常运营支出"
+    },
+    {
+      "paragraph": 284,
+      "red_characters": 2,
+      "total_characters": 6,
+      "text": "周边制作履约"
+    },
+    {
+      "paragraph": 289,
+      "red_characters": 2,
+      "total_characters": 6,
+      "text": "运营现金余额"
+    },
+    {
+      "paragraph": 294,
+      "red_characters": 3,
+      "total_characters": 20,
+      "text": "潮生智能    姬岁歌人机共播商业计划书"
+    },
+    {
+      "paragraph": 295,
+      "red_characters": 6,
+      "total_characters": 15,
+      "text": "2026年10月24日    "
+    }
+  ],
+  "new_diagrams": 7
+}

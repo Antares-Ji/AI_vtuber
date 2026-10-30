@@ -37,6 +37,22 @@ function entityView(bot, entity) {
   Object.defineProperty(view, 'position', { get: () => effectivePosition(bot, entity) });
   return view;
 }
+function occludedThreat(bot, entity) {
+  // Loaded mobs in separate caves must not permanently cancel surface work.
+  // Nearby/mounted threats and unknown visibility keep the existing reflex.
+  if (!HOSTILES.has(entity.name) || entity.distance <= 8 || entity.mounted || !bot.world?.raycast) return false;
+  try {
+    const eye = bot.entity.position.offset(0, bot.entity.eyeHeight || 1.62, 0);
+    const position = new Vec3(entity.position.x, entity.position.y, entity.position.z);
+    const height = bot.entities[entity.id]?.height || 1.8;
+    return [0.35, 0.85].every(fraction => {
+      const ray = position.offset(0, height * fraction, 0).minus(eye);
+      if (ray.norm() < 0.1) return false;
+      const hit = bot.world.raycast(eye, ray.unit(), ray.norm() - 0.05);
+      return hit?.shapes?.some(shape => shape.length === 6 && shape.every((value, index) => value === (index < 3 ? 0 : 1))) === true;
+    });
+  } catch { return false; }
+}
 function decide({ health, entities, enabled, armed = false, previousMode = 'idle' }) {
   if (!enabled || health <= 0) return { action: 'idle' };
   // Different enter/exit radii prevent alternating stop/start at twelve blocks.
@@ -538,7 +554,9 @@ class ReactiveAgent {
     try {
       const entities = Object.values(bot.entities).filter(e => e !== bot.entity && e.position).map(e => entityView(bot, e)).map(e => ({ id: e.id, name: e.name || e.type, mounted: !!e.vehicle, position: { x: e.position.x, y: e.position.y, z: e.position.z }, distance: bot.entity.position.distanceTo(e.position) })).filter(e => e.distance <= 24).sort((a, b) => a.distance - b.distance);
       const armed = bot.inventory.items().some(i => /_sword$/.test(i.name));
-      let next = decide({ health: bot.health, entities, enabled: this.enabled, armed, previousMode: this.mode });
+      for (const entity of entities) entity.occluded = occludedThreat(bot, entity);
+      const reflexEntities = entities.filter(entity => !entity.occluded);
+      let next = decide({ health: bot.health, entities: reflexEntities, enabled: this.enabled, armed, previousMode: this.mode });
       if (this.enabled && this.mode === 'flee' && next.action === 'idle') {
         if (this.safeSince === null) this.safeSince = this.now();
         if (this.now() - this.safeSince < this.calmMs) next = { action: 'flee', target: entities.find(e => e.id === this.targetId), calming: true };
@@ -561,7 +579,7 @@ class ReactiveAgent {
         this.log({ event: 'priority_changed', mode: this.mode, target: { id: target.id, name: target.name }, health: bot.health });
       }
       if (next.action === 'flee') {
-        await this.flee(entityView(bot, target), entities, epoch);
+        await this.flee(entityView(bot, target), reflexEntities, epoch);
         return;
       }
       const weapons = ['netherite_sword', 'diamond_sword', 'iron_sword', 'stone_sword', 'golden_sword', 'wooden_sword'];
@@ -604,4 +622,4 @@ class ReactiveAgent {
     }
   }
 }
-module.exports = { ReactiveAgent, decide, HOSTILES, RANGED_THREATS, effectivePosition, entityView, safetyMovements, singleBlockDescents, escapeCandidates, escapeLeaf, terrainProbe, safeThreatClearance, routeEdge, trackRouteProgress };
+module.exports = { ReactiveAgent, decide, HOSTILES, RANGED_THREATS, effectivePosition, entityView, occludedThreat, safetyMovements, singleBlockDescents, escapeCandidates, escapeLeaf, terrainProbe, safeThreatClearance, routeEdge, trackRouteProgress };

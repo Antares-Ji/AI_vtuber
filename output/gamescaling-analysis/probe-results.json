@@ -1,0 +1,102 @@
+{
+  "normalized_action_vs_history": {
+    "executed_mouse": [
+      1000.0,
+      -1000.0,
+      5.0
+    ],
+    "executed_steps": [
+      [
+        "A",
+        "B",
+        "C",
+        "D"
+      ],
+      [
+        "W"
+      ],
+      [],
+      [],
+      [],
+      []
+    ],
+    "dropped": [
+      "Foo"
+    ],
+    "history": "<|action_start|>5000 -5000 9 ; A B C D E ; Foo W ; ; ; ; <|action_end|>",
+    "normalized_text": "<|action_start|>1000 -1000 5 ; A B C D ; W ;  ;  ;  ; <|action_end|>"
+  },
+  "nonfinite_numbers": {
+    "nan": {
+      "parsed": true,
+      "mouse": [
+        1000.0,
+        0.0,
+        0.0
+      ]
+    },
+    "inf": {
+      "parsed": true,
+      "mouse": [
+        1000.0,
+        0.0,
+        0.0
+      ]
+    },
+    "-inf": {
+      "parsed": true,
+      "mouse": [
+        -1000.0,
+        0.0,
+        0.0
+      ]
+    }
+  },
+  "short_action": {
+    "mouse": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "steps": [
+      [
+        "W"
+      ],
+      [],
+      [],
+      [],
+      [],
+      []
+    ],
+    "parsed": true,
+    "truncated": false,
+    "body": "0 0 0 ; W",
+    "dropped": []
+  },
+  "valid_mock_roundtrip": {
+    "parsed": true,
+    "history_len": 2,
+    "completion_tokens": 30
+  },
+  "timeout_mock": {
+    "noop": true,
+    "error": "simulated timeout"
+  },
+  "malformed_responses": {
+    "json_array": {
+      "raised": true,
+      "type": "AttributeError",
+      "message": "'list' object has no attribute 'get'"
+    },
+    "null_choice": {
+      "raised": true,
+      "type": "AttributeError",
+      "message": "'NoneType' object has no attribute 'get'"
+    },
+    "content_list": {
+      "raised": true,
+      "type": "AttributeError",
+      "message": "'list' object has no attribute 'lstrip'"
+    }
+  }
+}

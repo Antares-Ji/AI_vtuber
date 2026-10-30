@@ -30,38 +30,42 @@ function parseProposal(content, probe = false) {
 }
 
 class MinecraftEngine {
-  constructor({ file = SETTINGS_PATH, env = process.env, fetchImpl = fetch } = {}) {
-    this.file = file; this.env = env; this.fetchImpl = fetchImpl;
-    this.config = { provider: 'local-qwen', apiKey: '', astraApiKey: '' };
+  constructor({ file = SETTINGS_PATH, env = process.env, fetchImpl } = {}) {
+    this.file = file; this.env = env; this.fetchImpl = fetchImpl || fetch;
+    this.deepseekFetch = fetchImpl || require('../runtime/deepseek-transport').deepseekFetch;
+    this.config = { provider: 'deepseek', apiKey: '', astraApiKey: '', deepseekApiKey: '' };
     if (fs.existsSync(file)) {
       const saved = JSON.parse(fs.readFileSync(file, 'utf8'));
-      if (!['local-qwen', 'astra', 'astra-jev'].includes(saved.provider)) throw new Error('Minecraft 引擎配置无效');
-      this.config = { provider: saved.provider, apiKey: typeof saved.apiKey === 'string' ? saved.apiKey : '', astraApiKey: typeof saved.astraApiKey === 'string' ? saved.astraApiKey : '' };
+      if (!['local-qwen', 'astra', 'astra-jev', 'deepseek'].includes(saved.provider)) throw new Error('Minecraft 引擎配置无效');
+      this.config = { provider: saved.provider, apiKey: typeof saved.apiKey === 'string' ? saved.apiKey : '', astraApiKey: typeof saved.astraApiKey === 'string' ? saved.astraApiKey : '', deepseekApiKey: typeof saved.deepseekApiKey === 'string' ? saved.deepseekApiKey : '' };
     }
     this.verification = null;
   }
-  key() { if (this.config.provider === 'astra') return this.config.astraApiKey || this.env.ASTRA_API_KEY || ''; return this.config.apiKey || this.env.OPENROUTER_API_KEY || ''; }
+  deepseekModel() { return require('./deepseek-planner').model(this.env, this.config.deepseekApiKey); }
+  key() { if (this.config.provider === 'deepseek') return this.config.deepseekApiKey || this.env.DEEPSEEK_API_KEY || this.env.OPENAI_API_KEY || ''; if (this.config.provider === 'astra') return this.config.astraApiKey || this.env.ASTRA_API_KEY || ''; return this.config.apiKey || this.env.OPENROUTER_API_KEY || ''; }
   status() {
+    if (this.config.provider === 'deepseek') return { provider: 'deepseek', plannerModel: this.deepseekModel(), controllerModel: 'program-checks', keyConfigured: Boolean(this.key()), keySource: this.config.deepseekApiKey ? 'local-file' : this.key() ? 'environment' : null, verification: this.verification };
     return { provider: this.config.provider, plannerModel: this.config.provider === 'astra' ? 'gpt-6-astra' : PLANNER, controllerModel: this.config.provider === 'astra' ? 'program-checks' : CONTROLLER,
       keyConfigured: Boolean(this.key()), keySource: this.config.provider === 'astra' ? (this.config.astraApiKey ? 'local-file' : this.env.ASTRA_API_KEY ? 'environment' : null) : this.config.apiKey ? 'local-file' : this.env.OPENROUTER_API_KEY ? 'environment' : null,
       verification: this.verification };
   }
   save(update) {
-    if (!update || !['local-qwen', 'astra', 'astra-jev'].includes(update.provider)) throw new Error('请选择有效的游戏控制方案');
+    if (!update || !['local-qwen', 'astra', 'astra-jev', 'deepseek'].includes(update.provider)) throw new Error('请选择有效的游戏控制方案');
     if (Object.keys(update).some(key => !['provider', 'apiKey', 'clearKey'].includes(key))) throw new Error('未知配置字段');
     if (update.clearKey !== undefined && typeof update.clearKey !== 'boolean') throw new Error('clearKey 必须为布尔值');
     if (update.apiKey !== undefined && (typeof update.apiKey !== 'string' || update.apiKey.length > 512 || /\s/.test(update.apiKey))) throw new Error('密钥格式无效');
-    const keyField = update.provider === 'astra' ? 'astraApiKey' : 'apiKey';
+    const keyField = update.provider === 'deepseek' ? 'deepseekApiKey' : update.provider === 'astra' ? 'astraApiKey' : 'apiKey';
     const next = { ...this.config, provider: update.provider, [keyField]: update.clearKey ? '' : update.apiKey || this.config[keyField] }; 
     fs.mkdirSync(path.dirname(this.file), { recursive: true });
     const temporary = this.file + '.tmp';
     fs.writeFileSync(temporary, JSON.stringify(next, null, 2), { mode: 0o600 });
     fs.renameSync(temporary, this.file);
-    if (next.apiKey !== this.config.apiKey || next.astraApiKey !== this.config.astraApiKey || next.provider !== this.config.provider) this.verification = null;
+    if (next.apiKey !== this.config.apiKey || next.astraApiKey !== this.config.astraApiKey || next.deepseekApiKey !== this.config.deepseekApiKey || next.provider !== this.config.provider) this.verification = null;
     this.config = next;
     return this.status();
   }
   assertReady() {
+    if (this.config.provider === 'deepseek') require('./deepseek-planner').config(this.env, this.config.deepseekApiKey);
     if (this.config.provider === 'astra' && !this.key()) throw new Error('请在游戏控制方案中保存 OpenAI API Key（Astra 专用）');
     if (this.config.provider === 'astra-jev' && !this.key()) throw new Error('请先在游戏控制方案中保存 OpenRouter API Key');
   }
@@ -85,6 +89,11 @@ class MinecraftEngine {
     return payload;
   }
   async plan(observation, options = {}) {
+    if (this.config.provider === 'deepseek') {
+      const { action, metadata } = await require('./deepseek-planner').planDeepseek(observation, options, this.env, this.deepseekFetch, this.config.deepseekApiKey);
+      this.verification = { ok: true, at: new Date().toISOString(), kind: options.probe ? 'model-probe' : 'live-decision', plannerMs: metadata.plannerMs };
+      return action;
+    }
     if (this.config.provider === 'local-qwen') return planSurvival(observation, options);
     return this.config.provider === 'astra' ? require('./astra-direct').planDirect(this, observation, options) : this.planCloud(observation, options);
   }
@@ -124,12 +133,13 @@ class MinecraftEngine {
   async test(signal) {
     this.verification = null;
     try {
-      if (this.config.provider === 'local-qwen') throw Error('请选择 Astra 后检查连接');
+      if (this.config.provider === 'local-qwen') throw Error('请选择云模型后检查连接');
       await this.plan({ connected: false, inventory: [], entities: [], health: null, food: null }, { signal, goal: this.config.provider === 'astra' ? '仅检查 Astra 连通性，返回观察步骤' : '仅检查两模型连通性，返回观察动作', probe: true });
       return this.status();
     } catch (error) { this.verification = { ok: false, at: new Date().toISOString(), error: error.message }; throw error; }
   }
   modelState() {
+    if (this.config.provider === 'deepseek') return { provider: 'deepseek', model: this.deepseekModel(), controllerModel: 'program-checks', modelLoaded: this.verification?.ok === true, keyConfigured: Boolean(this.key()), modelHealth: this.status(), adapter: null, adapterLoaded: false };
     const cloud = this.config.provider !== 'local-qwen';
     return { provider: this.config.provider, model: this.config.provider === 'astra' ? 'gpt-6-astra' : cloud ? PLANNER : getLocalLlmConfig().model,
       controllerModel: this.config.provider === 'astra' ? 'program-checks' : cloud ? CONTROLLER : null, ...(cloud ? { modelLoaded: this.verification?.ok === true, keyConfigured: Boolean(this.key()), modelHealth: this.status(), adapter: null, adapterLoaded: false } : {}) };

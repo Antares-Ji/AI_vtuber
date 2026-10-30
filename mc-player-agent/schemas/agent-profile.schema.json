@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "MC Player Agent profile v1",
+  "$comment": "All fields are optional for legacy profiles. Java also checks endpoint safety and registered skill existence before takeover. No credentials belong in this document.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {"const": 1},
+    "backend": {"enum": ["DEEPSEEK", "OLLAMA"]},
+    "endpoint": {"type": "string", "minLength": 1},
+    "model": {"type": "string", "minLength": 1},
+    "prompt": {"type": "string"},
+    "chat_summary": {"type": "boolean"},
+    "limits": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "max_runtime_ms": {"type": "integer", "minimum": 1, "maximum": 9223372036854775807},
+        "max_model_requests": {"type": "integer", "minimum": 1, "maximum": 2147483647},
+        "max_actions": {"type": "integer", "minimum": 1, "maximum": 2147483647}
+      }
+    },
+    "enabled_skills": {
+      "oneOf": [
+        {"const": ["*"]},
+        {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^[a-z0-9_.-]+:[a-z0-9_./-]+$"}}
+      ]
+    }
+  }
+}

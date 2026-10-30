@@ -1,0 +1,51 @@
+{
+  "at": "2026-10-20T13:27:05.294Z",
+  "running": true,
+  "steps": 18,
+  "error": null,
+  "game": "sts2",
+  "run": {
+    "act": 1,
+    "floor": 6,
+    "ascension": 0
+  },
+  "streamer": {
+    "enabled": true,
+    "pending": {
+      "id": "9a96a363-ee8b-46da-abf9-39fa4fecfaec",
+      "line": "先收下金币，再看看有什么牌可拿。",
+      "emotion": "neutral",
+      "state": "delivered",
+      "tool": "rewards_claim"
+    },
+    "last": {
+      "id": "5eb5580b-2c90-4549-be5d-770ec540d9a9",
+      "at": "2026-10-20T13:26:59.341Z",
+      "state": "ended",
+      "line": "打击收掉这只墨宝，别让它再打三下。",
+      "emotion": "focused",
+      "tool": "combat_play_card",
+      "args": {
+        "card_index": 2,
+        "target": "INKLET_0"
+      },
+      "scene": "monster"
+    },
+    "lastReceipt": {
+      "id": "5eb5580b-2c90-4549-be5d-770ec540d9a9",
+      "phase": "ended",
+      "at": "2026-10-20T13:27:04.040Z"
+    }
+  },
+  "lastGameResult": {
+    "at": "2026-10-20T13:27:01.464Z",
+    "tool": "combat_play_card",
+    "result": {
+      "status": "ok",
+      "message": "Playing '打击' targeting 墨宝"
+    }
+  },
+  "successfulActions": 18,
+  "toolErrors": [],
+  "totalTokens": 57826
+}

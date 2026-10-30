@@ -1,6 +1,13 @@
 import { setLive2DEmotion, setLive2DMouth, startLive2D } from "./live2d-renderer.js";
 import { StreamingAsrClient } from "./asr-stream-client.js";
 import { VoiceCallController } from "./voice-call.js";
+const streamParameters = new URLSearchParams(location.search);
+let spireMode = (window.__workbenchGame || streamParameters.get('game')) === 'sts2';
+window.addEventListener('message', event => {
+  if (window.parent === window || event.source !== window.parent || event.origin !== location.origin || event.data?.type !== 'workbench-game') return;
+  if (!['minecraft', 'sts2'].includes(event.data.game)) return;
+  spireMode = event.data.game === 'sts2';
+});
 
 const subtitle = document.querySelector("#subtitle");
 const speaker = document.querySelector("#speaker");
@@ -82,7 +89,7 @@ let audioOutputSyncUntil = 0;
 let audioOutputRequestId = 0;
 let pollFailures = 0;
 let audioOutputEnabled = localStorage.getItem("streamer-audio-output") !== "off";
-let voiceProvider = localStorage.getItem("streamer-voice-provider") || "browser";
+let voiceProvider = streamParameters.get('voice') || localStorage.getItem("streamer-voice-provider") || "browser";
 let ttsAudioContext;
 let ttsLipSyncFrame;
 const activeStreamSources = new Set();
@@ -495,6 +502,12 @@ async function releaseConversation() {
 }
 
 function callHasPriority() { return Boolean(voiceCall && (voiceCall.ending || !voiceCall.controller?.isActive || voiceCall.speaking || voiceCall.pending || voiceCall.continuedText || activeReplyController)); }
+function commentaryReceipt(result, phase) {
+  if (!result.commentaryId) return Promise.resolve();
+  if (result.commentaryGame === 'sts2') return api('/api/sts2/commentary/receipt', { method: 'POST', body: JSON.stringify({ id: result.commentaryId, phase }) }).catch(() => {});
+  if (phase === 'ended' || phase === 'failed') return api('/api/minecraft/commentary/playback-ended', { method: 'POST', body: JSON.stringify({ id: result.commentaryId }) }).catch(() => {});
+  return Promise.resolve();
+}
 async function readNextOwned() {
   const revision = presentation.revision;
   const isRecording = mediaRecorder?.state === "recording" || isAsrBusy;
@@ -503,25 +516,29 @@ async function readNextOwned() {
   isReading = true;
   let spoke = false;
   try {
-    const result = await api(voiceCall ? "/api/minecraft/commentary/next" : "/api/next", { method: "POST", body: JSON.stringify({ preferFresh: true }) });
+    let result = await api(spireMode ? '/api/sts2/commentary/next' : voiceCall ? "/api/minecraft/commentary/next" : "/api/next", { method: "POST", body: JSON.stringify({ preferFresh: true }) });
+    if (spireMode && result.audienceWaiting && !voiceCall) result = await api('/api/next', { method: 'POST', body: JSON.stringify({ preferFresh: true }) });
     if (callHasPriority() || revision !== presentation.revision || presentation.changing) {
-      if (result.commentaryId) void api('/api/minecraft/commentary/playback-ended', { method: 'POST', body: JSON.stringify({ id: result.commentaryId }) }).catch(() => {});
+      void commentaryReceipt(result, 'failed');
       return;
     }
-    if (result.reply && !presentation.isCurrent(result.reply.delivery || result.reply.personaRuntime)) return;
+    if (result.reply && !presentation.isCurrent(result.reply.delivery || result.reply.personaRuntime)) { void commentaryReceipt(result, 'failed'); return; }
     if (result.idle) return;
-    showDanmaku(result.item);
+    if (result.commentaryGame !== 'sts2') showDanmaku(result.item);
     subtitle.textContent = result.reply.text;
     lastRenderedSpeechId = "";
     personaName = result.reply.persona?.displayName || result.reply.persona?.name || personaName;
-    speaker.textContent = `${personaName} -> ${result.item.user}`;
+    speaker.textContent = result.commentaryGame === 'sts2' ? `${personaName} · 杀戮尖塔 2` : `${personaName} -> ${result.item.user}`;
     setLive2DEmotion(result.reply.emotion.name, result.reply.performance?.profile?.intensity);
     const speechTimeout = setTimeout(() => { if (revision === presentation.revision) stopSpeechOutput(); }, 60_000);
+    let playbackStarted = false;
     try {
-      spoke = await speak(result.reply.text, { ...result.reply.performance?.profile, delivery: result.reply.delivery || result.reply.personaRuntime });
+      if (!audioOutputEnabled) { playbackStarted = true; void commentaryReceipt(result, 'started'); }
+      spoke = await speak(result.reply.text, { ...result.reply.performance?.profile, delivery: result.reply.delivery || result.reply.personaRuntime,
+        onFirstAudio: () => { playbackStarted = true; void commentaryReceipt(result, 'started'); } });
     } finally {
       clearTimeout(speechTimeout);
-      if (result.commentaryId) void api('/api/minecraft/commentary/playback-ended', { method: 'POST', body: JSON.stringify({ id: result.commentaryId }) }).catch(() => {});
+      void commentaryReceipt(result, playbackStarted && (spoke || !audioOutputEnabled) ? 'ended' : 'failed');
     }
     if (revision === presentation.revision) { clearInterval(speakingTimer); setLive2DMouth(false); }
   } finally {

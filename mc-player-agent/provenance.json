@@ -1,0 +1,575 @@
+{
+  "upstream": "https://github.com/Dwinovo/minecraft-numen",
+  "upstream_version": "1.21.1 / 0.1.4",
+  "extracted": "2026-10-28",
+  "license": "LGPL-3.0-only",
+  "files": [
+    {
+      "origin": "numen-api/common/src/main/java/com/dwinovo/numen/api/player/PlayerCondition.java",
+      "sha256": "6bcd05984a9842d39424861227e839de82e21412579142f5877cd2a141f3558e",
+      "destination": "harness/src/main/java/dev/mcplayeragent/harness/PlayerCondition.java",
+      "present_in_original_download": false,
+      "origin_category": "local_extension_absent_from_original_download",
+      "note": "Extracted from the local player-agent extension, absent from the original download; no exclusive authorship claim."
+    },
+    {
+      "origin": "numen-api/common/src/main/java/com/dwinovo/numen/api/player/PlayerContinuity.java",
+      "sha256": "f727e77292b2b2fd509fee40b48c23517ad9a17c37bf31731ee733824b254ade",
+      "destination": "harness/src/main/java/dev/mcplayeragent/harness/PlayerContinuity.java",
+      "present_in_original_download": false,
+      "origin_category": "local_extension_absent_from_original_download",
+      "note": "Extracted from the local player-agent extension, absent from the original download; no exclusive authorship claim."
+    },
+    {
+      "origin": "numen-api/common/src/main/java/com/dwinovo/numen/api/player/PlayerDecision.java",
+      "sha256": "64c7faca4bda7b70068b66f07d8fa6e7653a4cba38de96e25463beb2466df3d8",
+      "destination": "harness/src/main/java/dev/mcplayeragent/harness/PlayerDecision.java",
+      "present_in_original_download": false,
+      "origin_category": "local_extension_absent_from_original_download",
+      "note": "Extracted from the local player-agent extension, absent from the original download; no exclusive authorship claim."
+    },
+    {
+      "origin": "numen-api/common/src/main/java/com/dwinovo/numen/api/player/PlayerEvidence.java",
+      "sha256": "b2a9cda5f3cbb09fc7db074c15570a60925db10bf8e77165f313c436fd4dd376",
+      "destination": "harness/src/main/java/dev/mcplayeragent/harness/PlayerEvidence.java",
+      "present_in_original_download": false,
+      "origin_category": "local_extension_absent_from_original_download",
+      "note": "Extracted from the local player-agent extension, absent from the original download; no exclusive authorship claim."
+    },
+    {
+      "origin": "numen-api/common/src/main/java/com/dwinovo/numen/api/player/PlayerPlan.java",
+      "sha256": "6124b448e3bfddb033a24d5cfcbe72ff0fce27f00ca6f132be157eb351be10f0",
+      "destination": "harness/src/main/java/dev/mcplayeragent/harness/PlayerPlan.java",
+      "present_in_original_download": false,
+      "origin_category": "local_extension_absent_from_original_download",
+      "note": "Extracted from the local player-agent extension, absent from the original download; no exclusive authorship claim."
+    },
+    {
+      "origin": "numen-api/common/src/main/java/com/dwinovo/numen/api/player/PlayerProgress.java",
+      "sha256": "ee334c17da4f44c67d62fa3d0e34759d14f927dca60a1eab9af4540b3c4034c6",
+      "destination": "harness/src/main/java/dev/mcplayeragent/harness/PlayerProgress.java",
+      "present_in_original_download": false,
+      "origin_category": "local_extension_absent_from_original_download",
+      "note": "Extracted from the local player-agent extension, absent from the original download; no exclusive authorship claim."
+    },
+    {
+      "origin": "numen-api/common/src/main/java/com/dwinovo/numen/api/player/PlayerTasks.java",
+      "sha256": "9995e44184e4b98c07068fe7afd5c622edf332c7fb65c6e20e36ab42372545bc",
+      "destination": "harness/src/main/java/dev/mcplayeragent/harness/PlayerTasks.java",
+      "present_in_original_download": false,
+      "origin_category": "local_extension_absent_from_original_download",
+      "note": "Extracted from the local player-agent extension, absent from the original download; no exclusive authorship claim."
+    },
+    {
+      "origin": "numen/common/src/main/java/com/dwinovo/numen/player/CraftDependencies.java",
+      "sha256": "0a6ce5e0104bda7f65bf1c4b5f9d57b9f87ae6479e37435f917843939791c7e9",
+      "destination": "harness/src/main/java/dev/mcplayeragent/skills/CraftDependencies.java",
+      "present_in_original_download": false,
+      "origin_category": "local_extension_absent_from_original_download",
+      "note": "Extracted from the local player-agent extension, absent from the original download; no exclusive authorship claim."
+    },
+    {
+      "origin": "numen/common/src/main/java/com/dwinovo/numen/player/InventoryStackPlan.java",
+      "sha256": "aa4b186357baaa98235a0d5f97f122a223febf752ce66d08d8d7a43c27a9aa92",
+      "destination": "harness/src/main/java/dev/mcplayeragent/skills/InventoryStackPlan.java",
+      "present_in_original_download": false,
+      "origin_category": "local_extension_absent_from_original_download",
+      "note": "Extracted from the local player-agent extension, absent from the original download; no exclusive authorship claim."
+    },
+    {
+      "origin": "numen/common/src/main/java/com/dwinovo/numen/player/MiningCorridor.java",
+      "sha256": "ca34d818f9a006d13ae708c25e9f6e4c972b72699ed8aeec20d864aba98db4bc",
+      "destination": "harness/src/main/java/dev/mcplayeragent/skills/MiningCorridor.java",
+      "present_in_original_download": false,
+      "origin_category": "local_extension_absent_from_original_download",
+      "note": "Extracted from the local player-agent extension, absent from the original download; no exclusive authorship claim."
+    },
+    {
+      "origin": "numen/common/src/main/java/com/dwinovo/numen/player/MiningTargets.java",
+      "sha256": "80b51b8c1c6b8158e1d61d975f2975274559c847b2f7bd1ce2625808af37fc5d",
+      "destination": "harness/src/main/java/dev/mcplayeragent/skills/MiningTargets.java",
+      "present_in_original_download": false,
+      "origin_category": "local_extension_absent_from_original_download",
+      "note": "Extracted from the local player-agent extension, absent from the original download; no exclusive authorship claim."
+    },
+    {
+      "origin": "numen/common/src/main/java/com/dwinovo/numen/player/MiningTools.java",
+      "sha256": "22be47b0a65aaab754f82a5bdb229ae9720fe4c6a9308493d2245ff20c899090",
+      "destination": "harness/src/main/java/dev/mcplayeragent/skills/MiningTools.java",
+      "present_in_original_download": false,
+      "origin_category": "local_extension_absent_from_original_download",
+      "note": "Extracted from the local player-agent extension, absent from the original download; no exclusive authorship claim."
+    },
+    {
+      "origin": "numen/common/src/main/java/com/dwinovo/numen/player/PickupJournal.java",
+      "sha256": "c36cb01dd4077049f70d6e14e1b6d64bdce7db5c8eda51d39f405028b8489a71",
+      "destination": "harness/src/main/java/dev/mcplayeragent/skills/PickupJournal.java",
+      "present_in_original_download": false,
+      "origin_category": "local_extension_absent_from_original_download",
+      "note": "Extracted from the local player-agent extension, absent from the original download; no exclusive authorship claim."
+    },
+    {
+      "origin": "numen/common/src/main/java/com/dwinovo/numen/player/PlayerPickupWatch.java",
+      "sha256": "6a2957dd17bfb5442c2b2b641ce9b730b11c74fc0c35b8c624d3ce7fc5857118",
+      "destination": "game/src/main/java/dev/mcplayeragent/skills/PlayerPickupWatch.java",
+      "present_in_original_download": false,
+      "origin_category": "local_extension_absent_from_original_download",
+      "note": "Extracted from the local player-agent extension, absent from the original download; no exclusive authorship claim."
+    },
+    {
+      "origin": "numen/common/src/main/java/com/dwinovo/numen/player/ShelterLayout.java",
+      "sha256": "ac4e020e5103156f0347d278b935a85a424dbed57658b2e6832e7a4bd65cc563",
+      "destination": "harness/src/main/java/dev/mcplayeragent/skills/ShelterLayout.java",
+      "present_in_original_download": false,
+      "origin_category": "local_extension_absent_from_original_download",
+      "note": "Extracted from the local player-agent extension, absent from the original download; no exclusive authorship claim."
+    },
+    {
+      "origin": "numen/common/src/main/java/com/dwinovo/numen/player/SurfaceRoute.java",
+      "sha256": "a3d260ce01e6b942767457a09d88e032664b1cb43d7dadbd7e471f0111cf2d13",
+      "destination": "harness/src/main/java/dev/mcplayeragent/skills/SurfaceRoute.java",
+      "present_in_original_download": false,
+      "origin_category": "local_extension_absent_from_original_download",
+      "note": "Extracted from the local player-agent extension, absent from the original download; no exclusive authorship claim."
+    },
+    {
+      "origin": "numen/common/src/main/java/com/dwinovo/numen/player/SurvivalPolicy.java",
+      "sha256": "61682daec1647b1b93ce5c9477cafb31fee67b58c67ce0298d9d5a38326e7410",
+      "destination": "harness/src/main/java/dev/mcplayeragent/skills/SurvivalPolicy.java",
+      "present_in_original_download": false,
+      "origin_category": "local_extension_absent_from_original_download",
+      "note": "Extracted from the local player-agent extension, absent from the original download; no exclusive authorship claim."
+    },
+    {
+      "origin": "numen/common/src/main/java/com/dwinovo/numen/player/TreeCluster.java",
+      "sha256": "f6b739b7ce6c3efea85c2d40ccb5260c578859d8e80976907ae68f0fa20b53b4",
+      "destination": "harness/src/main/java/dev/mcplayeragent/skills/TreeCluster.java",
+      "present_in_original_download": false,
+      "origin_category": "local_extension_absent_from_original_download",
+      "note": "Extracted from the local player-agent extension, absent from the original download; no exclusive authorship claim."
+    },
+    {
+      "origin": "numen/common/src/main/java/com/dwinovo/numen/player/WorldJournal.java",
+      "sha256": "617a889454bff428a4cb0c94b429a1bde82eb8a5c8da223464de48583046b738",
+      "destination": "harness/src/main/java/dev/mcplayeragent/skills/WorldJournal.java",
+      "present_in_original_download": false,
+      "origin_category": "local_extension_absent_from_original_download",
+      "note": "Extracted from the local player-agent extension, absent from the original download; no exclusive authorship claim."
+    },
+    {
+      "origin": "numen/common/src/client/java/com/dwinovo/numen/player/PlayerCorridorTask.java",
+      "sha256": "b97851a3a46e4ceeed2c2cd2f1ecbbc1427694579f87a9c74a6f6374717f280f",
+      "destination": "game/src/client/java/dev/mcplayeragent/skills/PlayerCorridorTask.java",
+      "present_in_original_download": false,
+      "origin_category": "local_extension_absent_from_original_download",
+      "note": "Extracted from the local player-agent extension, absent from the original download; no exclusive authorship claim."
+    },
+    {
+      "origin": "numen/common/src/client/java/com/dwinovo/numen/player/PlayerCraftTask.java",
+      "sha256": "3823c191c8f9d27ec78c4490a65ae9e67f1324971b3947ff446a4c3e84702583",
+      "destination": "game/src/client/java/dev/mcplayeragent/skills/PlayerCraftTask.java",
+      "present_in_original_download": false,
+      "origin_category": "local_extension_absent_from_original_download",
+      "note": "Extracted from the local player-agent extension, absent from the original download; no exclusive authorship claim."
+    },
+    {
+      "origin": "numen/common/src/client/java/com/dwinovo/numen/player/PlayerDigTask.java",
+      "sha256": "151ebfa1fb8bddef96e261cd1078dc80a3ef2f3ac8af650520dd0a81ee3c5ea3",
+      "destination": "game/src/client/java/dev/mcplayeragent/skills/PlayerDigTask.java",
+      "present_in_original_download": false,
+      "origin_category": "local_extension_absent_from_original_download",
+      "note": "Extracted from the local player-agent extension, absent from the original download; no exclusive authorship claim."
+    },
+    {
+      "origin": "numen/common/src/client/java/com/dwinovo/numen/player/PlayerExactMineTask.java",
+      "sha256": "74730368e0e1771dd4bf4d6508361bc260424ae91b11803d29fac91fce09e7c7",
+      "destination": "game/src/client/java/dev/mcplayeragent/skills/PlayerExactMineTask.java",
+      "present_in_original_download": false,
+      "origin_category": "local_extension_absent_from_original_download",
+      "note": "Extracted from the local player-agent extension, absent from the original download; no exclusive authorship claim."
+    },
+    {
+      "origin": "numen/common/src/client/java/com/dwinovo/numen/player/PlayerInventoryTasks.java",
+      "sha256": "a94f549f5503dc830598fa7e3db7d9b2d37c934b5d2c6a57c3bb746d9e82213c",
+      "destination": "game/src/client/java/dev/mcplayeragent/skills/PlayerInventoryTasks.java",
+      "present_in_original_download": false,
+      "origin_category": "local_extension_absent_from_original_download",
+      "note": "Extracted from the local player-agent extension, absent from the original download; no exclusive authorship claim."
+    },
+    {
+      "origin": "numen/common/src/client/java/com/dwinovo/numen/player/PlayerMineTask.java",
+      "sha256": "580652d3466b017783fec79a9085a903d23039067e703cf55e52c09c57ad4a0e",
+      "destination": "game/src/client/java/dev/mcplayeragent/skills/PlayerMineTask.java",
+      "present_in_original_download": false,
+      "origin_category": "local_extension_absent_from_original_download",
+      "note": "Extracted from the local player-agent extension, absent from the original download; no exclusive authorship claim."
+    },
+    {
+      "origin": "numen/common/src/client/java/com/dwinovo/numen/player/PlayerPickupSession.java",
+      "sha256": "a6eee6edb454600b355083700c64e9f3768b2a3938fae76b0635dd8f9b9a274c",
+      "destination": "game/src/client/java/dev/mcplayeragent/skills/PlayerPickupSession.java",
+      "present_in_original_download": false,
+      "origin_category": "local_extension_absent_from_original_download",
+      "note": "Extracted from the local player-agent extension, absent from the original download; no exclusive authorship claim."
+    },
+    {
+      "origin": "numen/common/src/client/java/com/dwinovo/numen/player/PlayerPickupTask.java",
+      "sha256": "6e5672472740a3c6ab5400d58abbb3e6e6310f8b972675ae2c8940695262e489",
+      "destination": "game/src/client/java/dev/mcplayeragent/skills/PlayerPickupTask.java",
+      "present_in_original_download": false,
+      "origin_category": "local_extension_absent_from_original_download",
+      "note": "Extracted from the local player-agent extension, absent from the original download; no exclusive authorship claim."
+    },
+    {
+      "origin": "numen/common/src/client/java/com/dwinovo/numen/player/PlayerPlacementTask.java",
+      "sha256": "7a901f6597d69581b5ae0e607439461405b7b1dc0e3e17fb40b3248d41730059",
+      "destination": "game/src/client/java/dev/mcplayeragent/skills/PlayerPlacementTask.java",
+      "present_in_original_download": false,
+      "origin_category": "local_extension_absent_from_original_download",
+      "note": "Extracted from the local player-agent extension, absent from the original download; no exclusive authorship claim."
+    },
+    {
+      "origin": "numen/common/src/client/java/com/dwinovo/numen/player/PlayerShelterTask.java",
+      "sha256": "43717ba4291f662f7176c5b50fcc0bbb98162036e9612a4d77bfaafd7fdf4412",
+      "destination": "game/src/client/java/dev/mcplayeragent/skills/PlayerShelterTask.java",
+      "present_in_original_download": false,
+      "origin_category": "local_extension_absent_from_original_download",
+      "note": "Extracted from the local player-agent extension, absent from the original download; no exclusive authorship claim."
+    },
+    {
+      "origin": "numen/common/src/client/java/com/dwinovo/numen/player/PlayerSurvivalReflexes.java",
+      "sha256": "b64d51b148be64f5fb22b0b2f7be22118051b2e05decd3399ba0012dbd858af6",
+      "destination": "game/src/client/java/dev/mcplayeragent/skills/PlayerSurvivalReflexes.java",
+      "present_in_original_download": false,
+      "origin_category": "local_extension_absent_from_original_download",
+      "note": "Extracted from the local player-agent extension, absent from the original download; no exclusive authorship claim."
+    },
+    {
+      "origin": "numen/common/src/client/java/com/dwinovo/numen/player/PlayerWorld.java",
+      "sha256": "055ce7855af4f905435b77d00309ecea84f1b624b22822c3bf3db81532a594ff",
+      "destination": "game/src/client/java/dev/mcplayeragent/skills/PlayerWorld.java",
+      "present_in_original_download": false,
+      "origin_category": "local_extension_absent_from_original_download",
+      "note": "Extracted from the local player-agent extension, absent from the original download; no exclusive authorship claim."
+    },
+    {
+      "origin": "numen/common/src/client/java/com/dwinovo/numen/player/SurvivalPlayerTasks.java",
+      "sha256": "fe42c740156e475c78141fd9a68db576c5b4f9fddd2dd457040a23496f9592ee",
+      "destination": "game/src/client/java/dev/mcplayeragent/skills/SurvivalPlayerTasks.java",
+      "present_in_original_download": false,
+      "origin_category": "local_extension_absent_from_original_download",
+      "note": "Extracted from the local player-agent extension, absent from the original download; no exclusive authorship claim."
+    },
+    {
+      "origin": "numen-api/common/src/client/java/com/dwinovo/numen/api/client/player/PlayerActions.java",
+      "sha256": "cf5af01fe20c03719b582810f58bf104b891e3c4a54ac551d311a701cac61147",
+      "destination": "game/src/client/java/dev/mcplayeragent/minecraft/PlayerActions.java",
+      "present_in_original_download": false,
+      "origin_category": "local_extension_absent_from_original_download",
+      "note": "Extracted from the local player-agent extension, absent from the original download; no exclusive authorship claim."
+    },
+    {
+      "origin": "numen-api/common/src/client/java/com/dwinovo/numen/api/client/player/PlayerControl.java",
+      "sha256": "511f448965807ba6c6439610a784faca976cebff5c8daac0435f02b4bae025a3",
+      "destination": "game/src/client/java/dev/mcplayeragent/minecraft/PlayerControl.java",
+      "present_in_original_download": false,
+      "origin_category": "local_extension_absent_from_original_download",
+      "note": "Extracted from the local player-agent extension, absent from the original download; no exclusive authorship claim."
+    },
+    {
+      "origin": "numen-api/common/src/client/java/com/dwinovo/numen/api/client/player/PlayerControlScreen.java",
+      "sha256": "0de5d30557657431a513641f6fe920fc3f55a1b798a17499f1e63e849899586a",
+      "destination": "game/src/client/java/dev/mcplayeragent/minecraft/PlayerControlScreen.java",
+      "present_in_original_download": false,
+      "origin_category": "local_extension_absent_from_original_download",
+      "note": "Extracted from the local player-agent extension, absent from the original download; no exclusive authorship claim."
+    },
+    {
+      "origin": "numen-api/common/src/client/java/com/dwinovo/numen/api/client/player/PlayerFeedback.java",
+      "sha256": "08a799d83a06a70768a218392ff2bbf9374d2ac2cecca552c334edb5da7a9593",
+      "destination": "game/src/client/java/dev/mcplayeragent/minecraft/PlayerFeedback.java",
+      "present_in_original_download": false,
+      "origin_category": "local_extension_absent_from_original_download",
+      "note": "Extracted from the local player-agent extension, absent from the original download; no exclusive authorship claim."
+    },
+    {
+      "origin": "numen-api/common/src/main/java/com/dwinovo/numen/api/entity/DigTime.java",
+      "sha256": "ede1e5457f5667a9b2ce9260022065af6ecdc9cf9744e6fd35265b29169599ce",
+      "destination": "game/src/main/java/dev/mcplayeragent/minecraft/DigTime.java",
+      "present_in_original_download": true,
+      "original_download_sha256": "bb9243b904d6d24827601cc03d178e8e82827688b2a386f2236426514b709e87",
+      "origin_category": "upstream_file_modified_locally"
+    },
+    {
+      "origin": "numen/common/src/main/java/com/dwinovo/numen/tools/RecipeProbe.java",
+      "sha256": "3d6cfac48c998492652db8d3745102affcc5cfc6eadb2c467ee6ae4e69bac242",
+      "destination": "game/src/main/java/dev/mcplayeragent/minecraft/RecipeProbe.java",
+      "present_in_original_download": true,
+      "original_download_sha256": "3d6cfac48c998492652db8d3745102affcc5cfc6eadb2c467ee6ae4e69bac242",
+      "origin_category": "upstream_file"
+    },
+    {
+      "origin": "numen-api/common/src/client/java/com/dwinovo/numen/api/mixin/inject/PlayerControlMouseMixin.java",
+      "sha256": "8d7457fe3ff33513f979b36118e92e97c32edda56571e5bd10ae7506a16c4a13",
+      "destination": "game/src/client/java/dev/mcplayeragent/mixin/PlayerControlMouseMixin.java",
+      "present_in_original_download": false,
+      "origin_category": "local_extension_absent_from_original_download",
+      "note": "Extracted from the local player-agent extension, absent from the original download; no exclusive authorship claim."
+    },
+    {
+      "origin": "numen-api/common/src/client/java/com/dwinovo/numen/api/mixin/inject/PlayerControlKeyboardMixin.java",
+      "sha256": "681f634001d8b71850a7cabe4ca6501c945ecac7351e43fb620ccc0e6e047d36",
+      "destination": "game/src/client/java/dev/mcplayeragent/mixin/PlayerControlKeyboardMixin.java",
+      "present_in_original_download": false,
+      "origin_category": "local_extension_absent_from_original_download",
+      "note": "Extracted from the local player-agent extension, absent from the original download; no exclusive authorship claim."
+    },
+    {
+      "origin": "numen-api/common/src/client/java/com/dwinovo/numen/api/mixin/inject/PlayerControlAttackMixin.java",
+      "sha256": "fc10ce3dbc0142d06f508ad0a032d793461d718ceb19847bd905d2832e31aa60",
+      "destination": "game/src/client/java/dev/mcplayeragent/mixin/PlayerControlAttackMixin.java",
+      "present_in_original_download": false,
+      "origin_category": "local_extension_absent_from_original_download",
+      "note": "Extracted from the local player-agent extension, absent from the original download; no exclusive authorship claim."
+    },
+    {
+      "origin": "numen-api/common/src/test/java/com/dwinovo/numen/api/player/PlayerConditionTest.java",
+      "sha256": "4718c9ed973155b0001221e87b2976084d389968c6b318b73178126295c1fad6",
+      "destination": "harness/src/test/java/dev/mcplayeragent/harness/PlayerConditionTest.java",
+      "present_in_original_download": false,
+      "origin_category": "local_extension_absent_from_original_download",
+      "note": "Extracted from the local player-agent extension, absent from the original download; no exclusive authorship claim."
+    },
+    {
+      "origin": "numen-api/common/src/test/java/com/dwinovo/numen/api/player/PlayerContinuityTest.java",
+      "sha256": "d407c871d52cea8207fa898b6374b878efcfa2549e0a6c5420979de59c965bda",
+      "destination": "harness/src/test/java/dev/mcplayeragent/harness/PlayerContinuityTest.java",
+      "present_in_original_download": false,
+      "origin_category": "local_extension_absent_from_original_download",
+      "note": "Extracted from the local player-agent extension, absent from the original download; no exclusive authorship claim."
+    },
+    {
+      "origin": "numen-api/common/src/test/java/com/dwinovo/numen/api/player/PlayerDecisionTest.java",
+      "sha256": "0fc68fa70bfca7672272baa9d9dc9935bf86a1377ab55b9e5ed79d622a1fdb50",
+      "destination": "harness/src/test/java/dev/mcplayeragent/harness/PlayerDecisionTest.java",
+      "present_in_original_download": false,
+      "origin_category": "local_extension_absent_from_original_download",
+      "note": "Extracted from the local player-agent extension, absent from the original download; no exclusive authorship claim."
+    },
+    {
+      "origin": "numen-api/common/src/test/java/com/dwinovo/numen/api/player/PlayerModelConnectionTest.java",
+      "sha256": "d4118d420e4a847cf62a8359815234b6dce3c939f7ce0498bb04e971ffae9e57",
+      "destination": "harness/src/test/java/dev/mcplayeragent/harness/PlayerModelConnectionTest.java",
+      "present_in_original_download": false,
+      "origin_category": "local_extension_absent_from_original_download",
+      "note": "Extracted from the local player-agent extension, absent from the original download; no exclusive authorship claim."
+    },
+    {
+      "origin": "numen-api/common/src/test/java/com/dwinovo/numen/api/player/PlayerPlanTest.java",
+      "sha256": "d6844b18f434ed7c60d88686aa033ee7128342f11ad2506489050363e2037023",
+      "destination": "harness/src/test/java/dev/mcplayeragent/harness/PlayerPlanTest.java",
+      "present_in_original_download": false,
+      "origin_category": "local_extension_absent_from_original_download",
+      "note": "Extracted from the local player-agent extension, absent from the original download; no exclusive authorship claim."
+    },
+    {
+      "origin": "numen-api/common/src/test/java/com/dwinovo/numen/api/player/PlayerProgressTest.java",
+      "sha256": "15bfa70f3bb04a36cd0b70c5850a11ceaf601fa3573e455de5eb04dbbf4380ee",
+      "destination": "harness/src/test/java/dev/mcplayeragent/harness/PlayerProgressTest.java",
+      "present_in_original_download": false,
+      "origin_category": "local_extension_absent_from_original_download",
+      "note": "Extracted from the local player-agent extension, absent from the original download; no exclusive authorship claim."
+    },
+    {
+      "origin": "numen/common/src/test/java/com/dwinovo/numen/player/CraftDependenciesTest.java",
+      "sha256": "d3081f2490f42f48ff48e865591aace9f57c4ad11c4e7aa728a96ae128574d55",
+      "destination": "harness/src/test/java/dev/mcplayeragent/skills/CraftDependenciesTest.java",
+      "present_in_original_download": false,
+      "origin_category": "local_extension_absent_from_original_download",
+      "note": "Extracted from the local player-agent extension, absent from the original download; no exclusive authorship claim."
+    },
+    {
+      "origin": "numen/common/src/test/java/com/dwinovo/numen/player/InventoryStackPlanTest.java",
+      "sha256": "9a35c8188cda9c262ad363797dbcdfa7bdd130d43c94bba31b199ef187bfa979",
+      "destination": "harness/src/test/java/dev/mcplayeragent/skills/InventoryStackPlanTest.java",
+      "present_in_original_download": false,
+      "origin_category": "local_extension_absent_from_original_download",
+      "note": "Extracted from the local player-agent extension, absent from the original download; no exclusive authorship claim."
+    },
+    {
+      "origin": "numen/common/src/test/java/com/dwinovo/numen/player/MiningCorridorTest.java",
+      "sha256": "530399c7320aa609352695cc6b41e8ec862bdfad07d21adfad7ea17668b8f9fc",
+      "destination": "harness/src/test/java/dev/mcplayeragent/skills/MiningCorridorTest.java",
+      "present_in_original_download": false,
+      "origin_category": "local_extension_absent_from_original_download",
+      "note": "Extracted from the local player-agent extension, absent from the original download; no exclusive authorship claim."
+    },
+    {
+      "origin": "numen/common/src/test/java/com/dwinovo/numen/player/MiningTargetsTest.java",
+      "sha256": "f1469daeb17cf8a87a7ebc46382e7ad3fef8354095c0f89ce329de365de4660f",
+      "destination": "harness/src/test/java/dev/mcplayeragent/skills/MiningTargetsTest.java",
+      "present_in_original_download": false,
+      "origin_category": "local_extension_absent_from_original_download",
+      "note": "Extracted from the local player-agent extension, absent from the original download; no exclusive authorship claim."
+    },
+    {
+      "origin": "numen/common/src/test/java/com/dwinovo/numen/player/MiningToolsTest.java",
+      "sha256": "03f5b43113c4cf0f545fdf0b47ee2098e40222dc8f7922d4dcfcb2f9e285a866",
+      "destination": "harness/src/test/java/dev/mcplayeragent/skills/MiningToolsTest.java",
+      "present_in_original_download": false,
+      "origin_category": "local_extension_absent_from_original_download",
+      "note": "Extracted from the local player-agent extension, absent from the original download; no exclusive authorship claim."
+    },
+    {
+      "origin": "numen/common/src/test/java/com/dwinovo/numen/player/PickupJournalTest.java",
+      "sha256": "c0496c056c94f043a47a70cd696b67b45199cd19410d04c31ec8aa11755fee4d",
+      "destination": "harness/src/test/java/dev/mcplayeragent/skills/PickupJournalTest.java",
+      "present_in_original_download": false,
+      "origin_category": "local_extension_absent_from_original_download",
+      "note": "Extracted from the local player-agent extension, absent from the original download; no exclusive authorship claim."
+    },
+    {
+      "origin": "numen/common/src/test/java/com/dwinovo/numen/player/ShelterLayoutTest.java",
+      "sha256": "246816e84538458e822ab427b8bfe8e297b0eb422e732a8eb857e37b647fb966",
+      "destination": "harness/src/test/java/dev/mcplayeragent/skills/ShelterLayoutTest.java",
+      "present_in_original_download": false,
+      "origin_category": "local_extension_absent_from_original_download",
+      "note": "Extracted from the local player-agent extension, absent from the original download; no exclusive authorship claim."
+    },
+    {
+      "origin": "numen/common/src/test/java/com/dwinovo/numen/player/SurfaceRouteTest.java",
+      "sha256": "d043b3d5161eac5ac7ffc178b4463c27fb2f632f21e6d21f393de57a79938b3b",
+      "destination": "harness/src/test/java/dev/mcplayeragent/skills/SurfaceRouteTest.java",
+      "present_in_original_download": false,
+      "origin_category": "local_extension_absent_from_original_download",
+      "note": "Extracted from the local player-agent extension, absent from the original download; no exclusive authorship claim."
+    },
+    {
+      "origin": "numen/common/src/test/java/com/dwinovo/numen/player/SurvivalPolicyTest.java",
+      "sha256": "7b261bc30b7ca00b03a9cf96431135b48062eaf9905a2adfbd7c5dfaff9875f0",
+      "destination": "harness/src/test/java/dev/mcplayeragent/skills/SurvivalPolicyTest.java",
+      "present_in_original_download": false,
+      "origin_category": "local_extension_absent_from_original_download",
+      "note": "Extracted from the local player-agent extension, absent from the original download; no exclusive authorship claim."
+    },
+    {
+      "origin": "numen/common/src/test/java/com/dwinovo/numen/player/TreeClusterTest.java",
+      "sha256": "5e354dd9efc6641787b2366cd06a093bb1b7ecb13f10c9a74bfd2e1c9f9f1131",
+      "destination": "harness/src/test/java/dev/mcplayeragent/skills/TreeClusterTest.java",
+      "present_in_original_download": false,
+      "origin_category": "local_extension_absent_from_original_download",
+      "note": "Extracted from the local player-agent extension, absent from the original download; no exclusive authorship claim."
+    },
+    {
+      "origin": "numen/common/src/test/java/com/dwinovo/numen/player/WorldJournalTest.java",
+      "sha256": "81f9f2305379612f687d41ca35158daee725381461fe0844346f6ac5fbe4857e",
+      "destination": "harness/src/test/java/dev/mcplayeragent/skills/WorldJournalTest.java",
+      "present_in_original_download": false,
+      "origin_category": "local_extension_absent_from_original_download",
+      "note": "Extracted from the local player-agent extension, absent from the original download; no exclusive authorship claim."
+    },
+    {
+      "origin": "numen-api/common/src/main/java/com/dwinovo/numen/api/player/PlayerModelConnection.java",
+      "sha256": "c6a09cef18e8bb80c0fde3a99f039c42c49681c3449c63fde88e28df5a334064",
+      "destination": "harness/src/main/java/dev/mcplayeragent/harness/PlayerModelConnection.java",
+      "note": "Extracted from the local player-agent extension, absent from the original download; no exclusive authorship claim.",
+      "present_in_original_download": false,
+      "origin_category": "local_extension_absent_from_original_download"
+    },
+    {
+      "origin": "numen/common/src/main/java/com/dwinovo/numen/task/move/ItemReach.java",
+      "sha256": "64dde0f0f4ee5bb4821f9669e678e6a9129f21781b1bda638324f73805b622ea",
+      "destination": "game/src/main/java/dev/mcplayeragent/minecraft/ItemReach.java",
+      "note": "Selected functionality adapted; old framework dependencies removed",
+      "present_in_original_download": true,
+      "original_download_sha256": "adc05d3ead01f2bd95aa80711b138533df2ec922d79790f061034ee4003e578f",
+      "origin_category": "upstream_file_modified_locally"
+    },
+    {
+      "origin": "numen/common/src/main/java/com/dwinovo/numen/mixin/inject/ItemEntityDropsMixin.java",
+      "sha256": "72b64010693e73bf143ff5bff8b6f8bbaf76545939c3331a660db0808c8ba212",
+      "destination": "game/src/main/java/dev/mcplayeragent/mixin/PlayerPickupMixin.java",
+      "note": "Selected functionality adapted; old framework dependencies removed",
+      "present_in_original_download": true,
+      "original_download_sha256": "b7b30254fc810583395222c898ee65bc95bb58e63049b494b336063f425133d2",
+      "origin_category": "upstream_file_modified_locally"
+    }
+  ],
+  "source_snapshot": "Local numen-player-control tree including earlier player-control, survival and mining modifications; not an unmodified upstream commit.",
+  "audit": {
+    "date": "2026-10-28",
+    "reference": "Original local minecraft-numen-1.21.1 download; this is snapshot evidence, not a claim about all upstream releases.",
+    "files_absent_from_original_download": 57,
+    "files_present_in_original_download": 4,
+    "note": "File presence establishes snapshot provenance, not exclusive authorship or independent copyright ownership."
+  },
+  "independent_project_additions": [
+    {
+      "path": "harness/src/main/java/dev/mcplayeragent/mission/MissionRun.java",
+      "sha256": "146af937bcbc60d9d13a1e35d10b613317de30267ba1483bf91d0a7f82b68d4f",
+      "introduced": "0.2.0"
+    },
+    {
+      "path": "harness/src/test/java/dev/mcplayeragent/mission/MissionRunTest.java",
+      "sha256": "559e57e9f2ec6b39102f11214a5ed3ca44d56f934dd2d8f702dc3442dee971eb",
+      "introduced": "0.2.0"
+    },
+    {
+      "path": "game/src/client/java/dev/mcplayeragent/minecraft/MissionRecording.java",
+      "sha256": "316f4e210334847935798bf5cd9efd26ba6d6ef4fe39dc5a82008cfc758a5db1",
+      "introduced": "0.2.0"
+    },
+    {
+      "path": "game/src/client/java/dev/mcplayeragent/minecraft/MissionControlScreen.java",
+      "sha256": "073f941885c24b78feb2b2a158c949b14e532472c1d415674e12414e41aae2dd",
+      "introduced": "0.2.0"
+    },
+    {
+      "path": "tools/package_release.py",
+      "sha256": "4c4b06f3bf3cef8c419d6c1b653baf98dda591e365eed478423695727915465d",
+      "introduced": "0.2.0"
+    }
+  ],
+  "maintenance": [
+    {
+      "date": "2026-10-28",
+      "change": "Independent agent harness",
+      "derived_from": "game/src/client/java/dev/mcplayeragent/minecraft/PlayerControl.java",
+      "destination": "harness/src/main/java/dev/mcplayeragent/harness/AgentHarness.java",
+      "note": "Extracted scheduling and adapted session ownership, model futures, skill interruptions and acceptance. Existing origin classifications and LGPL notices remain; no exclusive authorship claim.",
+      "new_support": [
+        "harness/src/main/java/dev/mcplayeragent/harness/HarnessMain.java",
+        "harness/src/test/java/dev/mcplayeragent/harness/AgentHarnessTest.java",
+        "harness/settings.gradle",
+        "docs/HARNESS.md"
+      ]
+    },
+    {
+      "date": "2026-10-29",
+      "change": "0.3.0-alpha.2 session budgets and project documentation",
+      "files": [
+        "harness/src/main/java/dev/mcplayeragent/harness/AgentHarness.java",
+        "harness/src/test/java/dev/mcplayeragent/harness/AgentHarnessTest.java",
+        "README.md",
+        "docs/HARNESS.md",
+        "docs/USAGE.md",
+        "docs/ROADMAP.md",
+        "docs/EVALUATION.md"
+      ],
+      "note": "AI-assisted maintenance in the independent derivative project; historical origin hashes and classifications are preserved."
+    },
+    {
+      "date": "2026-10-30",
+      "change": "0.3.0-alpha.3 developer handoff and repository checks",
+      "files": [
+        ".editorconfig",
+        "tools/check_repository.py",
+        "tools/test_check_repository.py",
+        "docs/DEVELOPMENT.md",
+        "docs/HANDOVER.md",
+        ".github/workflows/build.yml"
+      ],
+      "note": "AI-assisted repository maintenance; existing gameplay implementation and historical provenance hashes are unchanged."
+    }
+  ]
+}

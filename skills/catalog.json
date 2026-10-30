@@ -1,0 +1,186 @@
+{
+  "schema_version": 1,
+  "trustedCodeOnly": true,
+  "skills": [
+    {
+      "id": "mcplayer:harness-demo",
+      "version": "1",
+      "game": "minecraft",
+      "mode": "simulation",
+      "description": "运行原版 Java AgentHarness 的确定性演示，保留原始验收与任务记录。",
+      "resources": [
+        "mcplayer-demo"
+      ],
+      "enabled": true,
+      "arguments": {}
+    },
+    {
+      "id": "mcplayer:inspect-profile",
+      "version": "1",
+      "game": "minecraft",
+      "mode": "read",
+      "description": "查看 ZIP 的版本化示例配置与原生 Skill 清单；实际 MC 继续使用 F8/F9。",
+      "resources": [],
+      "enabled": true,
+      "arguments": {}
+    },
+    {
+      "id": "minecraft:legacy-status",
+      "version": "1",
+      "game": "minecraft",
+      "mode": "read",
+      "description": "读取本地 Mineflayer 兼容后端、反射与自主任务状态。",
+      "resources": [],
+      "enabled": true,
+      "arguments": {}
+    },
+    {
+      "id": "minecraft:legacy-play",
+      "version": "1",
+      "game": "minecraft",
+      "mode": "live",
+      "description": "保留 Mineflayer 生存反射、脱困、任务复盘及解说；与原生 MC 后端分开运行。",
+      "resources": [
+        "desktop",
+        "minecraft"
+      ],
+      "enabled": true,
+      "arguments": {
+        "goal": "string",
+        "durationMinutes": "1..20"
+      }
+    },
+    {
+      "id": "sts2:knowledge",
+      "version": "1",
+      "game": "sts2",
+      "mode": "read",
+      "description": "检索现有卡牌知识、人工核验经验与条件化复盘，不重新训练或覆盖资料。",
+      "resources": [],
+      "enabled": true,
+      "arguments": {
+        "query": "string",
+        "maxCards": "1..20"
+      }
+    },
+    {
+      "id": "sts2:play",
+      "version": "1",
+      "game": "sts2",
+      "mode": "live",
+      "description": "复用尖塔 MCP/DeepSeek 执行与复盘链路；停止后等待执行器释放。",
+      "resources": [
+        "desktop",
+        "sts2"
+      ],
+      "enabled": true,
+      "arguments": {
+        "goal": "string",
+        "steps": "1..500"
+      }
+    },
+    {
+      "id": "sts2:native-play",
+      "version": "1",
+      "game": "sts2",
+      "mode": "live",
+      "description": "复用纯视觉、角色决策及原生键鼠循环，保留已核验的通关经验。",
+      "resources": [
+        "desktop",
+        "sts2"
+      ],
+      "enabled": true,
+      "arguments": {
+        "maxSteps": "1..1000"
+      }
+    },
+    {
+      "id": "sts2:learning-status",
+      "version": "1",
+      "game": "sts2",
+      "mode": "read",
+      "description": "查看持久学习覆盖率、审核集数量和经验来源；模型推断不升级为实战事实。",
+      "resources": [],
+      "enabled": true,
+      "arguments": {}
+    },
+    {
+      "id": "sts2:learn",
+      "version": "1",
+      "game": "sts2",
+      "mode": "learning",
+      "description": "运行既有卡库导入、有限批次分析和长期记忆写入。analyze=true会调用模型；不是权重微调。",
+      "resources": [
+        "sts2-knowledge"
+      ],
+      "enabled": true,
+      "arguments": {
+        "import": "boolean",
+        "analyze": "boolean",
+        "memory": "boolean",
+        "maxCards": "1..120"
+      }
+    },
+    {
+      "id": "genshin:plan",
+      "version": "1",
+      "game": "genshin",
+      "mode": "read",
+      "description": "复用原神有限技能规划；生成计划不发送游戏输入。",
+      "resources": [],
+      "enabled": true,
+      "arguments": {
+        "goal": "string"
+      }
+    },
+    {
+      "id": "genshin:demo",
+      "version": "1",
+      "game": "genshin",
+      "mode": "simulation",
+      "description": "运行原神模拟技能，明确标记无游戏输入。",
+      "resources": [
+        "genshin-simulation"
+      ],
+      "enabled": true,
+      "arguments": {
+        "goal": "string"
+      }
+    },
+    {
+      "id": "genshin:bettergi",
+      "version": "1",
+      "game": "genshin",
+      "mode": "live",
+      "description": "保留 BetterGI 接入：未完成启动、取消与证据桥接时拒绝实机执行。",
+      "resources": [
+        "desktop",
+        "genshin"
+      ],
+      "enabled": true,
+      "arguments": {
+        "goal": "string"
+      }
+    },
+    {
+      "id": "genshin:doctor",
+      "version": "1",
+      "game": "genshin",
+      "mode": "read",
+      "description": "诊断 BGI 路径与桥接成熟度；程序存在不代表已连接游戏。",
+      "resources": [],
+      "enabled": true,
+      "arguments": {}
+    },
+    {
+      "id": "streamer:context",
+      "version": "1",
+      "game": "shared",
+      "mode": "read",
+      "description": "统一主播上下文格式，保留人格、记忆和语音系统，区分计划与事实。",
+      "resources": [],
+      "enabled": true,
+      "arguments": {}
+    }
+  ]
+}

@@ -1,0 +1,135 @@
+[
+  {
+    "start": 0,
+    "end": 15,
+    "text": "그.",
+    "model": "E:\\Github\\AI_vtuber\\runtime\\sensevoice-small",
+    "latencyMs": 106
+  },
+  {
+    "start": 15,
+    "end": 30,
+    "text": ".",
+    "model": "E:\\Github\\AI_vtuber\\runtime\\sensevoice-small",
+    "latencyMs": 59
+  },
+  {
+    "start": 30,
+    "end": 45,
+    "text": ".",
+    "model": "E:\\Github\\AI_vtuber\\runtime\\sensevoice-small",
+    "latencyMs": 64
+  },
+  {
+    "start": 45,
+    "end": 60,
+    "text": ".",
+    "model": "E:\\Github\\AI_vtuber\\runtime\\sensevoice-small",
+    "latencyMs": 58
+  },
+  {
+    "start": 60,
+    "end": 75,
+    "text": "我是鸡碎哥，现在说话的是天朝鸡碎这一面，你可以叫我碎，正在打杀戮间塔2刚开了狂墓，接下来想用攻击排换格挡，稳住这回合。",
+    "model": "E:\\Github\\AI_vtuber\\runtime\\sensevoice-small",
+    "latencyMs": 59
+  },
+  {
+    "start": 75,
+    "end": 90,
+    "text": ".",
+    "model": "E:\\Github\\AI_vtuber\\runtime\\sensevoice-small",
+    "latencyMs": 53
+  },
+  {
+    "start": 90,
+    "end": 105,
+    "text": ".",
+    "model": "E:\\Github\\AI_vtuber\\runtime\\sensevoice-small",
+    "latencyMs": 59
+  },
+  {
+    "start": 105,
+    "end": 120,
+    "text": ".",
+    "model": "E:\\Github\\AI_vtuber\\runtime\\sensevoice-small",
+    "latencyMs": 66
+  },
+  {
+    "start": 120,
+    "end": 135,
+    "text": ".",
+    "model": "E:\\Github\\AI_vtuber\\runtime\\sensevoice-small",
+    "latencyMs": 58
+  },
+  {
+    "start": 135,
+    "end": 150,
+    "text": ".",
+    "model": "E:\\Github\\AI_vtuber\\runtime\\sensevoice-small",
+    "latencyMs": 63
+  },
+  {
+    "start": 150,
+    "end": 165,
+    "text": "好，那就在这演示。",
+    "model": "E:\\Github\\AI_vtuber\\runtime\\sensevoice-small",
+    "latencyMs": 58
+  },
+  {
+    "start": 165,
+    "end": 180,
+    "text": "不过现在还是暂停状态，我先恢复，再按计划开狂怒，上攻击排换格挡。",
+    "model": "E:\\Github\\AI_vtuber\\runtime\\sensevoice-small",
+    "latencyMs": 63
+  },
+  {
+    "start": 180,
+    "end": 195,
+    "text": "现在还是暂停，刚才开狂录那部被停了，局面来推进，我先恢复再继续。好，那我先不。",
+    "model": "E:\\Github\\AI_vtuber\\runtime\\sensevoice-small",
+    "latencyMs": 58
+  },
+  {
+    "start": 195,
+    "end": 210,
+    "text": "急着回你，专注把暂停解开，继续这层。",
+    "model": "E:\\Github\\AI_vtuber\\runtime\\sensevoice-small",
+    "latencyMs": 59
+  },
+  {
+    "start": 210,
+    "end": 225,
+    "text": "明白了，是让我别恢复暂停界面，不是让我别说话，那我先停着给你确认清楚再斗。",
+    "model": "E:\\Github\\AI_vtuber\\runtime\\sensevoice-small",
+    "latencyMs": 64
+  },
+  {
+    "start": 225,
+    "end": 240,
+    "text": "好，现在还在暂停游戏收到打断，游戏还停这场还停在暂停，目标没变。",
+    "model": "E:\\Github\\AI_vtuber\\runtime\\sensevoice-small",
+    "latencyMs": 58
+  },
+  {
+    "start": 240,
+    "end": 255,
+    "text": "先开狂怒，上攻击牌也能换格挡，刚才内部被停掉了，没有执行成功。",
+    "model": "E:\\Github\\AI_vtuber\\runtime\\sensevoice-small",
+    "latencyMs": 60
+  },
+  {
+    "start": 255,
+    "end": 270,
+    "text": "我明白，语音里能被打断，主播的话不是必须听完。",
+    "model": "E:\\Github\\AI_vtuber\\runtime\\sensevoice-small",
+    "latencyMs": 58
+  },
+  {
+    "start": 270,
+    "end": 271.7653125,
+    "text": "그.",
+    "model": "E:\\Github\\AI_vtuber\\runtime\\sensevoice-small",
+    "latencyMs": 55
+  }
+]

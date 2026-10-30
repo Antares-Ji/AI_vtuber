@@ -1,0 +1,77 @@
+name: Agent skills integration
+on: [push, pull_request, workflow_dispatch]
+permissions:
+  contents: read
+concurrency:
+  group: agent-skills-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  skills:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: npm ci --ignore-scripts
+      - run: npm ci --prefix integrations/sts2-mcp --ignore-scripts
+      - run: python scripts/check-mc-import.py
+      - run: python tests/test_learning_preservation.py
+      - run: node scripts/skill-catalog.cjs --check
+      - run: node --test tests/skills-*.cjs tests/genshin-framework.js tests/sts2-learning.cjs tests/sts2-tactics.cjs tests/native-autonomy.cjs tests/sts2-deepseek-fetch.cjs integrations/sts2-mcp/test.cjs tests/game-input-console.js
+      - run: npm run test:minecraft:api
+      - run: npm run skills:demo
+  java-core:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: mc-player-agent
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@v4
+      - run: bash gradlew -p harness test installDist run --args=demo --no-daemon
+      - run: bash gradlew -p examples/collect-return :test :run --no-daemon
+      - run: node ../scripts/verify-java-skill.cjs
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mc-harness-tests
+          path: |
+            mc-player-agent/harness/build/reports/tests/test/
+            mc-player-agent/examples/collect-return/build/reports/tests/test/
+  minecraft-build:
+    runs-on: windows-latest
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: mc-player-agent
+        shell: cmd
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: gradle/actions/setup-gradle@v4
+      - run: gradlew.bat :harness:test :collect-return-example:test :fabric:build :neoforge:build --no-daemon
+      - run: gradlew.bat :neoforge:runGameTestServer --no-daemon
+      - run: gradlew.bat :fabric:runGameTestServer --no-daemon
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: mc-loaders-verification
+          path: |
+            mc-player-agent/fabric/build/libs/
+            mc-player-agent/neoforge/build/libs/
+            mc-player-agent/fabric/runs/gametestserver/logs/latest.log
+            mc-player-agent/neoforge/runs/gametestserver/logs/latest.log

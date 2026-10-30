@@ -1,0 +1,65 @@
+{
+  "participant_id": "P001",
+  "recorded_on": "2026-10-22",
+  "status": "前测口述已整理，参与条件与同意待确认",
+  "recruitment_relationship": "项目成员舍友，熟人样本",
+  "cohort": "待确认VUP观看范围，游戏AI兴趣候选",
+  "age18_confirmed": null,
+  "participation_consent": null,
+  "project_contributor": null,
+  "Q2": {
+    "answer": "每周4次以上",
+    "option": "D",
+    "context": "主要因赛事直播，口述提到VCT CN",
+    "vup_scope_confirmed": false
+  },
+  "Q3": {
+    "answers": [
+      "游戏直播",
+      "AI内容"
+    ],
+    "options": [
+      "A",
+      "D"
+    ]
+  },
+  "Q4": {
+    "answer": "直播超过30分钟",
+    "option": "D",
+    "long_video_answer": null
+  },
+  "Q5": {
+    "creator": "航航 hang",
+    "user_correction_raw": "航航hang行、",
+    "account_url": null,
+    "reason": "关闭弹幕后直播较安静，专心讲解比赛，福利比较好",
+    "benefits_meaning": null
+  },
+  "Q6": {
+    "overall_familiarity": null,
+    "neuro_watched": false,
+    "lumi_nox_watched": false
+  },
+  "Q7": {
+    "knows_project_member": true,
+    "project_contributor": null
+  },
+  "Q8": {
+    "paid_before": true,
+    "description": "较少",
+    "categories": null,
+    "amount": null
+  },
+  "Q9": {
+    "timing_consent": null,
+    "followup_consent": null,
+    "estimated_interview_minutes": 3,
+    "estimate_source": "访谈者口述估计",
+    "actual_duration_sec": null
+  },
+  "required_watch_sec": null,
+  "optional_watch_sec": null,
+  "return7d": null,
+  "quote_permission": null,
+  "sample_watch_status": "尚未记录样片体验"
+}

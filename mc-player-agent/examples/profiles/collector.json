@@ -1,0 +1,10 @@
+{
+  "schema_version": 1,
+  "backend": "OLLAMA",
+  "endpoint": "http://127.0.0.1:11434/v1",
+  "model": "your-installed-model",
+  "prompt": "优先收集可见掉落物，及时返回指定位置；遇到失败说明原因。",
+  "chat_summary": true,
+  "limits": {"max_runtime_ms": 600000, "max_model_requests": 60, "max_actions": 1000},
+  "enabled_skills": ["minecraft:pickup_items", "minecraft:navigate"]
+}

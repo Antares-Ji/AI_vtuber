@@ -1,13 +1,13 @@
 # 岁歌 Minecraft MCP Demo
 
-链路：直播面板目标/观众建议 → 本地千问规划 → 本地 MCP 客户端 → stdio MCP 服务 → 已有 Mineflayer 控制服务 → 游戏结果 → 千问下一轮。
+链路：直播面板目标/确认后的观众建议 → 所选游戏 API 模型规划（默认 DeepSeek） → 本地 MCP 客户端 → stdio MCP 服务 → 已有 Mineflayer 控制服务 → 游戏结果 → 下一轮规划。
 
-Codex 和 Computer Use 不参与游戏逐步执行。当前适配沿用本地千问的严格 JSON 动作输出，由本地主机转换成 MCP 调用；不声称模型原生支持 MCP 协议，也不是新增权重训练。
+模型通过严格 JSON 返回动作，由本地主机转换成 MCP 调用。DeepSeek 配置见根目录 `docs/minecraft-deepseek.md`；游戏控制无需本地 4B 模型。聊天与主播互动使用独立配置。
 
 ## 启动与使用
 
 1. 使用 Java 版测试世界并对局域网开放。启动项目原有 `scripts/minecraft-session.js`，通过 `MC_PORT` 指定当次端口；不要复用已过期端口。
-2. 启动本地千问服务和主服务。主服务已使用此 MCP 适配器。控制令牌从本地 `logs/minecraft-control.json` 读取，不发送给模型。
+2. 启动主服务，在面板保存并检查 DeepSeek 密钥。主服务已使用此 MCP 适配器。控制令牌从本地 `logs/minecraft-control.json` 读取，不发送给模型。
 3. 打开 http://127.0.0.1:3000/minecraft.html ，选择工作台或铁镐目标；也可在目标输入框写目标。每次显式启动限时15分钟，两个预设根据背包目标物品确认结束。
 4. 在聊天区提出饮食、安全等建议；它们与原目标一起进入下一次规划。当前技能不因普通聊天强行中断；立即停止按钮会取消任务并保留连接。
 5. 游戏画面需用户点击选择共享窗口。录制演示按钮需用户选择录制面板所在窗口/标签页，结束后下载 WebM；声音取决于浏览器支持及共享选择。可通过舞台下方“主播语音”开启朗读。
@@ -18,7 +18,7 @@ Codex 和 Computer Use 不参与游戏逐步执行。当前适配沿用本地千
 
 工具：`minecraft_observe`、`minecraft_action_schema`、`minecraft_execute`、`minecraft_task`、`minecraft_cancel`、`minecraft_defend`。
 
-独立本地模型主机：`node run-qwen.cjs --goal "采集木头并制作工作台" --steps 8 --execute`。省略 `--execute` 仅生成规划。它真实通过 MCP 提交动作，不经人工转发；端口和模型服务须先就绪。
+独立模型主机（保留旧文件名）：`node run-qwen.cjs --goal "采集木头并制作工作台" --steps 8 --execute`。读取面板保存的游戏引擎配置；省略 `--execute` 仅生成规划。它通过 MCP 提交动作，需先配置 API 密钥并连接游戏。
 
 ## 验收边界
 

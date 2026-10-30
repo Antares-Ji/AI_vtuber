@@ -32,3 +32,14 @@ body { margin: 0; overflow: hidden; background: var(--background); color: var(--
 .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 @media (max-width: 720px) { .danmaku-composer { width: calc(100vw - 48px); top: auto; bottom: 150px; }.subtitles { right: 24px; bottom: 24px; }.subtitles p { font-size: 18px; } }
 @keyframes fly-left { to { transform: translateX(-150vw); } }
+
+/* Dedicated OBS composition: game on the left, the existing Live2D on the right. */
+.spire-overlay,.spire-overlay body,.spire-overlay .stream-stage{background:transparent!important}
+.spire-overlay .stream-topbar,.spire-overlay .danmaku-composer{display:none!important}
+.spire-overlay .danmaku.proactive{display:none}
+.spire-overlay #live2d-stage,.spire-overlay .avatar-fallback{inset:auto 0 0 auto;width:26vw;height:94vh}
+.spire-overlay .subtitles{left:3vw;right:27vw;top:2vh;bottom:auto;border-color:#c5ac75;background:rgba(24,27,43,.88);padding:12px 22px}
+.spire-overlay .subtitles p{font-size:clamp(20px,1.6vw,40px);line-height:1.4}
+.spire-overlay .subtitles span{color:#e6d4a6;font-size:clamp(14px,1vw,25px)}
+.spire-overlay .subtitles:has(p:empty){display:none}
+.spire-overlay .model-error{left:77vw;right:1vw;bottom:1vh;font-size:18px}

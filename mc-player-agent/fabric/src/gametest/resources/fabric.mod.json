@@ -1,0 +1,16 @@
+{
+  "schemaVersion": 1,
+  "id": "mcplayeragent_tests",
+  "version": "0",
+  "name": "MC Player Agent development tests",
+  "environment": "*",
+  "entrypoints": {
+    "fabric-gametest": [
+      "dev.mcplayeragent.gametest.AgentSmokeTests"
+    ]
+  },
+  "depends": {
+    "mcplayeragent": "*",
+    "fabric-gametest-api-v1": "*"
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "name": "aivtuber-sts2-deepseek",
+  "version": "0.1.0",
+  "private": true,
+  "type": "commonjs",
+  "scripts": {
+    "start": "node service.cjs",
+    "doctor": "node cli.cjs doctor",
+    "play": "node cli.cjs play",
+    "test": "node --test test.cjs"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/client": "2.3.1",
+    "ajv": "8.17.1"
+  }
+}

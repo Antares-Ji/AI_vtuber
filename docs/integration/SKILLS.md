@@ -1,0 +1,20 @@
+# 已注册 Skill
+
+由 `node scripts/skill-catalog.cjs` 从实际注册表生成；`--check` 可检查文档是否过期。每个 Skill 都有独立说明，执行器按环境分文件实现。
+
+| Skill | 模式 | 用途 |
+| --- | --- | --- |
+| [mcplayer:harness-demo](../../skills/mcplayer/harness-demo/README.md) | simulation | 运行原版 Java AgentHarness 的确定性演示，保留原始验收与任务记录。 |
+| [mcplayer:inspect-profile](../../skills/mcplayer/inspect-profile/README.md) | read | 查看 ZIP 的版本化示例配置与原生 Skill 清单；实际 MC 继续使用 F8/F9。 |
+| [minecraft:legacy-status](../../skills/minecraft/legacy-status/README.md) | read | 读取本地 Mineflayer 兼容后端、反射与自主任务状态。 |
+| [minecraft:legacy-play](../../skills/minecraft/legacy-play/README.md) | live | 保留 Mineflayer 生存反射、脱困、任务复盘及解说；与原生 MC 后端分开运行。 |
+| [sts2:knowledge](../../skills/sts2/knowledge/README.md) | read | 检索现有卡牌知识、人工核验经验与条件化复盘，不重新训练或覆盖资料。 |
+| [sts2:play](../../skills/sts2/play/README.md) | live | 复用尖塔 MCP/DeepSeek 执行与复盘链路；停止后等待执行器释放。 |
+| [sts2:native-play](../../skills/sts2/native-play/README.md) | live | 复用纯视觉、角色决策及原生键鼠循环，保留已核验的通关经验。 |
+| [sts2:learning-status](../../skills/sts2/learning-status/README.md) | read | 查看持久学习覆盖率、审核集数量和经验来源；模型推断不升级为实战事实。 |
+| [sts2:learn](../../skills/sts2/learn/README.md) | learning | 运行既有卡库导入、有限批次分析和长期记忆写入。analyze=true会调用模型；不是权重微调。 |
+| [genshin:plan](../../skills/genshin/plan/README.md) | read | 复用原神有限技能规划；生成计划不发送游戏输入。 |
+| [genshin:demo](../../skills/genshin/demo/README.md) | simulation | 运行原神模拟技能，明确标记无游戏输入。 |
+| [genshin:bettergi](../../skills/genshin/bettergi/README.md) | live | 保留 BetterGI 接入：未完成启动、取消与证据桥接时拒绝实机执行。 |
+| [genshin:doctor](../../skills/genshin/doctor/README.md) | read | 诊断 BGI 路径与桥接成熟度；程序存在不代表已连接游戏。 |
+| [streamer:context](../../skills/streamer/context/README.md) | read | 统一主播上下文格式，保留人格、记忆和语音系统，区分计划与事实。 |

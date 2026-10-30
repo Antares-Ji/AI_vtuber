@@ -1,0 +1,46 @@
+{
+  "at": "2026-10-21T01:11:55.439Z",
+  "checks": [
+    {
+      "name": "selectMinecraft",
+      "code": 200,
+      "body": {
+        "game": "minecraft"
+      }
+    },
+    {
+      "name": "minecraftContextIsolated",
+      "passed": true
+    },
+    {
+      "name": "invalidGame",
+      "code": 400,
+      "body": {
+        "error": "Unknown game"
+      }
+    },
+    {
+      "name": "crossOrigin",
+      "code": 403,
+      "body": {
+        "error": "Local console only"
+      }
+    },
+    {
+      "name": "selectSpire",
+      "code": 200,
+      "body": {
+        "game": "sts2"
+      }
+    },
+    {
+      "name": "gameUnchanged",
+      "running": false,
+      "steps": 100
+    },
+    {
+      "name": "activeContext",
+      "game": "sts2"
+    }
+  ]
+}

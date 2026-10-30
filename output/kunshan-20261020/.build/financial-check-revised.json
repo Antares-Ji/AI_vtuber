@@ -1,0 +1,46 @@
+[
+  {
+    "quarter": 1,
+    "tips": 1200,
+    "members": 0,
+    "merch": 0,
+    "brand": 0,
+    "revenue": 1200,
+    "cost": 13000,
+    "balance": -11800,
+    "cumulative_after_launch": -36800
+  },
+  {
+    "quarter": 2,
+    "tips": 3000,
+    "members": 0,
+    "merch": 0,
+    "brand": 0,
+    "revenue": 3000,
+    "cost": 13000,
+    "balance": -10000,
+    "cumulative_after_launch": -46800
+  },
+  {
+    "quarter": 3,
+    "tips": 5300,
+    "members": 5250,
+    "merch": 5000,
+    "brand": 0,
+    "revenue": 15550,
+    "cost": 16500,
+    "balance": -950,
+    "cumulative_after_launch": -47750
+  },
+  {
+    "quarter": 4,
+    "tips": 7900,
+    "members": 14000,
+    "merch": 10000,
+    "brand": 10000,
+    "revenue": 41900,
+    "cost": 20000,
+    "balance": 21900,
+    "cumulative_after_launch": -25850
+  }
+]
