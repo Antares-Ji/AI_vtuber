@@ -1,6 +1,12 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { NativeAutonomy, observation, actionFor, attachInspectedCard, collapseRepeatedTargets, actionOptions, attachGroundedCard, plannerObservation, groundedMapObservation, attachPlayerFacts } = require('../src/sts2/native-autonomy');
+const { NativeAutonomy, observation, actionFor, attachInspectedCard, collapseRepeatedTargets, actionOptions, attachGroundedCard, plannerObservation, groundedMapObservation, attachPlayerFacts, nativePlanningOptions } = require('../src/sts2/native-autonomy');
+test('native role planning enables bounded thinking and validates explicit overrides',()=>{
+  assert.deepEqual(nativePlanningOptions({}),{thinking:{type:'enabled'},reasoning_effort:'high',max_tokens:4096});
+  assert.deepEqual(nativePlanningOptions({STS2_NATIVE_THINKING:'disabled'}),{thinking:{type:'disabled'},max_tokens:1000});
+  assert.equal(nativePlanningOptions({STS2_NATIVE_THINKING:'low',STS2_NATIVE_MAX_TOKENS:'8192'}).max_tokens,8192);
+  for(const env of [{STS2_NATIVE_THINKING:'typo'},{STS2_NATIVE_MAX_TOKENS:'0'},{STS2_NATIVE_MAX_TOKENS:'999999'},{STS2_NATIVE_MAX_TOKENS:'NaN'},{STS2_NATIVE_MAX_TOKENS:'1000.5'}])assert.throws(()=>nativePlanningOptions(env),/STS2_NATIVE/);
+});
 const view = { scene:'battle',summary:'hand',frameId:'1',energy:1,targets:[{id:'card',kind:'card',label:'打击',point:[400,900],card:{name:'打击',cost:1,type:'攻击',description:'造成6点伤害。',observedFrameId:'1'}},{id:'enemy',kind:'enemy',label:'敌人',point:[700,500]}] };
 const visionFor = (body, current=view) => body.mode==='energy' ? {energy:1} : body.mode==='battle' ? {...current,targets:current.targets.filter(t=>t.kind!=='card')} : body.mode==='hand' ? {...current,targets:current.targets.filter(t=>t.kind==='card')} : current;
 const groundedMap=()=>({parsed:{scene:'map',targets:[{id:'N1',label:'问号',point:[410,509],grounding:'local_cv_qwen',directly_connected:true}],map_grounding:{source:'local_cv_qwen',marker_id:'R1',marker_point:[412,630]}},pixel_candidates:{red:[{id:'R1',point:[412,630]}],dark:[{id:'N1',point:[410,509]}]}});
@@ -137,10 +143,12 @@ test('identical repeated target facts collapse but conflicting shared coordinate
   value.targets[1]={...enemy,id:'different',label:'不同目标'};
   assert.throws(()=>observation(collapseRepeatedTargets(value)),/重复/);
 });
-test('zero energy offers grounded end-turn instead of unaffordable cards',async()=>{
+test('zero energy keeps inspection and grounded end-turn but rejects unaffordable drags',async()=>{
   let input;
   const agent=new NativeAutonomy({pause:async()=>{},decide:async(v)=>{
-    assert.deepEqual(v.targets.map(t=>t.id),['end-turn']);
+    assert.ok(v.targets.some(t=>t.id==='card'));
+    assert.deepEqual(actionOptions(v).cards[0].allowed,['hover']);
+    assert.throws(()=>actionFor({kind:'drag',fromId:'card',targetId:'enemy'},v),/本地视觉/);
     return {kind:'click',targetId:'end-turn'};
   },request:async(route,body)=>{
     if(route==='vision-state')return {ready:true,sceneSupport:true};
@@ -149,6 +157,21 @@ test('zero energy offers grounded end-turn instead of unaffordable cards',async(
     input=body;return {id:'2',status:'awaiting_visual_review'};
   }});
   agent.start({maxSteps:1});await agent.task;assert.deepEqual(input.to,[.89,.82]);
+});
+test('zero energy allows a fresh fully-read zero-cost card through the full API loop',async()=>{
+  let input;
+  const free={...view,targets:[{...view.targets[0],card:{...view.targets[0].card,cost:0}},view.targets[1],{id:'old-end',kind:'button',label:'结束回合',point:[890,820]}]};
+  const agent=new NativeAutonomy({pause:async()=>{},decide:async(v)=>{
+    assert.equal(v.targets.filter(t=>t.kind==='button').length,1);
+    assert.ok(actionOptions(v).cards[0].allowed.includes('drag'));
+    return {kind:'drag',fromId:'card',targetId:'enemy'};
+  },request:async(route,body)=>{
+    if(route==='vision-state')return {ready:true,sceneSupport:true};
+    if(route==='read-card')return {parsed:body.mode==='energy'?{energy:0,maximum:3}:body.target?{target_visible:true,target_center:[.89,.82]}:visionFor(body,free)};
+    if(body.kind==='capture')return {id:'1',status:'captured_only'};
+    input=body;return {id:'2',status:'awaiting_visual_review'};
+  }});
+  agent.start({maxSteps:1});await agent.task;assert.equal(input.kind,'drag');assert.deepEqual(input.to,[.7,.5]);
 });
 test('map action uses separately grounded point instead of scene estimate',async()=>{
   let input;
