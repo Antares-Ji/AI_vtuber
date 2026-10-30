@@ -70,7 +70,7 @@ test('zero energy offers grounded end-turn instead of unaffordable cards',async(
     return {kind:'click',targetId:'end-turn'};
   },request:async(route,body)=>{
     if(route==='vision-state')return {ready:true,sceneSupport:true};
-    if(route==='read-card')return {parsed:body.mode==='energy'?{energy:0,maximum:3}:body.target?{target_center:[.89,.82]}:visionFor(body)};
+    if(route==='read-card')return {parsed:body.mode==='energy'?{energy:0,maximum:3}:body.target?{target_visible:true,target_center:[.89,.82]}:visionFor(body)};
     if(body.kind==='capture')return {id:'1',status:'captured_only'};
     input=body;return {id:'2',status:'awaiting_visual_review'};
   }});
@@ -81,11 +81,37 @@ test('map action uses separately grounded point instead of scene estimate',async
   const map={scene:'map',targets:[{id:'node',label:'中上敌人',point:[419,486]}]};
   const agent=new NativeAutonomy({pause:async()=>{},decide:async()=>({kind:'click',targetId:'node'}),request:async(route,body)=>{
     if(route==='vision-state')return {ready:true,sceneSupport:true};
-    if(route==='read-card')return {parsed:body.target?{target_center:[.482,.536]}:map};
+    if(route==='read-card')return {parsed:body.target?{target_visible:true,target_center:[.482,.536]}:map};
     if(body.kind==='capture')return {id:'1',status:'captured_only'};
     input=body;return {id:'2',status:'awaiting_visual_review'};
   }});
   agent.start({maxSteps:1});await agent.task;assert.deepEqual(input.to,[.482,.536]);
+});
+test('map readers that disagree or cannot see the target never authorize input',async()=>{
+  for(const located of [{target_visible:false,target_center:[.42,.48]},{target_visible:true,target_center:[.42,.9]}]) {
+    let actions=0;
+    const agent=new NativeAutonomy({pause:async()=>{},decide:async()=>({kind:'click',targetId:'node'}),request:async(route,body)=>{
+      if(route==='vision-state')return {ready:true,sceneSupport:true};
+      if(route==='read-card')return {parsed:body.target?located:{scene:'map',targets:[{id:'node',label:'敌人',point:[420,480]}]}};
+      if(body.kind==='capture')return {id:'1',status:'captured_only'};
+      actions++;return {id:'input',status:'awaiting_visual_review'};
+    }});
+    agent.start();await agent.task;assert.equal(actions,0);assert.equal(agent.state.stage,'error');
+  }
+});
+test('alternating map hovers cannot escape the navigation budget or force a map close',async()=>{
+  let captures=0,actions=0;
+  const map={scene:'map',targets:[{id:'left',label:'左侧敌人',point:[300,500]},{id:'right',label:'右侧敌人',point:[600,500]}]};
+  const agent=new NativeAutonomy({pause:async()=>{},decide:async(v)=>{
+    assert.deepEqual(v.targets.map(t=>t.id),['left','right']);
+    return {kind:'hover',targetId:captures%2?'left':'right'};
+  },request:async(route,body)=>{
+    if(route==='vision-state')return {ready:true,sceneSupport:true};
+    if(route==='read-card')return {parsed:body.target?{target_visible:true,target_center:[captures%2?.3:.6,.5]}:{...map,summary:`不同措辞${captures}`}};
+    if(body.kind==='capture')return {id:String(++captures),status:'captured_only'};
+    actions++;return {id:'input',status:'awaiting_visual_review'};
+  }});
+  agent.start();await agent.task;assert.equal(actions,8);assert.equal(captures,9);assert.match(agent.state.lastError,/连续八次/);
 });
 test('invalid visual JSON is retried before any decision or input',async()=>{
   let reads=0,plans=0;

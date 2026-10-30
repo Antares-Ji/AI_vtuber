@@ -149,7 +149,7 @@ class NativeAutonomy {
     return this.snapshot();
   }
   async loop(signal) {
-    const history = []; let idle = 0, repeated = 0, previous = '', hoveredPoint = null;
+    const history = []; let idle = 0, repeated = 0, previous = '', hoveredPoint = null, navigationObservations = 0;
     const log = data => fs.appendFileSync(this.state.logFile,JSON.stringify({at:new Date().toISOString(),...data})+'\n');
     const call = async (route, body) => { signal.throwIfAborted(); return this.request(route,body,signal,this.token); };
     let health = await call('vision-state');
@@ -190,15 +190,19 @@ class NativeAutonomy {
           this.state.stage='vision-retry';
         }
       }
+      // Opening/closing the map and changing hover targets are not room progress.
+      // Bound that whole navigation episode, even when generated summaries vary.
+      navigationObservations = ['map','room'].includes(view.scene) ? navigationObservations + 1 : 0;
+      if (navigationObservations > 8) throw Error('地图与房间连续八次观察未进入新场景，已停止；需检查本地地图识别');
       if (view.scene === 'map') {
         this.state.stage='map-reading';
         vision=await call('read-card',{frameId:frame.id,mode:'map'});
         view=observation(vision.parsed);
         if (view.scene !== 'map' || !view.targets.length) throw Error('本地模型未识别出可靠的下一步地图节点');
-        if (history.length>=2 && history.slice(-2).every(h=>h.before.scene==='map' && h.decision.targetId!=='map-return')) {
+        if (history.length>=2 && history.slice(-2).every(h=>h.before?.scene==='map' && !h.rejected && h.decision.kind==='click' && h.decision.targetId!=='map-return')) {
           const back=await call('read-card',{frameId:frame.id,target:'左侧红色返回箭头按钮'});
           const p=back.parsed?.target_center;
-          if (!Array.isArray(p)||p.length!==2||p.some(n=>typeof n!=='number'||n<0||n>1)) throw Error('地图两次未推进，且无法定位返回按钮');
+          if (back.parsed?.target_visible!==true || !Array.isArray(p)||p.length!==2||p.some(n=>typeof n!=='number'||!Number.isFinite(n)||n<0||n>1)) throw Error('地图两次未推进，且无法定位返回按钮');
           view={scene:'map',summary:'连续地图操作后仍在地图，可能底层事件尚未完成。先关闭地图检查底层界面，再决定下一步。',targets:[{id:'map-return',label:'关闭地图，返回当前房间检查未完成事件',point:p.map(n=>n*1000),enabled:true}]};
         }
       }
@@ -240,7 +244,7 @@ class NativeAutonomy {
           if (remaining===0) {
             const end=await call('read-card',{frameId:frame.id,target:'右下方结束回合按钮的中心'});
             const p=end.parsed?.target_center;
-            if (!Array.isArray(p)||p.length!==2||p.some(n=>typeof n!=='number'||!Number.isFinite(n)||n<0||n>1)) throw Error('能量为0，但未能定位结束回合按钮');
+            if (end.parsed?.target_visible!==true || !Array.isArray(p)||p.length!==2||p.some(n=>typeof n!=='number'||!Number.isFinite(n)||n<0||n>1)) throw Error('能量为0，但未能定位结束回合按钮');
             view={...view,targets:[{id:'end-turn',label:'结束当前回合（剩余能量0）',point:p.map(n=>n*1000),enabled:true}]};
           }
         }
@@ -258,13 +262,16 @@ class NativeAutonomy {
           history.push({decision,rejected:true,error:error.message,note:'尚未发送任何键鼠输入，重新依据可用动作规划。'});
         }
       }
-      if (action && view.scene === 'map' && decision.targetId !== 'map-return') {
+      if (action && ['click','hover'].includes(decision.kind) && view.scene === 'map' && decision.targetId !== 'map-return') {
         this.state.stage='target-grounding';
         const selected=view.targets.find(t=>t.id===decision.targetId);
         const rank=[...view.targets].sort((a,b)=>a.point[0]-b.point[0]).findIndex(t=>t.id===selected.id)+1;
         const located=await call('read-card',{frameId:frame.id,target:`红箭头正上方最近一排从左到右第${rank}个深黑色小节点的中心。排除图例、远处淡色节点和箭头下方的大建筑`});
         const point=located.parsed?.target_center;
-        if (!Array.isArray(point) || point.length!==2 || point.some(n=>typeof n!=='number'||!Number.isFinite(n)||n<0||n>1)) throw Error('未能单独定位选中的地图节点');
+        if (located.parsed?.target_visible!==true || !Array.isArray(point) || point.length!==2 || point.some(n=>typeof n!=='number'||!Number.isFinite(n)||n<0||n>1)) throw Error('未能单独定位选中的地图节点');
+        // Independent readers must refer to the same neighborhood. Do not silently
+        // replace a proposed node with a distant one when either reader is wrong.
+        if (Math.hypot(point[0]-selected.point[0]/1000,point[1]-selected.point[1]/1000)>.15) throw Error('地图节点识别与独立定位不一致，未发送输入');
         action={...action,to:point};
         log({event:'target_grounded',frameId:frame.id,target:selected.label,point,record:located.record});
       }
