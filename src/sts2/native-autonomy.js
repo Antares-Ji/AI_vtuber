@@ -89,6 +89,19 @@ function actionOptions(view) {
   return {cards,note:'这是程序按本帧校验出的可执行动作。allowed含drag的牌已经读清，可直接选择目标；只有hover的牌需要先展开。仍由角色决定策略，候选动作不代表已经执行。'};
 }
 
+function attachGroundedCard(view, parsed, hover, located) {
+  if (!hover || parsed?.uncertain !== false || parsed.cards?.length !== 1 || located?.target_visible !== true) return view;
+  const card=parsed.cards[0], point=located.target_center;
+  if (typeof card.name !== 'string' || !card.name.trim() || !Number.isInteger(card.cost) || card.cost<0 ||
+      typeof card.type !== 'string' || !card.type.trim() || typeof card.description !== 'string' || !card.description.trim()) return view;
+  if (!Array.isArray(point) || point.length!==2 || point.some(v=>typeof v!=='number'||!Number.isFinite(v)||v<0||v>1) ||
+      Math.abs(point[0]-hover[0])>.18 || point[1]<.4 || point[1]<hover[1]-.45 || point[1]>Math.min(.98,hover[1]+.12)) return view;
+  const fullPoint=point.map(v=>v*1000);
+  // A separate current-frame grounding can locate a lifted card omitted by hand OCR.
+  const targets=view.targets.filter(t=>JSON.stringify(t.point)!==JSON.stringify(fullPoint));
+  return observation({...view,targets:[...targets,{id:`inspected-${view.frameId}`,kind:'card',label:card.name,point:fullPoint,enabled:true,card:{...card,observedFrameId:view.frameId}}]});
+}
+
 class NativeAutonomy {
   constructor({ persona = () => ({}), request, decide, pause = ms => delay(ms) } = {}) {
     this.persona = persona; this.request = request; this.customDecide = decide; this.pause = pause;
@@ -201,6 +214,12 @@ class NativeAutonomy {
           this.state.stage='card-reading';
           const inspected = await call('read-card',{frameId:frame.id,mode:'card',crop:[Math.max(0,hoveredPoint[0]-.18),.3,Math.min(1,hoveredPoint[0]+.18),1]});
           view=attachInspectedCard(view,inspected.parsed,hoveredPoint);
+          if (!view.targets.some(t=>t.card?.observedFrameId===frame.id) && inspected.parsed?.uncertain===false && inspected.parsed.cards?.length===1) {
+            const name=String(inspected.parsed.cards[0].name||'').slice(0,60);
+            const located=await call('read-card',{frameId:frame.id,target:`当前悬停放大、牌名为${JSON.stringify(name)}的那张卡牌内部中心；排除旁边的小手牌和帮助浮窗`});
+            view=attachGroundedCard(view,inspected.parsed,hoveredPoint,located.parsed);
+            log({event:'card_grounded',frameId:frame.id,record:located.record,identified:view.targets.filter(t=>t.card?.observedFrameId===frame.id).map(t=>t.id)});
+          }
           log({event:'card_read',frameId:frame.id,record:inspected.record,identified:view.targets.filter(t=>t.card?.observedFrameId===frame.id).map(t=>t.id)});
         }
         this.state.stage='energy-reading';
@@ -264,4 +283,4 @@ class NativeAutonomy {
     this.state.stage='step-limit';
   }
 }
-module.exports = { NativeAutonomy, observation, actionFor, attachInspectedCard, collapseRepeatedTargets, actionOptions };
+module.exports = { NativeAutonomy, observation, actionFor, attachInspectedCard, collapseRepeatedTargets, actionOptions, attachGroundedCard };

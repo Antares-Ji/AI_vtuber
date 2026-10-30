@@ -32,6 +32,16 @@ windows_python() {
   fi
 }
 
+windows_node() {
+  if [[ -n "${WSL_WINDOWS_NODE:-${AI_VTUBER_NODE:-}}" ]]; then
+    windows_executable "${WSL_WINDOWS_NODE:-$AI_VTUBER_NODE}"
+  elif [[ -f "$project_root/runtime/node/node.exe" ]]; then
+    windows_executable "$project_root/runtime/node/node.exe"
+  else
+    windows_executable node.exe
+  fi
+}
+
 mode=${1:---help}
 (( $# == 0 )) || shift
 case "$mode" in
@@ -48,6 +58,7 @@ Usage: bash scripts/wsl-run.sh MODE [ARGS...]
 Use relative project paths for Windows program arguments, or Windows paths.
 Linux /mnt/... paths in arbitrary Windows arguments are not auto-converted.
 WSL_WINDOWS_PYTHON and WSL_WINDOWS_NODE may override the Windows runtimes.
+Windows Node also supports AI_VTUBER_NODE, then runtime/node/node.exe before PATH.
 This runner does not elevate Windows privileges or request UAC approval.
 USAGE
     ;;
@@ -58,7 +69,7 @@ USAGE
       printf '%s: %s\n' "$tool" "$(command -v "$tool" || printf 'unavailable')"
     done
     printf 'Windows Python: %s\n' "$(windows_python || printf 'unavailable')"
-    printf 'Windows Node: %s\n' "$(windows_executable "${WSL_WINDOWS_NODE:-node.exe}" || printf 'unavailable')"
+    printf 'Windows Node: %s\n' "$(windows_node || printf 'unavailable')"
     identity=$(windows_executable whoami.exe) || fail 'Windows interop unavailable'
     printf 'Windows identity: '
     "$identity"
@@ -79,7 +90,7 @@ USAGE
     exec "$executable" "$@"
     ;;
   win-node)
-    executable=$(windows_executable "${WSL_WINDOWS_NODE:-node.exe}") || fail 'Windows Node unavailable; set WSL_WINDOWS_NODE'
+    executable=$(windows_node) || fail 'Windows Node unavailable; set WSL_WINDOWS_NODE'
     exec "$executable" "$@"
     ;;
   shell)

@@ -1,12 +1,42 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { NativeAutonomy, observation, actionFor, attachInspectedCard, collapseRepeatedTargets, actionOptions } = require('../src/sts2/native-autonomy');
+const { NativeAutonomy, observation, actionFor, attachInspectedCard, collapseRepeatedTargets, actionOptions, attachGroundedCard } = require('../src/sts2/native-autonomy');
 const view = { scene:'battle',summary:'hand',frameId:'1',energy:1,targets:[{id:'card',kind:'card',label:'打击',point:[400,900],card:{name:'打击',cost:1,type:'攻击',description:'造成6点伤害。',observedFrameId:'1'}},{id:'enemy',kind:'enemy',label:'敌人',point:[700,500]}] };
 const visionFor = (body, current=view) => body.mode==='energy' ? {energy:1} : body.mode==='battle' ? {...current,targets:current.targets.filter(t=>t.kind!=='card')} : body.mode==='hand' ? {...current,targets:current.targets.filter(t=>t.kind==='card')} : current;
+test('an omitted lifted card needs complete current OCR and separate nearby visible grounding',()=>{
+  const current={...view,targets:[view.targets[1]]};
+  const parsed={uncertain:false,cards:[{name:'预备打击',cost:1,type:'攻击',description:'造成7点伤害。在本回合内获得2点力量。'}]};
+  const located={target_visible:true,target_center:[.4,.65]};
+  const grounded=attachGroundedCard(current,parsed,[.4,.9],located);
+  assert.deepEqual(actionFor({kind:'drag',fromId:'inspected-1',targetId:'enemy'},grounded),{kind:'drag',from:[.4,.65],to:[.7,.5]});
+  for(const wrong of [{...located,target_visible:false},{...located,target_center:[.8,.65]},{...located,target_center:[.4,.2]},{...located,target_center:[NaN,.65]}])assert.equal(attachGroundedCard(current,parsed,[.4,.9],wrong),current);
+  assert.equal(attachGroundedCard(current,{...parsed,uncertain:true},[.4,.9],located),current);
+});
 test('planner options expose only currently affordable fully observed drag destinations',()=>{
   assert.deepEqual(actionOptions(view).cards[0].destinations,[{targetId:'enemy',label:'敌人'}]);
   assert.deepEqual(actionOptions({...view,energy:0}).cards[0].allowed,['hover']);
   assert.deepEqual(actionOptions({...view,frameId:'different'}).cards[0].destinations,[]);
+});
+test('the autonomous API loop grounds an expanded card omitted by the hand reader before dragging',async()=>{
+  let captures=0,plans=0,groundings=0;const sent=[];
+  const parsed={uncertain:false,cards:[{name:'打击',cost:1,type:'攻击',description:'造成6点伤害。'}]};
+  const agent=new NativeAutonomy({pause:async()=>{},decide:async(current)=>{
+    if(++plans===1)return {kind:'hover',targetId:'card'};
+    assert.equal(current.targets.find(t=>t.id==='inspected-2').card.observedFrameId,'2');
+    return {kind:'drag',fromId:'inspected-2',targetId:'enemy'};
+  },request:async(route,body)=>{
+    if(route==='vision-state')return {ready:true,sceneSupport:true};
+    if(route==='read-card'){
+      if(body.target){groundings++;return {parsed:{target_visible:true,target_center:[.4,.65]}};}
+      if(body.mode==='card')return {parsed};
+      if(body.mode==='hand' && captures===2)return {parsed:{scene:'battle',targets:[]}};
+      return {parsed:visionFor(body)};
+    }
+    if(body.kind==='capture')return {id:String(++captures),status:'captured_only'};
+    sent.push(body.kind);return {id:'input',status:'awaiting_visual_review'};
+  }});
+  agent.start({maxSteps:2});await agent.task;
+  assert.deepEqual(sent,['hover','drag']);assert.equal(groundings,1);assert.equal(agent.state.stage,'step-limit');
 });
 test('identical repeated target facts collapse but conflicting shared coordinates remain invalid',()=>{
   const enemy=view.targets[1];
