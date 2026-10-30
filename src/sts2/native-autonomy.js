@@ -116,6 +116,16 @@ function groundedMapObservation(result) {
   return view;
 }
 
+function attachPlayerFacts(view, parsed) {
+  const raw=parsed?.player || {};
+  const number=n=>Number.isInteger(n)&&n>=0&&n<=99999?n:null;
+  const player={hp:number(raw.hp),max_hp:number(raw.max_hp),block:number(raw.block)};
+  if(player.hp===null||player.max_hp===null||player.max_hp===0||player.hp>player.max_hp){player.hp=null;player.max_hp=null;}
+  // An enemy/hand reader's prose must not reintroduce energy or card text as block.
+  const known=n=>n===null?'未知':n;
+  return {...view,player,summary:`玩家生命${known(player.hp)}/${known(player.max_hp)}，当前格挡${known(player.block)}。`};
+}
+
 function attachGroundedCard(view, parsed, hover, located) {
   if (!hover || parsed?.uncertain !== false || parsed.cards?.length !== 1 || located?.target_visible !== true) return view;
   const card=parsed.cards[0], point=located.target_center;
@@ -244,6 +254,12 @@ class NativeAutonomy {
         if (fieldView.scene !== 'battle' || handView.scene !== 'battle') throw Error('战斗分区识别不一致');
         view = observation({...fieldView,frameId:frame.id,targets:[...fieldView.targets,...handView.targets]});
         log({event:'battle_read',frameId:frame.id,fieldRecord:field.record,handRecord:hand.record});
+        if(health.playerSupport) {
+          this.state.stage='player-reading';
+          const player=await call('read-card',{frameId:frame.id,mode:'player',crop:[0,.25,.45,.78]});
+          view=attachPlayerFacts(view,player.parsed);
+          log({event:'player_read',frameId:frame.id,player:view.player,record:player.record});
+        }
         if (hoveredPoint) {
           this.state.stage='card-reading';
           const inspected = await call('read-card',{frameId:frame.id,mode:'card',crop:[Math.max(0,hoveredPoint[0]-.18),.3,Math.min(1,hoveredPoint[0]+.18),1]});
@@ -320,4 +336,4 @@ class NativeAutonomy {
     this.state.stage='step-limit';
   }
 }
-module.exports = { NativeAutonomy, observation, actionFor, attachInspectedCard, collapseRepeatedTargets, actionOptions, attachGroundedCard, plannerObservation, groundedMapObservation };
+module.exports = { NativeAutonomy, observation, actionFor, attachInspectedCard, collapseRepeatedTargets, actionOptions, attachGroundedCard, plannerObservation, groundedMapObservation, attachPlayerFacts };

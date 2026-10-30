@@ -47,6 +47,7 @@ async function refresh() {
       if (agent.stage === 'waiting-for-vision') agent.stage = '等待本地视觉模型就绪';
       if (agent.stage === 'energy-reading') agent.stage = '单独核对剩余能量';
       if (agent.stage === 'battle-reading') agent.stage = '本地视觉分区识别战场与手牌';
+      if (agent.stage === 'player-reading') agent.stage = '本地视觉读取生命与格挡';
       if (agent.stage === 'card-reading') agent.stage = '本地视觉读取展开牌面';
       const stages = {idle:'待启动',starting:'启动中','waiting-for-game':'正在切换游戏窗口，请松开键鼠；若未切换，请点回游戏窗口',capturing:'截图',seeing:'本地视觉识别', 'role-thinking':'角色 API 思考',executing:'执行键鼠','observing-next-frame':'等待下一帧',finished:'已到结局或角色停止',stopped:'已停止',stopping:'正在停止',error:'异常停止','step-limit':'达到本次步数上限','preview-complete':'只读决策验证完成'};
       $('gi-agent-status').textContent = `${agent.running ? '运行中' : '未运行'} · ${stages[agent.stage] || agent.stage} · ${agent.steps}步${agent.lastError ? ' · '+agent.lastError : ''}`;

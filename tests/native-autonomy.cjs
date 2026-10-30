@@ -1,9 +1,31 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { NativeAutonomy, observation, actionFor, attachInspectedCard, collapseRepeatedTargets, actionOptions, attachGroundedCard, plannerObservation, groundedMapObservation } = require('../src/sts2/native-autonomy');
+const { NativeAutonomy, observation, actionFor, attachInspectedCard, collapseRepeatedTargets, actionOptions, attachGroundedCard, plannerObservation, groundedMapObservation, attachPlayerFacts } = require('../src/sts2/native-autonomy');
 const view = { scene:'battle',summary:'hand',frameId:'1',energy:1,targets:[{id:'card',kind:'card',label:'打击',point:[400,900],card:{name:'打击',cost:1,type:'攻击',description:'造成6点伤害。',observedFrameId:'1'}},{id:'enemy',kind:'enemy',label:'敌人',point:[700,500]}] };
 const visionFor = (body, current=view) => body.mode==='energy' ? {energy:1} : body.mode==='battle' ? {...current,targets:current.targets.filter(t=>t.kind!=='card')} : body.mode==='hand' ? {...current,targets:current.targets.filter(t=>t.kind==='card')} : current;
 const groundedMap=()=>({parsed:{scene:'map',targets:[{id:'N1',label:'问号',point:[410,509],grounding:'local_cv_qwen',directly_connected:true}],map_grounding:{source:'local_cv_qwen',marker_id:'R1',marker_point:[412,630]}},pixel_candidates:{red:[{id:'R1',point:[412,630]}],dark:[{id:'N1',point:[410,509]}]}});
+test('player facts do not turn fractional energy or missing shield readings into block',()=>{
+  const old={...view,summary:'玩家格挡2/3，卡牌获得5点格挡'};
+  const result=attachPlayerFacts(old,{player:{hp:75,max_hp:80,block:'2/3'}});
+  assert.deepEqual(result.player,{hp:75,max_hp:80,block:null});assert.doesNotMatch(result.summary,/2\/3|5点/);
+  assert.equal(attachPlayerFacts(old,null).player.block,null);
+  assert.deepEqual(attachPlayerFacts(old,{player:{hp:1,max_hp:null,block:null}}).player,{hp:null,max_hp:null,block:null});
+  assert.deepEqual(attachPlayerFacts(old,{player:{hp:90,max_hp:80,block:0}}).player,{hp:null,max_hp:null,block:0});
+});
+test('player crop is read through the API and remains separate from energy before role planning',async()=>{
+  let playerReads=0;
+  const agent=new NativeAutonomy({decide:async(v)=>{
+    assert.deepEqual(v.player,{hp:75,max_hp:80,block:null});assert.equal(v.energy,1);return {kind:'stop'};
+  },request:async(route,body)=>{
+    if(route==='vision-state')return {ready:true,sceneSupport:true,playerSupport:true};
+    if(route==='read-card'){
+      if(body.mode==='player'){playerReads++;assert.deepEqual(body.crop,[0,.25,.45,.78]);return {parsed:{player:{hp:75,max_hp:80,block:null}}};}
+      return {parsed:visionFor(body)};
+    }
+    assert.equal(body.kind,'capture');return {id:'1',status:'captured_only'};
+  }});
+  agent.start();await agent.task;assert.equal(playerReads,1);assert.equal(agent.state.stage,'finished');
+});
 test('grounded map requires selected IDs and coordinates to match current pixel evidence',()=>{
   assert.equal(groundedMapObservation(groundedMap()).targets[0].id,'N1');
   assert.equal(plannerObservation(groundedMap().parsed).map_grounding.marker_point,undefined);

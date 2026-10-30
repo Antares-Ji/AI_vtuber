@@ -2,6 +2,14 @@
 import math
 import re
 
+def player_stats(parsed):
+    if not isinstance(parsed,dict):raise ValueError('Missing player observations')
+    def number(value):return value if type(value) is int and 0<=value<=99999 else None
+    result={key:number(parsed.get(key)) for key in ['hp','max_hp','block']}
+    if result['hp'] is None or result['max_hp'] is None or result['max_hp']==0 or result['hp']>result['max_hp']:
+        result['hp']=None;result['max_hp']=None
+    return {'player':result}
+
 def scene_observation(parsed):
     if not isinstance(parsed, dict):return parsed
     if 'points' in parsed:

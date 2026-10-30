@@ -1,9 +1,16 @@
 import sys,unittest
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'scripts/sts2'))
-from native_vision_schema import hand_targets,whole_point,scene_observation
+from native_vision_schema import hand_targets,whole_point,scene_observation,player_stats
 
 class VisionSchemaTest(unittest.TestCase):
+    def test_player_numbers_are_bounded_integers_and_unknown_is_not_zero(self):
+        self.assertEqual(player_stats({'hp':75,'max_hp':80,'block':'2/3'}),{'player':{'hp':75,'max_hp':80,'block':None}})
+        self.assertIsNone(player_stats({})['player']['block'])
+        self.assertEqual(player_stats({'hp':1,'max_hp':None})['player'],{'hp':None,'max_hp':None,'block':None})
+        for value in [True,-1,float('nan'),100000,'5']:
+            self.assertIsNone(player_stats({'block':value})['player']['block'])
+        self.assertEqual(player_stats({'hp':90,'max_hp':80,'block':0}),{'player':{'hp':None,'max_hp':None,'block':0}})
     def test_end_turn_button_is_not_evidence_that_battle_has_ended(self):
         for label in ['结束第1回合','结束回合','End Turn']:
             value={'scene':'room','summary':'战斗结束','targets':[{'id':'t1','label':label,'point':[890,810]}]}
