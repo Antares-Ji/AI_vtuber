@@ -22,14 +22,14 @@ async function main() {
   const runtime = new GenshinRuntime({ adapter: mode === 'mock' ? new MockAdapter() : new BetterGiAdapter(),
     logFile: path.join(root, 'events.jsonl') });
   if (command === 'demo') {
-    const plan = await planGoal('观察当前场景并钓鱼');
+    const plan = await planGoal('观察当前场景并钓鱼', { mode: 'rules' });
     runtime.start(plan);
     await runtime.done;
     console.log(JSON.stringify({ state: runtime.status(), streamerContext: runtime.context() }, null, 2));
     if (runtime.job.state !== 'simulated') process.exitCode = 1;
     return;
   }
-  const plannerMode = process.env.GENSHIN_PLANNER || 'rules';
+  const plannerMode = process.env.GENSHIN_PLANNER || 'llm';
   if (!['rules', 'llm'].includes(plannerMode)) throw new Error('GENSHIN_PLANNER 只能是 rules 或 llm');
   const tokenPath = path.join(root, 'service-token.txt');
   const token = randomBytes(32).toString('hex');

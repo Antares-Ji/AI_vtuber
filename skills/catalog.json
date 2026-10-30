@@ -126,7 +126,7 @@
       "version": "1",
       "game": "genshin",
       "mode": "read",
-      "description": "复用原神有限技能规划；生成计划不发送游戏输入。",
+      "description": "通过 DeepSeek API 规划原神有限技能；生成计划不发送游戏输入。",
       "resources": [],
       "enabled": true,
       "arguments": {

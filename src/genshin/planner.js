@@ -40,10 +40,13 @@ async function planGoal(goal, { mode = 'rules', env = process.env, fetchImpl = d
   const model = env.GENSHIN_LLM_MODEL || env.OPENAI_MODEL;
   const base = env.GENSHIN_LLM_BASE_URL || env.OPENAI_BASE_URL;
   if (!key || !model || !base) throw new Error('LLM 模式需要配置 API key、model、base URL');
+  const isDeepseek = new URL(base).origin === 'https://api.deepseek.com';
+  const requestSignal = signal ? AbortSignal.any([signal, AbortSignal.timeout(45000)]) : AbortSignal.timeout(45000);
   const response = await fetchImpl(`${base.replace(/\/$/, '')}/chat/completions`, {
     method: 'POST', headers: { 'content-type': 'application/json', authorization: `Bearer ${key}` },
-    signal: signal ? AbortSignal.any([signal, AbortSignal.timeout(20000)]) : AbortSignal.timeout(20000),
-    body: JSON.stringify({ model, temperature: 0, max_tokens: 500,
+    signal: requestSignal, redirect: 'error',
+    body: JSON.stringify({ model, temperature: 0, max_tokens: isDeepseek ? 4096 : 500,
+      ...(isDeepseek ? { thinking: { type: 'enabled' }, reasoning_effort: 'high', response_format: { type: 'json_object' } } : {}),
       messages: [
         { role: 'system', content: `你是原神任务规划器。只能使用这些技能：${JSON.stringify(SKILLS)}。没有截图和游戏状态，不得假设已经就位、获胜或完成任务。先 observe，再按目标选技能。最多6步。仅输出JSON：{"goal":"原目标","steps":[{"skill":"observe","timeoutMs":30000}]}。步骤不得包含代码或额外字段。无法完成的目标输出 {"error":"原因"}。` },
         { role: 'user', content: goal },
@@ -51,11 +54,17 @@ async function planGoal(goal, { mode = 'rules', env = process.env, fetchImpl = d
   });
   if (!response.ok) throw new Error(`规划服务 HTTP ${response.status}`);
   const data = await response.json();
+  requestSignal.throwIfAborted();
+  if (data.choices?.[0]?.finish_reason !== 'stop') throw new Error('规划输出未完整结束，未执行任务');
   let parsed;
   try { parsed = JSON.parse(data.choices?.[0]?.message?.content); }
   catch { throw new Error('规划器未返回有效 JSON'); }
   if (parsed?.error) throw new Error('规划器无法将目标转换为已支持技能');
-  return { ...validatePlan({ ...parsed, goal }), planner: 'llm' };
+  const plan = validatePlan({ ...parsed, goal });
+  if (plan.steps[0].skill !== 'observe') throw new Error('模型计划必须先观察当前场景');
+  return { ...plan, planner: 'llm', model: data.model || model,
+    planning: { thinking: isDeepseek ? 'enabled' : 'provider-default', reasoningReturned: Boolean(data.choices?.[0]?.message?.reasoning_content) },
+    usage: data.usage || null };
 }
 
 module.exports = { SKILLS, validatePlan, planGoal };

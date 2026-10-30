@@ -27,15 +27,52 @@ test('LLM output is validated and malformed plans never execute', async () => {
   let body;
   const fetchImpl = async (_url, options) => {
     body = JSON.parse(options.body);
-    return { ok: true, json: async () => ({ choices: [{ message: { content: JSON.stringify(plan([{ skill: 'observe' }])) } }] }) };
+    return { ok: true, json: async () => ({ choices: [{ finish_reason: 'stop', message: { content: JSON.stringify(plan([{ skill: 'observe' }])) } }] }) };
   };
   const result = await planGoal('观察', { mode: 'llm', env, fetchImpl });
   assert.equal(result.planner, 'llm');
   assert.equal(result.goal, '观察');
   assert.equal(body.messages.at(-1).content, '观察');
   await assert.rejects(planGoal('观察', { mode: 'llm', env,
-    fetchImpl: async () => ({ ok: true, json: async () => ({ choices: [{ message: { content: '{"steps":[{"skill":"shell"}]}' } }] }) }) }), /未知技能/);
+    fetchImpl: async () => ({ ok: true, json: async () => ({ choices: [{ finish_reason: 'stop', message: { content: '{"steps":[{"skill":"shell"}]}' } }] }) }) }), /未知技能/);
   await assert.rejects(planGoal('观察', { mode: 'llm', env: {} }), /需要配置/);
+});
+
+test('API planner uses saved DeepSeek game credentials and actual model planning', async t => {
+  const { planWithApi } = require('../src/genshin/api-planner');
+  const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'genshin-api-test-'));
+  t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
+  fs.mkdirSync(path.join(dir, 'data'));
+  fs.writeFileSync(path.join(dir, 'data/minecraft-engine.local.json'), JSON.stringify({ deepseekApiKey: 'test-saved-key' }));
+  let calls=0;
+  const fetchImpl=async (url,options) => {
+    calls++;
+    assert.equal(url,'https://api.deepseek.com/chat/completions');
+    assert.equal(options.headers.authorization,'Bearer test-saved-key');
+    assert.equal(options.redirect,'error');
+    const body=JSON.parse(options.body);
+    assert.equal(body.thinking.type,'enabled');assert.equal(body.reasoning_effort,'high');
+    assert.equal(body.model,'deepseek-flash');assert.equal(body.max_tokens,4096);
+    return {ok:true,json:async()=>({model:'deepseek-flash',usage:{total_tokens:10},choices:[{finish_reason:'stop',message:{content:JSON.stringify(plan([{skill:'observe'}])),reasoning_content:'not persisted'}}]})};
+  };
+  const result=await planWithApi('观察当前场景',{dataRoot:dir,env:{GENSHIN_PLANNER:'rules'},fetchImpl});
+  assert.equal(calls,1);assert.equal(result.planner,'llm');assert.equal(result.planning.reasoningReturned,true);
+  assert.equal(JSON.stringify(result).includes('not persisted'),false);
+  assert.equal(JSON.stringify(result).includes('test-saved-key'),false);
+  for(const base of ['https://example.invalid','https://api.deepseek.com.evil.invalid','https://api.deepseek.com/?x=1'])
+    await assert.rejects(planWithApi('观察',{dataRoot:dir,env:{GENSHIN_LLM_BASE_URL:base},fetchImpl}),/官方/);
+  assert.equal(calls,1);
+});
+
+test('API planning rejects truncated, unobserved and cancelled results', async () => {
+  const env={GENSHIN_LLM_API_KEY:'test',GENSHIN_LLM_MODEL:'test',GENSHIN_LLM_BASE_URL:'https://api.deepseek.com'};
+  const response=(skill,finish='stop')=>({ok:true,json:async()=>({choices:[{finish_reason:finish,message:{content:JSON.stringify(plan([{skill}]))}}]})});
+  await assert.rejects(planGoal('观察',{mode:'llm',env,fetchImpl:async()=>response('observe','length')}),/完整结束/);
+  await assert.rejects(planGoal('钓鱼',{mode:'llm',env,fetchImpl:async()=>response('fish')}),/先观察/);
+  const controller=new AbortController();
+  await assert.rejects(planGoal('观察',{mode:'llm',env,signal:controller.signal,fetchImpl:async()=>{
+    controller.abort(new Error('test cancellation'));return response('observe');
+  }}),/test cancellation/);
 });
 
 test('simulation journals steps without claiming actual game observations', async t => {
@@ -102,7 +139,12 @@ test('adapter failure is recorded and real BetterGI remains unavailable', async 
 test('HTTP API authenticates, plans, runs, stops, and exposes grounded context', async t => {
   const runtime = new GenshinRuntime({ adapter: new MockAdapter({ delayMs: 1000 }) });
   const token = 'test-token-long-enough-for-local-service';
-  const server = createServer({ runtime, token });
+  let modelCalls=0;
+  const server = createServer({ runtime, token, planner: async (goal, options) => {
+    assert.equal(options.mode,'llm');assert.ok(options.signal);
+    modelCalls++;
+    return planGoal(goal,{mode:'rules'}); // Isolated HTTP test double, no network.
+  } });
   server.listen(0, '127.0.0.1'); await once(server, 'listening');
   t.after(async () => { runtime.stop(); await runtime.done; server.closeAllConnections(); await new Promise(resolve => server.close(resolve)); });
   const base = `http://127.0.0.1:${server.address().port}`;
@@ -114,6 +156,7 @@ test('HTTP API authenticates, plans, runs, stops, and exposes grounded context',
   assert.equal((await request('/state', undefined, { origin: 'https://untrusted.example' })).status, 403);
   assert.equal((await fetch(base + '/health')).status, 200);
   const proposed = await (await request('/plan', { goal: '观察并钓鱼' })).json();
+  assert.equal(modelCalls,1);
   assert.equal(runtime.job, null, 'planning must not start gameplay');
   assert.equal((await request('/run', { plan: proposed })).status, 202);
   assert.equal((await request('/run', { plan: proposed })).status, 409);

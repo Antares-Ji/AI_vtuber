@@ -7,9 +7,9 @@ function register(registry, { root, dataRoot, env, main, sts2, runProcess }) {
   const add = definition => registry.register({ version: '1', ...definition });
   const noArgs = a => objectArgs(a, []);
   add({ id: 'genshin:plan', game: 'genshin', mode: 'read',
-    description: '复用原神有限技能规划；生成计划不发送游戏输入。', arguments: { goal: 'string' },
+    description: '通过 DeepSeek API 规划原神有限技能；生成计划不发送游戏输入。', arguments: { goal: 'string' },
     validate(a) { objectArgs(a, ['goal']); return { goal: textArg(a.goal, 'goal') }; },
-    execute: async a => ({ plan: await require('../../genshin/planner').planGoal(a.goal), executed: false }) });
+    execute: async (a, { signal }) => ({ plan: await require('../../genshin/api-planner').planWithApi(a.goal, { dataRoot, env, signal }), executed: false }) });
   for (const mode of ['demo', 'bettergi']) {
     add({ id: `genshin:${mode}`, game: 'genshin', mode: mode === 'demo' ? 'simulation' : 'live',
       resources: mode === 'demo' ? ['genshin-simulation'] : ['desktop', 'genshin'],
@@ -19,8 +19,11 @@ function register(registry, { root, dataRoot, env, main, sts2, runProcess }) {
       async execute(a, { signal }) {
         const { MockAdapter, BetterGiAdapter } = require('../../genshin/adapters');
         const { GenshinRuntime } = require('../../genshin/runtime');
-        const plan = await require('../../genshin/planner').planGoal(a.goal);
-        const runtime = new GenshinRuntime({ adapter: mode === 'demo' ? new MockAdapter() : new BetterGiAdapter({ executable: env.BETTERGI_EXE }) });
+        const adapter = mode === 'demo' ? new MockAdapter() : new BetterGiAdapter({ executable: env.BETTERGI_EXE });
+        if (mode === 'bettergi' && !adapter.status().ready) throw Error(adapter.status().reason);
+        const plan = mode === 'demo' ? await require('../../genshin/planner').planGoal(a.goal, { mode: 'rules', signal }) :
+          await require('../../genshin/api-planner').planWithApi(a.goal, { dataRoot, env, signal });
+        const runtime = new GenshinRuntime({ adapter });
         signal.throwIfAborted();
         runtime.start(plan);
         const stop = () => runtime.stop(); signal.addEventListener('abort', stop, { once: true });
