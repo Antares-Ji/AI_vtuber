@@ -15,6 +15,8 @@ const { PERSONA } = require("./brain/persona");
 const { runEvaluation } = require("./evaluation");
 const { LiveRuntime } = require("./live/runtime");
 const { handleStudioApi } = require("./api/studio");
+const gameInputRoutes = require('./api/game-input').createGameInputRoutes({ parseBody, send, persona: () => brain.persona });
+const skillRoutes = require('./api/skills').createSkillRoutes({ parseBody, send });
 const { QueueStore } = require("./runtime/queue-store");
 const { sanitizeTtsStyle } = require("./tts/style");
 const { RuntimeMetrics } = require("./runtime/metrics");
@@ -61,6 +63,10 @@ const minecraftMcp = require('../integrations/minecraft-mcp/control-adapter.cjs'
 const { VisualCommentary } = require('./minecraft/visual-commentary');
 const minecraftCommentary = new VisualCommentary();
 const audienceSuggestions = new (require('./minecraft/audience-suggestions').AudienceSuggestions)();
+const sts2Routes = require('./sts2/routes').createSts2Routes({ brain, parseBody, send,
+  busy: () => nextInFlight || cloudReplyInFlight || queue.some(item => item.type !== 'proactive'),
+  acquire: () => { if (nextInFlight || cloudReplyInFlight) return null; nextInFlight = true; return () => { nextInFlight = false; }; }
+});
 let commentaryController = new AbortController();
 let commentaryInferenceSlot = null;
 function preemptMinecraftCommentary() {
@@ -84,14 +90,14 @@ function requestMinecraftCommentary(result) {
   }
   if (Date.now() < minecraftCommentary.nextAt) return;
   const loop = minecraftLoop.snapshot();
-  if (!result.state?.connected || (loop.provider !== 'astra' && (!(result.state.health > 0) || result.state.reactive?.mode !== 'idle'))) {
+  if (!result.state?.connected || (!['astra', 'deepseek'].includes(loop.provider) && (!(result.state.health > 0) || result.state.reactive?.mode !== 'idle'))) {
     minecraftCommentary.status = { state: 'blocked', reason: !result.state?.connected ? 'not-connected' : !(result.state.health > 0) ? 'not-alive' : 'safety-active', lastError: null };
     return;
   }
   // Do not interrupt planner recovery or queue vision behind a generation
   // whose cancellation has not exited the single local GPU slot yet.
   const modelCancelling = loop.modelHealth?.generation?.current?.cancel_requested === true;
-  if (loop.provider !== 'astra' && (modelCancelling || (loop.lastError && !result.state.busy))) {
+  if (!['astra', 'deepseek'].includes(loop.provider) && (modelCancelling || (loop.lastError && !result.state.busy))) {
     minecraftCommentary.status = { state: 'blocked', reason: modelCancelling ? 'model-cancelling' : 'planning-recovery', lastError: null };
     return;
   }
@@ -100,18 +106,18 @@ function requestMinecraftCommentary(result) {
   const signal = AbortSignal.any([brain.personaRuntime.controller.signal, commentaryController.signal, AbortSignal.timeout(25000)]);
   // This API only stops model planning. Its epoch-owned release cannot clear
   // a newer audience turn's hold; a reentrant commentary cannot acquire one.
-  const releasePlanner = loop.provider === 'astra' ? () => {} : minecraftLoop.prioritizeConversation(25000);
+  const releasePlanner = ['astra', 'deepseek'].includes(loop.provider) ? () => {} : minecraftLoop.prioritizeConversation(25000);
   let released = false;
   const releaseSlot = () => { if (!released) { released = true; releasePlanner(); } };
   signal.addEventListener('abort', releaseSlot, { once: true });
   void (async () => {
     try {
-      const speech = await minecraftCommentary.describe({ result, goal: loop.goal, currentSubgoal: loop.currentSubgoal, persona: brain.persona, signal, gameContext: require('./minecraft/live-context').liveGameContext(result.state, loop), stateOnly: loop.provider === 'astra' });
+      const speech = await minecraftCommentary.describe({ result, goal: loop.goal, currentSubgoal: loop.currentSubgoal, persona: brain.persona, signal, gameContext: require('./minecraft/live-context').liveGameContext(result.state, loop), stateOnly: ['astra', 'deepseek'].includes(loop.provider) });
       if (!speech || signal.aborted || audienceWaiting() || deferredReply) return;
       const current = await minecraftBridge.control('status');
       if (!current.connected || current.reactive?.lifecycleEpoch !== result.state.reactive?.lifecycleEpoch || current.health < result.state.health || current.reactive?.mode !== result.state.reactive?.mode) return;
       if (signal.aborted || audienceWaiting() || deferredReply) return;
-      if (loop.provider === 'astra') {
+      if (['astra', 'deepseek'].includes(loop.provider)) {
         const { factualSpeech } = require('./minecraft/fact-speech');
         const { liveGameContext } = require('./minecraft/live-context');
         if (factualSpeech(liveGameContext(current, minecraftLoop.snapshot())) !== factualSpeech(liveGameContext(result.state, loop))) return;
@@ -133,15 +139,23 @@ const minecraftLoop = new AutonomyLoop({ engine: minecraftEngine, request: minec
 let liveGameCache = null;
 let liveGameRefreshBusy = false;
 const { liveGameContext } = require('./minecraft/live-context');
-brain.liveGameContextProvider = () => {
+let activeGame = ['minecraft', 'sts2'].includes(runtimeSettings.activeGame) ? runtimeSettings.activeGame : null;
+function minecraftLiveContext() {
   const context = (liveGameCache || minecraftEngine.config.provider === 'astra') ? liveGameContext(liveGameCache?.state, minecraftLoop.snapshot(), liveGameCache?.at || null) : null;
   if (context) context.pendingAudienceSuggestions = audienceSuggestions.list().filter(item => ['summarizing', 'ready'].includes(item.status)).map(item => ({ text: item.summary || item.original, status: 'awaiting-console-confirmation' }));
   return context;
+}
+brain.liveGameContextProvider = () => {
+  if (activeGame === 'minecraft') return minecraftLiveContext();
+  const spire = sts2Routes.context();
+  if (activeGame === 'sts2' || spire) return spire;
+  return minecraftLiveContext();
 };
 brain.onLiveHumanTurn = () => {
+  if (activeGame === 'sts2') return () => {};
   preemptMinecraftCommentary();
   // Cloud dialogue does not compete for the local vision/planning GPU slot.
-  if (minecraftEngine.config.provider === 'astra' || process.env.MINECRAFT_CHAT_PROVIDER === 'cloud') return () => {};
+  if (['astra', 'deepseek'].includes(minecraftEngine.config.provider) || process.env.MINECRAFT_CHAT_PROVIDER === 'cloud') return () => {};
   return minecraftLoop.prioritizeConversation();
 };
 setInterval(async () => {
@@ -158,7 +172,7 @@ setInterval(async () => {
   try {
     const state = await minecraftBridge.control('status');
     const loop = minecraftLoop.snapshot();
-    if (loop.provider !== 'astra' && loop.running && !state.busy) return;
+    if (!['astra', 'deepseek'].includes(loop.provider) && loop.running && !state.busy) return;
     requestMinecraftCommentary({ state, decision: loop.lastDecision, evidence: { status: state.busy ? 'running' : loop.lastResult?.status } });
   } catch {} finally { commentaryTickBusy = false; }
 }, 1000).unref();
@@ -297,7 +311,21 @@ function safeFilePath(root, relative) {
 
 async function handleApi(req, res) {
   const url = new URL(req.url, `http://${req.headers.host}`);
-  if (url.pathname === '/api/minecraft/live-context' && req.method === 'GET') return send(res, 200, { context: brain.liveGameContextProvider(), cachedAt: liveGameCache?.at || null, chatProvider: minecraftEngine.config.provider === 'astra' ? 'local' : process.env.MINECRAFT_CHAT_PROVIDER || 'auto', suggestions: audienceSuggestions.list() });
+  if (await skillRoutes(req, res, url)) return;
+  if (await gameInputRoutes(req, res, url)) return;
+  if (url.pathname.startsWith('/api/sts2/') && await sts2Routes.handle(req, res, url)) return;
+  if (url.pathname === '/api/games/active') {
+    if (req.method === 'GET') return send(res, 200, { game: activeGame });
+    if (req.method !== 'POST') return send(res, 405, { error: 'Method not allowed' });
+    const host = new URL(`http://${req.headers.host}`);
+    if (!['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(req.socket.remoteAddress) || !['127.0.0.1', 'localhost', '[::1]'].includes(host.hostname) || (req.headers.origin && req.headers.origin !== host.origin)) return send(res, 403, { error: 'Local console only' });
+    const body = await parseBody(req);
+    if (!['minecraft', 'sts2'].includes(body.game)) return send(res, 400, { error: 'Unknown game' });
+    activeGame = body.game;
+    runtimeSettings.activeGame = activeGame; saveRuntimeSettings();
+    return send(res, 200, { game: activeGame });
+  }
+  if (url.pathname === '/api/minecraft/live-context' && req.method === 'GET') return send(res, 200, { context: minecraftLiveContext(), cachedAt: liveGameCache?.at || null, chatProvider: minecraftEngine.config.provider === 'astra' ? 'local' : process.env.MINECRAFT_CHAT_PROVIDER || 'auto', suggestions: audienceSuggestions.list() });
   if (url.pathname === '/api/minecraft/commentary/next' && req.method === 'POST') {
     if (!nextInFlight && !cloudReplyInFlight && deferredReply?.commentaryId) { const result = deferredReply; deferredReply = null; return send(res, 200, result); }
     return send(res, 200, { idle: true });
@@ -338,7 +366,7 @@ async function handleApi(req, res) {
       return send(res, 200, saved);
     } catch (error) { return send(res, 400, { error: error.message }); }
   }
-  if (minecraftEngineTesting && req.method === 'POST' && ['/api/minecraft/demo', '/api/minecraft/command', '/api/minecraft/loop'].includes(url.pathname)) return send(res, 409, { error: '模型连接检查中，请稍后再启动任务' });
+  if (req.method === 'POST' && ['/api/minecraft/demo', '/api/minecraft/command', '/api/minecraft/loop'].includes(url.pathname) && minecraftEngineTesting) return send(res, 409, { error: '模型连接检查中，请稍后再启动任务' });
   if (url.pathname === '/api/minecraft/demo' && req.method === 'POST') {
     try {
       const body = await parseBody(req);
@@ -877,6 +905,9 @@ server.headersTimeout = 10_000;
 async function shutdown(signal) {
   processLifecycle.shutdown(signal);
   console.log(`Received ${signal}; shutting down cleanly.`);
+  // Keep local stop/state endpoints alive until skill-owned engines release.
+  // A disconnected engine retains its lease rather than falsely acknowledging cleanup.
+  await skillRoutes.host.close();
   server.close(() => {
     try { brain.persistRuntime(); brain.memoryStore.close(); } finally { process.exit(0); }
   });

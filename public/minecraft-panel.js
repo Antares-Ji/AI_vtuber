@@ -144,8 +144,8 @@ function renderLoop(loop) {
   else $("#modelVersion").removeAttribute("title");
   const known = modelParts.length > 0;
   const loadStates = [];
-  if (loop.provider === 'astra') {
-    loadStates.push(loop.modelLoaded ? 'Astra + JEV 调用已验证' : loop.keyConfigured ? '密钥已配置 · 尚未验证调用' : '等待 OpenRouter 密钥');
+  if (['astra', 'deepseek'].includes(loop.provider)) {
+    loadStates.push(loop.modelLoaded ? `${loop.provider === 'deepseek' ? 'DeepSeek' : 'Astra'} 调用已验证` : loop.keyConfigured ? '密钥已配置 · 尚未验证调用' : '等待配置 API 密钥');
   } else {
     if (typeof loop.modelLoaded === "boolean") loadStates.push(`本地模型${loop.modelLoaded ? "已加载" : "未加载"}`);
     if (typeof loop.adapterLoaded === "boolean") loadStates.push(`adapter${loop.adapterLoaded ? "已加载" : "未加载"}`);
@@ -164,7 +164,7 @@ function renderLoop(loop) {
   setText("#recoveryState", recovery === true ? "等待纠偏 · 已检测重复失败" : recovery === false ? "无需纠偏" : "纠偏状态未知");
   const usedAdapter = loop.lastDecisionMetadata?.used_adapter;
   setText("#actionAdapterUse", usedAdapter === true ? "是 · 最近动作使用 adapter" : usedAdapter === false ? "否 · 最近动作未使用 adapter" : "未知");
-  if (loop.provider === 'astra') setText('#actionAdapterUse', loop.lastDecisionMetadata?.source === 'astra' ? 'Astra 规划 / JEV 选动作' : '等待首次云端决策');
+  if (['astra', 'deepseek'].includes(loop.provider)) setText('#actionAdapterUse', loop.lastDecisionMetadata?.source === loop.provider ? `${loop.provider === 'deepseek' ? 'DeepSeek' : 'Astra'} 规划 / 程序核验` : '等待首次云端决策');
   if (loop.lastError || loop.lastResult) setText("#resultText", summarizeLoopResult(loop.lastResult, loop.lastError));
   const resultDetails = loop.lastResult || loop.lastError;
   setText("#loopResultDiagnostic", resultDetails ? JSON.stringify(resultDetails, null, 2) : "暂无自主循环结果");
@@ -183,7 +183,7 @@ function renderGameActivity() {
     if (status.reactive?.mode === 'flee' || status.reactive?.mode === 'fight' || status.reactive?.calming) {
       phase = 'safety'; text = status.reactive.mode === 'fight' ? '正在防卫' : '正在避险';
     } else if (status.busy) { phase = 'executing'; text = '正在执行动作'; }
-    else if (loop?.enabled && loop.running) { phase = 'planning'; text = loop.provider === 'astra' ? 'Astra + JEV 正在决策' : '千问正在规划'; }
+    else if (loop?.enabled && loop.running) { phase = 'planning'; text = loop.provider === 'deepseek' ? 'DeepSeek 正在规划' : loop.provider === 'astra' ? 'Astra 正在规划' : '千问正在规划'; }
     else if (loop?.enabled) { text = '等待下一步'; }
     else { phase = 'stopped'; text = loop?.goalCompleted ? '目标已完成' : '自主任务已停止'; }
   }
@@ -270,11 +270,13 @@ function shortText(value, maxLength) {
 }
 
 async function refresh() {
+  if (window.gameWorkbench?.game === 'sts2') return;
   const results = await Promise.allSettled([
     api("/api/minecraft/status"),
     api("/api/minecraft/loop"),
     api("/api/minecraft/live-context")
   ]);
+  if (window.gameWorkbench?.game === 'sts2') return;
   if (results[2].status === 'fulfilled') {
     const shared = results[2].value;
     renderSuggestions(shared.suggestions || []);
@@ -326,8 +328,10 @@ async function changeLoop(enabled) {
 }
 
 $("#loopToggle").addEventListener("change", event => void changeLoop(event.currentTarget.checked));
+window.addEventListener('workbench-minecraft-refresh', () => void refresh());
 
 $("#stopButton").addEventListener("click", async () => {
+  if (window.gameWorkbench?.game === 'sts2') return window.gameWorkbench.stop();
   const button = $("#stopButton");
   button.disabled = true;
   button.textContent = "正在发送停止请求…";
@@ -350,20 +354,28 @@ $("#commandForm").addEventListener("submit", async event => {
   const button = $("#sendButton");
   const text = input.value.trim();
   if (!text || state.busy) return;
+  const commandGame = window.gameWorkbench?.game || 'minecraft';
   button.disabled = true;
   state.busy = true;
   setText("#commandFeedback", "正在提交长期目标…可随时点击立即停止。");
   setText("#resultText", "模型正在规划，随后由游戏代理执行并核验。");
   try {
+    if (commandGame === 'sts2') {
+      await window.gameWorkbench.submitGoal(text);
+      setText('#commandFeedback', '尖塔目标已接收，岁歌将按本轮步数继续游玩。');
+      if (input.value.trim() === text) input.value = '';
+      return;
+    }
     const completionItem = /铁镐/.test(text) ? 'iron_pickaxe' : /工作台/.test(text) ? 'crafting_table' : undefined;
     const result = await api("/api/minecraft/demo", { method: "POST", body: JSON.stringify({ goal: text, completionItem }) });
-    renderLoop(result);
+    state.loop = result;
+    if (!window.gameWorkbench || window.gameWorkbench.game === commandGame) renderLoop(result);
     setText("#resultText", `目标已接收：${result.goal}。尚未完成，请观察实际执行记录。`);
     setText("#commandFeedback", "当前方案将连续规划，最长15分钟；聊天区可随时提出建议。");
-    input.value = "";
+    if (input.value.trim() === text) input.value = "";
   } catch (error) {
     setText("#resultText", `请求中断：${error.message}`);
-    setText("#commandFeedback", "指令未完成。机器人状态会继续刷新。");
+    setText("#commandFeedback", "目标提交失败，请检查当前游戏连接状态后重试。");
   } finally {
     state.busy = false;
     button.disabled = false;
@@ -402,7 +414,7 @@ function mountSilentStage() {
     // The embedded stream reads the parent's audio preference during boot. Give
     // this frame a storage view that reports audio off without changing the
     // shared preference or interrupting audio in another open stream tab.
-    const shim = `<script>(function(){const real=window.localStorage;const isolated=new Proxy(real,{get(target,key){if(key==="getItem")return name=>name==="streamer-audio-output"?"off":target.getItem(name);if(key==="setItem")return(name,value)=>{if(name!=="streamer-audio-output")target.setItem(name,value)};if(key==="removeItem")return name=>{if(name!=="streamer-audio-output")target.removeItem(name)};const value=Reflect.get(target,key,target);return typeof value==="function"?value.bind(target):value}});Object.defineProperty(window,"localStorage",{configurable:true,value:isolated})})()<\/script>`;
+    const shim = `<script>window.__workbenchGame=${JSON.stringify(window.gameWorkbench?.game || "minecraft")};(function(){const real=window.localStorage;const isolated=new Proxy(real,{get(target,key){if(key==="getItem")return name=>name==="streamer-audio-output"?"off":target.getItem(name);if(key==="setItem")return(name,value)=>{if(name!=="streamer-audio-output")target.setItem(name,value)};if(key==="removeItem")return name=>{if(name!=="streamer-audio-output")target.removeItem(name)};const value=Reflect.get(target,key,target);return typeof value==="function"?value.bind(target):value}});Object.defineProperty(window,"localStorage",{configurable:true,value:isolated})})()<\/script>`;
     const source = html.replace(/<head([^>]*)>/i, `<head$1><base href="${location.origin}/">${shim}`);
     if (source === html) throw new Error("直播台页面没有 head 标签");
     frame.srcdoc = source;
@@ -565,7 +577,7 @@ window.addEventListener('message', event => {
   if (event.source !== $('#streamStage').contentWindow || event.origin !== location.origin || event.data?.type !== 'suige-voice-transcript' || typeof event.data.text !== 'string') return;
   const text = event.data.text.slice(0, 500);
   addAudienceMessage(text, 'user');
-  if ($('#influenceGame').checked) void api('/api/minecraft/chat', { method: 'POST', body: JSON.stringify({ text, influence: true, suggestionOnly: true }) }).catch(error => addAudienceMessage(`游戏建议未送达：${error.message}`));
+  if (window.gameWorkbench?.game !== 'sts2' && $('#influenceGame').checked) void api('/api/minecraft/chat', { method: 'POST', body: JSON.stringify({ text, influence: true, suggestionOnly: true }) }).catch(error => addAudienceMessage(`游戏建议未送达：${error.message}`));
 });
 mountSilentStage();
 $('#demoVoice').addEventListener('change', event => {
@@ -618,7 +630,14 @@ $('#audienceForm').addEventListener('submit', async event => {
   const send = $('#audienceForm button[type=submit]');
   send.disabled = true; send.textContent = '发送中…';
   input.value = ''; addAudienceMessage(text, 'user');
+  const chatGame = window.gameWorkbench?.game || 'minecraft';
   try {
+    if (chatGame === 'sts2') {
+      await window.gameWorkbench.ready();
+      await api('/api/sts2/chat', { method: 'POST', body: JSON.stringify({ text }) });
+      addAudienceMessage('聊天已送到尖塔直播间，岁歌会在解说间隙回应。');
+      return;
+    }
     const result = await api('/api/minecraft/chat', { method: 'POST', body: JSON.stringify({ text, influence: $('#influenceGame').checked }) });
     addAudienceMessage(result.suggestion ? '聊天已发送；千问正在整理建议，请在下方审核确认，尚未交给 Astra。' : '聊天已进入直播间。');
   } catch (error) {
@@ -667,7 +686,7 @@ $('#recordDemo').addEventListener('click', async () => {
   }
 });
 setInterval(() => {
-  const loop = state.loop;
+  const loop = window.gameWorkbench?.game === 'sts2' ? null : state.loop;
   if (loop?.goalCompleted) setText('#demoProgress', '已核实目标物品出现在背包中 · 演示目标完成，主动任务停止');
   else if (loop?.enabled) setText('#demoProgress', `第 ${loop.step || 0} 步 · ${$('#gameActivity').textContent}`);
   const result = loop?.lastResult;
@@ -705,6 +724,10 @@ let engineBusy = false;
 function renderEngine(config) {
   savedEngine = config;
   $('#gameEngine').value = config.provider === 'astra-jev' ? 'astra' : config.provider;
+  if (config.provider === 'deepseek') {
+    setText('#engineStatus', config.verification?.ok ? 'DeepSeek 调用已验证 · 游戏连接见顶部状态' : config.verification?.error ? `DeepSeek 检查失败：${config.verification.error}` : config.keyConfigured ? 'DeepSeek 密钥已配置 · 可检查连接' : '请填入 DeepSeek API Key 并保存');
+    updateEngineControls(); return;
+  }
   const verification = config.verification;
   setText('#engineStatus', config.provider === 'local-qwen' ? '当前使用本地千问。切换方案并保存后，下一次游戏任务使用新方案。' :
     !config.keyConfigured ? '请填入 OpenAI API Key 并保存，千问互动使用本地服务。' :
@@ -714,15 +737,22 @@ function renderEngine(config) {
 }
 function updateEngineControls() {
   const cloud = $('#gameEngine').value === 'astra';
-  $('#engineKeyField').hidden = !cloud;
-  $('#testEngine').hidden = !cloud;
-  $('#engineDescription').hidden = !cloud;
+  const deepseek = $('#gameEngine').value === 'deepseek';
+  $('#engineKeyField').hidden = !cloud && !deepseek;
+  setText('#engineKeyLabel', deepseek ? 'DeepSeek API Key' : 'OpenAI API Key（Astra 专用）');
+  $('#engineKeyLink').href = deepseek ? 'https://platform.deepseek.com/api_keys' : 'https://platform.openai.com/api-keys';
+  $('#engineKeyLink').textContent = deepseek ? '获取 DeepSeek 密钥' : '获取 OpenAI 密钥';
+  setText('#engineTestHelp', '检查只调用一次所选模型并产生 API 用量，不会执行游戏动作。');
+  $('#testEngine').hidden = !cloud && !deepseek;
+  $('#testEngine').textContent = deepseek ? '检查 DeepSeek 连接' : '检查 Astra 连接';
+  $('#engineDescription').hidden = !cloud && !deepseek;
+  $('#engineDescription').textContent = deepseek ? 'DeepSeek API 根据实测状态决定下一步 → 程序检查 → Mineflayer 执行与核验 → 反馈结果重新规划。游戏控制无需本地 4B 模型。' : 'Astra 阶段规划 → 程序检查 → Mineflayer 执行；本地千问互动。';
   $('#saveEngine').disabled = engineBusy || !savedEngine;
   $('#gameEngine').disabled = engineBusy || !savedEngine;
   $('#engineApiKey').disabled = engineBusy;
-  $('#testEngine').disabled = engineBusy || !savedEngine?.keyConfigured || savedEngine?.provider !== 'astra' || Boolean($('#engineApiKey').value);
+  $('#testEngine').disabled = engineBusy || !savedEngine?.keyConfigured || savedEngine?.provider !== $('#gameEngine').value || Boolean($('#engineApiKey').value);
 }
-$('#gameEngine').addEventListener('change', () => { updateEngineControls(); setText('#engineStatus', '选择尚未保存，点击“保存配置”应用。'); });
+$('#gameEngine').addEventListener('change', () => { $('#engineApiKey').value = ''; updateEngineControls(); setText('#engineStatus', '选择尚未保存，点击“保存配置”应用。'); });
 $('#engineApiKey').addEventListener('input', updateEngineControls);
 $('#engineForm').addEventListener('submit', async event => {
   event.preventDefault();
@@ -741,7 +771,7 @@ $('#engineForm').addEventListener('submit', async event => {
 $('#testEngine').addEventListener('click', async () => {
   if (engineBusy) return;
   engineBusy = true; updateEngineControls();
-  setText('#engineStatus', '正在检查 Astra，最多等待60秒；不会执行游戏动作…');
+  setText('#engineStatus', '正在检查所选云模型，最多等待60秒；不会执行游戏动作…');
   try { renderEngine(await api('/api/minecraft/engine/test', { method: 'POST', body: '{}' })); }
   catch (error) { setText('#engineStatus', `连接检查失败：${error.message}`); }
   finally { engineBusy = false; updateEngineControls(); await refresh(); }

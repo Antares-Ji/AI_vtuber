@@ -27,6 +27,8 @@ async function plan(text, state, signal) {
   if (typeof text !== 'string' || !text.trim() || text.length > 500) throw new Error('请输入 1 到 500 字的指令');
   // Emergency stop does not wait for model inference.
   if (/^(停止|停下|别动了|停止任务|stop)[！!。\s]*$/i.test(text.trim())) return { action: 'stop', source: 'immediate-stop' };
+  if (/^(状态|查看状态|status)[！!。\s]*$/i.test(text.trim())) return { action: 'status', source: 'direct-command' };
+  if (/^(自动防卫|defend)[！!。\s]*$/i.test(text.trim())) return { action: 'defend', source: 'direct-command' };
   const config = getLocalLlmConfig();
   if (!config.enabled) throw new Error('本地千问未启用');
   const response = await fetch(`${config.baseUrl.replace(/\/$/, '')}/chat/completions`, {

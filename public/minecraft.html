@@ -19,13 +19,13 @@
       <p id="demoProgress" class="compact-status" role="status">等待游戏连接</p>
       <section class="panel engine-panel" aria-label="游戏控制方案">
         <form id="engineForm">
-          <label>游戏控制方案<select id="gameEngine"><option value="astra">Astra 玩游戏 · 本地千问互动</option><option value="local-qwen">本地千问同时负责游戏与互动</option></select></label>
-          <label id="engineKeyField">OpenAI API Key（Astra 专用）<input id="engineApiKey" type="password" autocomplete="new-password" maxlength="512" placeholder="留空保留已保存密钥" /></label>
+          <label>游戏控制方案<select id="gameEngine"><option value="deepseek">DeepSeek API 玩游戏</option><option value="astra">Astra 玩游戏 · 本地千问互动</option><option value="local-qwen">本地千问同时负责游戏与互动</option></select></label>
+          <label id="engineKeyField"><span id="engineKeyLabel">DeepSeek API Key</span><input id="engineApiKey" type="password" autocomplete="new-password" maxlength="512" placeholder="留空保留已保存密钥" /></label>
           <button id="saveEngine" type="submit">保存配置</button><button id="testEngine" type="button">检查 Astra 连接</button>
         </form>
         <p id="engineDescription">Astra 规划阶段步骤 → 程序检查 → Mineflayer 执行与核验 → 本地千问讲解、回应观众。聊天与游戏规划独立进行。</p>
         <p id="engineStatus" role="status" aria-live="polite">正在读取配置…</p>
-        <p class="engine-help">密钥仅保存在本机服务端，不会回显。<a href="https://platform.openai.com/api-keys" target="_blank" rel="noopener noreferrer">获取 OpenAI 密钥</a> · 检查只调用一次 Astra 并产生 API 用量，不会执行游戏动作。</p>
+        <p class="engine-help">密钥仅保存在本机服务端，不会回显。<a id="engineKeyLink" href="https://platform.deepseek.com/api_keys" target="_blank" rel="noopener noreferrer">获取 DeepSeek 密钥</a> · <span id="engineTestHelp">检查只调用一次所选模型并产生 API 用量，不会执行游戏动作。</span></p>
       </section>
       <section class="panel engine-panel" aria-label="主播与游戏数据交换">
         <div class="panel-heading"><h2>千问现在知道什么</h2><span id="speakerProvider">读取中</span></div>

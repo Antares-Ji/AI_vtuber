@@ -102,7 +102,9 @@ class VisualCommentary {
     try {
       this.status = { state: 'analyzing', capturedAt, lastError: null };
       if (stateOnly) {
-        const generated = await generateCommentary({ gameContext, stateOnly: true, persona, lastSpeech: this.lastSpeech, signal: workSignal });
+        const generated = getLocalLlmConfig().enabled
+          ? await generateCommentary({ gameContext, stateOnly: true, persona, lastSpeech: this.lastSpeech, signal: workSignal })
+          : { speech: factualSpeech(gameContext), provider: 'program-facts', model: null, evidenceSource: 'mineflayer-state' };
         const expired = Date.now() - capturedAt > 25000;
         this.status = { state: expired ? 'expired' : 'ready', capturedAt, ...generated, context: gameContext, lastError: null };
         if (expired || generated.speech === this.lastSpeech) return null;

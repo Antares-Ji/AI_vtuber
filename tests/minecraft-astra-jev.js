@@ -34,7 +34,7 @@ async function main() {
     return { ok: true, json: async () => payload };
   };
   const engine = new MinecraftEngine({ file, env: {}, fetchImpl });
-  assert.equal(engine.status().provider, 'local-qwen');
+  assert.equal(engine.status().provider, 'deepseek');
   engine.save({ provider: 'astra-jev' });
   assert.throws(() => engine.assertReady(), /OpenRouter/);
   assert.throws(() => engine.save({ provider: 'unknown' }), /有效/);

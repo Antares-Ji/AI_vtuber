@@ -95,7 +95,7 @@ class AutonomyLoop {
   async modelHealth(signal) {
     if (this.engine) {
       Object.assign(this.state, this.engine.modelState());
-      if (this.state.provider === 'astra-jev' || this.state.provider === 'astra') { signal.throwIfAborted(); this.engine.assertReady(); return; }
+      if (['astra-jev', 'astra', 'deepseek'].includes(this.state.provider)) { signal.throwIfAborted(); this.engine.assertReady(); return; }
     }
     const base = getLocalLlmConfig().baseUrl.replace(/\/v1\/?$/, '');
     try {
@@ -127,7 +127,7 @@ class AutonomyLoop {
     if (untilStopped !== undefined && typeof untilStopped !== 'boolean') throw new Error('untilStopped must be boolean');
     if (untilStopped === true && durationMinutes !== undefined) throw new Error('Choose untilStopped or durationMinutes');
     if (continuous !== undefined && typeof continuous !== 'boolean') throw new Error('continuous must be boolean');
-    if (completionItem !== undefined && !['crafting_table', 'iron_pickaxe'].includes(completionItem)) throw new Error('不支持的演示验收物品');
+    if (completionItem !== undefined && !['crafting_table', 'furnace', 'iron_pickaxe'].includes(completionItem)) throw new Error('不支持的演示验收物品');
     if (goal !== undefined && (typeof goal !== 'string' || !goal.trim() || goal.length > 1000)) throw new Error('训练目标应为1到1000字');
     if (untilStopped !== undefined) { this.state.untilStopped = untilStopped; if (untilStopped) this.state.deadline = null; }
     if (durationMinutes !== undefined) this.state.untilStopped = false;
@@ -144,7 +144,7 @@ class AutonomyLoop {
     }
     if (this.pending || this.state.running) throw new Error('上一轮正在取消，请稍后重试');
     if (durationMinutes !== undefined) {
-      if (completionItem !== undefined && !['crafting_table', 'iron_pickaxe'].includes(completionItem)) throw new Error('不支持的演示验收物品');
+      if (completionItem !== undefined && !['crafting_table', 'furnace', 'iron_pickaxe'].includes(completionItem)) throw new Error('不支持的演示验收物品');
       this.state.deadline = new Date(this.now() + durationMinutes * 60000).toISOString();
       this.state.completionItem = completionItem || null;
       this.state.goalCompleted = false;

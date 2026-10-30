@@ -1,0 +1,3 @@
+rootProject.name = 'collect-return-example'
+include 'harness'
+project(':harness').projectDir = file('../../harness')

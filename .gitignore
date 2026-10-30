@@ -16,6 +16,7 @@ data/story-state.json
 data/osu-observations.json
 data/runtime-settings.json
 data/minecraft-engine.local.json*
+data/sts2/
 data/singing-catalog.json
 
 # Voice references may contain licensed or personally identifiable audio.
@@ -46,3 +47,6 @@ logs/
 /output/*.manifest.json
 /output/*.sha256.txt
 /video/*.mp4
+# Generated live tactics snapshots (source scripts are versioned).
+/public/sts2-tactics.json
+/public/sts2-tactics-status.json

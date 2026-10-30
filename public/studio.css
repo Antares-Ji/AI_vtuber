@@ -1,4 +1,8 @@
 :root { color-scheme: dark; --bg:#101318; --panel:#181d24; --line:#303844; --text:#edf2f7; --muted:#94a1af; --mint:#73d8cb; --yellow:#e8c66d; --danger:#ef8585; }
+.gi-frame { position:relative; margin-top:12px; min-height:120px; background:#090b0e; }
+.gi-frame img { width:100%; display:block; cursor:crosshair; }
+#gi-markers { position:absolute; inset:0; pointer-events:none; }
+#gi-markers span { position:absolute; transform:translate(-50%,-50%); width:24px; height:24px; border:2px solid #fff; border-radius:50%; color:white; background:#b02828; text-align:center; font-weight:bold; }
 * { box-sizing:border-box; }
 *[hidden] { display:none !important; }
 body { margin:0; min-height:100vh; background:var(--bg); color:var(--text); font-family:"Microsoft YaHei UI","Segoe UI",sans-serif; }

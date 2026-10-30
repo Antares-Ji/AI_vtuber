@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "game": "Slay the Spire 2",
+  "date": "2026-10-26",
+  "decision_source": "Codex supervised visual decisions",
+  "perception_assistant": "local Qwen3-VL-4B-Instruct NF4",
+  "input_driver": "project_native_win32",
+  "state_source": "captured game-client pixels only",
+  "training_performed": false,
+  "autonomous_local_completion_proven": false,
+  "evidence_root": "E:/Github/AI_vtuber/runtime/game-input/runs",
+  "review_method": "Codex visual review; raw input game_verified flags remain false",
+  "run_result": {
+    "screen_title": "胜利……？",
+    "floors": 48,
+    "bosses_defeated": 3,
+    "elites_defeated": 4,
+    "gold_obtained": 704,
+    "queen_combat_turns": 10,
+    "hp_after_queen": 42,
+    "hp_after_epilogue": 0,
+    "architect_damage_shown": 1447,
+    "queen_defeat_evidence": "1793043293517950400",
+    "epilogue_evidence": "1793043447448297600",
+    "settlement_evidence": "1793043564449434800"
+  },
+  "experiences": [
+    {
+      "id": "first_hp_loss_draw",
+      "conditions": "Centennial Puzzle unused, Hemokinesis available, no draw prohibition, HP loss affordable",
+      "action": "Play Hemokinesis before Battle Trance",
+      "observed_result": "Floor45: HP85->83, three extra cards drawn, then Battle Trance drew another three",
+      "evidence": ["1793040536770413400", "1793040572727071400"],
+      "status": "observed_single_run"
+    },
+    {
+      "id": "double_four_hit_aoe",
+      "conditions": "Strength4, Kill card with Sharp2, Double Tap; three enemies HP36/65/65",
+      "action": "Double Tap then Kill (杀灭)",
+      "observed_result": "9 damage x4 repeated twice, all enemies defeated in round1; HP83->89 after victory heal",
+      "evidence": ["1793040601241444300", "1793040887943529400", "1793040897909590000"],
+      "status": "observed_single_run"
+    },
+    {
+      "id": "hand_upgrade",
+      "conditions": "Armaments+ in hand with unupgraded cards",
+      "action": "Play Armaments+ before attack setup",
+      "observed_result": "Queen round1: Thunderclap, Double Tap, Uppercut and Flame Barrier upgraded together",
+      "evidence": ["1793041505216801000", "1793041543164844500"],
+      "status": "observed_single_run"
+    },
+    {
+      "id": "vulnerable_damage_mitigation",
+      "conditions": "Queen minion attacks12x3; Uppercut from Attack Potion, Colossus+ available",
+      "action": "Uppercut minion, then Colossus+",
+      "observed_result": "Intent12x3->9x3->4x3; 6 block, HP93->87 after all hits",
+      "evidence": ["1793042183180907200", "1793042210607572800", "1793042284568747100", "1793042390442001400"],
+      "status": "observed_single_run"
+    },
+    {
+      "id": "soulbound_selection",
+      "conditions": "Queen Soulbound Chains3",
+      "action": "Hover debuff and compare first3 cards before choosing one",
+      "observed_result": "Tooltip: first3 drawn each turn are soulbound, only1 soulbound card playable per turn; additional draws remained playable",
+      "evidence": ["1793041793589743600", "1793041818755093700"],
+      "status": "tooltip_and_play_observed"
+    },
+    {
+      "id": "soulbound_repeat",
+      "conditions": "Soulbound Kill, Double Tap+ not soulbound, player weak, enemy vulnerable",
+      "action": "Double Tap+ then Kill",
+      "observed_result": "Queen175->95 from two four-hit attacks; other soulbound cards became unavailable",
+      "evidence": ["1793042962117866400", "1793042995810993300"],
+      "status": "observed_single_run"
+    },
+    {
+      "id": "autoplay_locked_card_boundary",
+      "conditions": "惊逃+ active; locked soulbound attack among remaining attacks",
+      "action": "End turn",
+      "observed_result": "No attack damage observed in queen rounds3,5,6; after locked attacks exhausted in round4, sole usable Hemokinesis fired, minion91->77 and player87->85 before enemy attack",
+      "evidence": ["1793042346790162900", "1793042390442001400", "1793042579859256400", "1793042596109797400"],
+      "status": "boundary_observed_causal_rule_needs_isolated_retest",
+      "policy": "Do not count random autoplay as guaranteed damage while locked attacks remain"
+    },
+    {
+      "id": "retaliation_kills_multihit_enemy",
+      "conditions": "Minion10HP, intent12x3, vulnerable; Colossus+, Flame Barrier+, Bronze Scales",
+      "action": "Colossus+ then Flame Barrier+, end turn",
+      "observed_result": "Intent6x3, block18; enemy died during attack sequence and player remained63HP",
+      "evidence": ["1793042822509829100", "1793042860334176900", "1793042886613103200"],
+      "status": "observed_single_run"
+    },
+    {
+      "id": "damage_estimate_correction",
+      "conditions": "Weak, vulnerable, strength and relic/enchantment modifiers coexist",
+      "action": "Compare forecast to actual HP deltas",
+      "observed_result": "Soulbound Kill repeated dealt80, not72 estimated by early flooring; upgraded Thunderclap double hit dealt27 in round1, not30; Pain consumes attack after its initial damage",
+      "evidence": ["1793041594008415000", "1793042437143173600", "1793042995810993300"],
+      "status": "prediction_error_preserved",
+      "policy": "Prefer target-hover preview or observed deltas; do not train incorrect forecasts as labels"
+    },
+    {
+      "id": "local_ocr_correction_armaments_plus",
+      "source_run": "1793041407039103300",
+      "model_record": "vision-1793041427065368800.json",
+      "raw_name": "武裝+",
+      "raw_description": "获得5点抵挡。升级你手牌中的所有牌。",
+      "reviewed_name": "武装+",
+      "reviewed_description": "获得5点格挡。升级你手牌中的所有牌。",
+      "seconds": 8.09,
+      "status": "ocr_error_preserved_with_corrected_label"
+    }
+  ],
+  "next_evaluation": {
+    "scope": "offline replay first; no new live run started automatically",
+    "split": "hold out whole fights or runs, never split neighboring frames across train and test",
+    "metrics": ["card-field exact match", "target point within visible target", "action completion verified from next frame", "illegal action rate", "decision latency", "complete run success across fresh seeds"],
+    "limitations": ["supervised single-run selection bias", "not all card texts reviewed", "no causal win-rate comparison", "no weights updated", "full local planner not implemented"]
+  }
+}

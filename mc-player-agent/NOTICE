@@ -1,0 +1,33 @@
+MC Player Agent is an independent derivative project, not an official Numen release.
+
+Portions are adapted from Numen (minecraft-numen) by Dwinovo and contributors.
+Upstream: https://github.com/Dwinovo/minecraft-numen
+Original code license: LGPL-3.0-only. See LICENSE and COPYING.
+Changes made on 2026-10-28: player-agent extraction, independent runtime and
+model transport, new loader entrypoints, own branding/storage and legacy migration.
+Per-file source paths and original SHA-256 values are recorded in provenance.json.
+Numen artwork, character assets, voices and branding are not included.
+
+The unmodified Gradle wrapper is distributed under Apache-2.0; see licenses/.
+Minecraft, Fabric, NeoForge and Gson remain their respective upstream projects.
+
+Provenance clarification (2026-10-28): of the 61 extracted files recorded in
+provenance.json, 57 are absent from the original local Numen download and were
+introduced during the local player-agent development work. They must not all
+be attributed as pre-existing upstream Numen implementations. Four origin files
+exist in that snapshot: DigTime, RecipeProbe, ItemReach and ItemEntityDropsMixin.
+Presence of a file does not mean all extracted methods originated upstream;
+player pickup receipt hooks and centre-based pickup checks were local additions.
+This snapshot comparison does not establish exclusive authorship. LGPL notices
+and actual upstream attribution are retained. New mission subsystem files are
+implemented in the independent MC Player Agent project.
+
+Harness maintenance (2026-10-28): AgentHarness extracts and adapts scheduling,
+review, interruption and completion logic from this project's PlayerControl.
+This is a continuation of the recorded local player-agent implementation, not
+a claim of newly originating all scheduling logic. The headless demo and new
+harness tests are added in this independent project. Existing notices remain.
+
+Harness maintenance (2026-10-29): per-session time, model-request and action
+limits, boundary regression tests and public project documentation were added
+with AI-assisted development. Existing upstream attribution is unchanged.

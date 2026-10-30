@@ -1,0 +1,10 @@
+* text=auto
+*.sh text eol=lf
+gradlew text eol=lf
+*.bat text eol=crlf
+*.jar binary
+*.nbt binary
+*.png binary
+# Preserve the upstream license texts, including their trailing blank lines.
+LICENSE whitespace=-blank-at-eof
+COPYING whitespace=-blank-at-eof

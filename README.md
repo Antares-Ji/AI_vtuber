@@ -2,6 +2,16 @@
 
 ai主播项目
 
+## MC Player Agent 架构整合版
+
+已完整纳入用户提供的 MC Player Agent 0.4.0-alpha.1：原生 Java Harness、Fabric/NeoForge、文档、示例和许可证位于 [mc-player-agent](mc-player-agent/README.md)。本地 Minecraft 兼容后端、杀戮尖塔 2 的学习与原生视觉执行、原神/BetterGI 探索、主播能力通过 14 个具名 Skill 汇合。
+
+- [架构分析与功能取舍](docs/integration/ARCHITECTURE.md)
+- [统一使用入口和扩展契约](docs/integration/USAGE.md) · [Skill 清单](docs/integration/SKILLS.md)
+- [验证范围与已知限制](docs/integration/VALIDATION.md)
+
+运行 `npm run skills:list` 查看能力，`npm run skills:demo` 验证不操作游戏的模拟闭环。原生 MC 仍通过原项目 F8/F9 控制；BetterGI 实机桥接仍在探索，当前不会把模拟或程序存在误报为已接通游戏。
+
 ## 项目交接入口
 
 新接手的开发者或 AI 请先阅读 [PROJECT_HANDOFF.md](PROJECT_HANDOFF.md)。人格需求、源码地图、硬件/模型依赖、美术设计缺口和当前未确认事项均从这里进入。
@@ -172,3 +182,17 @@ public/live2d/
 ```
 
 当前使用项目内的 Cubism 模型；加载失败时才显示 CSS fallback。
+
+## 杀戮尖塔 2 自主游玩
+
+已接入 STS2MCP 与 DeepSeek API。运行 `npm run sts2:start`，打开
+[尖塔控制面板](http://127.0.0.1:15527)，可开始、停止和查看游戏状态。
+首次安装执行 `npm run sts2:setup`，详细配置见
+[集成说明](integrations/sts2-mcp/README.md)。
+
+主播联动运行 `npm run sts2:stream`，打开
+[游戏工作台](http://127.0.0.1:3000/games.html?game=sts2)，将游戏、Live2D、字幕与 GPT-SoVITS 语音同步到 OBS 独立场景。
+
+工作台顶部可切换“我的世界 / 杀戮尖塔 2”的画面和专属功能。主播舞台、语音通话、聊天记录、设备选择、未发送的聊天及目标输入始终保留；聊天和目标按发送时选中的游戏分发。切换本身不会启动或停止游戏任务，使用“停止当前游戏任务”停止所选游戏。Minecraft 设置移至页面底部“状态与诊断”，原独立页面继续可用。
+
+尖塔画面预览读取 OBS 的游戏源，OBS 需运行且游戏窗口保持打开；未捕获时显示连接提示。执行 `npm run test:games` 验证切换、输入保留与请求路由。

@@ -1,0 +1,26 @@
+plugins { id 'net.neoforged.moddev' }
+base { archivesName='mcplayeragent-neoforge' }
+neoForge {
+    version='21.1.233'
+    runs {
+        client { client(); gameDirectory=file('runs/client') }
+        server { server(); gameDirectory=file('runs/server') }
+    }
+    mods { mcplayeragent { sourceSet sourceSets.main; sourceSet project(':harness').sourceSets.main } }
+}
+
+sourceSets {
+    gametest {
+        java.srcDir rootProject.file('game/src/gametest/java')
+        resources.srcDir rootProject.file('game/src/gametest/resources')
+        compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
+        runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath
+    }
+}
+
+neoForge {
+    addModdingDependenciesTo(sourceSets.gametest)
+    mods { mcplayeragent_tests { sourceSet sourceSets.gametest } }
+    runs { gameTestServer { type='gameTestServer'; gameDirectory=file('runs/gametestserver') } }
+}
+tasks.named('runGameTestServer') { dependsOn 'gametestClasses' }

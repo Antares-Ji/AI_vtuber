@@ -17,7 +17,7 @@ function buildRealtimeMessages(item = {}, context = {}) {
     context.sessionTopics?.length ? `本场最近话题：${context.sessionTopics.join("、")}` : "",
     context.characterTrainingMemories?.length ? `角色自己的已确认经历（不是当前观众的事实）：${context.characterTrainingMemories.map(entry => entry.text || entry.content).join("；")}` : "",
     context.capabilityPrompt || "",
-    require("../minecraft/live-context").gameContextMessage(context.game),
+    require("../games/live-context").gameContextMessage(context.game),
     context.memoryLookup ? `长期记忆已在回答前同步查询：${context.memoryLookup.found ? `找到 ${context.memoryLookup.count} 条可靠记录：${context.memoryLookup.facts.join("；")}` : "没有找到足够可靠的已确认记录"}。不要假装记得未提供的内容，也不要说稍后再查。` : "",
     direction.instruction ? `回复指令：${direction.instruction}。最多 ${budget.maxSentences || 2} 句、${budget.maxCharacters || 180} 字；关系语气：${direction.relationshipTone || "warm-polite"}。` : "",
     cognitionText(context.cognition),
@@ -31,7 +31,7 @@ function buildRealtimeMessages(item = {}, context = {}) {
     clip(context.persona || "你是直播中的AI主播。", 1000),
     context.personality ? clip(personalityPrompt(context.personality), 600) : "保持角色人格。",
     clip(context.worldBook || "", 500), clip(context.userMemory || "", 400),
-    require("../minecraft/live-context").gameContextMessage(context.game),
+    require("../games/live-context").gameContextMessage(context.game),
     direction.instruction ? clip(direction.instruction, 400) : "直接回应观众。",
     "只说1至2句自然中文，不超过80字。结合游戏事实回应，勿编造成功，勿复述参数，不要JSON或思考过程。"
   ].filter(Boolean) : systems;
@@ -39,7 +39,7 @@ function buildRealtimeMessages(item = {}, context = {}) {
     { role: "system", content: liveSystems.join("\n\n") },
     ...(context.recent || []).slice(-3).flatMap(turn => [{ role: "user", content: turn.text }, ...(turn.reply ? [{ role: "assistant", content: turn.reply }] : [])]),
     ...(context.partnerContext ? [{ role: "user", content: context.partnerContext }] : []),
-    { role: "user", content: (context.game ? `【当前Minecraft直播】游戏目标：${context.game.goal}；当前阶段：${context.game.subgoal || "等待规划"}；执行状态：${context.game.phase}；最近失败：${context.game.error || "未报告"}。谈到目标或卡住时，回答这场游戏的真实情况。\n` : "") + (item.type === "proactive" ? (context.game ? "结合当前游戏现场自然说一句话。" : "现在请自然地主动说一句话。") : `观众 ${item.user || "观众"} 发来弹幕：${item.text || ""}`) }
+    { role: "user", content: (context.game ? `【当前${context.game.gameName || 'Minecraft'}直播】游戏目标：${context.game.goal}；当前阶段：${context.game.subgoal || "等待规划"}；执行状态：${context.game.phase}；最近失败：${context.game.error || "未报告"}。谈到目标或卡住时，回答这场游戏的真实情况。\n` : "") + (item.type === "proactive" ? (context.game ? "结合当前游戏现场自然说一句话。" : "现在请自然地主动说一句话。") : `观众 ${item.user || "观众"} 发来弹幕：${item.text || ""}`) }
   ];
 }
 

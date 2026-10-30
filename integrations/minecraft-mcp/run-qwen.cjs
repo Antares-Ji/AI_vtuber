@@ -4,11 +4,14 @@ const { appendFileSync, mkdirSync } = require('node:fs');
 const { setTimeout: delay } = require('node:timers/promises');
 const { Client } = require('@modelcontextprotocol/client');
 const { StdioClientTransport } = require('@modelcontextprotocol/client/stdio');
-const { planSurvival } = require('../../src/minecraft/survival-planner');
+require('../../src/config/env').loadEnv();
+const { MinecraftEngine } = require('../../src/minecraft/astra-jev');
 
 async function run({ steps = 1, goal = '安全观察周围环境', execute = false } = {}) {
   if (!Number.isInteger(steps) || steps < 1 || steps > 100) throw new Error('steps must be 1..100');
-  const client = new Client({ name: 'local-qwen-minecraft-host', version: '0.1.0' });
+  const engine = new MinecraftEngine();
+  engine.assertReady();
+  const client = new Client({ name: 'minecraft-api-host', version: '0.1.0' });
   const transport = new StdioClientTransport({ command: process.execPath, args: [path.join(__dirname, 'server.cjs')], env: { ...process.env } });
   const abort = new AbortController();
   const stop = () => abort.abort();
@@ -31,8 +34,8 @@ async function run({ steps = 1, goal = '安全观察周围环境', execute = fal
       if (!observation.state.connected) throw new Error('Minecraft bot is disconnected');
       if (observation.state.busy) throw new Error('Another game task is active');
       let metadata;
-      const action = await planSurvival(observation.state, { goal, history, signal: abort.signal, onMetadata: value => { metadata = value; } });
-      log({ event: 'local_model_decision', observationId: observation.observationId, action, metadata, execute });
+      const action = await engine.plan(observation.state, { goal, history, signal: abort.signal, onMetadata: value => { metadata = value; } });
+      log({ event: 'model_decision', provider: engine.config.provider, observationId: observation.observationId, action, metadata, execute });
       if (!execute) { console.log(JSON.stringify({ action, metadata, executed: false })); continue; }
       abort.signal.throwIfAborted();
       const accepted = await call('minecraft_execute', { observationId: observation.observationId, action });

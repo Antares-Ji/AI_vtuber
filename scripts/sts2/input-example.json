@@ -1,0 +1,5 @@
+[
+  {"action":"move","to":[0.25,0.7],"duration":0.8},
+  {"action":"click","to":[0.25,0.7],"duration":0.3,"hold":0.1},
+  {"action":"drag","from":[0.25,0.7],"to":[0.7,0.4],"duration":1.2,"hold":0.15}
+]

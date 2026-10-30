@@ -1,0 +1,16 @@
+pluginManagement {
+    repositories {
+        gradlePluginPortal(); mavenCentral()
+        maven { url='https://maven.fabricmc.net/' }
+        maven { url='https://maven.neoforged.net/releases/' }
+    }
+    plugins {
+        id 'net.fabricmc.fabric-loom-remap' version '1.14.10'
+        id 'net.neoforged.moddev' version '2.0.141'
+    }
+}
+rootProject.name='mc-player-agent'
+include 'harness','fabric','neoforge'
+
+include 'collect-return-example'
+project(':collect-return-example').projectDir = file('examples/collect-return')

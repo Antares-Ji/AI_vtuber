@@ -1,0 +1,31 @@
+plugins {
+    id 'net.fabricmc.fabric-loom-remap' apply false
+    id 'net.neoforged.moddev' apply false
+}
+allprojects {
+    group='dev.mcplayeragent'
+    version=rootProject.providers.gradleProperty('agent_version').get()
+    repositories { mavenCentral() }
+}
+subprojects {
+    apply plugin:'java-library'
+    java { toolchain { languageVersion=JavaLanguageVersion.of(21) }; withSourcesJar() }
+    tasks.withType(JavaCompile).configureEach { options.encoding='UTF-8'; options.release=21 }
+    tasks.withType(Test).configureEach { useJUnitPlatform() }
+}
+configure([project(':fabric'),project(':neoforge')]) {
+    sourceSets.main.java.srcDirs(rootProject.file('game/src/main/java'),rootProject.file('game/src/client/java'))
+    sourceSets.main.resources.srcDir(rootProject.file('game/src/main/resources'))
+    dependencies { implementation project(':harness') }
+    tasks.named('jar',Jar) {
+        dependsOn ':harness:classes'
+        from(project(':harness').sourceSets.main.output)
+        from(rootProject.file('LICENSE')); from(rootProject.file('COPYING')); from(rootProject.file('NOTICE'))
+    }
+    tasks.named('sourcesJar',Jar) {
+        from(project(':harness').sourceSets.main.allSource)
+    }
+    tasks.named('processResources') { inputs.property('version',project.version)
+        filesMatching(['fabric.mod.json','META-INF/neoforge.mods.toml']) { expand(version:project.version) }
+    }
+}

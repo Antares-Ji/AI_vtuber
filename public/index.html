@@ -5,10 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>AI 主播直播台</title>
     <link rel="stylesheet" href="/stream.css" />
+    <script>if(new URLSearchParams(location.search).get('overlay')==='1')document.documentElement.classList.add('spire-overlay');</script>
   </head>
   <body>
     <main class="stream-stage">
-      <div class="stream-topbar"><span class="status-dot">● Live2D streamer preview</span><nav><a href="/minecraft.html">Minecraft · Astra + JEV</a><a href="/latency.html">双层延迟对比</a><a href="/debug.html">调试直播台</a><a href="/studio.html">导演工作台</a></nav></div>
+      <div class="stream-topbar"><span class="status-dot">● Live2D streamer preview</span><nav><a href="/games.html">游戏工作台</a><a href="/latency.html">双层延迟对比</a><a href="/debug.html">调试直播台</a><a href="/studio.html">导演工作台</a></nav></div>
       <div id="live2d-stage" aria-label="Live2D streamer"></div>
       <div id="avatarFallback" class="avatar-fallback"><div class="fallback-silhouette"></div></div>
       <div id="danmakuLayer" class="danmaku-layer" aria-live="polite"></div>

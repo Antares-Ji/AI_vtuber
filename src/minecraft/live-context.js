@@ -10,7 +10,7 @@ function liveGameContext(state, loop, capturedAt = Date.now(), now = Date.now())
   if (!loop?.goal) return null;
   const stale = !capturedAt || now - capturedAt > 6000;
   const available = Boolean(state?.connected) && !stale;
-  const base = { schemaVersion: 2, capturedAt, stale, connected: available, speaker: 'local-qwen', localOnly: loop.provider === 'astra', planner: loop.model,
+  const base = { schemaVersion: 2, capturedAt, stale, connected: available, speaker: loop.provider === 'deepseek' ? 'deepseek' : 'local-qwen', localOnly: loop.provider === 'astra', planner: loop.model,
     goal: short(loop.goal, 1000), enabled: Boolean(loop.enabled),
     audienceSuggestions: (loop.audienceSuggestions || []).slice(-3).map(s => ({ id: s.id, text: short(s.text, 500), status: s.status || 'queued' })) };
   if (!available) return { ...base, phase: stale && state?.connected ? '状态过期' : '未连接', subgoal: null, inventory: null, result: null, execution: null, speakingHint: '暂时收不到游戏实时状态，不能确认当前进度。' };

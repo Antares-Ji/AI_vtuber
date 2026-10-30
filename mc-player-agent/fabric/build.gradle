@@ -1,0 +1,39 @@
+plugins { id 'net.fabricmc.fabric-loom-remap' }
+base { archivesName='mcplayeragent-fabric' }
+dependencies {
+    minecraft 'com.mojang:minecraft:1.21.1'
+    mappings loom.officialMojangMappings()
+    modImplementation 'net.fabricmc:fabric-loader:0.18.1'
+    modImplementation 'net.fabricmc.fabric-api:fabric-api:0.116.7+1.21.1'
+    compileOnly 'io.github.llamalad7:mixinextras-common:0.5.3'
+    annotationProcessor 'io.github.llamalad7:mixinextras-common:0.5.3'
+}
+loom {
+    mods { mcplayeragent { sourceSet sourceSets.main; sourceSet project(':harness').sourceSets.main } }
+    runs { client { client(); runDir('runs/client') }; server { server(); runDir('runs/server') } }
+}
+
+sourceSets {
+    gametest {
+        java.srcDir rootProject.file('game/src/gametest/java')
+        resources.srcDir rootProject.file('game/src/gametest/resources')
+        compileClasspath += sourceSets.main.output + sourceSets.main.compileClasspath
+        runtimeClasspath += sourceSets.main.output + sourceSets.main.runtimeClasspath
+    }
+}
+
+dependencies {
+    modLocalRuntime fabricApi.module('fabric-gametest-api-v1','0.116.7+1.21.1')
+    localRuntime sourceSets.gametest.output
+}
+loom {
+    mods { mcplayeragent_tests { sourceSet sourceSets.gametest } }
+    runs {
+        gameTestServer {
+            inherit server
+            runDir('runs/gametestserver')
+            vmArg('-Dfabric-api.gametest')
+        }
+    }
+}
+tasks.named('runGameTestServer') { dependsOn 'gametestClasses' }

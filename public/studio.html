@@ -13,7 +13,7 @@
   </header>
   <main>
     <nav class="tabs" aria-label="工作台模块">
-      <button class="active" data-tab="memory">记忆训练</button><button data-tab="brain">大脑诊断</button><button data-tab="story">连续经历</button><button data-tab="vision">osu! 视觉</button><button data-tab="live">直播运行</button>
+      <button class="active" data-tab="memory">记忆训练</button><button data-tab="brain">大脑诊断</button><button data-tab="story">连续经历</button><button data-tab="vision">osu! 视觉</button><button data-tab="game-input">本地游戏操作</button><button data-tab="live">直播运行</button>
     </nav>
 
     <section id="memory" class="view active">
@@ -61,8 +61,16 @@
       <div class="section-head"><div><h1>直播运行</h1><p>OBS 可直接控制；B站官方凭据未配置时使用适配器事件进行联调。</p></div></div>
       <div class="grid-2"><div class="pane"><h2>运行状态</h2><pre id="liveStatus">读取中</pre></div><form id="biliForm" class="pane form"><h2>B站事件联调</h2><label>类型<select id="biliType"><option value="DANMU_MSG">弹幕</option><option value="SUPER_CHAT_MESSAGE">SC</option><option value="SEND_GIFT">礼物</option><option value="GUARD_BUY">舰长</option></select></label><label>用户<input id="biliUser" value="测试观众" /></label><label>内容<input id="biliText" value="直播联调成功了吗？" /></label><button type="submit">发送模拟事件</button></form><form id="obsForm" class="pane form"><h2>OBS 场景</h2><label>场景名称<input id="obsScene" placeholder="例如：直播主场景" required /></label><button type="submit">切换场景</button></form></div>
     </section>
+    <section id="game-input" class="view">
+      <div class="section-head"><div><h1>本地游戏操作</h1><p>杀戮尖塔 2 · 截图定位 → 键鼠执行 → 画面核对</p></div><button id="gi-stop" class="danger">立即停止 / F8</button></div>
+      <div class="grid-2">
+        <div class="pane"><div class="row"><button id="gi-capture">获取游戏截图</button><button id="gi-resume" class="secondary">解除停止</button></div><p id="gi-state" role="status">读取中</p><div class="gi-frame"><img id="gi-image" alt="尚未取得游戏截图" /><div id="gi-markers"></div></div><p class="meta">在截图上选择落点；拖拽先点起点，再点终点。标点不会立即操作游戏。</p><h2>本地视觉读牌</h2><p class="meta">先悬停展开卡牌，再读取当前截图。原文和图片存入样本库，模型输出仍需核对。</p><button id="gi-read-card" class="secondary">让本地 Qwen 读牌并记录</button><pre id="gi-card-result">尚未读牌</pre></div>
+        <div class="pane form"><h2>动作与定位</h2><label>操作<select id="gi-kind"><option value="click">点击（事件 / 地图 / 奖励 / 商店）</option><option value="drag">拖拽出牌</option><option value="hover">悬停查看</option><option value="scroll">地图滚轮</option><option value="key">游戏按键</option></select></label><p id="gi-coordinates">尚未选择落点</p><div class="two"><label>滚动格数<input id="gi-steps" type="number" min="-10" max="10" value="3" /></label><label>按键<select id="gi-key"><option>ESC</option><option>ENTER</option><option>SPACE</option><option>M</option><option>E</option></select></label></div><button id="gi-execute">执行一次并截图</button><p class="meta">执行时会激活游戏，请松开键鼠。失焦、窗口尺寸变化或 F8 会停止动作并释放按键。</p><h2>最近结果</h2><p id="gi-result">等待操作</p><a id="gi-video" hidden>下载本次录像</a><details><summary>动作记录</summary><pre id="gi-details"></pre></details><h2>已验证流程</h2><p class="meta">出牌与目标拖拽、回合结束、升级选牌、奖励领取、事件选项、地图滚动与节点点击。其他场景继续逐项验证。</p><p class="meta">当前由对话代理观察截图并选动作，本地程序执行。未启用后台模型自主循环。</p></div>
+      </div>
+    </section>
     <output id="toast" aria-live="polite"></output>
   </main>
   <script type="module" src="/studio.js"></script>
+  <script type="module" src="/game-input.js"></script>
 </body>
 </html>
