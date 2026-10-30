@@ -93,6 +93,7 @@ node --test tests/native-autonomy.cjs tests/skills-runtime.cjs tests/skills-api.
 node --test tests/skills-*.cjs tests/genshin-framework.js tests/sts2-deepseek-fetch.cjs tests/game-input-console.js
 python tests/test_native_vision_schema.py
 python tests/test_native_model_config.py
+python tests/test_native_player_ocr.py
 python -m pip install -r scripts/sts2/requirements-map-cv.txt
 python tests/test_native_map_cv.py
 ```
@@ -106,3 +107,28 @@ python tests/test_native_map_cv.py
 针对遮挡回放中出现的 75/80→1/1，新增时间相邻观察校验：仅当上一条已完成输入为战斗中的悬停，且前后对应数值均已读出时，生命或格挡变化会被标为识别冲突。生命分子或分母冲突时两者一起置为 null；格挡独立处理。旧值不会回填为当前事实，原始本地模型结果仍保留在视觉记录中，角色 API 同时收到未知值及冲突说明。
 
 出牌、点击结束回合、跨场景、失败或被拒绝的动作不使用此规则，以免抹掉真实变化。它也无法发现前后持续相同的误读；若前一动作动画尚未结束，变化可能真实但仍暂列未知，因此此处是保守的不确定性处理，不是数值真值校验。新增两项回归覆盖遮挡数值冲突及完整 API 循环中在下一次角色决策前过滤冲突。
+
+## 本地 OCR 交叉核对（可选，当前实机已启用）
+
+单纯扩大视觉模型未解决状态数字误读，因此新增独立 CPU OCR 服务，使用 [RapidOCR 官方安装方式](https://rapidai.github.io/RapidOCRDocs/main/en/install_usage/rapidocr/install/) 的 `rapidocr 3.10.0`、`onnxruntime 1.31.1` 和包内 PP-OCRv6 small 权重。依赖安装在单独的 `runtime/ocr-env`，避免改变 Qwen 的 CUDA 环境或重复安装不同 OpenCV 包。模型推理在本机完成，权重不提交 Git。
+
+```text
+python -m venv runtime/ocr-env
+runtime\ocr-env\Scripts\python.exe -m pip install -r scripts/sts2/requirements-ocr.txt
+python scripts/start-native-ocr.py
+python scripts/restart-native-vision.py --ocr-check
+```
+
+应先通过导演控制台停止自主输入，再部署或重启。OCR worker 只监听 `127.0.0.1:17647`，拒绝带 Origin 的请求，只读取 `runtime/game-input/runs` 下已有原生截图。`GET /health` 查看状态，`POST /read` 接收 `image` 与归一化 `crop`，返回文字、置信度和原图 0–1000 文本框；没有键鼠能力。启动器遇到已占用端口直接拒绝，服务在 Windows 使用独占端口，防止多个进程同时绑定。实际启动重复请求被拒绝后，原服务仍就绪；跨来源、越界文件与裁剪请求也已实测拒绝。
+
+`--ocr-check`（或 `AI_VTUBER_OCR_CHECK=1`、PowerShell 的 `-OcrCheck`）启用后，Qwen 的 player 模式通过这个本地 HTTP API 核对同一文件与裁剪区域。生命必须是唯一、清晰的完整分数，且与 Qwen 两项都一致；格挡必须与生命条左侧同一高度的独立数字一致，排除下方状态计数。噪声生命文字可仅作位置参照，不能据此补出生命值。缺少、冲突、重复或低置信文本均变为未知，不从旧帧或 OCR 单路猜值。OCR 服务不可用时返回未知和 unavailable 记录，不能静默沿用未经核对的 Qwen 数字。默认未启用的安装保留原单路模式，health 的 `playerOcrCheck` 明确报告实际开关。
+
+正式 API 回放记录：
+
+- `vision-1793395134579257100.json`：生命 75/80 两路一致，格挡未知。
+- `vision-1793395136210576700.json`：防御后格挡 5 两路一致；OCR 将生命条读成 `75%/.80`，因此生命改为未知，没有自动去符号修复。
+- `vision-1793395137867619800.json`：Qwen 原始格挡为 1，OCR 没有对应的格挡数字，最终改为未知，生命 75/80 保留。
+- `model-replay-Qwen3-VL-4B-Instruct-1793395138016.json`：七项原有 API 回放均返回 200；遮挡样本生命与格挡均未知，地图、卡牌和奖励仍返回原有结构。
+- 主动停止 OCR 后的 `vision-1793395180302906800.json`、`vision-1793395183849285000.json`、`vision-1793395187385079600.json` 均保留 Qwen 原文、报告 OCR unavailable，并将三个数值置空。之后已恢复 OCR 服务和自主任务。
+
+新增 6 项纯逻辑测试覆盖一致读数、状态图标干扰、带噪生命分数、重复框、缺失值及非法框坐标；不需要下载权重即可在 CI 运行。以上样本只证明核对和拒绝路径，不能证明全部布局的 OCR 准确率；两个模型也可能同时误读。单次 CPU OCR 在这三张截图的热启动处理中约 0.17–0.22 秒，不能作为通用性能保证。

@@ -24,6 +24,7 @@ jobs:
       - run: python tests/test_learning_preservation.py
       - run: python tests/test_native_vision_schema.py
       - run: python tests/test_native_model_config.py
+      - run: python tests/test_native_player_ocr.py
       - run: python -m pip install -r scripts/sts2/requirements-map-cv.txt
       - run: python tests/test_native_map_cv.py
       - run: node scripts/skill-catalog.cjs --check
