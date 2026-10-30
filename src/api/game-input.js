@@ -31,7 +31,14 @@ function recent() {
   try { return fs.readdirSync(RUNS).filter(n => /^\d{15,22}$/.test(n)).sort().reverse().slice(0, 20).map(runInfo).filter(Boolean); }
   catch { return []; }
 }
-function gesture(body) {
+function hoverPointerMode() {
+  const file = path.join(BASE, 'hover-pointer.json');
+  if (!fs.existsSync(file)) return 'absolute';
+  const value = JSON.parse(fs.readFileSync(file, 'utf8'));
+  if (!value || Object.keys(value).some(k => k !== 'mode') || !['absolute', 'relative'].includes(value.mode)) throw Error('Invalid local hover pointer configuration');
+  return value.mode;
+}
+function gesture(body, pointerMode = 'absolute') {
   const point = value => {
     if (!Array.isArray(value) || value.length !== 2 || value.some(n => typeof n !== 'number' || !Number.isFinite(n) || n < 0 || n > 1)) throw new Error('坐标必须是客户区内的 [x,y]，范围 0..1');
     return value;
@@ -40,7 +47,9 @@ function gesture(body) {
   switch (body.kind) {
     case 'capture': return null;
     case 'click': return [{ action: 'click', to: point(body.to), duration: .35, hold: .1 }, wait];
-    case 'hover': return [{ action: 'move', to: point(body.to), duration: .35 }, wait];
+    case 'hover':
+      if (!['absolute', 'relative'].includes(pointerMode)) throw Error('Unsupported hover pointer mode');
+      return [{ action: 'move', to: point(body.to), duration: .35, ...(pointerMode === 'relative' ? { pointer_mode: 'relative' } : {}) }, wait];
     case 'drag': return [{ action: 'move', to: point(body.from), duration: .4 }, { action: 'wait', duration: .35 }, { action: 'down' }, { action: 'wait', duration: .15 }, { action: 'move', to: point(body.to), duration: .8 }, { action: 'wait', duration: .2 }, { action: 'up' }, wait, { action: 'move', to: [.5, .35], duration: .2 }];
     case 'scroll':
       if (!Number.isInteger(body.steps) || Math.abs(body.steps) > 10 || body.steps === 0) throw new Error('滚轮范围为 -10..10，不能为 0');
@@ -107,7 +116,7 @@ function createGameInputRoutes({ parseBody, send, persona = () => ({}) }) {
     if (fs.existsSync(STOP)) return reply(409, { error: '已停止，请先恢复' });
     let actions, body;
     try {
-      body = await parseBody(req); actions = gesture(body);
+      body = await parseBody(req); actions = gesture(body, body.kind === 'hover' ? hoverPointerMode() : 'absolute');
       if (actions) {
         const current = recent()[0];
         if (!current || body.frameId !== current.id || Date.now() - current.updatedAt > 120000 || !current.image || current.target !== 'SlayTheSpire2.exe') throw new Error('请先获取最新截图，再定位动作');

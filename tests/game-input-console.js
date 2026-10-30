@@ -17,3 +17,13 @@ test('drag releases the same button after hover and motion', () => {
   assert.ok(down > 0 && up > down);
   assert.ok(actions.slice(down + 1, up).some(a => a.action === 'move' && a.to[0] === .7));
 });
+test('relative hover is a local option and leaves clicks and drags unchanged', () => {
+  const body = { kind: 'hover', to: [.3, .8] };
+  assert.equal(gesture(body)[0].pointer_mode, undefined);
+  assert.equal(gesture(body, 'relative')[0].pointer_mode, 'relative');
+  assert.deepEqual(gesture({ ...body, pointer_mode: 'relative' }), gesture(body));
+  assert.throws(() => gesture(body, 'unrecognized'));
+  for (const action of [{ kind: 'click', to: [.4, .5] }, { kind: 'drag', from: [.3, .8], to: [.6, .5] }]) {
+    assert.deepEqual(gesture(action, 'relative'), gesture(action));
+  }
+});
