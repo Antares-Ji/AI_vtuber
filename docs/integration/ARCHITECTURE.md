@@ -1,6 +1,6 @@
 # MC Player Agent 与本地多游戏能力整合
 
-本次以用户提供的 `MC-Player-Agent-0.4.0-alpha.1-GitHub.zip` 为 Minecraft 原生执行架构基线，保留所有 151 个文件及目录、原说明、配置 Schema、外部扩展示例、测试、来源与许可证。源码在 [mc-player-agent](../../mc-player-agent/README.md)，原始压缩包另存 `archives/`；[导入清单](import-manifest.json) 可核验原包和逐文件内容。Git 可依据原包自带属性规范换行，原包本身保持字节一致。
+本次以用户提供的 `MC-Player-Agent-0.4.0-alpha.1-GitHub.zip` 为 Minecraft 原生执行架构基线，保留所有 151 个文件及目录、原说明、配置 Schema、外部扩展示例、测试、来源与许可证。源码在 [mc-player-agent](../../mc-player-agent/README.md)，原始压缩包另存 `archives/`；[导入清单](import-manifest.json) 可核验原包和逐文件内容。Git 可依据原包自带属性规范换行，原包本身保持字节一致。工作源码有一处测试等待修复（第三个 MissionRun 日志必须写完才能清理测试目录）；原始哈希、修复 diff 和修复后哈希均保存在清单中，生产架构未改。
 
 这是一个单仓库、多运行时的整合版本。Java Harness 仍是 Minecraft 原生执行核心，Node Skill Host 为现有运行时提供统一发现、参数校验、调用、取消与状态入口。没有把尖塔坐标和原神截图伪装成 Minecraft 的背包、坐标或服务器回执，也没有在 MC 控制器中另加规划循环。
 

@@ -429,5 +429,12 @@
     "mc-player-agent/tools/package_release.py": "12d9187bbe5b2041c83ea39709ab3b83930d07392c2e53b61cdd5b329ab63e5a",
     "mc-player-agent/tools/test_check_repository.py": "48ae5cf9578ab1e942bdc83d86f1b731fc70813b1eacc4b2de58448ff65d5af2",
     "mc-player-agent/tools/test_package_release.py": "ab6f941e4d7111ab0712aa90ddab0a5a75a9dcfa09c0fb7f1cc25b89adb292fa"
+  },
+  "integration_overrides": {
+    "mc-player-agent/harness/src/test/java/dev/mcplayeragent/mission/MissionRunTest.java": {
+      "reason": "Await the third mission journal before JUnit removes its TempDir; test-only CI race fix, no runtime changes.",
+      "lf_sha256": "03ee65a4189794cb2efe42a13a38014a8fa1a5ca23220c7be30dcc15097ce2d9",
+      "patch": "--- a/mc-player-agent/harness/src/test/java/dev/mcplayeragent/mission/MissionRunTest.java\n+++ b/mc-player-agent/harness/src/test/java/dev/mcplayeragent/mission/MissionRunTest.java\n@@ -44,6 +44,7 @@\n             assertNotEquals(a.directory(),b.directory());assertNotEquals(a.directory(),again.directory());\n             assertEquals(\"a\",saved(a).get(\"world_context\").getAsString());\n             assertEquals(\"b\",saved(b).get(\"world_context\").getAsString());\n+            assertEquals(\"a\",saved(again).get(\"world_context\").getAsString());\n         }\n     }\n     @Test void orderedEventsAndLatencyStatisticsSurviveFlush() throws Exception {\n"
+    }
   }
 }

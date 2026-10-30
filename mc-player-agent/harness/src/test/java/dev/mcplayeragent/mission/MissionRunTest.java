@@ -44,6 +44,7 @@ class MissionRunTest {
             assertNotEquals(a.directory(),b.directory());assertNotEquals(a.directory(),again.directory());
             assertEquals("a",saved(a).get("world_context").getAsString());
             assertEquals("b",saved(b).get("world_context").getAsString());
+            assertEquals("a",saved(again).get("world_context").getAsString());
         }
     }
     @Test void orderedEventsAndLatencyStatisticsSurviveFlush() throws Exception {

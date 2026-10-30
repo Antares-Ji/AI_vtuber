@@ -1,10 +1,12 @@
 """Verify every supplied ZIP byte, then run upstream checks in an isolated Git root.
 
 The original tools deliberately reject a parent repository. Exporting the pinned
-subtree preserves that contract without weakening or modifying the ZIP sources.
+subtree preserves that contract. Explicit integration patches are verified against
+the unchanged original archive as well as their recorded resulting hashes.
 """
 from pathlib import Path
 import hashlib
+import difflib
 import json
 import shutil
 import subprocess
@@ -21,20 +23,34 @@ def verify(root=ROOT):
     if hashlib.sha256(archive.read_bytes()).hexdigest() != manifest['sha256']:
         raise RuntimeError('Original ZIP archive changed')
     exact = 0
+    patched = 0
+    overrides = manifest.get('integration_overrides', {})
+    if not set(overrides).issubset(manifest['files']):
+        raise RuntimeError('Override is not an original source file')
     with zipfile.ZipFile(archive) as original:
         for name, expected in manifest['files'].items():
             if hashlib.sha256(original.read(name)).hexdigest() != expected:
                 raise RuntimeError('Archive member changed: ' + name)
+            if name in overrides:
+                current = (root / name).read_text(encoding='utf-8')
+                baseline = original.read(name).decode('utf-8').replace('\r\n', '\n')
+                delta = ''.join(difflib.unified_diff(baseline.splitlines(True), current.splitlines(True), fromfile='a/' + name, tofile='b/' + name))
+                if delta != overrides[name]['patch']:
+                    raise RuntimeError('Integration patch differs: ' + name)
     for name, expected in manifest['files'].items():
         file = root / name
         if not file.resolve().is_relative_to(root.resolve()) or file.is_symlink():
             raise RuntimeError('Invalid import path: ' + name)
         content = file.read_bytes()
-        if hashlib.sha256(content).hexdigest() == expected:
+        if name in overrides:
+            if hashlib.sha256(content.replace(b'\r\n', b'\n')).hexdigest() != overrides[name]['lf_sha256']:
+                raise RuntimeError('Patched source changed: ' + name)
+            patched += 1
+        elif hashlib.sha256(content).hexdigest() == expected:
             exact += 1
         elif hashlib.sha256(content.replace(b'\r\n', b'\n')).hexdigest() != manifest['lf_sha256'].get(name):
             raise RuntimeError('Imported source changed: ' + name)
-    print(f"Original ZIP byte-identical; {len(manifest['files'])} source files preserved ({exact} exact; others only Git line endings)", flush=True)
+    print(f"Original ZIP byte-identical; {len(manifest['files'])} source files retained ({exact} exact; {patched} recorded integration patches; others only Git line endings)", flush=True)
     return manifest
 
 
