@@ -1,9 +1,19 @@
 import sys,unittest
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'scripts/sts2'))
-from native_vision_schema import hand_targets,whole_point,scene_observation,player_stats
+from native_vision_schema import hand_targets,whole_point,scene_observation,player_stats,battle_observation
 
 class VisionSchemaTest(unittest.TestCase):
+    def test_skill_release_ground_must_not_overlap_lower_hand_area(self):
+        enemy={'id':'e','kind':'enemy','point':[792,634]}
+        ground={'id':'g','kind':'ground','point':[400,700]}
+        allowed={'id':'a','kind':'ground','point':[500,450]}
+        value={'scene':'battle','targets':[enemy,ground,allowed]}
+        result=battle_observation(value)
+        self.assertEqual(result['targets'],[enemy,allowed])
+        self.assertEqual(result['rejected_low_ground_targets'],1)
+        self.assertEqual(value['targets'],[enemy,ground,allowed])
+        with self.assertRaises(ValueError):battle_observation({'targets':[{'point':[float('nan'),400]}]})
     def test_player_numbers_are_bounded_integers_and_unknown_is_not_zero(self):
         self.assertEqual(player_stats({'hp':75,'max_hp':80,'block':'2/3'}),{'player':{'hp':75,'max_hp':80,'block':None}})
         self.assertIsNone(player_stats({})['player']['block'])

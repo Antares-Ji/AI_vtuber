@@ -7,7 +7,7 @@ import threading
 import time
 import urllib.request
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
-from native_vision_schema import hand_targets, whole_point, scene_observation, player_stats
+from native_vision_schema import hand_targets, whole_point, scene_observation, player_stats, battle_observation
 from native_model_config import resolve_model_dir
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -90,6 +90,8 @@ targets是数组，每项必须包含id、label、point、enabled四个字段。
                     prompt='''观察截图中的战场，返回紧凑JSON对象：scene字段为battle；summary只描述敌人数量；targets为目标数组。每个目标有唯一id、kind、label、point、enabled字段。kind只能是enemy、button或ground，enabled为true。point为两个整数的数组，分别是整图0至1000的水平、竖直坐标。每个敌人单独列出身体中心，label写实际读到的敌人名称、生命数值和头上攻击意图，读不清的部分用未知。另列出可见的结束回合按钮和战场中央的空地。空地不要落在手牌上。不列玩家、不列手牌，不猜伤害，不照抄提示词，最多8个目标。玩家生命、格挡和能量由另一观察器读取，此处不要猜这些数值。'''
                 if body.get('mode')=='player':
                     prompt='''只读玩家角色的生命条与盾牌图标数值。返回紧凑JSON，只含hp、max_hp、block三个字段，都是整数或null。hp与max_hp来自玩家角色下方生命条的分数；block只能来自玩家角色旁盾牌图标上的当前格挡整数。不要读敌人生命、能量球、卡牌费用、卡牌描述或悬停帮助文字。能量分数不是格挡。未明确看到盾牌图标和数字时block为null，不假设为0；任何读不清字段都为null。'''
+                if body.get('mode')=='battle':
+                    prompt+=' 空地目标用于将技能牌拖离手牌区域：只选战场上半部可见的空白区域，远离角色、敌人、按钮和悬停展开的卡牌；不要选择角色脚下或靠近底部手牌的地面。无法明确定位这种空白区域则省略ground目标，不猜位置。'
                 if body.get('mode')=='hand':
                     prompt='''逐张定位图片里的手牌，排除按钮、能量球和牌堆。返回JSON对象，cards数组包含每张可见牌。每张牌有name、cost、point三个字段。name为读到的牌名字符串，读不清用null；cost为读到的费用整数，读不清用null。point必须是两个整数组成的数组，依次为水平和竖直坐标，坐标相对当前图片归一化到0至1000。落点必须位于该牌可见且未被遮挡的部分。按从左到右列出，最多12张。无法定位则省略该牌。只输出JSON，禁止示例占位符。'''
                 started=time.monotonic()
@@ -112,6 +114,11 @@ targets是数组，每项必须包含id、label、point、enabled四个字段。
                         parsed=None
                 if body.get('mode')=='hand' and parsed is not None:
                     try:parsed={'scene':'battle','targets':hand_targets(parsed,crop),'coordinate_space':'original_image_0_1000'}
+                    except ValueError as ex:
+                        normalization_error=str(ex)
+                        parsed=None
+                if body.get('mode')=='battle' and parsed is not None:
+                    try:parsed=battle_observation(parsed)
                     except ValueError as ex:
                         normalization_error=str(ex)
                         parsed=None

@@ -32,6 +32,21 @@ def scene_observation(parsed):
                 return {**parsed,'scene':'battle','summary':'观察到结束回合按钮，继续读取战场和手牌。','scene_correction':'room_conflicts_with_visible_end_turn_control'}
     return parsed
 
+def battle_observation(parsed):
+    if not isinstance(parsed,dict) or not isinstance(parsed.get('targets'),list):
+        raise ValueError('Missing battle observations')
+    targets=[];rejected=0
+    for target in parsed['targets']:
+        if not isinstance(target,dict):raise ValueError('Invalid battle target')
+        point=whole_point(target.get('point'))
+        # The lower battlefield overlaps the raised hand and is not a reliable
+        # skill release area. Reject the candidate; never move it to a preset.
+        if target.get('kind')=='ground' and point[1]>600:
+            rejected+=1
+            continue
+        targets.append(target)
+    return {**parsed,'targets':targets,'rejected_low_ground_targets':rejected}
+
 def whole_point(point, crop=None):
     if not isinstance(point, list) or len(point) != 2 or any(type(v) not in (int, float) or not math.isfinite(v) or not 0 <= v <= 1000 for v in point):
         raise ValueError('Invalid model point')
