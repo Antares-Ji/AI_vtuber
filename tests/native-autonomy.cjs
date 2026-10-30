@@ -3,6 +3,16 @@ const assert = require('node:assert/strict');
 const { NativeAutonomy, observation, actionFor, attachInspectedCard, collapseRepeatedTargets, actionOptions, attachGroundedCard, plannerObservation } = require('../src/sts2/native-autonomy');
 const view = { scene:'battle',summary:'hand',frameId:'1',energy:1,targets:[{id:'card',kind:'card',label:'打击',point:[400,900],card:{name:'打击',cost:1,type:'攻击',description:'造成6点伤害。',observedFrameId:'1'}},{id:'enemy',kind:'enemy',label:'敌人',point:[700,500]}] };
 const visionFor = (body, current=view) => body.mode==='energy' ? {energy:1} : body.mode==='battle' ? {...current,targets:current.targets.filter(t=>t.kind!=='card')} : body.mode==='hand' ? {...current,targets:current.targets.filter(t=>t.kind==='card')} : current;
+test('a cleared room forwards its visible button without route-map node grounding',async()=>{
+  const room={scene:'room',summary:'战后房间',targets:[{id:'forward',label:'前进',point:[850,700]}]};let input;
+  const agent=new NativeAutonomy({pause:async()=>{},decide:async(v)=>{assert.equal(v.scene,'room');return {kind:'click',targetId:'forward'};},request:async(route,body)=>{
+    if(route==='vision-state')return {ready:true,sceneSupport:true};
+    if(route==='read-card'){assert.equal(body.mode,'scene');return {parsed:room};}
+    if(body.kind==='capture')return {id:'1',status:'captured_only'};
+    input=body;return {id:'input',status:'awaiting_visual_review'};
+  }});
+  agent.start({maxSteps:1});await agent.task;assert.equal(agent.state.stage,'step-limit');assert.deepEqual(input.to,[.85,.7]);
+});
 test('reward planning receives legal IDs without raw vision coordinate alternatives',()=>{
   const reward={scene:'reward',points:[['金币',436,379]],targets:[{id:'t1',label:'金币',point:[436,379]},{id:'t2',label:'退出游戏',point:[800,300]}]};
   const planned=plannerObservation(reward);

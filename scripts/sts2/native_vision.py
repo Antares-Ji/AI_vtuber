@@ -61,7 +61,7 @@ def main():
 只有明确看见场地敌人、玩家、底部手牌和结束回合按钮时才是battle。中央放大的单张卡牌、暗色背景、查看升级是卡牌详情弹窗，scene为selection，优先列出关闭详情的外围空白区域和可见确认勾号，不把中央牌当作可打出的手牌。
 所有point为整图0到1000归一化中心坐标。最多8个目标，summary不超过80字，紧凑JSON。地图只列出当前可选的下一层节点，不枚举整张地图；不能确定可达时说明未知。相同目标只出现一次，禁止重复坐标，禁止照抄示例坐标。识别可见手牌的费用、敌人身体中心与意图、按钮。battle提供一个中央空地作为技能释放空地。只列实际可见目标，不猜隐藏信息。结算为terminal，动画为unknown。重叠卡牌标记露出部分，无法定位的目标省略。'''
                 if body.get('mode')=='scene':
-                    prompt='''读取当前游戏截图，返回一个紧凑JSON对象，只包含scene、summary、targets三个字段。scene从battle、map、selection、event、reward、shop、rest、treasure、menu、terminal、unknown中选择；summary用最多20字描述当前界面。战斗后搜刮金币、药水或卡牌的面板是reward；故事文本及分支选项是event；结局是terminal。
+                    prompt='''读取当前游戏截图，返回一个紧凑JSON对象，只包含scene、summary、targets三个字段。scene从battle、map、room、selection、event、reward、shop、rest、treasure、menu、terminal、unknown中选择；summary用最多20字描述当前界面。战斗后搜刮金币、药水或卡牌的面板是reward；故事文本及分支选项是event；结局是terminal。只有显示纸面路线、节点和连线网络才是map。玩家站在洞穴或房间里且战斗结束、没有敌人，右侧有前进箭头，是room；列出前进按钮，不能当作地图节点。
 targets是数组，每项必须包含id、label、point、enabled四个字段。id依次为t1、t2等字符串。label必须写实际可见的选项或按钮文字；point必须是两个整数的数组，分别为相对整张图片0至1000的横、纵坐标；enabled为布尔。最多8个目标，每个目标独立定位。无标签的坐标不能作为目标。奖励界面逐项读出奖励文字和继续按钮。卡牌详情弹窗列关闭按钮或可关闭的外围空白。战斗、地图只须说明场景，可返回空targets，将由专门观察器进一步读取。不得输出名为points的字段，不要照抄格式说明。'''
                 if body.get('mode')=='map':
                     prompt='''读取这张杀戮尖塔路线地图，输出紧凑JSON，字段scene固定为map，summary简短说明，targets为目标数组。每个目标字段id、label、point、enabled。point是相对整张图片的0至1000归一化坐标，必须独立定位，最多列出5个目标。

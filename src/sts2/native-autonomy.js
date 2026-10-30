@@ -7,7 +7,7 @@ const { settings } = require('./settings');
 const { deepseekFetch } = require('./deepseek-fetch');
 const ROOT = path.resolve(__dirname, '../..');
 const BASE = path.join(ROOT, 'runtime/game-input');
-const SCENES = new Set(['battle','map','event','reward','selection','shop','rest','treasure','menu','terminal','unknown']);
+const SCENES = new Set(['battle','map','room','event','reward','selection','shop','rest','treasure','menu','terminal','unknown']);
 
 function observation(value) {
   if (!value || !SCENES.has(value.scene) || !Array.isArray(value.targets) || value.targets.length > 40) throw Error('视觉状态格式不完整');
