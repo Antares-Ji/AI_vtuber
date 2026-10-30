@@ -5,6 +5,38 @@ game knowledge, or establish that a model's card location is actionable.
 """
 from native_player_ocr import ocr_lines
 import re
+import math
+
+
+def card_ocr_hints(ocr, crop_bounds, original_size):
+    """Map original-image OCR boxes into the actual pixel crop shown to the VLM.
+
+    Return hints only; corroboration continues using the original OCR evidence.
+    Use rounded pixel bounds from image cropping, not ideal normalized bounds.
+    """
+    if len(original_size) != 2 or any(type(n) is not int or n <= 0 for n in original_size):
+        raise ValueError('Positive original image dimensions required')
+    if len(crop_bounds) != 4 or any(type(n) is not int for n in crop_bounds):
+        raise ValueError('Integer pixel crop bounds required')
+    left, top, right, bottom = crop_bounds
+    width, height = original_size
+    if not (0 <= left < right <= width and 0 <= top < bottom <= height):
+        raise ValueError('Crop must be inside original image')
+    hints = []
+    for text, score, box in ocr_lines(ocr):
+        if score < .9:
+            continue
+        mapped = [(box[0]*width/1000-left)/(right-left)*1000,
+                  (box[1]*height/1000-top)/(bottom-top)*1000,
+                  (box[2]*width/1000-left)/(right-left)*1000,
+                  (box[3]*height/1000-top)/(bottom-top)*1000]
+        # OCR serializes original normalized points to two decimals. Permit
+        # only the corresponding rounding tolerance, not out-of-crop text.
+        tolerance = max(width/(right-left), height/(bottom-top))*.0051
+        if any(not math.isfinite(n) or n < -tolerance or n > 1000+tolerance for n in mapped):
+            continue
+        hints.append({'text':text, 'box':[round(max(0,min(1000,n)),2) for n in mapped]})
+    return hints[:80]
 
 
 def compact(text):

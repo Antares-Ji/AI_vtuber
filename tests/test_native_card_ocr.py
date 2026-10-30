@@ -4,7 +4,7 @@ import sys
 import unittest
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / 'scripts/sts2'))
-from native_card_ocr import corroborate_card
+from native_card_ocr import corroborate_card, card_ocr_hints
 
 
 def line(text, x=500, y=600, score=.99):
@@ -65,6 +65,27 @@ class CardOcrTests(unittest.TestCase):
             self.assertTrue(corroborate_card(parsed, self.ocr)['uncertain'])
         for ocr in (None, [], {}, {'lines':None}, {'lines':[line('愤怒'), {'text':'造成4点伤害。', 'confidence':float('nan'), 'box':[]}]}):
             self.assertTrue(corroborate_card(self.card, ocr)['uncertain'])
+
+    def test_hints_align_with_displayed_crop_without_mutating_evidence(self):
+        original = copy.deepcopy(self.ocr)
+        hints = card_ocr_hints(self.ocr, (250,500,750,1000), (1000,1000))
+        self.assertEqual(hints[0], {'text':'愤怒','box':[440,200,560,240]})
+        self.assertEqual(self.ocr, original)
+        self.assertEqual(corroborate_card(self.card,self.ocr)['cards'],self.card['cards'])
+
+    def test_whole_frame_and_rounded_pixel_crop(self):
+        self.assertEqual(card_ocr_hints({'lines':[line('牌')]},(0,0,1000,1000),(1000,1000))[0]['box'],[470,600,530,620])
+        item = {'text':'边界', 'confidence':.99, 'box':[[179.15,200],[602.61,200],[602.61,400],[179.15,400]]}
+        hints = card_ocr_hints({'lines':[item]},(55,10,185,90),(307,100))
+        self.assertEqual(len(hints),1)
+        self.assertEqual(hints[0]['box'][0],0)
+        self.assertEqual(hints[0]['box'][2],1000)
+
+    def test_hints_exclude_outside_low_confidence_and_invalid_boxes(self):
+        ocr={'lines':[line('inside',x=500),line('outside',x=100),line('crossing',x=260),line('uncertain',score=.85),{'text':'bad','confidence':.99,'box':[]}]}
+        self.assertEqual([h['text'] for h in card_ocr_hints(ocr,(250,500,750,1000),(1000,1000))],['inside'])
+        for bounds in ((0,0,0,10),(-1,0,10,10),(0,0,1001,10),(0,0,float('nan'),10)):
+            with self.assertRaises(ValueError):card_ocr_hints(ocr,bounds,(1000,1000))
 
 
 if __name__ == '__main__':
