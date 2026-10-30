@@ -65,7 +65,7 @@ DeepSeek 请求启用 thinking/high、4096 token 上限和45秒超时。输出�
 
 `genshin:demo` 和 `npm run genshin:demo` 明确使用规则与模拟适配器，不消耗模型调用。独立服务可显式配置 `GENSHIN_PLANNER=rules` 用于离线演练；导演的 `genshin:plan` 不会因为这个变量静默改用规则。BetterGI 实机入口先检查桥接就绪情况，当前仍拒绝未接通的实机运行。
 
-LLM 目前只做目标到计划的结构化转换，没有原神实时视觉观察或战斗推理；这些仍需完成第二阶段桥接。规划失败会报错，不回退为规则成功。
+`genshin:plan` 目前只做目标到计划的结构化转换，尚未消费实时观察，也不执行战斗。独立的 `genshin:observe` 已接入原生截图和本地视觉 API，见下文；规划与执行闭环仍需完成第二阶段桥接。规划失败会报错，不回退为规则成功。
 
 可选环境项：`GENSHIN_PORT`（17650）、`GENSHIN_ADAPTER`（mock/bettergi）、`GENSHIN_PLANNER`（rules/llm）、`BETTERGI_EXE`。
 
@@ -119,3 +119,23 @@ Node 整合回归现为 87/87；新增验证覆盖真实规划入口的凭据来
 真实只读 ping 返回 protocol=2、primary、processId=121440、windowsSessionId=1，与本地运行实例一致。生产 doctor 随后得到同样结果，ready 和 gameConnected 仍为 false。现有 `AI-VTuber-Probe` 脚本包含 Escape 输入且没有本次截图回执，保留但未启动；未用它替代只读诊断。新增6项 IPC 测试覆盖碎片帧、错误编号/版本/实例、大小边界、断线、超时、取消和权限失败。任务桥接与原神实机推演仍未完成。
 
 部署后通过导演 `POST /api/skills/run` 调用 `genshin:doctor`，任务 `79d9f092-27b2-4300-9fe5-4f9b8680f4f4` 返回 COMPLETED，正式 Skill 回执也取得上述在线实例信息，bridgeReady=false。证据文件为本地 `runtime/genshin-skill-api-replay-1793400464422.json`。Node 整合回归96项通过，包含新增 IPC 测试；未运行原神、未发送键鼠动作。
+
+## 原神观察 Skill：原生截图 → 本地视觉 API
+
+`genshin:observe` 是独立的只读入口。导演 `POST /api/skills/run` 请求如下：
+
+```json
+{"skill":"genshin:observe","args":{"target":"YuanShen.exe"},"timeoutMs":120000}
+```
+
+国际服可使用 `GenshinImpact.exe`，其他程序名、路径和动作参数都会拒绝。游戏必须已经运行并位于前台；观察不会启动游戏、恢复最小化窗口、切换焦点、按键或移动鼠标。原生窗口识别复用已有 `NativeInput`，显式关闭最小化恢复，截图前后核验前台和客户区，取得原生跨进程互斥；Skill 同时占用 desktop/genshin 资源。即使键鼠已停止，仍可进行这条无输入的观察。
+
+截图保存在 `runtime/genshin/observations/<UUID>/frame.png`，回执包含本次编号、时间、目标进程、客户区和 SHA-256。Node 核验编号、路径、时间与文件摘要，再请求 `127.0.0.1:17646/read` 的 `genshin-scene` 模式；该模式仅接受这个专用目录中的固定文件，不把任意本地图片路径开放给服务。前台变化、截图失败、过期或替换、模型忙、模型 JSON 错误均失败；不伪造观察。取消会阻止后续模型请求或结果发布，纯截图子进程退出后才释放 Skill。已提交给视觉服务的 GPU 推理可能继续结束，但不会因此产生游戏输入。
+
+本地 Qwen 只返回 scene、summary、visible_text、uncertain，不返回可执行坐标；结果始终标记 `unverified_local_model_output`、verified=false、inputSent=false、betterGiExecuted=false。Skill 的 COMPLETED 只代表管道完成，不代表模型内容已被游戏独立证实。结果与模型记录保存在本地原神证据目录，没有自动加入训练集。`genshin:plan` 尚未读取这些观察；`genshin:bettergi` 继续拒绝未就绪的执行。
+
+选择独立观察入口的依据：当前安装版本的 [ScriptService.StartGameTask](https://github.com/babalae/better-genshin-impact/blob/0af68c28f6b0e714d5304625ce644736d508022e/BetterGenshinImpact/Service/ScriptService.cs) 会启动截图器并等待游戏主界面，超过30秒可能尝试返回主界面；[TaskRunner](https://github.com/babalae/better-genshin-impact/blob/0af68c28f6b0e714d5304625ce644736d508022e/BetterGenshinImpact/GameTask/TaskRunner.cs) 还会激活窗口并重置实时触发器。因此 `--startGroups` 不能被包装成无副作用截图接口，未调用现有带 Escape 的探针脚本，也未改变 BetterGI 用户配置。
+
+离线验证：Node 整合回归103项通过，新增7项观察测试覆盖身份/时间/摘要、错误图像、动作字段、取消、输出大小及资源互斥；Python 新增6项验证图像目录边界、符号链接逃逸、前台变化、客户区与像素上限，原生输入5项回归通过。替身测试不能替代真实原神截图与模型读取，实机结果另行记录。
+
+现场部署后，导演注册表返回15个 Skill，视觉 `/health` 返回 genshinSceneSupport=true。通过正式 API 启动 `genshin:observe`，任务 `acef7c6a-371e-49e4-bc3f-68e9dd260e3a` 返回 FAILED：未找到可见 YuanShen.exe 窗口（0个），result=null。该失败与现场无原神进程一致，没有发送键鼠，也没有把 BetterGI 在线当成原神截图。证据保存在本地 `runtime/genshin-observe-api-replay-1793401272155.json`。当前只验证了真实 API 的缺失前置条件，尚无真实原神图像的正向观察结果。

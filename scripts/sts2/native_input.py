@@ -75,7 +75,7 @@ class Input(C.Structure):
 
 
 class NativeInput:
-    def __init__(self, exe='SlayTheSpire2.exe', stop_file=None):
+    def __init__(self, exe='SlayTheSpire2.exe', stop_file=None, *, restore_minimized=True):
         if os.name != 'nt':
             raise OSError('Windows only')
         self.user = C.WinDLL('user32', use_last_error=True)
@@ -125,6 +125,8 @@ class NativeInput:
         # A minimized window can report a zero-size client before focus() runs.
         # Restore it before taking the geometry baseline used by input guards.
         if self.user.IsIconic(self.hwnd):
+            if not restore_minimized:
+                raise RuntimeError('Game is minimized; observation does not restore or focus windows')
             self.user.ShowWindow.argtypes = [W.HWND, C.c_int]
             self.user.ShowWindow(self.hwnd, 9)
             time.sleep(.3)

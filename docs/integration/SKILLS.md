@@ -13,6 +13,7 @@
 | [sts2:native-play](../../skills/sts2/native-play/README.md) | live | 复用纯视觉、角色决策及原生键鼠循环，保留已核验的通关经验。 |
 | [sts2:learning-status](../../skills/sts2/learning-status/README.md) | read | 查看持久学习覆盖率、审核集数量和经验来源；模型推断不升级为实战事实。 |
 | [sts2:learn](../../skills/sts2/learn/README.md) | learning | 运行既有卡库导入、有限批次分析和长期记忆写入。analyze=true会调用模型；不是权重微调。 |
+| [genshin:observe](../../skills/genshin/observe/README.md) | read | 原神前台窗口原生截图，再调用本地视觉 API；不切换窗口、不发送键鼠、不启动 BetterGI 任务。 |
 | [genshin:plan](../../skills/genshin/plan/README.md) | read | 通过 DeepSeek API 规划原神有限技能；生成计划不发送游戏输入。 |
 | [genshin:demo](../../skills/genshin/demo/README.md) | simulation | 运行原神模拟技能，明确标记无游戏输入。 |
 | [genshin:bettergi](../../skills/genshin/bettergi/README.md) | live | 保留 BetterGI 接入：未完成启动、取消与证据桥接时拒绝实机执行。 |

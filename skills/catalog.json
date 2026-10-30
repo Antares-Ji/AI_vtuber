@@ -122,6 +122,21 @@
       }
     },
     {
+      "id": "genshin:observe",
+      "version": "1",
+      "game": "genshin",
+      "mode": "read",
+      "description": "原神前台窗口原生截图，再调用本地视觉 API；不切换窗口、不发送键鼠、不启动 BetterGI 任务。",
+      "resources": [
+        "desktop",
+        "genshin"
+      ],
+      "enabled": true,
+      "arguments": {
+        "target": "YuanShen.exe | GenshinImpact.exe (default YuanShen.exe)"
+      }
+    },
+    {
       "id": "genshin:plan",
       "version": "1",
       "game": "genshin",
