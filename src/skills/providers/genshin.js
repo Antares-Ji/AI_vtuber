@@ -6,6 +6,9 @@ const { remoteRun } = require('../local-client');
 function register(registry, { root, dataRoot, env, main, sts2, runProcess }) {
   const add = definition => registry.register({ version: '1', ...definition });
   const noArgs = a => objectArgs(a, []);
+  add({ id: 'genshin:launch', game: 'genshin', mode: 'live', resources: ['desktop', 'genshin'],
+    description: '启动本地配置的原神程序；不登录、不发送键鼠，不重复启动已有进程。', validate: noArgs,
+    execute: (a, { signal }) => require('../../genshin/launch').launch({ root, dataRoot, env, signal, runProcess }) });
   add({ id: 'genshin:observe', game: 'genshin', mode: 'read', resources: ['desktop', 'genshin'],
     description: '原神前台窗口原生截图，再调用本地视觉 API；不切换窗口、不发送键鼠、不启动 BetterGI 任务。',
     arguments: { target: 'YuanShen.exe | GenshinImpact.exe (default YuanShen.exe)' },

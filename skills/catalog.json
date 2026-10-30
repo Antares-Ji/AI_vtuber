@@ -122,6 +122,19 @@
       }
     },
     {
+      "id": "genshin:launch",
+      "version": "1",
+      "game": "genshin",
+      "mode": "live",
+      "description": "启动本地配置的原神程序；不登录、不发送键鼠，不重复启动已有进程。",
+      "resources": [
+        "desktop",
+        "genshin"
+      ],
+      "enabled": true,
+      "arguments": {}
+    },
+    {
       "id": "genshin:observe",
       "version": "1",
       "game": "genshin",

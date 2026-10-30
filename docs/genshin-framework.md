@@ -139,3 +139,17 @@ Node 整合回归现为 87/87；新增验证覆盖真实规划入口的凭据来
 离线验证：Node 整合回归103项通过，新增7项观察测试覆盖身份/时间/摘要、错误图像、动作字段、取消、输出大小及资源互斥；Python 新增6项验证图像目录边界、符号链接逃逸、前台变化、客户区与像素上限，原生输入5项回归通过。替身测试不能替代真实原神截图与模型读取，实机结果另行记录。
 
 现场部署后，导演注册表返回15个 Skill，视觉 `/health` 返回 genshinSceneSupport=true。通过正式 API 启动 `genshin:observe`，任务 `acef7c6a-371e-49e4-bc3f-68e9dd260e3a` 返回 FAILED：未找到可见 YuanShen.exe 窗口（0个），result=null。该失败与现场无原神进程一致，没有发送键鼠，也没有把 BetterGI 在线当成原神截图。证据保存在本地 `runtime/genshin-observe-api-replay-1793401272155.json`。当前只验证了真实 API 的缺失前置条件，尚无真实原神图像的正向观察结果。
+
+## 受限游戏启动入口与实机权限结果
+
+`genshin:launch` 将游戏启动也纳入导演 Skill，模式为 live，需显式 allowLive=true，占用 desktop/genshin。请求不接受程序路径、启动参数或命令；程序路径只读服务器本地 `GENSHIN_EXE`，或被 Git 忽略的 `data/genshin.local.json` 的 executable 字段。路径必须指向存在的 YuanShen.exe 或 GenshinImpact.exe。配置示例使用自己的安装路径，不要提交本机配置。
+
+```json
+{"skill":"genshin:launch","args":{},"allowLive":true,"timeoutMs":45000}
+```
+
+启动器先核对已有原神进程的可执行文件身份。相同实例不重复启动，不同安装或多个实例明确拒绝，读取身份被拒绝时也不会当作未运行。使用原生跨进程互斥和无 shell 的单程序启动；最多等待20秒检查窗口，不发送键鼠、不登录、不处理 UAC、不请求提权。回执区分 started、windowFound、foreground，verified始终为false；进程/窗口存在不代表已经进入可玩场景。取消停止等待，**不承诺撤回已经发生的进程启动，也不关闭用户游戏**。
+
+现场从现有 BetterGI 配置核实游戏程序存在，写入本地配置但未改动 BetterGI。正式导演任务 `877588ac-f391-4967-965e-85ba7a6aa3f8` 返回 FAILED：`WinError 740`，系统要求提升权限，result=null。现有管理员控制端口17643/17644也未监听，且旧服务源码仅有明日方舟控制接口，不能当作原神启动接口。已提示用户通过 Windows 正常授权启动游戏；未修改 UAC、未伪造启动回执。证据为本地 `runtime/genshin-launch-api-replay-1793401683586.json`。
+
+注册表现为16个 Skill。Node整合107项通过，其中新增启动测试4项覆盖本地配置、固定参数、拒绝任意程序、权限失败不重试和显式live；Python新增3项覆盖现有实例、安装冲突及身份不可读。原神正向启动、截图观察和 BetterGI 执行闭环仍待实机验证。
