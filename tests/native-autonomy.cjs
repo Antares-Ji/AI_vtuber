@@ -1,6 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { NativeAutonomy, observation, actionFor, attachInspectedCard, collapseRepeatedTargets, actionOptions, attachGroundedCard, plannerObservation, groundedMapObservation, attachPlayerFacts, nativePlanningOptions } = require('../src/sts2/native-autonomy');
+const { NativeAutonomy, observation, actionFor, attachInspectedCard, collapseRepeatedTargets, actionOptions, attachGroundedCard, plannerObservation, groundedMapObservation, attachPlayerFacts, nativePlanningOptions, inspectionContext } = require('../src/sts2/native-autonomy');
 test('native role planning enables bounded thinking and validates explicit overrides',()=>{
   assert.deepEqual(nativePlanningOptions({}),{thinking:{type:'enabled'},reasoning_effort:'high',max_tokens:4096});
   assert.deepEqual(nativePlanningOptions({STS2_NATIVE_THINKING:'disabled'}),{thinking:{type:'disabled'},max_tokens:1000});
@@ -10,6 +10,36 @@ test('native role planning enables bounded thinking and validates explicit overr
 const view = { scene:'battle',summary:'hand',frameId:'1',energy:1,targets:[{id:'card',kind:'card',label:'打击',point:[400,900],card:{name:'打击',cost:1,type:'攻击',description:'造成6点伤害。',observedFrameId:'1'}},{id:'enemy',kind:'enemy',label:'敌人',point:[700,500]}] };
 const visionFor = (body, current=view) => body.mode==='energy' ? {energy:1} : body.mode==='battle' ? {...current,targets:current.targets.filter(t=>t.kind!=='card')} : body.mode==='hand' ? {...current,targets:current.targets.filter(t=>t.kind==='card')} : current;
 const groundedMap=()=>({parsed:{scene:'map',targets:[{id:'N1',label:'问号',point:[410,509],grounding:'local_cv_qwen',directly_connected:true}],map_grounding:{source:'local_cv_qwen',marker_id:'R1',marker_point:[412,630]}},pixel_candidates:{red:[{id:'R1',point:[412,630]}],dark:[{id:'N1',point:[410,509]}]}});
+test('inspection notes compare read rules without authorizing stale cards or exposing points',()=>{
+  const previous={before:view,decision:{kind:'hover'},result:{status:'awaiting_visual_review'}};
+  const current={...view,frameId:'2',targets:[{...view.targets[0],card:{name:'打击',cost:1}},view.targets[1]]};
+  const notes=inspectionContext(current,[previous]);
+  assert.equal(notes.referenceOnly,true);assert.equal(notes.cards.length,1);assert.equal(notes.hovers,1);
+  assert.equal(notes.cards[0].seenFrameId,'1');assert.equal(notes.cards[0].point,undefined);assert.equal(notes.cards[0].observedFrameId,undefined);
+  assert.throws(()=>actionFor({kind:'drag',fromId:'card',targetId:'enemy'},current),/本地视觉/);
+  const wait={before:view,decision:{kind:'wait'},result:{status:'waited_without_input'}};
+  assert.equal(inspectionContext(current,[previous,wait,{rejected:true}]).hovers,1);
+});
+test('inspection notes expire after gameplay input, changed energy or scene',()=>{
+  const previous={before:view,decision:{kind:'hover'},result:{status:'awaiting_visual_review'}};
+  for(const entry of [{...previous,decision:{kind:'drag'}},{...previous,decision:{kind:'click'}},{...previous,result:{status:'failed'}}])assert.equal(inspectionContext(view,[previous,entry]).cards.length,0);
+  assert.equal(inspectionContext({...view,energy:0},[previous]).cards.length,0);
+  assert.equal(inspectionContext({...view,scene:'reward'},[previous]).cards.length,0);
+});
+test('varying battle hovers cannot evade the inspection episode budget',async()=>{
+  let captures=0,acted=0;
+  const agent=new NativeAutonomy({pause:async()=>{},decide:async()=>({kind:'hover',targetId:'card'}),request:async(route,body)=>{
+    if(route==='vision-state')return {ready:true,sceneSupport:true};
+    if(route==='read-card'){
+      if(body.mode==='card')return {parsed:{uncertain:true,cards:[]}};
+      const current={...view,summary:String(captures),targets:[{...view.targets[0],point:[400+captures,900],card:{name:'打击',cost:1}},view.targets[1]]};
+      return {parsed:visionFor(body,current)};
+    }
+    if(body.kind==='capture')return {id:String(++captures),status:'captured_only'};
+    acted++;return {id:'input',status:'awaiting_visual_review'};
+  }});
+  agent.start({maxSteps:20});await agent.task;assert.equal(acted,12);assert.equal(agent.state.stage,'error');assert.match(agent.state.lastError,/十二次/);
+});
 test('player facts do not turn fractional energy or missing shield readings into block',()=>{
   const old={...view,summary:'玩家格挡2/3，卡牌获得5点格挡'};
   const result=attachPlayerFacts(old,{player:{hp:75,max_hp:80,block:'2/3'}});
