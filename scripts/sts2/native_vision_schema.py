@@ -1,6 +1,17 @@
 """Normalize model coordinates to the original screenshot, never invent targets."""
 import math
 
+def scene_observation(parsed):
+    if not isinstance(parsed, dict) or 'points' not in parsed: return parsed
+    points=parsed['points']
+    if not isinstance(points,list) or len(points)>8: raise ValueError('Invalid scene target list')
+    targets=[]
+    for index,item in enumerate(points):
+        if not isinstance(item,list) or len(item)!=3 or not isinstance(item[0],str) or not item[0].strip():
+            raise ValueError('Scene coordinates require visible target labels')
+        targets.append({'id':'t'+str(index+1),'label':item[0],'point':whole_point(item[1:]),'enabled':True})
+    return {**{key:value for key,value in parsed.items() if key!='points'},'targets':targets}
+
 def whole_point(point, crop=None):
     if not isinstance(point, list) or len(point) != 2 or any(type(v) not in (int, float) or not math.isfinite(v) or not 0 <= v <= 1000 for v in point):
         raise ValueError('Invalid model point')

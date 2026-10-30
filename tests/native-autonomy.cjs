@@ -1,8 +1,16 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { NativeAutonomy, observation, actionFor, attachInspectedCard, collapseRepeatedTargets, actionOptions, attachGroundedCard } = require('../src/sts2/native-autonomy');
+const { NativeAutonomy, observation, actionFor, attachInspectedCard, collapseRepeatedTargets, actionOptions, attachGroundedCard, plannerObservation } = require('../src/sts2/native-autonomy');
 const view = { scene:'battle',summary:'hand',frameId:'1',energy:1,targets:[{id:'card',kind:'card',label:'打击',point:[400,900],card:{name:'打击',cost:1,type:'攻击',description:'造成6点伤害。',observedFrameId:'1'}},{id:'enemy',kind:'enemy',label:'敌人',point:[700,500]}] };
 const visionFor = (body, current=view) => body.mode==='energy' ? {energy:1} : body.mode==='battle' ? {...current,targets:current.targets.filter(t=>t.kind!=='card')} : body.mode==='hand' ? {...current,targets:current.targets.filter(t=>t.kind==='card')} : current;
+test('reward planning receives legal IDs without raw vision coordinate alternatives',()=>{
+  const reward={scene:'reward',points:[['金币',436,379]],targets:[{id:'t1',label:'金币',point:[436,379]},{id:'t2',label:'退出游戏',point:[800,300]}]};
+  const planned=plannerObservation(reward);
+  assert.equal(planned.points,undefined);assert.equal(planned.targets[0].point,undefined);
+  assert.deepEqual(actionOptions(reward).targets,[{targetId:'t1',label:'金币',allowed:['click','hover']}]);
+  assert.deepEqual(actionFor({kind:'click',targetId:'t1'},reward),{kind:'click',to:[.436,.379]});
+  assert.throws(()=>actionFor({kind:'click',targetId:'436,379'},reward),/不可用/);
+});
 test('an omitted lifted card needs complete current OCR and separate nearby visible grounding',()=>{
   const current={...view,targets:[view.targets[1]]};
   const parsed={uncertain:false,cards:[{name:'预备打击',cost:1,type:'攻击',description:'造成7点伤害。在本回合内获得2点力量。'}]};
