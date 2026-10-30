@@ -4,6 +4,14 @@ sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'scripts/sts2'))
 from native_vision_schema import hand_targets,whole_point,scene_observation,player_stats,battle_observation
 
 class VisionSchemaTest(unittest.TestCase):
+    def test_right_battle_crop_maps_enemy_and_button_back_to_original_frame(self):
+        source={'scene':'battle','targets':[{'id':'enemy','kind':'enemy','point':[350,600]},
+                {'id':'end','kind':'button','point':[800,810]}]}
+        result=battle_observation(source,[.45,0,1,1])
+        self.assertAlmostEqual(result['targets'][0]['point'][0],642.5)
+        self.assertAlmostEqual(result['targets'][1]['point'][0],890)
+        self.assertEqual(result['targets'][1]['point'][1],810)
+        self.assertEqual(source['targets'][0]['point'],[350,600])
     def test_skill_release_ground_must_not_overlap_lower_hand_area(self):
         enemy={'id':'e','kind':'enemy','point':[792,634]}
         ground={'id':'g','kind':'ground','point':[400,700]}

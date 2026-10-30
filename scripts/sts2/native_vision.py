@@ -50,6 +50,7 @@ def main():
                 if not file.is_relative_to(RUNS.resolve()) or file.suffix.lower() not in ('.jpg','.png'):raise ValueError('Only native game screenshots accepted')
                 im=Image.open(file).convert('RGB');original=im.size;crop=body.get('crop')
                 if body.get('mode')=='battle' and crop:raise ValueError('Battle mode requires a whole client frame')
+                if body.get('mode')=='battle':crop=[.45,0,1,1]
                 if crop:
                     if len(crop)!=4 or any(type(v) not in (float,int) or not 0<=v<=1 for v in crop) or crop[0]>=crop[2] or crop[1]>=crop[3]:raise ValueError('Invalid crop')
                     im=im.crop((round(crop[0]*im.width),round(crop[1]*im.height),round(crop[2]*im.width),round(crop[3]*im.height)))
@@ -92,7 +93,7 @@ targets是数组，每项必须包含id、label、point、enabled四个字段。
                 if body.get('mode')=='player':
                     prompt='''只读玩家角色的生命条与盾牌图标数值。返回紧凑JSON，只含hp、max_hp、block三个字段，都是整数或null。hp与max_hp来自玩家角色下方生命条的分数；block只能来自玩家角色旁盾牌图标上的当前格挡整数。不要读敌人生命、能量球、卡牌费用、卡牌描述或悬停帮助文字。能量分数不是格挡。未明确看到盾牌图标和数字时block为null，不假设为0；任何读不清字段都为null。'''
                 if body.get('mode')=='battle':
-                    prompt+=' 空地目标用于将技能牌拖离手牌区域：只选战场上半部可见的空白区域，远离角色、敌人、按钮和悬停展开的卡牌；不要选择角色脚下或靠近底部手牌的地面。无法明确定位这种空白区域则省略ground目标，不猜位置。'
+                    prompt+=' 输入只保留右侧战场，左侧玩家已裁掉；不要补出玩家。所有point相对于当前显示图片归一化到0至1000，不自行还原未显示区域。空地目标用于将技能牌拖离手牌区域：只选战场上半部可见的空白区域，远离角色、敌人、按钮和悬停展开的卡牌；不要选择角色脚下或靠近底部手牌的地面。无法明确定位这种空白区域则省略ground目标，不猜位置。'
                 if body.get('mode')=='hand':
                     prompt='''逐张定位图片里的手牌，排除按钮、能量球和牌堆。返回JSON对象，cards数组包含每张可见牌。每张牌有name、cost、point三个字段。name为读到的牌名字符串，读不清用null；cost为读到的费用整数，读不清用null。point必须是两个整数组成的数组，依次为水平和竖直坐标，坐标相对当前图片归一化到0至1000。落点必须位于该牌可见且未被遮挡的部分。按从左到右列出，最多12张。无法定位则省略该牌。只输出JSON，禁止示例占位符。'''
                 started=time.monotonic()
@@ -119,7 +120,7 @@ targets是数组，每项必须包含id、label、point、enabled四个字段。
                         normalization_error=str(ex)
                         parsed=None
                 if body.get('mode')=='battle' and parsed is not None:
-                    try:parsed=battle_observation(parsed)
+                    try:parsed=battle_observation(parsed,crop)
                     except ValueError as ex:
                         normalization_error=str(ex)
                         parsed=None
