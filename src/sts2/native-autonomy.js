@@ -116,14 +116,26 @@ function groundedMapObservation(result) {
   return view;
 }
 
-function attachPlayerFacts(view, parsed) {
+function attachPlayerFacts(view, parsed, previous) {
   const raw=parsed?.player || {};
   const number=n=>Number.isInteger(n)&&n>=0&&n<=99999?n:null;
   const player={hp:number(raw.hp),max_hp:number(raw.max_hp),block:number(raw.block)};
   if(player.hp===null||player.max_hp===null||player.max_hp===0||player.hp>player.max_hp){player.hp=null;player.max_hp=null;}
+  const conflicts=[];
+  // Hover can obscure the HUD, but does not itself spend health or grant block.
+  // Disagreement is uncertainty, not permission to reuse an older value as truth.
+  if(previous?.before?.scene==='battle' && previous.decision?.kind==='hover' &&
+      previous.result?.status==='awaiting_visual_review' && !previous.rejected) {
+    const prior=previous.before.player;
+    for(const key of ['hp','max_hp','block']) {
+      if(player[key]!==null && number(prior?.[key])!==null && player[key]!==prior[key])conflicts.push(key);
+    }
+    if(conflicts.includes('hp')||conflicts.includes('max_hp')){player.hp=null;player.max_hp=null;}
+    if(conflicts.includes('block'))player.block=null;
+  }
   // An enemy/hand reader's prose must not reintroduce energy or card text as block.
   const known=n=>n===null?'未知':n;
-  return {...view,player,summary:`玩家生命${known(player.hp)}/${known(player.max_hp)}，当前格挡${known(player.block)}。`};
+  return {...view,player,player_conflicts:conflicts,summary:`玩家生命${known(player.hp)}/${known(player.max_hp)}，当前格挡${known(player.block)}。${conflicts.length?'悬停前后数值识别冲突，冲突字段为未知，不能推断受伤或格挡变化。':''}`};
 }
 
 function attachGroundedCard(view, parsed, hover, located) {
@@ -257,8 +269,8 @@ class NativeAutonomy {
         if(health.playerSupport) {
           this.state.stage='player-reading';
           const player=await call('read-card',{frameId:frame.id,mode:'player',crop:[0,.25,.45,.78]});
-          view=attachPlayerFacts(view,player.parsed);
-          log({event:'player_read',frameId:frame.id,player:view.player,record:player.record});
+          view=attachPlayerFacts(view,player.parsed,history.at(-1));
+          log({event:'player_read',frameId:frame.id,player:view.player,conflicts:view.player_conflicts,record:player.record});
         }
         if (hoveredPoint) {
           this.state.stage='card-reading';

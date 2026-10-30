@@ -12,6 +12,36 @@ test('player facts do not turn fractional energy or missing shield readings into
   assert.deepEqual(attachPlayerFacts(old,{player:{hp:1,max_hp:null,block:null}}).player,{hp:null,max_hp:null,block:null});
   assert.deepEqual(attachPlayerFacts(old,{player:{hp:90,max_hp:80,block:0}}).player,{hp:null,max_hp:null,block:0});
 });
+test('hover HUD conflicts become unknown without inventing a previous or zero value',()=>{
+  const previous={before:{scene:'battle',player:{hp:75,max_hp:80,block:5}},decision:{kind:'hover'},result:{status:'awaiting_visual_review'}};
+  const result=attachPlayerFacts(view,{player:{hp:1,max_hp:1,block:0}},previous);
+  assert.deepEqual(result.player,{hp:null,max_hp:null,block:null});
+  assert.deepEqual(result.player_conflicts,['hp','max_hp','block']);
+  assert.match(result.summary,/识别冲突/);
+  assert.deepEqual(attachPlayerFacts(view,{player:{hp:75,max_hp:80,block:5}},previous).player,{hp:75,max_hp:80,block:5});
+  for(const change of [{decision:{kind:'drag'}},{decision:{kind:'click'}},{rejected:true},{result:{status:'failed'}},{before:{scene:'reward',player:previous.before.player}}]) {
+    assert.deepEqual(attachPlayerFacts(view,{player:{hp:70,max_hp:80,block:0}},{...previous,...change}).player,{hp:70,max_hp:80,block:0});
+  }
+  assert.deepEqual(attachPlayerFacts(view,{player:{hp:null,max_hp:null,block:null}},previous).player,{hp:null,max_hp:null,block:null});
+});
+test('hover conflicts are filtered before the next role API decision',async()=>{
+  let plans=0,captures=0;
+  const agent=new NativeAutonomy({pause:async()=>{},decide:async(v)=>{
+    if(++plans===1)return {kind:'hover',targetId:'card'};
+    assert.deepEqual(v.player,{hp:null,max_hp:null,block:null});
+    assert.deepEqual(v.player_conflicts,['hp','max_hp','block']);return {kind:'stop'};
+  },request:async(route,body)=>{
+    if(route==='vision-state')return {ready:true,sceneSupport:true,playerSupport:true};
+    if(route==='read-card'){
+      if(body.mode==='player')return {parsed:{player:captures===1?{hp:75,max_hp:80,block:5}:{hp:1,max_hp:1,block:0}}};
+      if(body.mode==='card')return {parsed:{uncertain:true,cards:[]}};
+      return {parsed:visionFor(body)};
+    }
+    if(body.kind==='capture')return {id:String(++captures),status:'captured_only'};
+    assert.equal(body.kind,'hover');return {id:'input',status:'awaiting_visual_review'};
+  }});
+  agent.start();await agent.task;assert.equal(plans,2);assert.equal(agent.state.stage,'finished');
+});
 test('player crop is read through the API and remains separate from energy before role planning',async()=>{
   let playerReads=0;
   const agent=new NativeAutonomy({decide:async(v)=>{
