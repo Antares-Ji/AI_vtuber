@@ -36,8 +36,8 @@ function register(registry, { root, dataRoot, env, main, sts2, runProcess }) {
       } });
   }
   add({ id: 'genshin:doctor', game: 'genshin', mode: 'read',
-    description: '诊断 BGI 路径与桥接成熟度；程序存在不代表已连接游戏。', validate: noArgs,
-    async execute() { const { BetterGiAdapter } = require('../../genshin/adapters'); return new BetterGiAdapter({ executable: env.BETTERGI_EXE }).status(); } });
+    description: '通过本机 IPC 检查 BetterGI 实例及路径；在线不代表游戏或执行桥接就绪。', validate: noArgs,
+    async execute(a, { signal }) { const { BetterGiAdapter } = require('../../genshin/adapters'); return new BetterGiAdapter({ executable: env.BETTERGI_EXE }).diagnose({ signal }); } });
 
 }
 module.exports = { register };

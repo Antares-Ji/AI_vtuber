@@ -16,5 +16,5 @@
 | [genshin:plan](../../skills/genshin/plan/README.md) | read | 通过 DeepSeek API 规划原神有限技能；生成计划不发送游戏输入。 |
 | [genshin:demo](../../skills/genshin/demo/README.md) | simulation | 运行原神模拟技能，明确标记无游戏输入。 |
 | [genshin:bettergi](../../skills/genshin/bettergi/README.md) | live | 保留 BetterGI 接入：未完成启动、取消与证据桥接时拒绝实机执行。 |
-| [genshin:doctor](../../skills/genshin/doctor/README.md) | read | 诊断 BGI 路径与桥接成熟度；程序存在不代表已连接游戏。 |
+| [genshin:doctor](../../skills/genshin/doctor/README.md) | read | 通过本机 IPC 检查 BetterGI 实例及路径；在线不代表游戏或执行桥接就绪。 |
 | [streamer:context](../../skills/streamer/context/README.md) | read | 统一主播上下文格式，保留人格、记忆和语音系统，区分计划与事实。 |

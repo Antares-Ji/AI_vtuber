@@ -13,7 +13,7 @@ async function main() {
   const root = path.resolve(__dirname, '../runtime/genshin');
   if (!['serve', 'demo', 'doctor'].includes(command)) throw new Error('用法：node scripts/genshin.js serve|demo|doctor');
   if (command === 'doctor') {
-    console.log(JSON.stringify({ node: process.version, bettergi: new BetterGiAdapter().status(),
+    console.log(JSON.stringify({ node: process.version, bettergi: await new BetterGiAdapter().diagnose(),
       phase: 'framework-only', liveEnabled: false }, null, 2)); return;
   }
   fs.mkdirSync(root, { recursive: true });

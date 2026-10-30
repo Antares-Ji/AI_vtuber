@@ -29,7 +29,7 @@ Invoke-RestMethod "$genshinBase/stop" -Method Post -Headers $genshinHeaders
 
 1. `src/genshin/planner.js`：将目标变成有限技能计划；规则模式保留给明确的演练入口。`api-planner.js` 为导演 Skill 和独立服务接入 DeepSeek。支持 `observe / fish / fight`，不接受任意代码、命令或模型自造技能。
 2. `src/genshin/runtime.js`：单任务运行，逐步执行，统一取消、超时、结果和事件。超时先请求取消，适配器未退出前不释放任务占用。
-3. `src/genshin/adapters.js`：`MockAdapter` 已可运行；`BetterGiAdapter` 只做路径诊断，实机执行明确拒绝，避免把进程启动误当成任务成功。
+3. `src/genshin/adapters.js`：`MockAdapter` 已可运行；`BetterGiAdapter` 提供路径状态和本机 IPC 存活诊断，实机执行明确拒绝，避免把进程存在误当成任务成功。
 4. `src/genshin/server.js`：本机令牌保护的 HTTP 接口。
 5. `src/games/live-context.js`：新增原神语境，区分计划、回执、模拟结果与真实画面证据。现有 Minecraft/STS2 分支不变。
 
@@ -76,6 +76,8 @@ npm run genshin:doctor
 
 即使程序存在，`ready` 仍为 false：程序存在不等于与游戏建立连接。
 
+`genshin:doctor` 和命令行 doctor 还会执行一次只读的 BetterGI v2 本机管道 ping。`ipc.online` 表示收到带匹配请求编号的实例回执；`executableConfigured/executableFound` 分别表示路径配置和文件存在；`bridgeReady/ready/gameConnected` 继续报告执行桥接未就绪。此诊断不启动程序、不注册激活连接、不发送游戏输入。非 Windows 主机明确返回不支持；超时、协议不匹配和访问拒绝保留失败结果，不尝试提权。
+
 ## 第二阶段：BetterGI 实机桥接契约
 
 以下是待实现和实测的接口契约，不是现有功能：
@@ -104,3 +106,16 @@ npm run genshin:doctor
 同轮 `genshin:doctor` 任务 `f51ca981-8306-447a-9b26-af04a17e144a` 返回桥接 ready=false、gameConnected=false，配置的可执行文件未找到。独立查到 BetterGI 进程存在，并不能代替配置路径、桥接与回执检查；仍需完成第二阶段。Minecraft 的 `/api/minecraft/engine/test` 已真实调用 DeepSeek 并成功，只读测试不证明当前连接了游戏服务器。
 
 Node 整合回归现为 87/87；新增验证覆盖真实规划入口的凭据来源、仅官方地址、思考请求参数、截断拒绝、首步观察以及取消后迟到响应拒绝。HTTP 测试用替身验证默认 llm 调用，以上导演任务则是独立的真实 API 证据。
+
+## BetterGI 0.66.0 本机 IPC 核对
+
+2026-10-30 已确认本机安装目录和仍在运行的 BetterGI 实例。匹配上游 `0.66.0` tag 的提交为 `0af68c28f6b0e714d5304625ce644736d508022e`，不能直接把最新分支或文档中的接口视为当前版本已支持。
+
+- [InstanceIpcProtocol.cs](https://github.com/babalae/better-genshin-impact/blob/0af68c28f6b0e714d5304625ce644736d508022e/BetterGenshinImpact/Service/Instance/InstanceIpcProtocol.cs) 定义 v2：4字节小端长度、1字节载荷类型、UTF-8 JSON。只读客户端仅发送 ping，限制帧长、等待时间、请求编号、版本和根实例字段，完成或失败都会关闭管道。
+- [InstanceContext.cs](https://github.com/babalae/better-genshin-impact/blob/0af68c28f6b0e714d5304625ce644736d508022e/BetterGenshinImpact/Service/Instance/InstanceContext.cs) 按当前 Windows 用户 SID 定位根管道；[InstanceBootstrap.cs](https://github.com/babalae/better-genshin-impact/blob/0af68c28f6b0e714d5304625ce644736d508022e/BetterGenshinImpact/Service/Instance/InstanceBootstrap.cs) 使用现有用户权限。诊断结果不输出 SID、账户名或管道路径，没有修改权限。
+- [InstanceRequestHandler.cs](https://github.com/babalae/better-genshin-impact/blob/0af68c28f6b0e714d5304625ce644736d508022e/BetterGenshinImpact/Service/Instance/MessageHandlers/InstanceRequestHandler.cs) 明确尚未注册 task.* 操作；连接注册可能转发启动参数，所以本诊断不调用 connection.open 或 activation.dispatch。ping 成功不能替代任务开始、完成或清理回执。
+- [EngineExtend.cs](https://github.com/babalae/better-genshin-impact/blob/0af68c28f6b0e714d5304625ce644736d508022e/BetterGenshinImpact/Core/Script/EngineExtend.cs) 暴露脚本 CancellationTokenSource；[Dispatcher.cs](https://github.com/babalae/better-genshin-impact/blob/0af68c28f6b0e714d5304625ce644736d508022e/BetterGenshinImpact/Core/Script/Dependence/Dispatcher.cs) 支持链接取消源和带令牌的任务。下一步桥接可以利用这些实际接口，但仍须接通外部取消、等待输入释放、绑定本次截图与回执，不能直接把调用返回当作游戏结果。
+
+真实只读 ping 返回 protocol=2、primary、processId=121440、windowsSessionId=1，与本地运行实例一致。生产 doctor 随后得到同样结果，ready 和 gameConnected 仍为 false。现有 `AI-VTuber-Probe` 脚本包含 Escape 输入且没有本次截图回执，保留但未启动；未用它替代只读诊断。新增6项 IPC 测试覆盖碎片帧、错误编号/版本/实例、大小边界、断线、超时、取消和权限失败。任务桥接与原神实机推演仍未完成。
+
+部署后通过导演 `POST /api/skills/run` 调用 `genshin:doctor`，任务 `79d9f092-27b2-4300-9fe5-4f9b8680f4f4` 返回 COMPLETED，正式 Skill 回执也取得上述在线实例信息，bridgeReady=false。证据文件为本地 `runtime/genshin-skill-api-replay-1793400464422.json`。Node 整合回归96项通过，包含新增 IPC 测试；未运行原神、未发送键鼠动作。

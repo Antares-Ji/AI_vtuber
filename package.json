@@ -11,7 +11,7 @@
     "genshin:start": "node scripts/genshin.js serve",
     "genshin:demo": "node scripts/genshin.js demo",
     "genshin:doctor": "node scripts/genshin.js doctor",
-    "test:genshin": "node --test tests/genshin-framework.js",
+    "test:genshin": "node --test tests/genshin-framework.js tests/genshin-ipc.cjs",
     "sts2:learn": "node scripts/sts2/learn.cjs",
     "sts2:input": ".\\runtime\\vision-env\\Scripts\\python.exe scripts/sts2/native_input.py",
     "test:sts2:learning": "node --test tests/sts2-learning.cjs && .\\runtime\\vision-env\\Scripts\\python.exe tests/test_sts2_input.py && .\\runtime\\vision-env\\Scripts\\python.exe tests/test_sts2_vision.py",
