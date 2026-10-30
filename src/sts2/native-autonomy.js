@@ -179,6 +179,14 @@ function attachGroundedCard(view, parsed, hover, located) {
   return observation({...view,targets:[...targets,{id:`inspected-${view.frameId}`,kind:'card',label:card.name,point:fullPoint,enabled:true,card:{...card,observedFrameId:view.frameId}}]});
 }
 
+function groundedCardHover(view, id, located) {
+  const selected=view.targets.find(t=>t.id===id), point=located?.target_center;
+  if(selected?.kind!=='card'||located?.target_visible!==true||!Array.isArray(point)||point.length!==2||point.some(v=>typeof v!=='number'||!Number.isFinite(v)||v<0||v>1)||point[1]<.4)throw Error('未能定位所选手牌的可悬停内部');
+  const distances=view.targets.filter(t=>t.kind==='card').map(t=>({id:t.id,d:Math.hypot(point[0]-t.point[0]/1000,point[1]-t.point[1]/1000)})).sort((a,b)=>a.d-b.d);
+  if(distances[0]?.id!==id||distances[0].d>.18||distances[1]&&distances[1].d-distances[0].d<.015)throw Error('手牌内部定位与本帧牌名位置不一致或有歧义');
+  return point;
+}
+
 class NativeAutonomy {
   constructor({ persona = () => ({}), request, decide, pause = ms => delay(ms) } = {}) {
     this.persona = persona; this.request = request; this.customDecide = decide; this.pause = pause;
@@ -363,6 +371,15 @@ inspectionContext是本段仅悬停期间已读清牌面的比较笔记，不是
         action={...action,to:point};
         log({event:'target_grounded',frameId:frame.id,target:selected.label,point,record:located.record});
       }
+      const hoverCard=decision.kind==='hover'&&view.scene==='battle'?view.targets.find(t=>t.id===decision.targetId&&t.kind==='card'&&t.name_source==='local_ocr'):null;
+      if(hoverCard) {
+        this.state.stage='card-hover-grounding';
+        const sameName=view.targets.filter(t=>t.kind==='card'&&t.card?.name===hoverCard.card.name).sort((a,b)=>a.point[0]-b.point[0]);
+        const rank=sameName.findIndex(t=>t.id===hoverCard.id)+1;
+        const located=await call('read-card',{frameId:frame.id,target:`手牌中牌名为${JSON.stringify(hoverCard.card.name)}、同名牌从左到右第${rank}张的可见内部中心，避开牌名外缘、相邻卡牌和帮助浮窗。只定位这张牌实际露出的可悬停区域。`});
+        action={...action,to:groundedCardHover(view,hoverCard.id,located.parsed)};
+        log({event:'card_hover_grounded',frameId:frame.id,targetId:hoverCard.id,point:action.to,record:located.record});
+      }
       this.state.lastDecision=decision; this.state.steps=i+1;
       log({frameId:frame.id,visionRecord:vision.record,view,decision,execute:this.state.execute,source:'role_api',trainingPerformed:false});
       if (view.scene === 'terminal' || decision.kind === 'stop') { this.state.stage='finished'; return; }
@@ -387,4 +404,4 @@ inspectionContext是本段仅悬停期间已读清牌面的比较笔记，不是
     this.state.stage='step-limit';
   }
 }
-module.exports = { NativeAutonomy, observation, actionFor, attachInspectedCard, collapseRepeatedTargets, actionOptions, attachGroundedCard, plannerObservation, groundedMapObservation, attachPlayerFacts, nativePlanningOptions, inspectionContext };
+module.exports = { NativeAutonomy, observation, actionFor, attachInspectedCard, collapseRepeatedTargets, actionOptions, attachGroundedCard, plannerObservation, groundedMapObservation, attachPlayerFacts, nativePlanningOptions, inspectionContext, groundedCardHover };

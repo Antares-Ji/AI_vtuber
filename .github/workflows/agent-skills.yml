@@ -27,6 +27,7 @@ jobs:
       - run: python tests/test_native_player_ocr.py
       - run: python tests/test_native_hand_ocr.py
       - run: python tests/test_native_battle_ocr.py
+      - run: python tests/test_native_card_ocr.py
       - run: python -m pip install -r scripts/sts2/requirements-map-cv.txt
       - run: python tests/test_native_map_cv.py
       - run: node scripts/skill-catalog.cjs --check

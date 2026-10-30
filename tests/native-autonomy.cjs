@@ -1,6 +1,27 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const { NativeAutonomy, observation, actionFor, attachInspectedCard, collapseRepeatedTargets, actionOptions, attachGroundedCard, plannerObservation, groundedMapObservation, attachPlayerFacts, nativePlanningOptions, inspectionContext } = require('../src/sts2/native-autonomy');
+const { groundedCardHover } = require('../src/sts2/native-autonomy');
+test('card hover rejects neighboring, ambiguous, missing and distant locator results',()=>{
+  const current={scene:'battle',targets:[{id:'left',kind:'card',point:[380,845]},{id:'middle',kind:'card',point:[500,730]},{id:'right',kind:'card',point:[620,845]}]};
+  assert.deepEqual(groundedCardHover(current,'left',{target_visible:true,target_center:[.359,.876]}),[.359,.876]);
+  for(const result of [{target_visible:false,target_center:[.359,.876]},{target_visible:true,target_center:[.623,.875]},{target_visible:true,target_center:[.5,.95]},{target_visible:true,target_center:[.1,.5]},{target_visible:true,target_center:[NaN,.9]}])assert.throws(()=>groundedCardHover(current,'left',result),/手牌/);
+});
+test('OCR title hover uses a same-frame local API interior before sending native input',async()=>{
+  let input, located=0;
+  const current={...view,targets:[{...view.targets[0],name_source:'local_ocr',point:[378,845]},view.targets[1]]};
+  const agent=new NativeAutonomy({pause:async()=>{},decide:async()=>({kind:'hover',targetId:'card'}),request:async(route,body)=>{
+    if(route==='vision-state')return {ready:true,sceneSupport:true};
+    if(route==='read-card'){
+      if(body.target){located++;assert.equal(body.frameId,'fresh');assert.match(body.target,/打击/);return {parsed:{target_visible:true,target_center:[.359,.876]}};}
+      return {parsed:visionFor(body,current)};
+    }
+    if(body.kind==='capture')return {id:'fresh',status:'captured_only'};
+    input=body;return {id:'input',status:'awaiting_visual_review'};
+  }});
+  agent.start({maxSteps:1});await agent.task;
+  assert.equal(agent.state.stage,'step-limit');assert.equal(located,1);assert.deepEqual(input.to,[.359,.876]);assert.equal(input.frameId,'fresh');
+});
 test('native role planning enables bounded thinking and validates explicit overrides',()=>{
   assert.deepEqual(nativePlanningOptions({}),{thinking:{type:'enabled'},reasoning_effort:'high',max_tokens:4096});
   assert.deepEqual(nativePlanningOptions({STS2_NATIVE_THINKING:'disabled'}),{thinking:{type:'disabled'},max_tokens:1000});
