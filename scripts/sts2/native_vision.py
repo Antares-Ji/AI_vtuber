@@ -26,7 +26,7 @@ def main():
     placement=({'device_map':{'':0},'quantization_config':BitsAndBytesConfig(load_in_4bit=True,bnb_4bit_quant_type='nf4',bnb_4bit_use_double_quant=True,bnb_4bit_compute_dtype=torch.bfloat16)} if a.four_bit else {'device_map':'auto','max_memory':{0:f'{a.gpu_gib}GiB','cpu':'24GiB'}})
     model=Qwen3VLForConditionalGeneration.from_pretrained(model_dir,local_files_only=True,dtype=torch.bfloat16,attn_implementation='sdpa',**placement)
     lock=threading.Lock();OUT.mkdir(parents=True,exist_ok=True)
-    state={'ready':True,'busy':False,'sceneSupport':True,'handSupport':True,'battleSupport':True,'mapGroundingSupport':True,'playerSupport':True,'playerOcrCheck':a.ocr_check,'model':model_dir.name,'precision':'NF4' if a.four_bit else 'BF16 CPU offload','source':'local_weights','last':None}
+    state={'ready':True,'busy':False,'sceneSupport':True,'handSupport':True,'battleSupport':True,'mapGroundingSupport':True,'playerSupport':True,'playerOcrCheck':a.ocr_check,'handOcrCheck':a.ocr_check,'model':model_dir.name,'precision':'NF4' if a.four_bit else 'BF16 CPU offload','source':'local_weights','last':None}
     class Handler(BaseHTTPRequestHandler):
         def log_message(self,*args): pass
         def reply(self,code,obj):
@@ -121,18 +121,22 @@ targets是数组，每项必须包含id、label、point、enabled四个字段。
                     except ValueError as ex:
                         normalization_error=str(ex)
                         parsed=None
-                    if a.ocr_check:
-                        from native_player_ocr import corroborate_player
-                        try:
-                            request=urllib.request.Request('http://127.0.0.1:17647/read',data=json.dumps({'image':str(file),'crop':crop or [0,0,1,1]}).encode(),headers={'Content-Type':'application/json'})
-                            with urllib.request.urlopen(request,timeout=5) as response:ocr=json.loads(response.read(1048577))
-                            if Path(ocr.get('source_image','')).resolve()!=file or ocr.get('crop')!=(crop or [0,0,1,1]):raise ValueError('OCR frame or crop mismatch')
-                            checked=corroborate_player(parsed,ocr)
-                            ocr_check={**checked['ocr_check'],'record':ocr.get('record'),'model':ocr.get('model')}
-                            parsed={**checked,'ocr_check':ocr_check}
-                        except Exception as ex:
-                            ocr_check={'status':'unavailable','reason':str(ex)}
-                            parsed={'player':{'hp':None,'max_hp':None,'block':None},'ocr_check':ocr_check}
+                if a.ocr_check and body.get('mode') in ('player','hand') and parsed is not None:
+                    from native_player_ocr import corroborate_player
+                    from native_hand_ocr import corroborate_hand
+                    try:
+                        request=urllib.request.Request('http://127.0.0.1:17647/read',data=json.dumps({'image':str(file),'crop':crop or [0,0,1,1]}).encode(),headers={'Content-Type':'application/json'})
+                        with urllib.request.urlopen(request,timeout=5) as response:ocr=json.loads(response.read(1048577))
+                        if Path(ocr.get('source_image','')).resolve()!=file or ocr.get('crop')!=(crop or [0,0,1,1]):raise ValueError('OCR frame or crop mismatch')
+                        checked=(corroborate_player if body.get('mode')=='player' else corroborate_hand)(parsed,ocr)
+                        ocr_check={**checked['ocr_check'],'record':ocr.get('record'),'model':ocr.get('model')}
+                        parsed={**checked,'ocr_check':ocr_check}
+                    except Exception as ex:
+                        ocr_check={'status':'unavailable','reason':str(ex)}
+                        if body.get('mode')=='player':parsed={'player':{'hp':None,'max_hp':None,'block':None},'ocr_check':ocr_check}
+                        else:
+                            parsed=None
+                            normalization_error='Hand OCR unavailable: '+str(ex)
                 if target and isinstance(parsed,dict):
                     point=parsed.get('target_point')
                     if parsed.get('target_visible') is True and isinstance(point,list) and len(point)==2 and all(type(v) in (int,float) and 0<=v<=1000 for v in point):parsed['target_center']=[v/1000 for v in whole_point(point,crop)]

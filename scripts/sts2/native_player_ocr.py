@@ -2,10 +2,8 @@
 import math
 import re
 
-def corroborate_player(parsed, ocr):
-    player=(parsed or {}).get('player') or {}
-    result={'hp':None,'max_hp':None,'block':None}
-    def number(n):return type(n) is int and 0<=n<=99999
+def ocr_lines(ocr):
+    """Return validated text and original-image bounds, shared by readers."""
     lines=[]
     for line in (ocr or {}).get('lines',[]):
         if not isinstance(line,dict):continue
@@ -17,6 +15,13 @@ def corroborate_player(parsed, ocr):
         xs,ys=zip(*box);bounds=(min(xs),min(ys),max(xs),max(ys))
         if bounds[0]>=bounds[2] or bounds[1]>=bounds[3]:continue
         lines.append((re.sub(r'\s+','',line['text']),score,bounds))
+    return lines
+
+def corroborate_player(parsed, ocr):
+    player=(parsed or {}).get('player') or {}
+    result={'hp':None,'max_hp':None,'block':None}
+    def number(n):return type(n) is int and 0<=n<=99999
+    lines=ocr_lines(ocr)
     # A single slash-containing text line anchors the health row, even if its
     # noisy OCR cannot corroborate the exact fraction. Ambiguity stays unknown.
     anchors=[line for line in lines if re.search(r'\d.*[/／].*\d',line[0])]

@@ -94,6 +94,7 @@ node --test tests/skills-*.cjs tests/genshin-framework.js tests/sts2-deepseek-fe
 python tests/test_native_vision_schema.py
 python tests/test_native_model_config.py
 python tests/test_native_player_ocr.py
+python tests/test_native_hand_ocr.py
 python -m pip install -r scripts/sts2/requirements-map-cv.txt
 python tests/test_native_map_cv.py
 ```
@@ -150,3 +151,13 @@ python scripts/restart-native-vision.py --ocr-check
 `inspection-replay-1793395908785.json` 使用上述真实运行的输入回执构造比较记录，并重放观测 `1793395776079401900` 给角色 API，未发送游戏输入。旧运行在该帧继续悬停；加入参考记录后模型返回当前已核验防御牌的合法拖拽。该单例支持修复方向，不保证所有情况下都能避免循环；新版已部署，实机仍按新截图重新决策。
 
 同轮跨游戏检查通过统一 HTTP Skill Host 完成：`mcplayer:inspect-profile` 运行 `ce1e78c9-48ce-4756-8d7e-ec7240491488` 返回原 ZIP 配置；`mcplayer:harness-demo` 运行 `181622ed-738f-4781-8e2d-89e06fa41b09` 调用原 Java Harness，三步执行及观察验证完成，但分类保持 SIMULATED、verified=false。`minecraft:legacy-status` 运行 `e76a1a8a-98b0-4284-87cd-98653bf134df` 返回本地引擎 HTTP 503，当前没有 Java 游戏或 Mineflayer 进程，不能据模拟结果宣称 MC 实机已连接。
+
+## 手牌名称漂移的 OCR 校对
+
+加入比较记录后的实机运行 `1793395929572` 仍出现重复悬停，因此不能把上面的单例回放当作问题已经解决。另一次不发送输入的 Pro 对照 `inspection-replay-1793396250112.json` 也选择悬停；没有因此更换实时角色模型。进一步在相同历史截图调用本地 OCR API，稳定读到“预备打击”，而 Qwen 手牌略图多次输出“疯狂打击”，使角色误认为出现另一张未读牌。
+
+`--ocr-check` 现在同时覆盖 hand 模式，health 增加 `handOcrCheck`。Qwen 定位手牌后，通过同一帧的 CPU OCR 文本框校对牌名及可见落点。只接纳高置信短标题，排除数值、卡牌类型与常见帮助标签；在距离界限内保持从左到右的一对一匹配，并比较去掉每个匹配后的替代方案，拒绝接近的歧义结果。未匹配的牌名置空；OCR 服务不可用时手牌读取失败，不能静默退回未经核对的牌名。文本只作为数据，不作为指令。
+
+该过程保留手牌部分观察的性质：不补全类型、描述或当前帧出牌授权，不读取旧牌面填值。实际拖拽仍由角色 API 选择，且须通过当前完整读牌校验。几何界限针对现有界面，其他缩放、语言或拥挤布局仍可能返回未知，不能视为通用准确率保证。
+
+`hand-ocr-replay-1793396815205.json` 经正式 `/api/game-input/read-card` 回放三张历史截图，均返回 200；正常手牌、防御悬停、攻击悬停三个布局均得到“防御、防御、预备打击”，全部来自各帧独立 OCR 文本框。初版最近邻方法在相邻防御牌上产生歧义，改为顺序匹配后才通过这组三帧。单帧服务处理约 6.77–8.72 秒。三项玩家 API 回放仍保留此前的未知值和错误格挡拒绝行为。新增 6 项手牌测试与原 6 项玩家测试全部通过，坐标/场景 6 项回归也通过；回放没有发送游戏输入。
