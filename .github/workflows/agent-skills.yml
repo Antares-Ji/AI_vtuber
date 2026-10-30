@@ -22,6 +22,7 @@ jobs:
       - run: npm ci --prefix integrations/sts2-mcp --ignore-scripts
       - run: python scripts/check-mc-import.py
       - run: python tests/test_learning_preservation.py
+      - run: python tests/test_native_vision_schema.py
       - run: node scripts/skill-catalog.cjs --check
       - run: node --test tests/skills-*.cjs tests/genshin-framework.js tests/sts2-learning.cjs tests/sts2-tactics.cjs tests/native-autonomy.cjs tests/sts2-deepseek-fetch.cjs integrations/sts2-mcp/test.cjs tests/game-input-console.js
       - run: npm run test:minecraft:api

@@ -1,7 +1,20 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { NativeAutonomy, observation, actionFor } = require('../src/sts2/native-autonomy');
-const view = { scene:'battle',summary:'hand',targets:[{id:'card',label:'打击',point:[400,900]},{id:'enemy',label:'敌人',point:[700,500]}] };
+const { NativeAutonomy, observation, actionFor, attachInspectedCard, collapseRepeatedTargets, actionOptions } = require('../src/sts2/native-autonomy');
+const view = { scene:'battle',summary:'hand',frameId:'1',energy:1,targets:[{id:'card',kind:'card',label:'打击',point:[400,900],card:{name:'打击',cost:1,type:'攻击',description:'造成6点伤害。',observedFrameId:'1'}},{id:'enemy',kind:'enemy',label:'敌人',point:[700,500]}] };
+const visionFor = (body, current=view) => body.mode==='energy' ? {energy:1} : body.mode==='battle' ? {...current,targets:current.targets.filter(t=>t.kind!=='card')} : body.mode==='hand' ? {...current,targets:current.targets.filter(t=>t.kind==='card')} : current;
+test('planner options expose only currently affordable fully observed drag destinations',()=>{
+  assert.deepEqual(actionOptions(view).cards[0].destinations,[{targetId:'enemy',label:'敌人'}]);
+  assert.deepEqual(actionOptions({...view,energy:0}).cards[0].allowed,['hover']);
+  assert.deepEqual(actionOptions({...view,frameId:'different'}).cards[0].destinations,[]);
+});
+test('identical repeated target facts collapse but conflicting shared coordinates remain invalid',()=>{
+  const enemy=view.targets[1];
+  const value={...view,targets:[enemy,{...enemy,id:'duplicate'}]};
+  const clean=observation(collapseRepeatedTargets(value));assert.deepEqual(clean.targets,[enemy]);assert.equal(clean.repeatedTargetsCollapsed,1);
+  value.targets[1]={...enemy,id:'different',label:'不同目标'};
+  assert.throws(()=>observation(collapseRepeatedTargets(value)),/重复/);
+});
 test('zero energy offers grounded end-turn instead of unaffordable cards',async()=>{
   let input;
   const agent=new NativeAutonomy({pause:async()=>{},decide:async(v)=>{
@@ -9,7 +22,7 @@ test('zero energy offers grounded end-turn instead of unaffordable cards',async(
     return {kind:'click',targetId:'end-turn'};
   },request:async(route,body)=>{
     if(route==='vision-state')return {ready:true,sceneSupport:true};
-    if(route==='read-card')return {parsed:body.mode==='energy'?{energy:0,maximum:3}:body.target?{target_center:[.89,.82]}:view};
+    if(route==='read-card')return {parsed:body.mode==='energy'?{energy:0,maximum:3}:body.target?{target_center:[.89,.82]}:visionFor(body)};
     if(body.kind==='capture')return {id:'1',status:'captured_only'};
     input=body;return {id:'2',status:'awaiting_visual_review'};
   }});
@@ -30,16 +43,16 @@ test('invalid visual JSON is retried before any decision or input',async()=>{
   let reads=0,plans=0;
   const agent=new NativeAutonomy({decide:async()=>{plans++;return {kind:'stop'};},request:async(route,body)=>{
     if(route==='vision-state')return {ready:true,sceneSupport:true};
-    if(route==='read-card')return {parsed:body.mode==='energy'?{energy:1}:++reads===1?null:view};
+    if(route==='read-card')return {parsed:body.mode==='scene' && ++reads===1?null:visionFor(body)};
     assert.equal(body.kind,'capture');return {id:'1',status:'captured_only'};
   }});
   agent.start();await agent.task;assert.equal(reads,2);assert.equal(plans,1);assert.equal(agent.state.stage,'finished');
 });
 test('startup focus failure retries screenshots only and recovers',async()=>{
   let captures=0,actions=0;
-  const agent=new NativeAutonomy({pause:async()=>{},decide:async()=>({kind:'click',targetId:'card'}),request:async(route,body)=>{
+  const agent=new NativeAutonomy({pause:async()=>{},decide:async()=>({kind:'hover',targetId:'card'}),request:async(route,body)=>{
     if(route==='vision-state')return {ready:true,sceneSupport:true};
-    if(route==='read-card')return {parsed:view};
+    if(route==='read-card')return {parsed:visionFor(body)};
     if(body.kind==='capture') { if(++captures<3)throw Error('Game lost foreground; input stopped');return {id:'1',status:'captured_only'}; }
     actions++;throw Error('Game lost foreground; input stopped');
   }});
@@ -66,7 +79,7 @@ test('background loop observes again after input and stops at ending', async () 
   let captures=0; const actions=[]; let calls=0;
   const agent=new NativeAutonomy({persona:()=>({id:'role'}),pause:async()=>{},decide:async(v,h)=>{calls++;if(v.scene==='terminal'){assert.equal(h.length,1);return {kind:'stop'};}return {kind:'drag',fromId:'card',targetId:'enemy'};},request:async(route,body)=>{
     if(route==='vision-state')return {ready:true,sceneSupport:true};
-    if(route==='read-card')return {parsed: captures===1 ? view : {scene:'terminal',targets:[]}};
+    if(route==='read-card')return {parsed: captures===1 ? visionFor(body) : {scene:'terminal',targets:[]}};
     if(body.kind==='capture'){captures++;return {id:String(captures),status:'captured_only'};}
     actions.push(body);return {id:'action',status:'awaiting_visual_review'};
   }});
@@ -77,7 +90,7 @@ test('stop during planner wait does not execute planned input', async()=>{
   let release;let acted=false;
   const agent=new NativeAutonomy({decide:()=>new Promise(r=>{release=r;}),request:async(route,body)=>{
     if(route==='vision-state')return {ready:true,sceneSupport:true};
-    if(route==='read-card')return {parsed:view};
+    if(route==='read-card')return {parsed:visionFor(body)};
     if(body.kind==='capture')return {id:'1',status:'captured_only'};
     acted=true;
   }});
@@ -85,11 +98,68 @@ test('stop during planner wait does not execute planned input', async()=>{
 });
 test('repeated unchanged actions stop before a third execution',async()=>{
   let acted=0;
-  const agent=new NativeAutonomy({pause:async()=>{},decide:async()=>({kind:'click',targetId:'card'}),request:async(route,body)=>{
+  const agent=new NativeAutonomy({pause:async()=>{},decide:async()=>({kind:'click',targetId:'enemy'}),request:async(route,body)=>{
     if(route==='vision-state')return {ready:true,sceneSupport:true};
-    if(route==='read-card')return {parsed:view};
+    if(route==='read-card')return {parsed:visionFor(body)};
     if(body.kind==='capture')return {id:'1',status:'captured_only'};
     acted++;return {id:'2',status:'awaiting_visual_review'};
   }});
   agent.start();await agent.task;assert.equal(acted,2);assert.equal(agent.state.stage,'error');
+});
+test('wait feedback reaches the next API plan and never emits native input',async()=>{
+  let plans=0;
+  const agent=new NativeAutonomy({pause:async()=>{},decide:async(v,h)=>{
+    if(++plans===1)return {kind:'wait'};
+    assert.equal(h.at(-1).result.status,'waited_without_input');return {kind:'stop'};
+  },request:async(route,body)=>{
+    if(route==='vision-state')return {ready:true,sceneSupport:true};
+    if(route==='read-card')return {parsed:visionFor(body)};
+    assert.equal(body.kind,'capture');return {id:'1',status:'captured_only'};
+  }});
+  agent.start();await agent.task;assert.equal(plans,2);assert.equal(agent.state.stage,'finished');
+});
+test('an unknown or stale card cannot be dragged based on model guesses',()=>{
+  for(const card of [{name:'手牌4',cost:0},{...view.targets[0].card,observedFrameId:'old'},{...view.targets[0].card,cost:2},{...view.targets[0].card,type:'未知'},{...view.targets[0].card,description:'看不清'}]) {
+    const current={...view,targets:[{...view.targets[0],card},view.targets[1]]};
+    assert.throws(()=>actionFor({kind:'drag',fromId:'card',targetId:'enemy'},current),/本地视觉/);
+    assert.deepEqual(actionFor({kind:'hover',targetId:'card'},current),{kind:'hover',to:[.4,.9]});
+  }
+  assert.throws(()=>actionFor({kind:'click',targetId:'card'},view),/drag/);
+  assert.throws(()=>actionFor({kind:'drag',fromId:'card',targetId:'card'},view),/终点/);
+});
+test('invalid hand observations retry locally and never reach a planner or input if still invalid',async()=>{
+  let handReads=0,plans=0;
+  const agent=new NativeAutonomy({decide:async()=>{plans++;throw Error('must not plan');},request:async(route,body)=>{
+    if(route==='vision-state')return {ready:true,sceneSupport:true};
+    if(route==='read-card') { if(body.mode==='hand'){handReads++;return {parsed:null,normalization_error:'Invalid model point'};}return {parsed:visionFor(body)}; }
+    assert.equal(body.kind,'capture');return {id:'1',status:'captured_only'};
+  }});
+  agent.start();await agent.task;assert.equal(handReads,2);assert.equal(plans,0);assert.match(agent.state.lastError,/hand/);
+});
+test('only unambiguous fresh expanded OCR matching the hovered hand authorizes a card',()=>{
+  const current={...view,frameId:'new',targets:[{...view.targets[0],card:{name:'打击',cost:1}},view.targets[1]]};
+  const parsed={uncertain:false,cards:[{name:'打击',cost:1,type:'攻击',description:'造成6点伤害。'}]};
+  assert.equal(attachInspectedCard(current,parsed,[.4,.9]).targets[0].card.observedFrameId,'new');
+  const lifted={...current,targets:[{...current.targets[0],point:[400,650]},current.targets[1]]};
+  assert.equal(attachInspectedCard(lifted,parsed,[.4,.9]).targets[0].card.observedFrameId,'new');
+  const ambiguous={...lifted,targets:[...lifted.targets,{...lifted.targets[0],id:'other',point:[405,700]}]};
+  assert.equal(attachInspectedCard(ambiguous,parsed,[.4,.9]).targets[0].card.observedFrameId,undefined);
+  for(const p of [{...parsed,uncertain:true},{...parsed,cards:[...parsed.cards,...parsed.cards]},{uncertain:false,cards:[{...parsed.cards[0],cost:0}]}]) {
+    assert.equal(attachInspectedCard(current,p,[.4,.9]).targets[0].card.observedFrameId,undefined);
+  }
+});
+test('a rejected model guess replans through the API before sending only the valid hover',async()=>{
+  let decisions=0;const sent=[];
+  const unknown={...view,targets:[{...view.targets[0],card:{name:null,cost:null}},view.targets[1]]};
+  const agent=new NativeAutonomy({pause:async()=>{},decide:async(v,h)=>{
+    if(++decisions===1)return {kind:'drag',fromId:'card',targetId:'enemy'};
+    assert.equal(h.at(-1).rejected,true);return {kind:'hover',targetId:'card'};
+  },request:async(route,body)=>{
+    if(route==='vision-state')return {ready:true,sceneSupport:true};
+    if(route==='read-card')return {parsed:visionFor(body,unknown)};
+    if(body.kind==='capture')return {id:'1',status:'captured_only'};
+    sent.push(body.kind);return {id:'2',status:'awaiting_visual_review'};
+  }});
+  agent.start({maxSteps:1});await agent.task;assert.deepEqual(sent,['hover']);assert.equal(decisions,2);
+  const finished=agent.state.stage;agent.stop();assert.equal(agent.state.stage,finished);
 });
