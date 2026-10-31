@@ -38,6 +38,65 @@ test('native role planning enables bounded thinking and validates explicit overr
 const view = { scene:'battle',summary:'hand',frameId:'1',energy:1,targets:[{id:'card',kind:'card',label:'打击',point:[400,900],card:{name:'打击',cost:1,type:'攻击',description:'造成6点伤害。',observedFrameId:'1'}},{id:'enemy',kind:'enemy',label:'敌人',point:[700,500]}] };
 const visionFor = (body, current=view) => body.mode==='energy' ? {energy:1} : body.mode==='battle' ? {...current,targets:current.targets.filter(t=>t.kind!=='card')} : body.mode==='hand' ? {...current,targets:current.targets.filter(t=>t.kind==='card')} : current;
 const groundedMap=()=>({parsed:{scene:'map',targets:[{id:'N1',label:'问号',point:[410,509],grounding:'local_cv_qwen',directly_connected:true}],map_grounding:{source:'local_cv_qwen',marker_id:'R1',marker_point:[412,630]}},pixel_candidates:{red:[{id:'R1',point:[412,630]}],dark:[{id:'N1',point:[410,509]}]}});
+async function cardCropTrial({ narrow, wide, failure, cardOcrCheck=true }) {
+  let captures=0,plans=0;const reads=[],inputs=[],locations=[];
+  const unknown={...view,targets:[{...view.targets[0],point:[400,800],name_source:'local_ocr',card:{name:'打击',cost:1}},view.targets[1]]};
+  const agent=new NativeAutonomy({pause:async()=>{},decide:async(current)=>{
+    if(++plans===1)return {kind:'hover',targetId:'card'};
+    return current.targets.some(t=>t.card?.observedFrameId===current.frameId)
+      ?{kind:'drag',fromId:'card',targetId:'enemy'}:{kind:'stop'};
+  },request:async(route,body)=>{
+    if(route==='vision-state')return {ready:true,sceneSupport:true,cardOcrCheck};
+    if(route==='read-card') {
+      if(body.target){locations.push(body);return {parsed:{target_visible:true,target_center:[.4,.88]}};}
+      if(body.mode==='card') {
+        reads.push(body);assert.equal(body.frameId,'2');
+        if(reads.length===1){if(failure==='cancel-narrow')agent.stop();return {parsed:narrow,record:'narrow'};}
+        assert.equal(reads.length,2);assert.deepEqual(body.crop,[0,.3,1,1]);
+        if(failure==='network')throw Error('wide vision unavailable');
+        if(failure==='cancel')agent.stop();
+        return {parsed:wide,record:'wide'};
+      }
+      return {parsed:visionFor(body,unknown)};
+    }
+    if(body.kind==='capture')return {id:String(++captures),status:'captured_only'};
+    inputs.push(body);return {id:'input',status:'awaiting_visual_review'};
+  }});
+  agent.start({maxSteps:2});await agent.task;
+  return {agent,reads,inputs,locations,plans};
+}
+const incompleteCard={cards:[],uncertain:true};
+const completeCard={cards:[{name:'打击',cost:1,type:'攻击',description:'造成6点伤害。'}],uncertain:false,ocr_check:{status:'corroborated'}};
+test('an uncertain card crop gets one same-frame wide API read and retains drag-source grounding',async()=>{
+  const result=await cardCropTrial({narrow:incompleteCard,wide:completeCard});
+  assert.equal(result.agent.state.stage,'step-limit');assert.equal(result.reads.length,2);
+  assert.deepEqual(result.inputs.map(a=>a.kind),['hover','drag']);
+  assert.equal(result.inputs[1].frameId,'2');assert.deepEqual(result.inputs[1].from,[.4,.88]);
+  assert.match(result.locations.at(-1).target,/可拖拽牌面内部/);
+});
+test('complete narrow transcription is retained without a wide retry',async()=>{
+  const result=await cardCropTrial({narrow:completeCard});
+  assert.equal(result.reads.length,1);assert.equal(result.agent.state.stage,'step-limit');
+  assert.deepEqual(result.inputs.map(a=>a.kind),['hover','drag']);
+});
+test('wide card reading never authorizes uncertain, multi-card, incomplete or uncorroborated rules',async()=>{
+  for(const wide of [incompleteCard,{...completeCard,cards:null},{...completeCard,ocr_check:{status:'unknown'}},
+    {...completeCard,cards:[...completeCard.cards,...completeCard.cards]},
+    {...completeCard,cards:[{name:'打击',cost:null,type:'攻击',description:'造成6点伤害。'}]}]) {
+    const result=await cardCropTrial({narrow:incompleteCard,wide});
+    assert.equal(result.agent.state.stage,'finished');assert.deepEqual(result.inputs.map(a=>a.kind),['hover']);
+  }
+  const noOcr=await cardCropTrial({narrow:incompleteCard,cardOcrCheck:false});
+  assert.equal(noOcr.reads.length,1);assert.equal(noOcr.agent.state.stage,'finished');
+});
+test('wide read failure or cancellation ends the run before another plan or input',async()=>{
+  for(const failure of ['network','cancel','cancel-narrow']) {
+    const result=await cardCropTrial({narrow:incompleteCard,wide:completeCard,failure});
+    assert.equal(result.plans,1);assert.deepEqual(result.inputs.map(a=>a.kind),['hover']);
+    assert.equal(result.agent.state.stage,failure.startsWith('cancel')?'stopped':'error');
+    if(failure==='cancel-narrow')assert.equal(result.reads.length,1);
+  }
+});
 test('fully read OCR card drags from a separately located current-frame interior, not its title',async()=>{
   let input,locations=0;
   const current={...view,targets:[{...view.targets[0],name_source:'local_ocr',point:[387.48,640.74]},view.targets[1]]};

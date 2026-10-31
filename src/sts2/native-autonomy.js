@@ -353,7 +353,21 @@ inspectionContext是本段仅悬停期间已读清牌面的比较笔记，不是
         }
         if (hoveredPoint) {
           this.state.stage='card-reading';
-          const inspected = await call('read-card',{frameId:frame.id,mode:'card',crop:[Math.max(0,hoveredPoint[0]-.18),.3,Math.min(1,hoveredPoint[0]+.18),1]});
+          let inspected = await call('read-card',{frameId:frame.id,mode:'card',crop:[Math.max(0,hoveredPoint[0]-.18),.3,Math.min(1,hoveredPoint[0]+.18),1]});
+          signal.throwIfAborted();
+          if(health.cardOcrCheck===true&&inspected.parsed?.uncertain!==false) {
+            // A lifted card can extend outside the pointer-centered crop. Read
+            // the same frame once with hand context; never weaken transcription
+            // checks or replace an already complete narrow read.
+            const wide=await call('read-card',{frameId:frame.id,mode:'card',crop:[0,.3,1,1]});
+            signal.throwIfAborted();
+            const card=wide.parsed?.cards?.[0];
+            const adopted=wide.parsed?.uncertain===false&&Array.isArray(wide.parsed.cards)&&wide.parsed.cards.length===1&&
+              wide.parsed.ocr_check?.status==='corroborated'&&Number.isInteger(card?.cost)&&card.cost>=0&&
+              ['name','type','description'].every(k=>typeof card?.[k]==='string'&&card[k].trim());
+            log({event:'card_read_wide',frameId:frame.id,narrowRecord:inspected.record,record:wide.record,adopted});
+            if(adopted) inspected=wide;
+          }
           view=attachInspectedCard(view,inspected.parsed,hoveredPoint);
           if (!view.targets.some(t=>t.card?.observedFrameId===frame.id) && inspected.parsed?.uncertain===false && inspected.parsed.cards?.length===1) {
             const name=String(inspected.parsed.cards[0].name||'').slice(0,60);
