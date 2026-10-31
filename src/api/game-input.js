@@ -89,6 +89,25 @@ function createGameInputRoutes({ parseBody, send, persona = () => ({}) }) {
     if (req.method !== 'POST') return reply(404, { error: '未知接口' });
     if (!req.headers['content-type']?.startsWith('application/json')) return reply(415, { error: '需要 JSON 请求' });
     fs.mkdirSync(BASE, { recursive: true });
+    if (url.pathname === '/api/game-input/window') {
+      try {
+        const body = await parseBody(req);
+        if (!body || Object.keys(body).some(k => k !== 'mode') || !['maximize','restore'].includes(body.mode)) return reply(400, { error: '窗口操作仅支持 maximize 或 restore' });
+        if (busy || autonomous.state.running || !fs.existsSync(STOP)) return reply(409, { error: '先停止游戏输入并等待任务释放，再调整窗口' });
+        busy = true;
+        try {
+          const result = await new Promise((resolve, reject) => {
+            const child = spawn(path.join(ROOT, 'runtime/vlm-env/Scripts/python.exe'), [path.join(ROOT, 'scripts/sts2/native_window.py'), body.mode], { cwd: ROOT, windowsHide: true, timeout: 10000 });
+            let output = '', error = '';
+            child.stdout.on('data', data => { output = (output + data).slice(-8192); });
+            child.stderr.on('data', data => { error = (error + data).slice(-2000); });
+            child.on('error', reject);
+            child.on('close', () => { try { resolve(JSON.parse(output.trim())); } catch { reject(new Error(error || '窗口操作结果未知，请检查窗口后再继续')); } });
+          });
+          return reply(result.error ? 422 : 200, result);
+        } finally { busy = false; }
+      } catch (error) { return reply(500, { error: error.message }); }
+    }
     if (url.pathname === '/api/game-input/agent/start') {
       try {
         const body = await parseBody(req);
