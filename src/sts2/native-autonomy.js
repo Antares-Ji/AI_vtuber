@@ -34,7 +34,23 @@ function inspectionContext(view, history) {
       if(!cards.has(key))cards.set(key,{name:card.name,cost:card.cost,type:card.type,description:card.description,seenFrameId:entry.before.frameId});
     }
   }
-  return {referenceOnly:true,cards:[...cards.values()],hovers,hoverBudgetRemaining:Math.max(0,12-hovers)};
+  const recovery=history.findIndex(e=>e.recoveryAttempted);
+  const recoveryHovers=recovery<0?0:history[recovery].inspectionHovers+history.slice(recovery+1).filter(e=>!e.rejected&&e.before?.scene==='battle'&&e.decision?.kind==='hover'&&e.result?.status==='awaiting_visual_review').length;
+  return {referenceOnly:true,cards:[...cards.values()],hovers,hoverBudgetRemaining:Math.max(0,12-Math.max(hovers,recoveryHovers))};
+}
+
+function escapeRecovery(view, history=[]) {
+  const complete=v=>(v.targets||[]).some(t=>t.kind==='card'&&t.card?.observedFrameId===v.frameId&&Number.isInteger(t.card.cost)&&t.card.cost>=0&&['name','type','description'].every(k=>typeof t.card[k]==='string'&&t.card[k].trim()&&!/未知|未读|看不清/.test(t.card[k])));
+  if(view.scene!=='battle'||!Number.isInteger(view.energy)||complete(view)||history.some(e=>e.recoveryAttempted||e.decision?.kind==='key'&&!e.rejected)||inspectionContext(view,history).hoverBudgetRemaining===0)return false;
+  let failedCardHovers=0;
+  for(let i=history.length-1;i>=0;i--) {
+    const e=history[i];if(e.rejected)continue;
+    if(e.before?.scene!=='battle'||e.before.energy!==view.energy||complete(e.before))break;
+    if(e.decision?.kind==='wait'&&e.result?.status==='waited_without_input')continue;
+    if(e.decision?.kind!=='hover'||e.result?.status!=='awaiting_visual_review')break;
+    if(e.before.targets.some(t=>t.id===e.decision.targetId&&t.kind==='card'))failedCardHovers++;
+  }
+  return failedCardHovers>=3;
 }
 
 function observation(value) {
@@ -61,9 +77,13 @@ function collapseRepeatedTargets(value) {
   // Conflicting labels/identities at a shared point still fail observation validation.
   return {...value,targets,...(repeated?{repeatedTargetsCollapsed:repeated}:{})};
 }
-function actionFor(d, view) {
-  if (!d || !['click','hover','drag','scroll','wait','stop'].includes(d.kind)) throw Error('角色返回未知动作');
+function actionFor(d, view, history=[]) {
+  if (!d || !['click','hover','drag','scroll','key','wait','stop'].includes(d.kind)) throw Error('角色返回未知动作');
   if (['wait','stop'].includes(d.kind)) return null;
+  if(d.kind==='key') {
+    if(d.key!=='ESC'||!escapeRecovery(view,history))throw Error('仅允许连续三次读牌失败后的一次 ESC 恢复，其他按键不可用');
+    return {kind:'key',key:'ESC'};
+  }
   if (view.scene === 'terminal' || view.scene === 'unknown') throw Error('此画面不可自动操作');
   const target = id => {
     const t = view.targets.find(t => t.id === id);
@@ -107,7 +127,7 @@ function attachInspectedCard(view, parsed, hover) {
   return { ...view, targets:view.targets.map(t => t.id === selected ? { ...t, card:{...card,observedFrameId:view.frameId} } : t) };
 }
 
-function actionOptions(view) {
+function actionOptions(view, history=[]) {
   const cards=view.targets.filter(t=>t.kind==='card').map(t=>{
     const destinations=view.targets.filter(to=>{
       try { actionFor({kind:'drag',fromId:t.id,targetId:to.id},view);return true; } catch {return false;}
@@ -117,7 +137,7 @@ function actionOptions(view) {
   const targets=view.targets.filter(t=>t.kind!=='card').map(t=>({targetId:t.id,label:t.label,allowed:['click','hover'].filter(kind=>{
     try { actionFor({kind,targetId:t.id},view);return true; } catch {return false;}
   })})).filter(t=>t.allowed.length);
-  return {cards,targets,note:'这是程序按本帧校验出的可执行动作。点击或悬停只复制targetId字符串，绝不能把坐标当ID。allowed含drag的牌已经读清，可直接选择目标；只有hover的牌需要先展开。仍由角色决定策略，候选动作不代表已经执行。'};
+  return {cards,targets,keys:escapeRecovery(view,history)?[{kind:'key',key:'ESC',effect:'一次取消/暂停恢复尝试；可能打开暂停菜单，下一帧必须重新识别，不能假设已经恢复'}]:[],note:'这是程序按本帧校验出的可执行动作。点击或悬停只复制targetId字符串，绝不能把坐标当ID。allowed含drag的牌已经读清，可直接选择目标；只有hover的牌需要先展开。仍由角色决定策略，候选动作不代表已经执行。'};
 }
 
 function plannerObservation(view) {
@@ -134,7 +154,7 @@ function plannerHistory(history) {
   // back as state made an unverified "6 damage" claim look like a prior read.
   return history.slice(-4).map(h=>({
     ...(h.before?{before:plannerObservation(h.before)}:{}),
-    decision:Object.fromEntries(['kind','targetId','fromId','steps'].filter(k=>h.decision?.[k]!==undefined).map(k=>[k,h.decision[k]])),
+    decision:Object.fromEntries(['kind','targetId','fromId','steps','key'].filter(k=>h.decision?.[k]!==undefined).map(k=>[k,h.decision[k]])),
     ...(h.result?{result:{id:h.result.id,status:h.result.status}}:{}),
     ...(h.rejected?{rejected:true,error:h.error}:{}),
     verification:h.verification || 'not_game_verified'
@@ -217,10 +237,11 @@ class NativeAutonomy {
 目标ID只在当前帧有效；同一个enemy1在前后帧可能指不同敌人，不能只凭编号判断伤害、击杀或新敌人出现。玩家格挡未知不代表0；敌人攻击数值未知就不能计算确定的存活结论。选择出牌前比较已知攻击、防御、费用和敌人意图；关键牌面不清楚时先通过hover获取信息。能量为0仍可能有零费牌，不要只因能量耗尽就结束回合；只能打本帧已读清的零费牌，未知牌仍需hover。只报告简短决策依据和待验证结果。
 inspectionContext是本段仅悬停期间已读清牌面的比较笔记，不是当前可执行牌表。可以用它比较此前读过的规则，避免在两张牌间反复悬停；选定后仅对当前帧完整核验的目标出牌。笔记不能证明牌仍在手中、当前费用或坐标。当前已经展开并核验的候选应完成选择，不要为重复比较已读规则再切回另一张。hoverBudgetRemaining耗尽时不能继续悬停，应根据当前合法动作行动或stop说明不确定性。
 历史只提供当时的本地观测、实际动作种类和输入回执；输入回执不证明悬停展开或出牌成功。只能对比前后观测判断结果。没有完整描述时，不能用模型记忆、旧版卡牌数值或自己先前的台词宣称“前帧已读出伤害”或确定斩杀。
-如果连续悬停不同手牌仍读不到完整牌面，不要只在牌之间来回移动。恢复候选是对本帧已定位的ground空地执行hover，将鼠标移出手牌区，下一帧重新观察后再决定是否悬停手牌；只移动，不click、不拖牌、不按Esc。这是可选诊断动作，不代表已确认遮挡或已恢复；没有可靠空地则不要猜落点。此恢复仍消耗同一个悬停预算，不能重置预算或跳过本帧完整读牌要求。
-输出严格JSON：{"kind":"click|hover|drag|scroll|wait|stop","targetId":"视觉目标id","fromId":"拖拽起点id","steps":1,"reason":"简短决策理由","line":"第一人称简短角色台词","expected":"下一帧应有什么变化","previousOutcome":"上一动作是否达到预期；不确定就写不确定"}。
+如果连续悬停不同手牌仍读不到完整牌面，不要只在牌之间来回移动。恢复候选是对本帧已定位的ground空地执行hover，将鼠标移出手牌区，下一帧重新观察后再决定是否悬停手牌；只移动，不click、不拖牌。这是可选诊断动作，不代表已确认遮挡或已恢复；没有可靠空地则不要猜落点。此恢复仍消耗同一个悬停预算，不能重置预算或跳过本帧完整读牌要求。
+只有currentActionOptions.keys列出ESC时，才可由你选择一次kind=key、key=ESC的恢复尝试；它可能取消选择，也可能打开暂停菜单，必须下一帧重新识别。出现菜单时仅使用当帧可靠的继续/返回目标，禁止放弃。不能声称恢复成功，不能第二次按键；该尝试不会重置12次悬停预算。
+输出严格JSON：{"kind":"click|hover|drag|scroll|key|wait|stop","key":"仅key动作填写ESC","targetId":"视觉目标id","fromId":"拖拽起点id","steps":1,"reason":"简短决策理由","line":"第一人称简短角色台词","expected":"下一帧应有什么变化","previousOutcome":"上一动作是否达到预期；不确定就写不确定"}。
 只能引用本帧targets中的id，禁止编造坐标。战斗出牌必须使用drag，fromId是手牌，targetId是敌人或空地；不要click手牌来出牌。技能拖至画面空地目标，攻击拖到敌人。仅见放大的单张牌、暗色遮罩或查看升级时是卡牌详情，不是战斗，先关闭详情。选牌详情后还须点击确认勾号。卡牌看不清先hover展开；动画或未知画面wait。结局terminal必须stop，不开下一局。菜单可进入单人游戏，禁止放弃/删除/多人/设置。注意魂缚、不可抽牌、能量、意图、确认按钮。连续无变化要改变方法，不盲目重复。计划不能说成已经成功。` },
-      { role:'user', content:JSON.stringify({ currentActionOptions:actionOptions(view), view:plannerObservation(view), inspectionContext:inspectionContext(view,history),
+      { role:'user', content:JSON.stringify({ currentActionOptions:actionOptions(view,history), view:plannerObservation(view), inspectionContext:inspectionContext(view,history),
         history:plannerHistory(history), experiences:experience,
         actionContract:'只有card.observedFrameId等于view.frameId且包含本帧牌名、费用、类型和完整描述的牌才允许drag；其余手牌只能hover读牌。稳定战斗界面不会因wait自动展开牌面，读牌应hover；只有动画或加载才wait。历史牌面不能补当前未知字段。禁止从手牌编号猜名称、费用、伤害。先检查每个目标的card字段。' }) }];
     const r = await deepseekFetch(config.url, { method:'POST', headers:{'content-type':'application/json', authorization:`Bearer ${config.key}`}, signal:AbortSignal.any([signal,AbortSignal.timeout(60000)]), body:JSON.stringify({ model:config.model, messages, response_format:{type:'json_object'}, ...planningOptions }) });
@@ -363,7 +384,7 @@ inspectionContext是本段仅悬停期间已读清牌面的比较笔记，不是
         if (this.persona().id !== personaId) throw Error('角色已切换，请重新启动以使用新角色');
         try {
           if(view.scene==='battle'&&decision.kind==='hover'&&inspectionContext(view,history).hoverBudgetRemaining===0)throw Error('连续十二次仅悬停未推进战斗，需选择当前合法动作或停止，不能继续读牌循环');
-          action=actionFor(decision,view); break;
+          action=actionFor(decision,view,history); break;
         }
         catch(error) {
           log({event:'rejected_decision',frameId:frame.id,decision,error:error.message});
@@ -407,9 +428,12 @@ inspectionContext是本段仅悬停期间已读清牌面的比较笔记，不是
       repeated = fingerprint === previous ? repeated+1 : 0; previous=fingerprint;
       if (repeated >= 2) throw Error('同一画面连续重复动作，已停止避免空循环');
       this.state.stage='executing';
+      const recoveryEntry=decision.kind==='key'?{before:view,decision,recoveryAttempted:true,inspectionHovers:inspectionContext(view,history).hovers,verification:'await_next_observation'}:null;
+      if(recoveryEntry) { history.push(recoveryEntry);log({event:'escape_recovery_attempt',frameId:frame.id,inspectionHovers:recoveryEntry.inspectionHovers,verified:false}); }
       const result = await call('action',{...action,frameId:frame.id});
       if (!['awaiting_visual_review','captured_only'].includes(result.status)) throw Error(result.error || '原生键鼠执行中止');
-      history.push({before:view,decision,result:{id:result.id,status:result.status},verification:'await_next_observation'});
+      if(recoveryEntry)recoveryEntry.result={id:result.id,status:result.status};
+      else history.push({before:view,decision,result:{id:result.id,status:result.status},verification:'await_next_observation'});
       hoveredPoint=decision.kind==='hover'&&view.targets.find(t=>t.id===decision.targetId)?.kind==='card'?action.to:null;
       log({event:'input_completed',resultId:result.id,verified:false});
       this.state.stage='observing-next-frame'; await this.pause(1000);

@@ -31,6 +31,44 @@ test('native role planning enables bounded thinking and validates explicit overr
 const view = { scene:'battle',summary:'hand',frameId:'1',energy:1,targets:[{id:'card',kind:'card',label:'打击',point:[400,900],card:{name:'打击',cost:1,type:'攻击',description:'造成6点伤害。',observedFrameId:'1'}},{id:'enemy',kind:'enemy',label:'敌人',point:[700,500]}] };
 const visionFor = (body, current=view) => body.mode==='energy' ? {energy:1} : body.mode==='battle' ? {...current,targets:current.targets.filter(t=>t.kind!=='card')} : body.mode==='hand' ? {...current,targets:current.targets.filter(t=>t.kind==='card')} : current;
 const groundedMap=()=>({parsed:{scene:'map',targets:[{id:'N1',label:'问号',point:[410,509],grounding:'local_cv_qwen',directly_connected:true}],map_grounding:{source:'local_cv_qwen',marker_id:'R1',marker_point:[412,630]}},pixel_candidates:{red:[{id:'R1',point:[412,630]}],dark:[{id:'N1',point:[410,509]}]}});
+test('ESC is offered only after three completed unsuccessful card hovers and at most once',()=>{
+  const unknown={...view,targets:[{...view.targets[0],card:{name:'打击',cost:1}},view.targets[1]]};
+  const hover={before:unknown,decision:{kind:'hover',targetId:'card'},result:{status:'awaiting_visual_review'}};
+  const history=[hover,hover,hover];
+  assert.deepEqual(actionFor({kind:'key',key:'ESC'},unknown,history),{kind:'key',key:'ESC'});
+  assert.equal(actionOptions(unknown,history).keys.length,1);
+  for(const bad of [[],history.slice(1),history.map(e=>({...e,result:{status:'failed'}})),history.map(e=>({...e,decision:{kind:'hover',targetId:'enemy'}})),[...history,{decision:{kind:'key',key:'ESC'},recoveryAttempted:true,inspectionHovers:3}]])assert.throws(()=>actionFor({kind:'key',key:'ESC'},unknown,bad),/ESC/);
+  for(const current of [view,{...unknown,energy:0},{...unknown,scene:'menu'},{...unknown,energy:null}])assert.throws(()=>actionFor({kind:'key',key:'ESC'},current,history),/ESC/);
+  assert.throws(()=>actionFor({kind:'key',key:'ENTER'},unknown,history),/ESC/);
+  assert.throws(()=>actionFor({kind:'key',key:'ESC'},unknown,Array(12).fill(hover)),/ESC/);
+});
+test('ESC, menu observations and menu clicks do not replenish the remaining hover allowance',()=>{
+  const hover={before:view,decision:{kind:'hover',targetId:'card'},result:{status:'awaiting_visual_review'}};
+  const history=[{before:view,decision:{kind:'key',key:'ESC'},recoveryAttempted:true,inspectionHovers:3,result:{status:'awaiting_visual_review'}},
+    {before:{scene:'menu'},decision:{kind:'click'},result:{status:'awaiting_visual_review'}},...Array(9).fill(hover)];
+  assert.equal(inspectionContext(view,history).hoverBudgetRemaining,0);
+  assert.equal(inspectionContext({...view,energy:0},history).hoverBudgetRemaining,0);
+});
+test('model-selected ESC uses existing action API once and observes the following menu before deciding',async()=>{
+  let captures=0,actions=[];
+  const unknown={...view,targets:[{...view.targets[0],card:{name:'打击',cost:1}},view.targets[1]]};
+  const agent=new NativeAutonomy({pause:async()=>{},decide:async(current,history)=>{
+    if(current.scene==='menu'){assert.equal(history.at(-1).recoveryAttempted,true);return {kind:'stop'};}
+    return actions.length===3?{kind:'key',key:'ESC'}:{kind:'hover',targetId:'card'};
+  },request:async(route,body)=>{
+    if(route==='vision-state')return {ready:true,sceneSupport:true};
+    if(route==='read-card'){
+      if(body.mode==='card')return {parsed:{uncertain:true,cards:[]}};
+      const current=actions.at(-1)==='key'?{scene:'menu',targets:[],summary:'暂停'}:{...unknown,summary:String(captures)};
+      return {parsed:visionFor(body,current)};
+    }
+    if(body.kind==='capture')return {id:String(++captures),status:'captured_only'};
+    actions.push(body.kind);if(body.kind==='key')assert.deepEqual(body,{kind:'key',key:'ESC',frameId:'4'});
+    return {id:'input',status:'awaiting_visual_review'};
+  }});
+  agent.start({maxSteps:8});await agent.task;
+  assert.deepEqual(actions,['hover','hover','hover','key']);assert.equal(captures,5);assert.equal(agent.state.stage,'finished');
+});
 test('inspection notes compare read rules without authorizing stale cards or exposing points',()=>{
   const previous={before:view,decision:{kind:'hover'},result:{status:'awaiting_visual_review'}};
   const current={...view,frameId:'2',targets:[{...view.targets[0],card:{name:'打击',cost:1}},view.targets[1]]};
