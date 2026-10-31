@@ -24,6 +24,12 @@ test('cloud perception rejects truncated JSON and schema mismatch',async()=>{
 test('cloud failure reports status without leaking response content',async()=>{
  await assert.rejects(readCloudVision(input,{config,fetch:async()=>new Response('sensitive diagnostics',{status:401})}),{message:'DeepSeek vision HTTP 401'});
 });
+test('malformed model JSON gets one read-only retry but HTTP failures do not',async()=>{
+ let count=0;
+ const result=await readCloudVision(input,{config,fetch:async()=>++count===1?reply('{"cards":[]} trailing'):reply()});
+ assert.equal(count,2);assert.equal(result.formatAttempts,2);
+ count=0;await assert.rejects(readCloudVision(input,{config,fetch:async()=>{count++;return new Response('error',{status:429});}}));assert.equal(count,1);
+});
 test('cloud map provenance still requires exact current pixel candidates',()=>{
  const {groundedMapObservation}=require('../src/sts2/native-autonomy');
  const result={parsed:{scene:'map',targets:[{id:'N1',label:'事件',point:[410,509],grounding:'local_cv_cloud_vlm',directly_connected:true}],map_grounding:{source:'local_cv_cloud_vlm',marker_id:'R1',marker_point:[412,630]}},pixel_candidates:{red:[{id:'R1',point:[412,630]}],dark:[{id:'N1',point:[410,509]}]}};

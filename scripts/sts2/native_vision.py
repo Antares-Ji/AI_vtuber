@@ -32,6 +32,7 @@ def main():
     state['genshinSceneSupport']=a.provider=='local'
     state['selectionOcrCheck']=a.ocr_check
     state['playerHudSupport']=a.ocr_check
+    state['terminalOcrCheck']=a.ocr_check
     class Handler(BaseHTTPRequestHandler):
         def log_message(self,*args): pass
         def reply(self,code,obj):
@@ -104,6 +105,8 @@ targets是数组，每项必须包含id、label、point、enabled四个字段。
 优先识别选牌面板：中央标题“选择一张牌”，下方并排展示独立完整卡牌，底部有“跳过”或确认按钮时，scene是selection，不是battle。背景仍有洞穴或角色不代表正在战斗；这些中央候选不是底部扇形手牌。selection必须逐项列出实际可见候选的牌名、清楚可见的规则文字和牌面内部中心，并列出跳过/确认按钮；看不清的文字标为未知，禁止凭游戏知识补全。
 “结束第1回合”“结束回合”是战斗中可点击的按钮文字，不表示回合或战斗已经结束。只要底部有手牌、右下有这个按钮，就是battle；悬停使一张手牌变大仍是battle，不是room或结算。room必须没有手牌和结束回合按钮。
 最后检查：scene为battle或map时，targets必须是空数组[]，禁止枚举手牌、敌人或地图节点，专门观察器会另读；这一步只判断场景。'''
+                if body.get('mode')=='scene':
+                    prompt+=' 历史节点揭晓、历史时间线、解锁树、图鉴不是冒险路线地图，即使也有节点和连线也不能判为map。“历史节点即将被揭晓”属于历史解锁menu；列出可见的待揭晓高亮节点及继续/返回按钮，标签应描述实际可见图标或文字。若正在动画且没有可交互内容则unknown。'
                 if body.get('mode')=='map':
                     prompt='''读取这张杀戮尖塔路线地图，输出紧凑JSON，字段scene固定为map，summary简短说明，targets为目标数组。每个目标字段id、label、point、enabled。point是相对整张图片的0至1000归一化坐标，必须独立定位，最多列出5个目标。
 先找到红色向下箭头和箭头下方当前位置。只列红箭头紧邻上方的第一排节点，沿虚线路径与当前位置连接，深色轮廓的图标。屏幕最上方几排淡灰节点不是下一步，全部忽略。红箭头下的当前位置、大型起始建筑、右边图例、左边返回按钮都不列出。label写清节点类型和左中右位置。无法确定则targets为空，绝不以远处节点代替下一步节点。'''
@@ -222,6 +225,18 @@ targets是数组，每项必须包含id、label、point、enabled四个字段。
                     except Exception as ex:
                         ocr_check={'status':'unavailable','reason':str(ex)}
                         parsed={'scene':'unknown','summary':'选牌文字未能独立核对','targets':[],'ocr_check':ocr_check}
+                if a.ocr_check and body.get('mode')=='scene' and isinstance(parsed,dict) and parsed.get('scene')=='terminal':
+                    from native_terminal_ocr import corroborate_terminal
+                    try:
+                        request=urllib.request.Request('http://127.0.0.1:17647/read',data=json.dumps({'image':str(file),'crop':[0,0,1,1]}).encode(),headers={'Content-Type':'application/json'})
+                        with urllib.request.urlopen(request,timeout=5) as response:ocr=json.loads(response.read(1048577))
+                        if Path(ocr.get('source_image','')).resolve()!=file or ocr.get('crop')!=[0,0,1,1]:raise ValueError('OCR frame or crop mismatch')
+                        parsed=corroborate_terminal(parsed,ocr)
+                        ocr_check={**parsed['ocr_check'],'record':ocr.get('record'),'model':ocr.get('model')}
+                        parsed['ocr_check']=ocr_check
+                    except Exception as ex:
+                        parsed=corroborate_terminal(parsed,{})
+                        ocr_check={'status':'unavailable','reason':str(ex)};parsed['ocr_check']=ocr_check
                 if target and isinstance(parsed,dict):
                     point=parsed.get('target_point')
                     if parsed.get('target_visible') is True and isinstance(point,list) and len(point)==2 and all(type(v) in (int,float) and 0<=v<=1000 for v in point):parsed['target_center']=[v/1000 for v in whole_point(point,crop)]

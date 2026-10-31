@@ -112,7 +112,7 @@ function createGameInputRoutes({ parseBody, send, persona = () => ({}) }) {
       try {
         const body = await parseBody(req);
         if (busy) return reply(409, { error: '请等当前动作结束' });
-        return reply(202, autonomous.start({ maxSteps: body.maxSteps ?? 300, execute: body.execute !== false }));
+        return reply(202, autonomous.start({ maxSteps: body.maxSteps ?? 300, execute: body.execute !== false, continueAfterDefeat: body.continueAfterDefeat ?? false }));
       } catch (error) { return reply(400, { error: error.message }); }
     }
     if (url.pathname === '/api/game-input/read-card') {

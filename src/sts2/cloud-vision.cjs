@@ -15,6 +15,7 @@ async function readCloudVision(input, { fetch = deepseekFetch, config, signal } 
   const url = new URL(config.url);
   if (url.origin !== 'https://api.deepseek.com' || !['/chat/completions','/v1/chat/completions'].includes(url.pathname) || url.search || url.hash || url.username || url.password) throw Error('Official DeepSeek vision endpoint required');
   const timeout = AbortSignal.timeout(60000);
+  for(let attempt=0;attempt<2;attempt++) {
   const response = await fetch(url.href, {
     method:'POST', signal: signal ? AbortSignal.any([signal,timeout]) : timeout,
     headers:{'content-type':'application/json',authorization:`Bearer ${config.key}`},
@@ -26,9 +27,17 @@ async function readCloudVision(input, { fetch = deepseekFetch, config, signal } 
   if (!response.ok) throw Error(`DeepSeek vision HTTP ${response.status}`);
   const body = await response.json(), choice = body.choices?.[0];
   if (choice?.finish_reason !== 'stop' || typeof choice.message?.content !== 'string') throw Error('Incomplete DeepSeek vision response');
-  const parsed = JSON.parse(choice.message.content);
-  if (!parsed || Array.isArray(parsed) || typeof parsed !== 'object') throw Error('Vision response must be a JSON object');
-  return {raw:choice.message.content,generatedTokens:body.usage?.completion_tokens ?? null,model:body.model || 'deepseek-flash'};
+  try {
+    const parsed = JSON.parse(choice.message.content);
+    if (!parsed || Array.isArray(parsed) || typeof parsed !== 'object') throw Error('Vision response must be a JSON object');
+  } catch(error) {
+    // Perception is read-only. Retry once on malformed model JSON, without
+    // extracting fragments or retrying HTTP errors and interrupted requests.
+    if(attempt===0)continue;
+    throw error;
+  }
+  return {raw:choice.message.content,generatedTokens:body.usage?.completion_tokens ?? null,model:body.model || 'deepseek-flash',formatAttempts:attempt+1};
+  }
 }
 module.exports = {readCloudVision};
 if (require.main === module) {

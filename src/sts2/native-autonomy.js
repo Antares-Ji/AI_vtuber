@@ -89,7 +89,12 @@ function actionFor(d, view, history=[]) {
     if(d.key!=='ESC'||!escapeRecovery(view,history)&&!pileCloseAvailable(view,history))throw Error('仅允许连续三次读牌失败后的一次 ESC 恢复，或退出已核对的抽牌堆查看，其他按键不可用');
     return {kind:'key',key:'ESC'};
   }
-  if (view.scene === 'terminal' || view.scene === 'unknown') throw Error('此画面不可自动操作');
+  if(view.scene==='terminal') {
+    const candidate=view.targets.find(t=>t.id===d.targetId);
+    if(view.retry_after_defeat!==true||view.terminal_outcome!=='defeat'||view.ocr_check?.status!=='corroborated'||view.ocr_check?.scope!=='terminal_defeat'||d.kind!=='click'||candidate?.defeat_continue_checked!==true||!['继续','解锁','返回主菜单'].includes(candidate.label)||candidate.enabled===false)throw Error('此结局画面不可自动操作');
+    return {kind:'click',to:candidate.point.map(n=>n/1000)};
+  }
+  if (view.scene === 'unknown') throw Error('此画面不可自动操作');
   const target = id => {
     const t = view.targets.find(t => t.id === id);
     if (!t || t.enabled === false || /放弃|删除|设置|退出游戏|多人|档案|玩家当前位置|图例|abandon|delete|settings|multiplayer|quit/i.test(t.label)) throw Error('角色目标不可用');
@@ -276,7 +281,7 @@ inspectionContext是本段仅悬停期间已读清牌面的比较笔记，不是
 如果连续悬停不同手牌仍读不到完整牌面，不要只在牌之间来回移动。恢复候选是对本帧已定位的ground空地执行hover，将鼠标移出手牌区，下一帧重新观察后再决定是否悬停手牌；只移动，不click、不拖牌。这是可选诊断动作，不代表已确认遮挡或已恢复；没有可靠空地则不要猜落点。此恢复仍消耗同一个悬停预算，不能重置预算或跳过本帧完整读牌要求。
 只有currentActionOptions.keys列出ESC时，才可由你选择kind=key、key=ESC。若effect说明退出抽牌堆查看，按该候选关闭查看并重新观察；否则是一次恢复尝试，可能取消选择或打开暂停菜单。出现菜单时仅使用当帧可靠的继续/返回目标，禁止放弃。不能预先声称恢复成功，不能连续重复按键；恢复不重置12次悬停预算。
 输出严格JSON：{"kind":"click|hover|drag|scroll|key|wait|stop","key":"仅key动作填写ESC","targetId":"视觉目标id","fromId":"拖拽起点id","steps":1,"reason":"简短决策理由","line":"第一人称简短角色台词","expected":"下一帧应有什么变化","previousOutcome":"上一动作是否达到预期；不确定就写不确定"}。
-只能引用本帧targets中的id，禁止编造坐标。战斗出牌必须使用drag，fromId是手牌，targetId是敌人或空地；不要click手牌来出牌。技能拖至画面空地目标，攻击拖到敌人。仅见放大的单张牌、暗色遮罩或查看升级时是卡牌详情，不是战斗，先关闭详情。选牌详情后还须点击确认勾号。卡牌看不清先hover展开；动画或未知画面wait。结局terminal必须stop，不开下一局。菜单可进入单人游戏，禁止放弃/删除/多人/设置。注意魂缚、不可抽牌、能量、意图、确认按钮。连续无变化要改变方法，不盲目重复。计划不能说成已经成功。` },
+只能引用本帧targets中的id，禁止编造坐标。战斗出牌必须使用drag，fromId是手牌，targetId是敌人或空地；不要click手牌来出牌。技能拖至画面空地目标，攻击拖到敌人。仅见放大的单张牌、暗色遮罩或查看升级时是卡牌详情，不是战斗，先关闭详情。选牌详情后还须点击确认勾号。卡牌看不清先hover展开；动画或未知画面wait。结局terminal默认必须stop。仅当view.retry_after_defeat为true时，用户已要求继续尝试且本帧OCR核对了败北；可选择本帧已核对的“继续”“解锁”或“返回主菜单”按钮处理结算并返回菜单，再由你开始新的单人冒险。这次授权仅用于当前败北的结算流程，最多点击三次核对过的结算按钮；进入新冒险即撤销，后续新局结算仍停止；胜利或不确定结局必须stop。菜单可进入单人游戏，禁止放弃/删除/多人/设置。注意魂缚、不可抽牌、能量、意图、确认按钮。连续无变化要改变方法，不盲目重复。计划不能说成已经成功。` },
       { role:'user', content:JSON.stringify({ currentActionOptions:actionOptions(view,history), view:plannerObservation(view), inspectionContext:inspectionContext(view,history),
         history:plannerHistory(history), experiences:experience,
         actionContract:'只有card.observedFrameId等于view.frameId且包含本帧牌名、费用、类型和完整描述的牌才允许drag；其余手牌只能hover读牌。稳定战斗界面不会因wait自动展开牌面，读牌应hover；只有动画或加载才wait。历史牌面不能补当前未知字段。禁止从手牌编号猜名称、费用、伤害。先检查每个目标的card字段。' }) }];
@@ -288,19 +293,20 @@ inspectionContext是本段仅悬停期间已读清牌面的比较笔记，不是
     d.planning={thinking:planningOptions.thinking.type,effort:planningOptions.reasoning_effort || null,maxTokens:planningOptions.max_tokens,reasoningReturned:typeof body.choices[0].message.reasoning_content==='string' && body.choices[0].message.reasoning_content.length>0};
     return d;
   }
-  start({ maxSteps = 300, execute = true } = {}) {
+  start({ maxSteps = 300, execute = true, continueAfterDefeat = false } = {}) {
     if (this.state.running) throw Error('角色自动循环已在运行');
     if (!Number.isInteger(maxSteps) || maxSteps < 1 || maxSteps > 1000) throw Error('步数须为1至1000');
+    if(typeof continueAfterDefeat!=='boolean')throw Error('continueAfterDefeat须为布尔值');
     if (!this.customDecide) { settings(); nativePlanningOptions(); }
     if (fs.existsSync(path.join(BASE,'STOP_INPUT'))) throw Error('请先点解除停止，再启动角色');
     this.controller = new AbortController();
     fs.mkdirSync(path.join(BASE,'autonomy'),{recursive:true});
-    this.state = { running:true, stage:'starting', steps:0, maxSteps, execute, startedAt:new Date().toISOString(), lastError:null, logFile:path.join(BASE,'autonomy',`${Date.now()}.jsonl`) };
+    this.state = { running:true, stage:'starting', steps:0, maxSteps, execute, remainingDefeatContinuations:continueAfterDefeat?3:0, startedAt:new Date().toISOString(), lastError:null, logFile:path.join(BASE,'autonomy',`${Date.now()}.jsonl`) };
     this.task = this.loop(this.controller.signal).catch(e => { this.state.lastError = this.controller.signal.aborted ? null : e.message; this.state.stage = this.controller.signal.aborted ? 'stopped' : 'error'; fs.appendFileSync(this.state.logFile,JSON.stringify({at:new Date().toISOString(),event:this.state.stage,error:this.state.lastError})+'\n'); }).finally(() => { this.state.running=false; this.state.finishedAt=new Date().toISOString(); });
     return this.snapshot();
   }
   async loop(signal) {
-    const history = []; let idle = 0, repeated = 0, previous = '', hoveredPoint = null, navigationObservations = 0, dragPreparations = 0, pendingHoverFrame = null;
+    const history = []; let idle = 0, repeated = 0, previous = '', hoveredPoint = null, navigationObservations = 0, dragPreparations = 0, pendingHoverFrame = null, terminalSettleWaits = 0;
     const log = data => fs.appendFileSync(this.state.logFile,JSON.stringify({at:new Date().toISOString(),...data})+'\n');
     const timed = async (phase, details, work) => {
       const started=performance.now();let ok=false;
@@ -352,6 +358,14 @@ inspectionContext是本段仅悬停期间已读清牌面的比较笔记，不是
           this.state.stage='vision-retry';
         }
       }
+      if(['battle','map','room','event','reward','shop','rest','treasure'].includes(view.scene))this.state.remainingDefeatContinuations=0;
+      if(view.scene==='terminal'&&this.state.remainingDefeatContinuations>0&&view.ocr_check?.status!=='corroborated'&&terminalSettleWaits<3) {
+        terminalSettleWaits++;log({event:'terminal_settle_wait',frameId:frame.id,attempt:terminalSettleWaits});
+        await this.pause(1500);continue;
+      }
+      if(view.scene!=='terminal'||view.ocr_check?.status==='corroborated')terminalSettleWaits=0;
+      // Authorization comes only from the start request, never model JSON.
+      view={...view,retry_after_defeat:this.state.remainingDefeatContinuations>0&&health.terminalOcrCheck===true&&view.scene==='terminal'&&view.terminal_outcome==='defeat'&&view.ocr_check?.status==='corroborated'&&view.ocr_check?.scope==='terminal_defeat'};
       // Opening/closing the map and changing hover targets are not room progress.
       // Bound that whole navigation episode, even when generated summaries vary.
       navigationObservations = ['map','room'].includes(view.scene) ? navigationObservations + 1 : 0;
@@ -515,7 +529,7 @@ inspectionContext是本段仅悬停期间已读清牌面的比较笔记，不是
       }
       this.state.lastDecision=decision; this.state.steps=i+1;
       log({frameId:frame.id,visionRecord:vision.record,view,decision,execute:this.state.execute,source:'role_api',trainingPerformed:false});
-      if (view.scene === 'terminal' || decision.kind === 'stop') { this.state.stage='finished'; return; }
+      if (view.scene === 'terminal' && !view.retry_after_defeat || decision.kind === 'stop') { this.state.stage='finished'; return; }
       if (!this.state.execute) { this.state.stage='preview-complete'; return; }
       if (!action) {
         history.push({before:view,decision,result:{status:'waited_without_input'},verification:'await_next_observation'});
@@ -548,6 +562,7 @@ inspectionContext是本段仅悬停期间已读清牌面的比较笔记，不是
       if(recoveryEntry) { history.push(recoveryEntry);log({event:'escape_recovery_attempt',frameId:frame.id,inspectionHovers:recoveryEntry.inspectionHovers,verified:false}); }
       const result = await call('action',{...action,frameId:frame.id});
       if (!['awaiting_visual_review','captured_only'].includes(result.status)) throw Error(result.error || '原生键鼠执行中止');
+      if(view.scene==='terminal') {this.state.remainingDefeatContinuations--;log({event:'defeat_continued',frameId:frame.id,resultId:result.id,verified:false});}
       if(recoveryEntry)recoveryEntry.result={id:result.id,status:result.status};
       else history.push({before:view,decision,result:{id:result.id,status:result.status},verification:'await_next_observation'});
       this.state.lastExecution={kind:action.kind,preparationOnly:false,resultId:result.id};
