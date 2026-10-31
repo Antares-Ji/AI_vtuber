@@ -240,8 +240,8 @@ targets是数组，每项必须包含id、label、point、enabled四个字段。
                         parsed=corroborate_terminal(parsed,{})
                         ocr_check={'status':'unavailable','reason':str(ex)};parsed['ocr_check']=ocr_check
                 if a.ocr_check and body.get('mode')=='scene' and isinstance(parsed,dict) and parsed.get('scene') in ('menu','event','reward','shop','rest','treasure','room'):
-                    from native_button_ocr import ground_buttons,BUTTONS
-                    if any(t.get('label') in BUTTONS for t in parsed.get('targets',[])):
+                    from native_button_ocr import ground_buttons,BUTTONS,button_key
+                    if any(button_key(t.get('label')) in BUTTONS for t in parsed.get('targets',[])):
                         try:
                             request=urllib.request.Request('http://127.0.0.1:17647/read',data=json.dumps({'image':str(file),'crop':[0,0,1,1]}).encode(),headers={'Content-Type':'application/json'})
                             with urllib.request.urlopen(request,timeout=5) as response:ocr=json.loads(response.read(1048577))

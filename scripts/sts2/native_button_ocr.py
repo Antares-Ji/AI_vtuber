@@ -4,6 +4,11 @@ import re
 
 BUTTONS={'继续','返回','返回主菜单','开始游戏','单人游戏','单人模式','标准模式','新游戏','继续游戏','开始','确认','跳过','完成','解锁','关闭'}
 
+def button_key(value):
+    label=text_key(value)
+    plain=label.rstrip('>›»→▶▷').lstrip('<‹«←◀◁')
+    return plain if plain in BUTTONS else label
+
 def chapter_story(parsed,ocr):
     lines=usable_lines(ocr)
     header=any(re.fullmatch(r'第[0-9一二三四五六七八九十]+章[-—－]开放',label) for label,_,_ in lines)
@@ -15,8 +20,8 @@ def chapter_story(parsed,ocr):
 def ground_buttons(parsed,ocr):
     lines=usable_lines(ocr);targets=[]
     for target in parsed.get('targets',[]):
-        label=text_key(target.get('label'))
-        matches=[(x,y) for text,x,y in lines if text==label]
+        label=button_key(target.get('label'))
+        matches=[(x,y) for text,x,y in lines if button_key(text)==label]
         point=target.get('point');matched=len(matches)==1 and isinstance(point,list) and len(point)==2 and all(type(n) in (int,float) for n in point) and abs(point[0]-matches[0][0])<=80 and abs(point[1]-matches[0][1])<=80
         if label not in BUTTONS and not matched:
             targets.append(target);continue

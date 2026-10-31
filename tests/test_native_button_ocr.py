@@ -8,6 +8,11 @@ class ButtonTests(unittest.TestCase):
  def setUp(self):self.scene={'scene':'event','targets':[{'id':'next','label':'继续','point':[500,833],'enabled':True}]}
  def test_button_uses_current_measured_center(self):
   r=ground_buttons(self.scene,{'lines':[line('继续')]});self.assertEqual(r['targets'][0]['point'],[500,866]);self.assertTrue(r['targets'][0]['enabled'])
+ def test_directional_decoration_is_normalized_without_accepting_other_labels(self):
+  for text in ['继续>','继续 ›','继续→']:
+   self.assertTrue(ground_buttons(self.scene,{'lines':[line(text)]})['targets'][0]['enabled'])
+  for text in ['继续冒险>','>继续战斗','继续>删除']:
+   self.assertFalse(ground_buttons(self.scene,{'lines':[line(text)]})['targets'][0]['enabled'])
  def test_missing_ambiguous_distant_and_low_confidence_disable_button(self):
   for lines in [[],[line('继续'),line('继续',520)],[line('继续',100)],[line('继续',confidence=.89)]]:
    self.assertFalse(ground_buttons(self.scene,{'lines':lines})['targets'][0]['enabled'])
