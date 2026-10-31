@@ -372,8 +372,18 @@ inspectionContext是本段仅悬停期间已读清牌面的比较笔记，不是
       if (navigationObservations > 8) throw Error('地图与房间连续八次观察未进入新场景，已停止；需检查本地地图识别');
       if (view.scene === 'map') {
         this.state.stage='map-reading';
-        vision=await call('read-card',{frameId:frame.id,mode:health.mapGroundingSupport?'map-grounded':'map'});
-        view=health.mapGroundingSupport?groundedMapObservation(vision):observation(vision.parsed);
+        for(let attempt=0;attempt<2;attempt++) {
+          vision=await call('read-card',{frameId:frame.id,mode:health.mapGroundingSupport?'map-grounded':'map'});
+          try {
+            view=health.mapGroundingSupport?groundedMapObservation(vision):observation(vision.parsed);
+            if(view.scene!=='map'||!view.targets.length)throw Error('未确认可达节点');
+            break;
+          } catch(error) {
+            const detail=vision.normalization_error||error.message;
+            log({event:'invalid_vision',frameId:frame.id,mode:'map',record:vision.record,error:detail,attempt:attempt+1});
+            if(attempt===1)throw Error('地图视觉两次未能确认下一步可达节点：'+detail);
+          }
+        }
         mapPixelsVerified=health.mapGroundingSupport===true;
         log({event:'map_read',frameId:frame.id,record:vision.record,pixelGrounded:mapPixelsVerified});
         if (view.scene !== 'map' || !view.targets.length) throw Error('本地模型未识别出可靠的下一步地图节点');

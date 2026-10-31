@@ -13,9 +13,14 @@ class ButtonTests(unittest.TestCase):
    self.assertTrue(ground_buttons(self.scene,{'lines':[line(text)]})['targets'][0]['enabled'])
   for text in ['继续冒险>','>继续战斗','继续>删除']:
    self.assertFalse(ground_buttons(self.scene,{'lines':[line(text)]})['targets'][0]['enabled'])
- def test_missing_ambiguous_distant_and_low_confidence_disable_button(self):
-  for lines in [[],[line('继续'),line('继续',520)],[line('继续',100)],[line('继续',confidence=.89)]]:
+ def test_missing_ambiguous_and_low_confidence_disable_button(self):
+  for lines in [[],[line('继续'),line('继续',520)],[line('继续',confidence=.89)]]:
    self.assertFalse(ground_buttons(self.scene,{'lines':lines})['targets'][0]['enabled'])
+ def test_unique_navigation_text_corrects_large_model_location_error(self):
+  r=ground_buttons(self.scene,{'lines':[line('继续',790,915)]})
+  self.assertTrue(r['targets'][0]['enabled']);self.assertEqual(r['targets'][0]['point'],[790,915])
+  self.scene['targets'][0]['point']=[float('nan'),833]
+  self.assertFalse(ground_buttons(self.scene,{'lines':[line('继续')]})['targets'][0]['enabled'])
  def test_non_button_choices_and_disabled_status_are_preserved(self):
   source={'scene':'event','targets':[{'id':'choice','label':'失去6点生命','point':[500,500],'enabled':True}]}
   self.assertEqual(ground_buttons(source,{}),source)

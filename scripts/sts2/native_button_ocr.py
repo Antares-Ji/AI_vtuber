@@ -22,7 +22,11 @@ def ground_buttons(parsed,ocr):
     for target in parsed.get('targets',[]):
         label=button_key(target.get('label'))
         matches=[(x,y) for text,x,y in lines if button_key(text)==label]
-        point=target.get('point');matched=len(matches)==1 and isinstance(point,list) and len(point)==2 and all(type(n) in (int,float) for n in point) and abs(point[0]-matches[0][0])<=80 and abs(point[1]-matches[0][1])<=80
+        point=target.get('point')
+        valid_point=isinstance(point,list) and len(point)==2 and all(type(n) in (int,float) and 0<=n<=1000 for n in point)
+        # A uniquely printed navigation label identifies the button even when
+        # the VLM's approximate center is poor. Keep proximity for other text.
+        matched=len(matches)==1 and valid_point and (label in BUTTONS or abs(point[0]-matches[0][0])<=80 and abs(point[1]-matches[0][1])<=80)
         if label not in BUTTONS and not matched:
             targets.append(target);continue
         targets.append({**target,'enabled':target.get('enabled',True) and matched,'button_ocr_checked':matched,

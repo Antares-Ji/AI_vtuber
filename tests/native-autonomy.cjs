@@ -469,6 +469,25 @@ test('a cleared room forwards its visible button without route-map node groundin
   }});
   agent.start({maxSteps:1});await agent.task;assert.equal(agent.state.stage,'step-limit');assert.deepEqual(input.to,[.85,.7]);
 });
+test('map observation retries the same frame once before planning, preserving failure detail',async()=>{
+  for(const recover of [true,false]) {
+    let reads=0,plans=0,inputs=0;
+    const agent=new NativeAutonomy({pause:async()=>{},decide:async()=>{plans++;return {kind:'stop'};},request:async(route,body)=>{
+      if(route==='vision-state')return {ready:true,sceneSupport:true,mapGroundingSupport:true};
+      if(route==='read-card'){
+        assert.equal(body.frameId,'frame');
+        if(body.mode==='scene')return {parsed:{scene:'map',targets:[]}};
+        reads++;
+        return recover&&reads===2?groundedMap():{parsed:null,normalization_error:'No bounded visible next nodes'};
+      }
+      if(body.kind==='capture')return {id:'frame',status:'captured_only'};
+      inputs++;throw Error('No input permitted in observation retry');
+    }});
+    agent.start({maxSteps:1});await agent.task;
+    assert.equal(reads,2);assert.equal(inputs,0);assert.equal(plans,recover?1:0);
+    if(!recover)assert.match(agent.state.lastError,/地图视觉两次.*No bounded visible next nodes/);
+  }
+});
 test('reward planning receives legal IDs without raw vision coordinate alternatives',()=>{
   const reward={scene:'reward',points:[['金币',436,379]],targets:[{id:'t1',label:'金币',point:[436,379]},{id:'t2',label:'退出游戏',point:[800,300]}]};
   const planned=plannerObservation(reward);
