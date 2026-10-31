@@ -40,5 +40,29 @@ class BattleOCRTests(unittest.TestCase):
         for box in [None,[],[[float('nan'),0]]*4,[[0,0]]*4]:
             item=line('5/55');item['box']=box
             self.assertIsNone(read([enemy()],[item])['targets'][0]['enemy']['hp'])
+    def test_tall_enemy_requires_matching_explicit_fraction_from_both_readers(self):
+        for center_y in [429,372]:
+            target=enemy(x=725,y=center_y,label='绿色鸟类敌人 84/84 17')
+            result=read([target],[line('84/84',704,683,38,32)])
+            self.assertEqual(result['targets'][0]['enemy']['hp'],84)
+            self.assertEqual(result['targets'][0]['enemy']['health_match'],'extended_visual_ocr_agreement')
+            self.assertEqual(result['ocr_check']['extended_matches'],1)
+            self.assertEqual(result['targets'][0]['point'],target['point'])
+    def test_tall_match_rejects_missing_conflicting_multiple_or_intent_only_visual_numbers(self):
+        for label in ['绿色鸟类敌人，17','绿色鸟类敌人 17/84','绿色鸟类敌人 84/84 84/84']:
+            result=read([enemy(x=725,y=429,label=label)],[line('84/84',704,683,38,32)])
+            self.assertIsNone(result['targets'][0]['enemy']['hp'])
+    def test_tall_match_does_not_claim_a_shared_bar_or_choose_between_fractions(self):
+        tall=enemy('tall',725,429,label='绿色鸟类敌人 84/84')
+        for targets,lines in [([tall,enemy('near',740,562)],[line('84/84',704,683,38,32)]),
+                              ([tall,enemy('other',740,429)],[line('84/84',704,683,38,32)]),
+                              ([tall],[line('84/84',704,683,38,32),line('84/84',730,690,30,32)])]:
+            self.assertTrue(all(t['enemy']['hp'] is None for t in read(targets,lines)['targets']))
+    def test_extension_cannot_reach_hand_text_bars_above_the_body_or_other_columns(self):
+        for target,lines in [(enemy(x=725,y=429,label='敌人 84/84'),[line('84/84',704,370,38,32)]),
+                             (enemy(x=725,y=520,label='敌人 84/84'),[line('84/84',704,780,38,32)]),
+                             (enemy(x=725,y=429,label='敌人 84/84'),[line('84/84',850,683,38,32)]),
+                             (enemy(x=725,y=429,label='敌人 84/84'),[line('84/84',704,683,38,32,.89)])]:
+            self.assertIsNone(read([target],lines)['targets'][0]['enemy']['hp'])
 
 if __name__=='__main__':unittest.main()
