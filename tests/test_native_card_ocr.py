@@ -16,14 +16,14 @@ class CardOcrTests(unittest.TestCase):
     def setUp(self):
         self.card = {'cards': [{'name': '愤怒', 'cost': 0, 'type': '攻击',
                                'description': '造成4点伤害。将一张此牌的复制品加入你的弃牌堆。'}], 'uncertain': False}
-        self.ocr = {'lines': [line('愤怒'), line('造成4点伤害。', y=750),
+        self.ocr = {'lines': [line('愤怒'), line('攻击', y=710), line('造成4点伤害。', y=750),
                               line('将一张此牌的复制品加入', y=780), line('你的弃牌堆。', y=810)]}
 
     def test_complete_rules_with_line_wrapping_and_punctuation(self):
         result = corroborate_card(self.card, self.ocr)
         self.assertFalse(result['uncertain'])
         self.assertEqual(result['cards'], self.card['cards'])
-        self.assertEqual(result['ocr_check']['fields'], ['name', 'description'])
+        self.assertEqual(result['ocr_check']['fields'], ['name', 'type', 'description'])
 
     def test_wrong_damage_and_substring_are_rejected(self):
         for damage in ('1', '14', '6'):
@@ -49,8 +49,38 @@ class CardOcrTests(unittest.TestCase):
         partial = copy.deepcopy(self.card)
         partial['cards'][0]['description'] = '造成4点伤害。'
         self.assertTrue(corroborate_card(partial, self.ocr)['uncertain'])
-        self.ocr['lines'][1] = line('造成14点伤害。', y=750)
+        self.ocr['lines'][2] = line('造成14点伤害。', y=750)
         self.assertTrue(corroborate_card(self.card, self.ocr)['uncertain'])
+
+    def test_type_conflicts_and_invented_types_are_rejected(self):
+        for kind in ('技能', '换能', '防御'):
+            candidate = copy.deepcopy(self.card)
+            candidate['cards'][0]['type'] = kind
+            result = corroborate_card(candidate, self.ocr)
+            self.assertEqual(result['cards'], [])
+            self.assertEqual(result['ocr_check']['reason'], 'card_type_missing_or_conflicting')
+
+    def test_type_requires_unique_nearby_high_confidence_row(self):
+        for replacement in ([], [line('攻击', score=.89, y=710)],
+                            [line('攻击', x=650, y=710)],
+                            [line('攻击', y=710), line('攻击', y=730)],
+                            [line('攻击', y=710), line('技能', y=730)]):
+            ocr = copy.deepcopy(self.ocr)
+            ocr['lines'][1:2] = replacement
+            self.assertEqual(corroborate_card(self.card, ocr)['cards'], [])
+
+    def test_type_below_effect_is_not_a_type_row(self):
+        self.ocr['lines'][1] = line('攻击', y=850)
+        self.assertEqual(corroborate_card(self.card, self.ocr)['ocr_check']['reason'],
+                         'card_type_outside_type_row')
+
+    def test_language_normalization_keeps_original_model_fields(self):
+        for name in ('attack', 'ATTACK', ' 攻击 '):
+            candidate = copy.deepcopy(self.card)
+            candidate['cards'][0]['type'] = name
+            self.assertEqual(corroborate_card(candidate, self.ocr)['cards'], candidate['cards'])
+        self.ocr['lines'][1] = line('Attack', y=710)
+        self.assertEqual(corroborate_card(self.card, self.ocr)['cards'], self.card['cards'])
 
     def test_incomplete_vision_is_never_filled_from_ocr(self):
         for field in ('cost', 'type', 'name', 'description'):

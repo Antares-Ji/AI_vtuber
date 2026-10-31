@@ -1,4 +1,4 @@
-"""Require current-image title and complete rule text before trusting a card read.
+"""Require current-image title, type and complete rules before trusting a card read.
 
 This checks transcription only. It does not select a card, repair its rules from
 game knowledge, or establish that a model's card location is actionable.
@@ -6,6 +6,13 @@ game knowledge, or establish that a model's card location is actionable.
 from native_player_ocr import ocr_lines
 import re
 import math
+
+CARD_TYPES = {'攻击': '攻击', '技能': '技能', '能力': '能力', '状态': '状态', '诅咒': '诅咒',
+              'attack': '攻击', 'skill': '技能', 'power': '能力', 'status': '状态', 'curse': '诅咒'}
+
+
+def card_type(text):
+    return CARD_TYPES.get(compact(text).lower())
 
 
 def card_ocr_hints(ocr, crop_bounds, original_size):
@@ -69,16 +76,25 @@ def corroborate_card(parsed, ocr):
                    line[2][3] - y1 <= 450 and
                    abs((line[2][0] + line[2][2]) / 2 - cx) <= 70],
                   key=lambda line: (line[2][1], line[2][0]))
+    # Independently check the printed type row. A nonempty VLM string such as
+    # "换能" must not authorize a play even when its title and effect agree.
+    # Normalize language labels only; never infer type from a name or effect.
+    visual_type = card_type(card['type'])
+    type_lines = [line for line in body if card_type(line[0])]
+    if not visual_type or len(type_lines) != 1 or card_type(type_lines[0][0]) != visual_type:
+        return reject('card_type_missing_or_conflicting')
     rules = compact(card['description'])
     if not rules:
         return reject('missing_rules')
     # Exclude only explicit card type labels and bare HUD/cost numerals. Every
     # remaining nearby text line must be accounted for, including trailing rules
     # such as exhaust; a correct damage sentence alone is not a complete card.
-    rule_lines = [line for line in body if line[0] not in ('攻击', '技能', '能力') and
+    rule_lines = [line for line in body if not card_type(line[0]) and
                   not re.fullmatch(r'\d+(?:[/／]\d+)?', line[0])]
+    if not rule_lines or type_lines[0][2][3] > min(line[2][1] for line in rule_lines):
+        return reject('card_type_outside_type_row')
     if ''.join(compact(line[0]) for line in rule_lines) != rules:
         return reject('rule_text_missing_or_conflicting')
     return {'cards': [dict(card)], 'uncertain': False,
-            'ocr_check': {'status': 'corroborated', 'reason': 'same_frame_title_and_complete_rules',
-                          'fields': ['name', 'description']}}
+            'ocr_check': {'status': 'corroborated', 'reason': 'same_frame_title_type_and_complete_rules',
+                          'fields': ['name', 'type', 'description']}}
