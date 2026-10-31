@@ -132,7 +132,9 @@ function actionOptions(view, history=[]) {
     const destinations=view.targets.filter(to=>{
       try { actionFor({kind:'drag',fromId:t.id,targetId:to.id},view);return true; } catch {return false;}
     }).map(to=>({targetId:to.id,label:to.label}));
-    return {fromId:t.id,...t.card,allowed:destinations.length?['drag','hover']:['hover'],destinations};
+    const allowed=destinations.length?['drag']:[];
+    try { actionFor({kind:'hover',targetId:t.id},view);allowed.push('hover'); } catch {}
+    return {fromId:t.id,...t.card,allowed,destinations};
   });
   const targets=view.targets.filter(t=>t.kind!=='card').map(t=>({targetId:t.id,label:t.label,allowed:['click','hover'].filter(kind=>{
     try { actionFor({kind,targetId:t.id},view);return true; } catch {return false;}
@@ -387,13 +389,37 @@ inspectionContext是本段仅悬停期间已读清牌面的比较笔记，不是
         if (this.persona().id !== personaId) throw Error('角色已切换，请重新启动以使用新角色');
         try {
           if(view.scene==='battle'&&decision.kind==='hover'&&inspectionContext(view,history).hoverBudgetRemaining===0)throw Error('连续十二次仅悬停未推进战斗，需选择当前合法动作或停止，不能继续读牌循环');
-          action=actionFor(decision,view,history); break;
+          action=actionFor(decision,view,history);
         }
         catch(error) {
           log({event:'rejected_decision',frameId:frame.id,decision,error:error.message});
           if(attempt===1) throw error;
           history.push({decision,rejected:true,error:error.message,note:'尚未发送任何键鼠输入，重新依据可用动作规划。'});
+          continue;
         }
+        const hoverCard=decision.kind==='hover'&&view.scene==='battle'?view.targets.find(t=>t.id===decision.targetId&&t.kind==='card'&&t.name_source==='local_ocr'):null;
+        if(hoverCard) {
+          this.state.stage='card-hover-grounding';
+          const column=hoverCard.point[0]/1000;
+          const crop=[Math.max(0,column-.12),.5,Math.min(1,column+.12),1];
+          // Transport failures and cancellation terminate the run. Only a
+          // completed but unusable localization can ask the planner again.
+          const located=await call('read-card',{frameId:frame.id,crop,target:`裁剪图中央附近、牌名为${JSON.stringify(hoverCard.card.name)}的手牌可见内部中心，避开牌名外缘、相邻卡牌和帮助浮窗。只定位这张牌实际露出的可悬停区域；有多张同名牌且无法确定则返回不可见。`});
+          signal.throwIfAborted();
+          if(this.persona().id!==personaId)throw Error('角色已切换，请重新启动以使用新角色');
+          try { action={...action,to:groundedCardHover(view,hoverCard.id,located.parsed)}; }
+          catch(error) {
+            view={...view,targets:view.targets.map(t=>t.id===hoverCard.id?{...t,enabled:false,groundingError:error.message}:t)};
+            this.state.lastObservation=view;
+            log({event:'rejected_card_hover',frameId:frame.id,decision,targetId:hoverCard.id,record:located.record,error:error.message,inputSent:false});
+            if(attempt===1)throw error;
+            history.push({before:view,decision,rejected:true,error:error.message,note:'该目标在本帧不可用，尚未发送输入。由角色重新选择其他合法动作或停止。'});
+            this.state.stage='role-replanning';
+            continue;
+          }
+          log({event:'card_hover_grounded',frameId:frame.id,targetId:hoverCard.id,point:action.to,record:located.record});
+        }
+        break;
       }
       if (action && ['click','hover'].includes(decision.kind) && view.scene === 'map' && decision.targetId !== 'map-return' && !mapPixelsVerified) {
         this.state.stage='target-grounding';
@@ -407,15 +433,6 @@ inspectionContext是本段仅悬停期间已读清牌面的比较笔记，不是
         if (Math.hypot(point[0]-selected.point[0]/1000,point[1]-selected.point[1]/1000)>.15) throw Error('地图节点识别与独立定位不一致，未发送输入');
         action={...action,to:point};
         log({event:'target_grounded',frameId:frame.id,target:selected.label,point,record:located.record});
-      }
-      const hoverCard=decision.kind==='hover'&&view.scene==='battle'?view.targets.find(t=>t.id===decision.targetId&&t.kind==='card'&&t.name_source==='local_ocr'):null;
-      if(hoverCard) {
-        this.state.stage='card-hover-grounding';
-        const column=hoverCard.point[0]/1000;
-        const crop=[Math.max(0,column-.12),.5,Math.min(1,column+.12),1];
-        const located=await call('read-card',{frameId:frame.id,crop,target:`裁剪图中央附近、牌名为${JSON.stringify(hoverCard.card.name)}的手牌可见内部中心，避开牌名外缘、相邻卡牌和帮助浮窗。只定位这张牌实际露出的可悬停区域；有多张同名牌且无法确定则返回不可见。`});
-        action={...action,to:groundedCardHover(view,hoverCard.id,located.parsed)};
-        log({event:'card_hover_grounded',frameId:frame.id,targetId:hoverCard.id,point:action.to,record:located.record});
       }
       this.state.lastDecision=decision; this.state.steps=i+1;
       log({frameId:frame.id,visionRecord:vision.record,view,decision,execute:this.state.execute,source:'role_api',trainingPerformed:false});

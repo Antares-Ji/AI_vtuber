@@ -38,6 +38,61 @@ test('native role planning enables bounded thinking and validates explicit overr
 const view = { scene:'battle',summary:'hand',frameId:'1',energy:1,targets:[{id:'card',kind:'card',label:'打击',point:[400,900],card:{name:'打击',cost:1,type:'攻击',description:'造成6点伤害。',observedFrameId:'1'}},{id:'enemy',kind:'enemy',label:'敌人',point:[700,500]}] };
 const visionFor = (body, current=view) => body.mode==='energy' ? {energy:1} : body.mode==='battle' ? {...current,targets:current.targets.filter(t=>t.kind!=='card')} : body.mode==='hand' ? {...current,targets:current.targets.filter(t=>t.kind==='card')} : current;
 const groundedMap=()=>({parsed:{scene:'map',targets:[{id:'N1',label:'问号',point:[410,509],grounding:'local_cv_qwen',directly_connected:true}],map_grounding:{source:'local_cv_qwen',marker_id:'R1',marker_point:[412,630]}},pixel_candidates:{red:[{id:'R1',point:[412,630]}],dark:[{id:'N1',point:[410,509]}]}});
+test('unusable card localization disables only that frame target before one role replan',async()=>{
+  let plans=0,locations=0;const inputs=[];
+  const current={...view,targets:[{...view.targets[0],name_source:'local_ocr'},view.targets[1]]};
+  const agent=new NativeAutonomy({pause:async()=>{},decide:async(v,h)=>{
+    if(++plans===1)return {kind:'hover',targetId:'card'};
+    assert.equal(v.frameId,'fresh');assert.equal(v.targets.find(t=>t.id==='card').enabled,false);
+    assert.deepEqual(actionOptions(v,h).cards[0].allowed,[]);
+    assert.equal(h.at(-1).rejected,true);assert.equal(inputs.length,0);
+    return {kind:'hover',targetId:'enemy'};
+  },request:async(route,body)=>{
+    if(route==='vision-state')return {ready:true,sceneSupport:true};
+    if(route==='read-card'){
+      if(body.target){locations++;return {parsed:{target_visible:false,target_center:null},record:'local-invisible'};}
+      return {parsed:visionFor(body,current)};
+    }
+    if(body.kind==='capture')return {id:'fresh',status:'captured_only'};
+    inputs.push(body);return {id:'input',status:'awaiting_visual_review'};
+  }});
+  agent.start({maxSteps:1});await agent.task;
+  assert.equal(plans,2);assert.equal(locations,1);assert.equal(inputs.length,1);
+  assert.deepEqual(inputs[0].to,[.7,.5]);assert.equal(agent.state.stage,'step-limit');
+  assert.equal(current.targets[0].enabled,undefined);
+});
+test('a role that repeats an unavailable card is stopped without a second locator or input',async()=>{
+  let plans=0,locations=0,inputs=0;
+  const current={...view,targets:[{...view.targets[0],name_source:'local_ocr'},view.targets[1]]};
+  const agent=new NativeAutonomy({pause:async()=>{},decide:async()=>{plans++;return {kind:'hover',targetId:'card'};},request:async(route,body)=>{
+    if(route==='vision-state')return {ready:true,sceneSupport:true};
+    if(route==='read-card'){
+      if(body.target){locations++;return {parsed:{target_visible:true,target_center:[.7,.5]}};}
+      return {parsed:visionFor(body,current)};
+    }
+    if(body.kind==='capture')return {id:'fresh',status:'captured_only'};
+    inputs++;return {id:'input',status:'awaiting_visual_review'};
+  }});
+  agent.start({maxSteps:1});await agent.task;
+  assert.equal(plans,2);assert.equal(locations,1);assert.equal(inputs,0);assert.equal(agent.state.stage,'error');
+});
+test('locator transport failure or a late reply after stop cannot trigger replanning or input',async()=>{
+  for(const mode of ['transport','cancel']) {
+    let plans=0,inputs=0;
+    const current={...view,targets:[{...view.targets[0],name_source:'local_ocr'},view.targets[1]]};
+    const agent=new NativeAutonomy({pause:async()=>{},decide:async()=>{plans++;return {kind:'hover',targetId:'card'};},request:async(route,body)=>{
+      if(route==='vision-state')return {ready:true,sceneSupport:true};
+      if(route==='read-card'){
+        if(body.target){if(mode==='transport')throw Error('vision unavailable');agent.stop();return {parsed:{target_visible:false,target_center:null}};}
+        return {parsed:visionFor(body,current)};
+      }
+      if(body.kind==='capture')return {id:'fresh',status:'captured_only'};
+      inputs++;return {id:'input',status:'awaiting_visual_review'};
+    }});
+    agent.start({maxSteps:1});await agent.task;
+    assert.equal(plans,1);assert.equal(inputs,0);assert.equal(agent.state.stage,mode==='cancel'?'stopped':'error');
+  }
+});
 test('ESC is offered only after three completed unsuccessful card hovers and at most once',()=>{
   const unknown={...view,targets:[{...view.targets[0],card:{name:'打击',cost:1}},view.targets[1]]};
   const hover={before:unknown,decision:{kind:'hover',targetId:'card'},result:{status:'awaiting_visual_review'}};
