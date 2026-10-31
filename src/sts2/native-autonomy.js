@@ -157,6 +157,7 @@ function plannerHistory(history) {
   return history.slice(-4).map(h=>({
     ...(h.before?{before:plannerObservation(h.before)}:{}),
     decision:Object.fromEntries(['kind','targetId','fromId','steps','key'].filter(k=>h.decision?.[k]!==undefined).map(k=>[k,h.decision[k]])),
+    ...(h.preparationOnly?{preparationOnly:true,requestedKind:'drag',note:'只移动到出牌起点，未按下鼠标、未出牌；必须根据新帧重新决定。'}:{}),
     ...(h.result?{result:{id:h.result.id,status:h.result.status}}:{}),
     ...(h.rejected?{rejected:true,error:h.error}:{}),
     verification:h.verification || 'not_game_verified'
@@ -242,6 +243,7 @@ class NativeAutonomy {
 目标ID只在当前帧有效；同一个enemy1在前后帧可能指不同敌人，不能只凭编号判断伤害、击杀或新敌人出现。玩家格挡未知不代表0；敌人攻击数值未知就不能计算确定的存活结论。选择出牌前比较已知攻击、防御、费用和敌人意图；关键牌面不清楚时先通过hover获取信息。能量为0仍可能有零费牌，不要只因能量耗尽就结束回合；只能打本帧已读清的零费牌，未知牌仍需hover。只报告简短决策依据和待验证结果。
 inspectionContext是本段仅悬停期间已读清牌面的比较笔记，不是当前可执行牌表。可以用它比较此前读过的规则，避免在两张牌间反复悬停；选定后仅对当前帧完整核验的目标出牌。笔记不能证明牌仍在手中、当前费用或坐标。当前已经展开并核验的候选应完成选择，不要为重复比较已读规则再切回另一张。hoverBudgetRemaining耗尽时不能继续悬停，应根据当前合法动作行动或stop说明不确定性。
 历史只提供当时的本地观测、实际动作种类和输入回执；输入回执不证明悬停展开或出牌成功。只能对比前后观测判断结果。没有完整描述时，不能用模型记忆、旧版卡牌数值或自己先前的台词宣称“前帧已读出伤害”或确定斩杀。
+历史 preparationOnly=true 表示你曾选择drag，但程序只把鼠标移动到了新起点，没有按下或出牌。移动可能改变展开的牌；重新核对本帧完整牌面和目标，再决定是否仍要drag。不要沿用旧牌名或把准备移动当作失败攻击。
 如果连续悬停不同手牌仍读不到完整牌面，不要只在牌之间来回移动。恢复候选是对本帧已定位的ground空地执行hover，将鼠标移出手牌区，下一帧重新观察后再决定是否悬停手牌；只移动，不click、不拖牌。这是可选诊断动作，不代表已确认遮挡或已恢复；没有可靠空地则不要猜落点。此恢复仍消耗同一个悬停预算，不能重置预算或跳过本帧完整读牌要求。
 只有currentActionOptions.keys列出ESC时，才可由你选择一次kind=key、key=ESC的恢复尝试；它可能取消选择，也可能打开暂停菜单，必须下一帧重新识别。出现菜单时仅使用当帧可靠的继续/返回目标，禁止放弃。不能声称恢复成功，不能第二次按键；该尝试不会重置12次悬停预算。
 输出严格JSON：{"kind":"click|hover|drag|scroll|key|wait|stop","key":"仅key动作填写ESC","targetId":"视觉目标id","fromId":"拖拽起点id","steps":1,"reason":"简短决策理由","line":"第一人称简短角色台词","expected":"下一帧应有什么变化","previousOutcome":"上一动作是否达到预期；不确定就写不确定"}。
@@ -269,7 +271,7 @@ inspectionContext是本段仅悬停期间已读清牌面的比较笔记，不是
     return this.snapshot();
   }
   async loop(signal) {
-    const history = []; let idle = 0, repeated = 0, previous = '', hoveredPoint = null, navigationObservations = 0;
+    const history = []; let idle = 0, repeated = 0, previous = '', hoveredPoint = null, navigationObservations = 0, dragPreparations = 0;
     const log = data => fs.appendFileSync(this.state.logFile,JSON.stringify({at:new Date().toISOString(),...data})+'\n');
     const call = async (route, body) => { signal.throwIfAborted(); return this.request(route,body,signal,this.token); };
     let health = await call('vision-state');
@@ -462,6 +464,22 @@ inspectionContext是本段仅悬停期间已读清牌面的比较笔记，不是
         if (++idle >= 3) throw Error('连续三次无法确定下一步，已停止');
         await this.pause(1000); continue;
       }
+      // Moving into a lifted card can change the hovered card/hitbox. If the
+      // proposed press point was not the pointer location for this observation,
+      // perform only that move, then capture and ask the role API again. Never
+      // carry the old attack across the new frame or hold a button during vision.
+      if (action.kind==='drag' && (!hoveredPoint || Math.hypot(...action.from.map((n,k)=>n-hoveredPoint[k]))>.01)) {
+        if (++dragPreparations>3 || inspectionContext(view,history).hoverBudgetRemaining===0) throw Error('出牌起点连续变化或悬停预算耗尽，未按下鼠标；需检查本地牌面定位');
+        this.state.stage='preparing-drag-source';
+        const result=await call('action',{kind:'hover',to:action.from,frameId:frame.id});
+        signal.throwIfAborted();
+        if(result.status!=='awaiting_visual_review')throw Error(result.error || '出牌起点准备移动中止');
+        history.push({before:view,decision:{kind:'hover',targetId:decision.fromId},preparationOnly:true,result:{id:result.id,status:result.status},verification:'await_next_observation'});
+        hoveredPoint=action.from;
+        this.state.lastExecution={kind:'hover',preparationOnly:true,requestedKind:'drag',resultId:result.id};
+        log({event:'drag_source_prepared',frameId:frame.id,fromId:decision.fromId,point:action.from,resultId:result.id,buttonsPressed:false,verified:false});
+        this.state.stage='observing-next-frame';await this.pause(1000);continue;
+      }
       idle=0;
       const fingerprint=JSON.stringify({scene:view.scene,summary:view.summary,action});
       repeated = fingerprint === previous ? repeated+1 : 0; previous=fingerprint;
@@ -473,6 +491,8 @@ inspectionContext是本段仅悬停期间已读清牌面的比较笔记，不是
       if (!['awaiting_visual_review','captured_only'].includes(result.status)) throw Error(result.error || '原生键鼠执行中止');
       if(recoveryEntry)recoveryEntry.result={id:result.id,status:result.status};
       else history.push({before:view,decision,result:{id:result.id,status:result.status},verification:'await_next_observation'});
+      this.state.lastExecution={kind:action.kind,preparationOnly:false,resultId:result.id};
+      if(!['hover','wait'].includes(action.kind))dragPreparations=0;
       hoveredPoint=decision.kind==='hover'&&view.targets.find(t=>t.id===decision.targetId)?.kind==='card'?action.to:null;
       log({event:'input_completed',resultId:result.id,verified:false});
       this.state.stage='observing-next-frame'; await this.pause(1000);
