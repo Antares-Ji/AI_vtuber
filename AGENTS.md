@@ -22,6 +22,10 @@ claim that WSL bypasses Windows elevation.
 The user requires the director console/Skill API to start game tasks, DeepSeek
 API to decide gameplay, local model/CV/OCR APIs to observe and locate targets,
 and the project's existing native input API to execute keyboard/mouse actions.
+The user subsequently requested a faster cloud vision API (2026-10-30). STS2 may
+select official DeepSeek Flash image inference while retaining local OCR/CV
+checks and native input. Record the actual provider; do not describe cloud
+observations as local model inference. Genshin cloud vision is not yet enabled.
 Codex may inspect code, diagnose, repair, test, and supervise start/stop, but must
 not choose gameplay actions, read a screenshot itself to supply target coordinates,
 or manually play through computer-use tools. API-only includes CV and grounding.

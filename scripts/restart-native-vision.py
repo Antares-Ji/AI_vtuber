@@ -12,11 +12,14 @@ root = Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(root/'scripts/sts2'))
 from native_model_config import resolve_model_dir
 parser=argparse.ArgumentParser()
+parser.add_argument('--provider',choices=('local','deepseek'),default='local')
 parser.add_argument('--model-dir',default=os.environ.get('AI_VTUBER_VISION_MODEL_DIR'))
 parser.add_argument('--ocr-check',action='store_true',default=os.environ.get('AI_VTUBER_OCR_CHECK')=='1')
 args=parser.parse_args()
 # Check a requested checkpoint before terminating any existing service.
-model_dir=resolve_model_dir(root,args.model_dir)
+model_dir=resolve_model_dir(root,args.model_dir) if args.provider=='local' else None
+if args.provider=='deepseek':
+    if not (root/'runtime/node/node.exe').is_file() or not (root/'src/sts2/cloud-vision.cjs').is_file():raise SystemExit('Cloud transport runtime is unavailable')
 if args.ocr_check:
     with urllib.request.urlopen('http://127.0.0.1:17647/health',timeout=3) as response:ocr=json.load(response)
     if not ocr.get('ready') or ocr.get('read_only') is not True:raise SystemExit('Local read-only OCR worker is not ready')
@@ -38,5 +41,5 @@ for p in victims:
     except psutil.NoSuchProcess: pass
 psutil.wait_procs(victims, timeout=10)
 with (root/'logs/native-vision-nf4.out.log').open('ab') as out, (root/'logs/native-vision-nf4.err.log').open('ab') as err:
-    p = subprocess.Popen([str(root/'runtime/vlm-env/Scripts/python.exe'),str(target),'--four-bit','--model-dir',str(model_dir)]+(['--ocr-check'] if args.ocr_check else []),cwd=root,stdout=out,stderr=err,creationflags=subprocess.CREATE_NO_WINDOW)
-print('Vision worker launched:',p.pid,'model:',model_dir.name)
+    p = subprocess.Popen([str(root/'runtime/vlm-env/Scripts/python.exe'),str(target),'--provider',args.provider]+(['--four-bit','--model-dir',str(model_dir)] if model_dir else [])+(['--ocr-check'] if args.ocr_check else []),cwd=root,stdout=out,stderr=err,creationflags=subprocess.CREATE_NO_WINDOW)
+print('Vision worker launched:',p.pid,'model:',model_dir.name if model_dir else 'deepseek-flash')

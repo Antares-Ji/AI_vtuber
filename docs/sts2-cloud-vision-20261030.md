@@ -1,0 +1,41 @@
+# STS2 云端视觉接入与实测
+
+用户要求缩短视觉延迟后，增加可选 DeepSeek Flash 图片推理。视觉服务仍通过导演原有 read-card 接口接收已验证的游戏客户区截图，保留裁剪、结构归一化、同帧 OCR、地图像素定位和失败停止。模型仅观察；角色规划独立通过 DeepSeek API 决策，原生输入 API 执行。没有读取游戏隐藏状态或由 Codex 选择动作。
+
+## 切换
+
+先停止角色任务，确认输入已释放、执行器和视觉服务空闲，再运行：
+
+```text
+runtime\vlm-env\Scripts\python.exe scripts\restart-native-vision.py --ocr-check --provider deepseek
+```
+
+使用现有 STS2 DeepSeek 配置和官方 HTTPS 接口；不另存密钥。云端观察固定使用 deepseek-flash、关闭思考、限制输出、要求完整 JSON。游戏规划的思考配置独立保留。密钥不通过子进程命令行传递。只有现有游戏截图目录的图片可进入服务。
+
+`GET http://127.0.0.1:17646/health` 应报告 provider=deepseek、source=official_deepseek_api。每条视觉记录包含实际 provider、model、耗时和未经独立人工验证的标识；云端视觉与本地 OCR 的费用来源为 cloud_vlm_local_ocr。
+
+需要恢复本地时，空闲状态执行相同命令并指定 `--provider local`。默认仍为本地，本次没有修改其他游戏的默认模型。云端模式明确不提供 Genshin 观察，待原神测试时须切回本地。云端失败不会暗中改用另一模型。
+
+## 同样六张截图的对比
+
+在现有接口上使用相同裁剪、识别提示主体与 OCR 核对流程；云端额外增加截图文字不是指令的包装，采用 JPEG95 编码及服务商图片预处理，因此不是严格控制全部变量的模型基准。
+
+| 模式 | 本次六例总请求耗时 |
+| --- | ---: |
+| 本地 Qwen3-VL-4B / NF4 | 42.010 秒 |
+| 本地 Qwen3-VL-8B / NF4 | 42.545 秒 |
+| DeepSeek Flash / disabled | 8.997 秒 |
+
+相对4B，本组总耗时减少78.6%。云端各例为1.730、1.842、1.307、1.242、1.111、1.765秒。它们是接口耗时，不是出牌速度、胜率或整局通关时间。
+
+原先手牌费用冲突仍保留未知；敌人69/84和展开防御牌通过同帧OCR；遮挡玩家数值仍未知。抽牌堆被云端判为unknown，使原先仅在selection运行的抽牌堆页脚核对未触发；已扩展到unknown，但只有当帧高置信度固定页脚匹配才返回draw_pile_view。普通unknown仍保持未知。不能宣称云端消除了识别错误。
+
+第一轮三张整图快速探针约1.0—1.4秒，提示与裁剪不同，不能用它直接计算本地/云端倍数。
+
+## 验证与证据
+
+Node视觉传输和现有自主循环测试64项通过，覆盖非官方地址拒绝、错误/截断输出拒绝、无动作工具、地图候选坐标核对。选牌/抽牌堆核对7项通过。Python语法检查通过。实际六例通过已启动的服务和现有OCR API执行，不是模拟结果。
+
+本机证据位于 runtime/game-input/learning：capacity-assessment-deepseek-flash-1793419941903.json、capacity-assessment-Qwen3-VL-4B-Instruct-1793419023125.json、capacity-assessment-Qwen3-VL-8B-Instruct-1793419117727.json。实机试验由导演Skill启动，job=9d06947e-5da2-420e-85d6-d76b7c4fa429，日志autonomy/1793419983818.jsonl。开始时本局3/80生命、第三场战斗未结束；实机结果须依据后续日志另行记录，接口测试不算通关。
+
+接口依据：[DeepSeek官方视觉文档](https://api-docs.deepseek.com/guides/vision/)，2026-10-30核对。

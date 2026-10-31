@@ -28,8 +28,8 @@ def usable_lines(ocr):
 
 
 def corroborate_selection(parsed, ocr):
-    if not isinstance(parsed, dict) or parsed.get('scene') != 'selection':
-        raise ValueError('Selection scene required')
+    if not isinstance(parsed, dict) or parsed.get('scene') not in ('selection', 'unknown'):
+        raise ValueError('Selection or unknown scene required')
     lines = usable_lines(ocr)
     header = any(label == '选择一张牌' and 250 <= x <= 750 and 100 <= y <= 400 for label, x, y in lines)
     draw_pile = any(label.rstrip('。.') == '每回合开始时会从这里抽牌' and 250<=x<=750 and 850<=y<=980 for label,x,y in lines)

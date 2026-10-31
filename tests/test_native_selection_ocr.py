@@ -16,6 +16,11 @@ def panel():
 
 
 class SelectionOcrTests(unittest.TestCase):
+    def test_unknown_scene_can_be_resolved_by_exact_draw_pile_footer_only(self):
+        source={'scene':'unknown','summary':'未知','targets':[]}
+        self.assertEqual(corroborate_selection(source,{'lines':[line('每回合开始时会从这里抽牌。',500,930)]})['card_pile_view'],'draw')
+        self.assertEqual(corroborate_selection(source,{'lines':[]})['scene'],'unknown')
+
     def test_draw_pile_footer_is_not_a_reward_and_requires_current_high_confidence_text(self):
         footer=line('每回合开始时会从这里抽牌。',500,930)
         result=corroborate_selection(panel(),{'lines':[footer]})

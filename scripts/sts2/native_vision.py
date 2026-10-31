@@ -1,4 +1,4 @@
-"""Read native game evidence with local Qwen; no input, game API, or cloud calls."""
+"""Read game screenshots via selectable local or cloud vision; no input or game state API."""
 import argparse
 import json
 import os
@@ -17,18 +17,19 @@ OUT = ROOT/'runtime/game-input/learning'
 os.environ['HF_HUB_OFFLINE'] = '1'
 
 def main():
-    p=argparse.ArgumentParser();p.add_argument('--gpu-gib',type=int,default=5);p.add_argument('--port',type=int,default=17646);p.add_argument('--four-bit',action='store_true');p.add_argument('--model-dir',default=os.environ.get('AI_VTUBER_VISION_MODEL_DIR'));p.add_argument('--ocr-check',action='store_true',default=os.environ.get('AI_VTUBER_OCR_CHECK')=='1');a=p.parse_args()
-    model_dir=resolve_model_dir(ROOT,a.model_dir)
-    import torch
-    from transformers import AutoProcessor, Qwen3VLForConditionalGeneration, BitsAndBytesConfig
+    p=argparse.ArgumentParser();p.add_argument('--provider',choices=('local','deepseek'),default='local');p.add_argument('--gpu-gib',type=int,default=5);p.add_argument('--port',type=int,default=17646);p.add_argument('--four-bit',action='store_true');p.add_argument('--model-dir',default=os.environ.get('AI_VTUBER_VISION_MODEL_DIR'));p.add_argument('--ocr-check',action='store_true',default=os.environ.get('AI_VTUBER_OCR_CHECK')=='1');a=p.parse_args()
+    model_dir=resolve_model_dir(ROOT,a.model_dir) if a.provider=='local' else None
     from PIL import Image
-    processor=AutoProcessor.from_pretrained(model_dir,local_files_only=True)
-    processor.image_processor.size={'shortest_edge':262144,'longest_edge':1048576}
-    placement=({'device_map':{'':0},'quantization_config':BitsAndBytesConfig(load_in_4bit=True,bnb_4bit_quant_type='nf4',bnb_4bit_use_double_quant=True,bnb_4bit_compute_dtype=torch.bfloat16)} if a.four_bit else {'device_map':'auto','max_memory':{0:f'{a.gpu_gib}GiB','cpu':'24GiB'}})
-    model=Qwen3VLForConditionalGeneration.from_pretrained(model_dir,local_files_only=True,dtype=torch.bfloat16,attn_implementation='sdpa',**placement)
+    if a.provider=='local':
+        import torch
+        from transformers import AutoProcessor, Qwen3VLForConditionalGeneration, BitsAndBytesConfig
+        processor=AutoProcessor.from_pretrained(model_dir,local_files_only=True)
+        processor.image_processor.size={'shortest_edge':262144,'longest_edge':1048576}
+        placement=({'device_map':{'':0},'quantization_config':BitsAndBytesConfig(load_in_4bit=True,bnb_4bit_quant_type='nf4',bnb_4bit_use_double_quant=True,bnb_4bit_compute_dtype=torch.bfloat16)} if a.four_bit else {'device_map':'auto','max_memory':{0:f'{a.gpu_gib}GiB','cpu':'24GiB'}})
+        model=Qwen3VLForConditionalGeneration.from_pretrained(model_dir,local_files_only=True,dtype=torch.bfloat16,attn_implementation='sdpa',**placement)
     lock=threading.Lock();OUT.mkdir(parents=True,exist_ok=True)
-    state={'ready':True,'busy':False,'sceneSupport':True,'handSupport':True,'battleSupport':True,'mapGroundingSupport':True,'playerSupport':True,'playerOcrCheck':a.ocr_check,'handOcrCheck':a.ocr_check,'battleOcrCheck':a.ocr_check,'cardOcrCheck':a.ocr_check,'model':model_dir.name,'precision':'NF4' if a.four_bit else 'BF16 CPU offload','source':'local_weights','last':None}
-    state['genshinSceneSupport']=True
+    state={'ready':True,'busy':False,'sceneSupport':True,'handSupport':True,'battleSupport':True,'mapGroundingSupport':True,'playerSupport':True,'playerOcrCheck':a.ocr_check,'handOcrCheck':a.ocr_check,'battleOcrCheck':a.ocr_check,'cardOcrCheck':a.ocr_check,'model':model_dir.name if model_dir else 'deepseek-flash','precision':('NF4' if a.four_bit else 'BF16 CPU offload') if model_dir else 'provider_managed','source':'local_weights' if model_dir else 'official_deepseek_api','provider':a.provider,'last':None}
+    state['genshinSceneSupport']=a.provider=='local'
     state['selectionOcrCheck']=a.ocr_check
     state['playerHudSupport']=a.ocr_check
     class Handler(BaseHTTPRequestHandler):
@@ -53,6 +54,7 @@ def main():
                 body=json.loads(self.rfile.read(size));file=Path(body['image']).resolve()
                 genshin_mode=body.get('mode')=='genshin-scene'
                 if genshin_mode:
+                    if a.provider!='local':raise ValueError('Cloud vision currently supports STS2 only')
                     file=genshin_image(ROOT,file)
                     if body.get('crop') or body.get('target'):raise ValueError('Genshin observation requires the whole frame and no action target')
                 elif not file.is_relative_to(RUNS.resolve()) or file.suffix.lower() not in ('.jpg','.png'):raise ValueError('Only native game screenshots accepted')
@@ -129,11 +131,16 @@ targets是数组，每项必须包含id、label、point、enabled四个字段。
                         card_ocr=None;card_ocr_error=str(ex)
                 if genshin_mode:prompt=GENSHIN_PROMPT
                 started=time.monotonic()
-                messages=[{'role':'user','content':[{'type':'image','image':im},{'type':'text','text':prompt}]}]
-                inputs=processor.apply_chat_template(messages,tokenize=True,add_generation_prompt=True,return_dict=True,return_tensors='pt').to(model.device)
-                with torch.inference_mode():tokens=model.generate(**inputs,max_new_tokens=800 if scene_mode else 350,do_sample=False,repetition_penalty=1.08,max_time=60)
-                generated_tokens=int(tokens.shape[1]-inputs.input_ids.shape[1])
-                raw=processor.batch_decode(tokens[:,inputs.input_ids.shape[1]:],skip_special_tokens=True)[0]
+                if a.provider=='deepseek':
+                    from cloud_vision import read_cloud
+                    cloud=read_cloud(ROOT,im,prompt,800 if scene_mode else 350)
+                    raw=cloud['raw'];generated_tokens=cloud['generatedTokens']
+                else:
+                    messages=[{'role':'user','content':[{'type':'image','image':im},{'type':'text','text':prompt}]}]
+                    inputs=processor.apply_chat_template(messages,tokenize=True,add_generation_prompt=True,return_dict=True,return_tensors='pt').to(model.device)
+                    with torch.inference_mode():tokens=model.generate(**inputs,max_new_tokens=800 if scene_mode else 350,do_sample=False,repetition_penalty=1.08,max_time=60)
+                    generated_tokens=int(tokens.shape[1]-inputs.input_ids.shape[1])
+                    raw=processor.batch_decode(tokens[:,inputs.input_ids.shape[1]:],skip_special_tokens=True)[0]
                 try:parsed=json.loads(raw.removeprefix('```json').removeprefix('```').removesuffix('```').strip())
                 except json.JSONDecodeError:parsed=None
                 normalization_error=None
@@ -192,7 +199,7 @@ targets是数组，每项必须包含id、label、point、enabled四个字段。
                         else:
                             parsed=None
                             normalization_error='Hand OCR unavailable: '+str(ex)
-                if a.ocr_check and body.get('mode')=='scene' and isinstance(parsed,dict) and parsed.get('scene')=='selection':
+                if a.ocr_check and body.get('mode')=='scene' and isinstance(parsed,dict) and parsed.get('scene') in ('selection','unknown'):
                     from native_selection_ocr import corroborate_selection
                     try:
                         request=urllib.request.Request('http://127.0.0.1:17647/read',data=json.dumps({'image':str(file),'crop':[0,0,1,1]}).encode(),headers={'Content-Type':'application/json'})
@@ -207,7 +214,10 @@ targets是数组，每项必须包含id、label、point、enabled四个字段。
                 if target and isinstance(parsed,dict):
                     point=parsed.get('target_point')
                     if parsed.get('target_visible') is True and isinstance(point,list) and len(point)==2 and all(type(v) in (int,float) and 0<=v<=1000 for v in point):parsed['target_center']=[v/1000 for v in whole_point(point,crop)]
-                result={'source_image':str(file),'original_size':original,'crop':crop,'target':target,'mode':body.get('mode') or 'card','generated_tokens':generated_tokens,'model':state['model'],'precision':state['precision'],'seconds':round(time.monotonic()-started,2),'raw':raw,'parsed':parsed,'ocr_check':ocr_check,'normalization_error':normalization_error,'verification':'unverified_local_model_output','training_performed':False}
+                if a.provider=='deepseek':
+                    from cloud_vision import provider_evidence
+                    parsed=provider_evidence(parsed)
+                result={'source_image':str(file),'original_size':original,'crop':crop,'target':target,'mode':body.get('mode') or 'card','generated_tokens':generated_tokens,'model':state['model'],'provider':a.provider,'precision':state['precision'],'seconds':round(time.monotonic()-started,2),'raw':raw,'parsed':parsed,'ocr_check':ocr_check,'normalization_error':normalization_error,'verification':'unverified_cloud_model_output' if a.provider=='deepseek' else 'unverified_local_model_output','training_performed':False}
                 if candidates is not None:result['pixel_candidates']=candidates
                 record_dir=ROOT/'runtime/genshin/learning' if genshin_mode else OUT
                 record_dir.mkdir(parents=True,exist_ok=True)
