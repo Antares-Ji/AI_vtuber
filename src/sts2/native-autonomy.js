@@ -214,8 +214,11 @@ function attachGroundedCard(view, parsed, hover, located) {
 function groundedCardHover(view, id, located) {
   const selected=view.targets.find(t=>t.id===id), point=located?.target_center;
   if(selected?.kind!=='card'||located?.target_visible!==true||!Array.isArray(point)||point.length!==2||point.some(v=>typeof v!=='number'||!Number.isFinite(v)||v<0||v>1)||point[1]<.4)throw Error('未能定位所选手牌的可悬停内部');
-  const distances=view.targets.filter(t=>t.kind==='card').map(t=>({id:t.id,d:Math.hypot(point[0]-t.point[0]/1000,point[1]-t.point[1]/1000)})).sort((a,b)=>a.d-b.d);
-  if(distances[0]?.id!==id||distances[0].d>.18||distances[1]&&distances[1].d-distances[0].d<.015)throw Error('手牌内部定位与本帧牌名位置不一致或有歧义');
+  // Fanned/lifted titles have different heights. Match the title column, while
+  // retaining the original radial bound to reject distant interior guesses.
+  const distances=view.targets.filter(t=>t.kind==='card').map(t=>({id:t.id,d:Math.abs(point[0]-t.point[0]/1000)})).sort((a,b)=>a.d-b.d);
+  const radius=Math.hypot(point[0]-selected.point[0]/1000,point[1]-selected.point[1]/1000);
+  if(distances[0]?.id!==id||radius>.18||distances[1]&&distances[1].d-distances[0].d<.015)throw Error('手牌内部定位与本帧牌名位置不一致或有歧义');
   return point;
 }
 
@@ -408,9 +411,9 @@ inspectionContext是本段仅悬停期间已读清牌面的比较笔记，不是
       const hoverCard=decision.kind==='hover'&&view.scene==='battle'?view.targets.find(t=>t.id===decision.targetId&&t.kind==='card'&&t.name_source==='local_ocr'):null;
       if(hoverCard) {
         this.state.stage='card-hover-grounding';
-        const sameName=view.targets.filter(t=>t.kind==='card'&&t.card?.name===hoverCard.card.name).sort((a,b)=>a.point[0]-b.point[0]);
-        const rank=sameName.findIndex(t=>t.id===hoverCard.id)+1;
-        const located=await call('read-card',{frameId:frame.id,target:`手牌中牌名为${JSON.stringify(hoverCard.card.name)}、同名牌从左到右第${rank}张的可见内部中心，避开牌名外缘、相邻卡牌和帮助浮窗。只定位这张牌实际露出的可悬停区域。`});
+        const column=hoverCard.point[0]/1000;
+        const crop=[Math.max(0,column-.12),.5,Math.min(1,column+.12),1];
+        const located=await call('read-card',{frameId:frame.id,crop,target:`裁剪图中央附近、牌名为${JSON.stringify(hoverCard.card.name)}的手牌可见内部中心，避开牌名外缘、相邻卡牌和帮助浮窗。只定位这张牌实际露出的可悬停区域；有多张同名牌且无法确定则返回不可见。`});
         action={...action,to:groundedCardHover(view,hoverCard.id,located.parsed)};
         log({event:'card_hover_grounded',frameId:frame.id,targetId:hoverCard.id,point:action.to,record:located.record});
       }

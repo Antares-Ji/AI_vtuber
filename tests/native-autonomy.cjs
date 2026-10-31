@@ -7,13 +7,20 @@ test('card hover rejects neighboring, ambiguous, missing and distant locator res
   assert.deepEqual(groundedCardHover(current,'left',{target_visible:true,target_center:[.359,.876]}),[.359,.876]);
   for(const result of [{target_visible:false,target_center:[.359,.876]},{target_visible:true,target_center:[.623,.875]},{target_visible:true,target_center:[.5,.95]},{target_visible:true,target_center:[.1,.5]},{target_visible:true,target_center:[NaN,.9]}])assert.throws(()=>groundedCardHover(current,'left',result),/手牌/);
 });
+test('fanned title heights cannot assign an interior point to the adjacent card column',()=>{
+  const current={scene:'battle',targets:[{id:'defend',kind:'card',point:[450.82,840]},{id:'bash',kind:'card',point:[523.47,820.745]},{id:'break',kind:'card',point:[595.38,839.255]}]};
+  assert.deepEqual(groundedCardHover(current,'bash',{target_visible:true,target_center:[.50547,.869]}),[.50547,.869]);
+  for(const p of [[.432,.875],[.487,.869],[.52347,.62],[.52347,.4]])assert.throws(()=>groundedCardHover(current,'bash',{target_visible:true,target_center:p}),/手牌/);
+  const duplicate={...current,targets:[...current.targets,{id:'overlap',kind:'card',point:[523.47,700]}]};
+  assert.throws(()=>groundedCardHover(duplicate,'bash',{target_visible:true,target_center:[.50547,.869]}),/歧义/);
+});
 test('OCR title hover uses a same-frame local API interior before sending native input',async()=>{
   let input, located=0;
   const current={...view,targets:[{...view.targets[0],name_source:'local_ocr',point:[378,845]},view.targets[1]]};
   const agent=new NativeAutonomy({pause:async()=>{},decide:async()=>({kind:'hover',targetId:'card'}),request:async(route,body)=>{
     if(route==='vision-state')return {ready:true,sceneSupport:true};
     if(route==='read-card'){
-      if(body.target){located++;assert.equal(body.frameId,'fresh');assert.match(body.target,/打击/);return {parsed:{target_visible:true,target_center:[.359,.876]}};}
+      if(body.target){located++;assert.equal(body.frameId,'fresh');assert.match(body.target,/打击/);assert.deepEqual(body.crop,[.258,.5,.498,1]);return {parsed:{target_visible:true,target_center:[.359,.876]}};}
       return {parsed:visionFor(body,current)};
     }
     if(body.kind==='capture')return {id:'fresh',status:'captured_only'};
