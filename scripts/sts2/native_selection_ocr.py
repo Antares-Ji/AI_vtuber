@@ -32,6 +32,11 @@ def corroborate_selection(parsed, ocr):
         raise ValueError('Selection scene required')
     lines = usable_lines(ocr)
     header = any(label == '选择一张牌' and 250 <= x <= 750 and 100 <= y <= 400 for label, x, y in lines)
+    draw_pile = any(label.rstrip('。.') == '每回合开始时会从这里抽牌' and 250<=x<=750 and 850<=y<=980 for label,x,y in lines)
+    if draw_pile and not header:
+        return {'scene':'selection','summary':'正在查看抽牌堆，不是奖励选牌；卡牌列表不能打出或领取。',
+                'targets':[], 'card_pile_view':'draw',
+                'ocr_check':{'status':'corroborated','scope':'draw_pile_view'}}
     if not header:
         return {**parsed, 'ocr_check': {'status': 'not_applicable', 'reason': 'no_choose_card_header'}}
     targets = []

@@ -2,6 +2,29 @@ const test = require('node:test');
 const assert = require('node:assert/strict');
 const { NativeAutonomy, observation, actionFor, attachInspectedCard, collapseRepeatedTargets, actionOptions, attachGroundedCard, plannerObservation, groundedMapObservation, attachPlayerFacts, nativePlanningOptions, inspectionContext } = require('../src/sts2/native-autonomy');
 const { groundedCardHover, plannerHistory, mergeHudHealth } = require('../src/sts2/native-autonomy');
+const {postHoverFrame}=require('../src/sts2/native-autonomy');
+test('only current corroborated draw-pile observation offers a bounded role-selected close',()=>{
+  const pile={scene:'selection',targets:[],card_pile_view:'draw',ocr_check:{status:'corroborated',scope:'draw_pile_view'}};
+  assert.deepEqual(actionFor({kind:'key',key:'ESC'},pile),{kind:'key',key:'ESC'});
+  assert.equal(actionOptions(pile).keys.length,1);
+  for(const bad of [{...pile,ocr_check:{}},{...pile,scene:'battle'},{...pile,card_pile_view:null}])assert.throws(()=>actionFor({kind:'key',key:'ESC'},bad),/ESC/);
+  assert.throws(()=>actionFor({kind:'key',key:'ESC'},pile,[{before:pile,decision:{kind:'key',key:'ESC'}}]),/ESC/);
+});
+test('post-hover evidence replaces duplicate capture only with released, current, same-run game evidence',async()=>{
+  const id='1793417849232871300';
+  const receipt={id,status:'awaiting_visual_review',target:'SlayTheSpire2.exe',image:`/api/game-input/evidence/${id}/frame-0015.jpg`,held_keys:[],held_buttons:[],updatedAt:Date.now()};
+  assert.equal(postHoverFrame(receipt),receipt);
+  for(const patch of [{status:'stopped'},{target:'other'},{image:'/wrong'},{held_keys:['ESC']},{held_buttons:['left']},{updatedAt:Date.now()-11000},{evidence_error:'focus'},{release_error:'failed'}])assert.equal(postHoverFrame({...receipt,...patch}),null);
+  let captures=0,plans=0;const frameIds=[];
+  const agent=new NativeAutonomy({pause:async()=>{},decide:async()=>++plans===1?{kind:'hover',targetId:'t'}:{kind:'stop'},request:async(route,body)=>{
+    if(route==='vision-state')return {ready:true,sceneSupport:true};
+    if(route==='read-card'){frameIds.push(body.frameId);return {parsed:{scene:'event',targets:[{id:'t',label:'查看',point:[400,500]}]}};}
+    if(body.kind==='capture'){captures++;return {id:'initial',status:'captured_only'};}
+    return receipt;
+  }});
+  agent.start({maxSteps:2});await agent.task;
+  assert.equal(captures,1);assert.deepEqual(frameIds,['initial',id]);assert.equal(agent.state.stage,'finished');
+});
 test('card hover rejects neighboring, ambiguous, missing and distant locator results',()=>{
   const current={scene:'battle',targets:[{id:'left',kind:'card',point:[380,845]},{id:'middle',kind:'card',point:[500,730]},{id:'right',kind:'card',point:[620,845]}]};
   assert.deepEqual(groundedCardHover(current,'left',{target_visible:true,target_center:[.359,.876]}),[.359,.876]);

@@ -16,6 +16,13 @@ def panel():
 
 
 class SelectionOcrTests(unittest.TestCase):
+    def test_draw_pile_footer_is_not_a_reward_and_requires_current_high_confidence_text(self):
+        footer=line('每回合开始时会从这里抽牌。',500,930)
+        result=corroborate_selection(panel(),{'lines':[footer]})
+        self.assertEqual(result['card_pile_view'],'draw');self.assertEqual(result['targets'],[])
+        for wrong in [line('每回合开始时会从这里抽牌。',500,500),line('每回合开始时会从这里抽牌。',500,930,.89)]:
+            self.assertNotIn('card_pile_view',corroborate_selection(panel(),{'lines':[wrong]}))
+        self.assertNotIn('card_pile_view',corroborate_selection(panel(),{'lines':[footer,line('选择一张牌',500,240)]}))
     def test_conflicting_name_is_disabled_without_rewriting_it_as_another_card(self):
         result=corroborate_selection(panel(),{'lines':[line('选择一张牌',500,240),line('预备打击',325,430),line('头槌',500,430),line('跳过',500,850)]})
         self.assertEqual([t['enabled'] for t in result['targets']],[True,False,True])

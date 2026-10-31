@@ -53,6 +53,11 @@ function escapeRecovery(view, history=[]) {
   return failedCardHovers>=3;
 }
 
+function pileCloseAvailable(view,history=[]) {
+  return view.scene==='selection'&&view.card_pile_view==='draw'&&view.ocr_check?.status==='corroborated'&&
+    view.ocr_check?.scope==='draw_pile_view'&&!(history.at(-1)?.decision?.kind==='key'&&history.at(-1)?.before?.card_pile_view==='draw');
+}
+
 function observation(value) {
   if (!value || !SCENES.has(value.scene) || !Array.isArray(value.targets) || value.targets.length > 40) throw Error('视觉状态格式不完整');
   const ids = new Set();
@@ -81,7 +86,7 @@ function actionFor(d, view, history=[]) {
   if (!d || !['click','hover','drag','scroll','key','wait','stop'].includes(d.kind)) throw Error('角色返回未知动作');
   if (['wait','stop'].includes(d.kind)) return null;
   if(d.kind==='key') {
-    if(d.key!=='ESC'||!escapeRecovery(view,history))throw Error('仅允许连续三次读牌失败后的一次 ESC 恢复，其他按键不可用');
+    if(d.key!=='ESC'||!escapeRecovery(view,history)&&!pileCloseAvailable(view,history))throw Error('仅允许连续三次读牌失败后的一次 ESC 恢复，或退出已核对的抽牌堆查看，其他按键不可用');
     return {kind:'key',key:'ESC'};
   }
   if (view.scene === 'terminal' || view.scene === 'unknown') throw Error('此画面不可自动操作');
@@ -139,7 +144,7 @@ function actionOptions(view, history=[]) {
   const targets=view.targets.filter(t=>t.kind!=='card').map(t=>({targetId:t.id,label:t.label,allowed:['click','hover'].filter(kind=>{
     try { actionFor({kind,targetId:t.id},view);return true; } catch {return false;}
   })})).filter(t=>t.allowed.length);
-  return {cards,targets,keys:escapeRecovery(view,history)?[{kind:'key',key:'ESC',effect:'一次取消/暂停恢复尝试；可能打开暂停菜单，下一帧必须重新识别，不能假设已经恢复'}]:[],note:'这是程序按本帧校验出的可执行动作。点击或悬停只复制targetId字符串，绝不能把坐标当ID。allowed含drag的牌已经读清，可直接选择目标；只有hover的牌需要先展开。仍由角色决定策略，候选动作不代表已经执行。'};
+  return {cards,targets,keys:pileCloseAvailable(view,history)?[{kind:'key',key:'ESC',effect:'退出已由本帧OCR核对的抽牌堆查看；下一帧重新观察，不能直接沿用此前战斗动作'}]:escapeRecovery(view,history)?[{kind:'key',key:'ESC',effect:'一次取消/暂停恢复尝试；可能打开暂停菜单，下一帧必须重新识别，不能假设已经恢复'}]:[],note:'这是程序按本帧校验出的可执行动作。点击或悬停只复制targetId字符串，绝不能把坐标当ID。allowed含drag的牌已经读清，可直接选择目标；只有hover的牌需要先展开。仍由角色决定策略，候选动作不代表已经执行。'};
 }
 
 function plannerObservation(view) {
@@ -234,6 +239,15 @@ function groundedCardHover(view, id, located) {
   return point;
 }
 
+function postHoverFrame(result) {
+  if(result?.status!=='awaiting_visual_review'||result.target!=='SlayTheSpire2.exe'||
+     typeof result.id!=='string'||!/^\d{15,22}$/.test(result.id)||
+     typeof result.image!=='string'||!result.image.startsWith(`/api/game-input/evidence/${result.id}/frame-`)||
+     !Array.isArray(result.held_keys)||result.held_keys.length||!Array.isArray(result.held_buttons)||result.held_buttons.length||
+     result.evidence_error||result.release_error||!Number.isFinite(result.updatedAt)||Date.now()-result.updatedAt<0||Date.now()-result.updatedAt>10000)return null;
+  return result;
+}
+
 class NativeAutonomy {
   constructor({ persona = () => ({}), request, decide, pause = ms => delay(ms) } = {}) {
     this.persona = persona; this.request = request; this.customDecide = decide; this.pause = pause;
@@ -254,7 +268,7 @@ inspectionContext是本段仅悬停期间已读清牌面的比较笔记，不是
 历史只提供当时的本地观测、实际动作种类和输入回执；输入回执不证明悬停展开或出牌成功。只能对比前后观测判断结果。没有完整描述时，不能用模型记忆、旧版卡牌数值或自己先前的台词宣称“前帧已读出伤害”或确定斩杀。
 历史 preparationOnly=true 表示你曾选择drag，但程序只把鼠标移动到了新起点，没有按下或出牌。移动可能改变展开的牌；重新核对本帧完整牌面和目标，再决定是否仍要drag。不要沿用旧牌名或把准备移动当作失败攻击。
 如果连续悬停不同手牌仍读不到完整牌面，不要只在牌之间来回移动。恢复候选是对本帧已定位的ground空地执行hover，将鼠标移出手牌区，下一帧重新观察后再决定是否悬停手牌；只移动，不click、不拖牌。这是可选诊断动作，不代表已确认遮挡或已恢复；没有可靠空地则不要猜落点。此恢复仍消耗同一个悬停预算，不能重置预算或跳过本帧完整读牌要求。
-只有currentActionOptions.keys列出ESC时，才可由你选择一次kind=key、key=ESC的恢复尝试；它可能取消选择，也可能打开暂停菜单，必须下一帧重新识别。出现菜单时仅使用当帧可靠的继续/返回目标，禁止放弃。不能声称恢复成功，不能第二次按键；该尝试不会重置12次悬停预算。
+只有currentActionOptions.keys列出ESC时，才可由你选择kind=key、key=ESC。若effect说明退出抽牌堆查看，按该候选关闭查看并重新观察；否则是一次恢复尝试，可能取消选择或打开暂停菜单。出现菜单时仅使用当帧可靠的继续/返回目标，禁止放弃。不能预先声称恢复成功，不能连续重复按键；恢复不重置12次悬停预算。
 输出严格JSON：{"kind":"click|hover|drag|scroll|key|wait|stop","key":"仅key动作填写ESC","targetId":"视觉目标id","fromId":"拖拽起点id","steps":1,"reason":"简短决策理由","line":"第一人称简短角色台词","expected":"下一帧应有什么变化","previousOutcome":"上一动作是否达到预期；不确定就写不确定"}。
 只能引用本帧targets中的id，禁止编造坐标。战斗出牌必须使用drag，fromId是手牌，targetId是敌人或空地；不要click手牌来出牌。技能拖至画面空地目标，攻击拖到敌人。仅见放大的单张牌、暗色遮罩或查看升级时是卡牌详情，不是战斗，先关闭详情。选牌详情后还须点击确认勾号。卡牌看不清先hover展开；动画或未知画面wait。结局terminal必须stop，不开下一局。菜单可进入单人游戏，禁止放弃/删除/多人/设置。注意魂缚、不可抽牌、能量、意图、确认按钮。连续无变化要改变方法，不盲目重复。计划不能说成已经成功。` },
       { role:'user', content:JSON.stringify({ currentActionOptions:actionOptions(view,history), view:plannerObservation(view), inspectionContext:inspectionContext(view,history),
@@ -280,9 +294,17 @@ inspectionContext是本段仅悬停期间已读清牌面的比较笔记，不是
     return this.snapshot();
   }
   async loop(signal) {
-    const history = []; let idle = 0, repeated = 0, previous = '', hoveredPoint = null, navigationObservations = 0, dragPreparations = 0;
+    const history = []; let idle = 0, repeated = 0, previous = '', hoveredPoint = null, navigationObservations = 0, dragPreparations = 0, pendingHoverFrame = null;
     const log = data => fs.appendFileSync(this.state.logFile,JSON.stringify({at:new Date().toISOString(),...data})+'\n');
-    const call = async (route, body) => { signal.throwIfAborted(); return this.request(route,body,signal,this.token); };
+    const timed = async (phase, details, work) => {
+      const started=performance.now();let ok=false;
+      try { const value=await work();ok=true;return value; }
+      finally { log({event:'timing',phase,...details,elapsedMs:Math.round(performance.now()-started),ok}); }
+    };
+    const call = async (route, body) => {
+      signal.throwIfAborted();
+      return timed(route,{mode:body?.target?'grounding':body?.mode,kind:body?.kind,frameId:body?.frameId},()=>this.request(route,body,signal,this.token));
+    };
     let health = await call('vision-state');
     for (let attempt=0; (!health.ready || health.busy) && attempt<30; attempt++) {
       this.state.stage='waiting-for-vision';
@@ -296,8 +318,9 @@ inspectionContext是本段仅悬停期间已读清牌面的比较笔记，不是
       if (fs.existsSync(path.join(BASE,'STOP_INPUT'))) throw Error('本地执行器已停止');
       const personaId = this.persona().id;
       this.state.stage='capturing';
-      let frame;
-      for (let attempt=0; ; attempt++) {
+      let frame=postHoverFrame(pendingHoverFrame);pendingHoverFrame=null;
+      if(frame)log({event:'post_hover_frame_reused',frameId:frame.id});
+      for (let attempt=0; !frame; attempt++) {
         try { frame = await call('action',{kind:'capture'}); break; }
         catch (e) {
           // A browser button can still own focus while the first CLI activates.
@@ -309,7 +332,7 @@ inspectionContext是本段仅悬停期间已读清牌面的比较笔记，不是
           signal.throwIfAborted();
         }
       }
-      if (!frame.id || frame.status !== 'captured_only') throw Error('未获得可用游戏截图');
+      if (!frame.id || !['captured_only','awaiting_visual_review'].includes(frame.status)) throw Error('未获得可用游戏截图');
       this.state.stage='seeing';
       let vision, view, mapPixelsVerified=false;
       for (let attempt=0; attempt<2; attempt++) {
@@ -417,7 +440,7 @@ inspectionContext是本段仅悬停期间已读清牌面的比较笔记，不是
       this.state.lastObservation = view; this.state.frameId=frame.id; this.state.stage='role-thinking';
       let decision, action;
       for (let attempt=0;attempt<2;attempt++) {
-        decision = await this.plan(view,history,signal);
+        decision = await timed('planner',{frameId:frame.id},()=>this.plan(view,history,signal));
         signal.throwIfAborted();
         if (this.persona().id !== personaId) throw Error('角色已切换，请重新启动以使用新角色');
         try {
@@ -493,6 +516,7 @@ inspectionContext是本段仅悬停期间已读清牌面的比较笔记，不是
         if(result.status!=='awaiting_visual_review')throw Error(result.error || '出牌起点准备移动中止');
         history.push({before:view,decision:{kind:'hover',targetId:decision.fromId},preparationOnly:true,result:{id:result.id,status:result.status},verification:'await_next_observation'});
         hoveredPoint=action.from;
+        pendingHoverFrame=postHoverFrame(result);
         this.state.lastExecution={kind:'hover',preparationOnly:true,requestedKind:'drag',resultId:result.id};
         log({event:'drag_source_prepared',frameId:frame.id,fromId:decision.fromId,point:action.from,resultId:result.id,buttonsPressed:false,verified:false});
         this.state.stage='observing-next-frame';await this.pause(1000);continue;
@@ -511,10 +535,11 @@ inspectionContext是本段仅悬停期间已读清牌面的比较笔记，不是
       this.state.lastExecution={kind:action.kind,preparationOnly:false,resultId:result.id};
       if(!['hover','wait'].includes(action.kind))dragPreparations=0;
       hoveredPoint=decision.kind==='hover'&&view.targets.find(t=>t.id===decision.targetId)?.kind==='card'?action.to:null;
+      if(action.kind==='hover')pendingHoverFrame=postHoverFrame(result);
       log({event:'input_completed',resultId:result.id,verified:false});
       this.state.stage='observing-next-frame'; await this.pause(1000);
     }
     this.state.stage='step-limit';
   }
 }
-module.exports = { NativeAutonomy, observation, actionFor, attachInspectedCard, collapseRepeatedTargets, actionOptions, attachGroundedCard, plannerObservation, plannerHistory, groundedMapObservation, attachPlayerFacts, mergeHudHealth, nativePlanningOptions, inspectionContext, groundedCardHover };
+module.exports = { NativeAutonomy, observation, actionFor, attachInspectedCard, collapseRepeatedTargets, actionOptions, attachGroundedCard, plannerObservation, plannerHistory, groundedMapObservation, attachPlayerFacts, mergeHudHealth, nativePlanningOptions, inspectionContext, groundedCardHover, postHoverFrame };

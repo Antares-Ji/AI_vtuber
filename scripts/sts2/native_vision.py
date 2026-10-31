@@ -132,6 +132,7 @@ targets是数组，每项必须包含id、label、point、enabled四个字段。
                 messages=[{'role':'user','content':[{'type':'image','image':im},{'type':'text','text':prompt}]}]
                 inputs=processor.apply_chat_template(messages,tokenize=True,add_generation_prompt=True,return_dict=True,return_tensors='pt').to(model.device)
                 with torch.inference_mode():tokens=model.generate(**inputs,max_new_tokens=800 if scene_mode else 350,do_sample=False,repetition_penalty=1.08,max_time=60)
+                generated_tokens=int(tokens.shape[1]-inputs.input_ids.shape[1])
                 raw=processor.batch_decode(tokens[:,inputs.input_ids.shape[1]:],skip_special_tokens=True)[0]
                 try:parsed=json.loads(raw.removeprefix('```json').removeprefix('```').removesuffix('```').strip())
                 except json.JSONDecodeError:parsed=None
@@ -206,7 +207,7 @@ targets是数组，每项必须包含id、label、point、enabled四个字段。
                 if target and isinstance(parsed,dict):
                     point=parsed.get('target_point')
                     if parsed.get('target_visible') is True and isinstance(point,list) and len(point)==2 and all(type(v) in (int,float) and 0<=v<=1000 for v in point):parsed['target_center']=[v/1000 for v in whole_point(point,crop)]
-                result={'source_image':str(file),'original_size':original,'crop':crop,'target':target,'mode':body.get('mode') or 'card','model':state['model'],'precision':state['precision'],'seconds':round(time.monotonic()-started,2),'raw':raw,'parsed':parsed,'ocr_check':ocr_check,'normalization_error':normalization_error,'verification':'unverified_local_model_output','training_performed':False}
+                result={'source_image':str(file),'original_size':original,'crop':crop,'target':target,'mode':body.get('mode') or 'card','generated_tokens':generated_tokens,'model':state['model'],'precision':state['precision'],'seconds':round(time.monotonic()-started,2),'raw':raw,'parsed':parsed,'ocr_check':ocr_check,'normalization_error':normalization_error,'verification':'unverified_local_model_output','training_performed':False}
                 if candidates is not None:result['pixel_candidates']=candidates
                 record_dir=ROOT/'runtime/genshin/learning' if genshin_mode else OUT
                 record_dir.mkdir(parents=True,exist_ok=True)
