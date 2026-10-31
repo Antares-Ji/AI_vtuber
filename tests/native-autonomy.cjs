@@ -38,6 +38,38 @@ test('native role planning enables bounded thinking and validates explicit overr
 const view = { scene:'battle',summary:'hand',frameId:'1',energy:1,targets:[{id:'card',kind:'card',label:'打击',point:[400,900],card:{name:'打击',cost:1,type:'攻击',description:'造成6点伤害。',observedFrameId:'1'}},{id:'enemy',kind:'enemy',label:'敌人',point:[700,500]}] };
 const visionFor = (body, current=view) => body.mode==='energy' ? {energy:1} : body.mode==='battle' ? {...current,targets:current.targets.filter(t=>t.kind!=='card')} : body.mode==='hand' ? {...current,targets:current.targets.filter(t=>t.kind==='card')} : current;
 const groundedMap=()=>({parsed:{scene:'map',targets:[{id:'N1',label:'问号',point:[410,509],grounding:'local_cv_qwen',directly_connected:true}],map_grounding:{source:'local_cv_qwen',marker_id:'R1',marker_point:[412,630]}},pixel_candidates:{red:[{id:'R1',point:[412,630]}],dark:[{id:'N1',point:[410,509]}]}});
+test('fully read OCR card drags from a separately located current-frame interior, not its title',async()=>{
+  let input,locations=0;
+  const current={...view,targets:[{...view.targets[0],name_source:'local_ocr',point:[387.48,640.74]},view.targets[1]]};
+  const agent=new NativeAutonomy({pause:async()=>{},decide:async()=>({kind:'drag',fromId:'card',targetId:'enemy'}),request:async(route,body)=>{
+    if(route==='vision-state')return {ready:true,sceneSupport:true};
+    if(route==='read-card'){
+      if(body.target){locations++;assert.equal(body.frameId,'1');assert.match(body.target,/可拖拽牌面内部/);return {parsed:{target_visible:true,target_center:[.3858,.7635]}};}
+      return {parsed:visionFor(body,current)};
+    }
+    if(body.kind==='capture')return {id:'1',status:'captured_only'};
+    input=body;return {id:'input',status:'awaiting_visual_review'};
+  }});
+  agent.start({maxSteps:1});await agent.task;
+  assert.equal(agent.state.stage,'step-limit');assert.equal(locations,1);
+  assert.deepEqual(input,{kind:'drag',from:[.3858,.7635],to:[.7,.5],frameId:'1'});
+});
+test('missing drag-source interior never falls back to the OCR title and asks the role once',async()=>{
+  let plans=0,inputs=0;
+  const current={...view,targets:[{...view.targets[0],name_source:'local_ocr'},view.targets[1]]};
+  const agent=new NativeAutonomy({pause:async()=>{},decide:async(v,h)=>{
+    if(++plans===1)return {kind:'drag',fromId:'card',targetId:'enemy'};
+    assert.equal(v.targets.find(t=>t.id==='card').enabled,false);
+    assert.deepEqual(actionOptions(v,h).cards[0].allowed,[]);return {kind:'stop'};
+  },request:async(route,body)=>{
+    if(route==='vision-state')return {ready:true,sceneSupport:true};
+    if(route==='read-card')return body.target?{parsed:{target_visible:false,target_center:null}}:{parsed:visionFor(body,current)};
+    if(body.kind==='capture')return {id:'1',status:'captured_only'};
+    inputs++;return {id:'input',status:'awaiting_visual_review'};
+  }});
+  agent.start({maxSteps:1});await agent.task;
+  assert.equal(plans,2);assert.equal(inputs,0);assert.equal(agent.state.stage,'finished');
+});
 test('unusable card localization disables only that frame target before one role replan',async()=>{
   let plans=0,locations=0;const inputs=[];
   const current={...view,targets:[{...view.targets[0],name_source:'local_ocr'},view.targets[1]]};

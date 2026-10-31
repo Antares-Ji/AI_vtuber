@@ -397,27 +397,32 @@ inspectionContext是本段仅悬停期间已读清牌面的比较笔记，不是
           history.push({decision,rejected:true,error:error.message,note:'尚未发送任何键鼠输入，重新依据可用动作规划。'});
           continue;
         }
-        const hoverCard=decision.kind==='hover'&&view.scene==='battle'?view.targets.find(t=>t.id===decision.targetId&&t.kind==='card'&&t.name_source==='local_ocr'):null;
-        if(hoverCard) {
-          this.state.stage='card-hover-grounding';
-          const column=hoverCard.point[0]/1000;
+        const cardAction=['hover','drag'].includes(decision.kind)&&view.scene==='battle';
+        const cardId=decision.kind==='drag'?decision.fromId:decision.targetId;
+        const interactionCard=cardAction?view.targets.find(t=>t.id===cardId&&t.kind==='card'&&t.name_source==='local_ocr'):null;
+        if(interactionCard) {
+          this.state.stage=`card-${decision.kind}-grounding`;
+          const column=interactionCard.point[0]/1000;
           const crop=[Math.max(0,column-.12),.5,Math.min(1,column+.12),1];
           // Transport failures and cancellation terminate the run. Only a
           // completed but unusable localization can ask the planner again.
-          const located=await call('read-card',{frameId:frame.id,crop,target:`裁剪图中央附近、牌名为${JSON.stringify(hoverCard.card.name)}的手牌可见内部中心，避开牌名外缘、相邻卡牌和帮助浮窗。只定位这张牌实际露出的可悬停区域；有多张同名牌且无法确定则返回不可见。`});
+          const target=decision.kind==='drag'
+            ? `当前放大、牌名为${JSON.stringify(interactionCard.card.name)}的可拖拽牌面内部中心；排除牌名标题边缘、相邻卡牌和帮助浮窗。看不清实际牌面则返回不可见。`
+            : `裁剪图中央附近、牌名为${JSON.stringify(interactionCard.card.name)}的手牌可见内部中心，避开牌名外缘、相邻卡牌和帮助浮窗。只定位这张牌实际露出的可悬停区域；有多张同名牌且无法确定则返回不可见。`;
+          const located=await call('read-card',{frameId:frame.id,crop,target});
           signal.throwIfAborted();
           if(this.persona().id!==personaId)throw Error('角色已切换，请重新启动以使用新角色');
-          try { action={...action,to:groundedCardHover(view,hoverCard.id,located.parsed)}; }
+          try { action={...action,[decision.kind==='drag'?'from':'to']:groundedCardHover(view,interactionCard.id,located.parsed)}; }
           catch(error) {
-            view={...view,targets:view.targets.map(t=>t.id===hoverCard.id?{...t,enabled:false,groundingError:error.message}:t)};
+            view={...view,targets:view.targets.map(t=>t.id===interactionCard.id?{...t,enabled:false,groundingError:error.message}:t)};
             this.state.lastObservation=view;
-            log({event:'rejected_card_hover',frameId:frame.id,decision,targetId:hoverCard.id,record:located.record,error:error.message,inputSent:false});
+            log({event:`rejected_card_${decision.kind}`,frameId:frame.id,decision,targetId:interactionCard.id,record:located.record,error:error.message,inputSent:false});
             if(attempt===1)throw error;
             history.push({before:view,decision,rejected:true,error:error.message,note:'该目标在本帧不可用，尚未发送输入。由角色重新选择其他合法动作或停止。'});
             this.state.stage='role-replanning';
             continue;
           }
-          log({event:'card_hover_grounded',frameId:frame.id,targetId:hoverCard.id,point:action.to,record:located.record});
+          log({event:`card_${decision.kind}_grounded`,frameId:frame.id,targetId:interactionCard.id,point:decision.kind==='drag'?action.from:action.to,record:located.record});
         }
         break;
       }
