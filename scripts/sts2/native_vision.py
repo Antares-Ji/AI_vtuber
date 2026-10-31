@@ -29,6 +29,7 @@ def main():
     lock=threading.Lock();OUT.mkdir(parents=True,exist_ok=True)
     state={'ready':True,'busy':False,'sceneSupport':True,'handSupport':True,'battleSupport':True,'mapGroundingSupport':True,'playerSupport':True,'playerOcrCheck':a.ocr_check,'handOcrCheck':a.ocr_check,'battleOcrCheck':a.ocr_check,'cardOcrCheck':a.ocr_check,'model':model_dir.name,'precision':'NF4' if a.four_bit else 'BF16 CPU offload','source':'local_weights','last':None}
     state['genshinSceneSupport']=True
+    state['selectionOcrCheck']=a.ocr_check
     class Handler(BaseHTTPRequestHandler):
         def log_message(self,*args): pass
         def reply(self,code,obj):
@@ -88,6 +89,7 @@ def main():
                 if body.get('mode')=='scene':
                     prompt='''读取当前游戏截图，返回一个紧凑JSON对象，只包含scene、summary、targets三个字段。scene从battle、map、room、selection、event、reward、shop、rest、treasure、menu、terminal、unknown中选择；summary用最多20字描述当前界面。战斗后搜刮金币、药水或卡牌的面板是reward；故事文本及分支选项是event；结局是terminal。只有显示纸面路线、节点和连线网络才是map。玩家站在洞穴或房间里且战斗结束、没有敌人，右侧有前进箭头，是room；列出前进按钮，不能当作地图节点。
 targets是数组，每项必须包含id、label、point、enabled四个字段。id依次为t1、t2等字符串。label必须写实际可见的选项或按钮文字；point必须是两个整数的数组，分别为相对整张图片0至1000的横、纵坐标；enabled为布尔。最多8个目标，每个目标独立定位。无标签的坐标不能作为目标。奖励界面逐项读出奖励文字和继续按钮。卡牌详情弹窗列关闭按钮或可关闭的外围空白。战斗、地图只须说明场景，可返回空targets，将由专门观察器进一步读取。不得输出名为points的字段，不要照抄格式说明。
+优先识别选牌面板：中央标题“选择一张牌”，下方并排展示独立完整卡牌，底部有“跳过”或确认按钮时，scene是selection，不是battle。背景仍有洞穴或角色不代表正在战斗；这些中央候选不是底部扇形手牌。selection必须逐项列出实际可见候选的牌名、清楚可见的规则文字和牌面内部中心，并列出跳过/确认按钮；看不清的文字标为未知，禁止凭游戏知识补全。
 “结束第1回合”“结束回合”是战斗中可点击的按钮文字，不表示回合或战斗已经结束。只要底部有手牌、右下有这个按钮，就是battle；悬停使一张手牌变大仍是battle，不是room或结算。room必须没有手牌和结束回合按钮。
 最后检查：scene为battle或map时，targets必须是空数组[]，禁止枚举手牌、敌人或地图节点，专门观察器会另读；这一步只判断场景。'''
                 if body.get('mode')=='map':
@@ -182,6 +184,18 @@ targets是数组，每项必须包含id、label、point、enabled四个字段。
                         else:
                             parsed=None
                             normalization_error='Hand OCR unavailable: '+str(ex)
+                if a.ocr_check and body.get('mode')=='scene' and isinstance(parsed,dict) and parsed.get('scene')=='selection':
+                    from native_selection_ocr import corroborate_selection
+                    try:
+                        request=urllib.request.Request('http://127.0.0.1:17647/read',data=json.dumps({'image':str(file),'crop':[0,0,1,1]}).encode(),headers={'Content-Type':'application/json'})
+                        with urllib.request.urlopen(request,timeout=5) as response:ocr=json.loads(response.read(1048577))
+                        if Path(ocr.get('source_image','')).resolve()!=file or ocr.get('crop')!=[0,0,1,1]:raise ValueError('OCR frame or crop mismatch')
+                        checked=corroborate_selection(parsed,ocr)
+                        ocr_check={**checked['ocr_check'],'record':ocr.get('record'),'model':ocr.get('model')}
+                        parsed={**checked,'ocr_check':ocr_check}
+                    except Exception as ex:
+                        ocr_check={'status':'unavailable','reason':str(ex)}
+                        parsed={'scene':'unknown','summary':'选牌文字未能独立核对','targets':[],'ocr_check':ocr_check}
                 if target and isinstance(parsed,dict):
                     point=parsed.get('target_point')
                     if parsed.get('target_visible') is True and isinstance(point,list) and len(point)==2 and all(type(v) in (int,float) and 0<=v<=1000 for v in point):parsed['target_center']=[v/1000 for v in whole_point(point,crop)]

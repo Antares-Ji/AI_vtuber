@@ -29,6 +29,7 @@ jobs:
       - run: python tests/test_native_hand_ocr.py
       - run: python tests/test_native_battle_ocr.py
       - run: python tests/test_native_card_ocr.py
+      - run: python tests/test_native_selection_ocr.py
       - run: python tests/test_genshin_observe.py
       - run: python tests/test_genshin_launch.py
       - run: python tests/test_native_pointer.py
