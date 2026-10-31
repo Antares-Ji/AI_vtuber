@@ -41,16 +41,31 @@ def corroborate_hand(parsed, ocr):
     for i,j in pairs:
         alt_count,alt_cost,_=assignment((i,j))
         if alt_count<count or alt_cost-cost>=15:confirmed[i]=j
-    result=[];matched=0
+    # Costs are small upper-left badges. A number in an expanded rule paragraph
+    # or another card must not become a trusted affordability observation.
+    digits=[(int(text),[(x0+x1)/2,(y0+y1)/2])
+            for text,score,(x0,y0,x1,y1) in ocr_lines(ocr)
+            if score>=.9 and re.fullmatch(r'\d{1,2}',text)]
+    cost_candidates={j:[k for k,(_,point) in enumerate(digits)
+                        if 25<=title[0]-point[0]<=100 and -60<=point[1]-title[1]<=20]
+                     for j,(_,title) in enumerate(titles)}
+    owners={k:[j for j,items in cost_candidates.items() if k in items] for k in range(len(digits))}
+    result=[];matched=0;matched_costs=0
     for i,target in enumerate(targets):
         j=confirmed.get(i)
         # An unmatched or ambiguous VLM name remains unknown. OCR titles are
-        # data only; no costs, rules, frame authority or actions are inferred.
-        name=None;point=target['point']
+        # data only; no rules, frame authority or actions are inferred. A cost
+        # requires agreement with one badge having only one possible title.
+        name=None;point=target['point'];cost=None
         if j is not None:
             name,point=titles[j];matched+=1
+            candidates=cost_candidates[j]
+            visual_cost=target['card'].get('cost')
+            if len(candidates)==1 and len(owners[candidates[0]])==1 and type(visual_cost) is int and visual_cost==digits[candidates[0]][0]:
+                cost=visual_cost;matched_costs+=1
         result.append({**target,'label':name or '未读清的手牌','point':point,
-                       'card':{'name':name,'cost':target['card'].get('cost'),'type':None,'description':None},
+                       'card':{'name':name,'cost':cost,'type':None,'description':None},
+                       'cost_source':'local_vlm_ocr' if cost is not None else 'unknown',
                        'name_source':'local_ocr' if name else 'unknown'})
-    return {**parsed,'targets':result,'ocr_check':{'status':'corroborated' if matched==len(targets) and not rejected else 'partial_or_unknown',
-            'matched_titles':matched,'rejected_status_targets':rejected,'reason':'unique_current_frame_title_association'}}
+    return {**parsed,'targets':result,'ocr_check':{'status':'corroborated' if matched==matched_costs==len(targets) and not rejected else 'partial_or_unknown',
+            'matched_titles':matched,'matched_costs':matched_costs,'rejected_status_targets':rejected,'reason':'current_frame_title_and_cost_association'}}
