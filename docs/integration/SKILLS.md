@@ -4,8 +4,10 @@
 
 | Skill | 模式 | 用途 |
 | --- | --- | --- |
+| [mcplayer:native-status](../../skills/mcplayer/native-status/README.md) | read | 读取原生 MC 导演任务 API、当前存档标识及任务占用状态。 |
+| [mcplayer:native-play](../../skills/mcplayer/native-play/README.md) | live | 导演控制台通过本地 API 提交目标，由原版 DeepSeek、AgentHarness、原生动作及服务端回执完成任务。 |
 | [mcplayer:harness-demo](../../skills/mcplayer/harness-demo/README.md) | simulation | 运行原版 Java AgentHarness 的确定性演示，保留原始验收与任务记录。 |
-| [mcplayer:inspect-profile](../../skills/mcplayer/inspect-profile/README.md) | read | 查看 ZIP 的版本化示例配置与原生 Skill 清单；实际 MC 继续使用 F8/F9。 |
+| [mcplayer:inspect-profile](../../skills/mcplayer/inspect-profile/README.md) | read | 查看 ZIP 的版本化示例配置与原生 Skill 清单。 |
 | [minecraft:legacy-status](../../skills/minecraft/legacy-status/README.md) | read | 读取本地 Mineflayer 兼容后端、反射与自主任务状态。 |
 | [minecraft:legacy-play](../../skills/minecraft/legacy-play/README.md) | live | 保留 Mineflayer 生存反射、脱困、任务复盘及解说；与原生 MC 后端分开运行。 |
 | [sts2:knowledge](../../skills/sts2/knowledge/README.md) | read | 检索现有卡牌知识、人工核验经验与条件化复盘，不重新训练或覆盖资料。 |

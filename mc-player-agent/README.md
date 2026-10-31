@@ -1,5 +1,7 @@
 # MC Player Agent
 
+整合版新增可选的[本地导演任务 API](docs/DIRECTOR_API.md)，默认关闭。它只提交目标和停止请求，继续复用原生 Harness、DeepSeek 与服务器验收；F8/F9 入口保留。新增代码属于本地整合扩展，不属于原 ZIP 内容，实际客户端验收仍待单独记录。
+
 **以 Minecraft 为首个环境的可扩展 agent harness：把模型计划变成可中断、有回执、有验收的玩家任务。**
 
 Extensible agent harness, starting with Minecraft 1.21.1: a headless Java core, configurable profiles, registered skills, and Fabric / NeoForge adapters.

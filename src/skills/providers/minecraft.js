@@ -3,9 +3,23 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { objectArgs, textArg, intArg } = require('../registry');
 const { remoteRun } = require('../local-client');
+const { configuredClient, nativeMission } = require('../mc-native-client');
 function register(registry, { root, dataRoot, env, main, sts2, runProcess }) {
   const add = definition => registry.register({ version: '1', ...definition });
   const noArgs = a => objectArgs(a, []);
+  add({ id: 'mcplayer:native-status', game: 'minecraft', mode: 'read', validate: noArgs,
+    description: '读取原生 MC 导演任务 API、当前存档标识及任务占用状态。',
+    execute: (a, { signal }) => configuredClient(dataRoot, env)('/status', undefined, signal) });
+  add({ id: 'mcplayer:native-play', game: 'minecraft', mode: 'live', resources: ['desktop', 'minecraft'],
+    description: '导演控制台通过本地 API 提交目标，由原版 DeepSeek、AgentHarness、原生动作及服务端回执完成任务。',
+    arguments: { goal: 'string', worldId: 'native-status 返回的当前存档 SHA256', durationMinutes: '1..20' },
+    validate(a) {
+      objectArgs(a, ['goal', 'worldId', 'durationMinutes']);
+      if (typeof a.worldId !== 'string' || !/^[0-9a-f]{64}$/.test(a.worldId)) throw Error('Explicit worldId from native-status is required');
+      return { goal: textArg(a.goal, 'goal', '', 1000), worldId: a.worldId,
+        durationMinutes: intArg(a.durationMinutes, 'durationMinutes', 5, 20) };
+    },
+    execute: (args, context) => nativeMission({ request: configuredClient(dataRoot, env), args, ...context }) });
   add({ id: 'mcplayer:harness-demo', game: 'minecraft', mode: 'simulation', resources: ['mcplayer-demo'],
     description: '运行原版 Java AgentHarness 的确定性演示，保留原始验收与任务记录。',
     validate: noArgs, async execute(args, { signal, jobId }) {
@@ -19,10 +33,10 @@ function register(registry, { root, dataRoot, env, main, sts2, runProcess }) {
       return { ...result, simulated: true, verified: false, note: 'Original harness VERIFIED in simulation only.' };
     } });
   add({ id: 'mcplayer:inspect-profile', game: 'minecraft', mode: 'read',
-    description: '查看 ZIP 的版本化示例配置与原生 Skill 清单；实际 MC 继续使用 F8/F9。',
+    description: '查看 ZIP 的版本化示例配置与原生 Skill 清单。',
     validate: noArgs, async execute() {
       const profile = JSON.parse(fs.readFileSync(path.join(root, 'mc-player-agent/examples/profiles/collector.json'), 'utf8'));
-      return { profile, transport: 'native-client-F8-F9', remoteControl: false,
+      return { profile, transport: 'native-client-F8-F9-or-opt-in-director-api', remoteControl: 'requires-local-configuration',
         docs: 'mc-player-agent/docs/EXTENSIONS.md' };
     } });
   add({ id: 'minecraft:legacy-status', game: 'minecraft', mode: 'read',

@@ -21,6 +21,7 @@ jobs:
       - run: npm ci --ignore-scripts
       - run: npm ci --prefix integrations/sts2-mcp --ignore-scripts
       - run: python scripts/check-mc-import.py
+      - run: python tests/test_mc_import.py
       - run: python tests/test_learning_preservation.py
       - run: python tests/test_native_vision_schema.py
       - run: python tests/test_native_model_config.py

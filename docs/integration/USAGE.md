@@ -1,6 +1,6 @@
 # 整合版使用与扩展
 
-先看 [架构与取舍](ARCHITECTURE.md) 和 [验证记录](VALIDATION.md)。现有主播服务、尖塔服务、原神探索命令保留。MC 原生项目按 [原说明](../../mc-player-agent/README.md) 独立构建、安装和用 F8/F9 操作。
+先看 [架构与取舍](ARCHITECTURE.md) 和 [验证记录](VALIDATION.md)。现有主播服务、尖塔服务、原神探索命令保留。MC 原生项目按 [原说明](../../mc-player-agent/README.md) 独立构建安装，F8/F9 和可选的导演任务 API 均保留。
 
 ## 统一入口
 
@@ -41,6 +41,16 @@ npm run skills -- run sts2:native-play --args play.json --live
 `minecraft:legacy-play` 参数示例：`{"goal":"收集木头并确保安全","durationMinutes":5}`，先按现有 MC 文档启动 Mineflayer 服务，再加 `--live` 调用。不要同时启动原生 MC 接管同一玩家。
 
 ## Java 基线与原始仓库工具
+
+原生 MC 的导演接入需先在对应游戏目录启用[本地任务 API](../../mc-player-agent/docs/DIRECTOR_API.md)，进入用户选定的存档，并配置原项目的 DeepSeek 凭据。在主工程本地创建 `data/mcplayer.local.json`：
+
+```json
+{"endpoint":"http://127.0.0.1:17650","tokenFile":"D:/YOUR_GAME/config/mcplayeragent/client/director-token.txt"}
+```
+
+替换为该安装实际生成的令牌文件路径，不把令牌文本粘贴进网页。此配置和令牌均忽略上传；可用 `MCPLAYER_DIRECTOR_CONFIG` 指定配置路径。配置默认从 `AIVTUBER_LOCAL_DATA_ROOT` 指向的工程读取。
+
+通过 `mcplayer:native-status` 读取当前 `worldName`、`worldId`、就绪状态；明确选择该存档后，将 `{"goal":"收集木头并确保安全","worldId":"返回的64位存档标识","durationMinutes":5}` 保存到参数文件，再运行 `npm run skills -- run mcplayer:native-play --args mission.json --live`。实际任务由同一导演 Skill API 承接，MC 保持前台且没有打开菜单；模型仍由原 PlayerControl 调用 DeepSeek。任务结果保留原生 Harness 状态，外层不会把“输入结束”解释为通关。客户端实机验收尚未完成。
 
 ```sh
 python scripts/check-mc-import.py
