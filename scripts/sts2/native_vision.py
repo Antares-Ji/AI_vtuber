@@ -234,9 +234,21 @@ targets是数组，每项必须包含id、label、point、enabled四个字段。
                         parsed=corroborate_terminal(parsed,ocr)
                         ocr_check={**parsed['ocr_check'],'record':ocr.get('record'),'model':ocr.get('model')}
                         parsed['ocr_check']=ocr_check
+                        from native_button_ocr import chapter_story
+                        parsed=chapter_story(parsed,ocr)
                     except Exception as ex:
                         parsed=corroborate_terminal(parsed,{})
                         ocr_check={'status':'unavailable','reason':str(ex)};parsed['ocr_check']=ocr_check
+                if a.ocr_check and body.get('mode')=='scene' and isinstance(parsed,dict) and parsed.get('scene') in ('menu','event','reward','shop','rest','treasure','room'):
+                    from native_button_ocr import ground_buttons,BUTTONS
+                    if any(t.get('label') in BUTTONS for t in parsed.get('targets',[])):
+                        try:
+                            request=urllib.request.Request('http://127.0.0.1:17647/read',data=json.dumps({'image':str(file),'crop':[0,0,1,1]}).encode(),headers={'Content-Type':'application/json'})
+                            with urllib.request.urlopen(request,timeout=5) as response:ocr=json.loads(response.read(1048577))
+                            if Path(ocr.get('source_image','')).resolve()!=file or ocr.get('crop')!=[0,0,1,1]:raise ValueError('OCR frame or crop mismatch')
+                            parsed=ground_buttons(parsed,ocr);parsed['button_ocr_record']=ocr.get('record')
+                        except Exception as ex:
+                            parsed=ground_buttons(parsed,{});parsed['button_ocr_error']=str(ex)
                 if target and isinstance(parsed,dict):
                     point=parsed.get('target_point')
                     if parsed.get('target_visible') is True and isinstance(point,list) and len(point)==2 and all(type(v) in (int,float) and 0<=v<=1000 for v in point):parsed['target_center']=[v/1000 for v in whole_point(point,crop)]

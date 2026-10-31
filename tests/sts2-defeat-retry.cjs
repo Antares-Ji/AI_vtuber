@@ -1,6 +1,10 @@
 const test=require('node:test'),assert=require('node:assert/strict');
 const {NativeAutonomy,actionFor}=require('../src/sts2/native-autonomy');
 const defeat=()=>({scene:'terminal',terminal_outcome:'defeat',ocr_check:{status:'corroborated',scope:'terminal_defeat'},targets:[{id:'continue',label:'继续',point:[500,820],enabled:true,defeat_continue_checked:true}]});
+test('current profile management is not a game-start action',()=>{
+ for(const label of ['存档1','存档 2','新建存档','点击编辑','退出'])assert.throws(()=>actionFor({kind:'click',targetId:'t'},{scene:'menu',targets:[{id:'t',label,point:[100,100]}]}));
+ assert.equal(actionFor({kind:'click',targetId:'t'},{scene:'menu',targets:[{id:'t',label:'单人模式',point:[100,100]}]}).kind,'click');
+});
 test('terminal continuation is opt-in and allows only the corroborated continue click',()=>{
  const view={...defeat(),retry_after_defeat:true};
  assert.deepEqual(actionFor({kind:'click',targetId:'continue'},view),{kind:'click',to:[.5,.82]});
