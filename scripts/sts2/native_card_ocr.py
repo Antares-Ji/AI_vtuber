@@ -66,6 +66,15 @@ def corroborate_card(parsed, ocr):
         return reject('missing_ocr_lines')
     lines = [line for line in ocr_lines(ocr) if line[1] >= .9]
     titles = [line for line in lines if compact(line[0]) == compact(card['name'])]
+    if len(titles) > 1:
+        # Hover lifts one title above the remaining fanned hand. Duplicate
+        # names alone are not a conflict when exactly one title is clearly
+        # raised. Still require its own complete type/rules below, and leave
+        # input ownership/location to current-frame grounding in the caller.
+        raised = [title for title in titles if all(
+            other is title or other[2][1] - title[2][3] >= 80
+            for other in titles)]
+        titles = raised
     if len(titles) != 1:
         return reject('ambiguous_or_missing_card_title')
     _, _, (x0, y0, x1, y1) = titles[0]

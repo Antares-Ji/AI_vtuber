@@ -44,6 +44,18 @@ class CardOcrTests(unittest.TestCase):
         for title in ([], [line('愤怒', score=.89)], [line('愤怒'), line('愤怒', x=650)]):
             self.assertTrue(corroborate_card(self.card, {'lines': title+self.ocr['lines'][1:]})['uncertain'])
 
+    def test_raised_duplicate_title_requires_its_own_complete_rules(self):
+        # Same-name folded neighbors must not invalidate the single fully
+        # expanded card, but same-height/close titles remain ambiguous.
+        for y in (720,820):
+            evidence=copy.deepcopy(self.ocr)
+            evidence['lines'] += [line('愤怒',x=650,y=y),line('愤怒',x=350,y=y)]
+            self.assertFalse(corroborate_card(self.card,evidence)['uncertain'])
+            evidence['lines']=[item for item in evidence['lines'] if item['text']!='攻击']
+            self.assertTrue(corroborate_card(self.card,evidence)['uncertain'])
+        evidence=copy.deepcopy(self.ocr);evidence['lines'].append(line('愤怒',x=650,y=699))
+        self.assertTrue(corroborate_card(self.card,evidence)['uncertain'])
+
     def test_truncated_or_conflicting_rules(self):
         self.assertTrue(corroborate_card(self.card, {'lines': self.ocr['lines'][:-1]})['uncertain'])
         partial = copy.deepcopy(self.card)

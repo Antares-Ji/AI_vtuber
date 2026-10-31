@@ -39,3 +39,9 @@ Node视觉传输和现有自主循环测试64项通过，覆盖非官方地址�
 本机证据位于 runtime/game-input/learning：capacity-assessment-deepseek-flash-1793419941903.json、capacity-assessment-Qwen3-VL-4B-Instruct-1793419023125.json、capacity-assessment-Qwen3-VL-8B-Instruct-1793419117727.json。实机试验由导演Skill启动，job=9d06947e-5da2-420e-85d6-d76b7c4fa429，日志autonomy/1793419983818.jsonl。开始时本局3/80生命、第三场战斗未结束；实机结果须依据后续日志另行记录，接口测试不算通关。
 
 接口依据：[DeepSeek官方视觉文档](https://api-docs.deepseek.com/guides/vision/)，2026-10-30核对。
+
+## 同名手牌的核对修正
+
+首轮云端实机任务运行116.6秒后通过Skill停止，用于修复发现的同名牌问题。战场和手牌调用均值已约1.8秒，但手里多个“打击”使旧OCR核对直接拒绝完整展开牌面，继续造成反复悬停。两条实际窄/宽裁剪记录的模型与OCR均读出“打击、攻击、造成6点伤害”，原拒绝原因均为ambiguous_or_missing_card_title。
+
+现在仅当一个同名标题明显上移、其底边与所有其他同名标题顶边至少相隔原图归一化80单位时，把它作为展开牌候选。仍要求该标题下的唯一类型行和完整规则逐项匹配；同高、近邻、缺失规则仍拒绝。动作定位与当帧出牌许可继续独立验证，不因转录通过自动出牌。15项卡牌OCR测试通过，并用上述两条真实记录离线复核。新试验job=a1635fd3-6431-4f39-8818-371defd27ebf，日志autonomy/1793420137785.jsonl。
