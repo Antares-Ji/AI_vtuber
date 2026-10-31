@@ -30,6 +30,7 @@ def main():
     state={'ready':True,'busy':False,'sceneSupport':True,'handSupport':True,'battleSupport':True,'mapGroundingSupport':True,'playerSupport':True,'playerOcrCheck':a.ocr_check,'handOcrCheck':a.ocr_check,'battleOcrCheck':a.ocr_check,'cardOcrCheck':a.ocr_check,'model':model_dir.name,'precision':'NF4' if a.four_bit else 'BF16 CPU offload','source':'local_weights','last':None}
     state['genshinSceneSupport']=True
     state['selectionOcrCheck']=a.ocr_check
+    state['playerHudSupport']=a.ocr_check
     class Handler(BaseHTTPRequestHandler):
         def log_message(self,*args): pass
         def reply(self,code,obj):
@@ -60,6 +61,9 @@ def main():
                 im=im.convert('RGB')
                 if body.get('mode')=='battle' and crop:raise ValueError('Battle mode requires a whole client frame')
                 if body.get('mode')=='battle':crop=[.45,0,1,1]
+                if body.get('mode')=='player-hud':
+                    if crop or body.get('target'):raise ValueError('Player HUD mode requires the whole frame and no target')
+                    crop=[0,0,.5,.2]
                 crop_bounds=(0,0,im.width,im.height)
                 if crop:
                     if len(crop)!=4 or any(type(v) not in (float,int) or not 0<=v<=1 for v in crop) or crop[0]>=crop[2] or crop[1]>=crop[3]:raise ValueError('Invalid crop')
@@ -104,6 +108,8 @@ targets是数组，每项必须包含id、label、point、enabled四个字段。
                     prompt='''观察截图中的战场，返回紧凑JSON对象：scene字段为battle；summary只描述敌人数量；targets为目标数组。每个目标有唯一id、kind、label、point、enabled字段。kind只能是enemy、button或ground，enabled为true。point为两个整数的数组，分别是整图0至1000的水平、竖直坐标。每个敌人单独列出身体中心，label写实际读到的敌人名称、生命数值和头上攻击意图，读不清的部分用未知。另列出可见的结束回合按钮和战场中央的空地。空地不要落在手牌上。不列玩家、不列手牌，不猜伤害，不照抄提示词，最多8个目标。玩家生命、格挡和能量由另一观察器读取，此处不要猜这些数值。'''
                 if body.get('mode')=='player':
                     prompt='''只读玩家角色的生命条与盾牌图标数值。返回紧凑JSON，只含hp、max_hp、block三个字段，都是整数或null。hp与max_hp来自玩家角色下方生命条的分数；block只能来自玩家角色旁盾牌图标上的当前格挡整数。不要读敌人生命、能量球、卡牌费用、卡牌描述或悬停帮助文字。能量分数不是格挡。未明确看到盾牌图标和数字时block为null，不假设为0；任何读不清字段都为null。'''
+                if body.get('mode')=='player-hud':
+                    prompt='''只读取顶部状态栏中紧邻心形生命图标的玩家生命分数。返回紧凑JSON，只含hp、max_hp、block三个字段。hp为分数左侧当前生命整数，max_hp为右侧最大生命整数；未明确看见生命图标及对应分数时两项均为null。忽略金币、层数、能量、卡牌、其他角色和悬停帮助文字，不从其他数字推断生命。此区域没有当前战斗格挡，block必须为null。只依据当前图像，不凭游戏知识补数字。'''
                 if body.get('mode')=='battle':
                     prompt+=' 输入只保留右侧战场，左侧玩家已裁掉；不要补出玩家。所有point相对于当前显示图片归一化到0至1000，不自行还原未显示区域。空地目标用于将技能牌拖离手牌区域：只选战场上半部可见的空白区域，远离角色、敌人、按钮和悬停展开的卡牌；不要选择角色脚下或靠近底部手牌的地面。无法明确定位这种空白区域则省略ground目标，不猜位置。'
                 if body.get('mode')=='hand':
@@ -162,25 +168,25 @@ targets是数组，每项必须包含id、label、point、enabled四个字段。
                     ocr_check={**checked['ocr_check'],'record':(card_ocr or {}).get('record'),'model':(card_ocr or {}).get('model')}
                     if card_ocr_error:ocr_check={'status':'unavailable','reason':card_ocr_error}
                     parsed={**checked,'ocr_check':ocr_check}
-                if body.get('mode')=='player' and parsed is not None:
+                if body.get('mode') in ('player','player-hud') and parsed is not None:
                     try:parsed=player_stats(parsed)
                     except ValueError as ex:
                         normalization_error=str(ex)
                         parsed=None
-                if a.ocr_check and body.get('mode') in ('player','hand','battle') and parsed is not None:
-                    from native_player_ocr import corroborate_player
+                if a.ocr_check and body.get('mode') in ('player','player-hud','hand','battle') and parsed is not None:
+                    from native_player_ocr import corroborate_player,corroborate_player_hud
                     from native_hand_ocr import corroborate_hand
                     from native_battle_ocr import enemy_health
                     try:
                         request=urllib.request.Request('http://127.0.0.1:17647/read',data=json.dumps({'image':str(file),'crop':crop or [0,0,1,1]}).encode(),headers={'Content-Type':'application/json'})
                         with urllib.request.urlopen(request,timeout=5) as response:ocr=json.loads(response.read(1048577))
                         if Path(ocr.get('source_image','')).resolve()!=file or ocr.get('crop')!=(crop or [0,0,1,1]):raise ValueError('OCR frame or crop mismatch')
-                        checked={'player':corroborate_player,'hand':corroborate_hand,'battle':enemy_health}[body['mode']](parsed,ocr)
+                        checked={'player':corroborate_player,'player-hud':corroborate_player_hud,'hand':corroborate_hand,'battle':enemy_health}[body['mode']](parsed,ocr)
                         ocr_check={**checked['ocr_check'],'record':ocr.get('record'),'model':ocr.get('model')}
                         parsed={**checked,'ocr_check':ocr_check}
                     except Exception as ex:
                         ocr_check={'status':'unavailable','reason':str(ex)}
-                        if body.get('mode')=='player':parsed={'player':{'hp':None,'max_hp':None,'block':None},'ocr_check':ocr_check}
+                        if body.get('mode') in ('player','player-hud'):parsed={'player':{'hp':None,'max_hp':None,'block':None},'ocr_check':ocr_check}
                         elif body.get('mode')=='battle':parsed={**enemy_health(parsed,{}),'ocr_check':ocr_check}
                         else:
                             parsed=None

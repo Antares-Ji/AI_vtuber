@@ -1,7 +1,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const { NativeAutonomy, observation, actionFor, attachInspectedCard, collapseRepeatedTargets, actionOptions, attachGroundedCard, plannerObservation, groundedMapObservation, attachPlayerFacts, nativePlanningOptions, inspectionContext } = require('../src/sts2/native-autonomy');
-const { groundedCardHover, plannerHistory } = require('../src/sts2/native-autonomy');
+const { groundedCardHover, plannerHistory, mergeHudHealth } = require('../src/sts2/native-autonomy');
 test('card hover rejects neighboring, ambiguous, missing and distant locator results',()=>{
   const current={scene:'battle',targets:[{id:'left',kind:'card',point:[380,845]},{id:'middle',kind:'card',point:[500,730]},{id:'right',kind:'card',point:[620,845]}]};
   assert.deepEqual(groundedCardHover(current,'left',{target_visible:true,target_center:[.359,.876]}),[.359,.876]);
@@ -304,6 +304,49 @@ test('varying battle hovers cannot evade the inspection episode budget',async()=
     acted++;return {id:'input',status:'awaiting_visual_review'};
   }});
   agent.start({maxSteps:20});await agent.task;assert.equal(acted,12);assert.equal(agent.state.stage,'error');assert.match(agent.state.lastError,/十二次/);
+});
+test('HUD supplementation keeps known player facts and cannot import block',()=>{
+  const hud={player:{hp:15,max_hp:80,block:99},ocr_check:{status:'corroborated',region:'top_hud',fields:['hp','max_hp']}};
+  const missing={player:{hp:null,max_hp:null,block:5}};
+  assert.deepEqual(mergeHudHealth(missing,hud).player,{hp:15,max_hp:80,block:5});
+  const known={player:{hp:20,max_hp:80,block:null}};
+  assert.equal(mergeHudHealth(known,hud),known);
+  for(const bad of [{...hud,player:{hp:90,max_hp:80}}, {...hud,player:{hp:0,max_hp:0}},
+    {...hud,ocr_check:{...hud.ocr_check,region:'player_region'}}, {...hud,ocr_check:{...hud.ocr_check,status:'unknown'}},
+    {...hud,ocr_check:{...hud.ocr_check,fields:['hp']}}])assert.equal(mergeHudHealth(missing,bad),missing);
+});
+async function hudTrial({known=false,support=true,ocr=true,uncertain=false,failure=false,cancel=false}={}) {
+  let reads=0,plans=0,observed;
+  const agent=new NativeAutonomy({decide:async(current)=>{plans++;observed=current;return {kind:'stop'};},request:async(route,body)=>{
+    if(route==='vision-state')return {ready:true,sceneSupport:true,playerSupport:true,playerHudSupport:support,playerOcrCheck:ocr};
+    if(route==='read-card') {
+      if(body.mode==='player')return {parsed:{player:{hp:known?15:null,max_hp:known?80:null,block:5}}};
+      if(body.mode==='player-hud') {
+        reads++;assert.deepEqual(body,{frameId:'fresh',mode:'player-hud'});
+        if(failure)throw Error('HUD HTTP failure');
+        if(cancel)agent.stop();
+        return {parsed:{player:{hp:15,max_hp:80,block:99},ocr_check:{status:uncertain?'unknown':'corroborated',region:'top_hud',fields:['hp','max_hp']}}};
+      }
+      return {parsed:visionFor(body)};
+    }
+    assert.equal(body.kind,'capture');return {id:'fresh',status:'captured_only'};
+  }});
+  agent.start();await agent.task;return {reads,plans,observed,state:agent.state};
+}
+test('missing player health uses one same-frame HUD API observation before planning',async()=>{
+  const result=await hudTrial();assert.equal(result.reads,1);assert.equal(result.plans,1);
+  assert.deepEqual(result.observed.player,{hp:15,max_hp:80,block:5});
+  const unknown=await hudTrial({uncertain:true});assert.equal(unknown.reads,1);
+  assert.deepEqual(unknown.observed.player,{hp:null,max_hp:null,block:5});
+});
+test('HUD observation is skipped when health is known or required support is missing',async()=>{
+  for(const options of [{known:true},{support:false},{ocr:false}]) {
+    const result=await hudTrial(options);assert.equal(result.reads,0);assert.equal(result.plans,1);
+  }
+});
+test('HUD transport failure and late cancelled response cannot reach planning or input',async()=>{
+  const failed=await hudTrial({failure:true});assert.equal(failed.reads,1);assert.equal(failed.plans,0);assert.match(failed.state.lastError,/HUD HTTP failure/);
+  const cancelled=await hudTrial({cancel:true});assert.equal(cancelled.reads,1);assert.equal(cancelled.plans,0);assert.equal(cancelled.state.stage,'stopped');
 });
 test('player facts do not turn fractional energy or missing shield readings into block',()=>{
   const old={...view,summary:'玩家格挡2/3，卡牌获得5点格挡'};

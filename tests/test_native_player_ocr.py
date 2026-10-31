@@ -2,7 +2,7 @@ import sys
 import unittest
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'scripts/sts2'))
-from native_player_ocr import corroborate_player
+from native_player_ocr import corroborate_player,corroborate_player_hud
 
 def line(text,x=259,y=683,w=36,h=32,score=.99):
     return {'text':text,'confidence':score,'box':[[x,y],[x+w,y],[x+w,y+h],[x,y+h]]}
@@ -29,5 +29,26 @@ class PlayerOCRTests(unittest.TestCase):
             bad=line('75/80');bad['box']=box
             self.assertEqual(self.read([bad]),{'hp':None,'max_hp':None,'block':None})
         self.assertIsNone(self.read([line('75/80'),line('5',215,685,10,25),line('5',230,685,10,25)])['block'])
+
+    def test_hud_reads_same_frame_health_but_never_block(self):
+        checked=corroborate_player_hud(self.player,{'lines':[line('75/80',80,16,44,43),line('5',50,16,10,43)]})
+        self.assertEqual(checked['player'],{'hp':75,'max_hp':80,'block':None})
+        self.assertEqual(checked['ocr_check']['fields'],['hp','max_hp'])
+        self.assertEqual(checked['ocr_check']['region'],'top_hud')
+
+    def test_hud_does_not_fill_unknown_or_conflicting_visual_health(self):
+        for player in ({'hp':None,'max_hp':None},{'hp':15,'max_hp':80},{'hp':True,'max_hp':80}):
+            checked=corroborate_player_hud({'player':player},{'lines':[line('75/80',80,16)]})
+            self.assertEqual(checked['player'],{'hp':None,'max_hp':None,'block':None})
+            self.assertEqual(checked['ocr_check']['fields'],[])
+
+    def test_hud_rejects_other_regions_noisy_low_confidence_and_ambiguous_text(self):
+        cases=[[],[line('75/80')],[line('75/80',600,16)],[line('75/80',80,190)],
+               [line('75/80',80,16,score=.85)],[line('75%80',80,16)],
+               [line('75/80',80,16),line('75/80',300,16)]]
+        for lines in cases:
+            checked=corroborate_player_hud(self.player,{'lines':lines})
+            self.assertEqual(checked['player'],{'hp':None,'max_hp':None,'block':None})
+            self.assertEqual(checked['ocr_check']['status'],'unknown')
 
 if __name__=='__main__':unittest.main()

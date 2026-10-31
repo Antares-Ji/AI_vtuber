@@ -179,6 +179,15 @@ function groundedMapObservation(result) {
   return view;
 }
 
+function mergeHudHealth(parsed, hud) {
+  const valid=p=>Number.isInteger(p?.hp)&&Number.isInteger(p?.max_hp)&&p.hp>=0&&p.max_hp>0&&p.hp<=p.max_hp&&p.max_hp<=99999;
+  if(valid(parsed?.player)||!valid(hud?.player)||hud.ocr_check?.status!=='corroborated'||hud.ocr_check?.region!=='top_hud'||
+     !['hp','max_hp'].every(k=>hud.ocr_check.fields?.includes(k)))return parsed;
+  // The HUD has no battle shield. Preserve the original block observation,
+  // including unknown, and never import a model's invented HUD block value.
+  return {...parsed,player:{...parsed?.player,hp:hud.player.hp,max_hp:hud.player.max_hp},health_source:'top_hud_vlm_ocr'};
+}
+
 function attachPlayerFacts(view, parsed, previous) {
   const raw=parsed?.player || {};
   const number=n=>Number.isInteger(n)&&n>=0&&n<=99999?n:null;
@@ -350,8 +359,16 @@ inspectionContext是本段仅悬停期间已读清牌面的比较笔记，不是
         if(health.playerSupport) {
           this.state.stage='player-reading';
           const player=await call('read-card',{frameId:frame.id,mode:'player',crop:[0,.25,.45,.78]});
-          view=attachPlayerFacts(view,player.parsed,history.at(-1));
-          log({event:'player_read',frameId:frame.id,player:view.player,conflicts:view.player_conflicts,record:player.record});
+          let facts=player.parsed;
+          if(health.playerHudSupport===true&&health.playerOcrCheck===true&&
+             (!Number.isInteger(facts?.player?.hp)||!Number.isInteger(facts?.player?.max_hp))) {
+            const hud=await call('read-card',{frameId:frame.id,mode:'player-hud'});
+            signal.throwIfAborted();
+            facts=mergeHudHealth(facts,hud.parsed);
+            log({event:'player_hud_read',frameId:frame.id,record:hud.record,adopted:facts!==player.parsed});
+          }
+          view=attachPlayerFacts(view,facts,history.at(-1));
+          log({event:'player_read',frameId:frame.id,player:view.player,conflicts:view.player_conflicts,record:player.record,healthSource:facts?.health_source||'player_region'});
         }
         if (hoveredPoint) {
           this.state.stage='card-reading';
@@ -500,4 +517,4 @@ inspectionContext是本段仅悬停期间已读清牌面的比较笔记，不是
     this.state.stage='step-limit';
   }
 }
-module.exports = { NativeAutonomy, observation, actionFor, attachInspectedCard, collapseRepeatedTargets, actionOptions, attachGroundedCard, plannerObservation, plannerHistory, groundedMapObservation, attachPlayerFacts, nativePlanningOptions, inspectionContext, groundedCardHover };
+module.exports = { NativeAutonomy, observation, actionFor, attachInspectedCard, collapseRepeatedTargets, actionOptions, attachGroundedCard, plannerObservation, plannerHistory, groundedMapObservation, attachPlayerFacts, mergeHudHealth, nativePlanningOptions, inspectionContext, groundedCardHover };

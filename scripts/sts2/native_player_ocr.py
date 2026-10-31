@@ -41,3 +41,18 @@ def corroborate_player(parsed, ocr):
     block=player.get('block')
     if len(digits)==1 and number(block) and block==digits[0]:result['block']=block
     return {'player':result,'ocr_check':{'status':'corroborated' if all(result[k] is not None for k in result) else 'partial_or_unknown','reason':'independent_text_and_layout_check'}}
+
+
+def corroborate_player_hud(parsed, ocr):
+    """Read health from the top HUD only; it cannot corroborate battle block."""
+    player=(parsed or {}).get('player') or {}
+    anchors=[line for line in ocr_lines(ocr) if re.search(r'\d.*[/／].*\d',line[0])]
+    if len(anchors)!=1 or not (0<=anchors[0][2][0]<anchors[0][2][2]<=500 and
+                              0<=anchors[0][2][1]<anchors[0][2][3]<=200):
+        return {'player':{'hp':None,'max_hp':None,'block':None},
+                'ocr_check':{'status':'unknown','reason':'ambiguous_or_missing_top_hud_health','region':'top_hud','fields':[]}}
+    checked=corroborate_player({'player':{**player,'block':None}},ocr)
+    known=checked['player']['hp'] is not None and checked['player']['max_hp'] is not None
+    return {**checked,'ocr_check':{'status':'corroborated' if known else 'unknown',
+                                  'reason':'same_frame_top_hud_health' if known else 'top_hud_health_conflict',
+                                  'region':'top_hud','fields':['hp','max_hp'] if known else []}}
