@@ -30,3 +30,27 @@ test('cloud map provenance still requires exact current pixel candidates',()=>{
  assert.equal(groundedMapObservation(result).targets[0].id,'N1');
  result.parsed.targets[0].point=[500,500];assert.throws(()=>groundedMapObservation(result),/地图/);
 });
+test('drag reuses the existing pointer only after same-frame named visual confirmation',async()=>{
+ const {NativeAutonomy}=require('../src/sts2/native-autonomy');
+ for(const patch of [{}, {anchor_confirmed:false}, {anchor_card_name:'另一张'}, {target_center:[.5,.8]}]){
+  let frames=0,plans=0,checks=0;const sent=[];
+  const base={scene:'battle',energy:1,targets:[{id:'card',kind:'card',label:'打击',point:[400,900],card:{name:'打击',cost:1}},{id:'enemy',kind:'enemy',label:'敌人',point:[700,500]}]};
+  const agent=new NativeAutonomy({pause:async()=>{},decide:async()=>++plans===1?{kind:'hover',targetId:'card'}:{kind:'drag',fromId:'inspected-2',targetId:'enemy'},request:async(route,body)=>{
+   if(route==='vision-state')return {ready:true,sceneSupport:true};
+   if(route==='read-card'){
+    if(body.anchor){checks++;assert.equal(body.frameId,'2');assert.deepEqual(body.anchor,{point:[.4,.9],cardName:'打击'});return {parsed:{target_visible:true,anchor_confirmed:true,anchor_card_name:'打击',target_center:[.4,.9],...patch}};}
+    if(body.target)return {parsed:{target_visible:true,target_center:[.4,.65]}};
+    if(body.mode==='card')return {parsed:{cards:[{name:'打击',cost:1,type:'攻击',description:'造成6点伤害。'}],uncertain:false}};
+    if(body.mode==='energy')return {parsed:{energy:1}};
+    if(body.mode==='battle')return {parsed:{...base,targets:[base.targets[1]]}};
+    if(body.mode==='hand')return {parsed:{...base,targets:frames===1?[base.targets[0]]:[]}};
+    return {parsed:base};
+   }
+   if(body.kind==='capture')return {id:String(++frames),status:'captured_only'};
+   sent.push(body);return {id:'input',status:'awaiting_visual_review'};
+  }});
+  agent.start({maxSteps:2});await agent.task;assert.equal(agent.state.stage,'step-limit',agent.state.lastError);assert.equal(checks,1);
+  if(!Object.keys(patch).length){assert.equal(sent[1].kind,'drag');assert.deepEqual(sent[1].from,[.4,.9]);}
+  else assert.equal(sent[1].kind,'hover');
+ }
+});

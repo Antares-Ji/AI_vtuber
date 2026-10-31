@@ -248,6 +248,12 @@ function postHoverFrame(result) {
   return result;
 }
 
+function confirmedPointerAnchor(parsed, point, cardName) {
+  const actual=parsed?.target_center;
+  return parsed?.anchor_confirmed===true && parsed.target_visible===true && parsed.anchor_card_name===cardName &&
+    Array.isArray(actual)&&actual.length===2&&actual.every((n,i)=>typeof n==='number'&&Number.isFinite(n)&&n>=0&&n<=1&&Math.abs(n-point[i])<=.002);
+}
+
 class NativeAutonomy {
   constructor({ persona = () => ({}), request, decide, pause = ms => delay(ms) } = {}) {
     this.persona = persona; this.request = request; this.customDecide = decide; this.pause = pause;
@@ -496,6 +502,16 @@ inspectionContext是本段仅悬停期间已读清牌面的比较笔记，不是
         if (Math.hypot(point[0]-selected.point[0]/1000,point[1]-selected.point[1]/1000)>.15) throw Error('地图节点识别与独立定位不一致，未发送输入');
         action={...action,to:point};
         log({event:'target_grounded',frameId:frame.id,target:selected.label,point,record:located.record});
+      }
+      if(action?.kind==='drag' && hoveredPoint && Math.hypot(...action.from.map((n,k)=>n-hoveredPoint[k]))>.01) {
+        const selected=view.targets.find(t=>t.id===decision.fromId);
+        const name=selected?.card?.name;
+        const checked=await call('read-card',{frameId:frame.id,target:`核对当前鼠标点是否位于展开的${name}牌面内部`,anchor:{point:hoveredPoint,cardName:name}});
+        signal.throwIfAborted();
+        if(this.persona().id!==personaId)throw Error('角色已切换，请重新启动以使用新角色');
+        const confirmed=confirmedPointerAnchor(checked.parsed,hoveredPoint,name);
+        log({event:'drag_pointer_checked',frameId:frame.id,fromId:decision.fromId,confirmed,record:checked.record});
+        if(confirmed)action={...action,from:[...hoveredPoint]};
       }
       this.state.lastDecision=decision; this.state.steps=i+1;
       log({frameId:frame.id,visionRecord:vision.record,view,decision,execute:this.state.execute,source:'role_api',trainingPerformed:false});

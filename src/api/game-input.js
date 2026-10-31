@@ -120,7 +120,7 @@ function createGameInputRoutes({ parseBody, send, persona = () => ({}) }) {
         const body = await parseBody(req), run = runInfo(String(body.frameId || ''));
         if (!run?.image || run.target !== 'SlayTheSpire2.exe') return reply(400, { error: '请先取得游戏截图' });
         const image = path.join(RUNS, run.id, path.basename(run.image));
-        const response = await fetch('http://127.0.0.1:17646/read', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ image, crop: body.crop, target: body.target, mode: body.mode }), signal: AbortSignal.timeout(180000) });
+        const response = await fetch('http://127.0.0.1:17646/read', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ image, crop: body.crop, target: body.target, mode: body.mode, anchor: body.anchor }), signal: AbortSignal.timeout(180000) });
         return reply(response.status, await response.json());
       } catch (error) { return reply(503, { error: '本地读牌未完成：' + error.message }); }
     }

@@ -501,7 +501,7 @@ test('the autonomous API loop grounds an expanded card omitted by the hand reade
   },request:async(route,body)=>{
     if(route==='vision-state')return {ready:true,sceneSupport:true};
     if(route==='read-card'){
-      if(body.target){groundings++;return {parsed:{target_visible:true,target_center:[.4,.65]}};}
+      if(body.target){if(!body.anchor)groundings++;return {parsed:{target_visible:true,target_center:[.4,.65]}};}
       if(body.mode==='card')return {parsed};
       if(body.mode==='hand' && captures>=2)return {parsed:{scene:'battle',targets:[]}};
       return {parsed:visionFor(body)};
