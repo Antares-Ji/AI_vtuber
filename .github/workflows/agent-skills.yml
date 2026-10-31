@@ -21,9 +21,27 @@ jobs:
       - run: npm ci --ignore-scripts
       - run: npm ci --prefix integrations/sts2-mcp --ignore-scripts
       - run: python scripts/check-mc-import.py
+      - run: python tests/test_mc_import.py
       - run: python tests/test_learning_preservation.py
+      - run: python tests/test_native_vision_schema.py
+      - run: python tests/test_native_model_config.py
+      - run: python tests/test_native_player_ocr.py
+      - run: python tests/test_native_hand_ocr.py
+      - run: python tests/test_native_battle_ocr.py
+      - run: python tests/test_native_card_ocr.py
+      - run: python tests/test_native_selection_ocr.py
+      - run: python tests/test_genshin_observe.py
+      - run: python tests/test_genshin_launch.py
+      - run: python tests/test_native_pointer.py
+      - run: python tests/test_native_anchor.py
+      - run: python tests/test_native_terminal_ocr.py
+      - run: python tests/test_native_button_ocr.py
+      - run: python -m pip install -r scripts/sts2/requirements-map-cv.txt
+      - run: python tests/test_native_map_cv.py
       - run: node scripts/skill-catalog.cjs --check
-      - run: node --test tests/skills-*.cjs tests/genshin-framework.js tests/sts2-learning.cjs tests/sts2-tactics.cjs tests/native-autonomy.cjs tests/sts2-deepseek-fetch.cjs integrations/sts2-mcp/test.cjs tests/game-input-console.js
+      - run: node --test tests/sts2-cloud-vision.cjs
+      - run: node --test tests/sts2-defeat-retry.cjs
+      - run: node --test tests/skills-*.cjs tests/genshin-framework.js tests/genshin-*.cjs tests/sts2-learning.cjs tests/sts2-tactics.cjs tests/native-autonomy.cjs tests/sts2-planner-history.cjs tests/sts2-deepseek-fetch.cjs integrations/sts2-mcp/test.cjs tests/game-input-console.js
       - run: npm run test:minecraft:api
       - run: npm run skills:demo
   java-core:

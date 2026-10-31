@@ -1,6 +1,6 @@
 # mcplayer:inspect-profile
 
-查看 ZIP 的版本化示例配置与原生 Skill 清单；实际 MC 继续使用 F8/F9。
+查看 ZIP 的版本化示例配置与原生 Skill 清单。
 
 版本：1。模式：read。资源占用：无。
 

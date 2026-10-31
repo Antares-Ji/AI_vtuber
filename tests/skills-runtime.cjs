@@ -107,6 +107,9 @@ test('built-in Genshin path runs a simulation and BetterGI cannot fabricate a li
   const h = createSkillHost({ directory: null, env: {} });
   const j = h.start({ skill: 'genshin:demo', args: { goal: '观察当前场景' } });
   assert.equal((await h.wait(j.id)).state, 'SIMULATED');
+  const p = h.start({ skill: 'genshin:plan', args: { goal: '观察当前场景' } });
+  assert.equal((await h.wait(p.id)).state, 'FAILED');
+  assert.match(h.status(p.id).error, /DeepSeek API Key/);
   const b = h.start({ skill: 'genshin:bettergi', allowLive: true });
   assert.equal((await h.wait(b.id)).state, 'FAILED'); assert.match(h.status(b.id).error, /BetterGI/);
   assert.throws(() => h.start({ skill: 'sts2:native-play', allowLive: true, args: { maxSteps: 1001 } }), /maxSteps/);

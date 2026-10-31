@@ -13,7 +13,7 @@ async function main() {
   const root = path.resolve(__dirname, '../runtime/genshin');
   if (!['serve', 'demo', 'doctor'].includes(command)) throw new Error('用法：node scripts/genshin.js serve|demo|doctor');
   if (command === 'doctor') {
-    console.log(JSON.stringify({ node: process.version, bettergi: new BetterGiAdapter().status(),
+    console.log(JSON.stringify({ node: process.version, bettergi: await new BetterGiAdapter().diagnose(),
       phase: 'framework-only', liveEnabled: false }, null, 2)); return;
   }
   fs.mkdirSync(root, { recursive: true });
@@ -22,14 +22,14 @@ async function main() {
   const runtime = new GenshinRuntime({ adapter: mode === 'mock' ? new MockAdapter() : new BetterGiAdapter(),
     logFile: path.join(root, 'events.jsonl') });
   if (command === 'demo') {
-    const plan = await planGoal('观察当前场景并钓鱼');
+    const plan = await planGoal('观察当前场景并钓鱼', { mode: 'rules' });
     runtime.start(plan);
     await runtime.done;
     console.log(JSON.stringify({ state: runtime.status(), streamerContext: runtime.context() }, null, 2));
     if (runtime.job.state !== 'simulated') process.exitCode = 1;
     return;
   }
-  const plannerMode = process.env.GENSHIN_PLANNER || 'rules';
+  const plannerMode = process.env.GENSHIN_PLANNER || 'llm';
   if (!['rules', 'llm'].includes(plannerMode)) throw new Error('GENSHIN_PLANNER 只能是 rules 或 llm');
   const tokenPath = path.join(root, 'service-token.txt');
   const token = randomBytes(32).toString('hex');

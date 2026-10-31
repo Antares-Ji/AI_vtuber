@@ -1,13 +1,19 @@
 # MC Player Agent 与本地多游戏能力整合
 
-本次以用户提供的 `MC-Player-Agent-0.4.0-alpha.1-GitHub.zip` 为 Minecraft 原生执行架构基线，保留所有 151 个文件及目录、原说明、配置 Schema、外部扩展示例、测试、来源与许可证。源码在 [mc-player-agent](../../mc-player-agent/README.md)，原始压缩包另存 `archives/`；[导入清单](import-manifest.json) 可核验原包和逐文件内容。Git 可依据原包自带属性规范换行，原包本身保持字节一致。工作源码有一处测试等待修复（第三个 MissionRun 日志必须写完才能清理测试目录）；原始哈希、修复 diff 和修复后哈希均保存在清单中，生产架构未改。
+本次以用户提供的 `MC-Player-Agent-0.4.0-alpha.1-GitHub.zip` 为 Minecraft 原生执行架构基线，保留所有 151 个文件及目录、原说明、配置 Schema、外部扩展示例、测试、来源与许可证。源码在 [mc-player-agent](../../mc-player-agent/README.md)，原始压缩包另存 `archives/`；[导入清单](import-manifest.json) 可核验原包和逐文件内容。Git 可依据原包自带属性规范换行，原包本身保持字节一致。整合补丁包括 MissionRun 测试等待修复、导演 API 的客户端挂接与说明更新；原始哈希、每项 diff、修复后哈希和独立新增文件均单独登记。原 Harness 的规划、原生动作和验收机制保留。
 
 这是一个单仓库、多运行时的整合版本。Java Harness 仍是 Minecraft 原生执行核心，Node Skill Host 为现有运行时提供统一发现、参数校验、调用、取消与状态入口。没有把尖塔坐标和原神截图伪装成 Minecraft 的背包、坐标或服务器回执，也没有在 MC 控制器中另加规划循环。
+
+当前实机验证遵循用户要求的 API 调用分工：导演控制台启动 Skill，DeepSeek API 决定游戏动作，本地视觉/CV/OCR API 提供当帧观测和定位，已有原生键鼠 API 执行，下一帧再由本地视觉核验。Codex 只负责接线、诊断、代码修复和任务监督，不代替角色选牌、指定游戏落点或手动推进。测试里的模拟决策不能记作这条真实 API 链路的运行结果。
+
+尖塔本轮采用纯视觉执行路径，不用保留的 MCP 状态读取来补未知牌面。原神目前完成规划、诊断和受限观察入口，尚未接通完整执行闭环。原生 MC 新增默认关闭的导演 HTTP 任务通道，继续使用原包的结构化观测与服务端回执，并非纯视觉键鼠模式；接口测试和加载器编译不能替代选定存档中的真实验收。各入口的停止、超时、当前帧校验和后续观察同样适用于模型选择的恢复动作。
 
 ```mermaid
 flowchart TD
     User[目标 / 配置 / CLI] --> Host[Skill Host：注册、调用、时限、资源占用、记录]
     Host --> Demo[MC 原始 Harness 演示]
+    Host --> Gateway[可选 MC 本地任务 API / 客户端 tick]
+    Gateway --> Harness
     F8[MC F8 任务控制台] --> Harness[ZIP Java AgentHarness]
     Harness --> MC[SkillRegistry / PlayerTasks]
     MC --> Adapter[Fabric / NeoForge 原生适配]
@@ -57,7 +63,7 @@ flowchart TD
 - 支持可信显式 provider 注册、实例隔离、封闭注册表、启用列表、参数校验、版本和调用配置哈希。
 - 同一个 Skill Host 内实时游戏 Skill 共用 `desktop` 资源。取消/超时会转为 STOPPING，执行器确认空闲后才释放；断连时保持占用，不能因 HTTP 超时而放行另一个游戏。
 - 外部手动控制台、原生 MC F8 及独立运行的旧服务仍有各自入口，**不属于统一层的全局进程锁**。不要同时通过不同入口控制同一身体。服务重启后的跨进程租约恢复尚未实现。
-- 原生 MC 仍用 F8/F9；统一层可运行 Java 核心演示、查看配置，尚无原生 MC 的 HTTP 遥控通道。Mineflayer 的 HTTP 兼容通道已接入，不能把它称为原生 MC 控制。
+- 原生 MC 保留 F8/F9，并增加 `mcplayer:native-status`、`mcplayer:native-play`。HTTP 只提交目标与停止请求，客户端 tick 调用原 PlayerControl；存档、实例、请求与 mission 归属均核对。默认关闭，需配置本机令牌并显式选择存档；实机接管仍待验证。Mineflayer 兼容入口仍单独保留。
 - 统一层时限覆盖整个 Skill 调用，步骤数由具体引擎校验；它不替代 Java 核心的模型请求/动作预算，也不声称能计算其他引擎的 token 成本。
 - `COMPLETED` 表示只读 Skill 返回；`SIMULATED` 表示模拟；实机回执默认 `UNVERIFIED`。只有 provider 的独立证据验收通过才可 `VERIFIED`。停止不等于成功。
 

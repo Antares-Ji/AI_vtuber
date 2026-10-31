@@ -3,6 +3,8 @@ $ErrorActionPreference = "Stop"
 $projectRoot = Split-Path -Parent $PSScriptRoot
 $serverScript = Join-Path $projectRoot "src\server.js"
 $logsDir = Join-Path $projectRoot "logs"
+$node = if ($env:AI_VTUBER_NODE) { $env:AI_VTUBER_NODE } elseif (Test-Path (Join-Path $projectRoot 'runtime\node\node.exe')) { Join-Path $projectRoot 'runtime\node\node.exe' } else { (Get-Command node -ErrorAction Stop).Source }
+if (!(Test-Path -LiteralPath $node)) { throw 'Node runtime unavailable; check AI_VTUBER_NODE.' }
 function Get-MainListener {
   Get-NetTCPConnection -State Listen -ErrorAction Stop | Where-Object LocalPort -eq 3000 | Select-Object -First 1
 }
@@ -23,7 +25,6 @@ if ($connection) {
 }
 
 New-Item -ItemType Directory -Force -Path $logsDir | Out-Null
-$node = (Get-Command node -ErrorAction Stop).Source
 $expectedInstance = [guid]::NewGuid().ToString()
 $previousInstance = $env:AI_VTUBER_INSTANCE_ID
 $env:AI_VTUBER_INSTANCE_ID = $expectedInstance

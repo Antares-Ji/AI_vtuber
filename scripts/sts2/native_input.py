@@ -31,6 +31,8 @@ def validate(actions):
         if not isinstance(a, dict) or a.get('action') not in {'move', 'relative', 'scroll', 'click', 'drag', 'down', 'up', 'key', 'key_down', 'key_up', 'wait'}:
             raise ValueError('Unknown action')
         kind = a['action']
+        if 'pointer_mode' in a and (kind != 'move' or a['pointer_mode'] not in ('absolute', 'relative')):
+            raise ValueError('pointer_mode is only supported for move: absolute or relative')
         if kind == 'scroll' and (type(a.get('steps')) is not int or not 1 <= abs(a['steps']) <= 10):
             raise ValueError('Scroll steps must be a nonzero integer within -10..10')
         if kind == 'relative' and any(type(a.get(k)) is not int or abs(a[k]) > 1200 for k in ('dx', 'dy')):
@@ -75,7 +77,7 @@ class Input(C.Structure):
 
 
 class NativeInput:
-    def __init__(self, exe='SlayTheSpire2.exe', stop_file=None):
+    def __init__(self, exe='SlayTheSpire2.exe', stop_file=None, *, restore_minimized=True):
         if os.name != 'nt':
             raise OSError('Windows only')
         self.user = C.WinDLL('user32', use_last_error=True)
@@ -125,6 +127,8 @@ class NativeInput:
         # A minimized window can report a zero-size client before focus() runs.
         # Restore it before taking the geometry baseline used by input guards.
         if self.user.IsIconic(self.hwnd):
+            if not restore_minimized:
+                raise RuntimeError('Game is minimized; observation does not restore or focus windows')
             self.user.ShowWindow.argtypes = [W.HWND, C.c_int]
             self.user.ShowWindow(self.hwnd, 9)
             time.sleep(.3)
@@ -229,8 +233,30 @@ class NativeInput:
             self.guard()
             time.sleep(min(.008, max(0, end-time.monotonic())))
 
-    def move(self, xy, duration=.7):
+    def move(self, xy, duration=.7, pointer_mode='absolute'):
         self.guard()
+        if pointer_mode == 'relative':
+            from native_pointer import relative_move
+            def read_position():
+                point = W.POINT()
+                if not self.user.GetCursorPos(C.byref(point)):
+                    raise OSError('Cannot read pointer position')
+                return (point.x, point.y)
+            def sample(point):
+                self.motion_trace.append({'at': time.time(), 'x': point[0], 'y': point[1],
+                    'pointer_mode': 'relative',
+                    'left_down': bool(self.user.GetAsyncKeyState(1) & 0x8000),
+                    'right_down': bool(self.user.GetAsyncKeyState(2) & 0x8000)})
+            def hover_guard():
+                self.guard()
+                if any(self.user.GetAsyncKeyState(key) & 0x8000 for key in (1, 2, 4, 5, 6)):
+                    raise InterruptedError('Relative hover requires all mouse buttons released')
+            relative_move(self.position(xy), read_position,
+                lambda dx, dy: self.send(Input(type=0, mi=MouseInput(dx, dy, 0, 1, 0, 0))),
+                hover_guard, duration=duration, sample=sample)
+            return
+        if pointer_mode != 'absolute':
+            raise ValueError('Unsupported pointer mode')
         p = W.POINT()
         self.user.GetCursorPos(C.byref(p))
         x, y = self.position(xy)
@@ -311,7 +337,7 @@ class NativeInput:
                 duration, hold = a.get('duration', .7), a.get('hold', .08)
                 started = time.perf_counter_ns()
                 if t in ('move', 'click', 'scroll'):
-                    self.move(a['to'], duration)
+                    self.move(a['to'], duration, a.get('pointer_mode', 'absolute'))
                 if t == 'scroll':
                     self.scroll(a['steps'])
                 if t == 'relative':
