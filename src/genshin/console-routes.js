@@ -53,6 +53,7 @@ function createGenshinConsole({ host, brain, parseBody, send, root = ROOT, env =
     const route=url.pathname.slice('/api/genshin'.length);
     try {
       if(req.method==='GET') {
+        if(route==='/story/direct')return reply(200,{pending:require('./direct-control').snapshot()});
         if(route==='/story/training-status'){
           const story=require('./story-runtime').snapshot(),state=bridge.status(),run=goalRun&&host.status(goalRun.runId);
           return reply(200,{provider:publicSettings({dataRoot:root,env}).provider,at:Date.now(),continuation:continuation.snapshot(),
@@ -71,6 +72,13 @@ function createGenshinConsole({ host, brain, parseBody, send, root = ROOT, env =
       if(req.method!=='POST') return reply(404,{error:'未知原神接口'});
       if(!req.headers['content-type']?.startsWith('application/json')) return reply(415,{error:'需要 JSON'});
       const body=await parseBody(req);
+      if(route==='/story/direct/decision')return reply(200,require('./direct-control').submit(body));
+      if(route==='/story/direct/start'){
+        if(host.recent().some(r=>r.game==='genshin'&&['RUNNING','STOPPING'].includes(r.state)))return reply(409,{error:'原神已有任务在执行或清理'});
+        continuation.stop('direct_control');
+        const run=host.start({skill:'genshin:direct-story',allowLive:true,args:{goal:body.goal},timeoutMs:740000});
+        goalRun={goal:body.goal,runId:run.id};return reply(202,run);
+      }
       if(route==='/story/start'){
         if(body.continuationMode!==undefined&&!['bounded','until_stopped'].includes(body.continuationMode))throw Error('Invalid continuationMode');
         if(host.recent().some(r=>r.game==='genshin'&&['RUNNING','STOPPING'].includes(r.state)))return reply(409,{error:'原神已有任务在执行或清理'});

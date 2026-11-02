@@ -131,9 +131,9 @@ async function decideWithRepair(call,request,observation,signal,budget=null,vali
  }
  return {decision:{action:{kind:'wait'},reason:'决策未通过校验或剩余预算不足，重新采集画面：'+rejected.at(-1).error,commentary:'这个操作目标还没核对上，我重新看一下当前界面。',quest:''},answer:rejected.at(-1),rejected,calls};
 }
-async function runStory(goal,{root,env,signal,reportProgress=()=>{},runId}){
+async function runStory(goal,{root,env,signal,reportProgress=()=>{},runId,direct=false}){
  const folder=path.join(root,'runtime/genshin/story',randomUUID());fs.mkdirSync(folder,{recursive:true});
- const fast=env?.GENSHIN_STORY_PIPELINE!=='legacy'&&require('./model-provider').settings({dataRoot:root,env}).provider==='deepseek';
+ const fast=!direct&&env?.GENSHIN_STORY_PIPELINE!=='legacy'&&require('./model-provider').settings({dataRoot:root,env}).provider==='deepseek';
  let handoff=null;
  const lookahead=new StoryLookahead({signal,onEvidence:record=>fs.writeFileSync(path.join(folder,`prefetch-${record.seq}.json`),JSON.stringify(record,null,2))});
  const history=[],observedAreas=new Set(),points=waypointCatalog.loadWaypoints(installation({root,env}).directory);let selectedArea='';
@@ -218,7 +218,7 @@ async function runStory(goal,{root,env,signal,reportProgress=()=>{},runId}){
     const role=workers.workerFor(observation);
     const fastValidate=(value,r,o)=>{workers.validateRole(value,role);return validateDecision(workers.normalize(value,r),r,o);};
     const cached=fast?lookahead.consume({request,observation,validate:fastValidate}):null;
-    const repaired=cached || (fast ?
+    const repaired=direct?await require('./direct-control').wait({request,observation,context,validate:validateDecision,signal:budget.signal()}):cached || (fast ?
      await decideWithRepair(rejected=>workers.call(context,{root,env,signal:budget.signal(20000),role,rejected,handoff}),request,observation,signal,budget,fastValidate) : await decideWithRepair(rejected=>{
      const prompt=buildStoryPrompt(context,{rejected});
      return respond(prompt.input,{dataRoot:root,env,signal:budget.signal(),instructions:prompt.instructions,

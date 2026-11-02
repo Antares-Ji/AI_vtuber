@@ -6,6 +6,10 @@ const { remoteRun } = require('../local-client');
 function register(registry, { root, dataRoot, env, main, sts2, runProcess }) {
   const add = definition => registry.register({ version: '1', ...definition });
   const noArgs = a => objectArgs(a, []);
+  add({id:'genshin:direct-story',game:'genshin',mode:'live',resources:['desktop','genshin'],
+    description:'用户明确授权的导演直接控制；本地观察、逐帧意图校验、原生执行，不调用决策模型或主播。',
+    validate(a){objectArgs(a,['goal']);return {goal:textArg(a.goal,'goal')};},
+    execute:(a,{signal,reportProgress,jobId})=>require('../../genshin/story-runtime').runStory(a.goal,{root,env,signal,reportProgress,runId:jobId,direct:true})});
   add({id:'genshin:window-restore',game:'genshin',mode:'live',resources:['desktop','genshin'],
     description:'显式恢复原神窗口；原生互斥及实际权限检查，无游戏按键，不改变观察接口。',validate:noArgs,
     execute:(a,{signal})=>require('../../genshin/window-restore').restoreWindow({root,signal,runProcess})});
