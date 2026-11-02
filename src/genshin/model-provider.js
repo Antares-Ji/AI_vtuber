@@ -29,10 +29,14 @@ async function respond(input, options = {}) {
   const c = settings(options); options.signal?.throwIfAborted();
   if (c.provider === 'openai') return openai.respond(input, options);
   if (!c.key) throw Error('未配置 DeepSeek API 密钥');
+  const maxTokens=options.maxOutputTokens??2048;
+  if(!Number.isInteger(maxTokens)||maxTokens<64||maxTokens>2048)throw Error('无效的原神输出预算');
+  const model=options.model||c.model;
+  if(!/^[a-zA-Z0-9_.:-]{1,100}$/.test(model))throw Error('DeepSeek 模型名称无效');
   const signal = options.signal ? AbortSignal.any([options.signal, AbortSignal.timeout(60000)]) : AbortSignal.timeout(60000);
   const response = await (options.fetchImpl || deepseekFetch)(c.url, { method: 'POST', redirect: 'error', signal,
     headers: { 'content-type': 'application/json', authorization: `Bearer ${c.key}` },
-    body: JSON.stringify({ model: c.model, max_tokens: 2048, messages: [
+    body: JSON.stringify({ model, max_tokens:maxTokens, ...(options.thinking===false?{thinking:{type:'disabled'}}:{}), messages: [
       { role: 'system', content: (options.instructions || '用中文准确回答。') + (options.schema ? '\n仅返回符合以下 schema 的 JSON：' + JSON.stringify(options.schema) : '') },
       { role: 'user', content: input }], ...(options.schema ? { response_format: { type: 'json_object' } } : {}) }) });
   const data = await response.json(); signal.throwIfAborted();
@@ -41,7 +45,11 @@ async function respond(input, options = {}) {
     throw Object.assign(Error(`DeepSeek HTTP ${response.status}：${detail}；未切换供应商`),{code:response.status===402?'PROVIDER_INSUFFICIENT_BALANCE':'PROVIDER_HTTP_ERROR',status:response.status});
   }
   const choice = data.choices?.[0];
-  if (choice?.finish_reason !== 'stop' || typeof choice.message?.content !== 'string' || !choice.message.content.trim() || choice.message.content.length > 16000) throw Error('DeepSeek 未返回完整有效文本，未执行任务');
-  return { text: choice.message.content.trim(), provider: 'deepseek', model: data.model || c.model, usage: data.usage || null };
+  if (choice?.finish_reason !== 'stop' || typeof choice.message?.content !== 'string' || !choice.message.content.trim() || choice.message.content.length > 16000)
+    throw Object.assign(Error('DeepSeek 未返回完整有效文本，未执行任务'),{code:'PROVIDER_INVALID_OUTPUT',provider:'deepseek',model:data.model||model,usage:data.usage||null});
+  return { text: choice.message.content.trim(), provider: 'deepseek', model: data.model || model, usage: data.usage || null,
+    requestPolicy:{thinking:options.thinking===false?'disabled':'provider_default',maxOutputTokens:maxTokens},
+    reasoningTokens:data.usage?.completion_tokens_details?.reasoning_tokens??null,
+    reasoningContentPresent:Boolean(choice.message.reasoning_content) };
 }
 module.exports = { settings, publicSettings, selectProvider, respond };

@@ -11,6 +11,8 @@ const {frameBudget}=require('./story-deadline');
 const {buildStoryPrompt}=require('./story-prompt');
 const {StoryFeedbackMemory}=require('./story-feedback-memory');
 const {StoryQuestFocus,completionEvidence}=require('./story-quest-focus');
+const workers=require('./story-workers');
+const {StoryLookahead}=require('./story-lookahead');
 let latest=null,events=[];
 function snapshot(){return latest;}
 function commentary(after=0){return events.find(event=>event.at>after)||null;}
@@ -113,21 +115,24 @@ function validateDecision(value,request,observation){
  }
  return {action,reason:String(value.reason||'').slice(0,400),commentary:String(value.commentary||'').slice(0,120),quest:String(value.quest||'').slice(0,150)};
 }
-async function decideWithRepair(call,request,observation,signal,budget=null){
+async function decideWithRepair(call,request,observation,signal,budget=null,validator=validateDecision){
  const rejected=[],calls=[];
  for(let attempt=0;attempt<2;attempt++){
   budget?.check();
   if(attempt&&budget&&budget.remaining()<15000)break;
   const answer=await call(rejected);signal.throwIfAborted();
-  calls.push({provider:answer.provider,model:answer.model,usage:answer.usage||null});
+  calls.push({provider:answer.provider,model:answer.model,usage:answer.usage||null,worker:answer.worker,requestPolicy:answer.requestPolicy,latencyMs:answer.latencyMs,reasoningTokens:answer.reasoningTokens});
   budget?.check();
-  try{return {decision:validateDecision(JSON.parse(answer.text),request,observation),answer,rejected,calls};}
+  try{const value=JSON.parse(answer.text);return {decision:validator(value,request,observation),prediction:value.prediction,answer,rejected,calls};}
   catch(error){rejected.push({text:answer.text,error:error.message,provider:answer.provider,model:answer.model,usage:answer.usage||null});}
  }
  return {decision:{action:{kind:'wait'},reason:'决策未通过校验或剩余预算不足，重新采集画面：'+rejected.at(-1).error,commentary:'这个操作目标还没核对上，我重新看一下当前界面。',quest:''},answer:rejected.at(-1),rejected,calls};
 }
 async function runStory(goal,{root,env,signal,reportProgress=()=>{},runId}){
  const folder=path.join(root,'runtime/genshin/story',randomUUID());fs.mkdirSync(folder,{recursive:true});
+ const fast=env?.GENSHIN_STORY_PIPELINE!=='legacy'&&require('./model-provider').settings({dataRoot:root,env}).provider==='deepseek';
+ let handoff=null;
+ const lookahead=new StoryLookahead({signal,onEvidence:record=>fs.writeFileSync(path.join(folder,`prefetch-${record.seq}.json`),JSON.stringify(record,null,2))});
  const history=[],observedAreas=new Set(),points=waypointCatalog.loadWaypoints(installation({root,env}).directory);let selectedArea='';
  latest={state:'connecting',runId,goal,folder,startedAt:Date.now(),steps:0,verified:false};
  await bridge.start({root,signal});
@@ -200,22 +205,29 @@ async function runStory(goal,{root,env,signal,reportProgress=()=>{},runId}){
     request.navigationMemory={...navigationMemory,stage:navigationStage,teleportAttempts:request.teleportAttempts,rule:'同阶段已尝试过的锚点不得因服务重启而重复传送。历史结果不证明当前场景，仍须读取新帧。'};
     if(observation.questDistanceLabel)observation.questDistanceLabel.rule='当前帧本地OCR定位的场景距离标签与左上任务读数一致，可用于有界转向；目标居中且前方可走可move，无需再用失效的图标模板。box不是鼠标点击目标，不能证明沿途无障碍。';
     if(createHash('sha256').update(fs.readFileSync(image)).digest('hex')!==hash)throw Error('剧情截图发生变化');
-    reportProgress('story-deciding',`剧情步骤${request.seq}：DeepSeek根据当前任务文字规划下一步`);
+    reportProgress('story-deciding',`步骤${request.seq}：${fast?'快速决策':'模型决策'}`);
     latest={...latest,state:'deciding'};
     const context={goal,questMemory,navigationMemory:request.navigationMemory,
      observation,distanceEvidence,texts:request.texts,mapAreas:request.mapAreas,
      observedAreas:request.observedAreas,selectedArea,waypoints:request.waypoints,nativeId:request.id,
      previousSteps:history.slice(-3).map(e=>({nativeId:e.request.id,seq:e.request.seq,
       observation:e.observation,decision:e.decision,lastStep:e.request.lastStep})),lastNativeStep:request.lastStep};
-    const repaired=await decideWithRepair(rejected=>{
+    const role=workers.workerFor(observation);
+    const fastValidate=(value,r,o)=>{workers.validateRole(value,role);return validateDecision(workers.normalize(value,r),r,o);};
+    const cached=fast?lookahead.consume({request,observation,validate:fastValidate}):null;
+    const repaired=cached || (fast ?
+     await decideWithRepair(rejected=>workers.call(context,{root,env,signal:budget.signal(20000),role,rejected,handoff}),request,observation,signal,budget,fastValidate) : await decideWithRepair(rejected=>{
      const prompt=buildStoryPrompt(context,{rejected});
      return respond(prompt.input,{dataRoot:root,env,signal:budget.signal(),instructions:prompt.instructions,
-     schema:{type:'object',required:['action','reason','commentary','quest'],properties:{action:{type:'object'},reason:{type:'string'},commentary:{type:'string'},quest:{type:'string'}}}});},request,observation,signal,budget);
+     schema:{type:'object',required:['action','reason','commentary','quest'],properties:{action:{type:'object'},reason:{type:'string'},commentary:{type:'string'},quest:{type:'string'}}}});},request,observation,signal,budget));
     signal.throwIfAborted();
     const {decision,answer,rejected}=repaired;
+    if(fast){decision.commentary='';decision.reason=decision.reason.slice(0,24);}
     if(decision.action.kind==='list_waypoints')selectedArea=decision.action.area;
     if(decision.action.kind==='teleport')teleportAttempts.add(decision.action.id);
-    const evidence={trainingSessionId:checkpoint?.sessionId||null,request,observation,rawObservation,observationError,visionRecord:vision.record,distanceEvidence,decision,rejected,provider:answer.provider,model:answer.model,usage:answer.usage||null,modelCalls:repaired.calls,image,sha256:hash,at:Date.now(),verified:false};
+    const evidence={trainingSessionId:checkpoint?.sessionId||null,request,observation,rawObservation,observationError,visionRecord:vision.record,distanceEvidence,decision,rejected,provider:answer.provider,model:answer.model,usage:answer.usage||null,modelCalls:repaired.calls,
+     pipeline:fast?{role,thinking:'disabled',maxOutputTokens:workers.profile(role,env).maxOutputTokens,lookahead:repaired.lookahead||lookahead.lastCheck}:null,
+     image,sha256:hash,at:Date.now(),verified:false};
     fs.writeFileSync(path.join(folder,`step-${request.seq}.json`),JSON.stringify(evidence,null,2));
     if(decision.action.kind==='complete_quest'){
      const completed=focus.acknowledgeCompletion({id:request.id,seq:request.seq,texts:request.texts});
@@ -227,15 +239,25 @@ async function runStory(goal,{root,env,signal,reportProgress=()=>{},runId}){
      if(memory){focus.select(memory);questMemory=focus.snapshot().memory;}
     }
     history.push(evidence);
-    latest={...latest,state:'executing',goal,folder,steps:request.seq,observationSeq:request.seq,observationAt:request.capturedAt,observation,decision,provider:answer.provider,model:answer.model,usage:answer.usage||null,error:null,errorCode:null,verified:false};
+    latest={...latest,state:'executing',goal,folder,steps:request.seq,observationSeq:request.seq,observationAt:request.capturedAt,observation,decision,provider:answer.provider,model:answer.model,usage:answer.usage||null,pipeline:evidence.pipeline,error:null,errorCode:null,verified:false};
     if(decision.commentary){events.push({id:randomUUID(),at:Date.now(),text:decision.commentary,seq:request.seq,provider:answer.provider,model:answer.model});events=events.slice(-30);}
-    reportProgress('story-executing',`剧情步骤${request.seq}：${decision.reason}`);
+    reportProgress('story-executing',`步骤${request.seq}：${decision.action.kind}`);
+    if(fast){
+     handoff={from:role,state:'planned_not_observed',action:decision.action,quest:request.focusQuest,stage:navigationStage};
+     lookahead.start({decision,prediction:repaired.prediction,request,observation,context,
+      plan:(projected,forecast,prefetchSignal)=>workers.call(projected,{root,env,signal:prefetchSignal,role:'movement',handoff,forecast}),
+      onResult:prefetchAnswer=>{
+       // Charge speculative calls to their originating frame even when discarded.
+       evidence.modelCalls.push({phase:'lookahead',worker:prefetchAnswer.worker,provider:prefetchAnswer.provider,model:prefetchAnswer.model,usage:prefetchAnswer.usage,requestPolicy:prefetchAnswer.requestPolicy,latencyMs:prefetchAnswer.latencyMs,reasoningTokens:prefetchAnswer.reasoningTokens,error:prefetchAnswer.error});
+       fs.writeFileSync(path.join(folder,`step-${request.seq}.json`),JSON.stringify(evidence,null,2));
+      }});
+    }
     return {...decision,feedbackSteps:request.recentNativeSteps};
     }catch(error){
      signal.throwIfAborted();
      if(budget.expired()||error.code==='STORY_FRAME_TIMEOUT'){
       if(Date.now()>=budget.nativeDeadline)throw budget.error();
-      const decision={action:{kind:'wait'},reason:'本帧识别与决策预算耗尽，重新采集画面；没有执行迟到动作',commentary:'这一帧处理超时，我重新确认当前画面。',quest:''};
+      const decision={action:{kind:'wait'},reason:'本帧超时，重新观察',commentary:fast?'':'这一帧处理超时，我重新确认当前画面。',quest:''};
       const evidence={trainingSessionId:checkpoint?.sessionId||null,request,decision,error:budget.error().message,errorCode:'STORY_FRAME_TIMEOUT',at:Date.now(),verified:false};
       fs.writeFileSync(path.join(folder,`step-${request.seq}.json`),JSON.stringify(evidence,null,2));
       latest={...latest,state:'executing',decision,error:evidence.error};return decision;
@@ -245,6 +267,6 @@ async function runStory(goal,{root,env,signal,reportProgress=()=>{},runId}){
    }});
   latest={...latest,state:'returned',execution};return {...latest,history,verified:false};
  }catch(error){latest={...latest,state:signal.aborted?'stopped':'error',error:error.message,errorCode:error.code,execution:error.receipt||null,finishedAt:Date.now()};throw error;}
- finally{const receipt=latest?.execution?.receipt;if(receipt?.id)feedback.merge({sessionId:receipt.id,steps:receipt.steps||[]});}
+ finally{await lookahead.close();const receipt=latest?.execution?.receipt;if(receipt?.id)feedback.merge({sessionId:receipt.id,steps:receipt.steps||[]});}
 }
 module.exports={runStory,validateDecision,decideWithRepair,snapshot,commentary,commentaryReceipt};

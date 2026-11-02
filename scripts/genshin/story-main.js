@@ -161,6 +161,29 @@ const StoryGrounding=(()=>{
 
 if(typeof module!=='undefined'&&module.exports)module.exports=StoryGrounding;
 
+// Source: story/vision/post-action-position.js
+// Fresh local minimap CV evidence for checking a predicted teleport destination.
+const StoryPostActionPosition=(()=>{
+ async function sample({lastStep,genshin,sleep,now=Date.now,deadline}){
+  if(lastStep?.action?.kind!=='teleport')return null;
+  const result={source:'bettergi_minimap_cv',stable:false,samples:[]};
+  try{
+   for(let i=0;i<2;i++){
+    if(now()>=deadline-2000)throw Error('position_deadline');
+    const p=genshin.getPositionFromMap('Teyvat',0),x=Number(p?.x??p?.X),y=Number(p?.y??p?.Y);
+    if(!Number.isFinite(x)||!Number.isFinite(y))throw Error('position_invalid');
+    result.samples.push({x,y,at:now()});
+    if(!i)await sleep(100);
+   }
+   result.stable=Math.hypot(result.samples[0].x-result.samples[1].x,result.samples[0].y-result.samples[1].y)<=10;
+   if(!result.stable)result.reason='position_unstable';
+  }catch(error){result.reason=String(error.message||error).slice(0,120);}
+  return result;
+ }
+ return {sample};
+})();
+if(typeof module!=='undefined'&&module.exports)module.exports=StoryPostActionPosition;
+
 // Source: story/macros/travel-quest.js
 // Shared native intent macro and pure evidence rules. Loading in Node sends no input.
 const StoryTravel = (() => {
@@ -608,10 +631,12 @@ else (async function(){
   const first=captureGameRegion();try{file.writeImageSync('before.png',first.srcMat);}finally{first.dispose();}
   for(let seq=1;seq<=40&&Date.now()<sessionDeadline;seq++){
    await sleep(400);
+   const position=await StoryPostActionPosition.sample({lastStep:receipt.steps.slice(-1)[0],genshin:typeof genshin==='undefined'?null:genshin,sleep,deadline:sessionDeadline});
+   const captureStartedAt=Date.now();
    const frame=captureGameRegion();let texts;
    try{texts=readTexts(frame);file.writeImageSync('story-'+seq+'.png',frame.srcMat);}finally{frame.dispose();}
-   const capturedAt=Date.now(),decisionDeadline=Math.min(capturedAt+120000,sessionDeadline);
-   const request={id:command.id,seq,capturedAt,deadlineAt:decisionDeadline,image:'story-'+seq+'.png',texts,lastStep:receipt.steps.slice(-1)[0]||null};
+   const capturedAt=captureStartedAt,decisionDeadline=Math.min(capturedAt+120000,sessionDeadline);
+   const request={id:command.id,seq,capturedAt,deadlineAt:decisionDeadline,image:'story-'+seq+'.png',texts,position,lastStep:receipt.steps.slice(-1)[0]||null};
    file.writeTextSync('story-request.json',JSON.stringify(request));
    log.info('AI-VTuber剧情：等待模型决策，步骤 '+seq);
    let decision=null;const deadline=decisionDeadline;

@@ -188,10 +188,12 @@ else (async function(){
   const first=captureGameRegion();try{file.writeImageSync('before.png',first.srcMat);}finally{first.dispose();}
   for(let seq=1;seq<=40&&Date.now()<sessionDeadline;seq++){
    await sleep(400);
+   const position=await StoryPostActionPosition.sample({lastStep:receipt.steps.slice(-1)[0],genshin:typeof genshin==='undefined'?null:genshin,sleep,deadline:sessionDeadline});
+   const captureStartedAt=Date.now();
    const frame=captureGameRegion();let texts;
    try{texts=readTexts(frame);file.writeImageSync('story-'+seq+'.png',frame.srcMat);}finally{frame.dispose();}
-   const capturedAt=Date.now(),decisionDeadline=Math.min(capturedAt+120000,sessionDeadline);
-   const request={id:command.id,seq,capturedAt,deadlineAt:decisionDeadline,image:'story-'+seq+'.png',texts,lastStep:receipt.steps.slice(-1)[0]||null};
+   const capturedAt=captureStartedAt,decisionDeadline=Math.min(capturedAt+120000,sessionDeadline);
+   const request={id:command.id,seq,capturedAt,deadlineAt:decisionDeadline,image:'story-'+seq+'.png',texts,position,lastStep:receipt.steps.slice(-1)[0]||null};
    file.writeTextSync('story-request.json',JSON.stringify(request));
    log.info('AI-VTuber剧情：等待模型决策，步骤 '+seq);
    let decision=null;const deadline=decisionDeadline;

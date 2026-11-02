@@ -77,14 +77,14 @@ function mergeReceipts(rows,o={}){
 }
 function frameTokens(r){
  let calls;
- if(Array.isArray(r.modelCalls)&&r.modelCalls.length)calls=r.modelCalls;
+ if(Array.isArray(r.modelCalls)&&(r.modelCalls.length||r.pipeline?.lookahead?.ok===true))calls=r.modelCalls;
  else {
   calls=[...(r.rejected||[])];const last=calls.at(-1);
   const repeated=r.decision?.action?.kind==='wait'&&last?.usage&&JSON.stringify(last.usage)===JSON.stringify(r.usage);
   if(!repeated)calls.push(r);
  }
  const known=calls.filter(c=>finite(c.usage?.total_tokens)&&c.usage.total_tokens>=0);
- return {total:known.reduce((s,c)=>s+c.usage.total_tokens,0),complete:known.length===calls.length&&calls.length>0};
+ return {total:known.reduce((s,c)=>s+c.usage.total_tokens,0),complete:known.length===calls.length&&(calls.length>0||r.pipeline?.lookahead?.ok===true)};
 }
 function median(values){
  if(!values.length)return null;
