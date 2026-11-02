@@ -132,3 +132,16 @@ PathExecutor 没有可传入的期限，需用剩余时间限制段数；超时�
 2. 依次实现 P0（含测试）→ 部署 → 用导演 API 启动剧情 → 用评估器对比。
 3. P0 达标后做 P1 和 P2，P3 和 P4 可以穿插进行。
 4. 先把当前未提交的大量改动做一次提交作为基线，方便回退。
+
+## 7. Codex 实施记录
+
+### P0 代码完成，等待实机验收
+
+- 用户重新授权按本规格实施并恢复实机；原已撤销会话保持撤销，部署后新建授权会话。
+- 基线提交：`8dac4fe46a5663d112f4282d77270ccf4c4f02ca`，分支 `codex/genshin-intents-20261102`。排除 runtime、密钥和临时产物。
+- 新增 `travel_quest` 的 Node 与原生接线、共享 HUD/距离规则、坐标推算和有界分段寻路；拆出 grounding、native-runner 与独立 travel 宏，构建生成独立 story-main.js。
+- 已通过 94 项相关测试：travel/路由/tracking/story 39 项；焦点、反馈、deadline、续段、菜单与恢复 42 项；评估器 13 项。生成文件一致性检查通过。模拟测试不构成实机验收。
+- 源码核对修正：相机方位返回度数，需转换弧度；地图定位使用 `getPositionFromMap('Teyvat',0)` 避免默认缓存；`pathingScript.run` 实际支持第二参数取消令牌，每段最多 30 秒，取消后等待退出再释放。
+- 实现边界：F/菜单在段间复核，未宣称 PathExecutor 内部 10Hz 交互中断；首版未开启可选的远点估算传送。PathExecutor 未提供实际按键时长，`movementMsSent:null`、`movementTelemetryComplete:false`，路径运行时长独立记录，不冒充移动输入时长。
+- 评估器按 nativeId/seq 去重，合并末步回执；新帧携带 trainingSessionId。连续三次 travel 调用必须有两次匹配同任务/阶段的独立后帧证明距离下降至少 30m，宏自身的 after 数字不单独算通过。
+- 上线前对照：旧会话 57 帧 / 849941 token / 每帧中位数 14870 / 已报告移动输入 400ms / HUD 186→184m；没有 travel 调用。新的实机 run id 和结果待部署后补充。

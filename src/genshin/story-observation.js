@@ -1,5 +1,5 @@
 'use strict';
-const {questMenu,recoveryPrompt,questInstruction,mapMenu,sceneCue}=require('../../scripts/genshin/story-main');
+const {questMenu,recoveryPrompt,questInstruction,mapMenu,sceneCue,questDistanceLabel}=require('../../scripts/genshin/story-main');
 function dialogueEvidence(texts,modelScene){
  const positioned=texts.filter(t=>Array.isArray(t.box)&&t.box.length===4&&t.box.every(Number.isFinite));
  const subtitle=positioned.find(t=>t.box[0]>100&&t.box[0]<1600&&t.box[1]>=890&&t.box[1]<1015&&t.box[2]>180&&String(t.text).length>=8&&/[\u4e00-\u9fff]/.test(t.text));
@@ -11,23 +11,6 @@ function dialogueEvidence(texts,modelScene){
  // must not override the local model's menu/loading observation as dialogue.
  if(!auto&&!options.length&&!['dialog','dialogue'].includes(modelScene))return null;
  return {source:'bettergi_ocr_dialogue_layout',speaker:speaker?.text||null,subtitle:subtitle.text,options};
-}
-function questDistanceLabel(texts){
- const instruction=questInstruction(texts);
- if(!instruction)return null;
- const [ix,iy,iw,ih]=instruction.box;
- const readings=texts.flatMap(t=>{
-  const m=String(t.text).match(/^\s*(\d{1,5})\s*(?:m|米)\s*$/i);
-  return m&&Array.isArray(t.box)&&t.box.length===4&&t.box.every(Number.isFinite)?[{...t,meters:Number(m[1])}]:[];
- });
- const hud=readings.filter(t=>t.box[0]>=ix-30&&t.box[0]<ix+Math.min(iw,220)&&t.box[1]>=iy+ih-8&&t.box[1]<iy+ih+85);
- const focused=hud.filter(t=>t.source==='quest_distance_crop');
- const values=[...new Set((focused.length?focused:hud).map(t=>t.meters))];
- if(values.length!==1)return null;
- const targets=readings.filter(t=>t.meters===values[0]&&t.box[0]>400&&t.box[0]+t.box[2]<1620&&t.box[1]>110&&t.box[1]+t.box[3]<850);
- if(targets.length!==1)return null;
- const t=targets[0],cx=t.box[0]+t.box[2]/2;
- return {source:'bettergi_ocr_hud_world_distance_agreement',meters:t.meters,box:t.box,direction:cx<880?'left':cx>1040?'right':'center',verified:false};
 }
 // VLM text alone must not turn a misread distance into reported progress.
 function corroborateDistances(observation,texts,previous=null){
