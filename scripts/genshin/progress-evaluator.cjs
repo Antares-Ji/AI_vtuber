@@ -147,7 +147,13 @@ function evaluate(input,now=Date.now(),o={}){
  if(maxRepeat>=4)alerts.push({code:'REPEATED_ACTION',msg:`同一动作连续重复${maxRepeat}次`});
  if(tail.length>=8&&gain!==null&&gain<5)alerts.push({code:'NO_PROGRESS',msg:`最近同任务阶段HUD距离仅下降${gain}m`});
  if(tailTokens>150000&&(gain===null||gain<5))alerts.push({code:'TOKEN_BURN',msg:`最近窗口消耗${tailTokens}tokens但无独立可测进展`});
- const verdict=!rows.length||alerts.some(a=>a.code==='NO_NEW_FRAMES')?'idle':gain!==null&&gain>=5?'progressing':alerts.length?'stalled':'unclear';
+ const finalFrame=rows.at(-1);
+ const completion=finalFrame?.observation?.visionSource==='bettergi_native_cv_ocr'
+  ?require('../../src/genshin/story-quest-focus').completionEvidence(finalFrame.request?.texts,quest(finalFrame)):null;
+ // The exact current quest completion banner is stronger than a near-NPC
+ // distance that stopped decreasing. An old banner cannot complete a new frame.
+ if(completion)alerts.length=0;
+ const verdict=completion?'completed':!rows.length||alerts.some(a=>a.code==='NO_NEW_FRAMES')?'idle':gain!==null&&gain>=5?'progressing':alerts.length?'stalled':'unclear';
  const last=readings.at(-1),same=[];
  for(let i=readings.length-1;i>=0&&readings[i].context===last?.context;i--)same.unshift(readings[i]);
  return {at:now,frames:rows.length,from:rows[0]?.at||null,to:rows.at(-1)?.at||null,
@@ -161,7 +167,7 @@ function evaluate(input,now=Date.now(),o={}){
    task:last?.task??null,stage:last?.stage??null,source:'task_hud_ocr'},
   stages,recentWindow:{frames:tail.length,nonWorld:tailNonWorld,menuFrames:menuCount,maxRepeat,tokens:tailTokens,distanceGained:gain,
    comparableReadings:comparable.length,stages:[...new Set(tailReadings.map(r=>r.stage))]},
-  travelQuest:travelEvaluation(rows,receipts),verdict,alerts,
+  travelQuest:travelEvaluation(rows,receipts),completion,verdict,alerts,
   limitation:'只累计显式原生移动计数；PathExecutor按键时长未知，pathDurationMs仅墙钟耗时。HUD距离必须同任务阶段；宏内部progress单列，不代替独立后帧，也不证明任务完成。历史无trainingSessionId时仅按时间窗和已观察nativeId限定。'};
 }
 module.exports={evaluate,movedMs,hudReading,mergeReceipts,frameTokens};

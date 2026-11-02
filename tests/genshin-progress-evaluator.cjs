@@ -14,6 +14,15 @@ function frame(seq,meters=500,{id='native-a',task='任务甲',stage='前去查�
   distanceEvidence:{meters:[999]},decision:{action:{kind:'travel_quest'}},modelCalls:[{usage:{total_tokens:1000}}]};
 }
 function threeCalls(){return [frame(1,500),frame(2,460,{lastStep:step(1)}),frame(3,450,{lastStep:step(2)}),frame(4,410,{lastStep:step(3)})];}
+test('only the latest same-quest BGI completion evidence overrides no-progress heuristics',()=>{
+ const last=frame(10,0);last.observation.visionSource='bettergi_native_cv_ocr';
+ last.request.texts=[{text:'任务甲',box:[78,248,120,30]},{text:'任务完成',box:[78,284,120,35]},{text:'委托完成',box:[800,200,200,50]}];
+ const earlier=Array.from({length:9},(_,i)=>frame(i+1,0));
+ const r=evaluate([...earlier,last],1000000);assert.equal(r.verdict,'completed');assert.equal(r.alerts.length,0);assert.equal(r.travelQuest.passed,false);
+ assert.notEqual(evaluate([last,frame(11,50)],12000).verdict,'completed','a past completion is not current state');
+ const other=structuredClone(last);other.request.focusQuest='任务乙';assert.notEqual(evaluate([other],12000).verdict,'completed');
+ const model=structuredClone(last);model.observation.visionSource='model_claim';assert.notEqual(evaluate([model],12000).verdict,'completed');
+});
 
 test('frames and receipts deduplicate by native id and seq; final ledger fills tail',()=>{
  const s1=step(1,'move',{movedMs:400}),s2=step(2,'key',{kind:'interaction',sent:true});
