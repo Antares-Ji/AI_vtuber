@@ -3,12 +3,86 @@ import argparse
 import hashlib
 import json
 import math
+import re
 from pathlib import Path
 
 import cv2
 import numpy as np
 
 ROOT = Path(__file__).resolve().parents[2]
+
+# Only the commission mapping is evidenced by the pinned upstream resource.
+# Yellow/blue category mappings remain unknown; never infer from a quest name.
+CATEGORY_SOURCES = {'委托任务': 'minimap-commission.png'}
+CATEGORIES = {'委托任务', '世界任务', '传说任务', '魔神任务'}
+
+
+def menu_category(texts):
+    """Associate the selected right-hand title with its left-hand category."""
+    rows = [r for r in texts if len(r.get('box', [])) == 4]
+    normal = lambda r: re.sub(r'\s', '', r.get('text', ''))
+    titles = [r for r in rows if 700 < r['box'][0] < 1500
+              and 100 <= r['box'][1] < 165 and r['box'][2] > 50]
+    stages = [r for r in rows if 800 < r['box'][0] < 1300
+              and 180 <= r['box'][1] < 300
+              and re.match(r'^(前往|前去|寻找|跟随|尝试|抵达|与.+对话)', normal(r))]
+    controls = [r for r in rows if normal(r) in {'追踪目标', '停止追踪', '开始追踪'}
+                and r['box'][0] > 1400 and r['box'][1] > 900]
+    if len(titles) != 1 or len(stages) != 1 or len(controls) != 1:
+        return None
+    entries = [r for r in rows if r['box'][0] < 650 and 100 <= r['box'][1] < 980
+               and normal(r) == normal(titles[0])]
+    if len(entries) != 1:
+        return None
+    headers = sorted([r for r in rows if r['box'][0] < 650
+                      and 100 <= r['box'][1] < entries[0]['box'][1]
+                      and normal(r) in CATEGORIES], key=lambda r: r['box'][1])
+    if not headers:
+        return None
+    return {'quest': normal(titles[0]), 'stage': normal(stages[0]),
+            'category': normal(headers[-1]), 'source': 'archived_menu_ocr'}
+
+
+def category_history(root):
+    records = []
+    for file in root.glob('*/step-*.json'):
+        raw = file.read_bytes()
+        record = json.loads(raw.decode('utf-8-sig'))
+        category = menu_category(record.get('request', {}).get('texts', []))
+        if category and isinstance(record.get('at'), (int, float)):
+            records.append({**category, 'at': record['at'], 'evidence': str(file),
+                            'sha256': hashlib.sha256(raw).hexdigest()})
+    return sorted(records, key=lambda r: r['at'])
+
+
+def category_for_frame(row, history, quest=None):
+    if not row.get('hud') or not isinstance(row.get('at'), (int, float)):
+        return None
+    stage = re.sub(r'\s', '', row['hud']['stage'])
+    # Historical menus establish category, not that a task is still tracked.
+    # Match the current HUD stage and quest identity; never consume future data.
+    candidates = [r for r in history if 0 <= row['at']-r['at'] <= 24*60*60*1000
+                  and r['stage'] == stage and (not quest or r['quest'] == quest)]
+    identities = {(r['quest'], r['category']) for r in candidates}
+    return candidates[-1] if len(identities) == 1 else None
+
+
+def select_candidate(candidates, roi, category=None):
+    selected = candidates
+    source = CATEGORY_SOURCES.get(category)
+    if source:
+        selected = [c for c in candidates if source in c['sources']]
+    reason = 'category_unique' if source else 'unique_color_component'
+    same_color = len({name for c in selected for name in c['sources']}) == 1
+    if len(selected) > 1 and (source or same_color):
+        x, y, w, h = roi
+        radius = min(w, h)/2
+        # A pinned marker lies within one maximum icon width of the rim.
+        # Prefer only ONE eligible rim component. Never pick largest of ties.
+        rim = [c for c in selected if math.dist(c['center'], [x+w/2, y+h/2]) >= radius-28*(w/212)]
+        if len(rim) == 1:
+            selected, reason = rim, 'unique_rim_component'
+    return (selected[0], reason) if len(selected) == 1 else (None, 'ambiguous' if selected else 'not_found')
 
 
 def color_range(image):
@@ -28,7 +102,7 @@ def color_range(image):
             'sourcePixels': len(selected)}
 
 
-def detect(image, sources):
+def detect(image, sources, category=None):
     height, width = image.shape[:2]
     scale = min(width / 1920, 1)
     x, y, w, h = [round(v * scale) for v in (62, 19, 212, 212)]
@@ -62,12 +136,14 @@ def detect(image, sources):
                 near[0]['sources'].append(source['file'])
             else:
                 candidates.append(c)
-    accepted = len(candidates) == 1
+    marker, selection_reason = select_candidate(candidates, [x, y, w, h], category)
+    accepted = marker is not None
     angle = None
     if accepted:
-        cx, cy = candidates[0]['center']
+        cx, cy = marker['center']
         angle = math.degrees(math.atan2(cy-y-h/2, cx-x-w/2))
     return {'roi': [x, y, w, h], 'accepted': accepted, 'candidates': candidates,
+            'selected': marker, 'selectionReason': selection_reason, 'category': category,
             'components': components, 'imageBearingDegrees': angle,
             'gameBearingDegrees': None, 'gameBearingReason': 'same_frame_projection_required'}
 
@@ -83,6 +159,7 @@ def replay(input_file, output_file):
         image = cv2.imdecode(np.frombuffer(raw, np.uint8), cv2.IMREAD_COLOR)
         sources.append({**spec, 'colorRange': color_range(image)})
     archive = json.loads(input_file.read_text(encoding='utf8'))
+    history = category_history(ROOT/'runtime/genshin/story')
     rows, deltas = [], []
     for row in archive['frames']:
         raw = Path(row['image']).read_bytes()
@@ -90,7 +167,11 @@ def replay(input_file, output_file):
             raise ValueError('frame_hash_mismatch')
         image = cv2.imdecode(np.frombuffer(raw, np.uint8), cv2.IMREAD_COLOR)
         current = {key: row.get(key) for key in ('evidence', 'image', 'sha256', 'session', 'hud', 'at')}
-        current.update(detect(image, sources))
+        record = json.loads(Path(row['evidence']).read_text(encoding='utf-8-sig'))
+        quest = record.get('decision', {}).get('quest')
+        category = category_for_frame(row, history, quest)
+        current['categoryEvidence'] = category
+        current.update(detect(image, sources, category['category'] if category else None))
         if rows:
             previous = rows[-1]
             if (current['hud'] and current['hud'] == previous['hud'] and current['session'] == previous['session']
@@ -98,16 +179,23 @@ def replay(input_file, output_file):
                 deltas.append(abs((current['imageBearingDegrees']-previous['imageBearingDegrees']+180) % 360-180))
         rows.append(current)
     eligible = [row for row in rows if row['hud'] and 8 < row['hud']['meters'] <= 1500]
+    eligible_rate = sum(row['accepted'] for row in eligible)/len(eligible) if eligible else 0
     summary = {'frames': len(rows), 'hits': sum(row['accepted'] for row in rows),
                'hitRate': sum(row['accepted'] for row in rows)/len(rows) if rows else 0,
                'hudEligibleFrames': len(eligible), 'hudEligibleHits': sum(row['accepted'] for row in eligible),
+               'hudEligibleHitRate': eligible_rate,
+               'coverageGate': 'standard' if eligible_rate >= .7 else 'bounded_trial_only' if eligible_rate >= .5 else 'failed',
+               'categoryGroundedFrames': sum(row['categoryEvidence'] is not None for row in rows),
+               'colorRestrictedFrames': sum(row['category'] in CATEGORY_SOURCES for row in rows),
                'angleComparablePairs': len(deltas), 'stableImagePairs': sum(delta <= 15 for delta in deltas),
                'maximumImageAngleDelta': max(deltas, default=None), 'deploymentGatePassed': False}
     report = {'kind': 'offline_minimap_hsv_replay', 'inputOrNetworkCalls': 0, 'input': str(input_file),
               'inputSha256': hashlib.sha256(input_file.read_bytes()).hexdigest(),
               'sources': sources, 'summary': summary, 'frames': rows,
               'limitations': ['A color blob is not proof of a quest icon.',
-                              'Ambiguous same-color components remain rejected; no highest-area fallback.',
+                              'Only commission color is proven; other categories retain all colors.',
+                              'Multiple rim candidates remain rejected; no highest-area fallback.',
+                              'Coverage is not detection accuracy; HSV native integration is not deployed.',
                               'Saved HUD/scene data is not new independent inference.',
                               'Image bearings cannot certify world direction without projection.']}
     output_file.parent.mkdir(parents=True, exist_ok=True)

@@ -48,6 +48,47 @@ class HsvTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             module.color_range(np.zeros((12, 12, 3), np.uint8))
 
+    def test_category_filters_colors_without_fallback(self):
+        rows = [{'center': [220, 125], 'sources': ['quest-marker-blue.png']},
+                {'center': [200, 125], 'sources': ['minimap-commission.png']}]
+        selected, reason = module.select_candidate(rows, [62, 19, 212, 212], '委托任务')
+        self.assertEqual(selected, rows[1])
+        self.assertEqual(reason, 'category_unique')
+        self.assertIsNone(module.select_candidate(rows[:1], [62, 19, 212, 212], '委托任务')[0])
+
+    def test_single_rim_component_preferred_but_two_rim_components_rejected(self):
+        rows = [{'center': [260, 125], 'sources': ['fixture']},
+                {'center': [210, 125], 'sources': ['fixture']}]
+        self.assertEqual(module.select_candidate(rows, [62, 19, 212, 212])[0], rows[0])
+        rows.append({'center': [80, 125], 'sources': ['fixture']})
+        self.assertIsNone(module.select_candidate(rows, [62, 19, 212, 212])[0])
+
+    def test_unknown_category_does_not_choose_between_different_colors_by_radius(self):
+        rows = [{'center': [260, 125], 'sources': ['quest-marker-blue.png']},
+                {'center': [210, 125], 'sources': ['quest-marker.png']}]
+        self.assertIsNone(module.select_candidate(rows, [62, 19, 212, 212])[0])
+
+    def test_menu_category_requires_selected_title_in_its_own_group(self):
+        rows = [{'text': '委托任务', 'box': [185, 300, 105, 28]},
+                {'text': '世界任务', 'box': [185, 450, 105, 28]},
+                {'text': '任务甲', 'box': [170, 500, 110, 29]},
+                {'text': '任务甲', 'box': [875, 120, 140, 37]},
+                {'text': '前去查看详情', 'box': [925, 252, 153, 29]},
+                {'text': '停止追踪', 'box': [1500, 980, 120, 35]}]
+        self.assertEqual(module.menu_category(rows)['category'], '世界任务')
+        self.assertIsNone(module.menu_category(rows[:2]+rows[3:]))
+        self.assertIsNone(module.menu_category(rows[:-1]))
+
+    def test_category_history_cannot_leak_future_or_ambiguous_identity(self):
+        row = {'at': 1000, 'hud': {'stage': '前去查看详情', 'meters': 100}}
+        history = [{'at': 900, 'stage': '前去查看详情', 'quest': '甲', 'category': '委托任务'},
+                   {'at': 1100, 'stage': '前去查看详情', 'quest': '乙', 'category': '世界任务'}]
+        self.assertEqual(module.category_for_frame(row, history)['quest'], '甲')
+        self.assertIsNone(module.category_for_frame(row, history, '乙'))
+        history[1]['at'] = 950
+        self.assertIsNone(module.category_for_frame(row, history))
+        self.assertEqual(module.category_for_frame(row, history, '甲')['quest'], '甲')
+
 
 if __name__ == '__main__':
     unittest.main()
