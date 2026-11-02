@@ -33,6 +33,8 @@
 
 ## 边界
 
+实现提交 `10380f0`；部署后的控制台PID77520、原授权helper63120及session保持一致。已确认旧接管skill移除、无正在执行的run、halted/repair、inputReleased/processStopped=true、视觉空闲。评估器部署前后均0新帧/0移动/0路径/P0未通过；没有自动恢复剧情。
+
 当前仍保留每帧本地视觉/OCR核验；它的延迟可能成为下一瓶颈，尚未证明端到端高频或通关。低命中率时预规划可能额外花 token，源帧记账可用于后续评估。小地图任务方位识别问题仍属于独立工作，不因关闭思考或模型分工而自动解决。
 
 依据官方参数说明：<https://api-docs.deepseek.com/guides/thinking_mode/>、<https://api-docs.deepseek.com/api/create-chat-completion/>。本次未修复既有 Git 对象损坏，未运行 gc/repack/prune。
