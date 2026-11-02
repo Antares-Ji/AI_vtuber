@@ -1,13 +1,18 @@
 // Local feedback owns held movement; cloud inference runs only at intent boundaries.
 const StoryContinuousNavigation = (() => {
+  function departureStop(rows,grounding,departure){
+    const stop=grounding.movementStop(rows),stage=grounding.questInstruction(rows)?.text,p=grounding.interaction(rows);
+    return stop==='interaction_prompt'&&departure?.stage===stage&&p.state==='unique'&&p.candidates[0].text===departure.text?null:stop;
+  }
   function create(deps) {
     const {grounding, read, sleep, checkInput, keyDown, keyUp, now = Date.now} = deps;
+    const movementStop=deps.movementStop||grounding.movementStop;
     return async function navigate(action) {
       if (!['W','A','S','D'].includes(action.key) || !Number.isInteger(action.ms)
           || action.ms < 400 || action.ms > 8000) throw Error('Invalid continuous navigation budget');
       const initial = read(), stage = grounding.questInstruction(initial)?.text;
       const result = {kind:'continuous-navigation', movementMsSent:0, checks:[], stopReason:null, verified:false};
-      const stop = grounding.movementStop(initial);
+      const stop = movementStop(initial);
       if (stop || !stage) return {...result, stopReason:stop || 'stage_missing'};
       let heldAt = null, missing = 0, stalledSince = now();
       let position = deps.position ? deps.position() : null, positionAt = now(), lastPositionProgressAt = now();
@@ -25,7 +30,7 @@ const StoryContinuousNavigation = (() => {
           const distance = grounding.questHud(rows)?.meters ?? null;
           result.progress.stageAfter=instruction?.text??null;result.progress.distanceAfter=distance;
           result.checks.push({at, distance});
-          result.stopReason = grounding.movementStop(rows);
+          result.stopReason = movementStop(rows);
           if (!result.stopReason && deps.world && !deps.world()) result.stopReason = 'native_world_changed';
           if (!result.stopReason && instruction && instruction.text !== stage) result.stopReason = 'stage_changed';
           missing = instruction ? 0 : missing + 1;
@@ -105,6 +110,6 @@ const StoryContinuousNavigation = (() => {
     }
     result.stopReason||=index>=directions.length?'directions_exhausted':'duration_budget';return result;
   }
-  return {create, monitorPath, advanceDialogue, seek};
+  return {create, monitorPath, advanceDialogue, seek, departureStop};
 })();
 if (typeof module !== 'undefined' && module.exports) module.exports = StoryContinuousNavigation;

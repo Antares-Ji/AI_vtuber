@@ -482,14 +482,19 @@ if(typeof module!=='undefined'&&module.exports)module.exports=StoryPostActionPos
 // Source: story/macros/continuous-navigation.js
 // Local feedback owns held movement; cloud inference runs only at intent boundaries.
 const StoryContinuousNavigation = (() => {
+  function departureStop(rows,grounding,departure){
+    const stop=grounding.movementStop(rows),stage=grounding.questInstruction(rows)?.text,p=grounding.interaction(rows);
+    return stop==='interaction_prompt'&&departure?.stage===stage&&p.state==='unique'&&p.candidates[0].text===departure.text?null:stop;
+  }
   function create(deps) {
     const {grounding, read, sleep, checkInput, keyDown, keyUp, now = Date.now} = deps;
+    const movementStop=deps.movementStop||grounding.movementStop;
     return async function navigate(action) {
       if (!['W','A','S','D'].includes(action.key) || !Number.isInteger(action.ms)
           || action.ms < 400 || action.ms > 8000) throw Error('Invalid continuous navigation budget');
       const initial = read(), stage = grounding.questInstruction(initial)?.text;
       const result = {kind:'continuous-navigation', movementMsSent:0, checks:[], stopReason:null, verified:false};
-      const stop = grounding.movementStop(initial);
+      const stop = movementStop(initial);
       if (stop || !stage) return {...result, stopReason:stop || 'stage_missing'};
       let heldAt = null, missing = 0, stalledSince = now();
       let position = deps.position ? deps.position() : null, positionAt = now(), lastPositionProgressAt = now();
@@ -507,7 +512,7 @@ const StoryContinuousNavigation = (() => {
           const distance = grounding.questHud(rows)?.meters ?? null;
           result.progress.stageAfter=instruction?.text??null;result.progress.distanceAfter=distance;
           result.checks.push({at, distance});
-          result.stopReason = grounding.movementStop(rows);
+          result.stopReason = movementStop(rows);
           if (!result.stopReason && deps.world && !deps.world()) result.stopReason = 'native_world_changed';
           if (!result.stopReason && instruction && instruction.text !== stage) result.stopReason = 'stage_changed';
           missing = instruction ? 0 : missing + 1;
@@ -587,9 +592,63 @@ const StoryContinuousNavigation = (() => {
     }
     result.stopReason||=index>=directions.length?'directions_exhausted':'duration_budget';return result;
   }
-  return {create, monitorPath, advanceDialogue, seek};
+  return {create, monitorPath, advanceDialogue, seek, departureStop};
 })();
 if (typeof module !== 'undefined' && module.exports) module.exports = StoryContinuousNavigation;
+
+// Source: story/macros/area-search.js
+// Search a bounded area using BGI CV position and PathExecutor, not model keys.
+const StoryAreaSearch=(()=>{
+ function offsets(){
+  const result=[];
+  for(const radius of [6,12,18]){
+   for(let x=-radius;x<=radius;x+=6)result.push({x,y:-radius});
+   for(let y=-radius+6;y<=radius;y+=6)result.push({x:radius,y});
+   for(let x=radius-6;x>=-radius;x-=6)result.push({x,y:radius});
+   for(let y=radius-6;y>-radius;y-=6)result.push({x:-radius,y});
+  }
+  return result;
+ }
+ function create({grounding,read,position,pathingScript,createCancellationTokenSource,monitorPath,sleep,checkInput,getDeadline,movementStop,now=Date.now}){
+  let state=null;
+  return async function search(){
+   checkInput();const rows=read(),stage=grounding.questInstruction(rows)?.text;
+   const result={kind:'area-search',points:[],stopReason:null,verified:false,movementMsSent:null,movementTelemetryComplete:false};
+   const stop=movementStop(rows);if(stop||!stage)return {...result,stopReason:stop||'stage_missing'};
+   if(!rows.some(t=>/已到达任务区域|在此区域内搜索目标/.test(t.text)))return {...result,stopReason:'outside_search_area'};
+   if(!state||state.stage!==stage){
+    const p=position();await sleep(100);checkInput();const p2=position();
+    if(!p||!p2||![p.x,p.y,p2.x,p2.y].every(Number.isFinite)||Math.hypot(p.x-p2.x,p.y-p2.y)>5)return {...result,stopReason:'position_unstable'};
+    state={stage,origin:p2,cursor:0};
+   }
+   result.origin=state.origin;result.cursorBefore=state.cursor;
+   const points=offsets(),started=now();
+   for(let n=0;n<8&&state.cursor<points.length&&now()-started<60000;n++){
+    checkInput();const budget=Math.min(12000,getDeadline()-now()-2000);if(budget<=0){result.stopReason='deadline';break;}
+    const offset=points[state.cursor++],to={x:state.origin.x+offset.x,y:state.origin.y+offset.y};
+    const cts=createCancellationTokenSource();let run=null;
+    const entry={to,startedAt:now()};result.points.push(entry);
+    try{
+     cts.cancelAfter(budget);checkInput();
+     run=Promise.resolve(pathingScript.run(JSON.stringify({info:{name:'AI-VTuber-area-search',type:'collect',map_name:'Teyvat',bgi_version:'0.66.0'},positions:[{id:1,...to,type:'target',move_mode:'walk',action:''}]}),cts.token));
+     const watched=await monitorPath({run:()=>run,cts,read,checkInput,sleep,now,inspect:fresh=>{
+      let stopReason=movementStop(fresh);
+      const instruction=grounding.questInstruction(fresh);
+      if(!stopReason&&(!instruction||instruction.text!==stage))stopReason='stage_changed_or_missing';
+      return {stopReason};
+     }});
+     entry.stopReason=watched.stopReason||(cts.isCancellationRequested?'path_timeout':null);entry.checks=watched.samples.length;
+    }finally{
+     try{cts.cancel();if(run)await run;}finally{cts.dispose();entry.durationMs=now()-entry.startedAt;}
+    }
+    if(entry.stopReason){result.stopReason=entry.stopReason;break;}
+   }
+   result.cursorAfter=state.cursor;result.stopReason||=state.cursor>=points.length?'area_exhausted':'segment_budget';return result;
+  };
+ }
+ return {create,offsets};
+})();
+if(typeof module!=='undefined'&&module.exports)module.exports=StoryAreaSearch;
 
 // Source: story/macros/travel-quest.js
 // Shared native intent macro and pure evidence rules. Loading in Node sends no input.
@@ -920,8 +979,8 @@ else (async function(){
  const sessionDeadline=receipt.startedAt+Math.max(30000,command.timeoutMs-90000);
  const save=()=>file.writeTextSync('receipt.json',JSON.stringify(receipt));
  const normalize=s=>String(s||'').replace(/\s/g,'');
- let activeInput=null,observationDelayMs=400;
- const inputKinds=new Set(['key','click_text','choose_dialogue','follow_marker','reset_camera','advance_quest','travel_quest','turn','teleport','move','fight','leave_interaction','navigate','seek_quest']);
+ let activeInput=null,observationDelayMs=400,departedInteraction=null;
+ const inputKinds=new Set(['key','click_text','choose_dialogue','follow_marker','reset_camera','advance_quest','travel_quest','turn','teleport','move','fight','leave_interaction','navigate','seek_quest','search_area']);
  function inputFailure(code,message){
   const error=Error(message);error.code=code;
   if(activeInput){activeInput.errorCode=code;activeInput.failedAt=Date.now();}
@@ -965,9 +1024,17 @@ else (async function(){
  }
  const readFreshTexts=()=>{const frame=captureGameRegion();try{return readTexts(frame);}finally{frame.dispose();}};
  const navigate=StoryContinuousNavigation.create({grounding:StoryGrounding,read:readFreshTexts,sleep,checkInput,keyDown:guardedKeyDown,keyUp:key=>keyUp(key),
+  movementStop:rows=>{
+   const stage=StoryGrounding.questInstruction(rows)?.text;
+   if(departedInteraction&&stage!==departedInteraction.stage)departedInteraction=null;
+   // A model-authorized departure is a narrow handoff. Walking back within the
+   // same bounded macro need not re-prompt about this exact unrelated object.
+   return StoryContinuousNavigation.departureStop(rows,StoryGrounding,departedInteraction);
+  },
   position:()=>{checkInput();try{const p=genshin.getPositionFromMap('Teyvat',0);return p?{x:Number(p.x??p.X),y:Number(p.y??p.Y)}:null;}catch{return null;}},
   world:()=>{checkInput();const f=captureGameRegion();try{if(typeof getOwnedSceneObservation==='undefined')return false;const v=JSON.parse(getOwnedSceneObservation(f));return v.ui==='Main'&&v.motion==='Normal';}finally{f.dispose();}}
  });
+ const searchArea=StoryAreaSearch.create({grounding:StoryGrounding,read:readFreshTexts,position:()=>{checkInput();const p=genshin.getPositionFromMap('Teyvat',0);return p?{x:Number(p.x??p.X),y:Number(p.y??p.Y)}:null;},pathingScript:typeof pathingScript==='undefined'?null:pathingScript,createCancellationTokenSource:()=>new CancellationTokenSource(),monitorPath:StoryContinuousNavigation.monitorPath,sleep,checkInput,getDeadline:()=>Math.min(activeInput?.deadlineAt||sessionDeadline,sessionDeadline),movementStop:rows=>StoryContinuousNavigation.departureStop(rows,StoryGrounding,departedInteraction)});
  const travelQuest=StoryTravel.createTravelQuest({
   grounding:StoryGrounding,captureGameRegion,readTexts,sleep,now:()=>Date.now(),checkInput,
   keyDown:guardedKeyDown,keyUp:key=>keyUp(key),moveMouseBy:guardedMoveMouseBy,middleButtonClick:guardedMiddleButtonClick,
@@ -1144,7 +1211,10 @@ else (async function(){
     if(recovery)throw Error('执行前出现复苏提示，未发送大世界输入');
    }
    if(action.kind==='key'){
-    if(!['J','M','ESCAPE','F','V','SPACE'].includes(action.key))throw Error('不允许的剧情按键');
+    if(!['J','M','ESCAPE','F','V','SPACE','X'].includes(action.key))throw Error('不允许的剧情按键');
+    if(action.key==='X'){
+     const f=captureGameRegion();try{if(typeof getOwnedSceneObservation==='undefined'||JSON.parse(getOwnedSceneObservation(f)).motion!=='Climb')throw Error('攀爬状态已变化，未发送X');}finally{f.dispose();}
+    }
     if(action.key==='F')detail=await interact(action,priorSteps);
     else if(action.key==='SPACE'&&StoryGrounding.sceneCue(readFreshTexts())==='dialogue')detail=JSON.stringify(await StoryContinuousNavigation.advanceDialogue({grounding:StoryGrounding,read:readFreshTexts,checkInput,keyDown:guardedKeyDown,keyUp:key=>keyUp(key),sleep}));
     else {const key=action.key==='ESCAPE'?'VK_ESCAPE':action.key==='SPACE'?'VK_SPACE':'VK_'+action.key;
@@ -1184,10 +1254,11 @@ else (async function(){
      else detail='对话布局或回复选项变化，本步未点击';
     }finally{cap.dispose();}
    }else if(action.kind==='leave_interaction'){
-    const frame=captureGameRegion();let prompt;
-    try{prompt=StoryGrounding.interaction(readTexts(frame));}finally{frame.dispose();}
+    const frame=captureGameRegion();let prompt,departureStage;
+    try{const rows=readTexts(frame);prompt=StoryGrounding.interaction(rows);departureStage=StoryGrounding.questInstruction(rows)?.text;}finally{frame.dispose();}
     if(prompt.state!=='unique'||prompt.candidates[0].text!==action.text||!['W','A','S','D'].includes(action.key)||action.ms!==400)throw Error('离开交互前目标已变化，未移动');
     guardedKeyDown('VK_'+action.key);try{await sleep(400);}finally{keyUp('VK_'+action.key);}
+    departedInteraction=departureStage?{stage:departureStage,text:action.text}:null;
     detail=JSON.stringify({kind:'leave_interaction',target:action.text,movementMsSent:400,verified:false});
    }else if(action.kind==='wait'){await sleep(2000);}
    else if(action.kind==='complete_quest'){detail=JSON.stringify({kind:'completion_acknowledgement',quest:action.quest,inputSent:false,source:'server_ocr_evidence',verified:false});}
@@ -1197,6 +1268,7 @@ else (async function(){
    else if(action.kind==='reset_camera'){guardedMiddleButtonClick();await sleep(600);detail='镜头复位输入已发送，等待下一帧核对';}
    else if(action.kind==='advance_quest'){detail=JSON.stringify(await navigate({key:action.key,ms:8000}));}
    else if(action.kind==='navigate'){detail=JSON.stringify(await navigate(action));}
+   else if(action.kind==='search_area'){detail=JSON.stringify(await searchArea());}
    else if(action.kind==='seek_quest'){
     const hud=StoryGrounding.questHud(readFreshTexts());
     if(!hud||hud.meters<=5||hud.meters>300)throw Error('本地距离反馈寻路需要当前5–300m任务HUD');
@@ -1236,7 +1308,7 @@ else (async function(){
  }catch(error){receipt.state='error';receipt.error=String(error.message||error).slice(0,500);receipt.errorCode=error.code||null;}
  finally{
   // Releases are always allowed, including after focus loss or deadline expiry.
-  for(const key of ['VK_W','VK_A','VK_S','VK_D','VK_F','VK_V','VK_J','VK_M','VK_ESCAPE','VK_SPACE'])try{keyUp(key);}catch{}
+  for(const key of ['VK_W','VK_A','VK_S','VK_D','VK_F','VK_V','VK_J','VK_M','VK_X','VK_ESCAPE','VK_SPACE'])try{keyUp(key);}catch{}
   try{dispatcher.clearAllTriggers();}catch(error){receipt.cleanupError=String(error.message||error).slice(0,200);}
   try{const last=captureGameRegion();try{file.writeImageSync('after.png',last.srcMat);}finally{last.dispose();}}
   catch(error){receipt.captureError=String(error.message||error).slice(0,200);}

@@ -91,3 +91,10 @@ test('local seeker exhausts four blocked directions and propagates cancellation 
  assert.deepEqual(keys,['W','S','A','D']);assert.equal(r.stopReason,'directions_exhausted');
  let count=0;await assert.rejects(nav.seek({checkInput(){throw Error('cancel');},navigate:async()=>{count++;}}),/cancel/);assert.equal(count,0);
 });
+test('departure handoff skips only the model-selected label in the same task stage',()=>{
+ const d={text:'法拉',stage:'收集木材'};
+ assert.equal(nav.departureStop([...stage,...f],g,d),null);
+ assert.equal(nav.departureStop([...stage,...f],g,{...d,text:'烹饪'}),'interaction_prompt');
+ assert.equal(nav.departureStop([...stage,...f],g,{...d,stage:'收集绳子'}),'interaction_prompt');
+ assert.equal(nav.departureStop([{text:'商城',box:[100,100,80,30]}],g,d),'menu');
+});

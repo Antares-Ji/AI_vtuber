@@ -2,7 +2,7 @@
 const {buildStoryPrompt}=require('./story-prompt');
 const {respond,settings}=require('./model-provider');
 const grounding=require('../../scripts/genshin/story-main');
-const MOVEMENT=['seek_quest','navigate','move','turn','reset_camera','travel_quest','advance_quest','follow_marker','teleport','list_waypoints','key','wait','stop'];
+const MOVEMENT=['search_area','seek_quest','navigate','move','turn','reset_camera','travel_quest','advance_quest','follow_marker','teleport','list_waypoints','key','wait','stop'];
 const INTERACTION=['leave_interaction','key','click_text','choose_dialogue','list_waypoints','teleport','complete_quest','fight','wait','stop'];
 const SCHEMA={type:'object',required:['action'],properties:{action:{type:'object'},reason:{type:'string'},prediction:{type:['object','null']}}};
 function workerFor(observation){
@@ -38,7 +38,8 @@ function prompt(context,{role=workerFor(context.observation),rejected=[],handoff
  base.texts=base.texts.map(t=>({text:t.text,box:t.box,...(t.source?{source:t.source}:{})}));
  if(role==='movement')base.texts=base.texts.filter(t=>t.box?.[0]<650||/\bF\b/.test(t.text)).slice(0,24);
  base.worker=role;base.handoff=handoff;base.forecast=forecast;
- const priority=base.navigationPriority?'\n本帧已校验：travel_quest可用、failedTravels=0。navigate/按W的失败只证明该固定方向不对，不是CV寻路失败；历史stop也不是当前阻塞。先让BGI通过travel_quest识别任务方位、闭环行走，不要因为旧的直走失败而停止。':
+ const priority=base.observation.nativeVision?.motion==='Climb'?'\nBGI原生CV确认当前正在攀爬。持续wait不会松开墙壁，可选择{action:{kind:"key",key:"X"}}脱离攀爬；原生会再次确认Climb再按X。随后根据新画面改方向，不重复向墙直走。':base.navigationPriority?'\n本帧已校验：travel_quest可用、failedTravels=0。navigate/按W的失败只证明该固定方向不对，不是CV寻路失败；历史stop也不是当前阻塞。先让BGI通过travel_quest识别任务方位、闭环行走，不要因为旧的直走失败而停止。':
+  base.observation.questArea?.state==='search_area'?'\n当前已到任务搜索区，优先{action:{kind:"search_area"}}。BGI会用当前CV坐标在周边18m内按网格路径巡查、检测F，跨调用保留搜索点进度；不要反复W走出搜索区。遇到与收集任务相关的物品/调查提示就F交互。':
   base.observation.travelQuest?.hud?.meters>5&&base.observation.travelQuest.hud.meters<=300?'\n当前有5–300m任务距离，但图标寻路已有失败。可选择{action:{kind:"seek_quest"}}：BGI在本地以HUD距离变化选方向，CV检查移动和卡住，连续行走最多60秒，交互或阶段变化立即返回。优先此原生反馈意图，不再自己逐步猜W/转镜，也不要因为旧navigate失败就stop。':'';
  return {input:JSON.stringify(base),instructions:RULES+priority+(forecast?'\n这是执行中的动作之后的假设状态，只预规划一步，绝不发送输入。若无法依据已知数据规划则wait。':'')};
 }

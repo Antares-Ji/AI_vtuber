@@ -21,3 +21,9 @@ test('adventurer handbook OCR is a closable menu even when native generic templa
  const texts=['本周砺行进度','选择委托任务倾向地域','见闻','每日委托奖励'].map((text,i)=>({text,box:[300,i*100+100,200,30]}));
  assert.equal(observe({texts,nativeVision:{source:'bettergi_native_cv',ui:'Unknown'}}).scene,'menu');
 });
+test('climbing recovery requires same-frame native CV and never accepts a world guess',()=>{
+ const validate=require('../src/genshin/story-runtime').validateDecision,value={action:{kind:'key',key:'X'}};
+ assert.doesNotThrow(()=>validate(value,{texts:[]},{scene:'world',nativeVision:{source:'bettergi_native_cv',motion:'Climb'}}));
+ assert.throws(()=>validate(value,{texts:[]},{scene:'world'}));
+ assert.throws(()=>validate(value,{texts:[]},{scene:'world',nativeVision:{source:'bettergi_native_cv',motion:'Normal'}}));
+});

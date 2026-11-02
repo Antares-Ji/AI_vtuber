@@ -26,7 +26,7 @@ function commentaryReceipt(id,phase,audioEnabled,consumer='legacy'){
 }
 function validateDecision(value,request,observation){
  const a=value?.action;
- if(!a||!['key','click_text','choose_dialogue','wait','stop','move','fight','list_waypoints','teleport','follow_marker','turn','reset_camera','advance_quest','travel_quest','complete_quest','leave_interaction','navigate','seek_quest'].includes(a.kind))throw Error('剧情动作格式无效');
+ if(!a||!['key','click_text','choose_dialogue','wait','stop','move','fight','list_waypoints','teleport','follow_marker','turn','reset_camera','advance_quest','travel_quest','complete_quest','leave_interaction','navigate','seek_quest','search_area'].includes(a.kind))throw Error('剧情动作格式无效');
  const action={kind:a.kind};
  if(observation.uncertain&&!['wait','stop'].includes(a.kind))throw Error('场景不确定，只能重新观察');
  const startup=grounding.loginPrompt(request.texts);
@@ -45,7 +45,8 @@ function validateDecision(value,request,observation){
   action.quest=a.quest;
  }
  if(a.kind==='key'){
-  if(!['J','M','ESCAPE','F','V','SPACE'].includes(a.key))throw Error('不支持的剧情按键');
+  if(!['J','M','ESCAPE','F','V','SPACE','X'].includes(a.key))throw Error('不支持的剧情按键');
+  if(a.key==='X'&&(observation.scene!=='world'||observation.nativeVision?.source!=='bettergi_native_cv'||observation.nativeVision.motion!=='Climb'))throw Error('X脱离攀爬需要当前BGI原生Climb证据');
   if(a.key==='SPACE'&&observation.scene==='dialogue'&&observation.dialogue?.options?.length)throw Error('当前有回复选项，空格不能代替选择；使用choose_dialogue选择dialogue.options中的文字');
   if(a.key==='V'&&request.recentActions?.slice(-2).length===2&&request.recentActions.slice(-2).every(a=>a.kind==='key'&&a.key==='V'))throw Error('连续两次V没有产生有效导航，改用follow_marker或依据当前界面恢复，不能反复按V');
   action.key=a.key;
@@ -103,6 +104,9 @@ function validateDecision(value,request,observation){
  if(a.kind==='seek_quest'){
   const hud=grounding.questHud(request.texts),cv=observation.nativeVision;
   if(observation.scene!=='world'||cv?.source!=='bettergi_native_cv'||cv.ui!=='Main'||cv.motion!=='Normal'||!hud||hud.meters<=5||hud.meters>300||grounding.movementStop(request.texts))throw Error('seek_quest需要BGI原生大世界、普通运动状态及5–300m当前任务HUD；菜单先返回世界，未知场景重新观察');
+ }
+ if(a.kind==='search_area'){
+  if(observation.scene!=='world'||observation.questArea?.state!=='search_area'||observation.nativeVision?.source!=='bettergi_native_cv'||grounding.movementStop(request.texts))throw Error('区域搜索需要当前BGI世界及已到达任务区域OCR；先处理交互或前往任务区域');
  }
  if(a.kind==='leave_interaction'){
   const p=grounding.interaction(request.texts);
