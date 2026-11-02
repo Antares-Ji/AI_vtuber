@@ -52,6 +52,17 @@ class StoryContinuation {
   }
  }
  snapshot(){return {...this.state};}
+ checkProgress(progress){
+  if(!progress?.stage||!Number.isFinite(progress.at))return false;
+  const old=this.state.progressBudget;
+  if(old&&progress.at<=old.lastAt)return false;
+  const distance=Number.isFinite(progress.distance)?progress.distance:null;
+  const improved=old&&distance!==null&&old.distance!==null&&distance<=old.distance-5;
+  const reset=!old||old.stage!==progress.stage||improved;
+  const next=reset?{stage:progress.stage,since:progress.at,distance,lastAt:progress.at}:{...old,lastAt:progress.at};
+  this.persist({progressBudget:next});
+  return progress.at-next.since>=15*60000;
+ }
  recordNative(nativeId){
   if(this.state.revoked||!this.state.sessionId||this.state.nativeId===nativeId)return this.snapshot();
   if(typeof nativeId!=='string'||!/^[0-9a-f-]{36}$/i.test(nativeId))throw Error('Invalid native training job ID');
@@ -93,6 +104,11 @@ class StoryContinuation {
    if(!run)return this.stop('run_missing');
    const observed=this.evidence(run)||{};
    if(observed.nativeId&&observed.nativeId!==this.state.nativeId)this.recordNative(observed.nativeId);
+   if(this.checkProgress(observed.progress)){
+    this.stop('stage_no_progress_budget');
+    if(['RUNNING','STOPPING'].includes(run.state))this.host.stop?.(run.id,'stage_no_progress_budget');
+    return;
+   }
    if(['RUNNING','STOPPING'].includes(run.state))return;
    const execution=run.result?.execution,receipt=execution?.receipt,recovery=transientFailure({...run,error:String(run.error||'')+' '+String(observed.errorCode||'')});
    if(recovery){

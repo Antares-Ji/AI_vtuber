@@ -78,6 +78,10 @@ const StoryGrounding=(()=>{
   }
   return {state:anchors.length===1&&candidates.length===1?'unique':anchors.length?'ambiguous':'absent',candidates};
  }
+ function collectionTarget(texts,target){
+  const stage=questInstruction(texts)?.text||'';
+  return /收集|搜集|寻找/.test(stage)&&/调查|木板|木材|绳索/.test(normal(target));
+ }
  function movementStop(texts){return sceneCue(texts)||(['unique','ambiguous'].includes(interaction(texts).state)?'interaction_prompt':null);}
  function detail(step){try{return JSON.parse(step?.detail);}catch{return null;}}
  function navigationFeedback(steps){
@@ -164,7 +168,7 @@ const StoryGrounding=(()=>{
       direction: label.box[0] + label.box[2] / 2 < 880 ? 'left' : label.box[0] + label.box[2] / 2 > 1040 ? 'right' : 'center', verified: false };
   }
 
- return {interaction,movementStop,sceneCue,navigationFeedback,travelFeedback,interactionBlocked,questMenu,recoveryPrompt,loginPrompt,questInstruction,mapMenu,questHud,travelEligibility,questDistanceLabel};
+ return {interaction,collectionTarget,movementStop,sceneCue,navigationFeedback,travelFeedback,interactionBlocked,questMenu,recoveryPrompt,loginPrompt,questInstruction,mapMenu,questHud,travelEligibility,questDistanceLabel};
 })();
 
 if(typeof module!=='undefined'&&module.exports)module.exports=StoryGrounding;

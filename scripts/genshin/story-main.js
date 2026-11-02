@@ -80,6 +80,10 @@ const StoryGrounding=(()=>{
   }
   return {state:anchors.length===1&&candidates.length===1?'unique':anchors.length?'ambiguous':'absent',candidates};
  }
+ function collectionTarget(texts,target){
+  const stage=questInstruction(texts)?.text||'';
+  return /收集|搜集|寻找/.test(stage)&&/调查|木板|木材|绳索/.test(normal(target));
+ }
  function movementStop(texts){return sceneCue(texts)||(['unique','ambiguous'].includes(interaction(texts).state)?'interaction_prompt':null);}
  function detail(step){try{return JSON.parse(step?.detail);}catch{return null;}}
  function navigationFeedback(steps){
@@ -166,7 +170,7 @@ const StoryGrounding=(()=>{
       direction: label.box[0] + label.box[2] / 2 < 880 ? 'left' : label.box[0] + label.box[2] / 2 > 1040 ? 'right' : 'center', verified: false };
   }
 
- return {interaction,movementStop,sceneCue,navigationFeedback,travelFeedback,interactionBlocked,questMenu,recoveryPrompt,loginPrompt,questInstruction,mapMenu,questHud,travelEligibility,questDistanceLabel};
+ return {interaction,collectionTarget,movementStop,sceneCue,navigationFeedback,travelFeedback,interactionBlocked,questMenu,recoveryPrompt,loginPrompt,questInstruction,mapMenu,questHud,travelEligibility,questDistanceLabel};
 })();
 
 if(typeof module!=='undefined'&&module.exports)module.exports=StoryGrounding;
@@ -1254,12 +1258,16 @@ else (async function(){
      else detail='对话布局或回复选项变化，本步未点击';
     }finally{cap.dispose();}
    }else if(action.kind==='leave_interaction'){
-    const frame=captureGameRegion();let prompt,departureStage;
-    try{const rows=readTexts(frame);prompt=StoryGrounding.interaction(rows);departureStage=StoryGrounding.questInstruction(rows)?.text;}finally{frame.dispose();}
-    if(prompt.state!=='unique'||prompt.candidates[0].text!==action.text||!['W','A','S','D'].includes(action.key)||action.ms!==400)throw Error('离开交互前目标已变化，未移动');
-    guardedKeyDown('VK_'+action.key);try{await sleep(400);}finally{keyUp('VK_'+action.key);}
-    departedInteraction=departureStage?{stage:departureStage,text:action.text}:null;
-    detail=JSON.stringify({kind:'leave_interaction',target:action.text,movementMsSent:400,verified:false});
+    const frame=captureGameRegion();let prompt,departureStage,collectible;
+    try{const rows=readTexts(frame);prompt=StoryGrounding.interaction(rows);departureStage=StoryGrounding.questInstruction(rows)?.text;collectible=StoryGrounding.collectionTarget(rows,action.text);}finally{frame.dispose();}
+    if(!['W','A','S','D'].includes(action.key)||action.ms!==400)throw Error('无效的离开交互动作');
+    if(prompt.state!=='unique'||prompt.candidates[0].text!==action.text||collectible){
+     detail=JSON.stringify({kind:'leave_interaction',target:action.text,stopReason:'target_changed_or_collectible',movementMsSent:0,verified:false});
+    }else{
+     guardedKeyDown('VK_'+action.key);try{await sleep(400);}finally{keyUp('VK_'+action.key);}
+     departedInteraction=departureStage?{stage:departureStage,text:action.text}:null;
+     detail=JSON.stringify({kind:'leave_interaction',target:action.text,movementMsSent:400,verified:false});
+    }
    }else if(action.kind==='wait'){await sleep(2000);}
    else if(action.kind==='complete_quest'){detail=JSON.stringify({kind:'completion_acknowledgement',quest:action.quest,inputSent:false,source:'server_ocr_evidence',verified:false});}
    else if(action.kind==='list_waypoints'){detail='查询地图目录：'+action.area;}

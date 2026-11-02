@@ -1,5 +1,21 @@
 const {test}=require('node:test'),assert=require('node:assert/strict');
 const {StoryContinuation}=require('../src/genshin/story-continuation');
+test('stage budget persists across segments, ignores repeated frames and halts the owned run',async()=>{
+ let now=0,progress={at:0,stage:'收集木材',distance:40};const stopped=[];
+ const run={id:'owned',state:'RUNNING'};
+ const c=new StoryContinuation({host:{status:()=>run,stop:(...args)=>stopped.push(args)},ready:async()=>true,evidence:()=>({progress}),clock:()=>now,timer:false});
+ c.begin('任务',run,{mode:'until_stopped'});
+ await c.tick();now=16*60000;await c.tick();assert.equal(c.snapshot().active,true,'stale frame is not new evidence');
+ progress={...progress,at:now,distance:43};await c.tick();
+ assert.equal(c.snapshot().reason,'stage_no_progress_budget');assert.deepEqual(stopped,[['owned','stage_no_progress_budget']]);
+});
+test('stage change or meaningful distance decrease renews progress; moving away does not',()=>{
+ const c=new StoryContinuation({host:{},timer:false});
+ assert.equal(c.checkProgress({at:0,stage:'收集木材',distance:40}),false);
+ c.checkProgress({at:100,stage:'收集木材',distance:60});assert.equal(c.snapshot().progressBudget.since,0);
+ c.checkProgress({at:200,stage:'收集木材',distance:35});assert.equal(c.snapshot().progressBudget.since,200);
+ c.checkProgress({at:300,stage:'将结实的木板交给法拉',distance:60});assert.equal(c.snapshot().progressBudget.since,300);
+});
 function fixture({ready=async()=>true,cleanup=async()=>false,clock=()=>0,mode='bounded'}={}){
  const runs=new Map(),starts=[];
  const host={status:id=>runs.get(id),start:input=>{starts.push(input);const run={id:'r'+starts.length,state:'RUNNING'};runs.set(run.id,run);return run;}};

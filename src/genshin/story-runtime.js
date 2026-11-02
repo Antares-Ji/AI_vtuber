@@ -110,6 +110,7 @@ function validateDecision(value,request,observation){
  }
  if(a.kind==='leave_interaction'){
   const p=grounding.interaction(request.texts);
+  if(grounding.collectionTarget(request.texts,a.text))throw Error('当前收集阶段的调查/木板候选不能直接离开；选择唯一F交互后重新核验HUD');
   if(observation.scene!=='world'||p.state!=='unique'||p.candidates[0].text!==a.text||!['W','A','S','D'].includes(a.key))throw Error('离开交互需要当前唯一目标及明确方向');
   Object.assign(action,{text:a.text,key:a.key,ms:400});
  }

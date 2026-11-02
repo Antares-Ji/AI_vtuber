@@ -26,10 +26,15 @@ function prompt(context,{role=workerFor(context.observation),rejected=[],handoff
  // Preserve action-relevant facts while removing narration and repeated archives.
  base.goal=String(base.goal||'').slice(0,500);delete base.questMemory;
  const o=base.observation;
- for(const key of ['summary','walkthroughReference','frameEvidence','task_menu','visible_text'])delete o[key];
+ for(const key of ['summary','frameEvidence','task_menu','visible_text'])delete o[key];
+ const target=grounding.interaction(context.texts).candidates[0]?.text;
  if(o.navigation)delete o.navigation.evidence;
  base.navigationMemory={stage:base.navigationMemory.stage,teleportAttempts:base.navigationMemory.teleportAttempts};
  base.availableIntents=[...(role==='movement'?MOVEMENT:INTERACTION)];
+ if(target&&grounding.collectionTarget(context.texts,target)){
+  base.availableIntents=base.availableIntents.filter(k=>k!=='leave_interaction');
+  base.collectionInteraction={target,preferredAction:{kind:'key',key:'F',text:target},reason:'当前搜集阶段的调查/物品候选；先交互并用新HUD核验结果'};
+ }
  if(base.observation.travelQuest?.ok===false)base.availableIntents=base.availableIntents.filter(k=>k!=='travel_quest');
  if(base.observation.travelQuest?.ok&&base.observation.travelQuest.feedback?.failedTravels===0){
   base.availableIntents=base.availableIntents.filter(k=>!['navigate','move','advance_quest','follow_marker'].includes(k));

@@ -8,6 +8,20 @@ function fixture(t){
  return {root,env:{GENSHIN_DEEPSEEK_API_KEY:'test-key'}};
 }
 const context={goal:'只做当前任务',observation:{scene:'world',uncertain:false,navigation:{terrain:'open'},interaction:{state:'none'},summary:'冗长解说'},texts:[],mapAreas:[],waypoints:[]};
+test('collection investigation keeps the guide and is handed to F instead of walking away',()=>{
+ const texts=[{text:'收集木材',box:[75,246,153,33]},{text:'F',box:[1100,480,25,30]},{text:'调查',box:[1150,480,80,30]}];
+ const g=require('../scripts/genshin/story-main'),guide=require('../src/genshin/story-guides').questGuide('紧急修理');
+ const observation={...context.observation,interaction:g.interaction(texts),walkthroughReference:guide};
+ assert.equal(workers.workerFor(observation),'interaction');
+ const data=JSON.parse(workers.prompt({...context,texts,observation}).input);
+ assert.equal(data.observation.walkthroughReference.kind,'external_walkthrough_not_live_evidence');
+ assert.ok(!data.availableIntents.includes('leave_interaction'));
+ assert.deepEqual(data.collectionInteraction.preferredAction,{kind:'key',key:'F',text:'调查'});
+ const runtime=require('../src/genshin/story-runtime');
+ assert.throws(()=>runtime.validateDecision({action:{kind:'leave_interaction',text:'调查',key:'W'}},{texts},observation),/不能直接离开/);
+ assert.equal(runtime.validateDecision({action:{kind:'key',key:'F',text:'调查'}},{texts},observation).action.key,'F');
+ assert.equal(g.collectionTarget(texts,'烹饪'),false);
+});
 test('routing reserves movement for world and hands unique F/dialogue/menu to interaction',()=>{
  assert.equal(workers.workerFor(context.observation),'movement');
  for(const o of [{scene:'dialogue'},{scene:'menu'},{scene:'combat'},{scene:'world',uncertain:true},{scene:'world',interaction:{state:'unique'}}])assert.equal(workers.workerFor(o),'interaction');

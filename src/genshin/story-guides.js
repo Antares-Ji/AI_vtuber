@@ -1,6 +1,11 @@
 'use strict';
 // External walkthroughs are planning references, never current game state.
 const guides={
+ '紧急修理':{
+  source:'https://wiki.biligame.com/ys/紧急修理',
+  checkedAt:'2026-11-02',kind:'external_walkthrough_not_live_evidence',
+  notes:'收集木材阶段需要任务物品「结实的木板」，不是家园砍树木材。树林内调查/拾取点需以当前BGI唯一F提示确认并交互，不能把「调查」「木板」当作无关目标离开。取得后以HUD是否变成「将结实的木板交给法拉」核验，随后交付、战斗和对话；若要求绳索则按新HUD继续。攻略不提供当前坐标或完成证据。'
+ },
  '神秘岛的传说':{
   source:'https://genshin-impact.fandom.com/wiki/The_Legend_of_the_Mysterious_Island',
   checkedAt:'2026-11-01',
