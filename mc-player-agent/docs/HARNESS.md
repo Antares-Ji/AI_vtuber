@@ -1,5 +1,7 @@
 # 独立 Agent Harness
 
+本地整合扩展：[导演任务 API](DIRECTOR_API.md) 的 HTTP 线程仅排队，宿主线程调用 `DirectorGateway.tick()` 后才访问 PlayerControl。它不执行模型规划或游戏动作，不改变原 Harness 的完成验收。导演请求以实例、存档、请求 UUID 和原生 mission UUID 绑定；急停使旧控制版本失效，取消未确认释放时继续占用任务。
+
 当前源码以 **以 Minecraft 为首个环境、可独立运行与扩展的 agent harness** 为维护方向。
 游戏适配层仍使用 Minecraft 1.21.1 的原生操作；核心不导入 Minecraft，也不需要启动游戏或连接模型即可验证调度闭环。
 

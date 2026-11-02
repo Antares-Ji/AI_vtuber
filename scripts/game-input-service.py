@@ -25,6 +25,7 @@ class Evidence:
         self.stop = threading.Event()
         self.error = None
         self.frames = 0
+        self.last_image = None
         self.ready = threading.Event()
         self.thread = threading.Thread(target=self.record, daemon=True)
 
@@ -45,6 +46,7 @@ class Evidence:
                     if c.user.GetForegroundWindow() != c.hwnd or c.client_rect() != c.geometry:
                         raise InterruptedError('Evidence lost game foreground or geometry')
                     image = np.asarray(screen.grab(dict(left=x, top=y, width=width, height=height)))[:, :, :3]
+                    self.last_image = image
                     ns = time.perf_counter_ns()
                     writer.write(cv2.resize(image, size))
                     if self.frames % 5 == 0:
@@ -58,6 +60,8 @@ class Evidence:
             self.error = str(ex)
             c.cancel.set()
         finally:
+            if self.frames and self.last_image is not None and not self.error:
+                cv2.imwrite(str(self.directory/f'frame-{self.frames-1:04d}.jpg'),self.last_image)
             self.ready.set()
             writer.release()
 

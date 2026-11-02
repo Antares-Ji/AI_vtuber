@@ -1,0 +1,15 @@
+E:\Github\AI_vtuber\scripts\genshin\native-tests\bin\Release\net10.0\RecoveryPolicyTests.exe
+E:\Github\AI_vtuber\scripts\genshin\native-tests\bin\Release\net10.0\RecoveryPolicyTests.deps.json
+E:\Github\AI_vtuber\scripts\genshin\native-tests\bin\Release\net10.0\RecoveryPolicyTests.runtimeconfig.json
+E:\Github\AI_vtuber\scripts\genshin\native-tests\bin\Release\net10.0\RecoveryPolicyTests.dll
+E:\Github\AI_vtuber\scripts\genshin\native-tests\bin\Release\net10.0\RecoveryPolicyTests.pdb
+E:\Github\AI_vtuber\scripts\genshin\native-tests\obj\Release\net10.0\RecoveryPolicyTests.GeneratedMSBuildEditorConfig.editorconfig
+E:\Github\AI_vtuber\scripts\genshin\native-tests\obj\Release\net10.0\RecoveryPolicyTests.AssemblyInfoInputs.cache
+E:\Github\AI_vtuber\scripts\genshin\native-tests\obj\Release\net10.0\RecoveryPolicyTests.AssemblyInfo.cs
+E:\Github\AI_vtuber\scripts\genshin\native-tests\obj\Release\net10.0\RecoveryPolicyTests.csproj.CoreCompileInputs.cache
+E:\Github\AI_vtuber\scripts\genshin\native-tests\obj\Release\net10.0\RecoveryPolicyTests.sourcelink.json
+E:\Github\AI_vtuber\scripts\genshin\native-tests\obj\Release\net10.0\RecoveryPolicyTests.dll
+E:\Github\AI_vtuber\scripts\genshin\native-tests\obj\Release\net10.0\refint\RecoveryPolicyTests.dll
+E:\Github\AI_vtuber\scripts\genshin\native-tests\obj\Release\net10.0\RecoveryPolicyTests.pdb
+E:\Github\AI_vtuber\scripts\genshin\native-tests\obj\Release\net10.0\RecoveryPolicyTests.genruntimeconfig.cache
+E:\Github\AI_vtuber\scripts\genshin\native-tests\obj\Release\net10.0\ref\RecoveryPolicyTests.dll

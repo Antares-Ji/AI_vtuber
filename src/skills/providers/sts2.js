@@ -28,8 +28,8 @@ function register(registry, { root, dataRoot, env, main, sts2, runProcess }) {
       start: a, busy: s => s.running === true, failed: s => Boolean(s.lastError), signal }) });
   add({ id: 'sts2:native-play', game: 'sts2', mode: 'live', resources: ['desktop', 'sts2'],
     description: '复用纯视觉、角色决策及原生键鼠循环，保留已核验的通关经验。',
-    arguments: { maxSteps: '1..1000' },
-    validate(a) { objectArgs(a, ['maxSteps']); return { maxSteps: intArg(a.maxSteps, 'maxSteps', 100, 1000), execute: true }; },
+    arguments: { maxSteps: '1..1000', continueAfterDefeat: 'boolean; allow current defeat settlement (up to 3 confirmed clicks), revoked on new adventure' },
+    validate(a) { objectArgs(a, ['maxSteps','continueAfterDefeat']); if(a.continueAfterDefeat!==undefined&&typeof a.continueAfterDefeat!=='boolean')throw Error('Invalid continueAfterDefeat'); return { maxSteps: intArg(a.maxSteps, 'maxSteps', 100, 1000), execute: true, continueAfterDefeat:a.continueAfterDefeat??false }; },
     execute: (a, { signal }) => remoteRun({ request: main, routes: { state: '/api/game-input/state', start: '/api/game-input/agent/start', stop: '/api/game-input/stop' },
       start: a, busy: s => s.busy === true || s.autonomous?.running === true,
       failed: s => Boolean(s.lastError || s.autonomous?.lastError), signal }) });

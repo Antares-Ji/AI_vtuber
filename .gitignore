@@ -1,5 +1,6 @@
 .env
 .env.local
+.env.openai.local
 # Private voice profiles and trained weights are delivered separately.
 config/voices/*.local.json
 *.ckpt
@@ -52,3 +53,7 @@ logs/
 # Generated live tactics snapshots (source scripts are versioned).
 /public/sts2-tactics.json
 /public/sts2-tactics-status.json
+
+data/genshin.local.json*
+data/mcplayer.local.json*
+**/director-token.txt

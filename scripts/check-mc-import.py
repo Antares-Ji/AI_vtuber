@@ -25,6 +25,14 @@ def verify(root=ROOT):
     exact = 0
     patched = 0
     overrides = manifest.get('integration_overrides', {})
+    additions = manifest.get('integration_additions', {})
+    if set(additions).intersection(manifest['files']):
+        raise RuntimeError('Addition replaces an original source file')
+    for name in [*manifest['files'], *additions]:
+        relative = Path(name)
+        file = root / relative
+        if relative.is_absolute() or not name.startswith('mc-player-agent/') or '..' in relative.parts or file.is_symlink() or not file.resolve().is_relative_to((root / 'mc-player-agent').resolve()):
+            raise RuntimeError('Invalid import path: ' + name)
     if not set(overrides).issubset(manifest['files']):
         raise RuntimeError('Override is not an original source file')
     with zipfile.ZipFile(archive) as original:
@@ -50,7 +58,11 @@ def verify(root=ROOT):
             exact += 1
         elif hashlib.sha256(content.replace(b'\r\n', b'\n')).hexdigest() != manifest['lf_sha256'].get(name):
             raise RuntimeError('Imported source changed: ' + name)
-    print(f"Original ZIP byte-identical; {len(manifest['files'])} source files retained ({exact} exact; {patched} recorded integration patches; others only Git line endings)", flush=True)
+    for name, expected in additions.items():
+        content = (root / name).read_bytes().replace(b'\r\n', b'\n')
+        if hashlib.sha256(content).hexdigest() != expected['lf_sha256']:
+            raise RuntimeError('Integration addition changed: ' + name)
+    print(f"Original ZIP byte-identical; {len(manifest['files'])} source files retained ({exact} exact; {patched} recorded integration patches; others only Git line endings); {len(additions)} separate integration additions", flush=True)
     return manifest
 
 
@@ -58,7 +70,7 @@ def main():
     manifest = verify()
     with tempfile.TemporaryDirectory(prefix='mc-player-source-check-') as temp:
         target = Path(temp)
-        for name in manifest['files']:
+        for name in [*manifest['files'], *manifest.get('integration_additions', {})]:
             dest = target / Path(name).relative_to('mc-player-agent')
             dest.parent.mkdir(parents=True, exist_ok=True)
             shutil.copyfile(ROOT / name, dest)

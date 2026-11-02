@@ -1,0 +1,70 @@
+{
+  "platform": "Windows-11-10.0.26200-SP0",
+  "python": "3.12.14",
+  "services": {
+    "director": {
+      "stopped": true,
+      "busy": false,
+      "autonomous": {
+        "running": false,
+        "stage": "idle",
+        "steps": 0,
+        "lastError": null,
+        "driver": "project_native_win32",
+        "planner": "existing-role-deepseek-api",
+        "vision": "vision-api",
+        "trainingPerformed": false
+      },
+      "heldKeys": null,
+      "heldButtons": null,
+      "keysDown": null,
+      "buttonsDown": null
+    },
+    "vision": {
+      "error": "<urlopen error [WinError 10061] No connection could be made because the target machine actively refused it>"
+    },
+    "ocr": {
+      "error": "<urlopen error [WinError 10061] No connection could be made because the target machine actively refused it>"
+    }
+  },
+  "models": [
+    {
+      "directory": "E:\\Github\\AI_vtuber\\runtime\\vlm\\models\\GLM-OCR",
+      "model_type": "glm_ocr",
+      "text_config": {
+        "num_hidden_layers": 16,
+        "hidden_size": 1536,
+        "num_attention_heads": 16
+      },
+      "weight_bytes": 2650579464
+    },
+    {
+      "directory": "E:\\Github\\AI_vtuber\\runtime\\vlm\\models\\Qwen3-VL-4B-Instruct",
+      "model_type": "qwen3_vl",
+      "text_config": {
+        "num_hidden_layers": 36,
+        "hidden_size": 2560,
+        "num_attention_heads": 32
+      },
+      "weight_bytes": 8875719344
+    },
+    {
+      "directory": "E:\\Github\\AI_vtuber\\runtime\\vlm\\models\\Qwen3-VL-8B-Instruct",
+      "model_type": "qwen3_vl",
+      "text_config": {
+        "num_hidden_layers": 36,
+        "hidden_size": 4096,
+        "num_attention_heads": 32
+      },
+      "weight_bytes": 17534339512
+    }
+  ],
+  "gpu": "NVIDIA GeForce RTX 5080, 16303 MiB, 4104 MiB, 616.92, 11 %",
+  "packages": {
+    "torch": "2.11.0+cu128",
+    "transformers": "5.16.1",
+    "accelerate": "1.14.0",
+    "bitsandbytes": "0.50.2",
+    "Pillow": "12.3.0"
+  }
+}

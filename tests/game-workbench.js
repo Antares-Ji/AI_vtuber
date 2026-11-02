@@ -55,7 +55,7 @@ async function workbenchSwitching() {
 function listenerBody(text, start, end) { const a = text.indexOf(start), b = text.indexOf(end, a); assert(a >= 0 && b > a); return text.slice(a, b); }
 async function sharedRouting() {
   const panel = source('minecraft-panel.js');
-  for (const game of ['minecraft', 'sts2']) {
+  for (const game of ['minecraft', 'sts2', 'genshin']) {
     const elements = new Map(); const el = selector => elements.get(selector) || (elements.set(selector, node(selector)), elements.get(selector));
     const calls = [], messages = [];
     el('#commandInput').value = '完成当前目标'; el('#audienceInput').value = '现在情况怎么样'; el('#influenceGame').checked = true;
@@ -64,7 +64,7 @@ async function sharedRouting() {
       api: async (route, options) => { calls.push({ route, body: JSON.parse(options.body) }); return { goal: '完成当前目标' }; } };
     vm.runInNewContext(listenerBody(panel, '$("#commandForm").addEventListener', '\nasync function loadPersona'), harness);
     await el('#commandForm').handlers.submit({ preventDefault() {} });
-    assert.equal(calls[0].route, game === 'sts2' ? 'spire-goal' : '/api/minecraft/demo'); assert.equal(el('#commandInput').value, '');
+    assert.equal(calls[0].route, game !== 'minecraft' ? 'spire-goal' : '/api/minecraft/demo'); assert.equal(el('#commandInput').value, game==='genshin'?'完成当前目标':'');
     vm.runInNewContext(listenerBody(panel, "$('#audienceForm').addEventListener", "\ndocument.querySelectorAll('[data-chat]')"), harness);
     await el('#audienceForm').handlers.submit({ preventDefault() {} });
     assert.equal(calls[1].route, `/api/${game}/chat`); assert.equal(calls[1].body.text, '现在情况怎么样');

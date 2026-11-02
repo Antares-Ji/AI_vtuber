@@ -1,0 +1,22 @@
+{
+  "status": "passed",
+  "checks": [
+    "54 requests / 6 cases / 3 technical repeats",
+    "means recomputed",
+    "normalized counts recomputed",
+    "zero cache hits",
+    "stop releaseComplete=true",
+    "owned service cleanup",
+    "main report local links exist"
+  ],
+  "limits": [
+    "No independent image labels",
+    "No new gameplay outcomes",
+    "No statistical inference or human peer review"
+  ],
+  "files": {
+    "stage-report.md": "81076c05fc30f32e425f16a56e4115faf8e04b0bfd46d1808133a2daea9e088c",
+    "group-meeting-notes.md": "4eebe45572a4930359fb17145ae7c2ccb170947de61a17d15783a6a2ea2ae580",
+    "replay-tables.md": "491141ddfbe989a57054ebc3bc186fe8e68981c71924e9c1db6ff52e06b9599f"
+  }
+}

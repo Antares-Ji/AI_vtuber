@@ -11,6 +11,9 @@ import psutil
 
 root = Path(__file__).resolve().parents[1]
 script = root / 'src/server.js'
+node = os.environ.get('AI_VTUBER_NODE') or (str(root/'runtime/node/node.exe') if (root/'runtime/node/node.exe').is_file() else shutil.which('node'))
+if not node: raise RuntimeError('Node runtime unavailable; set AI_VTUBER_NODE')
+node_version = subprocess.run([node, '--version'], capture_output=True, text=True, check=True, timeout=10).stdout.strip()
 opener = build_opener(ProxyHandler({}))
 owners = {c.pid for c in psutil.net_connections(kind='tcp')
           if c.status == 'LISTEN' and c.laddr.port == 3000}
@@ -26,9 +29,12 @@ for pid in owners:
     p.wait(timeout=10)
 instance = str(uuid.uuid4())
 env = dict(os.environ, AI_VTUBER_INSTANCE_ID=instance)
+if any(env.get(key) for key in ('HTTPS_PROXY', 'https_proxy', 'HTTP_PROXY', 'http_proxy')):
+    env['NODE_USE_ENV_PROXY'] = '1'
+    env['NO_PROXY'] = ','.join(filter(None, [env.get('NO_PROXY') or env.get('no_proxy'), 'localhost', '127.0.0.1', '::1']))
 (root / 'logs').mkdir(exist_ok=True)
 with (root/'logs/server.out.log').open('ab') as out, (root/'logs/server.err.log').open('ab') as err:
-    process = subprocess.Popen([shutil.which('node'), str(script)], cwd=root, env=env,
+    process = subprocess.Popen([node, str(script)], cwd=root, env=env,
                                stdout=out, stderr=err, creationflags=subprocess.CREATE_NO_WINDOW)
 for _ in range(60):
     if process.poll() is not None:
@@ -37,7 +43,7 @@ for _ in range(60):
         with opener.open('http://127.0.0.1:3000/api/health', timeout=2) as response:
             health = json.load(response)
         if health.get('ok') and health.get('instance', {}).get('id') == instance:
-            print(json.dumps({'ready': True, 'pid': process.pid, 'instance': instance}))
+            print(json.dumps({'ready': True, 'pid': process.pid, 'instance': instance, 'node': node, 'nodeVersion': node_version}))
             break
     except Exception:
         pass

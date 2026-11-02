@@ -52,6 +52,14 @@ test('only a verifier can accept evidence, and simulated receipts remain simulat
     const j = h.start({ skill: 'test:skill', allowLive: true }); assert.equal((await h.wait(j.id)).state, expected);
   }
 });
+test('live progress is visible while running and cannot overwrite cancellation', async () => {
+  const gate=deferred();let report;
+  const h=host(def(async(a,{reportProgress})=>{report=reportProgress;reportProgress('observing','正在识别');await gate.promise;return {};}));
+  const run=h.start({skill:'test:skill',allowLive:true});await tick();
+  assert.equal(h.status(run.id).progress.message,'正在识别');
+  h.stop(run.id);report('executing','不应显示');assert.equal(h.status(run.id).progress.stage,'observing');
+  gate.resolve();assert.equal((await h.wait(run.id)).state,'INTERRUPTED');
+});
 test('timeline stores invocation metadata, not arbitrary arguments, output or prompts', async () => {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'skills-test-'));
   try {
@@ -103,10 +111,15 @@ test('engine HTTP client refuses remote URLs and redirects', async () => {
   const request = localClient('http://127.0.0.1:1', { fetchImpl: async (url, options) => { init = options; return { ok: true, json: async () => ({}) }; } });
   await request('/state'); assert.equal(init.redirect, 'error');
 });
-test('built-in Genshin path runs a simulation and BetterGI cannot fabricate a live result', async () => {
-  const h = createSkillHost({ directory: null, env: {} });
+test('built-in Genshin path runs a simulation and BetterGI cannot fabricate a live result', async t => {
+  const dataRoot = fs.mkdtempSync(path.join(os.tmpdir(), 'genshin-no-credentials-'));
+  t.after(() => fs.rmSync(dataRoot, { recursive: true, force: true }));
+  const h = createSkillHost({ directory: null, env: { AIVTUBER_LOCAL_DATA_ROOT: dataRoot } });
   const j = h.start({ skill: 'genshin:demo', args: { goal: '观察当前场景' } });
   assert.equal((await h.wait(j.id)).state, 'SIMULATED');
+  const p = h.start({ skill: 'genshin:plan', args: { goal: '观察当前场景' } });
+  assert.equal((await h.wait(p.id)).state, 'FAILED');
+  assert.match(h.status(p.id).error, /OpenAI API|未配置/);
   const b = h.start({ skill: 'genshin:bettergi', allowLive: true });
   assert.equal((await h.wait(b.id)).state, 'FAILED'); assert.match(h.status(b.id).error, /BetterGI/);
   assert.throws(() => h.start({ skill: 'sts2:native-play', allowLive: true, args: { maxSteps: 1001 } }), /maxSteps/);

@@ -435,6 +435,44 @@
       "reason": "Await the third mission journal before JUnit removes its TempDir; test-only CI race fix, no runtime changes.",
       "lf_sha256": "03ee65a4189794cb2efe42a13a38014a8fa1a5ca23220c7be30dcc15097ce2d9",
       "patch": "--- a/mc-player-agent/harness/src/test/java/dev/mcplayeragent/mission/MissionRunTest.java\n+++ b/mc-player-agent/harness/src/test/java/dev/mcplayeragent/mission/MissionRunTest.java\n@@ -44,6 +44,7 @@\n             assertNotEquals(a.directory(),b.directory());assertNotEquals(a.directory(),again.directory());\n             assertEquals(\"a\",saved(a).get(\"world_context\").getAsString());\n             assertEquals(\"b\",saved(b).get(\"world_context\").getAsString());\n+            assertEquals(\"a\",saved(again).get(\"world_context\").getAsString());\n         }\n     }\n     @Test void orderedEventsAndLatencyStatisticsSurviveFlush() throws Exception {\n"
+    },
+    "mc-player-agent/CHANGELOG.md": {
+      "lf_sha256": "c5bb5ac8c571c6bec54444e8d9cc3728ba9f6ae9accf27e108b6746800b0d02b",
+      "patch": "--- a/mc-player-agent/CHANGELOG.md\n+++ b/mc-player-agent/CHANGELOG.md\n@@ -1,4 +1,10 @@\n # 更新记录\n+\n+## 本地整合扩展 — 2026-10-30\n+\n+- 新增默认关闭的本地导演任务 API、客户端主线程适配及无游戏 HTTP 测试；协议见 docs/DIRECTOR_API.md。\n+- 保留原 DeepSeek/AgentHarness/原生动作/服务器回执链路；F8/F9 可取消排队任务，并使此前在途启动请求失效。\n+- 原包版本、来源、所有文件及原始归档保留；整合补丁及新增文件在外层导入清单中单独记录。本节不代表原作者发布或客户端实机验收。\n \n ## 0.4.0-alpha.1 — 2026-10-30\n \n"
+    },
+    "mc-player-agent/README.md": {
+      "lf_sha256": "93706bbc3c89b09ec688ebfdb4ea26adbae559b8e275f0d7b6ad58aa1607a03d",
+      "patch": "--- a/mc-player-agent/README.md\n+++ b/mc-player-agent/README.md\n@@ -1,4 +1,6 @@\n # MC Player Agent\n+\n+整合版新增可选的[本地导演任务 API](docs/DIRECTOR_API.md)，默认关闭。它只提交目标和停止请求，继续复用原生 Harness、DeepSeek 与服务器验收；F8/F9 入口保留。新增代码属于本地整合扩展，不属于原 ZIP 内容，实际客户端验收仍待单独记录。\n \n **以 Minecraft 为首个环境的可扩展 agent harness：把模型计划变成可中断、有回执、有验收的玩家任务。**\n \n"
+    },
+    "mc-player-agent/docs/HARNESS.md": {
+      "lf_sha256": "1d790d3184bcfdc7b1af98fbe60a35f3863459690b98f1f97f89a1eb38856b65",
+      "patch": "--- a/mc-player-agent/docs/HARNESS.md\n+++ b/mc-player-agent/docs/HARNESS.md\n@@ -1,4 +1,6 @@\n # 独立 Agent Harness\n+\n+本地整合扩展：[导演任务 API](DIRECTOR_API.md) 的 HTTP 线程仅排队，宿主线程调用 `DirectorGateway.tick()` 后才访问 PlayerControl。它不执行模型规划或游戏动作，不改变原 Harness 的完成验收。导演请求以实例、存档、请求 UUID 和原生 mission UUID 绑定；急停使旧控制版本失效，取消未确认释放时继续占用任务。\n \n 当前源码以 **以 Minecraft 为首个环境、可独立运行与扩展的 agent harness** 为维护方向。\n 游戏适配层仍使用 Minecraft 1.21.1 的原生操作；核心不导入 Minecraft，也不需要启动游戏或连接模型即可验证调度闭环。\n"
+    },
+    "mc-player-agent/docs/VALIDATION.md": {
+      "lf_sha256": "a7d87d6abbf4ff513748f2e215b75eb21362688769db8980f9bd7e8dc900be76",
+      "patch": "--- a/mc-player-agent/docs/VALIDATION.md\n+++ b/mc-player-agent/docs/VALIDATION.md\n@@ -1,4 +1,8 @@\n # 0.4.0-alpha.1 验证记录\n+\n+## 本地导演 API 扩展的验证边界\n+\n+2026-10-30 的本地整合增加独立 `DirectorGatewayTest`：假宿主、真实 loopback HTTP、单调时钟，覆盖排队/取消/过期、任务归属、急停后迟到请求、部分启动失败、认证与格式校验。原始验证表保留在下方，不能把它的 105 项计数当作修改后的总数。新的执行结果在外层整合验证记录中单独记载；没有从编译或 HTTP 测试推导出真实客户端冒险已通过。\n \n 验证日期：2026-10-30。本地环境：macOS、Temurin JDK 21.0.13、Gradle Wrapper 9.2.0、Minecraft 1.21.1；Fabric Loader 0.18.1／API 0.116.7+1.21.1、NeoForge 21.1.233。构建使用已有依赖缓存。旧版结果单独保留在 [alpha.3 记录](VALIDATION-0.3.0-alpha.3.md)，不能替代本版证据。\n \n"
+    },
+    "mc-player-agent/game/src/client/java/dev/mcplayeragent/minecraft/AgentKeys.java": {
+      "lf_sha256": "6f2d62d45e33c3e2f9e5e50fb7ef7688209f3e2016cbd4b4cffa879cb7ac3b15",
+      "patch": "--- a/mc-player-agent/game/src/client/java/dev/mcplayeragent/minecraft/AgentKeys.java\n+++ b/mc-player-agent/game/src/client/java/dev/mcplayeragent/minecraft/AgentKeys.java\n@@ -6,10 +6,11 @@\n public final class AgentKeys {\n     public static final KeyMapping SETTINGS=new KeyMapping(\"key.mcplayeragent.settings\",GLFW.GLFW_KEY_F8,\"key.categories.mcplayeragent\");\n     public static final KeyMapping STOP=new KeyMapping(\"key.mcplayeragent.stop\",GLFW.GLFW_KEY_F9,\"key.categories.mcplayeragent\");\n-    public static void initialize() { LegacyMigration.run(); }\n+    public static void initialize() { LegacyMigration.run(); DirectorControl.initialize(); }\n     public static void tick() {\n-        while(STOP.consumeClick()) PlayerControl.stop(\"F9 急停\");\n-        while(SETTINGS.consumeClick()) { PlayerControl.stop(\"打开设置\"); Minecraft.getInstance().setScreen(new MissionControlScreen()); }\n+        while(STOP.consumeClick()) { DirectorControl.cancelAll(); PlayerControl.stop(\"F9 急停\"); }\n+        while(SETTINGS.consumeClick()) { DirectorControl.cancelAll(); PlayerControl.stop(\"打开设置\"); Minecraft.getInstance().setScreen(new MissionControlScreen()); }\n+        DirectorControl.tick();\n         PlayerControl.tick();\n     }\n }\n"
+    }
+  },
+  "integration_additions": {
+    "mc-player-agent/harness/src/main/java/dev/mcplayeragent/control/DirectorGateway.java": {
+      "lf_sha256": "416be981d4e0899c7aa6790281a1c2709f88e15e8a06cd8b1aab05fb903999b5",
+      "origin": "Local AI_vtuber director integration; not present in supplied ZIP"
+    },
+    "mc-player-agent/harness/src/test/java/dev/mcplayeragent/control/DirectorGatewayTest.java": {
+      "lf_sha256": "d28a9554690bd40de7251b3ee01242a73138d492638785a55e23dc3e87f90362",
+      "origin": "Local AI_vtuber director integration; not present in supplied ZIP"
+    },
+    "mc-player-agent/game/src/client/java/dev/mcplayeragent/minecraft/DirectorControl.java": {
+      "lf_sha256": "06831a690192a3ae86dbe140f757bccbd272b38adc65fa021d409a19112a6002",
+      "origin": "Local AI_vtuber director integration; not present in supplied ZIP"
+    },
+    "mc-player-agent/docs/DIRECTOR_API.md": {
+      "lf_sha256": "baabe1ff24eaaaf1e9dcac6f4a259b5b7533d0bb507756f959564e62d7c0ed79",
+      "origin": "Local AI_vtuber director integration; not present in supplied ZIP"
     }
   }
 }

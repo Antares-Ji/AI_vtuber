@@ -16,3 +16,37 @@ WSL. Prefer existing authorized Windows control services for desktop input.
 WSL root does not confer Windows administrator privileges; verify a real
 permission failure before proposing manual intervention. Never change UAC or
 claim that WSL bypasses Windows elevation.
+
+## Game autonomy through the director API
+
+The user requires the director console/Skill API to start game tasks, DeepSeek
+API to decide gameplay, local model/CV/OCR APIs to observe and locate targets,
+and the project's existing native input API to execute keyboard/mouse actions.
+The user subsequently requested a faster cloud vision API (2026-10-30). STS2 may
+select official DeepSeek Flash image inference while retaining local OCR/CV
+checks and native input. Record the actual provider; do not describe cloud
+observations as local model inference. Genshin cloud vision is not yet enabled.
+Codex may inspect code, diagnose, repair, test, and supervise start/stop, but must
+not choose gameplay actions, read a screenshot itself to supply target coordinates,
+or manually play through computer-use tools. API-only includes CV and grounding.
+
+For current Slay the Spire 2 pure-vision trials, do not fill missing observations
+from MCP/hidden game state. Preserve the imported MC native Harness observation,
+action and server-receipt architecture; do not describe it as pure vision.
+Keep simulated tests, input receipts and independently verified game outcomes
+distinct. Before changing the live runtime or switching games, stop the task and
+confirm input release and idle vision. Preserve pending user choices of MC save
+and normal Windows permission handling for Genshin.
+
+## Genshin provider and BetterGI update (2026-11-01)
+
+The user explicitly chose the existing DeepSeek API because OpenAI API billing
+is unavailable. Keep manual OpenAI/DeepSeek switching in the Genshin console;
+never silently fall back between providers. This supersedes earlier OpenAI-only
+Genshin instructions. OpenAI credentials remain separate in `.env.openai.local`.
+Use `/api/genshin` and the `genshin:bridge-*` / `genshin:run-goal` director skills.
+BetterGI screenshots may activate the game and invoke its startup logic; do not
+describe them as input-free native captures. The owned bridge uses official JS
+groups, bounded runtimes, parent heartbeat and native input cleanup. A route
+return does not prove arrival: upstream pathing catches some exceptions.
+See `docs/genshin-console-20261101.md` for capabilities and actual validation.

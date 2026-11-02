@@ -2,6 +2,7 @@
 
 const http = require('node:http');
 const { SKILLS, planGoal } = require('./planner');
+const { planWithApi } = require('./api-planner');
 
 async function readJson(request) {
   let size = 0;
@@ -16,7 +17,7 @@ async function readJson(request) {
   return value;
 }
 
-function createServer({ runtime, token, planner = planGoal, plannerMode = 'rules' }) {
+function createServer({ runtime, token, planner = (goal, options) => options.mode === 'llm' ? planWithApi(goal, options) : planGoal(goal, options), plannerMode = 'llm' }) {
   if (typeof token !== 'string' || token.length < 24) throw new Error('需要至少24字符的服务令牌');
   const pending = new Set();
   const server = http.createServer(async (request, response) => {

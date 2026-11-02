@@ -47,12 +47,19 @@ def main():
         result['privileges'] = c.privileges()
         if not result['privileges']['privilege_compatible']: raise RuntimeError('Privilege mismatch; no input sent')
         c.focus()
+        # Observation requests need one fresh frame after focus has settled,
+        # not an entire post-action recording interval.
+        if not args.execute: c.wait(.6)
         evidence = module.Evidence(c,directory)
         evidence.thread.start()
         if not evidence.ready.wait(3) or evidence.error: raise RuntimeError(evidence.error or 'No screenshot')
-        c.wait(.6)
-        if args.execute: result.update(c.run(actions))
-        c.wait(1.5)
+        if args.execute:
+            result.update(c.run(actions))
+            # Gestures already include their own animation/hover settlement.
+            # Keep a short capture tail and save its final frame on shutdown.
+            c.wait(.2)
+        else:
+            c.guard()
         result['status'] = 'awaiting_visual_review' if args.execute else 'captured_only'
     except Exception as ex:
         result.update(status='stopped',error=str(ex))

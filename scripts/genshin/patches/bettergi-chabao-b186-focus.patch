@@ -1,0 +1,128 @@
+diff --git a/BetterGenshinImpact/Core/Script/EngineExtend.cs b/BetterGenshinImpact/Core/Script/EngineExtend.cs
+index 5801309..5d4db9d 100644
+--- a/BetterGenshinImpact/Core/Script/EngineExtend.cs
++++ b/BetterGenshinImpact/Core/Script/EngineExtend.cs
+@@ -64,6 +64,13 @@ public class EngineExtend
+         // 直接添加方法
+         AddAllGlobalMethod(engine);
+ 
++        // Only our owned story bridge can explicitly request this no-input focus guard.
++        if (OwnedGameFocus.IsOwnedStoryDirectory(workDir))
++        {
++            engine.AddHostObject("isGameActive", (Func<bool>)OwnedGameFocus.IsGameActive);
++            engine.AddHostObject("ensureGameFocus", (Func<Task<bool>>)OwnedGameFocus.EnsureGameFocus);
++        }
++
+         // 识图模块相关
+         engine.AddHostType("Mat", typeof(Mat));
+         engine.AddHostType("Point2f", typeof(Point2f)); // 添加Point2f类型暴露
+@@ -173,4 +180,4 @@ public class EngineExtend
+         engine.AddHostObject("inputText", GlobalMethod.InputText);
+ #pragma warning restore CS8974 // Converting method group to non-delegate type
+     }
+-}
+\ No newline at end of file
++}
+diff --git a/BetterGenshinImpact/Core/Script/Dependence/OwnedGameFocus.cs b/BetterGenshinImpact/Core/Script/Dependence/OwnedGameFocus.cs
+new file mode 100644
+index 0000000..99168d9
+--- /dev/null
++++ b/BetterGenshinImpact/Core/Script/Dependence/OwnedGameFocus.cs
+@@ -0,0 +1,97 @@
++using System;
++using System.IO;
++using System.Threading.Tasks;
++using BetterGenshinImpact.Core.Config;
++using BetterGenshinImpact.GameTask;
++using BetterGenshinImpact.GameTask.Runtime;
++using Newtonsoft.Json.Linq;
++using Vanara.PInvoke;
++
++namespace BetterGenshinImpact.Core.Script.Dependence;
++
++/// <summary>
++/// Explicit foreground guard for our bounded story bridge. Never restores a
++/// minimized window, emits input, or changes the user's focus-recovery setting.
++/// </summary>
++public static class OwnedGameFocus
++{
++    internal static bool IsOwnedStoryDirectory(string workDir)
++    {
++        const string prefix = "AI-VTuber-Bridge-";
++        try
++        {
++            var directory = Path.TrimEndingDirectorySeparator(Path.GetFullPath(workDir));
++            var name = Path.GetFileName(directory);
++            if (!name.StartsWith(prefix, StringComparison.Ordinal)
++                || !Guid.TryParseExact(name[prefix.Length..], "D", out var id))
++                return false;
++
++            var expected = Path.GetFullPath(Global.Absolute(Path.Combine("User", "JsScript", name)));
++            if (!string.Equals(directory, expected, StringComparison.OrdinalIgnoreCase))
++                return false;
++
++            var file = Path.Combine(directory, "command.json");
++            if (!File.Exists(file) || new FileInfo(file).Length > 8192)
++                return false;
++            var command = JObject.Parse(File.ReadAllText(file));
++            return command.Value<string>("operation") == "story"
++                && command.Value<string>("id") == id.ToString("D");
++        }
++        catch (Exception)
++        {
++            return false;
++        }
++    }
++
++    private static IGameWindow? CurrentWindow()
++    {
++        var runtime = TaskContext.Instance().Runtime;
++        return runtime?.Kind == GameRuntimeKind.Win32Window ? runtime.Window : null;
++    }
++
++    private static bool IsUsable(IGameWindow? window)
++    {
++        if (window == null || !ReferenceEquals(window, CurrentWindow())
++            || window.Handle == 0 || !window.IsAlive || !User32.IsWindow(window.Handle)
++            || !User32.IsWindowVisible(window.Handle) || window.IsMinimized)
++            return false;
++
++        var thread = User32.GetWindowThreadProcessId(window.Handle, out var pid);
++        return thread != 0 && window.ProcessId > 0 && pid == (uint)window.ProcessId;
++    }
++
++    /// <summary>Read-only, exact bound-window check. Cancellation also fails closed.</summary>
++    public static bool IsGameActive()
++    {
++        if (CancellationContext.Instance.IsDisposed || CancellationContext.Instance.IsCancellationRequested)
++            return false;
++        var window = CurrentWindow();
++        return IsUsable(window) && window!.IsForeground;
++    }
++
++    /// <summary>
++    /// At most one activation request followed by a cancellable 100 ms check.
++    /// A true result proves current focus only, not that any later game action succeeded.
++    /// </summary>
++    public static async Task<bool> EnsureGameFocus()
++    {
++        var cancellation = CancellationContext.Instance;
++        if (cancellation.IsDisposed)
++            return false;
++        var token = cancellation.Token;
++        token.ThrowIfCancellationRequested();
++        var window = CurrentWindow();
++        if (!IsUsable(window))
++            return false;
++        if (window!.IsForeground)
++            return true;
++
++        token.ThrowIfCancellationRequested();
++        // Do not use SystemControl.ActivateWindow/FocusWindow: they restore windows.
++        User32.SetForegroundWindow(window.Handle);
++        await Task.Delay(100, token);
++        token.ThrowIfCancellationRequested();
++        return !cancellation.IsDisposed && token == cancellation.Token
++            && IsUsable(window) && window.IsForeground;
++    }
++}

@@ -1,0 +1,1050 @@
+{
+  "version": "0.66.0",
+  "commit": "0af68c28f6b0e714d5304625ce644736d508022e",
+  "entries": [
+    {
+      "namespace": "keyMouseScript",
+      "method": "KeyMouseScript",
+      "signature": "string rootPath",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/KeyMouseScript.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "keyMouseScript",
+      "method": "Run",
+      "signature": "string json",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/KeyMouseScript.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "keyMouseScript",
+      "method": "RunFile",
+      "signature": "string path",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/KeyMouseScript.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "pathingScript",
+      "method": "Run",
+      "signature": "string json",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/AutoPathingScript.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "pathingScript",
+      "method": "RunFile",
+      "signature": "string path",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/AutoPathingScript.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "pathingScript",
+      "method": "RunFileFromUser",
+      "signature": "string path",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/AutoPathingScript.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "pathingScript",
+      "method": "IsExists",
+      "signature": "string subPath",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/AutoPathingScript.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "pathingScript",
+      "method": "IsFile",
+      "signature": "string subPath",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/AutoPathingScript.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "pathingScript",
+      "method": "IsFolder",
+      "signature": "string subPath",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/AutoPathingScript.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "pathingScript",
+      "method": "ReadPathSync",
+      "signature": "string subPath = \"./\"",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/AutoPathingScript.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "pathingScript",
+      "method": "ReadTextSync",
+      "signature": "string subPath",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/AutoPathingScript.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "genshin",
+      "method": "Uid",
+      "signature": "",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/Genshin.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "genshin",
+      "method": "Tp",
+      "signature": "double x, double y",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/Genshin.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "genshin",
+      "method": "Tp",
+      "signature": "double x, double y, string mapName, bool force",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/Genshin.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "genshin",
+      "method": "Tp",
+      "signature": "double x, double y, bool force",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/Genshin.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "genshin",
+      "method": "Tp",
+      "signature": "string x, string y",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/Genshin.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "genshin",
+      "method": "Tp",
+      "signature": "string x, string y, bool force",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/Genshin.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "genshin",
+      "method": "MoveMapTo",
+      "signature": "double x, double y, string? forceCountry = null",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/Genshin.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "genshin",
+      "method": "ClickMapPoint",
+      "signature": "double x, double y, string? forceCountry = null",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/Genshin.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "genshin",
+      "method": "MoveIndependentMapTo",
+      "signature": "int x, int y, string mapName, string? forceCountry = null",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/Genshin.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "genshin",
+      "method": "GetBigMapZoomLevel",
+      "signature": "",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/Genshin.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "genshin",
+      "method": "SetBigMapZoomLevel",
+      "signature": "double zoomLevel",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/Genshin.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "genshin",
+      "method": "TpToStatueOfTheSeven",
+      "signature": "",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/Genshin.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "genshin",
+      "method": "GetPositionFromBigMap",
+      "signature": "",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/Genshin.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "genshin",
+      "method": "GetPositionFromBigMap",
+      "signature": "string mapName",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/Genshin.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "genshin",
+      "method": "GetPositionFromMap",
+      "signature": "",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/Genshin.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "genshin",
+      "method": "GetPositionFromMapWithMatchingMethod",
+      "signature": "string matchingMethod",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/Genshin.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "genshin",
+      "method": "GetCameraOrientation",
+      "signature": "",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/Genshin.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "genshin",
+      "method": "GetPositionFromMap",
+      "signature": "string mapName, int cacheTimeMs = 900",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/Genshin.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "genshin",
+      "method": "GetPositionFromMapWithMatchingMethod",
+      "signature": "string mapName, string matchingMethod, int cacheTimeMs = 900",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/Genshin.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "genshin",
+      "method": "GetPositionFromMap",
+      "signature": "string mapName, float x, float y",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/Genshin.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "genshin",
+      "method": "SwitchParty",
+      "signature": "string partyName",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/Genshin.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "genshin",
+      "method": "SwitchCharacter",
+      "signature": "string slot1 = \"\", string slot2 = \"\", string slot3 = \"\", string slot4 = \"\", bool usePhysicalSlots = true",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/Genshin.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "genshin",
+      "method": "ClearPartyCache",
+      "signature": "",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/Genshin.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "genshin",
+      "method": "BlessingOfTheWelkinMoon",
+      "signature": "",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/Genshin.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "genshin",
+      "method": "ChooseTalkOption",
+      "signature": "string option, int skipTimes = 10, bool isOrange = false",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/Genshin.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "genshin",
+      "method": "ClaimBattlePassRewards",
+      "signature": "",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/Genshin.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "genshin",
+      "method": "ClaimEncounterPointsRewards",
+      "signature": "",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/Genshin.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "genshin",
+      "method": "GoToAdventurersGuild",
+      "signature": "string country",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/Genshin.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "genshin",
+      "method": "GoToCraftingBench",
+      "signature": "string country",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/Genshin.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "genshin",
+      "method": "GoCraftResin",
+      "signature": "string country",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/Genshin.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "genshin",
+      "method": "CraftMaterial",
+      "signature": "string materialName, int quantity, string? materialType = null",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/Genshin.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "genshin",
+      "method": "ReturnMainUi",
+      "signature": "",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/Genshin.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "genshin",
+      "method": "AutoFishing",
+      "signature": "int fishingTimePolicy = 0",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/Genshin.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "genshin",
+      "method": "Relogin",
+      "signature": "",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/Genshin.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "genshin",
+      "method": "WonderlandCycle",
+      "signature": "",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/Genshin.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "genshin",
+      "method": "SetTime",
+      "signature": "int hour, int minute, bool skip = false",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/Genshin.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "genshin",
+      "method": "SetTime",
+      "signature": "string hour, string minute, bool skip = false",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/Genshin.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "characterDevelopmentTask",
+      "method": "GetCharacter",
+      "signature": "string characterName, string? categories = null",
+      "source": "BetterGenshinImpact/GameTask/CharacterDevelopment/CharacterDevelopmentTask.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "characterDevelopmentTask",
+      "method": "GetMultiCharacters",
+      "signature": "object characterNames, string? categories = null",
+      "source": "BetterGenshinImpact/GameTask/CharacterDevelopment/CharacterDevelopmentTask.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "characterDevelopmentTask",
+      "method": "Start",
+      "signature": "CancellationToken ct",
+      "source": "BetterGenshinImpact/GameTask/CharacterDevelopment/CharacterDevelopmentTask.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "log",
+      "method": "Debug",
+      "signature": "string? message, params object?[] args",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/Log.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "log",
+      "method": "Info",
+      "signature": "string? message, params object?[] args",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/Log.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "log",
+      "method": "Warn",
+      "signature": "string? message, params object?[] args",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/Log.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "log",
+      "method": "Error",
+      "signature": "string? message, params object?[] args",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/Log.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "file",
+      "method": "LimitedFile",
+      "signature": "string rootPath",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/LimitedFile.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "file",
+      "method": "ReadPathSync",
+      "signature": "string folderPath",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/LimitedFile.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "file",
+      "method": "CreateDirectory",
+      "signature": "string folderPath",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/LimitedFile.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "file",
+      "method": "IsFolder",
+      "signature": "string path",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/LimitedFile.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "file",
+      "method": "IsFile",
+      "signature": "string path",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/LimitedFile.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "file",
+      "method": "IsExists",
+      "signature": "string path",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/LimitedFile.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "file",
+      "method": "ReadTextSync",
+      "signature": "string path",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/LimitedFile.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "file",
+      "method": "ReadText",
+      "signature": "string path",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/LimitedFile.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "file",
+      "method": "ReadText",
+      "signature": "string path, dynamic callbackFunc",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/LimitedFile.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "file",
+      "method": "ReadImageMatSync",
+      "signature": "string path",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/LimitedFile.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "file",
+      "method": "ReadImageMatWithResizeSync",
+      "signature": "string path, double width, double height, int interpolation = 1",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/LimitedFile.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "file",
+      "method": "WriteTextSync",
+      "signature": "string path, string content, bool append = false",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/LimitedFile.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "file",
+      "method": "WriteText",
+      "signature": "string path, string content, bool append = false",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/LimitedFile.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "file",
+      "method": "WriteText",
+      "signature": "string path, string content, dynamic callbackFunc, bool append = false",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/LimitedFile.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "file",
+      "method": "WriteImageSync",
+      "signature": "string path, Mat mat",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/LimitedFile.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "file",
+      "method": "RenamePathSync",
+      "signature": "string oldPath, string newPath",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/LimitedFile.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "http",
+      "method": "Request",
+      "signature": "string method, string url, string? body = null, string? headersJson = null",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/Http.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "notification",
+      "method": "Send",
+      "signature": "string message",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/Notification.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "notification",
+      "method": "Error",
+      "signature": "string message",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/Notification.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "dispatcher",
+      "method": "RunTask",
+      "signature": "",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/Dispatcher.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "dispatcher",
+      "method": "AddTimer",
+      "signature": "RealtimeTimer timer",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/Dispatcher.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "dispatcher",
+      "method": "ClearAllTriggers",
+      "signature": "",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/Dispatcher.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "dispatcher",
+      "method": "AddTrigger",
+      "signature": "RealtimeTimer timer",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/Dispatcher.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "dispatcher",
+      "method": "RunTask",
+      "signature": "SoloTask soloTask, CancellationTokenSource customCts",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/Dispatcher.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "dispatcher",
+      "method": "RunTask",
+      "signature": "SoloTask soloTask, CancellationToken? customCt = null",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/Dispatcher.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "dispatcher",
+      "method": "GetLinkedCancellationTokenSource",
+      "signature": "",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/Dispatcher.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "dispatcher",
+      "method": "GetLinkedCancellationToken",
+      "signature": "",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/Dispatcher.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "dispatcher",
+      "method": "RunAutoFightTask",
+      "signature": "AutoFightParam param, CancellationToken? customCt = null",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/Dispatcher.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "dispatcher",
+      "method": "RunCombatScript",
+      "signature": "string script, string? avatarName = null, CancellationToken? customCt = null",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/Dispatcher.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "dispatcher",
+      "method": "RunAutoLeyLineOutcropTask",
+      "signature": "AutoLeyLineOutcropParam param, CancellationToken? customCt = null",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/Dispatcher.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "dispatcher",
+      "method": "RunAutoStygianOnslaughtTask",
+      "signature": "AutoStygianOnslaughtParam param, CancellationToken? customCt = null",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/Dispatcher.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "dispatcher",
+      "method": "RunCountInventoryItemTask",
+      "signature": "CountInventoryItemParam param, CancellationToken? customCt = null",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/Dispatcher.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "strategyFile",
+      "method": "IsFolder",
+      "signature": "string subPath",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/StrategyFile.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "strategyFile",
+      "method": "IsFile",
+      "signature": "string subPath",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/StrategyFile.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "strategyFile",
+      "method": "IsExists",
+      "signature": "string subPath",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/StrategyFile.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "strategyFile",
+      "method": "ReadPathSync",
+      "signature": "string subPath = \"./\"",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/StrategyFile.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "htmlMask",
+      "method": "Show",
+      "signature": "string url, string? id = null",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/HtmlMask.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "htmlMask",
+      "method": "Close",
+      "signature": "string id",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/HtmlMask.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "htmlMask",
+      "method": "CloseAll",
+      "signature": "",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/HtmlMask.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "htmlMask",
+      "method": "GetWindowIds",
+      "signature": "",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/HtmlMask.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "htmlMask",
+      "method": "Exists",
+      "signature": "string id",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/HtmlMask.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "htmlMask",
+      "method": "SetClickThrough",
+      "signature": "string windowId, bool enabled",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/HtmlMask.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "htmlMask",
+      "method": "GetClickThrough",
+      "signature": "string windowId",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/HtmlMask.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "htmlMask",
+      "method": "ToggleClickThrough",
+      "signature": "string windowId",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/HtmlMask.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "htmlMask",
+      "method": "Send",
+      "signature": "string windowId, string url, string jsonData",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/HtmlMask.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "htmlMask",
+      "method": "Respond",
+      "signature": "string windowId, string requestId, string jsonData",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/HtmlMask.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "htmlMask",
+      "method": "Request",
+      "signature": "string windowId, string url, string jsonData, int timeoutMs = 0",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/HtmlMask.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "htmlMask",
+      "method": "Receive",
+      "signature": "string windowId, int timeoutMs = 0",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/HtmlMask.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "htmlMask",
+      "method": "Poll",
+      "signature": "string windowId",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/HtmlMask.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "htmlMask",
+      "method": "PollAll",
+      "signature": "string windowId",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/HtmlMask.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "htmlMask",
+      "method": "Dispose",
+      "signature": "",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/HtmlMask.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "global",
+      "method": "sleep",
+      "signature": "Sleep",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/GlobalMethod.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "global",
+      "method": "getVersion",
+      "signature": "GetVersion",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/GlobalMethod.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "global",
+      "method": "keyDown",
+      "signature": "KeyDown",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/GlobalMethod.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "global",
+      "method": "keyUp",
+      "signature": "KeyUp",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/GlobalMethod.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "global",
+      "method": "keyPress",
+      "signature": "KeyPress",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/GlobalMethod.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "global",
+      "method": "setGameMetrics",
+      "signature": "SetGameMetrics",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/GlobalMethod.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "global",
+      "method": "getGameMetrics",
+      "signature": "GetGameMetrics",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/GlobalMethod.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "global",
+      "method": "moveMouseBy",
+      "signature": "MoveMouseBy",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/GlobalMethod.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "global",
+      "method": "moveMouseTo",
+      "signature": "MoveMouseTo",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/GlobalMethod.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "global",
+      "method": "click",
+      "signature": "Click",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/GlobalMethod.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "global",
+      "method": "leftButtonClick",
+      "signature": "LeftButtonClick",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/GlobalMethod.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "global",
+      "method": "leftButtonDown",
+      "signature": "LeftButtonDown",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/GlobalMethod.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "global",
+      "method": "leftButtonUp",
+      "signature": "LeftButtonUp",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/GlobalMethod.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "global",
+      "method": "rightButtonClick",
+      "signature": "RightButtonClick",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/GlobalMethod.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "global",
+      "method": "rightButtonDown",
+      "signature": "RightButtonDown",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/GlobalMethod.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "global",
+      "method": "rightButtonUp",
+      "signature": "RightButtonUp",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/GlobalMethod.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "global",
+      "method": "middleButtonClick",
+      "signature": "MiddleButtonClick",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/GlobalMethod.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "global",
+      "method": "middleButtonDown",
+      "signature": "MiddleButtonDown",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/GlobalMethod.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "global",
+      "method": "middleButtonUp",
+      "signature": "MiddleButtonUp",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/GlobalMethod.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "global",
+      "method": "verticalScroll",
+      "signature": "VerticalScroll",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/GlobalMethod.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "global",
+      "method": "captureGameRegion",
+      "signature": "CaptureGameRegion",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/GlobalMethod.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "global",
+      "method": "getAvatars",
+      "signature": "GetAvatars",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/GlobalMethod.cs",
+      "status": "catalogued",
+      "executable": false
+    },
+    {
+      "namespace": "global",
+      "method": "inputText",
+      "signature": "InputText",
+      "source": "BetterGenshinImpact/Core/Script/Dependence/GlobalMethod.cs",
+      "status": "catalogued",
+      "executable": false
+    }
+  ],
+  "soloTasks": [
+    "AutoGeniusInvokation",
+    "AutoWood",
+    "AutoFight",
+    "AutoDomain",
+    "AutoBoss",
+    "AutoFishing",
+    "AutoCook",
+    "AutoEat",
+    "CountInventoryItem"
+  ],
+  "note": "接口目录依据本机版本源码生成。catalogued 表示已核对签名，不表示已实现远程调用或通过实机验证。"
+}

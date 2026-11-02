@@ -1,0 +1,203 @@
+{
+  "retrieved_utc": "2026-11-01T14:35:00.333628+00:00",
+  "method": "safetensors header shape products; stored tensor elements, not deduplicated trainable parameters",
+  "models": [
+    {
+      "name": "Qwen3-VL-4B-Instruct",
+      "config": {
+        "architectures": [
+          "Qwen3VLForConditionalGeneration"
+        ],
+        "image_token_id": 151655,
+        "model_type": "qwen3_vl",
+        "text_config": {
+          "attention_bias": false,
+          "attention_dropout": 0.0,
+          "bos_token_id": 151643,
+          "dtype": "bfloat16",
+          "eos_token_id": 151645,
+          "head_dim": 128,
+          "hidden_act": "silu",
+          "hidden_size": 2560,
+          "initializer_range": 0.02,
+          "intermediate_size": 9728,
+          "max_position_embeddings": 262144,
+          "model_type": "qwen3_vl_text",
+          "num_attention_heads": 32,
+          "num_hidden_layers": 36,
+          "num_key_value_heads": 8,
+          "rms_norm_eps": 1e-06,
+          "rope_scaling": {
+            "mrope_interleaved": true,
+            "mrope_section": [
+              24,
+              20,
+              20
+            ],
+            "rope_type": "default"
+          },
+          "rope_theta": 5000000,
+          "tie_word_embeddings": true,
+          "use_cache": true,
+          "vocab_size": 151936
+        },
+        "tie_word_embeddings": true,
+        "transformers_version": "4.57.0.dev0",
+        "video_token_id": 151656,
+        "vision_config": {
+          "deepstack_visual_indexes": [
+            5,
+            11,
+            17
+          ],
+          "depth": 24,
+          "hidden_act": "gelu_pytorch_tanh",
+          "hidden_size": 1024,
+          "in_channels": 3,
+          "initializer_range": 0.02,
+          "intermediate_size": 4096,
+          "model_type": "qwen3_vl",
+          "num_heads": 16,
+          "num_position_embeddings": 2304,
+          "out_hidden_size": 2560,
+          "patch_size": 16,
+          "spatial_merge_size": 2,
+          "temporal_patch_size": 2
+        },
+        "vision_end_token_id": 151653,
+        "vision_start_token_id": 151652
+      },
+      "config_sha256": "edac7703329133edfc53e46ac0081835144c99d7eebf28b71c732694d435224d",
+      "shards": [
+        {
+          "filename": "model-00001-of-00002.safetensors",
+          "bytes": 4967229296,
+          "header_sha256": "c1439fa6bf0d8c5a1f01f7a2f1bea6ef356d9d6c7c0e7f66cfc971fa41b2bf25",
+          "stored_elements": 2483599616
+        },
+        {
+          "filename": "model-00002-of-00002.safetensors",
+          "bytes": 3908490048,
+          "header_sha256": "87e6341399ae7de5098b310951993b0010876a5c805dbe0b2c0cfbef7c8cb94e",
+          "stored_elements": 1954216192
+        }
+      ],
+      "stored_elements": 4437815808,
+      "tensor_count": 713,
+      "dtype_elements": {
+        "BF16": 4437815808
+      },
+      "component_elements": {
+        "language_or_other": 4022468096,
+        "vision": 415347712
+      },
+      "bytes": 8875719344
+    },
+    {
+      "name": "Qwen3-VL-8B-Instruct",
+      "config": {
+        "architectures": [
+          "Qwen3VLForConditionalGeneration"
+        ],
+        "image_token_id": 151655,
+        "model_type": "qwen3_vl",
+        "text_config": {
+          "attention_bias": false,
+          "attention_dropout": 0.0,
+          "bos_token_id": 151643,
+          "dtype": "bfloat16",
+          "eos_token_id": 151645,
+          "head_dim": 128,
+          "hidden_act": "silu",
+          "hidden_size": 4096,
+          "initializer_range": 0.02,
+          "intermediate_size": 12288,
+          "max_position_embeddings": 262144,
+          "model_type": "qwen3_vl_text",
+          "num_attention_heads": 32,
+          "num_hidden_layers": 36,
+          "num_key_value_heads": 8,
+          "rms_norm_eps": 1e-06,
+          "rope_scaling": {
+            "mrope_interleaved": true,
+            "mrope_section": [
+              24,
+              20,
+              20
+            ],
+            "rope_type": "default"
+          },
+          "rope_theta": 5000000,
+          "use_cache": true,
+          "vocab_size": 151936
+        },
+        "tie_word_embeddings": false,
+        "transformers_version": "4.57.0.dev0",
+        "video_token_id": 151656,
+        "vision_config": {
+          "deepstack_visual_indexes": [
+            8,
+            16,
+            24
+          ],
+          "depth": 27,
+          "hidden_act": "gelu_pytorch_tanh",
+          "hidden_size": 1152,
+          "in_channels": 3,
+          "initializer_range": 0.02,
+          "intermediate_size": 4304,
+          "model_type": "qwen3_vl",
+          "num_heads": 16,
+          "num_position_embeddings": 2304,
+          "out_hidden_size": 4096,
+          "patch_size": 16,
+          "spatial_merge_size": 2,
+          "temporal_patch_size": 2
+        },
+        "vision_end_token_id": 151653,
+        "vision_start_token_id": 151652
+      },
+      "config_sha256": "5cd452860dc1e9c29dd71cc3cef7f39b338b7a40793f7a260655c2d3568f3661",
+      "shards": [
+        {
+          "filename": "model-00001-of-00004.safetensors",
+          "bytes": 4902275944,
+          "header_sha256": "29c6e3ee7391b9cd7917e8d6a7c252d0face169060fa8f334e56b43f5f836b9b",
+          "stored_elements": 2451130880
+        },
+        {
+          "filename": "model-00002-of-00004.safetensors",
+          "bytes": 4915962496,
+          "header_sha256": "c3667b7b28097300ff4ade11c8e3c299f4e00d712a573dc22325cebb949533d4",
+          "stored_elements": 2457971968
+        },
+        {
+          "filename": "model-00003-of-00004.safetensors",
+          "bytes": 4999831048,
+          "header_sha256": "043ac56c5b6de46994f9b89c4c183f1e24d85c881597c817a98549c14b3ee6de",
+          "stored_elements": 2499906560
+        },
+        {
+          "filename": "model-00004-of-00004.safetensors",
+          "bytes": 2716270024,
+          "header_sha256": "66010cce64ae4bcbd55cb77d3cae234da4bdd84f716157860817c0f66bd43852",
+          "stored_elements": 1358114288
+        }
+      ],
+      "stored_elements": 8767123696,
+      "tensor_count": 750,
+      "dtype_elements": {
+        "BF16": 8767123696
+      },
+      "component_elements": {
+        "language_or_other": 8190735360,
+        "vision": 576388336
+      },
+      "bytes": 17534339512
+    }
+  ],
+  "cpu": "AMD Ryzen 9 9950X3D 16-Core Processor",
+  "ram_bytes": 50629701632,
+  "logical_cpu_count": 32,
+  "physical_cpu_count": 16
+}
