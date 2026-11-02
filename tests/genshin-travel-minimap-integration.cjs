@@ -33,7 +33,8 @@ function harness(options={}){
    readTextSync(name){assert.equal(name,'minimap-candidates.source.json');return JSON.stringify(manifest);}},
   RecognitionObject:{templateMatch:()=>({})},
   genshin:{getPositionFromMap(...args){state.positionCalls++;state.events.push(['legacy-position',...args]);return {X:0,Y:0};},
-   getCameraOrientation(){state.orientationCalls++;return 0;}},
+   getCameraOrientation(){state.orientationCalls++;if(options.cameraError)throw options.cameraError;
+    if(options.cancelAtCamera)state.cancelled=true;return options.cameraDegrees??0;}},
   projectMinimap:()=>{throw Error('projection should be owned by the minimap helper');},
   minimapRoi:require('../scripts/genshin/story/vision/minimap-bearing').minimapRoi,
   minimapTemplateNames:require('../scripts/genshin/story/vision/minimap-bearing').templateNames,
@@ -59,7 +60,7 @@ function harness(options={}){
  return {state,manifest,run:createTravelQuest(deps),get minimapDependencies(){return minimapDependencies;}};
 }
 function noScreenFallback(state){
- assert.equal(state.positionCalls,0);assert.equal(state.orientationCalls,0);assert.equal(state.templateLoads,0);
+ assert.equal(state.positionCalls,0);assert.equal(state.templateLoads,0);
  assert.equal(state.events.some(e=>Array.isArray(e)&&e[0]==='turn'),false);
  assert.equal(state.events.some(e=>Array.isArray(e)&&e[0]==='down'&&e[1]==='VK_V'),false);
  assert.equal(state.diagnosticCalls.some(c=>c.kind==='screen'),false);
@@ -77,9 +78,29 @@ test('accepted minimap pair supplies position and heading without screen alignme
  assert.deepEqual(result.legs[0].samples,[{x:100,y:200},{x:102,y:203}]);
  assert.deepEqual(result.legs[0].from,{x:102,y:203});assert.equal(result.legs[0].theta,90);
  assert.equal(result.legs[0].bearingSource,'minimap_projection');
+ assert.equal(result.legs[0].cameraOrientation.degrees,0);
+ assert.equal(result.legs[0].minimapNorthUpAssumed,false);
  const target=h.state.routes[0].positions[0];assert.ok(Math.abs(target.x-102)<1e-8);assert.ok(Math.abs(target.y-178)<1e-8);
  assert.equal(target.move_mode,'walk');assert.deepEqual(result.templateSet,h.manifest);
  assert.equal(result.bearings.length,0);assert.equal(result.minimapBearings.length,1);released(h.state);
+});
+
+test('camera diagnostics never replace projection heading and ordinary errors remain explicit',async()=>{
+ for(const options of [{cameraDegrees:270},{cameraError:Error('camera unavailable')}]){
+  const h=harness(options),result=await h.run(1);
+  assert.equal(result.legs[0].theta,90);assert.equal(h.state.orientationCalls,1);
+  assert.equal(result.legs[0].cameraOrientation.degrees,options.cameraError?null:270);
+  if(options.cameraError)assert.equal(result.legs[0].cameraOrientation.error,'camera unavailable');
+  assert.equal(h.state.pathCalls,1);
+ }
+});
+
+test('cancellation during camera telemetry never starts a path or resets camera',async()=>{
+ for(const options of [{cancelAtCamera:true},{cameraError:Object.assign(Error('cancelled'),{code:'STORY_CANCELLED'})}]){
+  const h=harness(options),result=await h.run(1);
+  assert.equal(result.stopReason,'native_error');assert.equal(h.state.pathCalls,0);
+  assert.equal(h.state.events.includes('camera-reset'),false);released(h.state);
+ }
 });
 test('minimap stop suppresses screen fallback and path even when ok is also present',async()=>{
  for(const reason of ['interaction_prompt','map','stage_changed','deadline']){

@@ -661,6 +661,25 @@ const StoryTravel = (() => {
             result.stopReason = 'position_unstable'; break;
           }
           if (!Number.isFinite(theta)) { result.stopReason = 'bearing_unavailable'; break; }
+          // Camera heading is separate telemetry: a successful SIFT homography
+          // permits rotation and does not prove that this minimap is north-up.
+          // Never replace the projected target heading with the camera heading.
+          let cameraOrientation = { degrees: theta, source: 'screen_alignment', at: now() };
+          if (bearingSource === 'minimap_projection') {
+            cameraOrientation = { degrees: null, source: 'getCameraOrientation', at: now() };
+            budgetCheck();
+            try {
+              const value = genshin.getCameraOrientation();
+              const degrees = value == null ? NaN : Number(value);
+              if (Number.isFinite(degrees)) cameraOrientation.degrees = degrees;
+              else cameraOrientation.error = 'nonfinite_camera_orientation';
+            } catch (error) {
+              budgetCheck();
+              if (/cancel|deadline|focus|abort/i.test(String(error?.code || '') + ' ' + String(error?.message || error))) throw error;
+              cameraOrientation.error = String(error?.message || error).slice(0, 160);
+            }
+            budgetCheck();
+          }
           const fresh = capture(), freshStop = currentStop(fresh, stage);
           if (freshStop) { result.stopReason = freshStop; break; }
           const hud = readHud(fresh, grounding), length = Math.min(hud.meters, index === 0 ? 25 : 60);
@@ -669,6 +688,7 @@ const StoryTravel = (() => {
           const budgetMs = Math.min(30000, getDeadline() - now() - marginMs);
           if (budgetMs <= 0) { result.stopReason = 'deadline'; break; }
           const leg = { from, samples: [from1, from], to, theta, thetaUnit: 'degrees', bearingSource, length,
+            cameraOrientation, minimapNorthUpAssumed: false,
             distanceBefore: hud.meters, distanceAfter: null, startedAt: now(), budgetMs,
             returned: false, verified: false };
           result.legs.push(leg); result.attemptedLegs++;
