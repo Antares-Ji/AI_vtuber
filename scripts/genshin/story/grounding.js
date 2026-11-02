@@ -2,7 +2,7 @@
 const StoryGrounding=(()=>{
  const normal=s=>String(s||'').replace(/\s/g,'');
  const positioned=texts=>(texts||[]).filter(t=>Array.isArray(t.box)&&t.box.length===4&&t.box.every(Number.isFinite));
- function questInstruction(texts){return positioned(texts).find(t=>/^(前往|前去|寻找|跟随|尝试|抵达|与.+对话)/.test(normal(t.text))&&t.box[0]>=0&&t.box[0]<640&&t.box[1]>=0&&t.box[1]<540)||null;}
+ function questInstruction(texts){return positioned(texts).find(t=>/^(前往|前去|寻找|跟随|尝试|抵达|[与和].+对话|收集|搜集|将.+交给|消灭所有魔物)/.test(normal(t.text))&&t.box[0]>=0&&t.box[0]<640&&t.box[1]>=0&&t.box[1]<540)||null;}
  function questMenu(texts){
   const rows=positioned(texts),compact=(texts||[]).map(t=>normal(t.text));
   const legacy=compact.some(t=>t.includes('任务专注模式'))&&compact.some(t=>/进行中|传说任务|完成系列任务/.test(t));

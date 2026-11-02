@@ -208,7 +208,7 @@ async function runStory(goal,{root,env,signal,reportProgress=()=>{},runId,direct
     request.navigationMemory={...navigationMemory,stage:navigationStage,teleportAttempts:request.teleportAttempts,rule:'同阶段已尝试过的锚点不得因服务重启而重复传送。历史结果不证明当前场景，仍须读取新帧。'};
     if(observation.questDistanceLabel)observation.questDistanceLabel.rule='当前帧本地OCR定位的场景距离标签与左上任务读数一致，可用于有界转向；目标居中且前方可走可move，无需再用失效的图标模板。box不是鼠标点击目标，不能证明沿途无障碍。';
     if(createHash('sha256').update(fs.readFileSync(image)).digest('hex')!==hash)throw Error('剧情截图发生变化');
-    reportProgress('story-deciding',`步骤${request.seq}：${fast?'快速决策':'模型决策'}`);
+    reportProgress('story-deciding',`步骤${request.seq}：${direct?'等待导演直接指令':fast?'快速决策':'模型决策'}`);
     latest={...latest,state:'deciding'};
     const context={goal,questMemory,navigationMemory:request.navigationMemory,
      observation,distanceEvidence,texts:request.texts,mapAreas:request.mapAreas,
