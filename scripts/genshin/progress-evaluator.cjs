@@ -127,7 +127,7 @@ function evaluate(input,now=Date.now(),o={}){
    if(d.movementTelemetryComplete!==true||!finite(d.movementMsSent))telemetryComplete=false;
   }
   if(kind==='advance_quest'&&!finite(d.movementMsSent))telemetryComplete=false;
-  if(d.kind==='area-search'){
+  if(d.kind==='area-search'||d.kind==='commission-route'){
    const points=Array.isArray(d.points)?d.points:[];nativePathLegs+=points.length;
    pathDurationMs+=points.reduce((s,p)=>s+(finite(p.durationMs)?p.durationMs:0),0);telemetryComplete=false;
   }
