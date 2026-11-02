@@ -195,7 +195,10 @@ async function runStory(goal,{root,env,signal,reportProgress=()=>{},runId,direct
     if(stageState.changed)teleportAttempts.clear();
     navigationStage=stageState.stage;
     feedback.setContext({quest:questMemory?.quest||goal,stage:navigationStage,confirmedStageChange:stageState.changed});
-    request.recentNativeSteps=feedback.snapshot().recentNativeSteps;
+    const savedFeedback=feedback.snapshot();
+    request.recentNativeSteps=savedFeedback.recentNativeSteps;
+    request.areaSearchState=savedFeedback.areaSearchState;
+    latest.taskStage=navigationStage;
     request.teleportAttempts=[...teleportAttempts];
     reportProgress('story-observing',`剧情步骤${request.seq}：BetterGI 原生 CV/OCR 观察`);
     const frameDir=path.join(root,'runtime/genshin/observations',randomUUID());fs.mkdirSync(frameDir,{recursive:true});
@@ -273,7 +276,7 @@ async function runStory(goal,{root,env,signal,reportProgress=()=>{},runId,direct
        fs.writeFileSync(path.join(folder,`step-${request.seq}.json`),JSON.stringify(evidence,null,2));
       }});
     }
-    return {...decision,feedbackSteps:request.recentNativeSteps,nextObservationDelayMs:fast&&role==='movement'?100:400};
+    return {...decision,feedbackSteps:request.recentNativeSteps,areaSearchState:request.areaSearchState,nextObservationDelayMs:fast&&role==='movement'?100:400};
     }catch(error){
      signal.throwIfAborted();
      if(budget.expired()||error.code==='STORY_FRAME_TIMEOUT'){

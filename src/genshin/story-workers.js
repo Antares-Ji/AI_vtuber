@@ -35,6 +35,9 @@ function prompt(context,{role=workerFor(context.observation),rejected=[],handoff
   base.availableIntents=base.availableIntents.filter(k=>k!=='leave_interaction');
   base.collectionInteraction={target,preferredAction:{kind:'key',key:'F',text:target},reason:'当前搜集阶段的调查/物品候选；先交互并用新HUD核验结果'};
  }
+ if(target&&/^(便条|烹饪)$/.test(target)&&/收集|搜集/.test(grounding.questInstruction(context.texts)?.text||'')){
+  base.collectionInteraction={target,preferredAction:{kind:'leave_interaction',text:target,key:'W'},reason:'此目标与当前收集材料无关；leave_interaction交回BGI搜索，不要反复阅读便条或烹饪'};
+ }
  if(base.observation.travelQuest?.ok===false)base.availableIntents=base.availableIntents.filter(k=>k!=='travel_quest');
  if(base.observation.travelQuest?.ok&&base.observation.travelQuest.feedback?.failedTravels===0){
   base.availableIntents=base.availableIntents.filter(k=>!['navigate','move','advance_quest','follow_marker'].includes(k));

@@ -17,6 +17,14 @@ test('cross-segment follow failures and unchanged F persist through forty waits 
  assert.equal(loaded.stats.nativeReceipts,44);assert.equal(loaded.stats.unchangedInteractionReceipts,2);
 });
 function sWithoutAdded({added,...rest}){return rest;}
+test('area search cursor survives receipt compaction and process restart, isolated by task stage',t=>{
+ const {root,memory}=fixture(t);const state={version:1,stage:'跟随骗子向导',origin:{x:100,y:200},cursor:12};
+ memory.merge({sessionId:'search',steps:[step(1,'search_area',{kind:'area-search',state}),...Array.from({length:40},(_,i)=>step(i+2,'wait'))]});
+ const restored=new StoryFeedbackMemory({root,quest:'神秘岛的传说',stage:'跟随骗子向导'});
+ assert.deepEqual(restored.snapshot().areaSearchState,state);
+ restored.setContext({quest:'神秘岛的传说',stage:'收集绳索',confirmedStageChange:true});
+ assert.equal(restored.snapshot().areaSearchState,null);
+});
 test('last-step and final receipts deduplicate by native session plus sequence and add the missing terminal step',t=>{
  const {memory}=fixture(t);
  assert.equal(memory.merge({sessionId:'segment-a',lastStep:follow(1)}).added,1);

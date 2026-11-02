@@ -20,7 +20,7 @@ function createGenshinConsole({ host, brain, parseBody, send, root = ROOT, env =
       const story=storyForRun(run);
       if(!story)return null;
       return {nativeId:story.nativeId||story.execution?.id||(run.state==='RUNNING'?bridge.status().active:null),errorCode:story.errorCode,
-        progress:{at:story.observationAt,stage:story.observation?.travelQuest?.hud?.stage||story.observation?.summary,distance:story.observation?.travelQuest?.hud?.meters}};
+        progress:{at:story.observationAt,stage:story.taskStage,distance:story.observation?.travelQuest?.hud?.meters}};
     },
     cleanup:async(run,saved)=>{
       const state=bridge.status(),story=storyForRun(run);

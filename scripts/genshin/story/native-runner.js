@@ -299,7 +299,7 @@ else (async function(){
    else if(action.kind==='reset_camera'){guardedMiddleButtonClick();await sleep(600);detail='镜头复位输入已发送，等待下一帧核对';}
    else if(action.kind==='advance_quest'){detail=JSON.stringify(await navigate({key:action.key,ms:8000}));}
    else if(action.kind==='navigate'){detail=JSON.stringify(await navigate(action));}
-   else if(action.kind==='search_area'){detail=JSON.stringify(await searchArea());seekState=null;}
+   else if(action.kind==='search_area'){detail=JSON.stringify(await searchArea(decision.areaSearchState));seekState=null;}
    else if(action.kind==='seek_quest'){
     const hud=StoryGrounding.questHud(readFreshTexts());
     if(!hud||hud.meters<=5||hud.meters>300)throw Error('本地距离反馈寻路需要当前5–300m任务HUD');
