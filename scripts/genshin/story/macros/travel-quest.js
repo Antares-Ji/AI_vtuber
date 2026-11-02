@@ -42,7 +42,7 @@ const StoryTravel = (() => {
       return null;
     }
     async function align(stage, trace) {
-      const mats = [], recognizers = [];
+      const mats = [], recognizers = [], templateLoads = [];
       try {
         for (const name of ['quest-marker.png', 'quest-marker-blue.png']) {
           try {
@@ -50,20 +50,28 @@ const StoryTravel = (() => {
             const ro = RecognitionObject.templateMatch(mat, 300, 0, 1320, 1080);
             ro.threshold = 0.8; ro.maxMatchCount = 2;
             recognizers.push({ name, ro });
-          } catch { /* Current-frame OCR remains an independent bearing source. */ }
+            templateLoads.push({ name, loaded: true });
+          } catch (error) {
+            templateLoads.push({ name, loaded: false, error: String(error.message || error).slice(0, 160) });
+          }
         }
         budgetCheck(); moveMouseBy(0, 7000); await sleep(400);
         budgetCheck(); keyDown('VK_V');
         try { await sleep(80); } finally { keyUp('VK_V'); }
         await sleep(3000);
-        let missing = 0, stale = 0, previous = null;
-        for (let turn = 0; turn <= 8; turn++) {
+        let missing = 0, stale = 0, previous = null, yawTurns = 0;
+        for (let iteration = 0; iteration <= 8; iteration++) {
           budgetCheck();
           const frame = captureGameRegion(); let marker = null, hud, stop;
+          const entry = { iteration, yawTurns, ...(iteration === 0 ? { templateLoads } : {}) };
+          trace.push(entry);
           try {
             const texts = readTexts(frame);
             stop = currentStop(texts, stage); hud = readHud(texts, grounding);
-            if (stop) return { stop };
+            entry.distance = hud?.meters ?? null;
+            entry.ocrDistances = positioned(texts).filter(row => /^\d{1,5}(?:m|米)$/i.test(normal(row.text)))
+              .slice(0, 12).map(row => ({ text: row.text, box: row.box, source: row.source || 'full_frame' }));
+            if (stop) { entry.stopCue = stop; return { stop }; }
             const candidates = [];
             for (const item of recognizers) {
               const found = frame.findMulti(item.ro);
@@ -74,29 +82,39 @@ const StoryTravel = (() => {
                   && Math.abs(p.y - candidate.y) <= 14)) candidates.push(candidate);
               }
             }
+            entry.fallbackReason = candidates.length > 1 ? 'template_ambiguous' : 'template_available';
             if (candidates.length === 1) marker = candidates[0];
             else if (candidates.length === 0) {
               const label = distanceLabel(texts, grounding);
               // Text below the horizon does not establish the overhead marker's
               // front/back geometry. Do not invent a diamond position from it.
-              if (label && label.box[1] + label.box[3] < 540) marker = label;
+              entry.fallbackReason = !label ? 'no_shared_distance_label' : label.box[1] + label.box[3] >= 540
+                ? 'label_below_horizon' : 'accepted';
+              if (entry.fallbackReason === 'accepted') marker = label;
             }
-            trace.push({ turn, matches: candidates.length, marker, distance: hud.meters });
+            entry.matches = candidates.length; entry.marker = marker;
           } finally { frame.dispose(); }
+          let dx;
           if (!marker) {
-            if (++missing >= 2) return { stop: 'bearing_unavailable' };
-            await sleep(250); continue;
+            entry.consecutiveMissing = ++missing;
+            // Search a bounded portion of the view, never infer a bearing from
+            // HUD distance alone. Scanning and alignment share the same budget.
+            stale = 0; previous = null; dx = 320;
+            entry.turnKind = 'scan';
+          } else {
+            missing = 0;
+            const errorX = marker.x - 960;
+            if (Math.abs(errorX) <= 80 && marker.y < 540) return { hud, marker };
+            stale = previous && marker.source === previous.source
+              && Math.abs(marker.x - previous.x) < 8 && Math.abs(marker.y - previous.y) < 8 ? stale + 1 : 0;
+            if (stale >= 3) return { stop: 'alignment_stalled' };
+            previous = marker;
+            dx = Math.abs(errorX) > 80 ? Math.round(Math.max(-400, Math.min(400, errorX * 0.6))) : 300;
+            entry.turnKind = 'align';
           }
-          missing = 0;
-          const dx = marker.x - 960;
-          if (Math.abs(dx) <= 80 && marker.y < 540) return { hud, marker };
-          stale = previous && marker.source === previous.source
-            && Math.abs(marker.x - previous.x) < 8 && Math.abs(marker.y - previous.y) < 8 ? stale + 1 : 0;
-          if (stale >= 3) return { stop: 'alignment_stalled' };
-          if (turn === 8) return { stop: 'bearing_unavailable' };
-          previous = marker;
-          budgetCheck(); moveMouseBy(Math.abs(dx) > 80
-            ? Math.round(Math.max(-400, Math.min(400, dx * 0.6))) : 300, 0);
+          if (yawTurns >= 8) return { stop: 'bearing_unavailable' };
+          budgetCheck(); moveMouseBy(dx, 0);
+          entry.turnSent = { dx, dy: 0 }; entry.yawTurnsAfter = ++yawTurns;
           await sleep(250);
         }
         return { stop: 'bearing_unavailable' };

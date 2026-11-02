@@ -10,10 +10,11 @@ const hudRows = (distance = 184, stage = '前去查看详情') => [
   { text: distance + 'm', box: [80, 281, 49, 19], source: 'quest_distance_crop' }
 ];
 function harness(options = {}) {
-  let clock = 1000, calls = 0, samples = 0, pending = false;
+  let clock = 1000, calls = 0, samples = 0, pending = false, yawTurns = 0;
   const events = [], routes = [], tokens = [], positionCalls = [];
   const distances = options.distances || [184, 184];
   const getRows = () => {
+    if (options.rowsAtYaw) return options.rowsAtYaw(yawTurns, calls);
     if (calls && options.afterRows) return options.afterRows;
     const rows = hudRows(distances[Math.min(calls, distances.length - 1)]);
     if (options.label !== false) rows.push({ text: distances[Math.min(calls, distances.length - 1)] + 'm', box: [930, 300, 50, 20] });
@@ -22,16 +23,22 @@ function harness(options = {}) {
   const deps = {
     grounding, now: () => clock, getDeadline: () => options.deadline || 1000000,
     sleep: async ms => { clock += ms; },
-    checkInput() { if (options.cancelParent && calls) throw Object.assign(Error('parent cancelled'), { code: 'STORY_DEADLINE_EXPIRED' }); },
+    checkInput() {
+      if (options.cancelDuringScan && yawTurns >= 1) throw Object.assign(Error('focus lost'), { code: 'STORY_FOCUS_LOST' });
+      if (options.cancelParent && calls) throw Object.assign(Error('parent cancelled'), { code: 'STORY_DEADLINE_EXPIRED' });
+    },
     keyDown: key => events.push('down:' + key),
     keyUp: key => { assert.equal(pending, false, 'never release/return before joining path'); events.push('up:' + key); },
-    moveMouseBy: (x, y) => events.push(['turn', x, y]), middleButtonClick: () => events.push('reset'),
+    moveMouseBy: (x, y) => { if (y === 0) yawTurns++; events.push(['turn', x, y]); }, middleButtonClick: () => events.push('reset'),
     captureGameRegion: () => ({ dispose() {}, findMulti() {
       if (options.templates === false) return { count: 0 };
       if (options.ambiguous) return { count: 2, 0: { x: 800, y: 200, width: 20, height: 20 }, 1: { x: 1100, y: 200, width: 20, height: 20 } };
       return { count: 1, 0: { x: 950, y: 200, width: 20, height: 20 } };
     } }),
-    readTexts: getRows, file: { readImageMatSync: () => ({ dispose() {} }) },
+    readTexts: getRows, file: { readImageMatSync: () => {
+      if (options.templateLoadError) throw Error('fixture template unavailable');
+      return { dispose() {} };
+    } },
     RecognitionObject: { templateMatch: () => ({}) },
     genshin: {
       getPositionFromMap(...args) { positionCalls.push(args); samples++; return options.position === null ? null : { X: options.unstable && samples % 2 === 0 ? 100 : 0, Y: 0 }; },
@@ -83,7 +90,61 @@ test('unavailable bearing or ambiguous templates never call pathing', async () =
     const h = harness(options), result = await h.run(1);
     assert.equal(result.stopReason, 'bearing_unavailable'); assert.equal(h.routes.length, 0);
     assert.equal(h.events.some(e => e === 'down:VK_W'), false);
+    assert.equal(h.events.filter(e => Array.isArray(e) && e[2] === 0).length, 8);
+    assert.equal(result.bearings[0].at(-1).yawTurns, 8);
   }
+});
+test('missing-bearing scan finds a fresh unique OCR label before calling pathing', async () => {
+  const h = harness({ templates: false, rowsAtYaw: yaw => [
+    ...hudRows(), ...(yaw >= 2 ? [{ text: '184m', box: [930, 300, 50, 20] }] : [])
+  ] }), result = await h.run(1);
+  assert.equal(h.routes.length, 1);
+  assert.equal(result.bearings[0].length, 3);
+  assert.deepEqual(result.bearings[0].map(e => e.yawTurns), [0, 1, 2]);
+  assert.equal(result.bearings[0][0].fallbackReason, 'no_shared_distance_label');
+  assert.equal(result.bearings[0][2].fallbackReason, 'accepted');
+  const pathIndex = h.events.indexOf('path-start');
+  assert.equal(h.events.slice(0, pathIndex).filter(e => Array.isArray(e) && e[2] === 0).length, 2);
+  assert.equal(h.events.slice(0, pathIndex).includes('down:VK_W'), false);
+});
+test('scanning never turns ambiguous, mismatched, or lower-screen labels into bearings', async () => {
+  const labels = [
+    [{ text: '184m', box: [930, 300, 50, 20] }, { text: '184m', box: [1100, 320, 50, 20] }],
+    [{ text: '180m', box: [930, 300, 50, 20] }],
+    [{ text: '184m', box: [930, 600, 50, 20] }]
+  ];
+  for (const rows of labels) {
+    const h = harness({ templates: false, rowsAtYaw: () => [...hudRows(), ...rows] }), result = await h.run(1);
+    assert.equal(result.stopReason, 'bearing_unavailable'); assert.equal(h.routes.length, 0);
+    assert.equal(result.bearings[0].at(-1).yawTurns, 8);
+    assert.equal(result.bearings[0][0].fallbackReason, rows[0].box[1] === 600 ? 'label_below_horizon' : 'no_shared_distance_label');
+  }
+});
+test('scan rereads F/menu/stage and stops before another turn or any path call', async () => {
+  const f = [{ text: 'F', box: [1100, 500, 20, 20] }, { text: '法拉', box: [1140, 500, 100, 20] }];
+  for (const [rows, reason] of [[ [...hudRows(), ...f], 'interaction_prompt' ],
+    [[{ text: '商城', box: [170, 440, 50, 20] }], 'menu'], [hudRows(184, '寻找另一个目标'), 'stage_changed']]) {
+    const h = harness({ templates: false, rowsAtYaw: yaw => yaw ? rows : hudRows() }), result = await h.run(1);
+    assert.equal(result.stopReason, reason); assert.equal(h.routes.length, 0);
+    assert.equal(h.events.filter(e => Array.isArray(e) && e[2] === 0).length, 1);
+    assert.equal(result.bearings[0].at(-1).stopCue, reason);
+  }
+});
+test('deadline and parent cancellation interrupt bounded scan without W/path input', async () => {
+  for (const [options, reason] of [[{ deadline: 6800 }, 'deadline'], [{ cancelDuringScan: true }, 'native_error']]) {
+    const h = harness({ templates: false, label: false, ...options }), result = await h.run(1);
+    assert.equal(result.stopReason, reason); assert.equal(h.routes.length, 0);
+    const turns = h.events.filter(e => Array.isArray(e) && e[2] === 0).length;
+    assert.ok(turns > 0 && turns < 8); assert.equal(h.events.includes('down:VK_W'), false);
+    if (options.cancelDuringScan) assert.equal(result.errorCode, 'STORY_FOCUS_LOST');
+  }
+});
+test('template loading failure is explicit and does not prevent valid OCR fallback', async () => {
+  const h = harness({ templateLoadError: true }), result = await h.run(1);
+  assert.equal(h.routes.length, 1);
+  assert.equal(result.bearings[0][0].templateLoads.length, 2);
+  assert.ok(result.bearings[0][0].templateLoads.every(load => load.loaded === false && load.error.includes('unavailable')));
+  assert.equal(result.bearings[0][0].fallbackReason, 'accepted');
 });
 test('OCR fallback can align, uses independent uncached samples and single walk path', async () => {
   const h = harness({ templates: false }), result = await h.run(2);
