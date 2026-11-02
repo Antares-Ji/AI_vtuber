@@ -161,6 +161,291 @@ const StoryGrounding=(()=>{
 
 if(typeof module!=='undefined'&&module.exports)module.exports=StoryGrounding;
 
+// Source: story/vision/template-diagnostics.js
+// Pure matching on an already captured frame. Never captures, activates a
+// window, or sends input. Only production-threshold results can be accepted.
+const StoryTemplateDiagnostics=(()=>{
+  const DEFAULT_TEMPLATES=['quest-marker.png','quest-marker-blue.png'];
+  const read=(object,key)=>{
+    if(object==null)return undefined;
+    const lower=object[key];
+    return lower===undefined?object[key[0].toUpperCase()+key.slice(1)]:lower;
+  };
+  function number(value){
+    if(value===null||value===undefined)return null;
+    const converted=Number(value);return Number.isFinite(converted)?converted:null;
+  }
+  function dispose(mat){
+    if(!mat)return;
+    if(mat.dispose!==undefined)mat.dispose();else if(mat.Dispose!==undefined)mat.Dispose();
+  }
+  function rectangle(value){
+    const values=Array.isArray(value)?value:[read(value,'x'),read(value,'y'),read(value,'width'),read(value,'height')];
+    if(values.length!==4)return null;
+    const box=values.map(number);
+    return box.every(v=>v!==null)&&box[0]>=0&&box[1]>=0&&box[2]>0&&box[3]>0?box:null;
+  }
+  function resultRegion(item,frameSize){
+    const box=rectangle(item);
+    if(!box||box[0]+box[2]>frameSize[0]||box[1]+box[3]>frameSize[1])return null;
+    // ImageRegion.FindMulti already adds the ROI offset. These coordinates are
+    // in the provided frame, not relative to the RecognitionObject's ROI.
+    const center=[box[0]+box[2]/2,box[1]+box[3]/2];
+    return {box,center,x:center[0],y:center[1]};
+  }
+  function count(collection){return number(read(collection,'count')??collection?.length);}
+  function createTemplateDiagnostics(deps={}){
+    const load=deps.loadTemplate||(name=>deps.file.readImageMatSync(name));
+    const create=deps.createRecognizer||((mat,roi)=>deps.RecognitionObject.templateMatch(mat,...roi));
+    const cache=new Map(),loadedMats=new Set();let closed=false;
+    function template(name){
+      if(cache.has(name))return cache.get(name);
+      let entry;
+      try{
+        if(typeof name!=='string'||!/^[-\w.]+\.png$/i.test(name)||name.includes('..'))throw Error('invalid_template_name');
+        const mat=load(name);if(!mat)throw Error('empty_template');
+        loadedMats.add(mat);entry={mat,loaded:true};
+      }catch(error){entry={mat:null,loaded:false,error:String(error.message||error).slice(0,180)};}
+      cache.set(name,entry);return entry;
+    }
+    function observe(frame,{templateNames=DEFAULT_TEMPLATES,roi=null,productionThreshold=0.8,kind='screen'}={}){
+      if(closed)throw Error('Template diagnostics already disposed');
+      if(!Array.isArray(templateNames)||!templateNames.length||templateNames.length>16||templateNames.some(n=>typeof n!=='string'))throw Error('Invalid template list');
+      if(typeof kind!=='string'||!kind||kind.length>64)throw Error('Invalid diagnostic kind');
+      if(!Number.isFinite(productionThreshold)||productionThreshold<-1||productionThreshold>1)throw Error('Invalid production threshold');
+      const names=[...new Set(templateNames)],frameSize=[number(read(frame,'width')),number(read(frame,'height'))];
+      const region=rectangle(roi||[0,0,...frameSize]);
+      const validRoi=frameSize.every(n=>n!==null&&n>0)&&region&&region[0]+region[2]<=frameSize[0]&&region[1]+region[3]<=frameSize[1];
+      const out={kind,roi:region,frameSize,coordinateSpace:'capture_frame_px',productionThreshold,
+        diagnosticThreshold:-1,peaks:[],candidates:[],unique:null,accepted:false,productionComplete:true,diagnosticsComplete:true};
+      for(const name of names){
+        const entry=template(name),peak={template:name,loaded:entry.loaded,score:null,status:'pending',box:null,center:null,aboveThreshold:false};
+        out.peaks.push(peak);
+        if(!entry.loaded){peak.status='template_load_error';peak.error=entry.error;out.productionComplete=false;out.diagnosticsComplete=false;continue;}
+        if(!validRoi){peak.status='invalid_roi';out.productionComplete=false;out.diagnosticsComplete=false;continue;}
+        const width=number(read(entry.mat,'width')),height=number(read(entry.mat,'height'));
+        if(width!==null&&height!==null&&(width<=0||height<=0||width>region[2]||height>region[3])){
+          peak.status='template_does_not_fit';out.productionComplete=false;out.diagnosticsComplete=false;continue;
+        }
+        let production=null;const derived=new Set();
+        try{
+          production=create(entry.mat,region);
+          if(deps.configureRecognizer)deps.configureRecognizer(production,{template:name,kind});
+          // Tiny minimap symbols need their color evidence as well as shape.
+          // Screen tracking keeps its existing preprocessing.
+          if(kind==='minimap')production.use3Channels=true;
+          production.threshold=productionThreshold;production.maxMatchCount=2;production.drawOnWindow=false;
+          // Clone shares template/gray/mask Mats, avoiding a second conversion.
+          // BetterGI Clone omits these binary settings, so copy them explicitly.
+          const diagnostic=production.clone();
+          for(const key of ['useBinaryMatch','binaryThreshold']){
+            const value=read(production,key);if(value!==undefined)diagnostic[key]=value;
+          }
+          diagnostic.threshold=-1;diagnostic.maxMatchCount=1;diagnostic.drawOnWindow=false;
+          try{
+            const matches=frame.findMulti(production),total=count(matches);
+            if(!Number.isInteger(total)||total<0||total>2)throw Error('invalid_production_result_count');
+            for(let i=0;i<total;i++){
+              const item=matches[i],located=resultRegion(item,frameSize),score=number(read(item,'matchScore'));
+              if(!located||score===null||score<productionThreshold){out.productionComplete=false;continue;}
+              // Only merge overlapping yellow/blue detections. Never collapse
+              // two results from one template into a falsely unique target.
+              const nearby=out.candidates.filter(c=>!c.templates.includes(name)&&
+                Math.abs(c.x-located.x)<=14&&Math.abs(c.y-located.y)<=14);
+              if(nearby.length===1){nearby[0].templates.push(name);nearby[0].scores.push({template:name,score});}
+              else out.candidates.push({...located,templates:[name],scores:[{template:name,score}],source:'production_threshold'});
+            }
+          }catch(error){out.productionComplete=false;peak.productionError=String(error.message||error).slice(0,180);}
+          try{
+            const matches=frame.findMulti(diagnostic),total=count(matches);
+            if(total!==1){peak.status=total===0?'no_valid_peak':'invalid_diagnostic_result_count';out.diagnosticsComplete=false;}
+            else {
+              const item=matches[0],raw=read(item,'matchScore'),score=number(raw),located=resultRegion(item,frameSize);
+              peak.status=raw===null||raw===undefined?'score_missing':score===null?'invalid_score':!located?'invalid_position':'ok';
+              if(peak.status==='ok'){
+                peak.score=score;peak.box=located.box;peak.center=located.center;peak.aboveThreshold=score>=productionThreshold;
+              }else out.diagnosticsComplete=false;
+            }
+          }catch(error){peak.status='match_error';peak.error=String(error.message||error).slice(0,180);out.diagnosticsComplete=false;}
+        }catch(error){peak.status='recognizer_error';peak.error=String(error.message||error).slice(0,180);out.productionComplete=false;out.diagnosticsComplete=false;}
+        finally{
+          // RecognitionObject itself owns no Dispose API. Free only derived
+          // Mats created for this observation; the cloned recognizer shares them.
+          if(production)for(const key of ['templateImageMat','templateImageGreyMat','maskMat']){
+            const mat=read(production,key);if(mat&&!loadedMats.has(mat))derived.add(mat);
+          }
+          for(const mat of derived)try{dispose(mat);}catch(error){
+            peak.cleanupError=String(error.message||error).slice(0,180);out.productionComplete=false;
+          }
+        }
+      }
+      if(out.productionComplete&&out.candidates.length===1){out.unique=out.candidates[0];out.accepted=true;}
+      return out;
+    }
+    function close(){
+      if(closed)return;closed=true;
+      let failure=null;
+      for(const mat of loadedMats)try{dispose(mat);}catch(error){failure=failure||error;}
+      loadedMats.clear();cache.clear();if(failure)throw failure;
+    }
+    return {observe,dispose:close};
+  }
+  return {createTemplateDiagnostics};
+})();
+if(typeof module!=='undefined'&&module.exports)module.exports=StoryTemplateDiagnostics;
+
+// Source: story/vision/minimap-bearing.js
+// Read-only evidence helper. Loading this file never captures or sends input.
+const StoryMinimapBearing = (() => {
+  const normal = value => String(value || '').replace(/\s/g, '');
+  const templates = ['quest-marker.png', 'quest-marker-blue.png', 'minimap-commission.png'];
+  const point = value => value && Number.isFinite(value.x) && Number.isFinite(value.y)
+    ? { x: value.x, y: value.y } : null;
+  const plain = value => value == null ? null : JSON.parse(JSON.stringify(value));
+  function headingForDirection(direction) {
+    const p = point(direction);
+    if (!p || Math.hypot(p.x, p.y) < 1e-8) throw Error('Invalid projected direction');
+    // PathExecutor heading 0 travels toward negative game X; 90 toward -Y.
+    // The native projection already accounts for minimap rotation and both axes.
+    return Math.atan2(-p.y, -p.x) * 180 / Math.PI || 0;
+  }
+  function minimapRoi(width) {
+    if (!Number.isFinite(width) || width <= 0) return null;
+    const scale = Math.min(width / 1920, 1);
+    // Match MapAssets' .NET Math.Round default (midpoint ties to even).
+    // JS Math.round differs at e.g. 1440px: 62 * .75 = 46.5 must become 46.
+    return [62, 19, 212, 212].map(value => {
+      const scaled = value * scale, floor = Math.floor(scaled);
+      return scaled - floor === 0.5 ? floor + (floor % 2) : Math.round(scaled);
+    });
+  }
+  function projectionSummary(raw) {
+    const value = typeof raw === 'string' ? JSON.parse(raw) : raw;
+    if (!value || typeof value !== 'object') throw Error('Invalid projection response');
+    // Copy known primitive fields: host DTOs must never escape into receipts.
+    const result = { ok: value.ok === true, reason: String(value.reason || '').slice(0, 180) };
+    for (const key of ['centerMap', 'markerMap', 'centerGame', 'gameDirection']) result[key] = point(value[key]);
+    for (const key of ['matchCount', 'inlierCount', 'inlierRatio', 'reprojectionError', 'layer', 'durationMs'])
+      result[key] = Number.isFinite(value[key]) ? value[key] : null;
+    result.mapName = typeof value.mapName === 'string' ? value.mapName : null;
+    const crop = value.crop;
+    result.crop = Array.isArray(crop) && crop.length === 4 && crop.every(Number.isFinite) ? crop.slice()
+      : crop && ['x', 'y', 'width', 'height'].every(key => Number.isFinite(crop[key]))
+        ? { x: crop.x, y: crop.y, width: crop.width, height: crop.height } : null;
+    return result;
+  }
+  function cancellation(error) {
+    return error?.travelReason === 'deadline' || /cancel|deadline|focus|abort/i.test(
+      String(error?.code || '') + ' ' + String(error?.name || '') + ' ' + String(error?.message || ''));
+  }
+  function createMinimapBearing(deps) {
+    const { captureGameRegion, readTexts, grounding, sleep, diagnostics, project } = deps;
+    const now = deps.now || Date.now;
+    let closed = false;
+    function budgetCheck() {
+      if (deps.budgetCheck) return deps.budgetCheck();
+      deps.checkInput();
+      if (!Number.isFinite(deps.getDeadline()) || deps.getDeadline() - now() <= 2000)
+        throw Object.assign(Error('Travel deadline approaching'), { travelReason: 'deadline' });
+    }
+    function currentStop(texts, stage) {
+      if (deps.currentStop) return deps.currentStop(texts, stage);
+      const cue = grounding.movementStop(texts), hud = grounding.questHud(texts);
+      return cue || (!hud ? 'hud_unavailable' : stage && normal(hud.stage) !== normal(stage)
+        ? 'stage_changed' : hud.meters <= 8 ? 'near_distance' : hud.meters > 1500 ? 'distance_out_of_range' : null);
+    }
+    async function samplePair(stage) {
+      const samples = [];
+      const fail = (reason, stop = false) => ({ ok: false, reason, stop, source: 'minimap_projection', samples });
+      budgetCheck();
+      if (closed) return fail('minimap_observer_disposed');
+      if (typeof project !== 'function') return fail('projection_api_unavailable');
+      if (!diagnostics || typeof diagnostics.observe !== 'function') return fail('template_diagnostics_unavailable');
+      let previousFrame = null;
+      for (let index = 0; index < 2; index++) {
+        if (index) { await sleep(100); budgetCheck(); }
+        budgetCheck();
+        const frame = captureGameRegion();
+        const sample = { index, at: now(), roi: null, peaks: [], projection: null };
+        samples.push(sample);
+        try {
+          budgetCheck();
+          if (frame === previousFrame) return fail('capture_not_independent');
+          previousFrame = frame;
+          const texts = readTexts(frame);
+          budgetCheck();
+          const stop = currentStop(texts, stage);
+          sample.hud = plain(grounding.questHud(texts));
+          if (stop) { sample.stopCue = stop; return fail(stop, true); }
+          const width = Number(frame.width), height = Number(frame.height), roi = minimapRoi(width);
+          sample.roi = roi;
+          if (!roi || !Number.isFinite(height) || roi[2] <= 0 || roi[3] <= 0
+            || roi[0] + roi[2] > width || roi[1] + roi[3] > height) return fail('minimap_roi_invalid');
+          budgetCheck();
+          const observation = diagnostics.observe(frame, { templateNames: templates.slice(), roi,
+            productionThreshold: 0.8, kind: 'minimap' });
+          budgetCheck();
+          sample.peaks = plain(observation.peaks || []);
+          sample.candidates = plain(observation.candidates || []);
+          sample.productionComplete = observation.productionComplete === true;
+          const marker = observation.unique;
+          if (observation.accepted !== true || !sample.productionComplete || sample.candidates.length !== 1 || !marker)
+            return fail(sample.candidates.length > 1 ? 'minimap_template_ambiguous'
+              : !sample.productionComplete ? 'minimap_template_incomplete' : 'minimap_marker_unavailable');
+          // Never promote a diagnostic peak, even if it is the highest NCC.
+          if (!Array.isArray(marker.scores) || !marker.scores.length
+            || marker.scores.some(row => !Number.isFinite(row.score) || row.score < 0.8))
+            return fail('minimap_score_below_threshold');
+          const center = marker.center;
+          if (!Array.isArray(center) || center.length !== 2 || !center.every(Number.isFinite))
+            return fail('minimap_marker_invalid');
+          const [x, y] = center, [rx, ry, rw, rh] = roi;
+          const radius = Math.min(rw, rh) / 2, offset = Math.hypot(x - (rx + rw / 2), y - (ry + rh / 2));
+          sample.marker = { x, y, source: 'production_threshold', offset };
+          if (x < rx || y < ry || x >= rx + rw || y >= ry + rh || offset > radius)
+            return fail('minimap_marker_outside_circle');
+          if (offset < 12 * Math.min(width / 1920, 1)) return fail('minimap_marker_near_center');
+          budgetCheck();
+          const raw = await project(frame, x, y);
+          budgetCheck();
+          const projection = projectionSummary(raw);
+          sample.projection = projection;
+          if (/cancel|deadline|focus|abort/i.test(projection.reason))
+            throw Object.assign(Error(projection.reason), { code: 'STORY_PROJECTION_CANCELLED' });
+          if (!projection.ok) return fail(projection.reason || 'minimap_projection_failed');
+          if (!projection.centerGame || !projection.gameDirection || Math.hypot(projection.gameDirection.x, projection.gameDirection.y) < 1e-8)
+            return fail('minimap_projection_invalid');
+          const magnitude = Math.hypot(projection.gameDirection.x, projection.gameDirection.y);
+          sample.position = projection.centerGame;
+          sample.direction = { x: projection.gameDirection.x / magnitude, y: projection.gameDirection.y / magnitude };
+        } catch (error) {
+          if (cancellation(error)) throw error;
+          // Also detects a parent cancellation reported during a native failure.
+          budgetCheck();
+          sample.error = String(error.message || error).slice(0, 180);
+          return fail('minimap_observation_error');
+        } finally { frame.dispose(); }
+      }
+      budgetCheck();
+      const first = samples[0], second = samples[1];
+      const drift = Math.hypot(first.position.x - second.position.x, first.position.y - second.position.y);
+      second.positionDrift = drift;
+      if (drift > 10) return fail('position_unstable');
+      const dot = first.direction.x * second.direction.x + first.direction.y * second.direction.y;
+      const angle = Math.acos(Math.max(-1, Math.min(1, dot))) * 180 / Math.PI;
+      second.directionDeltaDegrees = angle;
+      if (angle > 10 + 1e-8) return fail('minimap_direction_unstable');
+      return { ok: true, reason: 'accepted', source: 'minimap_projection', samples,
+        from: second.position, positionSamples: samples.map(sample => sample.position),
+        heading: headingForDirection(second.direction), hud: second.hud };
+    }
+    // Diagnostics may be shared with the screen source; its owner disposes it.
+    return { samplePair, dispose() { closed = true; } };
+  }
+  return { createMinimapBearing, headingForDirection, minimapRoi, templateNames: () => templates.slice() };
+})();
+if (typeof module !== 'undefined' && module.exports) module.exports = StoryMinimapBearing;
+
 // Source: story/vision/post-action-position.js
 // Fresh local minimap CV evidence for checking a predicted teleport destination.
 const StoryPostActionPosition=(()=>{
@@ -228,7 +513,7 @@ const StoryTravel = (() => {
       if (hud.meters > 1500) return 'distance_out_of_range';
       return null;
     }
-    async function align(stage, trace, camera) {
+    async function align(stage, trace, camera, diagnostics) {
       const mats = [], recognizers = [], templateLoads = [];
       try {
         for (const name of ['quest-marker.png', 'quest-marker-blue.png']) {
@@ -259,6 +544,15 @@ const StoryTravel = (() => {
             entry.ocrDistances = positioned(texts).filter(row => /^\d{1,5}(?:m|米)$/i.test(normal(row.text)))
               .slice(0, 12).map(row => ({ text: row.text, box: row.box, source: row.source || 'full_frame' }));
             if (stop) { entry.stopCue = stop; return { stop }; }
+            if (diagnostics) entry.ncc = diagnostics.observe(frame, {
+              templateNames: ['quest-marker.png', 'quest-marker-blue.png'],
+              roi: [300, 0, 1320, 1080], productionThreshold: 0.8, kind: 'screen' });
+            if (diagnostics) {
+              entry.minimapNcc = diagnostics.observe(frame, {
+                templateNames: deps.minimapTemplateNames(),
+                roi: deps.minimapRoi(frame.width),
+                productionThreshold: 0.8, kind: 'minimap' });
+            }
             const candidates = [];
             for (const item of recognizers) {
               const found = frame.findMulti(item.ro);
@@ -314,6 +608,7 @@ const StoryTravel = (() => {
     return async function travelQuest(seq, options = {}) {
       const startedAt = now();
       const camera = { overhead: false };
+      let diagnostics = null, minimap = null;
       const result = { kind: 'quest-travel', intent: 'travel_quest', seq, legs: [], bearings: [], movedLegs: 0,
         attemptedLegs: 0, stopReason: null, verified: false,
         movementMsSent: null, movementTelemetryComplete: false, interactionChecks: 'between_legs',
@@ -326,28 +621,45 @@ const StoryTravel = (() => {
         const initial = eligibility({ texts, scene: options.scene || 'world', uncertain: options.uncertain,
           recentNativeSteps: options.recentNativeSteps }, grounding);
         if (!initial.ok) { result.stopReason = initial.reason; return result; }
+        diagnostics = deps.createDiagnostics?.({ file, RecognitionObject }) || null;
+        if (diagnostics && deps.createMinimapBearing) minimap = deps.createMinimapBearing({
+          captureGameRegion, readTexts, grounding, sleep, checkInput, getDeadline, now,
+          budgetCheck, currentStop, diagnostics, project: deps.projectMinimap });
+        try { result.templateSet = JSON.parse(file.readTextSync('minimap-candidates.source.json')); }
+        catch { result.templateSet = { status: 'manifest_unavailable' }; }
+        result.minimapBearings = [];
         const stage = initial.hud.stage;
         result.progress = { distanceBefore: initial.hud.meters, distanceAfter: initial.hud.meters,
           stageBefore: stage, stageAfter: stage };
         for (let index = 0; index < 6; index++) {
           const before = capture(), stop = currentStop(before, stage);
           if (stop) { result.stopReason = stop; break; }
-          const bearingTrace = []; result.bearings.push(bearingTrace);
-          const bearing = await align(stage, bearingTrace, camera);
-          if (bearing.stop) { result.stopReason = bearing.stop; break; }
+          const mini = minimap ? await minimap.samplePair(stage) : { ok: false, reason: 'minimap_api_unavailable' };
+          result.minimapBearings.push(mini);
+          if (mini.stop) { result.stopReason = mini.reason; break; }
+          let from1, from, theta, bearingSource;
+          if (mini.ok) {
+            [from1, from] = mini.positionSamples;
+            theta = mini.heading; bearingSource = 'minimap_projection';
+          } else {
+            const bearingTrace = []; result.bearings.push(bearingTrace);
+            const bearing = await align(stage, bearingTrace, camera, diagnostics);
+            if (bearing.stop) { result.stopReason = bearing.stop; break; }
+            budgetCheck();
+            const p1 = genshin.getPositionFromMap('Teyvat', 0);
+            await sleep(100); budgetCheck();
+            const p2 = genshin.getPositionFromMap('Teyvat', 0);
+            const point = p => p == null ? null : { x: Number(p.x ?? p.X), y: Number(p.y ?? p.Y) };
+            from1 = point(p1); from = point(p2);
+            theta = Number(genshin.getCameraOrientation()); bearingSource = 'screen_camera';
+          }
           budgetCheck();
-          const p1 = genshin.getPositionFromMap('Teyvat', 0);
-          await sleep(100); budgetCheck();
-          const p2 = genshin.getPositionFromMap('Teyvat', 0);
-          const point = p => p == null ? null : { x: Number(p.x ?? p.X), y: Number(p.y ?? p.Y) };
-          const from1 = point(p1), from = point(p2);
           if (!from1 || !from || ![from1.x, from1.y, from.x, from.y].every(Number.isFinite)) {
             result.stopReason = 'position_unavailable'; break;
           }
           if (Math.hypot(from.x - from1.x, from.y - from1.y) > 10) {
             result.stopReason = 'position_unstable'; break;
           }
-          const theta = Number(genshin.getCameraOrientation());
           if (!Number.isFinite(theta)) { result.stopReason = 'bearing_unavailable'; break; }
           const fresh = capture(), freshStop = currentStop(fresh, stage);
           if (freshStop) { result.stopReason = freshStop; break; }
@@ -356,7 +668,7 @@ const StoryTravel = (() => {
           budgetCheck(); middleButtonClick(); camera.overhead = false; await sleep(200); budgetCheck();
           const budgetMs = Math.min(30000, getDeadline() - now() - marginMs);
           if (budgetMs <= 0) { result.stopReason = 'deadline'; break; }
-          const leg = { from, samples: [from1, from], to, theta, thetaUnit: 'degrees', length,
+          const leg = { from, samples: [from1, from], to, theta, thetaUnit: 'degrees', bearingSource, length,
             distanceBefore: hud.meters, distanceAfter: null, startedAt: now(), budgetMs,
             returned: false, verified: false };
           result.legs.push(leg); result.attemptedLegs++;
@@ -409,6 +721,8 @@ const StoryTravel = (() => {
         result.error = String(error.message || error).slice(0, 300);
       } finally {
         for (const key of ['VK_W', 'VK_A', 'VK_S', 'VK_D', 'VK_V', 'VK_SPACE']) try { keyUp(key); } catch {}
+        try { minimap?.dispose(); } catch {}
+        try { diagnostics?.dispose(); } catch {}
         result.cameraReset = { sent: false, reason: 'not_overhead' };
         if (camera.overhead) {
           // This is a guarded final action, not unconditional input cleanup.
@@ -498,6 +812,11 @@ else (async function(){
   genshin:typeof genshin==='undefined'?null:genshin,
   pathingScript:typeof pathingScript==='undefined'?null:pathingScript,
   RecognitionObject,file,getDeadline:()=>Math.min(activeInput?.deadlineAt||sessionDeadline,sessionDeadline),
+  createDiagnostics:StoryTemplateDiagnostics.createTemplateDiagnostics,
+  createMinimapBearing:StoryMinimapBearing.createMinimapBearing,
+  minimapRoi:StoryMinimapBearing.minimapRoi,
+  minimapTemplateNames:StoryMinimapBearing.templateNames,
+  projectMinimap:typeof getOwnedMinimapProjection==='undefined'?undefined:(frame,x,y)=>getOwnedMinimapProjection(frame.srcMat,x,y),
   createCancellationTokenSource:()=>new CancellationTokenSource()
  });
  async function followMarker(seq){

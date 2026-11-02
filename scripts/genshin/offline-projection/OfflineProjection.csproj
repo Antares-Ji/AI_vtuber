@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <BetterGISource Condition="'$(BetterGISource)' == ''">$(MSBuildThisFileDirectory)../../../runtime/genshin/bettergi-chabao-b186</BetterGISource>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="OpenCvSharp4" Version="4.11.0.20250507" />
+    <PackageReference Include="OpenCvSharp4.runtime.win" Version="4.11.0.20250507" />
+    <!-- Compile the actual matcher and quality checks, not a Python rewrite. -->
+    <Compile Include="$(BetterGISource)/BetterGenshinImpact/Core/Recognition/OpenCv/FeatureMatch/OwnedMinimapFeatureMatcher.cs" Link="OwnedMinimapFeatureMatcher.cs" />
+    <Compile Include="$(BetterGISource)/BetterGenshinImpact/Core/Recognition/OpenCv/FeatureMatch/DescriptorMatcherType.cs" Link="DescriptorMatcherType.cs" />
+    <Compile Include="$(BetterGISource)/BetterGenshinImpact/Core/Recognition/OpenCv/FeatureMatch/OwnedProjectionGeometry.cs" Link="OwnedProjectionGeometry.cs" />
+  </ItemGroup>
+</Project>

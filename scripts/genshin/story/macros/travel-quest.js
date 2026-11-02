@@ -41,7 +41,7 @@ const StoryTravel = (() => {
       if (hud.meters > 1500) return 'distance_out_of_range';
       return null;
     }
-    async function align(stage, trace, camera) {
+    async function align(stage, trace, camera, diagnostics) {
       const mats = [], recognizers = [], templateLoads = [];
       try {
         for (const name of ['quest-marker.png', 'quest-marker-blue.png']) {
@@ -72,6 +72,15 @@ const StoryTravel = (() => {
             entry.ocrDistances = positioned(texts).filter(row => /^\d{1,5}(?:m|米)$/i.test(normal(row.text)))
               .slice(0, 12).map(row => ({ text: row.text, box: row.box, source: row.source || 'full_frame' }));
             if (stop) { entry.stopCue = stop; return { stop }; }
+            if (diagnostics) entry.ncc = diagnostics.observe(frame, {
+              templateNames: ['quest-marker.png', 'quest-marker-blue.png'],
+              roi: [300, 0, 1320, 1080], productionThreshold: 0.8, kind: 'screen' });
+            if (diagnostics) {
+              entry.minimapNcc = diagnostics.observe(frame, {
+                templateNames: deps.minimapTemplateNames(),
+                roi: deps.minimapRoi(frame.width),
+                productionThreshold: 0.8, kind: 'minimap' });
+            }
             const candidates = [];
             for (const item of recognizers) {
               const found = frame.findMulti(item.ro);
@@ -127,6 +136,7 @@ const StoryTravel = (() => {
     return async function travelQuest(seq, options = {}) {
       const startedAt = now();
       const camera = { overhead: false };
+      let diagnostics = null, minimap = null;
       const result = { kind: 'quest-travel', intent: 'travel_quest', seq, legs: [], bearings: [], movedLegs: 0,
         attemptedLegs: 0, stopReason: null, verified: false,
         movementMsSent: null, movementTelemetryComplete: false, interactionChecks: 'between_legs',
@@ -139,28 +149,45 @@ const StoryTravel = (() => {
         const initial = eligibility({ texts, scene: options.scene || 'world', uncertain: options.uncertain,
           recentNativeSteps: options.recentNativeSteps }, grounding);
         if (!initial.ok) { result.stopReason = initial.reason; return result; }
+        diagnostics = deps.createDiagnostics?.({ file, RecognitionObject }) || null;
+        if (diagnostics && deps.createMinimapBearing) minimap = deps.createMinimapBearing({
+          captureGameRegion, readTexts, grounding, sleep, checkInput, getDeadline, now,
+          budgetCheck, currentStop, diagnostics, project: deps.projectMinimap });
+        try { result.templateSet = JSON.parse(file.readTextSync('minimap-candidates.source.json')); }
+        catch { result.templateSet = { status: 'manifest_unavailable' }; }
+        result.minimapBearings = [];
         const stage = initial.hud.stage;
         result.progress = { distanceBefore: initial.hud.meters, distanceAfter: initial.hud.meters,
           stageBefore: stage, stageAfter: stage };
         for (let index = 0; index < 6; index++) {
           const before = capture(), stop = currentStop(before, stage);
           if (stop) { result.stopReason = stop; break; }
-          const bearingTrace = []; result.bearings.push(bearingTrace);
-          const bearing = await align(stage, bearingTrace, camera);
-          if (bearing.stop) { result.stopReason = bearing.stop; break; }
+          const mini = minimap ? await minimap.samplePair(stage) : { ok: false, reason: 'minimap_api_unavailable' };
+          result.minimapBearings.push(mini);
+          if (mini.stop) { result.stopReason = mini.reason; break; }
+          let from1, from, theta, bearingSource;
+          if (mini.ok) {
+            [from1, from] = mini.positionSamples;
+            theta = mini.heading; bearingSource = 'minimap_projection';
+          } else {
+            const bearingTrace = []; result.bearings.push(bearingTrace);
+            const bearing = await align(stage, bearingTrace, camera, diagnostics);
+            if (bearing.stop) { result.stopReason = bearing.stop; break; }
+            budgetCheck();
+            const p1 = genshin.getPositionFromMap('Teyvat', 0);
+            await sleep(100); budgetCheck();
+            const p2 = genshin.getPositionFromMap('Teyvat', 0);
+            const point = p => p == null ? null : { x: Number(p.x ?? p.X), y: Number(p.y ?? p.Y) };
+            from1 = point(p1); from = point(p2);
+            theta = Number(genshin.getCameraOrientation()); bearingSource = 'screen_camera';
+          }
           budgetCheck();
-          const p1 = genshin.getPositionFromMap('Teyvat', 0);
-          await sleep(100); budgetCheck();
-          const p2 = genshin.getPositionFromMap('Teyvat', 0);
-          const point = p => p == null ? null : { x: Number(p.x ?? p.X), y: Number(p.y ?? p.Y) };
-          const from1 = point(p1), from = point(p2);
           if (!from1 || !from || ![from1.x, from1.y, from.x, from.y].every(Number.isFinite)) {
             result.stopReason = 'position_unavailable'; break;
           }
           if (Math.hypot(from.x - from1.x, from.y - from1.y) > 10) {
             result.stopReason = 'position_unstable'; break;
           }
-          const theta = Number(genshin.getCameraOrientation());
           if (!Number.isFinite(theta)) { result.stopReason = 'bearing_unavailable'; break; }
           const fresh = capture(), freshStop = currentStop(fresh, stage);
           if (freshStop) { result.stopReason = freshStop; break; }
@@ -169,7 +196,7 @@ const StoryTravel = (() => {
           budgetCheck(); middleButtonClick(); camera.overhead = false; await sleep(200); budgetCheck();
           const budgetMs = Math.min(30000, getDeadline() - now() - marginMs);
           if (budgetMs <= 0) { result.stopReason = 'deadline'; break; }
-          const leg = { from, samples: [from1, from], to, theta, thetaUnit: 'degrees', length,
+          const leg = { from, samples: [from1, from], to, theta, thetaUnit: 'degrees', bearingSource, length,
             distanceBefore: hud.meters, distanceAfter: null, startedAt: now(), budgetMs,
             returned: false, verified: false };
           result.legs.push(leg); result.attemptedLegs++;
@@ -222,6 +249,8 @@ const StoryTravel = (() => {
         result.error = String(error.message || error).slice(0, 300);
       } finally {
         for (const key of ['VK_W', 'VK_A', 'VK_S', 'VK_D', 'VK_V', 'VK_SPACE']) try { keyUp(key); } catch {}
+        try { minimap?.dispose(); } catch {}
+        try { diagnostics?.dispose(); } catch {}
         result.cameraReset = { sent: false, reason: 'not_overhead' };
         if (camera.overhead) {
           // This is a guarded final action, not unconditional input cleanup.

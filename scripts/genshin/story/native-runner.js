@@ -55,6 +55,11 @@ else (async function(){
   genshin:typeof genshin==='undefined'?null:genshin,
   pathingScript:typeof pathingScript==='undefined'?null:pathingScript,
   RecognitionObject,file,getDeadline:()=>Math.min(activeInput?.deadlineAt||sessionDeadline,sessionDeadline),
+  createDiagnostics:StoryTemplateDiagnostics.createTemplateDiagnostics,
+  createMinimapBearing:StoryMinimapBearing.createMinimapBearing,
+  minimapRoi:StoryMinimapBearing.minimapRoi,
+  minimapTemplateNames:StoryMinimapBearing.templateNames,
+  projectMinimap:typeof getOwnedMinimapProjection==='undefined'?undefined:(frame,x,y)=>getOwnedMinimapProjection(frame.srcMat,x,y),
   createCancellationTokenSource:()=>new CancellationTokenSource()
  });
  async function followMarker(seq){

@@ -98,7 +98,7 @@ async function execute(input,{signal,reportProgress=()=>{},onStoryFrame}={}) {
         if(request?.id===id&&Number.isInteger(request.seq)&&request.seq>storySequence&&request.seq<=40&&request.image===`story-${request.seq}.png`){
           storySequence=request.seq;
           try{
-            for(const name of ['quest-marker.png','quest-marker-blue.png']){
+            for(const name of ['quest-marker.png','quest-marker-blue.png','minimap-commission.png','minimap-candidates.source.json','minimap-commission.source.json']){
               const marker=path.join(ROOT,'scripts/genshin/assets',name);
               if(!fs.existsSync(path.join(script,name)))fs.copyFileSync(marker,path.join(script,name));
             }

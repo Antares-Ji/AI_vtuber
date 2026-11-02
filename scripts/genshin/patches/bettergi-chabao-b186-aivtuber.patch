@@ -1,3 +1,465 @@
+diff --git a/BetterGenshinImpact/Core/Recognition/OpenCv/FeatureMatch/OwnedMinimapFeatureMatcher.cs b/BetterGenshinImpact/Core/Recognition/OpenCv/FeatureMatch/OwnedMinimapFeatureMatcher.cs
+new file mode 100644
+index 0000000..915e57e
+--- /dev/null
++++ b/BetterGenshinImpact/Core/Recognition/OpenCv/FeatureMatch/OwnedMinimapFeatureMatcher.cs
+@@ -0,0 +1,53 @@
++using System;
++using System.Collections.Generic;
++using System.Linq;
++using System.Threading;
++using OpenCvSharp;
++using OpenCvSharp.Features2D;
++
++namespace BetterGenshinImpact.Core.Recognition.OpenCv.FeatureMatch;
++
++// Separate from the existing navigation matcher: no mutation of its feature
++// detector, descriptor matcher, position cache, or previous layer selection.
++public static class OwnedMinimapFeatureMatcher
++{
++    public static OwnedProjectionQuality Match(Mat minimap, Mat featureMask,
++        KeyPoint[] trainKeyPoints, Mat trainDescriptors, OwnedProjectionPoint marker,
++        Size mapSize, CancellationToken token)
++    {
++        token.ThrowIfCancellationRequested();
++        if (trainKeyPoints.Length < 12 || trainDescriptors.Empty())
++            return new() { Reason = "map_features_unavailable" };
++        using var detector = SIFT.Create(1800);
++        using var descriptors = new Mat();
++        detector.DetectAndCompute(minimap, featureMask, out var keyPoints, descriptors);
++        token.ThrowIfCancellationRequested();
++        if (keyPoints.Length < 12 || descriptors.Empty())
++            return new() { Reason = "query_features_unavailable" };
++        using var matcher = DescriptorMatcher.Create(DescriptorMatcherType.FlannBased.ToString());
++        var pairs = matcher.KnnMatch(descriptors, trainDescriptors, 2);
++        token.ThrowIfCancellationRequested();
++        // Keep each train keypoint only once: repeated texture must not inflate
++        // the inlier count through many-to-one correspondences.
++        var good = pairs.Where(p => p.Length == 2 && p[0].Distance < 0.75 * p[1].Distance)
++            .Select(p => p[0]).GroupBy(p => p.TrainIdx).Select(g => g.OrderBy(p => p.Distance).First()).ToArray();
++        if (good.Length < 12) return new() { Reason = "insufficient_matches", MatchCount = good.Length };
++        var source = good.Select(p => keyPoints[p.QueryIdx].Pt).ToArray();
++        var destination = good.Select(p => trainKeyPoints[p.TrainIdx].Pt).ToArray();
++        using var mask = new Mat();
++        using var h = Cv2.FindHomography(source.Select(p => new Point2d(p.X, p.Y)).ToArray(),
++            destination.Select(p => new Point2d(p.X, p.Y)).ToArray(), HomographyMethods.Ransac, 3.0, mask);
++        token.ThrowIfCancellationRequested();
++        if (h.Empty() || h.Rows != 3 || h.Cols != 3 || mask.Empty() || mask.Total() != good.Length)
++            return new() { Reason = "homography_unavailable", MatchCount = good.Length };
++        var coefficients = new double[9];
++        for (var y = 0; y < 3; y++) for (var x = 0; x < 3; x++) coefficients[y * 3 + x] = h.At<double>(y, x);
++        var inliers = new bool[good.Length];
++        for (var i = 0; i < inliers.Length; i++)
++            inliers[i] = mask.Rows == 1 ? mask.At<byte>(0, i) != 0 : mask.At<byte>(i, 0) != 0;
++        return OwnedProjectionGeometry.Evaluate(coefficients,
++            source.Select(p => new OwnedProjectionPoint(p.X, p.Y)).ToArray(),
++            destination.Select(p => new OwnedProjectionPoint(p.X, p.Y)).ToArray(), inliers,
++            minimap.Width, minimap.Height, marker, mapSize.Width, mapSize.Height);
++    }
++}
+diff --git a/BetterGenshinImpact/Core/Recognition/OpenCv/FeatureMatch/OwnedProjectionGeometry.cs b/BetterGenshinImpact/Core/Recognition/OpenCv/FeatureMatch/OwnedProjectionGeometry.cs
+new file mode 100644
+index 0000000..b929ecb
+--- /dev/null
++++ b/BetterGenshinImpact/Core/Recognition/OpenCv/FeatureMatch/OwnedProjectionGeometry.cs
+@@ -0,0 +1,116 @@
++using System;
++using System.Linq;
++
++namespace BetterGenshinImpact.Core.Recognition.OpenCv.FeatureMatch;
++
++// OpenCV-independent geometry: tests can exercise rotation/degeneracy without
++// loading BGI, capturing a window, or generating any input.
++public sealed record OwnedProjectionPoint(double X, double Y);
++
++public sealed class OwnedProjectionQuality
++{
++    public bool Ok { get; set; }
++    public string Reason { get; set; } = "not_evaluated";
++    public int MatchCount { get; set; }
++    public int InlierCount { get; set; }
++    public double InlierRatio { get; set; }
++    public double? ReprojectionError { get; set; }
++    public double? Scale { get; set; }
++    public OwnedProjectionPoint? CenterMap { get; set; }
++    public OwnedProjectionPoint? MarkerMap { get; set; }
++    public OwnedProjectionPoint? GameDirection { get; set; }
++}
++
++public static class OwnedProjectionGeometry
++{
++    public const string Version = "sift-surface-v1";
++
++    public static OwnedProjectionPoint? Project(double[] h, OwnedProjectionPoint p)
++    {
++        if (h.Length != 9 || h.Any(v => !double.IsFinite(v))) return null;
++        var w = h[6] * p.X + h[7] * p.Y + h[8];
++        if (!double.IsFinite(w) || Math.Abs(w) < 1e-9) return null;
++        var x = (h[0] * p.X + h[1] * p.Y + h[2]) / w;
++        var y = (h[3] * p.X + h[4] * p.Y + h[5]) / w;
++        return double.IsFinite(x) && double.IsFinite(y) ? new(x, y) : null;
++    }
++
++    // RANSAC threshold and RMS below are DESTINATION map-image pixels (2048
++    // map layer for Teyvat, two pixels per game-coordinate unit). Spread checks
++    // are SOURCE minimap pixels. Rotation is unrestricted; reflection is not.
++    public static OwnedProjectionQuality Evaluate(double[] h,
++        OwnedProjectionPoint[] source, OwnedProjectionPoint[] destination, bool[] inliers,
++        double width, double height, OwnedProjectionPoint marker, double mapWidth, double mapHeight)
++    {
++        var q = new OwnedProjectionQuality { MatchCount = source.Length };
++        OwnedProjectionQuality Fail(string reason) { q.Reason = reason; return q; }
++        if (source.Length != destination.Length || inliers.Length != source.Length
++            || width <= 0 || height <= 0 || !double.IsFinite(width + height)
++            || mapWidth <= 0 || mapHeight <= 0 || !double.IsFinite(mapWidth + mapHeight))
++            return Fail("invalid_geometry_input");
++        if (source.Any(p => !double.IsFinite(p.X + p.Y)) || destination.Any(p => !double.IsFinite(p.X + p.Y)))
++            return Fail("nonfinite_correspondence");
++        q.InlierCount = inliers.Count(v => v);
++        q.InlierRatio = source.Length == 0 ? 0 : (double)q.InlierCount / source.Length;
++        if (q.MatchCount < 12 || q.InlierCount < 10 || q.InlierRatio < 0.6)
++            return Fail("insufficient_inliers");
++        var points = source.Where((_, i) => inliers[i]).ToArray();
++        if (points.Max(p => p.X) - points.Min(p => p.X) < width * 0.25
++            || points.Max(p => p.Y) - points.Min(p => p.Y) < height * 0.25)
++            return Fail("insufficient_spread");
++        var mx = points.Average(p => p.X); var my = points.Average(p => p.Y);
++        var xx = points.Average(p => (p.X - mx) * (p.X - mx));
++        var yy = points.Average(p => (p.Y - my) * (p.Y - my));
++        var xy = points.Average(p => (p.X - mx) * (p.Y - my));
++        var minimumEigenvalue = (xx + yy - Math.Sqrt((xx - yy) * (xx - yy) + 4 * xy * xy)) / 2;
++        if (minimumEigenvalue < Math.Pow(Math.Min(width, height) * 0.04, 2))
++            return Fail("degenerate_inlier_geometry");
++        var squaredError = 0d;
++        for (var i = 0; i < source.Length; i++)
++        {
++            if (!inliers[i]) continue;
++            var p = Project(h, source[i]);
++            if (p == null) return Fail("invalid_homography");
++            squaredError += Math.Pow(p.X - destination[i].X, 2) + Math.Pow(p.Y - destination[i].Y, 2);
++        }
++        if (!double.IsFinite(squaredError)) return Fail("reprojection_error");
++        q.ReprojectionError = Math.Sqrt(squaredError / q.InlierCount);
++        if (q.ReprojectionError > 2.5) return Fail("reprojection_error");
++        var center = new OwnedProjectionPoint(width / 2, height / 2);
++        var radius = Math.Sqrt(Math.Pow(marker.X - center.X, 2) + Math.Pow(marker.Y - center.Y, 2));
++        if (!double.IsFinite(radius) || radius < Math.Min(width, height) * 0.06
++            || radius > Math.Min(width, height) / 2 + 2
++            || marker.X < 0 || marker.Y < 0 || marker.X >= width || marker.Y >= height)
++            return Fail("marker_outside_minimap_or_at_center");
++        var c = Project(h, center); var m = Project(h, marker);
++        var px = Project(h, new(center.X + 1, center.Y));
++        var py = Project(h, new(center.X, center.Y + 1));
++        if (c == null || m == null || px == null || py == null) return Fail("invalid_homography");
++        var ax = px.X - c.X; var ay = px.Y - c.Y;
++        var bx = py.X - c.X; var by = py.Y - c.Y;
++        var sx = Math.Sqrt(ax * ax + ay * ay); var sy = Math.Sqrt(bx * bx + by * by);
++        if (!double.IsFinite(sx + sy)) return Fail("implausible_scale_or_shear");
++        q.Scale = (sx + sy) / 2;
++        if (ax * by - ay * bx <= 0) return Fail("reflected_or_singular_homography");
++        if (Math.Min(sx, sy) < 0.25 || Math.Max(sx, sy) > 6
++            || Math.Max(sx, sy) / Math.Min(sx, sy) > 1.35
++            || Math.Abs(ax * bx + ay * by) / (sx * sy) > 0.2)
++            return Fail("implausible_scale_or_shear");
++        var corners = new[] { new OwnedProjectionPoint(0, 0), new(width, 0), new(width, height), new(0, height) };
++        var denominators = corners.Select(p => h[6] * p.X + h[7] * p.Y + h[8]).ToArray();
++        if (denominators.Any(v => !double.IsFinite(v) || Math.Abs(v) < 1e-9)
++            || denominators.Any(v => Math.Sign(v) != Math.Sign(denominators[0]))
++            || denominators.Max(v => Math.Abs(v)) / denominators.Min(v => Math.Abs(v)) > 1.3)
++            return Fail("excessive_perspective");
++        bool InMap(OwnedProjectionPoint? p) => p != null && p.X > 0 && p.Y > 0 && p.X < mapWidth && p.Y < mapHeight;
++        if (!InMap(c) || !InMap(m) || corners.Any(p => !InMap(Project(h, p))))
++            return Fail("projection_outside_map");
++        var dx = m.X - c.X; var dy = m.Y - c.Y;
++        var length = Math.Sqrt(dx * dx + dy * dy);
++        if (!double.IsFinite(length) || length < 3) return Fail("projected_direction_too_short");
++        q.CenterMap = c; q.MarkerMap = m;
++        q.GameDirection = new(-dx / length, -dy / length);
++        q.Ok = true; q.Reason = "matched";
++        return q;
++    }
++}
+diff --git a/BetterGenshinImpact/Core/Script/Dependence/OwnedGameFocus.cs b/BetterGenshinImpact/Core/Script/Dependence/OwnedGameFocus.cs
+new file mode 100644
+index 0000000..99168d9
+--- /dev/null
++++ b/BetterGenshinImpact/Core/Script/Dependence/OwnedGameFocus.cs
+@@ -0,0 +1,97 @@
++using System;
++using System.IO;
++using System.Threading.Tasks;
++using BetterGenshinImpact.Core.Config;
++using BetterGenshinImpact.GameTask;
++using BetterGenshinImpact.GameTask.Runtime;
++using Newtonsoft.Json.Linq;
++using Vanara.PInvoke;
++
++namespace BetterGenshinImpact.Core.Script.Dependence;
++
++/// <summary>
++/// Explicit foreground guard for our bounded story bridge. Never restores a
++/// minimized window, emits input, or changes the user's focus-recovery setting.
++/// </summary>
++public static class OwnedGameFocus
++{
++    internal static bool IsOwnedStoryDirectory(string workDir)
++    {
++        const string prefix = "AI-VTuber-Bridge-";
++        try
++        {
++            var directory = Path.TrimEndingDirectorySeparator(Path.GetFullPath(workDir));
++            var name = Path.GetFileName(directory);
++            if (!name.StartsWith(prefix, StringComparison.Ordinal)
++                || !Guid.TryParseExact(name[prefix.Length..], "D", out var id))
++                return false;
++
++            var expected = Path.GetFullPath(Global.Absolute(Path.Combine("User", "JsScript", name)));
++            if (!string.Equals(directory, expected, StringComparison.OrdinalIgnoreCase))
++                return false;
++
++            var file = Path.Combine(directory, "command.json");
++            if (!File.Exists(file) || new FileInfo(file).Length > 8192)
++                return false;
++            var command = JObject.Parse(File.ReadAllText(file));
++            return command.Value<string>("operation") == "story"
++                && command.Value<string>("id") == id.ToString("D");
++        }
++        catch (Exception)
++        {
++            return false;
++        }
++    }
++
++    private static IGameWindow? CurrentWindow()
++    {
++        var runtime = TaskContext.Instance().Runtime;
++        return runtime?.Kind == GameRuntimeKind.Win32Window ? runtime.Window : null;
++    }
++
++    private static bool IsUsable(IGameWindow? window)
++    {
++        if (window == null || !ReferenceEquals(window, CurrentWindow())
++            || window.Handle == 0 || !window.IsAlive || !User32.IsWindow(window.Handle)
++            || !User32.IsWindowVisible(window.Handle) || window.IsMinimized)
++            return false;
++
++        var thread = User32.GetWindowThreadProcessId(window.Handle, out var pid);
++        return thread != 0 && window.ProcessId > 0 && pid == (uint)window.ProcessId;
++    }
++
++    /// <summary>Read-only, exact bound-window check. Cancellation also fails closed.</summary>
++    public static bool IsGameActive()
++    {
++        if (CancellationContext.Instance.IsDisposed || CancellationContext.Instance.IsCancellationRequested)
++            return false;
++        var window = CurrentWindow();
++        return IsUsable(window) && window!.IsForeground;
++    }
++
++    /// <summary>
++    /// At most one activation request followed by a cancellable 100 ms check.
++    /// A true result proves current focus only, not that any later game action succeeded.
++    /// </summary>
++    public static async Task<bool> EnsureGameFocus()
++    {
++        var cancellation = CancellationContext.Instance;
++        if (cancellation.IsDisposed)
++            return false;
++        var token = cancellation.Token;
++        token.ThrowIfCancellationRequested();
++        var window = CurrentWindow();
++        if (!IsUsable(window))
++            return false;
++        if (window!.IsForeground)
++            return true;
++
++        token.ThrowIfCancellationRequested();
++        // Do not use SystemControl.ActivateWindow/FocusWindow: they restore windows.
++        User32.SetForegroundWindow(window.Handle);
++        await Task.Delay(100, token);
++        token.ThrowIfCancellationRequested();
++        return !cancellation.IsDisposed && token == cancellation.Token
++            && IsUsable(window) && window.IsForeground;
++    }
++}
+diff --git a/BetterGenshinImpact/Core/Script/Dependence/OwnedMinimapProjection.cs b/BetterGenshinImpact/Core/Script/Dependence/OwnedMinimapProjection.cs
+new file mode 100644
+index 0000000..72dbf9a
+--- /dev/null
++++ b/BetterGenshinImpact/Core/Script/Dependence/OwnedMinimapProjection.cs
+@@ -0,0 +1,145 @@
++using System;
++using System.Diagnostics;
++using System.Linq;
++using System.Threading;
++using BetterGenshinImpact.Core.Recognition.OpenCv.FeatureMatch;
++using BetterGenshinImpact.GameTask.Common.Element.Assets;
++using BetterGenshinImpact.GameTask.Common.Map.Maps;
++using BetterGenshinImpact.GameTask.Common.Map.Maps.Base;
++using OpenCvSharp;
++using Newtonsoft.Json;
++using Newtonsoft.Json.Serialization;
++
++namespace BetterGenshinImpact.Core.Script.Dependence;
++
++public sealed class OwnedMinimapProjectionResult
++{
++    public bool Ok { get; set; }
++    public string Reason { get; set; } = "not_started";
++    public string QualityVersion { get; set; } = OwnedProjectionGeometry.Version;
++    public string MapName { get; set; } = "Teyvat";
++    public int Layer { get; set; } = 0;
++    public string CoordinateSpace { get; set; } = "map_image_pixels";
++    public double? MapPixelsPerGameUnit { get; set; }
++    public double[]? Crop { get; set; }
++    public OwnedProjectionPoint? CenterMap { get; set; }
++    public OwnedProjectionPoint? MarkerMap { get; set; }
++    public OwnedProjectionPoint? CenterGame { get; set; }
++    public OwnedProjectionPoint? GameDirection { get; set; }
++    public int MatchCount { get; set; }
++    public int InlierCount { get; set; }
++    public double InlierRatio { get; set; }
++    public double? ReprojectionError { get; set; }
++    public double? Scale { get; set; }
++    public long DurationMs { get; set; }
++    public string? Error { get; set; }
++}
++
++public static class OwnedMinimapProjection
++{
++    private static string? CancellationReason(CancellationContext? context, CancellationToken? observedToken)
++    {
++        if (context == null) return null;
++        try
++        {
++            if (context.IsDisposed || context.IsCancellationRequested
++                || observedToken is { IsCancellationRequested: true }) return "cancelled";
++            if (observedToken.HasValue && observedToken.Value != context.Token)
++                return "cancellation_context_changed";
++            return null;
++        }
++        // Clear can dispose Cts between the state and Token reads. Cancellation
++        // evidence must never be downgraded to a recoverable vision failure.
++        catch (ObjectDisposedException) { return "cancelled"; }
++    }
++
++    public static string GetJson(Mat fullCaptureMat, double markerX, double markerY) =>
++        JsonConvert.SerializeObject(Get(fullCaptureMat, markerX, markerY), new JsonSerializerSettings
++        {
++            ContractResolver = new CamelCasePropertyNamesContractResolver()
++        });
++
++    // This API does not capture, activate, restore, or input. The caller owns the
++    // supplied current frame. Coordinates are fullCaptureMat pixels, never desktop.
++    // Teyvat surface only; no guessed floor or previous/default position fallback.
++    public static OwnedMinimapProjectionResult Get(Mat fullCaptureMat, double markerX, double markerY)
++    {
++        var timer = Stopwatch.StartNew();
++        var result = new OwnedMinimapProjectionResult();
++        CancellationContext? cancellation = null;
++        CancellationToken? observedToken = null;
++        try
++        {
++            cancellation = CancellationContext.Instance;
++            if (cancellation.IsDisposed) { result.Reason = "cancelled"; return result; }
++            var token = cancellation.Token;
++            observedToken = token;
++            token.ThrowIfCancellationRequested();
++            if (fullCaptureMat == null || fullCaptureMat.Empty() || !double.IsFinite(markerX + markerY))
++            { result.Reason = "invalid_capture_or_marker"; return result; }
++            var crop = MapAssets.Get(fullCaptureMat.Width, fullCaptureMat.Height).MimiMapRect;
++            result.Crop = [crop.X, crop.Y, crop.Width, crop.Height];
++            if (crop.Width < 64 || crop.X < 0 || crop.Y < 0 || crop.Right > fullCaptureMat.Width || crop.Bottom > fullCaptureMat.Height
++                || markerX < crop.X || markerX >= crop.Right || markerY < crop.Y || markerY >= crop.Bottom)
++            { result.Reason = "marker_outside_minimap"; return result; }
++            var map = MapManager.GetMap("Teyvat", "SIFT") as SceneBaseMap;
++            if (map == null) { result.Reason = "map_unavailable"; return result; }
++            var layer = map.Layers.FirstOrDefault(l => l.Floor == 0);
++            token.ThrowIfCancellationRequested();
++            if (layer == null) { result.Reason = "surface_features_unavailable"; return result; }
++            result.MapPixelsPerGameUnit = map.MapImageBlockWidthScale;
++            using var minimap = new Mat(fullCaptureMat, crop);
++            using var gray = new Mat();
++            if (minimap.Channels() == 3) Cv2.CvtColor(minimap, gray, ColorConversionCodes.BGR2GRAY);
++            else if (minimap.Channels() == 4) Cv2.CvtColor(minimap, gray, ColorConversionCodes.BGRA2GRAY);
++            else if (minimap.Channels() == 1) minimap.CopyTo(gray);
++            else { result.Reason = "unsupported_capture_channels"; return result; }
++            using var mask = Mat.Zeros(crop.Height, crop.Width, MatType.CV_8UC1).ToMat();
++            var center = new Point(crop.Width / 2, crop.Height / 2);
++            Cv2.Circle(mask, center, Math.Min(crop.Width, crop.Height) / 2 - 5, Scalar.White, -1);
++            // Exclude the player arrow and the candidate UI icon from terrain
++            // correspondences. Their location is not evidence of map registration.
++            Cv2.Circle(mask, center, Math.Max(12, (int)Math.Round(crop.Width * 0.09)), Scalar.Black, -1);
++            var marker = new OwnedProjectionPoint(markerX - crop.X, markerY - crop.Y);
++            Cv2.Circle(mask, new Point((int)Math.Round(marker.X), (int)Math.Round(marker.Y)),
++                Math.Max(16, (int)Math.Round(crop.Width * 0.09)), Scalar.Black, -1);
++            var quality = OwnedMinimapFeatureMatcher.Match(gray, mask, layer.TrainKeyPoints,
++                layer.TrainDescriptors, marker, map.MapSize, token);
++            token.ThrowIfCancellationRequested();
++            if (cancellation.IsDisposed || token != cancellation.Token)
++            { result.Reason = "cancellation_context_changed"; return result; }
++            result.MatchCount = quality.MatchCount; result.InlierCount = quality.InlierCount;
++            result.InlierRatio = quality.InlierRatio; result.ReprojectionError = quality.ReprojectionError;
++            result.Scale = quality.Scale; result.Reason = quality.Reason;
++            if (!quality.Ok) return result;
++            var game = map.ConvertImageCoordinatesToGenshinMapCoordinates(
++                new Point2f((float)quality.CenterMap!.X, (float)quality.CenterMap.Y));
++            if (!game.HasValue || !float.IsFinite(game.Value.X) || !float.IsFinite(game.Value.Y))
++            { result.Reason = "game_coordinate_unavailable"; return result; }
++            result.CenterMap = quality.CenterMap; result.MarkerMap = quality.MarkerMap;
++            result.CenterGame = new(game.Value.X, game.Value.Y); result.GameDirection = quality.GameDirection;
++            result.Ok = true;
++            return result;
++        }
++        catch (OperationCanceledException) { result.Reason = "cancelled"; return result; }
++        catch (ObjectDisposedException) { result.Reason = "cancelled"; return result; }
++        catch (Exception error)
++        {
++            result.Reason = CancellationReason(cancellation, observedToken) ?? "projection_error";
++            result.Error = error.Message.Length > 200 ? error.Message[..200] : error.Message;
++            return result;
++        }
++        finally
++        {
++            // Applies to every early return as well: a concurrent cancellation
++            // wins over success, missing features, and OpenCV exceptions.
++            var reason = CancellationReason(cancellation, observedToken);
++            if (reason != null)
++            {
++                result.Ok = false; result.Reason = reason;
++                result.CenterGame = null; result.GameDirection = null;
++            }
++            result.DurationMs = timer.ElapsedMilliseconds;
++        }
++    }
++}
+diff --git a/BetterGenshinImpact/Core/Script/EngineExtend.cs b/BetterGenshinImpact/Core/Script/EngineExtend.cs
+index 5801309..fd2f787 100644
+--- a/BetterGenshinImpact/Core/Script/EngineExtend.cs
++++ b/BetterGenshinImpact/Core/Script/EngineExtend.cs
+@@ -64,6 +64,15 @@ public class EngineExtend
+         // 直接添加方法
+         AddAllGlobalMethod(engine);
+ 
++        // Only our owned story bridge can explicitly request this no-input focus guard.
++        if (OwnedGameFocus.IsOwnedStoryDirectory(workDir))
++        {
++            engine.AddHostObject("isGameActive", (Func<bool>)OwnedGameFocus.IsGameActive);
++            engine.AddHostObject("ensureGameFocus", (Func<Task<bool>>)OwnedGameFocus.EnsureGameFocus);
++            engine.AddHostObject("getOwnedMinimapProjection",
++                (Func<Mat, double, double, string>)OwnedMinimapProjection.GetJson);
++        }
++
+         // 识图模块相关
+         engine.AddHostType("Mat", typeof(Mat));
+         engine.AddHostType("Point2f", typeof(Point2f)); // 添加Point2f类型暴露
+@@ -173,4 +182,4 @@ public class EngineExtend
+         engine.AddHostObject("inputText", GlobalMethod.InputText);
+ #pragma warning restore CS8974 // Converting method group to non-delegate type
+     }
+-}
+\ No newline at end of file
++}
 diff --git a/BetterGenshinImpact/GameTask/AutoFight/AutoFightConfig.cs b/BetterGenshinImpact/GameTask/AutoFight/AutoFightConfig.cs
 index c07e19f..337779c 100644
 --- a/BetterGenshinImpact/GameTask/AutoFight/AutoFightConfig.cs
@@ -414,3 +876,87 @@ index e5badbe..0f8af60 100644
 +    }
 +
  }
+diff --git a/Test/OwnedProjectionGeometry/OwnedProjectionGeometry.csproj b/Test/OwnedProjectionGeometry/OwnedProjectionGeometry.csproj
+new file mode 100644
+index 0000000..04edf6c
+--- /dev/null
++++ b/Test/OwnedProjectionGeometry/OwnedProjectionGeometry.csproj
+@@ -0,0 +1,12 @@
++<Project Sdk="Microsoft.NET.Sdk">
++  <PropertyGroup>
++    <OutputType>Exe</OutputType>
++    <TargetFramework>net8.0</TargetFramework>
++    <Nullable>enable</Nullable>
++    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
++  </PropertyGroup>
++  <ItemGroup>
++    <Compile Include="Program.cs" />
++    <Compile Include="../../BetterGenshinImpact/Core/Recognition/OpenCv/FeatureMatch/OwnedProjectionGeometry.cs" Link="OwnedProjectionGeometry.cs" />
++  </ItemGroup>
++</Project>
+diff --git a/Test/OwnedProjectionGeometry/Program.cs b/Test/OwnedProjectionGeometry/Program.cs
+new file mode 100644
+index 0000000..9014a50
+--- /dev/null
++++ b/Test/OwnedProjectionGeometry/Program.cs
+@@ -0,0 +1,60 @@
++using System;
++using System.Linq;
++using BetterGenshinImpact.Core.Recognition.OpenCv.FeatureMatch;
++
++// No BGI/OpenCV dependency, window capture, game resources, or input. This
++// harness decides whether geometric evidence may authorize the JS direction
++// check; passing it does not establish live icon detection or arrival.
++var count = 0;
++void Check(bool condition, string name)
++{
++    if (!condition) throw new Exception(name);
++    count++; Console.WriteLine("PASS " + name);
++}
++OwnedProjectionPoint[] Grid() => (from x in new[] { 35d, 80d, 125d, 170d }
++    from y in new[] { 35d, 100d, 165d } select new OwnedProjectionPoint(x, y)).ToArray();
++double[] Rotation(double angle)
++{
++    var r = angle * Math.PI / 180;
++    return [2 * Math.Cos(r), -2 * Math.Sin(r), 2000, 2 * Math.Sin(r), 2 * Math.Cos(r), 2000, 0, 0, 1];
++}
++OwnedProjectionQuality Evaluate(double[] h, OwnedProjectionPoint[]? points = null,
++    OwnedProjectionPoint? marker = null, bool[]? inliers = null, double error = 0)
++{
++    var source = points ?? Grid();
++    var destination = source.Select(p => OwnedProjectionGeometry.Project(h, p) ?? new(0, 0))
++        .Select(p => new OwnedProjectionPoint(p.X + error, p.Y)).ToArray();
++    return OwnedProjectionGeometry.Evaluate(h, source, destination,
++        inliers ?? source.Select(_ => true).ToArray(), 212, 212, marker ?? new(180, 106), 10000, 10000);
++}
++foreach (var degrees in new[] { 0d, 30d, 90d, 180d, 270d })
++{
++    var q = Evaluate(Rotation(degrees)); var r = degrees * Math.PI / 180;
++    Check(q.Ok && Math.Abs(q.GameDirection!.X + Math.Cos(r)) < 1e-8
++        && Math.Abs(q.GameDirection.Y + Math.Sin(r)) < 1e-8, "rotation " + degrees + " negative image vector");
++}
++foreach (var (marker, x, y) in new[] {
++    (new OwnedProjectionPoint(180,106), -1d, 0d), (new OwnedProjectionPoint(106,180), 0d, -1d),
++    (new OwnedProjectionPoint(32,106), 1d, 0d), (new OwnedProjectionPoint(106,32), 0d, 1d) })
++{
++    var q = Evaluate(Rotation(0), marker: marker);
++    Check(q.Ok && Math.Abs(q.GameDirection!.X - x) < 1e-8 && Math.Abs(q.GameDirection.Y - y) < 1e-8,
++        "cardinal " + marker);
++}
++Check(Evaluate(Rotation(0), points: Grid()[..9]).Reason == "insufficient_inliers", "reject too few matches");
++Check(Evaluate(Rotation(0), inliers: Grid().Select((_, i) => i < 9).ToArray()).Reason == "insufficient_inliers", "reject insufficient consensus");
++var line = Enumerable.Range(0, 12).Select(i => new OwnedProjectionPoint(25 + i * 14, 25 + i * 14)).ToArray();
++Check(Evaluate(Rotation(0), points: line).Reason == "degenerate_inlier_geometry", "reject collinear inliers");
++var cluster = Grid().Select(p => new OwnedProjectionPoint(p.X / 10 + 95, p.Y / 10 + 95)).ToArray();
++Check(Evaluate(Rotation(0), points: cluster).Reason == "insufficient_spread", "reject tiny coverage");
++Check(Evaluate(Rotation(0), error: 4).Reason == "reprojection_error", "reject inconsistent homography");
++Check(Evaluate([-2, 0, 2000, 0, 2, 2000, 0, 0, 1]).Reason == "reflected_or_singular_homography", "reject reflected map");
++Check(Evaluate([8, 0, 2000, 0, 8, 2000, 0, 0, 1]).Reason == "implausible_scale_or_shear", "reject excessive scale");
++Check(Evaluate([2, 1, 2000, 0, 2, 2000, 0, 0, 1]).Reason == "implausible_scale_or_shear", "reject shear");
++Check(!Evaluate([2, 0, 2000, 0, 2, 2000, 0.008, 0, 1]).Ok, "reject perspective distortion");
++Check(Evaluate(Rotation(0), marker: new(106, 106)).Reason == "marker_outside_minimap_or_at_center", "reject center candidate");
++Check(Evaluate(Rotation(0), marker: new(10, 10)).Reason == "marker_outside_minimap_or_at_center", "reject square corner outside circle");
++Check(Evaluate([2, 0, -1000, 0, 2, -1000, 0, 0, 1]).Reason == "projection_outside_map", "reject projection outside map");
++Check(OwnedProjectionGeometry.Project([1,0,0,0,1,0,0,0,0], new(100,100)) == null, "reject homogeneous divide by zero");
++Check(OwnedProjectionGeometry.Project([double.NaN,0,0,0,1,0,0,0,1], new(100,100)) == null, "reject nonfinite H");
++Console.WriteLine($"{count} geometry assertions passed; no live observation or game input performed.");

@@ -32,6 +32,23 @@ class ReplayTests(unittest.TestCase):
         self.assertEqual(result['matchCount'],2)
         self.assertFalse(result['accepted'])
 
+    def test_color_mode_rejects_wrong_color_shape(self):
+        template = np.zeros((12, 11, 3), dtype=np.uint8)
+        pattern = self.rng.integers(0, 256, (12, 11), dtype=np.uint8)
+        template[:, :, 0] = pattern
+        self.image[111:123, 212:223] = template
+        exact = replay.observe(self.image, [('commission', template)], match_channels=3)
+        self.assertTrue(exact['accepted'])
+        wrong = template[:, :, ::-1].copy()
+        # Grayscale shape alone remains highly correlated across these colors.
+        self.assertTrue(replay.observe(self.image, [('wrong', wrong)])['accepted'])
+        self.assertFalse(replay.observe(self.image, [('wrong', wrong)], match_channels=3)['accepted'])
+        self.assertIsNone(exact['gameBearingDegrees'])
+
+    def test_invalid_color_mode_is_not_silently_coerced(self):
+        with self.assertRaises(ValueError):
+            replay.observe(self.image, [('test', self.template)], match_channels=2)
+
     def test_noise_and_center_dont_authorize_bearing(self):
         self.assertFalse(replay.observe(self.image,[('test',self.template)])['accepted'])
         self.insert(154,111)
