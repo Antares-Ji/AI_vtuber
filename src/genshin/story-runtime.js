@@ -252,7 +252,7 @@ async function runStory(goal,{root,env,signal,reportProgress=()=>{},runId}){
        fs.writeFileSync(path.join(folder,`step-${request.seq}.json`),JSON.stringify(evidence,null,2));
       }});
     }
-    return {...decision,feedbackSteps:request.recentNativeSteps};
+    return {...decision,feedbackSteps:request.recentNativeSteps,nextObservationDelayMs:fast&&role==='movement'?100:400};
     }catch(error){
      signal.throwIfAborted();
      if(budget.expired()||error.code==='STORY_FRAME_TIMEOUT'){

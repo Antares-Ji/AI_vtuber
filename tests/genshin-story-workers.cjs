@@ -22,8 +22,13 @@ test('both workers disable thinking, enforce separate output caps and optionally
    return {ok:true,json:async()=>({model:b.model,usage:{total_tokens:20},choices:[{finish_reason:'stop',message:{content:'{"action":{"kind":"wait"}}'}}]})};
   }});assert.equal(result.worker,role);
  }
- assert.deepEqual(seen.map(b=>b.max_tokens),[256,384]);assert.deepEqual(seen.map(b=>b.model),['move-test','interact-test']);
+ assert.deepEqual(seen.map(b=>b.max_tokens),[128,384]);assert.deepEqual(seen.map(b=>b.model),['move-test','interact-test']);
  assert.ok(seen.every(b=>!b.messages[0].content.includes('commentary')));
+});
+test('movement uses short steps and gives an executable shorter alternative instead of long blind motion',()=>{
+ assert.throws(()=>workers.validateRole({action:{kind:'move',key:'W',ms:600}},'movement'),/ms:400/);
+ for(const ms of [80,200,400])assert.doesNotThrow(()=>workers.validateRole({action:{kind:'move',key:'W',ms}},'movement'));
+ assert.doesNotThrow(()=>workers.validateRole({action:{kind:'advance_quest',key:'W'}},'movement'));
 });
 test('worker requests omit narration, keep user goal, and use short structured cross-worker messages',()=>{
  const p=workers.prompt(context,{handoff:{from:'interaction',action:{kind:'teleport',id:'61'}}}),data=JSON.parse(p.input);

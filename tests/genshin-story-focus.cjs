@@ -7,14 +7,14 @@ const mapRows=[{text:'53/200',box:[1512,30,99,31]},
  {text:'探索度 23%',box:[1670,1020,123,29]}];
 async function run(action,options={}){
  let now=1000,active=options.initialActive!==false,deadline=0,ensures=0;
- const inputs=[],releases=[],files=new Map([['command.json',JSON.stringify({id:'focus',timeoutMs:600000})]]);
+ const inputs=[],releases=[],requests=[],files=new Map([['command.json',JSON.stringify({id:'focus',timeoutMs:600000})]]);
  const state={inputs,releases,get now(){return now;},set now(v){now=v;},
   get active(){return active;},set active(v){active=v;},get deadline(){return deadline;}};
  const context={JSON,Number,String,Math,Set,Error,Date:{now:()=>now},
   file:{readTextSync:n=>files.get(n),writeImageSync(){},readImageMatSync:()=>({dispose(){}}),
    writeTextSync(n,v){files.set(n,v);if(n==='story-request.json'){
-    const r=JSON.parse(v);deadline=r.deadlineAt;
-    files.set(`story-decision-${r.seq}.json`,JSON.stringify({id:r.id,seq:r.seq,action:r.seq===1?action:{kind:'stop'}}));
+    const r=JSON.parse(v);deadline=r.deadlineAt;requests.push(r);
+    files.set(`story-decision-${r.seq}.json`,JSON.stringify({...options.decisionFields,id:r.id,seq:r.seq,action:r.seq===1?action:{kind:'stop'}}));
    }}},
   captureGameRegion(){const rows=options.rows?.(state)||[];return {width:1920,height:1080,srcMat:{},dispose(){},
    findMulti(ro){const found=ro.template?[]:rows;return {count:found.length,...found.map(t=>({text:t.text,x:t.box[0],y:t.box[1],width:t.box[2],height:t.box[3],click(){inputs.push(['click',t.text]);}}))};}};},
@@ -35,8 +35,16 @@ async function run(action,options={}){
  if(options.missing)delete context[options.missing];
  if(options.nonCallable)context[options.nonCallable]={};
  await vm.runInNewContext(source,context);
- return {...state,ensures,receipt:JSON.parse(files.get('receipt.json'))};
+ return {...state,ensures,requests,receipt:JSON.parse(files.get('receipt.json'))};
 }
+test('fast navigation removes 300ms of fixed frame delay, and invalid cadence values retain the normal delay',async()=>{
+ for(const nextObservationDelayMs of [undefined,100,0,-1,1]){
+  const result=await run({kind:'move',key:'W',ms:200},{decisionFields:{nextObservationDelayMs}});
+  assert.equal(result.receipt.state,'returned');
+  assert.equal(result.requests[1].capturedAt-result.requests[0].capturedAt,nextObservationDelayMs===100?300:600);
+  assert.equal(result.inputs.filter(i=>i[0]==='down').length,1);
+ }
+});
 test('missing, refused and timed-out focus fail closed with durable failure evidence',async()=>{
  for(const options of [{missing:'ensureGameFocus'},{missing:'isGameActive'},
   {nonCallable:'ensureGameFocus'},{nonCallable:'isGameActive'},

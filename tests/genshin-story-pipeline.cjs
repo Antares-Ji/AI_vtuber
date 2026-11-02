@@ -31,6 +31,7 @@ test('runtime overlaps a speculative call, consumes a match without another fore
    const request={id:'simulation-native',seq,capturedAt:Date.now(),deadlineAt:Date.now()+100000,lastStep,
     texts:scene==='world'?[{text:'前去查看详情',box:[75,246,153,33]},{text:(seq===1?'100':'98')+'m',box:[80,280,70,25]}]:[{text:'派蒙',box:[50,50,100,30]}]};
    const decision=await onStoryFrame(request,source);actions.push(decision.action.kind);assert.equal(decision.commentary,'');
+   assert.equal(decision.nextObservationDelayMs,seq<3?100:400);
    if(seq===1)assert.equal(prefetchStarted,1,'next planning has started before current native action finishes');
    lastStep={seq,action:decision.action,finishedAt:Date.now(),detail:JSON.stringify({movedMs:400,stopReason:'duration_complete'}),focus:{after:true}};
    // Represents the current native action running while the HTTP planner completes.

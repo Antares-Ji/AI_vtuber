@@ -763,7 +763,7 @@ else (async function(){
  const sessionDeadline=receipt.startedAt+Math.max(30000,command.timeoutMs-90000);
  const save=()=>file.writeTextSync('receipt.json',JSON.stringify(receipt));
  const normalize=s=>String(s||'').replace(/\s/g,'');
- let activeInput=null;
+ let activeInput=null,observationDelayMs=400;
  const inputKinds=new Set(['key','click_text','choose_dialogue','follow_marker','reset_camera','advance_quest','travel_quest','turn','teleport','move','fight']);
  function inputFailure(code,message){
   const error=Error(message);error.code=code;
@@ -949,7 +949,7 @@ else (async function(){
  try{
   const first=captureGameRegion();try{file.writeImageSync('before.png',first.srcMat);}finally{first.dispose();}
   for(let seq=1;seq<=40&&Date.now()<sessionDeadline;seq++){
-   await sleep(400);
+   await sleep(observationDelayMs);
    const position=await StoryPostActionPosition.sample({lastStep:receipt.steps.slice(-1)[0],genshin:typeof genshin==='undefined'?null:genshin,sleep,deadline:sessionDeadline});
    const captureStartedAt=Date.now();
    const frame=captureGameRegion();let texts;
@@ -968,6 +968,8 @@ else (async function(){
    const action=decision.action;let detail='';
    const priorSteps=Array.isArray(decision.feedbackSteps)?decision.feedbackSteps:receipt.steps;
    if(!action||Date.now()>=request.deadlineAt)throw Error('无效或过期的剧情动作');
+   // Only the director can select the bounded fast cadence, never a free delay.
+   observationDelayMs=decision.nextObservationDelayMs===100?100:400;
    log.info('AI-VTuber剧情：执行 '+action.kind+' '+(action.text||action.key||''));
    if(action.kind==='stop'){receipt.note=decision.reason;receipt.endReason='model_stop';break;}
    activeInput=null;
