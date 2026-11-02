@@ -66,7 +66,7 @@ test('heading is degrees and both game axes invert image-space direction', () =>
     const result = travel.targetForHeading({ x: 0, y: 0 }, degrees, 25);
     assert.ok(Math.abs(result.x - x) < 1e-8); assert.ok(Math.abs(result.y - y) < 1e-8);
   }
-  for (const args of [[null, 0, 25], [{ x: 1, y: 2 }, NaN, 25], [{ x: 1, y: 2 }, 0, 61]])
+  for (const args of [[null, 0, 25], [{ x: 1, y: 2 }, NaN, 25], [{ x: 1, y: 2 }, 0, 181]])
     assert.throws(() => travel.targetForHeading(...args));
 });
 test('eligibility requires unique current HUD stage/distance and permits only bounded world travel', () => {
@@ -212,12 +212,12 @@ test('OCR fallback can align, uses independent uncached samples and single walk 
   assert.equal(result.legs[0].pathDurationMs, 4000); assert.equal(result.movementMsSent, null);
   assert.equal(result.movementTelemetryComplete, false); assert.equal(result.verified, false);
 });
-test('first-leg direction proof stops immediately, later legs cap at sixty and six total', async () => {
+test('first-leg direction proof stops immediately, later legs cap at 180m and six total', async () => {
   const fail = harness({ distances: [184, 175, 100] });
   assert.equal((await fail.run(1)).stopReason, 'direction_unverified'); assert.equal(fail.routes.length, 1);
   const success = harness({ distances: [500, 480, 430, 380, 330, 280, 230] }), result = await success.run(2);
   assert.equal(result.stopReason, 'leg_limit'); assert.equal(result.legs.length, 6);
-  assert.deepEqual(result.legs.map(l => l.length), [25, 60, 60, 60, 60, 60]);
+  assert.deepEqual(result.legs.map(l => l.length), [25, 180, 180, 180, 180, 180]);
   assert.equal(result.movedLegs, 6); assert.equal(result.progress.distanceAfter, 230);
 });
 test('position instability/unavailability and expired deadline prevent path calls', async () => {

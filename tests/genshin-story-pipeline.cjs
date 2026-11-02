@@ -18,17 +18,13 @@ test('runtime overlaps a speculative call, consumes a match without another fore
   if(o.forecast){prefetchStarted++;assert.equal(o.forecast.basis,'hypothetical_post_action');assert.equal(c.texts.length,0);return reply({action:{kind:'move',key:'W',ms:400},prediction:{distance:96,tolerance:1}},o.role);}
   return reply(o.role==='movement'?{action:{kind:'move',key:'W',ms:400},prediction:{distance:98,tolerance:1},commentary:'应被静音'}:{action:{kind:'stop'},reason:'菜单状态变化'},o.role);
  };
- global.fetch=async(url,options)=>{
-  assert.equal(url,'http://127.0.0.1:17646/read');
-  const input=JSON.parse(options.body);
-  return {ok:true,json:async()=>({source_image:input.image,mode:'genshin-story',model:'mock-local',verification:'unverified_local_model_output',parsed:{scene,uncertain:false,summary:'模拟场景',visible_text:[],navigation:{marker:'center',terrain:'open',movement:'standing',evidence:'模拟本地观察'}}})};
- };
+ global.fetch=async()=>{throw Error('Story must not call Qwen or another visual model');};
  bridge.execute=async(command,{onStoryFrame})=>{
   assert.equal(command.operation,'story');let lastStep=null;
   const source=path.join(root,'simulation-frame.png');fs.writeFileSync(source,'simulation fixture, never a live capture');
   for(let seq=1;seq<=3;seq++){
    scene=seq===3?'menu':'world';
-   const request={id:'simulation-native',seq,capturedAt:Date.now(),deadlineAt:Date.now()+100000,lastStep,
+   const request={id:'simulation-native',seq,capturedAt:Date.now(),deadlineAt:Date.now()+100000,lastStep,nativeVision:{source:'bettergi_native_cv',ui:scene==='world'?'Main':'Unknown',motion:'Normal',closable:scene==='menu'},
     texts:scene==='world'?[{text:'前去查看详情',box:[75,246,153,33]},{text:(seq===1?'100':'98')+'m',box:[80,280,70,25]}]:[{text:'派蒙',box:[50,50,100,30]}]};
    const decision=await onStoryFrame(request,source);actions.push(decision.action.kind);assert.equal(decision.commentary,'');
    assert.equal(decision.nextObservationDelayMs,seq<3?100:400);

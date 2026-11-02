@@ -9,15 +9,16 @@ function contractFor({decision,prediction,request,observation}){
  const common={scene:'world',quest:request.focusQuest,stage:hud.stage,maxAgeMs:120000};
  if(a.kind==='teleport'&&finite(a.x)&&finite(a.y))
   return {...common,kind:'position',target:{x:a.x,y:a.y},radius:12};
- if(!['move','advance_quest','travel_quest'].includes(a.kind)||observation.scene!=='world'||
-    observation.navigation?.terrain!=='open'||observation.interaction?.state==='unique')return null;
+ const nativeWorld=observation.nativeVision?.source==='bettergi_native_cv'&&observation.nativeVision.ui==='Main'&&observation.nativeVision.motion==='Normal';
+ if(!['move','advance_quest','travel_quest','navigate'].includes(a.kind)||observation.scene!=='world'||
+    !(observation.navigation?.terrain==='open'||nativeWorld)||observation.interaction?.state==='unique')return null;
  if(!prediction||!finite(prediction.distance)||!finite(prediction.tolerance)||
     prediction.tolerance<1||prediction.tolerance>3||prediction.distance<0)return null;
- const maxDelta=a.kind==='move'?Math.max(4,a.ms/1000*12):a.kind==='advance_quest'?40:360;
+ const maxDelta=['move','navigate'].includes(a.kind)?Math.max(4,a.ms/1000*12):a.kind==='advance_quest'?40:360;
  if(Math.abs(prediction.distance-hud.meters)>maxDelta)return null;
  return {...common,kind:'distance',distance:prediction.distance,tolerance:prediction.tolerance,
   terrain:observation.navigation.terrain,movement:observation.navigation.movement,
-  marker:observation.navigation.marker};
+  marker:observation.navigation.marker,nativeMotion:nativeWorld?'Normal':null};
 }
 function verify(contract,entry,request,observation,now=Date.now()){
  const no=reason=>({ok:false,reason});
@@ -30,7 +31,7 @@ function verify(contract,entry,request,observation,now=Date.now()){
  if(previous.focus?.after===false||previous.focus?.errorCode||previous.error)return no('action_failed');
  let detail;try{detail=typeof previous.detail==='string'?JSON.parse(previous.detail):previous.detail;}catch{}
  if(entry.action.kind==='move'&&detail?.movedMs!==entry.action.ms)return no('move_incomplete');
- if(['advance_quest','travel_quest'].includes(entry.action.kind)&&
+ if(['advance_quest','travel_quest','navigate'].includes(entry.action.kind)&&
     (!detail||/unavailable|unverified|unstable|missing|error|limit|deadline|increase|stall|no_progress|cancel|lost/i.test(detail.stopReason||'')))return no('macro_not_verified');
  if(observation.uncertain||observation.scene!==contract.scene||
     observation.interaction?.state==='unique'||grounding.movementStop(request.texts))return no('scene_or_interaction_changed');
@@ -44,6 +45,7 @@ function verify(contract,entry,request,observation,now=Date.now()){
   if(Math.hypot(p.samples[0].x-p.samples[1].x,p.samples[0].y-p.samples[1].y)>10)return no('position_unstable');
   if(p.samples.some(s=>Math.hypot(s.x-contract.target.x,s.y-contract.target.y)>contract.radius))return no('position_mismatch');
  }else{
+  if(contract.nativeMotion&&(observation.nativeVision?.ui!=='Main'||observation.nativeVision.motion!==contract.nativeMotion||observation.nativeVision.source!=='bettergi_native_cv'))return no('native_motion_changed');
   if(Math.abs(hud.meters-contract.distance)>contract.tolerance)return no('distance_mismatch');
   if(observation.navigation?.terrain!==contract.terrain||observation.navigation?.movement!==contract.movement||
      observation.navigation?.marker!==contract.marker)return no('navigation_state_changed');

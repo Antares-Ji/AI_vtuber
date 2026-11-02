@@ -31,8 +31,9 @@ function createGenshinConsole({ host, brain, parseBody, send, root = ROOT, env =
     ready:async()=>{
       const state=bridge.status();if(!state.ready||state.busy||state.active)return false;
       if(host.recent().some(r=>['RUNNING','STOPPING'].includes(r.state)))return false;
-      const response=await fetch('http://127.0.0.1:17646/health',{signal:AbortSignal.timeout(2000)});
-      if(!response.ok)return false;const vision=await response.json();return vision.ready===true&&vision.busy===false;
+      // Story observations are produced by the owned BGI process. Qwen's
+      // readiness is unrelated to this pipeline and must not block continuation.
+      return true;
     },onStarted:(run,goal)=>{goalRun={goal,runId:run.id};}});
   const storyDelivery=new (require('./story-commentary-delivery').StoryCommentaryDelivery)();
   const startGoal = (goal, planOnly = false) => {
@@ -58,7 +59,7 @@ function createGenshinConsole({ host, brain, parseBody, send, root = ROOT, env =
           const story=require('./story-runtime').snapshot(),state=bridge.status(),run=goalRun&&host.status(goalRun.runId);
           return reply(200,{provider:publicSettings({dataRoot:root,env}).provider,at:Date.now(),continuation:continuation.snapshot(),
             run:run&&{id:run.id,state:run.state,error:run.error,progress:run.progress,startedAt:run.startedAt,finishedAt:run.finishedAt},
-            story:story&&{runId:story.runId,state:story.state,steps:story.steps,observationSeq:story.observationSeq,observationAt:story.observationAt,lastFrameAt:story.lastFrameAt,scene:story.observation?.scene,summary:story.observation?.summary,decision:story.decision,nativeId:story.nativeId,lastNativeStep:story.lastNativeStep,error:story.error,errorCode:story.errorCode,provider:story.provider,model:story.model,usage:story.usage,folder:story.folder},
+            story:story&&{runId:story.runId,state:story.state,steps:story.steps,observationSeq:story.observationSeq,observationAt:story.observationAt,lastFrameAt:story.lastFrameAt,scene:story.observation?.scene,summary:story.observation?.summary,decision:story.decision,nativeId:story.nativeId,lastNativeStep:story.lastNativeStep,error:story.error,errorCode:story.errorCode,provider:story.provider,model:story.model,usage:story.usage,folder:story.folder,capabilities:story.capabilities,pipeline:story.pipeline},
             bridge:{ready:state.ready,busy:state.busy,active:state.active,pid:state.pid,supervisorVersion:state.supervisorVersion,lastResult:state.lastResult&&{id:state.lastResult.id,state:state.lastResult.state,error:state.lastResult.error,inputReleased:state.lastResult.inputReleased,processStopped:state.lastResult.processStopped}}});
         }
         if(route==='/preview') {const image=await obs.screenshot();res.writeHead(200,{'content-type':'image/jpeg','cache-control':'no-store'});res.end(image);return true;}

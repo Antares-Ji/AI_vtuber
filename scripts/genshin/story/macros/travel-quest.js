@@ -7,7 +7,7 @@ const StoryTravel = (() => {
   const eligibility = (input, grounding) => grounding.travelEligibility(input);
   function targetForHeading(position, degrees, leg) {
     const x = Number(position?.x ?? position?.X), y = Number(position?.y ?? position?.Y);
-    if (![x, y, degrees, leg].every(Number.isFinite) || leg <= 0 || leg > 60)
+    if (![x, y, degrees, leg].every(Number.isFinite) || leg <= 0 || leg > 180)
       throw Error('Invalid travel coordinate, heading or bounded leg');
     const radians = degrees * Math.PI / 180;
     return { x: x - leg * Math.cos(radians), y: y - leg * Math.sin(radians) };
@@ -139,7 +139,7 @@ const StoryTravel = (() => {
       let diagnostics = null, minimap = null;
       const result = { kind: 'quest-travel', intent: 'travel_quest', seq, legs: [], bearings: [], movedLegs: 0,
         attemptedLegs: 0, stopReason: null, verified: false,
-        movementMsSent: null, movementTelemetryComplete: false, interactionChecks: 'between_legs',
+        movementMsSent: null, movementTelemetryComplete: false, interactionChecks: deps.monitorPath ? 'during_path_local_ocr' : 'between_legs',
         progress: { distanceBefore: null, distanceAfter: null, stageBefore: null, stageAfter: null } };
       try {
         if (!genshin || !pathingScript || typeof createCancellationTokenSource !== 'function') {
@@ -210,10 +210,10 @@ const StoryTravel = (() => {
           }
           const fresh = capture(), freshStop = currentStop(fresh, stage);
           if (freshStop) { result.stopReason = freshStop; break; }
-          const hud = readHud(fresh, grounding), length = Math.min(hud.meters, index === 0 ? 25 : 60);
+          const hud = readHud(fresh, grounding), length = Math.min(Math.max(1,hud.meters-5), index === 0 ? 25 : 180);
           const to = targetForHeading(from, theta, length);
           budgetCheck(); middleButtonClick(); camera.overhead = false; await sleep(200); budgetCheck();
-          const budgetMs = Math.min(30000, getDeadline() - now() - marginMs);
+          const budgetMs = Math.min(index === 0 ? 30000 : 60000, getDeadline() - now() - marginMs);
           if (budgetMs <= 0) { result.stopReason = 'deadline'; break; }
           const leg = { from, samples: [from1, from], to, theta, thetaUnit: 'degrees', bearingSource, length,
             cameraOrientation, minimapNorthUpAssumed: false,
@@ -221,7 +221,7 @@ const StoryTravel = (() => {
             returned: false, verified: false };
           result.legs.push(leg); result.attemptedLegs++;
           const cts = createCancellationTokenSource();
-          let running = null, timedOut = false;
+          let running = null, timedOut = false, monitoredStop = null;
           try {
             cts.cancelAfter(Math.floor(budgetMs));
             budgetCheck();
@@ -229,8 +229,23 @@ const StoryTravel = (() => {
               info: { name: 'AI-VTuber-travel', type: 'collect', bgi_version: '0.66.0', map_name: 'Teyvat' },
               positions: [{ id: 1, x: to.x, y: to.y, type: 'path', move_mode: 'walk', action: '' }]
             }), cts.token));
-            await running;
-            timedOut = cts.isCancellationRequested === true;
+            if (deps.monitorPath) {
+              let missing = 0, previousDistance = hud.meters;
+              const monitoring = await deps.monitorPath({run:()=>running, cts, read:capture, checkInput:budgetCheck, sleep, now,
+                inspect: rows => {
+                  const current = readHud(rows, grounding);
+                  let stopReason = currentStop(rows, stage);
+                  // One transient missing distance is tolerated while pathing keeps
+                  // its own fresh CV position; two consecutive misses stop it.
+                  missing = current ? 0 : missing + 1;
+                  if (stopReason === 'hud_unavailable' && missing < 2) stopReason = null;
+                  if (!stopReason && current && current.meters > previousDistance + 5) stopReason = 'distance_increased';
+                  if (current) previousDistance = current.meters;
+                  return {stopReason, distance:current?.meters ?? null};
+                }});
+              leg.localChecks = monitoring.samples; monitoredStop = monitoring.stopReason;
+            } else await running;
+            timedOut = cts.isCancellationRequested === true && !monitoredStop;
             leg.returned = true;
           } finally {
             // AutoPathingScript catches cancellation internally. Always cancel
@@ -255,7 +270,7 @@ const StoryTravel = (() => {
               if (leg.distanceDecrease > 0) result.movedLegs++;
             }
           }
-          const afterStop = currentStop(after, stage);
+          const afterStop = monitoredStop || currentStop(after, stage);
           if (afterStop) { result.stopReason = afterStop; break; }
           const decrease = hud.meters - afterHud.meters;
           if (decrease < 0) { result.stopReason = 'distance_increased'; break; }

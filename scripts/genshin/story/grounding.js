@@ -56,6 +56,10 @@ const StoryGrounding=(()=>{
   if(mapMenu(texts))return 'map';
   if(questMenu(texts)||recoveryPrompt(texts))return 'menu';
   if((texts||[]).some(t=>/任务专注模式|队伍配置|商城/.test(t.text)))return 'menu';
+  const words=rows.map(t=>normal(t.text));
+  if(words.some(t=>/^(本日砺行进度|每日委托奖励|本周砺行进度)$/.test(t))
+    &&words.some(t=>/^(见闻|讨伐|秘境|选择委托任务倾向地域|历练点阶段奖励)$/.test(t)))return 'menu';
+  if(words.includes('成就')&&words.some(t=>/^(天地万象|英雄之礼|心跳的记忆)$/.test(t)))return 'menu';
   const subtitle=rows.some(t=>t.box[0]>100&&t.box[0]<1600&&t.box[1]>=890&&t.box[1]<1015&&t.box[2]>180&&String(t.text).length>=8&&/[\u4e00-\u9fff]/.test(t.text));
   const cue=rows.some(t=>t.box[0]>650&&t.box[0]<1150&&t.box[1]>=800&&t.box[1]<910&&t.box[2]<250&&/[\u4e00-\u9fff]/.test(t.text)||/^自动(?:播放)?$/.test(t.text)&&t.box[1]<150);
   return subtitle&&cue?'dialogue':null;

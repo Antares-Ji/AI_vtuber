@@ -147,6 +147,8 @@ function evaluate(input,now=Date.now(),o={}){
  const last=readings.at(-1),same=[];
  for(let i=readings.length-1;i>=0&&readings[i].context===last?.context;i--)same.unshift(readings[i]);
  return {at:now,frames:rows.length,from:rows[0]?.at||null,to:rows.at(-1)?.at||null,
+  performance:require('../../src/genshin/story-performance').performance(rows,receipts,now),
+  decisionSources:{deepseekFrames:rows.filter(r=>r.provider==='deepseek').length,directFrames:rows.filter(r=>r.provider==='director').length},
   identityScope:o.nativeIds?'explicit_native_ids':o.trainingSessionId&&rows.every(r=>(r.trainingSessionId||r.request?.trainingSessionId)===o.trainingSessionId)?'training_session_id':'time_window_and_observed_native_ids',
   tokens,tokensPerFrame:rows.length?Math.round(tokens/rows.length):0,tokensPerFrameMedian:median(costs.filter(c=>c.complete).map(c=>c.total)),tokenFramesIncomplete:costs.filter(c=>!c.complete).length,
   scenes,actions,executedActions,rejectedDecisions:rejected,nativeReceipts:receipts.length,movementMsSent:moved,movementTelemetryComplete:telemetryComplete,

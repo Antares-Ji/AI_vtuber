@@ -7,7 +7,7 @@ else (async function(){
  const save=()=>file.writeTextSync('receipt.json',JSON.stringify(receipt));
  const normalize=s=>String(s||'').replace(/\s/g,'');
  let activeInput=null,observationDelayMs=400;
- const inputKinds=new Set(['key','click_text','choose_dialogue','follow_marker','reset_camera','advance_quest','travel_quest','turn','teleport','move','fight']);
+ const inputKinds=new Set(['key','click_text','choose_dialogue','follow_marker','reset_camera','advance_quest','travel_quest','turn','teleport','move','fight','leave_interaction','navigate','seek_quest']);
  function inputFailure(code,message){
   const error=Error(message);error.code=code;
   if(activeInput){activeInput.errorCode=code;activeInput.failedAt=Date.now();}
@@ -49,6 +49,11 @@ else (async function(){
   if(focused!==true||!activeInput.after)throw inputFailure(focused===null?'STORY_FOCUS_TIMEOUT':'STORY_FOCUS_FAILED','无法确认游戏前台焦点，未发送输入');
   save();
  }
+ const readFreshTexts=()=>{const frame=captureGameRegion();try{return readTexts(frame);}finally{frame.dispose();}};
+ const navigate=StoryContinuousNavigation.create({grounding:StoryGrounding,read:readFreshTexts,sleep,checkInput,keyDown:guardedKeyDown,keyUp:key=>keyUp(key),
+  position:()=>{checkInput();try{const p=genshin.getPositionFromMap('Teyvat',0);return p?{x:Number(p.x??p.X),y:Number(p.y??p.Y)}:null;}catch{return null;}},
+  world:()=>{checkInput();const f=captureGameRegion();try{if(typeof getOwnedSceneObservation==='undefined')return false;const v=JSON.parse(getOwnedSceneObservation(f));return v.ui==='Main'&&v.motion==='Normal';}finally{f.dispose();}}
+ });
  const travelQuest=StoryTravel.createTravelQuest({
   grounding:StoryGrounding,captureGameRegion,readTexts,sleep,now:()=>Date.now(),checkInput,
   keyDown:guardedKeyDown,keyUp:key=>keyUp(key),moveMouseBy:guardedMoveMouseBy,middleButtonClick:guardedMiddleButtonClick,
@@ -60,7 +65,8 @@ else (async function(){
   minimapRoi:StoryMinimapBearing.minimapRoi,
   minimapTemplateNames:StoryMinimapBearing.templateNames,
   projectMinimap:typeof getOwnedMinimapProjection==='undefined'?undefined:(frame,x,y)=>getOwnedMinimapProjection(frame.srcMat,x,y),
-  createCancellationTokenSource:()=>new CancellationTokenSource()
+  createCancellationTokenSource:()=>new CancellationTokenSource(),
+  monitorPath:StoryContinuousNavigation.monitorPath
  });
  async function followMarker(seq){
   const templates=[];
@@ -195,10 +201,11 @@ else (async function(){
    await sleep(observationDelayMs);
    const position=await StoryPostActionPosition.sample({lastStep:receipt.steps.slice(-1)[0],genshin:typeof genshin==='undefined'?null:genshin,sleep,deadline:sessionDeadline});
    const captureStartedAt=Date.now();
-   const frame=captureGameRegion();let texts;
-   try{texts=readTexts(frame);file.writeImageSync('story-'+seq+'.png',frame.srcMat);}finally{frame.dispose();}
+   const frame=captureGameRegion();let texts,nativeVision=null;
+   try{texts=readTexts(frame);if(typeof getOwnedSceneObservation!=='undefined')nativeVision=JSON.parse(getOwnedSceneObservation(frame));file.writeImageSync('story-'+seq+'.png',frame.srcMat);}finally{frame.dispose();}
    const capturedAt=captureStartedAt,decisionDeadline=Math.min(capturedAt+120000,sessionDeadline);
-   const request={id:command.id,seq,capturedAt,deadlineAt:decisionDeadline,image:'story-'+seq+'.png',texts,position,lastStep:receipt.steps.slice(-1)[0]||null};
+   const capabilities={minimapProjection:typeof getOwnedMinimapProjection!=='undefined',continuousNavigation:true,nativeScene:typeof getOwnedSceneObservation!=='undefined'};
+   const request={id:command.id,seq,capturedAt,deadlineAt:decisionDeadline,image:'story-'+seq+'.png',texts,position,capabilities,nativeVision,lastStep:receipt.steps.slice(-1)[0]||null};
    file.writeTextSync('story-request.json',JSON.stringify(request));
    log.info('AI-VTuber剧情：等待模型决策，步骤 '+seq);
    let decision=null;const deadline=decisionDeadline;
@@ -225,6 +232,7 @@ else (async function(){
    if(action.kind==='key'){
     if(!['J','M','ESCAPE','F','V','SPACE'].includes(action.key))throw Error('不允许的剧情按键');
     if(action.key==='F')detail=await interact(action,priorSteps);
+    else if(action.key==='SPACE'&&StoryGrounding.sceneCue(readFreshTexts())==='dialogue')detail=JSON.stringify(await StoryContinuousNavigation.advanceDialogue({grounding:StoryGrounding,read:readFreshTexts,checkInput,keyDown:guardedKeyDown,keyUp:key=>keyUp(key),sleep}));
     else {const key=action.key==='ESCAPE'?'VK_ESCAPE':action.key==='SPACE'?'VK_SPACE':'VK_'+action.key;
     guardedKeyDown(key);try{await sleep(80);}finally{keyUp(key);}await sleep(700);}
    }else if(action.kind==='click_text'){
@@ -261,13 +269,25 @@ else (async function(){
      if(subtitle&&cue&&matches.length===1){checkInput();matches[0].click();detail='已复核对话布局及唯一回复选项并点击';await sleep(700);}
      else detail='对话布局或回复选项变化，本步未点击';
     }finally{cap.dispose();}
+   }else if(action.kind==='leave_interaction'){
+    const frame=captureGameRegion();let prompt;
+    try{prompt=StoryGrounding.interaction(readTexts(frame));}finally{frame.dispose();}
+    if(prompt.state!=='unique'||prompt.candidates[0].text!==action.text||!['W','A','S','D'].includes(action.key)||action.ms!==400)throw Error('离开交互前目标已变化，未移动');
+    guardedKeyDown('VK_'+action.key);try{await sleep(400);}finally{keyUp('VK_'+action.key);}
+    detail=JSON.stringify({kind:'leave_interaction',target:action.text,movementMsSent:400,verified:false});
    }else if(action.kind==='wait'){await sleep(2000);}
    else if(action.kind==='complete_quest'){detail=JSON.stringify({kind:'completion_acknowledgement',quest:action.quest,inputSent:false,source:'server_ocr_evidence',verified:false});}
    else if(action.kind==='list_waypoints'){detail='查询地图目录：'+action.area;}
    else if(action.kind==='travel_quest'){detail=JSON.stringify(await travelQuest(seq,{recentNativeSteps:priorSteps}));}
    else if(action.kind==='follow_marker'){detail=StoryGrounding.navigationFeedback(priorSteps).blocked?JSON.stringify({kind:'marker-follow',movedMs:0,stopReason:'retry_limit',verified:false}):await followMarker(seq);}
    else if(action.kind==='reset_camera'){guardedMiddleButtonClick();await sleep(600);detail='镜头复位输入已发送，等待下一帧核对';}
-   else if(action.kind==='advance_quest'){detail=await advanceQuest(action.key,seq);}
+   else if(action.kind==='advance_quest'){detail=JSON.stringify(await navigate({key:action.key,ms:8000}));}
+   else if(action.kind==='navigate'){detail=JSON.stringify(await navigate(action));}
+   else if(action.kind==='seek_quest'){
+    const hud=StoryGrounding.questHud(readFreshTexts());
+    if(!hud||hud.meters<=5||hud.meters>300)throw Error('本地距离反馈寻路需要当前5–300m任务HUD');
+    detail=JSON.stringify(await StoryContinuousNavigation.seek({navigate,checkInput}));
+   }
    else if(action.kind==='turn'){
     if(!Number.isInteger(action.dx)||!Number.isInteger(action.dy)||Math.abs(action.dx)>600||Math.abs(action.dy)>250)throw Error('无效的有界镜头转动');
     guardedMoveMouseBy(action.dx,action.dy);await sleep(400);

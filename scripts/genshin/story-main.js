@@ -58,6 +58,10 @@ const StoryGrounding=(()=>{
   if(mapMenu(texts))return 'map';
   if(questMenu(texts)||recoveryPrompt(texts))return 'menu';
   if((texts||[]).some(t=>/任务专注模式|队伍配置|商城/.test(t.text)))return 'menu';
+  const words=rows.map(t=>normal(t.text));
+  if(words.some(t=>/^(本日砺行进度|每日委托奖励|本周砺行进度)$/.test(t))
+    &&words.some(t=>/^(见闻|讨伐|秘境|选择委托任务倾向地域|历练点阶段奖励)$/.test(t)))return 'menu';
+  if(words.includes('成就')&&words.some(t=>/^(天地万象|英雄之礼|心跳的记忆)$/.test(t)))return 'menu';
   const subtitle=rows.some(t=>t.box[0]>100&&t.box[0]<1600&&t.box[1]>=890&&t.box[1]<1015&&t.box[2]>180&&String(t.text).length>=8&&/[\u4e00-\u9fff]/.test(t.text));
   const cue=rows.some(t=>t.box[0]>650&&t.box[0]<1150&&t.box[1]>=800&&t.box[1]<910&&t.box[2]<250&&/[\u4e00-\u9fff]/.test(t.text)||/^自动(?:播放)?$/.test(t.text)&&t.box[1]<150);
   return subtitle&&cue?'dialogue':null;
@@ -475,6 +479,118 @@ const StoryPostActionPosition=(()=>{
 })();
 if(typeof module!=='undefined'&&module.exports)module.exports=StoryPostActionPosition;
 
+// Source: story/macros/continuous-navigation.js
+// Local feedback owns held movement; cloud inference runs only at intent boundaries.
+const StoryContinuousNavigation = (() => {
+  function create(deps) {
+    const {grounding, read, sleep, checkInput, keyDown, keyUp, now = Date.now} = deps;
+    return async function navigate(action) {
+      if (!['W','A','S','D'].includes(action.key) || !Number.isInteger(action.ms)
+          || action.ms < 400 || action.ms > 8000) throw Error('Invalid continuous navigation budget');
+      const initial = read(), stage = grounding.questInstruction(initial)?.text;
+      const result = {kind:'continuous-navigation', movementMsSent:0, checks:[], stopReason:null, verified:false};
+      const stop = grounding.movementStop(initial);
+      if (stop || !stage) return {...result, stopReason:stop || 'stage_missing'};
+      let heldAt = null, missing = 0, stalledSince = now();
+      let position = deps.position ? deps.position() : null, positionAt = now(), lastPositionProgressAt = now();
+      if (deps.position && (!position || !Number.isFinite(position.x) || !Number.isFinite(position.y)))
+        return {...result, stopReason:'position_unavailable'};
+      let previousDistance = grounding.questHud(initial)?.meters ?? null;
+      let bestDistance=previousDistance;
+      result.progress={stageBefore:stage,stageAfter:stage,distanceBefore:previousDistance,distanceAfter:previousDistance};
+      try {
+        checkInput(); keyDown('VK_' + action.key); heldAt = now();
+        while (now() - heldAt < action.ms) {
+          await sleep(Math.min(200, action.ms - (now() - heldAt)));
+          checkInput();
+          const rows = read(), at = now(), instruction = grounding.questInstruction(rows);
+          const distance = grounding.questHud(rows)?.meters ?? null;
+          result.progress.stageAfter=instruction?.text??null;result.progress.distanceAfter=distance;
+          result.checks.push({at, distance});
+          result.stopReason = grounding.movementStop(rows);
+          if (!result.stopReason && deps.world && !deps.world()) result.stopReason = 'native_world_changed';
+          if (!result.stopReason && instruction && instruction.text !== stage) result.stopReason = 'stage_changed';
+          missing = instruction ? 0 : missing + 1;
+          if (!result.stopReason && missing >= 2) result.stopReason = 'stage_missing';
+          if (distance !== null && previousDistance !== null) {
+            if (distance <= 5) result.stopReason ||= 'near_distance';
+            if (distance > bestDistance + 2) result.stopReason ||= 'distance_increased';
+            if (distance < previousDistance) stalledSince = at;
+            else if (at - stalledSince > 1800) result.stopReason ||= 'distance_stalled';
+          }
+          if (distance !== null) {previousDistance = distance;bestDistance=bestDistance===null?distance:Math.min(bestDistance,distance);}
+          if (!result.stopReason && deps.position && at-positionAt >= 600) {
+            const next=deps.position();positionAt=now();
+            if (!next || !Number.isFinite(next.x) || !Number.isFinite(next.y)) result.stopReason='position_unavailable';
+            else if (Math.hypot(next.x-position.x,next.y-position.y)>30) result.stopReason='position_unstable';
+            else if (Math.hypot(next.x-position.x,next.y-position.y)>=1) {position=next;lastPositionProgressAt=now();}
+            else if (now()-lastPositionProgressAt>=1800) result.stopReason='position_stalled';
+          }
+          if (result.stopReason) break;
+        }
+        result.stopReason ||= 'duration_budget';
+      } finally {
+        keyUp('VK_' + action.key);
+        if (heldAt !== null) result.movementMsSent = now() - heldAt;
+      }
+      return result;
+    };
+  }
+  // Join both tasks before returning: cancellation cannot leave pathing behind.
+  async function monitorPath({run, cts, read, checkInput, sleep, now = Date.now, inspect}) {
+    let done = false, error = null, stopReason = null;
+    const samples = [];
+    const running = (async () => { try { await run(); } catch (e) { error = e; }
+      finally { done = true; } })();
+    try {
+      while (!done) {
+        await sleep(250);
+        if (done) break;
+        checkInput();
+        const rows = read();
+        const sample = inspect(rows); samples.push({at:now(), ...sample});
+        if (sample.stopReason) {stopReason = sample.stopReason; cts.cancel(); break;}
+      }
+    } finally { if (!done) cts.cancel(); await running; }
+    if (error) throw error;
+    return {stopReason, samples};
+  }
+  async function advanceDialogue({grounding,read,checkInput,keyDown,keyUp,sleep,now=Date.now}) {
+    const startedAt=now(),result={kind:'dialogue-advance',advances:0,stopReason:null,verified:false};
+    let previous=null,stale=0;
+    while(result.advances<20&&now()-startedAt<30000){
+      checkInput();const rows=read();
+      if(grounding.sceneCue(rows)!=='dialogue'){result.stopReason='scene_changed';break;}
+      const options=rows.filter(t=>t.box?.[0]>1080&&t.box[0]<1800&&t.box[1]>250&&t.box[1]<850&&t.box[2]>30&&/[\u4e00-\u9fff]/.test(t.text));
+      if(options.length){result.stopReason='options';break;}
+      const subtitle=rows.filter(t=>t.box?.[1]>=890&&t.box[1]<1015).map(t=>t.text).join('|');
+      stale=subtitle===previous?stale+1:0;previous=subtitle;
+      if(stale>=3){result.stopReason='subtitle_stalled';break;}
+      keyDown('VK_SPACE');try{await sleep(80);}finally{keyUp('VK_SPACE');}
+      result.advances++;await sleep(800);
+    }
+    result.stopReason||='budget';return result;
+  }
+  async function seek({navigate,checkInput,now=Date.now}) {
+    const result={kind:'quest-seek',movementMsSent:0,segments:[],stopReason:null,verified:false};
+    const startedAt=now(),directions=['W','S','A','D'];let index=0;
+    for(let n=0;n<8&&now()-startedAt<60000&&index<directions.length;n++){
+      checkInput();const step=await navigate({key:directions[index],ms:8000});
+      result.segments.push({key:directions[index],...step});result.movementMsSent+=step.movementMsSent||0;
+      if(!result.progress&&step.progress)result.progress={...step.progress};
+      else if(step.progress&&result.progress)Object.assign(result.progress,{distanceAfter:step.progress.distanceAfter,stageAfter:step.progress.stageAfter});
+      if(['distance_increased','distance_stalled','position_stalled'].includes(step.stopReason)){index++;continue;}
+      if(step.stopReason!=='duration_budget'){result.stopReason=step.stopReason;break;}
+      // A decreasing HUD permits another continuous run in this direction;
+      // never continue an unmeasurable search as if it were an approach.
+      if(!Number.isFinite(step.progress?.distanceAfter)){result.stopReason='hud_unavailable';break;}
+    }
+    result.stopReason||=index>=directions.length?'directions_exhausted':'duration_budget';return result;
+  }
+  return {create, monitorPath, advanceDialogue, seek};
+})();
+if (typeof module !== 'undefined' && module.exports) module.exports = StoryContinuousNavigation;
+
 // Source: story/macros/travel-quest.js
 // Shared native intent macro and pure evidence rules. Loading in Node sends no input.
 const StoryTravel = (() => {
@@ -485,7 +601,7 @@ const StoryTravel = (() => {
   const eligibility = (input, grounding) => grounding.travelEligibility(input);
   function targetForHeading(position, degrees, leg) {
     const x = Number(position?.x ?? position?.X), y = Number(position?.y ?? position?.Y);
-    if (![x, y, degrees, leg].every(Number.isFinite) || leg <= 0 || leg > 60)
+    if (![x, y, degrees, leg].every(Number.isFinite) || leg <= 0 || leg > 180)
       throw Error('Invalid travel coordinate, heading or bounded leg');
     const radians = degrees * Math.PI / 180;
     return { x: x - leg * Math.cos(radians), y: y - leg * Math.sin(radians) };
@@ -617,7 +733,7 @@ const StoryTravel = (() => {
       let diagnostics = null, minimap = null;
       const result = { kind: 'quest-travel', intent: 'travel_quest', seq, legs: [], bearings: [], movedLegs: 0,
         attemptedLegs: 0, stopReason: null, verified: false,
-        movementMsSent: null, movementTelemetryComplete: false, interactionChecks: 'between_legs',
+        movementMsSent: null, movementTelemetryComplete: false, interactionChecks: deps.monitorPath ? 'during_path_local_ocr' : 'between_legs',
         progress: { distanceBefore: null, distanceAfter: null, stageBefore: null, stageAfter: null } };
       try {
         if (!genshin || !pathingScript || typeof createCancellationTokenSource !== 'function') {
@@ -688,10 +804,10 @@ const StoryTravel = (() => {
           }
           const fresh = capture(), freshStop = currentStop(fresh, stage);
           if (freshStop) { result.stopReason = freshStop; break; }
-          const hud = readHud(fresh, grounding), length = Math.min(hud.meters, index === 0 ? 25 : 60);
+          const hud = readHud(fresh, grounding), length = Math.min(Math.max(1,hud.meters-5), index === 0 ? 25 : 180);
           const to = targetForHeading(from, theta, length);
           budgetCheck(); middleButtonClick(); camera.overhead = false; await sleep(200); budgetCheck();
-          const budgetMs = Math.min(30000, getDeadline() - now() - marginMs);
+          const budgetMs = Math.min(index === 0 ? 30000 : 60000, getDeadline() - now() - marginMs);
           if (budgetMs <= 0) { result.stopReason = 'deadline'; break; }
           const leg = { from, samples: [from1, from], to, theta, thetaUnit: 'degrees', bearingSource, length,
             cameraOrientation, minimapNorthUpAssumed: false,
@@ -699,7 +815,7 @@ const StoryTravel = (() => {
             returned: false, verified: false };
           result.legs.push(leg); result.attemptedLegs++;
           const cts = createCancellationTokenSource();
-          let running = null, timedOut = false;
+          let running = null, timedOut = false, monitoredStop = null;
           try {
             cts.cancelAfter(Math.floor(budgetMs));
             budgetCheck();
@@ -707,8 +823,23 @@ const StoryTravel = (() => {
               info: { name: 'AI-VTuber-travel', type: 'collect', bgi_version: '0.66.0', map_name: 'Teyvat' },
               positions: [{ id: 1, x: to.x, y: to.y, type: 'path', move_mode: 'walk', action: '' }]
             }), cts.token));
-            await running;
-            timedOut = cts.isCancellationRequested === true;
+            if (deps.monitorPath) {
+              let missing = 0, previousDistance = hud.meters;
+              const monitoring = await deps.monitorPath({run:()=>running, cts, read:capture, checkInput:budgetCheck, sleep, now,
+                inspect: rows => {
+                  const current = readHud(rows, grounding);
+                  let stopReason = currentStop(rows, stage);
+                  // One transient missing distance is tolerated while pathing keeps
+                  // its own fresh CV position; two consecutive misses stop it.
+                  missing = current ? 0 : missing + 1;
+                  if (stopReason === 'hud_unavailable' && missing < 2) stopReason = null;
+                  if (!stopReason && current && current.meters > previousDistance + 5) stopReason = 'distance_increased';
+                  if (current) previousDistance = current.meters;
+                  return {stopReason, distance:current?.meters ?? null};
+                }});
+              leg.localChecks = monitoring.samples; monitoredStop = monitoring.stopReason;
+            } else await running;
+            timedOut = cts.isCancellationRequested === true && !monitoredStop;
             leg.returned = true;
           } finally {
             // AutoPathingScript catches cancellation internally. Always cancel
@@ -733,7 +864,7 @@ const StoryTravel = (() => {
               if (leg.distanceDecrease > 0) result.movedLegs++;
             }
           }
-          const afterStop = currentStop(after, stage);
+          const afterStop = monitoredStop || currentStop(after, stage);
           if (afterStop) { result.stopReason = afterStop; break; }
           const decrease = hud.meters - afterHud.meters;
           if (decrease < 0) { result.stopReason = 'distance_increased'; break; }
@@ -790,7 +921,7 @@ else (async function(){
  const save=()=>file.writeTextSync('receipt.json',JSON.stringify(receipt));
  const normalize=s=>String(s||'').replace(/\s/g,'');
  let activeInput=null,observationDelayMs=400;
- const inputKinds=new Set(['key','click_text','choose_dialogue','follow_marker','reset_camera','advance_quest','travel_quest','turn','teleport','move','fight']);
+ const inputKinds=new Set(['key','click_text','choose_dialogue','follow_marker','reset_camera','advance_quest','travel_quest','turn','teleport','move','fight','leave_interaction','navigate','seek_quest']);
  function inputFailure(code,message){
   const error=Error(message);error.code=code;
   if(activeInput){activeInput.errorCode=code;activeInput.failedAt=Date.now();}
@@ -832,6 +963,11 @@ else (async function(){
   if(focused!==true||!activeInput.after)throw inputFailure(focused===null?'STORY_FOCUS_TIMEOUT':'STORY_FOCUS_FAILED','无法确认游戏前台焦点，未发送输入');
   save();
  }
+ const readFreshTexts=()=>{const frame=captureGameRegion();try{return readTexts(frame);}finally{frame.dispose();}};
+ const navigate=StoryContinuousNavigation.create({grounding:StoryGrounding,read:readFreshTexts,sleep,checkInput,keyDown:guardedKeyDown,keyUp:key=>keyUp(key),
+  position:()=>{checkInput();try{const p=genshin.getPositionFromMap('Teyvat',0);return p?{x:Number(p.x??p.X),y:Number(p.y??p.Y)}:null;}catch{return null;}},
+  world:()=>{checkInput();const f=captureGameRegion();try{if(typeof getOwnedSceneObservation==='undefined')return false;const v=JSON.parse(getOwnedSceneObservation(f));return v.ui==='Main'&&v.motion==='Normal';}finally{f.dispose();}}
+ });
  const travelQuest=StoryTravel.createTravelQuest({
   grounding:StoryGrounding,captureGameRegion,readTexts,sleep,now:()=>Date.now(),checkInput,
   keyDown:guardedKeyDown,keyUp:key=>keyUp(key),moveMouseBy:guardedMoveMouseBy,middleButtonClick:guardedMiddleButtonClick,
@@ -843,7 +979,8 @@ else (async function(){
   minimapRoi:StoryMinimapBearing.minimapRoi,
   minimapTemplateNames:StoryMinimapBearing.templateNames,
   projectMinimap:typeof getOwnedMinimapProjection==='undefined'?undefined:(frame,x,y)=>getOwnedMinimapProjection(frame.srcMat,x,y),
-  createCancellationTokenSource:()=>new CancellationTokenSource()
+  createCancellationTokenSource:()=>new CancellationTokenSource(),
+  monitorPath:StoryContinuousNavigation.monitorPath
  });
  async function followMarker(seq){
   const templates=[];
@@ -978,10 +1115,11 @@ else (async function(){
    await sleep(observationDelayMs);
    const position=await StoryPostActionPosition.sample({lastStep:receipt.steps.slice(-1)[0],genshin:typeof genshin==='undefined'?null:genshin,sleep,deadline:sessionDeadline});
    const captureStartedAt=Date.now();
-   const frame=captureGameRegion();let texts;
-   try{texts=readTexts(frame);file.writeImageSync('story-'+seq+'.png',frame.srcMat);}finally{frame.dispose();}
+   const frame=captureGameRegion();let texts,nativeVision=null;
+   try{texts=readTexts(frame);if(typeof getOwnedSceneObservation!=='undefined')nativeVision=JSON.parse(getOwnedSceneObservation(frame));file.writeImageSync('story-'+seq+'.png',frame.srcMat);}finally{frame.dispose();}
    const capturedAt=captureStartedAt,decisionDeadline=Math.min(capturedAt+120000,sessionDeadline);
-   const request={id:command.id,seq,capturedAt,deadlineAt:decisionDeadline,image:'story-'+seq+'.png',texts,position,lastStep:receipt.steps.slice(-1)[0]||null};
+   const capabilities={minimapProjection:typeof getOwnedMinimapProjection!=='undefined',continuousNavigation:true,nativeScene:typeof getOwnedSceneObservation!=='undefined'};
+   const request={id:command.id,seq,capturedAt,deadlineAt:decisionDeadline,image:'story-'+seq+'.png',texts,position,capabilities,nativeVision,lastStep:receipt.steps.slice(-1)[0]||null};
    file.writeTextSync('story-request.json',JSON.stringify(request));
    log.info('AI-VTuber剧情：等待模型决策，步骤 '+seq);
    let decision=null;const deadline=decisionDeadline;
@@ -1008,6 +1146,7 @@ else (async function(){
    if(action.kind==='key'){
     if(!['J','M','ESCAPE','F','V','SPACE'].includes(action.key))throw Error('不允许的剧情按键');
     if(action.key==='F')detail=await interact(action,priorSteps);
+    else if(action.key==='SPACE'&&StoryGrounding.sceneCue(readFreshTexts())==='dialogue')detail=JSON.stringify(await StoryContinuousNavigation.advanceDialogue({grounding:StoryGrounding,read:readFreshTexts,checkInput,keyDown:guardedKeyDown,keyUp:key=>keyUp(key),sleep}));
     else {const key=action.key==='ESCAPE'?'VK_ESCAPE':action.key==='SPACE'?'VK_SPACE':'VK_'+action.key;
     guardedKeyDown(key);try{await sleep(80);}finally{keyUp(key);}await sleep(700);}
    }else if(action.kind==='click_text'){
@@ -1044,13 +1183,25 @@ else (async function(){
      if(subtitle&&cue&&matches.length===1){checkInput();matches[0].click();detail='已复核对话布局及唯一回复选项并点击';await sleep(700);}
      else detail='对话布局或回复选项变化，本步未点击';
     }finally{cap.dispose();}
+   }else if(action.kind==='leave_interaction'){
+    const frame=captureGameRegion();let prompt;
+    try{prompt=StoryGrounding.interaction(readTexts(frame));}finally{frame.dispose();}
+    if(prompt.state!=='unique'||prompt.candidates[0].text!==action.text||!['W','A','S','D'].includes(action.key)||action.ms!==400)throw Error('离开交互前目标已变化，未移动');
+    guardedKeyDown('VK_'+action.key);try{await sleep(400);}finally{keyUp('VK_'+action.key);}
+    detail=JSON.stringify({kind:'leave_interaction',target:action.text,movementMsSent:400,verified:false});
    }else if(action.kind==='wait'){await sleep(2000);}
    else if(action.kind==='complete_quest'){detail=JSON.stringify({kind:'completion_acknowledgement',quest:action.quest,inputSent:false,source:'server_ocr_evidence',verified:false});}
    else if(action.kind==='list_waypoints'){detail='查询地图目录：'+action.area;}
    else if(action.kind==='travel_quest'){detail=JSON.stringify(await travelQuest(seq,{recentNativeSteps:priorSteps}));}
    else if(action.kind==='follow_marker'){detail=StoryGrounding.navigationFeedback(priorSteps).blocked?JSON.stringify({kind:'marker-follow',movedMs:0,stopReason:'retry_limit',verified:false}):await followMarker(seq);}
    else if(action.kind==='reset_camera'){guardedMiddleButtonClick();await sleep(600);detail='镜头复位输入已发送，等待下一帧核对';}
-   else if(action.kind==='advance_quest'){detail=await advanceQuest(action.key,seq);}
+   else if(action.kind==='advance_quest'){detail=JSON.stringify(await navigate({key:action.key,ms:8000}));}
+   else if(action.kind==='navigate'){detail=JSON.stringify(await navigate(action));}
+   else if(action.kind==='seek_quest'){
+    const hud=StoryGrounding.questHud(readFreshTexts());
+    if(!hud||hud.meters<=5||hud.meters>300)throw Error('本地距离反馈寻路需要当前5–300m任务HUD');
+    detail=JSON.stringify(await StoryContinuousNavigation.seek({navigate,checkInput}));
+   }
    else if(action.kind==='turn'){
     if(!Number.isInteger(action.dx)||!Number.isInteger(action.dy)||Math.abs(action.dx)>600||Math.abs(action.dy)>250)throw Error('无效的有界镜头转动');
     guardedMoveMouseBy(action.dx,action.dy);await sleep(400);

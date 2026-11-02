@@ -25,9 +25,11 @@ test('both workers disable thinking, enforce separate output caps and optionally
  assert.deepEqual(seen.map(b=>b.max_tokens),[128,384]);assert.deepEqual(seen.map(b=>b.model),['move-test','interact-test']);
  assert.ok(seen.every(b=>!b.messages[0].content.includes('commentary')));
 });
-test('movement uses short steps and gives an executable shorter alternative instead of long blind motion',()=>{
- assert.throws(()=>workers.validateRole({action:{kind:'move',key:'W',ms:600}},'movement'),/ms:400/);
- for(const ms of [80,200,400])assert.doesNotThrow(()=>workers.validateRole({action:{kind:'move',key:'W',ms}},'movement'));
+test('movement delegates continuous navigation and keeps fine adjustment bounded',()=>{
+ assert.throws(()=>workers.validateRole({action:{kind:'move',key:'W',ms:8000}},'movement'),/navigate/);
+ for(const ms of [80,200,400,600])assert.doesNotThrow(()=>workers.validateRole({action:{kind:'move',key:'W',ms}},'movement'));
+ assert.doesNotThrow(()=>workers.validateRole({action:{kind:'navigate',key:'W',ms:8000}},'movement'));
+ assert.ok(workers.prompt(context).instructions.includes('连续走最多180m'));
  assert.doesNotThrow(()=>workers.validateRole({action:{kind:'advance_quest',key:'W'}},'movement'));
 });
 test('worker requests omit narration, keep user goal, and use short structured cross-worker messages',()=>{

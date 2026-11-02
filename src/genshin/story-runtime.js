@@ -1,6 +1,6 @@
 'use strict';
 const fs=require('node:fs'),path=require('node:path'),{createHash,randomUUID}=require('node:crypto');
-const bridge=require('./bridge'),{respond}=require('./model-provider'),{validateObservation}=require('./observe');
+const bridge=require('./bridge'),{respond}=require('./model-provider');
 const waypointCatalog=require('./story-waypoints'),{installation}=require('./installation');
 const {corroborateDistances,trackingEvidence}=require('./story-observation');
 const StoryTravel=require('../../scripts/genshin/story/macros/travel-quest');
@@ -26,7 +26,7 @@ function commentaryReceipt(id,phase,audioEnabled,consumer='legacy'){
 }
 function validateDecision(value,request,observation){
  const a=value?.action;
- if(!a||!['key','click_text','choose_dialogue','wait','stop','move','fight','list_waypoints','teleport','follow_marker','turn','reset_camera','advance_quest','travel_quest','complete_quest'].includes(a.kind))throw Error('剧情动作格式无效');
+ if(!a||!['key','click_text','choose_dialogue','wait','stop','move','fight','list_waypoints','teleport','follow_marker','turn','reset_camera','advance_quest','travel_quest','complete_quest','leave_interaction','navigate','seek_quest'].includes(a.kind))throw Error('剧情动作格式无效');
  const action={kind:a.kind};
  if(observation.uncertain&&!['wait','stop'].includes(a.kind))throw Error('场景不确定，只能重新观察');
  const startup=grounding.loginPrompt(request.texts);
@@ -35,6 +35,7 @@ function validateDecision(value,request,observation){
  if(grounding.recoveryPrompt(request.texts)&&!['click_text','wait','stop'].includes(a.kind))throw Error('当前是复苏提示界面；依据当前OCR按钮决策，不能发送大世界按键或导航动作');
  if(request.focusQuest&&value.quest&&value.quest!==request.focusQuest)throw Error('当前任务固定为'+request.focusQuest+'；查看另一项详情不代表任务完成或允许换任务');
  if(a.kind==='travel_quest'){
+  if(request.capabilities?.minimapProjection===false)throw Error('原生方位API未部署，改用当前可用的navigate/advance_quest或核对任务');
   if(Object.keys(a).some(k=>k!=='kind'))throw Error('travel_quest只接收意图，方向与坐标必须由原生本地视觉计算');
   const gate=StoryTravel.eligibility({texts:request.texts,scene:observation.scene,uncertain:observation.uncertain,recentNativeSteps:request.recentNativeSteps},grounding);
   if(!gate.ok)throw Error('当前不能原生前往任务点：'+gate.reason+'；请依据当前界面选择交互、对话、返回世界或重新观察');
@@ -89,14 +90,34 @@ function validateDecision(value,request,observation){
   action.key=a.key;action.ms=a.ms;
   if(a.ms>600)action.areaSearch=true;
  }
+ if(a.kind==='navigate'){
+  const route=StoryTravel.eligibility({texts:request.texts,scene:observation.scene,uncertain:observation.uncertain,recentNativeSteps:request.recentNativeSteps},grounding);
+  if(route.ok&&route.feedback.failedTravels===0&&request.capabilities?.minimapProjection!==false)throw Error('当前已有任务距离且原生CV寻路可用，请选择{kind:"travel_quest"}让BGI定位并修正方向；不能反复按同一方向盲走');
+  const previous=request.lastStep;let previousDetail;try{previousDetail=JSON.parse(previous?.detail);}catch{}
+  if(previous?.action?.kind==='navigate'&&previous.action.key===a.key&&/distance_increased|distance_stalled|position_stalled/.test(previousDetail?.stopReason||''))throw Error('上一相同方向已反增距离或卡住；改用travel_quest，或选择其他方向/有据转向，不能重复原方向');
+  const nativeWorld=observation.nativeVision?.source==='bettergi_native_cv'&&observation.nativeVision.ui==='Main'&&observation.nativeVision.motion==='Normal';
+  if(observation.scene!=='world'||!(observation.navigation?.terrain==='open'||nativeWorld)||!grounding.questInstruction(request.texts)
+    ||!['W','A','S','D'].includes(a.key)||!Number.isInteger(a.ms)||a.ms<400||a.ms>8000)throw Error('连续导航需要当前开阔世界、任务阶段及400–8000ms预算；未知地形使用短移或重新观察');
+  Object.assign(action,{key:a.key,ms:a.ms});
+ }
+ if(a.kind==='seek_quest'){
+  const hud=grounding.questHud(request.texts),cv=observation.nativeVision;
+  if(observation.scene!=='world'||cv?.source!=='bettergi_native_cv'||cv.ui!=='Main'||cv.motion!=='Normal'||!hud||hud.meters<=5||hud.meters>300||grounding.movementStop(request.texts))throw Error('seek_quest需要BGI原生大世界、普通运动状态及5–300m当前任务HUD；菜单先返回世界，未知场景重新观察');
+ }
+ if(a.kind==='leave_interaction'){
+  const p=grounding.interaction(request.texts);
+  if(observation.scene!=='world'||p.state!=='unique'||p.candidates[0].text!==a.text||!['W','A','S','D'].includes(a.key))throw Error('离开交互需要当前唯一目标及明确方向');
+  Object.assign(action,{text:a.text,key:a.key,ms:400});
+ }
  if(a.kind==='advance_quest'){
-  if(observation.scene!=='world'||observation.navigation?.terrain!=='open'||!['W','A','S','D'].includes(a.key)||request.distanceEvidence?.meters?.length!==1||request.distanceEvidence.meters[0]>150)throw Error('距离反馈行走需要当前大世界开阔地形和唯一的近距离任务OCR；否则使用短移重新观察');
+  const nativeWorld=observation.nativeVision?.source==='bettergi_native_cv'&&observation.nativeVision.ui==='Main'&&observation.nativeVision.motion==='Normal';
+  if(observation.scene!=='world'||!(observation.navigation?.terrain==='open'||nativeWorld)||!['W','A','S','D'].includes(a.key)||request.distanceEvidence?.meters?.length!==1||request.distanceEvidence.meters[0]>150)throw Error('距离反馈行走需要当前大世界原生CV确认及唯一的近距离任务OCR；否则使用短移重新观察');
   action.key=a.key;
  }
  if(a.kind==='fight'&&observation.scene!=='combat')throw Error('没有当前战斗观察，不启动战斗');
  if(a.kind==='follow_marker'&&observation.scene!=='world')throw Error('任务标记跟随只能在大世界执行');
  if(a.kind==='follow_marker'&&grounding.navigationFeedback(request.recentNativeSteps).blocked)throw Error('原生追踪连续两轮没有有效进展；请依据新观察短移恢复或重新核对任务，不能重复失败模板');
- if(['follow_marker','advance_quest','move'].includes(a.kind)&&grounding.movementStop(request.texts))throw Error('当前OCR出现交互、菜单或对话，先处理当前界面再移动');
+ if(['follow_marker','advance_quest','move','navigate'].includes(a.kind)&&grounding.movementStop(request.texts))throw Error('当前OCR出现交互、菜单或对话，先处理当前界面再移动');
  if(a.kind==='follow_marker'&&observation.questArea?.state==='search_area'&&observation.navigation?.marker==='not_visible')throw Error('当前已经到搜索区域，无精确标记时不能重复赶路模板；按当前地形探索移动或转镜寻找NPC/交互提示，区域搜索不要求数字距离');
  if(a.kind==='reset_camera'&&observation.scene!=='world')throw Error('镜头复位只能在大世界执行');
  if(a.kind==='turn'){
@@ -154,7 +175,7 @@ async function runStory(goal,{root,env,signal,reportProgress=()=>{},runId,direct
   const execution=await bridge.execute({operation:'story',timeoutMs:600000},{signal,reportProgress,
    onStoryFrame:async(request,source)=>{
     const budget=frameBudget(request,signal);
-    latest={...latest,state:'observing',nativeId:request.id,lastFrameAt:request.capturedAt,lastNativeStep:request.lastStep,steps:request.seq};
+    latest={...latest,state:'observing',nativeId:request.id,lastFrameAt:request.capturedAt,lastNativeStep:request.lastStep,steps:request.seq,capabilities:request.capabilities};
     try{
     budget.check();
     if(!Array.isArray(request.texts)||request.texts.length>100||Date.now()-request.capturedAt>15000)throw Error('剧情观察已过期或格式无效');
@@ -171,23 +192,14 @@ async function runStory(goal,{root,env,signal,reportProgress=()=>{},runId,direct
     feedback.setContext({quest:questMemory?.quest||goal,stage:navigationStage,confirmedStageChange:stageState.changed});
     request.recentNativeSteps=feedback.snapshot().recentNativeSteps;
     request.teleportAttempts=[...teleportAttempts];
-    reportProgress('story-observing',`剧情步骤${request.seq}：BetterGI OCR已返回，本地视觉核对场景`);
+    reportProgress('story-observing',`剧情步骤${request.seq}：BetterGI 原生 CV/OCR 观察`);
     const frameDir=path.join(root,'runtime/genshin/observations',randomUUID());fs.mkdirSync(frameDir,{recursive:true});
     const image=path.join(frameDir,'frame.png');fs.copyFileSync(source,image);
     const hash=createHash('sha256').update(fs.readFileSync(image)).digest('hex');
-    const response=await fetch('http://127.0.0.1:17646/read',{method:'POST',headers:{'content-type':'application/json'},
-     body:JSON.stringify({mode:'genshin-story',image}),signal:budget.signal(90000)});
-    if(!response.ok)throw Object.assign(Error('剧情本地视觉读取失败'),{code:'VISION_READ_FAILED'});
-    const vision=await response.json();let rawObservation,observationError=null;
-    try{rawObservation=validateObservation(vision,image);}
-    catch(error){
-     // A malformed read is not evidence for gameplay, but need not terminate
-     // the persistent BGI session. The model may only wait/stop, then recapture.
-     observationError=error.message;
-     rawObservation={scene:'unknown',summary:'本轮视觉格式无效，需重新观察',visible_text:[],uncertain:true,navigation:{marker:'not_visible',terrain:'unknown',movement:'unknown',evidence:'无有效导航观察'}};
-    }
+    const rawObservation=require('./bgi-observation').observe(request),observationError=null;
+    const vision={record:null,provider:'bettergi',source:'native_cv_ocr'};
     const {observation,distanceEvidence,sceneEvidence}=corroborateDistances(rawObservation,request.texts,history.at(-1));
-    observation.sceneEvidence=sceneEvidence;
+    observation.sceneEvidence=sceneEvidence==='local_model'?'bettergi_native_cv_ocr':sceneEvidence;
     distanceEvidence.rule='只有meters中的值可作为本轮距离读数；rawMeters及texts内的距离可能漏字。右上角网络延迟（例如24ms误读24m）不是任务距离，已排除。conflicting_ocr或unconfirmed_distance_jump时不得宣称距离、接近或到达，需重新观察。';
     request.distanceEvidence=distanceEvidence;
     observation.interaction=grounding.interaction(request.texts);
@@ -199,12 +211,13 @@ async function runStory(goal,{root,env,signal,reportProgress=()=>{},runId,direct
     observation.taskFocus={quest:request.focusQuest,completionEvidence:request.focusQuest?completionEvidence(request.texts,request.focusQuest):null,rule:'当前任务在本训练会话内保持。不能为刷新列表、绕过文字重复或跟标失败切换其他任务。如当前详情误停另一项，核对当前菜单中原任务条目，允许scope:quest_list定位同名列表；不要追踪另一项。只有这里completionEvidence非空时才可由模型选择{kind:"complete_quest",quest:当前任务名}记录当前OCR完成证据，这一步不发送输入；之后才能自主选择下一项已接取任务。没有完成证据就保持当前任务或stop说明问题。'};
     observation.trackingEvidence=trackingEvidence(observation,request.texts,questMemory?.quest);
     observation.travelQuest=StoryTravel.eligibility({texts:request.texts,scene:observation.scene,uncertain:observation.uncertain,recentNativeSteps:request.recentNativeSteps},grounding);
+    if(request.capabilities?.minimapProjection===false)observation.travelQuest={...observation.travelQuest,ok:false,reason:'projection_api_unavailable'};
     observation.navigationFeedback.rule='blocked=true时不能继续follow_marker；必须依据当前地形选择有界恢复或停止。转向不变、距离不降均会提前返回，不把动作次数当作进展。';
     observation.frameEvidence={seq:request.seq,capturedAt:request.capturedAt,ageMs:Date.now()-request.capturedAt,previousActionFinishedAt:request.lastStep?.finishedAt||null,rule:'这是上一动作完成后新采集的画面，已完成本地识别；不是等待中的观察。不要仅为等待新画面反复wait。'};
-    if(observation.questArea)observation.questArea.availableAction='在world/open的搜索区，move允许80到1600ms，每400ms释放并重新检查OCR；用于没有精确标记时探索当前可走区域。出现F交互提示、菜单、对话或任务文字变化则停止并重新观察。';
+    if(observation.questArea)observation.questArea.availableAction='world/open且当前任务阶段明确时，navigate连续持键400–8000ms，本地反复OCR检查F、菜单、阶段和距离，出现变化即释放返回。只有近目标微调使用move。';
     if(observation.dialogue)observation.dialogue.availableAction='这是当前帧OCR确认的对话。options不为空时选择{kind:"choose_dialogue",text:options中逐字一致的文字}；执行器只在回复选项区域复核并点击，因此可区分同名说话人与回复。不要重复按SPACE；没有选项时才用SPACE推进台词。';
     observation.walkthroughReference=questGuide(questMemory?.quest);
-    observation.availableNavigationAction='若当前任务方向已有依据、terrain=open且distanceEvidence.meters有唯一小于150m的读数，可选择{kind:"advance_quest",key:"W"或"A"或"S"或"D"}。BetterGI每移动400ms便用本地OCR复读距离，最多8段；距离增大、两段不变、任务变化或读数消失立即返回。连续短移方向已正确时优先此动作，避免每走400ms等待整轮模型。不能用它证明到达，也不能避障。';
+    observation.availableNavigationAction='优先travel_quest的原生CV坐标寻路。无精确坐标但terrain=open且方向有依据时选择navigate(key:W/A/S/D,ms:400–8000)，持续持键、本地OCR反馈，不逐小步调用模型；有唯一≤150m任务距离也可advance_quest。阶段、F提示、菜单、距离反增或停滞即停。navigate没有全局避障能力；未知地形仅move微调。';
     request.navigationMemory={...navigationMemory,stage:navigationStage,teleportAttempts:request.teleportAttempts,rule:'同阶段已尝试过的锚点不得因服务重启而重复传送。历史结果不证明当前场景，仍须读取新帧。'};
     if(observation.questDistanceLabel)observation.questDistanceLabel.rule='当前帧本地OCR定位的场景距离标签与左上任务读数一致，可用于有界转向；目标居中且前方可走可move，无需再用失效的图标模板。box不是鼠标点击目标，不能证明沿途无障碍。';
     if(createHash('sha256').update(fs.readFileSync(image)).digest('hex')!==hash)throw Error('剧情截图发生变化');
