@@ -46,7 +46,7 @@ function prompt(context,{role=workerFor(context.observation),rejected=[],handoff
  base.texts=base.texts.map(t=>({text:t.text,box:t.box,...(t.source?{source:t.source}:{})}));
  if(role==='movement')base.texts=base.texts.filter(t=>t.box?.[0]<650||/\bF\b/.test(t.text)).slice(0,24);
  base.worker=role;base.handoff=handoff;base.forecast=forecast;
- const routePriority=role==='movement'&&base.observation.commissionRoutes?.find(r=>!r.completed);
+ const routePriority=role==='movement'&&base.observation.commissionRoutes?.find(r=>!r.completed&&!r.blocked);
  if(routePriority)base.availableIntents=base.availableIntents.filter(k=>!['search_area','seek_quest','navigate','move','travel_quest','advance_quest','follow_marker'].includes(k));
  else base.availableIntents=base.availableIntents.filter(k=>k!=='quest_route');
  const priority=base.observation.nativeVision?.motion==='Climb'?'\nBGI原生CV确认当前正在攀爬。持续wait不会松开墙壁，可选择{action:{kind:"key",key:"X"}}脱离攀爬；原生会再次确认Climb再按X。随后根据新画面改方向，不重复向墙直走。':base.navigationPriority?'\n本帧已校验：travel_quest可用、failedTravels=0。navigate/按W的失败只证明该固定方向不对，不是CV寻路失败；历史stop也不是当前阻塞。先让BGI通过travel_quest识别任务方位、闭环行走，不要因为旧的直走失败而停止。':

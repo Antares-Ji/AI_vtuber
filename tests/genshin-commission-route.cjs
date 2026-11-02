@@ -24,13 +24,20 @@ test('wrong stage, far variant, or F blocks all native paths',async()=>{
 });
 test('route completion requires independently sampled arrival at every point; resumed state is source-bound',async()=>{
  const h=fixture(),r=await h.run('urgent-wood-1');assert.equal(r.stopReason,'route_complete');assert.equal(r.cursorAfter,4);assert.equal(r.verified,false);
- assert.equal(h.paths.length,4);assert.equal(h.events.at(-1),'dispose');
+ assert.equal(h.paths.length,3,'nearby transit point can be passed within its path tolerance');assert.equal(h.events.at(-1),'dispose');
  const same=fixture();assert.equal((await same.run('urgent-wood-1',r.state)).cursorBefore,4);assert.equal(same.paths.length,0);
  const changed=fixture();assert.equal((await changed.run('urgent-wood-1',{...r.state,sha256:'wrong'})).cursorBefore,0);
 });
 test('silent path failure never advances cursor and interruption joins/disposes before returning',async()=>{
  const h=fixture({arrives:false}),r=await h.run('urgent-wood-1');assert.equal(r.stopReason,'arrival_unverified');assert.equal(r.cursorAfter,0);assert.equal(h.paths.length,1);
  const interrupted=fixture({arrives:false,stop:'interaction_prompt'}),i=await interrupted.run('urgent-wood-1');assert.equal(i.cursorAfter,0);assert.deepEqual(interrupted.events,['finished','cancel','dispose']);
+});
+test('two failures at the same cursor disable that route while other collection candidates remain available',async()=>{
+ const h=fixture({arrives:false}),first=await h.run('urgent-wood-1'),second=await h.run('urgent-wood-1',first.state);
+ assert.equal(second.state.failures,2);
+ const routes=macro.available(catalog,'紧急修理','收集木材',{'urgent-wood-1':second.state});
+ assert.equal(routes[0].blocked,true);assert.equal(routes[1].blocked,false);
+ const n=h.paths.length;assert.equal((await h.run('urgent-wood-1',second.state)).stopReason,'route_retry_limit');assert.equal(h.paths.length,n);
 });
 test('node validator only accepts a matching route ID from the current BGI world',()=>{
  const {validateDecision}=require('../src/genshin/story-runtime');const request={texts:rows,focusQuest:'紧急修理'};

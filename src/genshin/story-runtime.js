@@ -32,7 +32,7 @@ function validateDecision(value,request,observation){
  const action={kind:a.kind};
  if(a.kind==='quest_route'){
   const routes=commissionRoutes.available(commissionCatalog,request.focusQuest,grounding.questInstruction(request.texts)?.text,request.commissionRouteStates);
-  if(observation.scene!=='world'||observation.nativeVision?.source!=='bettergi_native_cv'||observation.nativeVision.ui!=='Main'||!routes.some(r=>r.id===a.id&&!r.completed)||Object.keys(a).some(k=>!['kind','id'].includes(k)))throw Error('任务目录路线需要当前BGI世界、同任务阶段及未完成目录id；不能输出自定坐标');
+  if(observation.scene!=='world'||observation.nativeVision?.source!=='bettergi_native_cv'||observation.nativeVision.ui!=='Main'||!routes.some(r=>r.id===a.id&&!r.completed&&!r.blocked)||Object.keys(a).some(k=>!['kind','id'].includes(k)))throw Error('任务目录路线需要当前BGI世界、同任务阶段及未完成且未连续失败的目录id；不能输出自定坐标');
   if(grounding.movementStop(request.texts))throw Error('先处理当前F交互或界面，再运行任务目录路线');
   action.id=a.id;
  }

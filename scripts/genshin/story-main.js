@@ -670,6 +670,7 @@ const StoryCommissionRoute=(()=>{
   return catalog.routes.filter(r=>r.quest===quest&&new RegExp(r.stagePattern).test(stage||''))
    .map(r=>({id:r.id,title:r.title,source:'bettergi_script_catalog',referenceOnly:true,
     completed:states[r.id]?.stage===stage&&states[r.id]?.cursor>=r.positions.length,
+    blocked:states[r.id]?.stage===stage&&states[r.id]?.failures>=2,
     cursor:states[r.id]?.stage===stage?states[r.id].cursor:0}));
  }
  function create({catalog,grounding,read,position,pathingScript,createCancellationTokenSource,monitorPath,sleep,checkInput,getDeadline,movementStop,now=Date.now}){
@@ -682,30 +683,34 @@ const StoryCommissionRoute=(()=>{
    if(!p||!p2||![p.x,p.y,p2.x,p2.y].every(Number.isFinite)||Math.hypot(p.x-p2.x,p.y-p2.y)>5)return {...result,stopReason:'position_unstable'};
    if(Math.hypot(p2.x-route.anchor.x,p2.y-route.anchor.y)>route.maxAnchorDistance)return {...result,stopReason:'wrong_variant_region'};
    let cursor=saved?.id===id&&saved.stage===stage&&saved.sha256===route.sha256&&Number.isInteger(saved.cursor)&&saved.cursor>=0&&saved.cursor<=route.positions.length?saved.cursor:0;
+   let failures=saved?.id===id&&saved.stage===stage&&saved.sha256===route.sha256?saved.failures||0:0;
+   if(failures>=2)return {...result,stopReason:'route_retry_limit'};
    result.sourceFile=route.sourceFile;result.sourceCommit=catalog.source.commit;result.cursorBefore=cursor;
    const started=now();
    for(let n=0;n<10&&cursor<route.positions.length&&now()-started<75000;n++){
     checkInput();const target=route.positions[cursor],at=position();
-    if(at&&Math.hypot(at.x-target.x,at.y-target.y)<=2){cursor++;continue;}
+    const tolerance=target.type==='path'?5:2;
+    if(at&&Math.hypot(at.x-target.x,at.y-target.y)<=tolerance){cursor++;failures=0;continue;}
     const budget=Math.min(25000,getDeadline()-now()-2500);if(budget<=0){result.stopReason='deadline';break;}
     const cts=createCancellationTokenSource();let promise=null;
-    const entry={index:cursor,to:{x:target.x,y:target.y},startedAt:now()};result.points.push(entry);
+    const entry={index:cursor,from:at,to:{x:target.x,y:target.y},startedAt:now()};result.points.push(entry);
     try{
      cts.cancelAfter(budget);checkInput();
      // Each point is checked independently because upstream PathExecutor can return after an exception.
-     promise=Promise.resolve(pathingScript.run(JSON.stringify({info:{name:'AI-VTuber-'+id,type:'collect',map_name:'Teyvat',bgi_version:'0.66.0'},positions:[{...target,id:1,type:'target',action:''}]}),cts.token));
+     promise=Promise.resolve(pathingScript.run(JSON.stringify({info:{name:'AI-VTuber-'+id,type:'collect',map_name:'Teyvat',bgi_version:'0.66.0'},positions:[{...target,id:1,action:''}]}),cts.token));
      const watched=await monitorPath({run:()=>promise,cts,read,checkInput,sleep,now,inspect:fresh=>{
       const next=grounding.questInstruction(fresh)?.text;
       return {stopReason:movementStop(fresh)||(!next||next!==stage?'stage_changed_or_missing':null)};
      }});
      entry.stopReason=watched.stopReason||(cts.isCancellationRequested?'path_timeout':null);
     }finally{try{cts.cancel();if(promise)await promise;}finally{cts.dispose();entry.durationMs=now()-entry.startedAt;}}
-    const end=position();entry.arrived=Boolean(end&&Math.hypot(end.x-target.x,end.y-target.y)<=3);
-    if(entry.arrived)cursor++;
+    const end=position();entry.after=end;entry.arrived=Boolean(end&&Math.hypot(end.x-target.x,end.y-target.y)<=Math.max(3,tolerance));
+    if(entry.arrived){cursor++;failures=0;}
+    else if(!entry.stopReason||entry.stopReason==='path_timeout')failures++;
     if(entry.stopReason){result.stopReason=entry.stopReason;break;}
     if(!entry.arrived){result.stopReason='arrival_unverified';break;}
    }
-   result.cursorAfter=cursor;result.state={id,stage,cursor,sha256:route.sha256};
+   result.cursorAfter=cursor;result.state={id,stage,cursor,failures,sha256:route.sha256};
    result.stopReason||=cursor>=route.positions.length?'route_complete':'segment_budget';
    return result;
   };
