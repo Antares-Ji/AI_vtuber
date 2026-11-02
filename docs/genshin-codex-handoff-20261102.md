@@ -145,3 +145,12 @@ PathExecutor 没有可传入的期限，需用剩余时间限制段数；超时�
 - 实现边界：F/菜单在段间复核，未宣称 PathExecutor 内部 10Hz 交互中断；首版未开启可选的远点估算传送。PathExecutor 未提供实际按键时长，`movementMsSent:null`、`movementTelemetryComplete:false`，路径运行时长独立记录，不冒充移动输入时长。
 - 评估器按 nativeId/seq 去重，合并末步回执；新帧携带 trainingSessionId。连续三次 travel 调用必须有两次匹配同任务/阶段的独立后帧证明距离下降至少 30m，宏自身的 after 数字不单独算通过。
 - 上线前对照：旧会话 57 帧 / 849941 token / 每帧中位数 14870 / 已报告移动输入 400ms / HUD 186→184m；没有 travel 调用。新的实机 run id 和结果待部署后补充。
+
+### P0 首次实机反馈与修复
+
+- 实现提交 `5459314`；运行 `a885a9ec-c8ad-4b9c-b569-047f9cd2d286`，训练会话 `7317260d-0dc5-4925-99f3-dfb8fa46f581`，原生 `b22dcd23-95ac-49a2-8a6b-c48ffc4e86f7`。
+- 新帧确认“紧急修理 / 前去查看详情”，HUD 为 283m。DeepSeek 在第 2 步自主选择 travel_quest，两个定位采样均无模板、无独立世界距离标签，未调用 PathExecutor。独立后帧仍为 283m，P0 **未通过**。
+- 维护暂停前 5 个决策帧 / 60800 token / 中位数 12150，已报告行走输入 0ms、F 0、任务阶段未变。回执为定位失败，不能把转镜或原生返回算作任务推进。
+- 已保存证据到 `runtime/genshin/repair-evidence/p0-bearing-1793618500`；pause-for-repair 后核对上述 nativeId 的 inputReleased/processStopped=true，输入和视觉空闲，checkpoint revoked=false/reason=repair。
+- 根因：缺标仅同视角复读两次，没有实际水平搜索。修复将保持最多 8 次转向，每次复读菜单/F/HUD/期限；仅在唯一方位对准后允许定位和路径。同时补模板加载与后备拒绝诊断。
+- 穿插 P3：两份完整历史及重复规则为主要提示体积来源；只压缩模型输入，完整原始请求仍用于校验及归档。统一 travel_quest 优先级，保留失败后的有界恢复路径。

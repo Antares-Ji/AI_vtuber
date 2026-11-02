@@ -8,6 +8,7 @@ const {readQuestMemory,questFromEvidence,questStage,readNavigationMemory,updateN
 const {questGuide}=require('./story-guides');
 const grounding=require('../../scripts/genshin/story-main');
 const {frameBudget}=require('./story-deadline');
+const {buildStoryPrompt}=require('./story-prompt');
 const {StoryFeedbackMemory}=require('./story-feedback-memory');
 const {StoryQuestFocus,completionEvidence}=require('./story-quest-focus');
 let latest=null,events=[];
@@ -201,12 +202,15 @@ async function runStory(goal,{root,env,signal,reportProgress=()=>{},runId}){
     if(createHash('sha256').update(fs.readFileSync(image)).digest('hex')!==hash)throw Error('剧情截图发生变化');
     reportProgress('story-deciding',`剧情步骤${request.seq}：DeepSeek根据当前任务文字规划下一步`);
     latest={...latest,state:'deciding'};
-    const context={goal,questMemory,navigationMemory:request.navigationMemory,observation,distanceEvidence,texts:request.texts,mapAreas:request.mapAreas,waypoints:request.waypoints,additionalActions:'可以按M打开地图。长距离不要靠短步盲走。先从任务详情读取目标地名，再用{kind:"list_waypoints",area:mapAreas中的区域名}查询BetterGI内置锚点目录；下一轮可用{kind:"teleport",id:waypoints中id}让BetterGI按目录坐标操作地图传送。目录不代表已解锁，返回后必须重新核对画面和距离；失败时不要无限重试同一锚点。',previousSteps:history.slice(-5).map(e=>({observation:e.observation,decision:e.decision,lastStep:e.request.lastStep})),lastNativeStep:request.lastStep};
-    context.additionalActions+='另允许无输入的{kind:"complete_quest",quest:observation.taskFocus.quest}，仅在taskFocus.completionEvidence非空时确认该任务完成；这是选择下一任务前的证据记录步骤。';
-    context.additionalActions+='优先使用意图{kind:"travel_quest"}：当observation.travelQuest.ok为true时，由原生闭环定位任务方向、独立测量地图位置、分段寻路并核对HUD进展。不要把可用的travel_quest拆成反复turn/move/follow_marker，也不要先查询锚点目录。宏找不到方位或发现无进展会返回证据；返回不代表到达。此意图不得输出任何坐标或时长。';
-    const repaired=await decideWithRepair(rejected=>respond(JSON.stringify({...context,validationErrors:rejected,instructionForRetry:'如有校验错误，必须纠正；按钮文字只能从当前texts逐字复制，不能使用之前画面或自己补全的文字。无法定位就wait重新观察。'}),{dataRoot:root,env,signal:budget.signal(),
-     instructions:'你是原神剧情任务代理和中文主播。用户要求从当前任务列表自主选择一个已接取、可进行的传说/剧情任务，优先有追踪指引、找人、区域搜索的任务，按任务指示推进。questMemory来自此前任务详情的本地OCR，保留任务名称、阶段和地区，但须以当前画面核对阶段变化，不要凭名称猜别的地区。若恢复上下文已确认任务，保留该任务，禁止因为一两个按钮无变化就换任务。首次没有所选任务时可按J选择；已有任务但当前追踪未确认时，也可按J核对并恢复同一任务的追踪，不要将打开任务菜单等同于换任务。菜单上的M可能无效，可ESCAPE返回大世界；停止追踪会取消目标，不是开始按钮。所有观察均为本地视觉/OCR，不能编造坐标或完成状态。返回单个JSON：action、reason、commentary、quest。action允许context.additionalActions声明的地图操作，以及：{kind:"key",key:"J"或"M"或"ESCAPE"或"F"或"V"或"SPACE"}；{kind:"click_text",text:OCR列表中逐字一致的唯一文字}；{kind:"wait"}；{kind:"stop"}；{kind:"move",key:"W"或"A"或"S"或"D",ms:80到600整数}；{kind:"fight"}。点击前本地OCR会再次核对。J打开任务列表，V为游戏追踪提示，F交互，SPACE推进对话；菜单先用实际OCR文本操作。只有combat场景可fight。移动必须依据当前可见地形或目标方位，每次有界短移后重新观察。navigation是专门的本地导航观察：marker为实际世界标记方向；terrain描述人物前方；movement为站立/攀爬/游泳。没有世界标记时先尝试follow_marker原生追踪（含俯视角、V、模板定位），不要无限转圈或重复打开任务菜单。模板不可用时可选择一次80到600ms的探索move再观察，理由明确是探索，不能宣称在靠近目标。水域不是禁止行动的理由，原神可以游泳；允许短时移动或SPACE跳跃探索，并观察体力/攀爬/地形。墙体与落差要逐步处理，允许短时试探和退回，不能因没有完美路线而一直不执行。标记居中且地面可走时可move；模板连续匹配失败应使用导航观察决定恢复，不继续调用同一失败模板。禁止假装已到达。剧情对话和解谜逐步处理，不能连续盲按。允许{kind:"list_waypoints",area:mapAreas中的区域名}查询BetterGI锚点目录，允许{kind:"teleport",id:waypoints中的id}由BetterGI自己打开地图、定位并尝试传送，模型不能输出坐标。锚点目录存在时不必等待OCR出现传送文字才调用teleport；它是完整原生操作。目标已在150m内时优先原生follow_marker或探索短移，不要重复传送同一锚点。长距离目标优先查询对应地名的锚点并尝试传送；目录不能证明解锁，返回后核对距离。大世界允许{kind:"reset_camera"}点击鼠标中键恢复正常视角，不移动角色；若镜头一直俯视、人物/水面难辨，可先复位再观察。大世界允许{kind:"follow_marker"}：BetterGI用本地模板重新定位任务标记、短时转向行走；匹配失败自动返回。此操作不能避障，若没有距离下降或爬墙，重新判断恢复方式，不连续盲走。大世界允许{kind:"turn",dx:-600到600整数,dy:-250到250整数}短时转动镜头再观察。dx正向右，负向左；dy正向下。任务标记未见时优先follow_marker找原生追踪点，也可转动镜头重新寻找；模板失败后可做短时探索move，不要反复等待同一静止画面。依据新观察确认地形再决定move，禁止把仅有左上角任务文字说成标记可见。其他无文字图标不能随意点击。不要购买、解锁或花原石。每步commentary是一句自然的第一人称主播解说，只说当前观察、准备做什么或有证据的结果，不能把准备说成完成。reason写诊断理由，quest填写已从界面确认选中的任务名，否则为空。distanceEvidence是本轮BetterGI OCR的独立距离核对，unknown时不得声称具体距离、变近、到达；不能沿用历史视觉模型读出的距离。texts里的box为本地OCR定位的像素矩形，不是场景任务图标。禁止只凭环境风格猜测地名再传送，须在任务/地图文字中找到对应区域。已传送接近任务后先依据目标方位短时移动，不要因模板失败就换地区。如果世界目标标记在画面边缘，可有界转镜头；若当前观察明确目标在前方且有可走的路，可move短移再观察。若同一动作两次没有界面变化，换可验证的恢复步骤或stop说明问题，别无限重复。',
-     schema:{type:'object',required:['action','reason','commentary','quest'],properties:{action:{type:'object'},reason:{type:'string'},commentary:{type:'string'},quest:{type:'string'}}}}),request,observation,signal,budget);
+    const context={goal,questMemory,navigationMemory:request.navigationMemory,
+     observation,distanceEvidence,texts:request.texts,mapAreas:request.mapAreas,
+     observedAreas:request.observedAreas,selectedArea,waypoints:request.waypoints,nativeId:request.id,
+     previousSteps:history.slice(-3).map(e=>({nativeId:e.request.id,seq:e.request.seq,
+      observation:e.observation,decision:e.decision,lastStep:e.request.lastStep})),lastNativeStep:request.lastStep};
+    const repaired=await decideWithRepair(rejected=>{
+     const prompt=buildStoryPrompt(context,{rejected});
+     return respond(prompt.input,{dataRoot:root,env,signal:budget.signal(),instructions:prompt.instructions,
+     schema:{type:'object',required:['action','reason','commentary','quest'],properties:{action:{type:'object'},reason:{type:'string'},commentary:{type:'string'},quest:{type:'string'}}}});},request,observation,signal,budget);
     signal.throwIfAborted();
     const {decision,answer,rejected}=repaired;
     if(decision.action.kind==='list_waypoints')selectedArea=decision.action.area;
