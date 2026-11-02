@@ -154,3 +154,13 @@ PathExecutor 没有可传入的期限，需用剩余时间限制段数；超时�
 - 已保存证据到 `runtime/genshin/repair-evidence/p0-bearing-1793618500`；pause-for-repair 后核对上述 nativeId 的 inputReleased/processStopped=true，输入和视觉空闲，checkpoint revoked=false/reason=repair。
 - 根因：缺标仅同视角复读两次，没有实际水平搜索。修复将保持最多 8 次转向，每次复读菜单/F/HUD/期限；仅在唯一方位对准后允许定位和路径。同时补模板加载与后备拒绝诊断。
 - 穿插 P3：两份完整历史及重复规则为主要提示体积来源；只压缩模型输入，完整原始请求仍用于校验及归档。统一 travel_quest 优先级，保留失败后的有界恢复路径。
+
+### P0 修复及 P3 首次上线
+
+- 搜索修复提交 `9658e90`：16 项原生宏测试通过。P3 提交 `136b3d3`：10 项提示专测通过；接线后 story/路由/期限/焦点 33 项回归通过，生成文件一致。
+- 旧真实样本重建模型输入 31715→4045 字符，缩小 87%；稳定 system 为 2202 字符。只说明序列化体积，尚不能代替真实 token 用量或保证缓存命中。
+- 维护部署复用 helper PID63120，核对 checkpoint 同一 sessionId、revision53、revoked=false，以及匹配原 nativeId 的释放/退出与视觉空闲后 resume。
+- 新 run `14899e2c-f42e-47ea-9e2f-f7f76f0fac3c`；五秒监控复用 PID43072，聊天每分钟跟进恢复为唯一 automation。后续实机指标待记录。
+- 该 run 的前 4 个真实决策帧共 11893 token，中位数 2956.5，单帧 2941–3039；提示压缩达到此样本的 <5000 目标。整训练会话仍含此前高 token 帧，不能把其整体中位数混作新版指标。
+- 行为回归：前三步在派蒙菜单 wait，第 4 步才选 ESC；未执行 travel。维护保存 `p0-bearing-1793618868` 并确认 nativeId `c63d49b7-8204-4f53-9234-838e6c09bc8d` 清理完成后，补回当前帧已就绪和普通派蒙菜单可关闭的规则，提示专测 10/10 通过。
+- P1 只读审查发现规格与上游实现差异：returnMainUi 会在识别 ExitDoor 时点击、耗尽后还会 Enter/ESC，且无独立期限或最终复核。后续 P1 需使用 owned 主界面检测与受限退出循环，不能直接包装并宣称确定安全。特殊退出框的共享识别仍待补齐。
