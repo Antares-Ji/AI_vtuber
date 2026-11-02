@@ -1,5 +1,5 @@
 'use strict';
-const {questMenu,recoveryPrompt,questInstruction,mapMenu,sceneCue,questDistanceLabel}=require('../../scripts/genshin/story-main');
+const {questMenu,recoveryPrompt,loginPrompt,questInstruction,mapMenu,sceneCue,questDistanceLabel}=require('../../scripts/genshin/story-main');
 function dialogueEvidence(texts,modelScene){
  const positioned=texts.filter(t=>Array.isArray(t.box)&&t.box.length===4&&t.box.every(Number.isFinite));
  const subtitle=positioned.find(t=>t.box[0]>100&&t.box[0]<1600&&t.box[1]>=890&&t.box[1]<1015&&t.box[2]>180&&String(t.text).length>=8&&/[\u4e00-\u9fff]/.test(t.text));
@@ -18,6 +18,7 @@ function corroborateDistances(observation,texts,previous=null){
  const taskMenu=questMenu(texts);
  const recovery=recoveryPrompt(texts);
  const map=mapMenu(texts);
+ const login=loginPrompt(texts);
  const paimonMenu=compact.includes('队伍配置')&&compact.includes('商城')&&compact.some(t=>/冒险等阶|世界等级/.test(t));
  const partialMenu=!taskMenu&&!recovery&&!map&&!paimonMenu&&sceneCue(texts)==='menu';
  if(taskMenu)observation={...observation,scene:'menu',questMenu:taskMenu,summary:'BetterGI OCR确认任务菜单已打开。'+observation.summary,navigation:{marker:'not_visible',terrain:'unknown',movement:'unknown',evidence:'任务菜单文字已核对，不能作为世界导航'}};
@@ -25,7 +26,8 @@ function corroborateDistances(observation,texts,previous=null){
  if(partialMenu)observation={...observation,scene:'menu',summary:'当前OCR有菜单线索，具体菜单类型尚未确认。'+observation.summary,navigation:{marker:'not_visible',terrain:'unknown',movement:'unknown',evidence:'与原生动作检查使用相同菜单线索，不能据背景判断大世界可行走'}};
  if(recovery)observation={...observation,scene:'menu',recoveryPrompt:recovery,summary:'BetterGI OCR确认复苏提示界面：'+recovery.title+'。'+recovery.explanations.join(' '),navigation:{marker:'not_visible',terrain:'unknown',movement:'unknown',evidence:'复苏按钮、居中标题及说明文字布局已核对，不能作为大世界导航'}};
  if(map)observation={...observation,scene:'map',map,summary:'BetterGI OCR确认地图'+(map.kind==='detail'?'详情界面：'+map.title:'总览界面：'+map.region),navigation:{marker:'not_visible',terrain:'unknown',movement:'unknown',evidence:'地图布局不能作为大世界行走地形或角色方位'}};
- const dialogue=!taskMenu&&!paimonMenu&&!partialMenu&&!recovery&&!map?dialogueEvidence(texts,observation.scene):null;
+ if(login)observation={...observation,scene:'login',uncertain:false,loginPrompt:login,summary:'BetterGI OCR确认点击进入启动界面。',navigation:{marker:'not_visible',terrain:'unknown',movement:'unknown',evidence:'启动界面的背景不是大世界'}};
+ const dialogue=!login&&!taskMenu&&!paimonMenu&&!partialMenu&&!recovery&&!map?dialogueEvidence(texts,observation.scene):null;
  if(dialogue)observation={...observation,scene:'dialogue',dialogue,summary:'BetterGI OCR确认剧情对话：'+dialogue.subtitle,navigation:{marker:'not_visible',terrain:'unknown',movement:'unknown',evidence:'对话字幕与说话人/自动标识已核对'}};
  if(observation.scene!=='world')observation={...observation,questArea:undefined};
  const searchText=/已到达任务区域|在此区域内搜索目标/;
@@ -50,7 +52,7 @@ function corroborateDistances(observation,texts,previous=null){
  const unsupported=reported.filter(n=>!ocr.includes(n));
  const scrub=s=>s.replace(pattern,(match,n)=>ocr.includes(Number(n))?match:'距离未核对');
  return {observation:{...observation,summary:scrub(observation.summary),visible_text:observation.visible_text.map(scrub)},
-  distanceEvidence:{source:'bettergi_ocr',meters:ocr,rawMeters,unsupportedModelMeters:unsupported,status:conflicting?'conflicting_ocr':sudden?'unconfirmed_distance_jump':ocr.length?'ocr_read_not_arrival_proof':'unknown'},sceneEvidence:map?'bettergi_map_layout':recovery?'bettergi_recovery_layout':taskMenu?'bettergi_task_menu_text':paimonMenu?'bettergi_paimon_menu_text':partialMenu?'bettergi_partial_menu_text':'local_model'};
+  distanceEvidence:{source:'bettergi_ocr',meters:ocr,rawMeters,unsupportedModelMeters:unsupported,status:conflicting?'conflicting_ocr':sudden?'unconfirmed_distance_jump':ocr.length?'ocr_read_not_arrival_proof':'unknown'},sceneEvidence:login?'bettergi_ocr_start_screen':map?'bettergi_map_layout':recovery?'bettergi_recovery_layout':taskMenu?'bettergi_task_menu_text':paimonMenu?'bettergi_paimon_menu_text':partialMenu?'bettergi_partial_menu_text':'local_model'};
 }
 function trackingEvidence(observation,texts,selectedQuest){
  const menu=questMenu(texts),controls=menu?.controls.map(t=>t.text)||[];

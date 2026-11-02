@@ -47,8 +47,14 @@ const StoryGrounding=(()=>{
   if(close.length===1&&travel.length===1&&heading.length===1&&description.length>=2)return {source:'bettergi_ocr_map_layout',kind:'detail',title:heading[0].text,controls:[{text:travel[0].text,box:travel[0].box}]};
   return null;
  }
+ function loginPrompt(texts){
+  const rows=positioned(texts),controls=rows.filter(t=>normal(t.text)==='点击进入');
+  const titleScreen=(texts||[]).some(t=>/^CNRELWin\d|^CADPA$|^适龄提示$/.test(normal(t.text)));
+  return controls.length&&titleScreen?{source:'bettergi_ocr_start_screen',controls:controls.map(t=>({text:t.text,box:t.box}))}:null;
+ }
  function sceneCue(texts){
   const rows=positioned(texts);
+  if(loginPrompt(texts))return 'login';
   if(mapMenu(texts))return 'map';
   if(questMenu(texts)||recoveryPrompt(texts))return 'menu';
   if((texts||[]).some(t=>/任务专注模式|队伍配置|商城/.test(t.text)))return 'menu';
@@ -156,7 +162,7 @@ const StoryGrounding=(()=>{
       direction: label.box[0] + label.box[2] / 2 < 880 ? 'left' : label.box[0] + label.box[2] / 2 > 1040 ? 'right' : 'center', verified: false };
   }
 
- return {interaction,movementStop,sceneCue,navigationFeedback,travelFeedback,interactionBlocked,questMenu,recoveryPrompt,questInstruction,mapMenu,questHud,travelEligibility,questDistanceLabel};
+ return {interaction,movementStop,sceneCue,navigationFeedback,travelFeedback,interactionBlocked,questMenu,recoveryPrompt,loginPrompt,questInstruction,mapMenu,questHud,travelEligibility,questDistanceLabel};
 })();
 
 if(typeof module!=='undefined'&&module.exports)module.exports=StoryGrounding;
@@ -996,7 +1002,7 @@ else (async function(){
    if(inputKinds.has(action.kind))await beginInput(seq,action,request.deadlineAt);
    if(!['wait','click_text','complete_quest'].includes(action.kind)){
     const guard=captureGameRegion();let recovery;
-    try{recovery=StoryGrounding.recoveryPrompt(readTexts(guard));}finally{guard.dispose();}
+    try{const freshTexts=readTexts(guard);recovery=StoryGrounding.recoveryPrompt(freshTexts)||StoryGrounding.loginPrompt(freshTexts);}finally{guard.dispose();}
     if(recovery)throw Error('执行前出现复苏提示，未发送大世界输入');
    }
    if(action.kind==='key'){
@@ -1011,6 +1017,7 @@ else (async function(){
      const found=fresh.findMulti(RecognitionObject.ocr(0,0,fresh.width,fresh.height));let matches=[];const rows=[];
      for(let i=0;i<found.count;i++){rows.push({text:found[i].text,box:[found[i].x,found[i].y,found[i].width,found[i].height]});if(normalize(found[i].text)===normalize(action.text))matches.push(found[i]);}
      if(StoryGrounding.recoveryPrompt(texts)&&!StoryGrounding.recoveryPrompt(rows))matches=[];
+     if(StoryGrounding.loginPrompt(texts)&&!StoryGrounding.loginPrompt(rows))matches=[];
      if(action.focusQuest){
       const menu=StoryGrounding.questMenu(rows);
       if(normalize(action.text)==='停止追踪')matches=[];

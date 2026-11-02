@@ -29,6 +29,9 @@ function validateDecision(value,request,observation){
  if(!a||!['key','click_text','choose_dialogue','wait','stop','move','fight','list_waypoints','teleport','follow_marker','turn','reset_camera','advance_quest','travel_quest','complete_quest'].includes(a.kind))throw Error('剧情动作格式无效');
  const action={kind:a.kind};
  if(observation.uncertain&&!['wait','stop'].includes(a.kind))throw Error('场景不确定，只能重新观察');
+ const startup=grounding.loginPrompt(request.texts);
+ if(startup&&!['wait','stop'].includes(a.kind)&&!(a.kind==='click_text'&&startup.controls.some(t=>t.text===a.text)))
+  throw Error('当前是启动界面；使用click_text选择当前唯一“点击进入”，或wait/stop，不能移动');
  if(grounding.recoveryPrompt(request.texts)&&!['click_text','wait','stop'].includes(a.kind))throw Error('当前是复苏提示界面；依据当前OCR按钮决策，不能发送大世界按键或导航动作');
  if(request.focusQuest&&value.quest&&value.quest!==request.focusQuest)throw Error('当前任务固定为'+request.focusQuest+'；查看另一项详情不代表任务完成或允许换任务');
  if(a.kind==='travel_quest'){

@@ -45,8 +45,14 @@ const StoryGrounding=(()=>{
   if(close.length===1&&travel.length===1&&heading.length===1&&description.length>=2)return {source:'bettergi_ocr_map_layout',kind:'detail',title:heading[0].text,controls:[{text:travel[0].text,box:travel[0].box}]};
   return null;
  }
+ function loginPrompt(texts){
+  const rows=positioned(texts),controls=rows.filter(t=>normal(t.text)==='点击进入');
+  const titleScreen=(texts||[]).some(t=>/^CNRELWin\d|^CADPA$|^适龄提示$/.test(normal(t.text)));
+  return controls.length&&titleScreen?{source:'bettergi_ocr_start_screen',controls:controls.map(t=>({text:t.text,box:t.box}))}:null;
+ }
  function sceneCue(texts){
   const rows=positioned(texts);
+  if(loginPrompt(texts))return 'login';
   if(mapMenu(texts))return 'map';
   if(questMenu(texts)||recoveryPrompt(texts))return 'menu';
   if((texts||[]).some(t=>/任务专注模式|队伍配置|商城/.test(t.text)))return 'menu';
@@ -154,7 +160,7 @@ const StoryGrounding=(()=>{
       direction: label.box[0] + label.box[2] / 2 < 880 ? 'left' : label.box[0] + label.box[2] / 2 > 1040 ? 'right' : 'center', verified: false };
   }
 
- return {interaction,movementStop,sceneCue,navigationFeedback,travelFeedback,interactionBlocked,questMenu,recoveryPrompt,questInstruction,mapMenu,questHud,travelEligibility,questDistanceLabel};
+ return {interaction,movementStop,sceneCue,navigationFeedback,travelFeedback,interactionBlocked,questMenu,recoveryPrompt,loginPrompt,questInstruction,mapMenu,questHud,travelEligibility,questDistanceLabel};
 })();
 
 if(typeof module!=='undefined'&&module.exports)module.exports=StoryGrounding;

@@ -219,7 +219,7 @@ else (async function(){
    if(inputKinds.has(action.kind))await beginInput(seq,action,request.deadlineAt);
    if(!['wait','click_text','complete_quest'].includes(action.kind)){
     const guard=captureGameRegion();let recovery;
-    try{recovery=StoryGrounding.recoveryPrompt(readTexts(guard));}finally{guard.dispose();}
+    try{const freshTexts=readTexts(guard);recovery=StoryGrounding.recoveryPrompt(freshTexts)||StoryGrounding.loginPrompt(freshTexts);}finally{guard.dispose();}
     if(recovery)throw Error('执行前出现复苏提示，未发送大世界输入');
    }
    if(action.kind==='key'){
@@ -234,6 +234,7 @@ else (async function(){
      const found=fresh.findMulti(RecognitionObject.ocr(0,0,fresh.width,fresh.height));let matches=[];const rows=[];
      for(let i=0;i<found.count;i++){rows.push({text:found[i].text,box:[found[i].x,found[i].y,found[i].width,found[i].height]});if(normalize(found[i].text)===normalize(action.text))matches.push(found[i]);}
      if(StoryGrounding.recoveryPrompt(texts)&&!StoryGrounding.recoveryPrompt(rows))matches=[];
+     if(StoryGrounding.loginPrompt(texts)&&!StoryGrounding.loginPrompt(rows))matches=[];
      if(action.focusQuest){
       const menu=StoryGrounding.questMenu(rows);
       if(normalize(action.text)==='停止追踪')matches=[];
