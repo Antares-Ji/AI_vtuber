@@ -6,7 +6,7 @@ else (async function(){
  const sessionDeadline=receipt.startedAt+Math.max(30000,command.timeoutMs-90000);
  const save=()=>file.writeTextSync('receipt.json',JSON.stringify(receipt));
  const normalize=s=>String(s||'').replace(/\s/g,'');
- let activeInput=null,observationDelayMs=400,departedInteraction=null;
+ let activeInput=null,observationDelayMs=400,departedInteraction=null,seekState=null;
  const inputKinds=new Set(['key','click_text','choose_dialogue','follow_marker','reset_camera','advance_quest','travel_quest','turn','teleport','move','fight','leave_interaction','navigate','seek_quest','search_area']);
  function inputFailure(code,message){
   const error=Error(message);error.code=code;
@@ -295,15 +295,16 @@ else (async function(){
    else if(action.kind==='reset_camera'){guardedMiddleButtonClick();await sleep(600);detail='镜头复位输入已发送，等待下一帧核对';}
    else if(action.kind==='advance_quest'){detail=JSON.stringify(await navigate({key:action.key,ms:8000}));}
    else if(action.kind==='navigate'){detail=JSON.stringify(await navigate(action));}
-   else if(action.kind==='search_area'){detail=JSON.stringify(await searchArea());}
+   else if(action.kind==='search_area'){detail=JSON.stringify(await searchArea());seekState=null;}
    else if(action.kind==='seek_quest'){
     const hud=StoryGrounding.questHud(readFreshTexts());
     if(!hud||hud.meters<=5||hud.meters>300)throw Error('本地距离反馈寻路需要当前5–300m任务HUD');
-    detail=JSON.stringify(await StoryContinuousNavigation.seek({navigate,checkInput}));
+    if(seekState?.stage!==hud.stage)seekState={stage:hud.stage,index:0};
+    detail=JSON.stringify(await StoryContinuousNavigation.seek({navigate,checkInput,state:seekState}));
    }
    else if(action.kind==='turn'){
     if(!Number.isInteger(action.dx)||!Number.isInteger(action.dy)||Math.abs(action.dx)>600||Math.abs(action.dy)>250)throw Error('无效的有界镜头转动');
-    guardedMoveMouseBy(action.dx,action.dy);await sleep(400);
+    guardedMoveMouseBy(action.dx,action.dy);seekState=null;await sleep(400);
    }
    else if(action.kind==='teleport'){
     if(typeof action.id!=='string'||!Number.isFinite(action.x)||!Number.isFinite(action.y)||Math.abs(action.x)>30000||Math.abs(action.y)>30000)throw Error('无效的目录传送点');

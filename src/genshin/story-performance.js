@@ -9,7 +9,7 @@ function performance(rows,receipts,now){
  const last=Math.max(...steps.map(s=>s.finishedAt||0),...rows.map(r=>r.at||0));
  const wallMs=Number.isFinite(first)&&last>=first?last-first:0;
  const held=steps.reduce((sum,s)=>{let d;try{d=typeof s.detail==='string'?JSON.parse(s.detail):s.detail;}catch{}return sum+(d?.movementMsSent??d?.movedMs??0);},0);
- const incomplete=steps.some(s=>s.action?.kind==='travel_quest');
+ const incomplete=steps.some(s=>['travel_quest','search_area'].includes(s.action?.kind));
  const providers={};for(const r of rows){const p=r.provider||'unknown';providers[p]=(providers[p]||0)+1;}
  return {providers,modelLatencyMs:{p50:percentile(latencies,.5),p90:percentile(latencies,.9)},
   decisionWallMs:{p50:percentile(rows.map(r=>r.at-r.request?.capturedAt),.5),p90:percentile(rows.map(r=>r.at-r.request?.capturedAt),.9)},

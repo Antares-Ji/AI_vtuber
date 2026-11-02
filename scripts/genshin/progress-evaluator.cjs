@@ -127,6 +127,10 @@ function evaluate(input,now=Date.now(),o={}){
    if(d.movementTelemetryComplete!==true||!finite(d.movementMsSent))telemetryComplete=false;
   }
   if(kind==='advance_quest'&&!finite(d.movementMsSent))telemetryComplete=false;
+  if(d.kind==='area-search'){
+   const points=Array.isArray(d.points)?d.points:[];nativePathLegs+=points.length;
+   pathDurationMs+=points.reduce((s,p)=>s+(finite(p.durationMs)?p.durationMs:0),0);telemetryComplete=false;
+  }
  }
  const readings=rows.map(hudReading).filter(Boolean),stages=[];
  for(const r of readings)if(stages.at(-1)!==r.stage)stages.push(r.stage);

@@ -576,21 +576,21 @@ const StoryContinuousNavigation = (() => {
     }
     result.stopReason||='budget';return result;
   }
-  async function seek({navigate,checkInput,now=Date.now}) {
+  async function seek({navigate,checkInput,now=Date.now,state={index:0}}) {
     const result={kind:'quest-seek',movementMsSent:0,segments:[],stopReason:null,verified:false};
-    const startedAt=now(),directions=['W','S','A','D'];let index=0;
+    const startedAt=now(),directions=['W','S','A','D'];let index=state.index||0;
     for(let n=0;n<8&&now()-startedAt<60000&&index<directions.length;n++){
       checkInput();const step=await navigate({key:directions[index],ms:8000});
       result.segments.push({key:directions[index],...step});result.movementMsSent+=step.movementMsSent||0;
       if(!result.progress&&step.progress)result.progress={...step.progress};
       else if(step.progress&&result.progress)Object.assign(result.progress,{distanceAfter:step.progress.distanceAfter,stageAfter:step.progress.stageAfter});
-      if(['distance_increased','distance_stalled','position_stalled'].includes(step.stopReason)){index++;continue;}
-      if(step.stopReason!=='duration_budget'){result.stopReason=step.stopReason;break;}
+      if(['distance_increased','distance_stalled','position_stalled'].includes(step.stopReason)){state.index=++index;continue;}
+      if(step.stopReason!=='duration_budget'){if(step.stopReason==='native_world_changed')state.index=++index;result.stopReason=step.stopReason;break;}
       // A decreasing HUD permits another continuous run in this direction;
       // never continue an unmeasurable search as if it were an approach.
       if(!Number.isFinite(step.progress?.distanceAfter)){result.stopReason='hud_unavailable';break;}
     }
-    result.stopReason||=index>=directions.length?'directions_exhausted':'duration_budget';return result;
+    state.index=index;result.nextDirectionIndex=index;result.stopReason||=index>=directions.length?'directions_exhausted':'duration_budget';return result;
   }
   return {create, monitorPath, advanceDialogue, seek, departureStop};
 })();
@@ -979,7 +979,7 @@ else (async function(){
  const sessionDeadline=receipt.startedAt+Math.max(30000,command.timeoutMs-90000);
  const save=()=>file.writeTextSync('receipt.json',JSON.stringify(receipt));
  const normalize=s=>String(s||'').replace(/\s/g,'');
- let activeInput=null,observationDelayMs=400,departedInteraction=null;
+ let activeInput=null,observationDelayMs=400,departedInteraction=null,seekState=null;
  const inputKinds=new Set(['key','click_text','choose_dialogue','follow_marker','reset_camera','advance_quest','travel_quest','turn','teleport','move','fight','leave_interaction','navigate','seek_quest','search_area']);
  function inputFailure(code,message){
   const error=Error(message);error.code=code;
@@ -1268,15 +1268,16 @@ else (async function(){
    else if(action.kind==='reset_camera'){guardedMiddleButtonClick();await sleep(600);detail='镜头复位输入已发送，等待下一帧核对';}
    else if(action.kind==='advance_quest'){detail=JSON.stringify(await navigate({key:action.key,ms:8000}));}
    else if(action.kind==='navigate'){detail=JSON.stringify(await navigate(action));}
-   else if(action.kind==='search_area'){detail=JSON.stringify(await searchArea());}
+   else if(action.kind==='search_area'){detail=JSON.stringify(await searchArea());seekState=null;}
    else if(action.kind==='seek_quest'){
     const hud=StoryGrounding.questHud(readFreshTexts());
     if(!hud||hud.meters<=5||hud.meters>300)throw Error('本地距离反馈寻路需要当前5–300m任务HUD');
-    detail=JSON.stringify(await StoryContinuousNavigation.seek({navigate,checkInput}));
+    if(seekState?.stage!==hud.stage)seekState={stage:hud.stage,index:0};
+    detail=JSON.stringify(await StoryContinuousNavigation.seek({navigate,checkInput,state:seekState}));
    }
    else if(action.kind==='turn'){
     if(!Number.isInteger(action.dx)||!Number.isInteger(action.dy)||Math.abs(action.dx)>600||Math.abs(action.dy)>250)throw Error('无效的有界镜头转动');
-    guardedMoveMouseBy(action.dx,action.dy);await sleep(400);
+    guardedMoveMouseBy(action.dx,action.dy);seekState=null;await sleep(400);
    }
    else if(action.kind==='teleport'){
     if(typeof action.id!=='string'||!Number.isFinite(action.x)||!Number.isFinite(action.y)||Math.abs(action.x)>30000||Math.abs(action.y)>30000)throw Error('无效的目录传送点');

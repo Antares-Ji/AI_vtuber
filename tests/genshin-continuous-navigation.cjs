@@ -98,3 +98,7 @@ test('departure handoff skips only the model-selected label in the same task sta
  assert.equal(nav.departureStop([...stage,...f],g,{...d,stage:'收集绳子'}),'interaction_prompt');
  assert.equal(nav.departureStop([{text:'商城',box:[100,100,80,30]}],g,d),'menu');
 });
+test('seeker remembers wall direction across Climb recovery instead of always restarting W',async()=>{
+ const keys=[],state={index:0};const deps={state,checkInput(){},navigate:async a=>{keys.push(a.key);return {stopReason:'native_world_changed',movementMsSent:100};}};
+ await nav.seek(deps);await nav.seek(deps);assert.deepEqual(keys,['W','S']);assert.equal(state.index,2);
+});

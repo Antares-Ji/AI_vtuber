@@ -94,21 +94,21 @@ const StoryContinuousNavigation = (() => {
     }
     result.stopReason||='budget';return result;
   }
-  async function seek({navigate,checkInput,now=Date.now}) {
+  async function seek({navigate,checkInput,now=Date.now,state={index:0}}) {
     const result={kind:'quest-seek',movementMsSent:0,segments:[],stopReason:null,verified:false};
-    const startedAt=now(),directions=['W','S','A','D'];let index=0;
+    const startedAt=now(),directions=['W','S','A','D'];let index=state.index||0;
     for(let n=0;n<8&&now()-startedAt<60000&&index<directions.length;n++){
       checkInput();const step=await navigate({key:directions[index],ms:8000});
       result.segments.push({key:directions[index],...step});result.movementMsSent+=step.movementMsSent||0;
       if(!result.progress&&step.progress)result.progress={...step.progress};
       else if(step.progress&&result.progress)Object.assign(result.progress,{distanceAfter:step.progress.distanceAfter,stageAfter:step.progress.stageAfter});
-      if(['distance_increased','distance_stalled','position_stalled'].includes(step.stopReason)){index++;continue;}
-      if(step.stopReason!=='duration_budget'){result.stopReason=step.stopReason;break;}
+      if(['distance_increased','distance_stalled','position_stalled'].includes(step.stopReason)){state.index=++index;continue;}
+      if(step.stopReason!=='duration_budget'){if(step.stopReason==='native_world_changed')state.index=++index;result.stopReason=step.stopReason;break;}
       // A decreasing HUD permits another continuous run in this direction;
       // never continue an unmeasurable search as if it were an approach.
       if(!Number.isFinite(step.progress?.distanceAfter)){result.stopReason='hud_unavailable';break;}
     }
-    result.stopReason||=index>=directions.length?'directions_exhausted':'duration_budget';return result;
+    state.index=index;result.nextDirectionIndex=index;result.stopReason||=index>=directions.length?'directions_exhausted':'duration_budget';return result;
   }
   return {create, monitorPath, advanceDialogue, seek, departureStop};
 })();
