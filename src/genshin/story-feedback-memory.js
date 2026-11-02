@@ -113,7 +113,12 @@ class StoryFeedbackMemory{
   const steps=events.map(e=>e.step),recentNativeSteps=compactSteps(steps);
   const state=JSON.parse(signature(steps));
   const search=steps.map(parseDetail).filter(d=>d?.kind==='area-search'&&d.state?.version===1).at(-1);
-  const commissionRouteStates={};for(const d of steps.map(parseDetail))if(d?.kind==='commission-route'&&d.state?.id)commissionRouteStates[d.state.id]=d.state;
+  const commissionRouteStates={};for(const d of steps.map(parseDetail))if(d?.kind==='commission-route'&&d.state?.id){
+   const previous=commissionRouteStates[d.state.id];
+   if(d.state.id.startsWith('urgent-entry')&&d.stopReason==='route_complete')for(const key of Object.keys(commissionRouteStates))delete commissionRouteStates[key];
+   const failures=d.state.failures??(['path_timeout','arrival_unverified'].includes(d.stopReason)?(previous?.cursor===d.state.cursor?previous.failures||0:0)+1:0);
+   commissionRouteStates[d.state.id]={...d.state,failures};
+  }
   return {quest:this.quest,stage:this.stage,contextId:this.contextId,recentNativeSteps,
    areaSearchState:search?.state||null,
    commissionRouteStates,

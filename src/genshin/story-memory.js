@@ -45,7 +45,7 @@ function navigationFromEvidence(rows,quest){
  const attempted=new Set();
  for(const {e} of matching){
   if(!stage||!compatibleStage(questStage(e.request?.texts),stage))continue;
-  if(e.decision?.action?.kind==='teleport')attempted.add(e.decision.action.id);
+  if(e.decision?.action?.kind==='teleport'||e.decision?.action?.kind==='quest_route'&&e.decision.action.id?.startsWith('urgent-entry'))attempted.add(e.decision.action.id);
   if(e.request?.lastStep?.action?.kind==='teleport')attempted.add(e.request.lastStep.action.id);
  }
  return {stage,teleportAttempts:[...attempted],verification:'historical_attempts_not_arrival',previousSteps:matching.slice(0,5).reverse().map(({e})=>({observation:e.observation,decision:e.decision,lastStep:e.request.lastStep}))};

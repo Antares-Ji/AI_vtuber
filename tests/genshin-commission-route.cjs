@@ -12,7 +12,8 @@ function fixture({stage=rows,point={x:-550,y:1957},arrives=true,stop=null}={}){
 }
 test('catalog is a bounded sourced reference, strips all upstream executable actions and filters quest/stage',()=>{
  assert.equal(catalog.source.commit.length,40);
- assert.ok(catalog.routes.every(r=>r.positions.every(p=>!p.action&&p.type!=='teleport'&&Number.isFinite(p.x)&&Number.isFinite(p.y))));
+ assert.ok(catalog.routes.filter(r=>!r.mode).every(r=>r.positions.every(p=>!p.action&&p.type!=='teleport'&&Number.isFinite(p.x)&&Number.isFinite(p.y))));
+ const entry=catalog.routes.find(r=>r.mode==='entry_recovery');assert.equal(entry.positions.filter(p=>p.type==='teleport').length,1);assert.ok(entry.positions.every(p=>!p.action||p.action==='stop_flying'));
  assert.equal(macro.available(catalog,'别的任务','收集木材').length,0);
  assert.deepEqual(macro.available(catalog,'紧急修理','收集木材').map(r=>r.id),['urgent-wood-1','urgent-wood-2','urgent-wood-3']);
  assert.equal(macro.available(catalog,'紧急修理','将结实的木板交给法拉')[0].id,'urgent-npc');
@@ -37,7 +38,16 @@ test('two failures at the same cursor disable that route while other collection 
  assert.equal(second.state.failures,2);
  const routes=macro.available(catalog,'紧急修理','收集木材',{'urgent-wood-1':second.state});
  assert.equal(routes[0].blocked,true);assert.equal(routes[1].blocked,false);
+ assert.ok(routes.some(r=>r.id==='urgent-entry'&&r.recovery));
  const n=h.paths.length;assert.equal((await h.run('urgent-wood-1',second.state)).stopReason,'route_retry_limit');assert.equal(h.paths.length,n);
+});
+test('recovery follows the complete original flight route once and verifies its final CV position',async()=>{
+ const route=catalog.routes.find(r=>r.id==='urgent-entry');let point={...route.anchor},time=0,paths=[];
+ const run=macro.create({catalog,grounding:g,read:()=>rows,position:()=>point,sleep:async ms=>time+=ms,now:()=>time,checkInput(){},getDeadline:()=>200000,movementStop:g.movementStop,
+  createCancellationTokenSource:()=>({token:{},cancelAfter(){},cancel(){},dispose(){}}),
+  pathingScript:{async run(json){const p=JSON.parse(json);paths.push(p);point=p.positions.at(-1);}},monitorPath:async({run,inspect})=>{await run();assert.equal(inspect([]).stopReason,null,'teleport loading is expected');return {stopReason:null};}});
+ const result=await run('urgent-entry');assert.equal(result.stopReason,'route_complete');assert.deepEqual(paths[0].positions,route.positions);assert.equal(result.state.attempts,1);
+ assert.equal((await run('urgent-entry',result.state)).stopReason,'entry_already_attempted');assert.equal(paths.length,1);
 });
 test('node validator only accepts a matching route ID from the current BGI world',()=>{
  const {validateDecision}=require('../src/genshin/story-runtime');const request={texts:rows,focusQuest:'紧急修理'};
@@ -45,4 +55,14 @@ test('node validator only accepts a matching route ID from the current BGI world
  assert.equal(validateDecision({action:{kind:'quest_route',id:'urgent-wood-1'}},request,observation).action.id,'urgent-wood-1');
  for(const action of [{kind:'quest_route',id:'urgent-rope'},{kind:'quest_route',id:'urgent-wood-1',x:0}])assert.throws(()=>validateDecision({action},request,observation));
  assert.throws(()=>validateDecision({action:{kind:'quest_route',id:'urgent-wood-1'}},request,{scene:'dialogue'}));
+});
+test('entry attempt survives restart even if the native process never produced a final receipt',()=>{
+ const memory=require('../src/genshin/story-memory').navigationFromEvidence([{e:{decision:{quest:'紧急修理',action:{kind:'quest_route',id:'urgent-entry'}},request:{texts:rows}}}],'紧急修理');
+ assert.ok(memory.teleportAttempts.includes('urgent-entry'));
+ const offered=macro.available(catalog,'紧急修理','收集木材',{},memory.teleportAttempts);assert.ok(offered.some(r=>r.id==='urgent-entry-continue'&&!r.blocked));
+ const runtime=require('../src/genshin/story-runtime');assert.throws(()=>runtime.validateDecision({action:{kind:'quest_route',id:'urgent-entry'}},{texts:rows,focusQuest:'紧急修理',teleportAttempts:memory.teleportAttempts},{scene:'world'}),/不能重复传送/);
+});
+test('continuing an interrupted teleport cannot send another teleport or walk from an unverified entry location',async()=>{
+ const route=catalog.routes.find(r=>r.id==='urgent-entry-continue');assert.ok(route.positions.every(p=>p.type!=='teleport'));
+ const h=fixture({point:{x:-550,y:1957}});assert.equal((await h.run(route.id)).stopReason,'entry_start_unverified');assert.equal(h.paths.length,0);
 });

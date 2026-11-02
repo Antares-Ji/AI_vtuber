@@ -349,6 +349,178 @@
           "action": ""
         }
       ]
+    },
+    {
+      "id": "urgent-entry",
+      "quest": "紧急修理",
+      "variant": "苍风高地",
+      "stagePattern": "收集木材|收集绳索",
+      "title": "通过原始传送与飞行路线恢复入口（一次）",
+      "mode": "entry_recovery",
+      "anchor": {
+        "x": -549.673828125,
+        "y": 1957.1962890625
+      },
+      "maxAnchorDistance": 170,
+      "sourceFile": "repo/js/AutoCommissionNova/process/蒙德/NPC/紧急修理/苍风高地/紧急修理-1-战斗段1.json",
+      "sha256": "32b21517fdcea9ae3293365997a320ac62b3be461eb97eac8fe5e214dcb7930f",
+      "author": "云闲vsv",
+      "positions": [
+        {
+          "id": 1,
+          "x": -578.7802734375,
+          "y": 1853.3916015625,
+          "type": "teleport",
+          "move_mode": "walk",
+          "action": ""
+        },
+        {
+          "id": 2,
+          "x": -565.53125,
+          "y": 1846.53857421875,
+          "type": "path",
+          "move_mode": "walk",
+          "action": ""
+        },
+        {
+          "id": 3,
+          "x": -528.953125,
+          "y": 1866.2421875,
+          "type": "path",
+          "move_mode": "walk",
+          "action": ""
+        },
+        {
+          "id": 4,
+          "x": -508.5556640625,
+          "y": 1892.1611328125,
+          "type": "path",
+          "move_mode": "dash",
+          "action": ""
+        },
+        {
+          "id": 5,
+          "x": -495.005859375,
+          "y": 1932.19580078125,
+          "type": "path",
+          "move_mode": "dash",
+          "action": ""
+        },
+        {
+          "id": 6,
+          "x": -493,
+          "y": 1938.0673828125,
+          "type": "path",
+          "move_mode": "fly",
+          "action": ""
+        },
+        {
+          "id": 7,
+          "x": -496.046875,
+          "y": 1950.54931640625,
+          "type": "path",
+          "move_mode": "fly",
+          "action": "stop_flying"
+        },
+        {
+          "id": 8,
+          "x": -512.123046875,
+          "y": 1958.21435546875,
+          "type": "path",
+          "move_mode": "walk",
+          "action": ""
+        },
+        {
+          "id": 9,
+          "x": -549.1201171875,
+          "y": 1955.0576171875,
+          "type": "path",
+          "move_mode": "dash",
+          "action": ""
+        }
+      ]
+    },
+    {
+      "id": "urgent-entry-continue",
+      "quest": "紧急修理",
+      "variant": "苍风高地",
+      "stagePattern": "收集木材|收集绳索",
+      "title": "传送后继续原始入口飞行路线（不再传送）",
+      "mode": "entry_continue",
+      "anchor": {
+        "x": -549.673828125,
+        "y": 1957.1962890625
+      },
+      "maxAnchorDistance": 170,
+      "sourceFile": "repo/js/AutoCommissionNova/process/蒙德/NPC/紧急修理/苍风高地/紧急修理-1-战斗段1.json",
+      "sha256": "32b21517fdcea9ae3293365997a320ac62b3be461eb97eac8fe5e214dcb7930f",
+      "author": "云闲vsv",
+      "positions": [
+        {
+          "id": 1,
+          "x": -565.53125,
+          "y": 1846.53857421875,
+          "type": "path",
+          "move_mode": "walk",
+          "action": ""
+        },
+        {
+          "id": 2,
+          "x": -528.953125,
+          "y": 1866.2421875,
+          "type": "path",
+          "move_mode": "walk",
+          "action": ""
+        },
+        {
+          "id": 3,
+          "x": -508.5556640625,
+          "y": 1892.1611328125,
+          "type": "path",
+          "move_mode": "dash",
+          "action": ""
+        },
+        {
+          "id": 4,
+          "x": -495.005859375,
+          "y": 1932.19580078125,
+          "type": "path",
+          "move_mode": "dash",
+          "action": ""
+        },
+        {
+          "id": 5,
+          "x": -493,
+          "y": 1938.0673828125,
+          "type": "path",
+          "move_mode": "fly",
+          "action": ""
+        },
+        {
+          "id": 6,
+          "x": -496.046875,
+          "y": 1950.54931640625,
+          "type": "path",
+          "move_mode": "fly",
+          "action": "stop_flying"
+        },
+        {
+          "id": 7,
+          "x": -512.123046875,
+          "y": 1958.21435546875,
+          "type": "path",
+          "move_mode": "walk",
+          "action": ""
+        },
+        {
+          "id": 8,
+          "x": -549.1201171875,
+          "y": 1955.0576171875,
+          "type": "path",
+          "move_mode": "dash",
+          "action": ""
+        }
+      ]
     }
   ]
 }

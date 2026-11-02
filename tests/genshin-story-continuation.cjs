@@ -16,6 +16,13 @@ test('stage change or meaningful distance decrease renews progress; moving away 
  c.checkProgress({at:200,stage:'收集木材',distance:35});assert.equal(c.snapshot().progressBudget.since,200);
  c.checkProgress({at:300,stage:'将结实的木板交给法拉',distance:60});assert.equal(c.snapshot().progressBudget.since,300);
 });
+test('repair time is excluded without clearing the already consumed no-progress budget',async()=>{
+ let now=0;const h=fixture({clock:()=>now,cleanup:async()=>true,mode:'until_stopped'});
+ h.controller.checkProgress({at:0,stage:'收集木材',distance:40});now=10000;h.controller.stop('repair');
+ now=60000;h.controller.stop('repair');assert.equal(h.controller.snapshot().stoppedAt,10000);
+ h.returned();const saved=h.controller.snapshot();await h.controller.resume({sessionId:saved.sessionId,revision:saved.revision});
+ assert.equal(now-h.controller.snapshot().progressBudget.since,10000);
+});
 function fixture({ready=async()=>true,cleanup=async()=>false,clock=()=>0,mode='bounded'}={}){
  const runs=new Map(),starts=[];
  const host={status:id=>runs.get(id),start:input=>{starts.push(input);const run={id:'r'+starts.length,state:'RUNNING'};runs.set(run.id,run);return run;}};

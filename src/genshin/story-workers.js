@@ -46,13 +46,14 @@ function prompt(context,{role=workerFor(context.observation),rejected=[],handoff
  base.texts=base.texts.map(t=>({text:t.text,box:t.box,...(t.source?{source:t.source}:{})}));
  if(role==='movement')base.texts=base.texts.filter(t=>t.box?.[0]<650||/\bF\b/.test(t.text)).slice(0,24);
  base.worker=role;base.handoff=handoff;base.forecast=forecast;
- const routePriority=role==='movement'&&base.observation.commissionRoutes?.find(r=>!r.completed&&!r.blocked);
+ const routeCandidates=base.observation.commissionRoutes?.filter(r=>!r.completed&&!r.blocked)||[];
+ const routePriority=role==='movement'&&(routeCandidates.find(r=>r.recovery)||routeCandidates[0]);
  if(routePriority)base.availableIntents=base.availableIntents.filter(k=>!['search_area','seek_quest','navigate','move','travel_quest','advance_quest','follow_marker'].includes(k));
  else base.availableIntents=base.availableIntents.filter(k=>k!=='quest_route');
  const priority=base.observation.nativeVision?.motion==='Climb'?'\nBGI原生CV确认当前正在攀爬。持续wait不会松开墙壁，可选择{action:{kind:"key",key:"X"}}脱离攀爬；原生会再次确认Climb再按X。随后根据新画面改方向，不重复向墙直走。':base.navigationPriority?'\n本帧已校验：travel_quest可用、failedTravels=0。navigate/按W的失败只证明该固定方向不对，不是CV寻路失败；历史stop也不是当前阻塞。先让BGI通过travel_quest识别任务方位、闭环行走，不要因为旧的直走失败而停止。':
   base.observation.questArea?.state==='search_area'?'\n当前已到任务搜索区，优先{action:{kind:"search_area"}}。BGI会用当前CV坐标在周边18m内按网格路径巡查、检测F，跨调用保留搜索点进度；不要反复W走出搜索区。遇到与收集任务相关的物品/调查提示就F交互。':
   base.observation.travelQuest?.hud?.meters>5&&base.observation.travelQuest.hud.meters<=300?'\n当前有5–300m任务距离，但图标寻路已有失败。可选择{action:{kind:"seek_quest"}}：BGI在本地以HUD距离变化选方向，CV检查移动和卡住，连续行走最多60秒，交互或阶段变化立即返回。优先此原生反馈意图，不再自己逐步猜W/转镜，也不要因为旧navigate失败就stop。':'';
- const routeRule=routePriority?'\n当前有匹配任务阶段的BGI原始目录路线，优先选择'+JSON.stringify({action:{kind:'quest_route',id:routePriority.id}})+'。原生复核当前CV区域后按目录连续寻路，途中出现F/任务阶段变化即停。路线只参考已知坐标，不证明物品仍在；出现唯一F再交给交互worker。先完成当前路线，再选下一个未完成路线；Climb时先X恢复。':'';
+ const routeRule=routePriority?'\n当前有匹配任务阶段的BGI原始目录路线，优先选择'+JSON.stringify({action:{kind:'quest_route',id:routePriority.id}})+'。原生复核当前CV区域后按目录连续寻路，途中出现F/任务阶段变化即停。路线只参考已知坐标，不证明物品仍在；出现唯一F再交给交互worker。先完成当前路线，再选下一个未完成路线；Climb时先X恢复。'+(routePriority.recovery?'该恢复路线专为离线录制路线入口不匹配导致的卡住提供一次传送+飞行回入口；失败历史正是启用恢复的依据，可选择此新恢复路线而不是重复失败路径或停止。':''):'';
  return {input:JSON.stringify(base),instructions:RULES+(routePriority?routeRule:priority)+(forecast?'\n这是执行中的动作之后的假设状态，只预规划一步，绝不发送输入。若无法依据已知数据规划则wait。':'')};
 }
 function normalize(value,request){

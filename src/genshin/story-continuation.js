@@ -37,7 +37,7 @@ class StoryContinuation {
  }
  stop(reason='user_stop'){
   this.revision++;
-  const patch={active:false,status:revokedReasons.has(reason)?'stopped':'halted',reason,revoked:this.state.revoked===true||revokedReasons.has(reason),stoppedAt:this.clock()};
+  const patch={active:false,status:revokedReasons.has(reason)?'stopped':'halted',reason,revoked:this.state.revoked===true||revokedReasons.has(reason),stoppedAt:!this.state.active&&Number.isFinite(this.state.stoppedAt)?this.state.stoppedAt:this.clock()};
   try{return this.persist(patch);}catch(error){
    if(error.code==='TRAINING_SESSION_CONFLICT'&&revokedReasons.has(reason)){
     const saved=this.store?.read();
@@ -88,7 +88,8 @@ class StoryContinuation {
    if(!await this.cleanup(previous,saved)||!await this.ready())throw Error('Training resume requires confirmed input cleanup and idle vision');
    if(!this.current(token)||this.state.revoked||this.host.closing)throw Error('Training resume was revoked while checking readiness');
    // Reserve ownership before starting input. A newer persisted stop wins.
-   this.persist({active:true,status:'running',reason:'resuming',resumedAt:this.clock()});
+   const pausedMs=Number.isFinite(saved.stoppedAt)?Math.max(0,this.clock()-saved.stoppedAt):0;
+   this.persist({active:true,status:'running',reason:'resuming',resumedAt:this.clock(),...(saved.progressBudget?{progressBudget:{...saved.progressBudget,since:saved.progressBudget.since+pausedMs}}:{})});
    return this.startSegment();
   }catch(error){if(this.current(token)&&this.state.active)this.stop('resume_failed');throw error;}
   finally{this.checking=false;}
