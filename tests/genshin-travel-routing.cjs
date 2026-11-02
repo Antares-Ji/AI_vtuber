@@ -25,3 +25,12 @@ test('current F, missing HUD and conflicting HUD distances reject travel',()=>{
  for(const rows of [[],[texts[2]],[...texts,...f],[...texts,{text:'84m',box:[80,283,60,24],source:'quest_distance_crop'}]])
   assert.throws(()=>validateDecision({action:{kind:'travel_quest'}},{texts:rows},world));
 });
+test('repeated failed travel needs actual recovery and retains bounded movement and inspection alternatives',()=>{
+ const fail=seq=>({seq,action:{kind:'travel_quest'},detail:JSON.stringify({kind:'quest-travel',stopReason:'bearing_unavailable',progress:{distanceBefore:184,distanceAfter:184,stageBefore:'前去查看详情',stageAfter:'前去查看详情'}})});
+ const request={texts,recentNativeSteps:[fail(1),{seq:2,action:{kind:'wait'},detail:''},fail(3),{seq:4,action:{kind:'reset_camera'},detail:''}]};
+ assert.throws(()=>validateDecision({action:{kind:'travel_quest'}},request,world),/travel_recovery_required/);
+ for(const action of [{kind:'move',key:'W',ms:400},{kind:'reset_camera'},{kind:'key',key:'J'},{kind:'stop'}])
+  assert.deepEqual(validateDecision({action},request,world).action,action);
+ request.recentNativeSteps.push({seq:5,action:{kind:'move',key:'W',ms:400},detail:JSON.stringify({movedMs:400})});
+ assert.equal(validateDecision({action:{kind:'travel_quest'}},request,world).action.kind,'travel_quest');
+});

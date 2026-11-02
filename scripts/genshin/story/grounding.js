@@ -92,6 +92,20 @@ const StoryGrounding=(()=>{
   }
   return attempts>=2;
  }
+ function travelFeedback(steps){
+  let failures=0;
+  const failedReasons=new Set(['bearing_unavailable','alignment_stalled','position_unavailable','position_unstable','direction_unverified','distance_stalled','distance_increased','leg_timeout','native_api_unavailable','native_error']);
+  for(const step of steps||[]){
+   const d=detail(step);
+   // A sent recovery move permits a new attempt; it is not proof of arrival.
+   if(step.action?.kind==='move'&&d?.movedMs>0||step.action?.kind==='advance_quest'&&d?.trace?.length>0||step.action?.kind==='teleport'&&String(step.detail).includes('传送调用返回')){failures=0;continue;}
+   if(step.action?.kind!=='travel_quest')continue;
+   const p=d?.progress;
+   if(p&&normal(p.stageBefore)===normal(p.stageAfter)&&Number.isFinite(p.distanceBefore)&&Number.isFinite(p.distanceAfter)&&p.distanceBefore>p.distanceAfter){failures=0;continue;}
+   if(failedReasons.has(d?.stopReason))failures++;
+  }
+  return {failedTravels:failures,blocked:failures>=2};
+ }
   function questHud(texts) {
     const rows = positioned(texts);
     const instructions = rows.filter(row => questInstruction([row]));
@@ -110,13 +124,14 @@ const StoryGrounding=(()=>{
     return { stage: instruction.text, distance: values[0], meters: values[0], source: 'bettergi_ocr_quest_hud', verified: false };
   }
 
-  function travelEligibility({ texts, scene, uncertain = false }) {
+  function travelEligibility({ texts, scene, uncertain = false, recentNativeSteps = [] }) {
     const stop = movementStop(texts);
     const hud = questHud(texts);
+    const feedback = travelFeedback(recentNativeSteps);
     const reason = uncertain ? 'observation_uncertain' : scene !== 'world' ? 'not_world'
       : stop || (!hud ? 'hud_unavailable' : hud.meters <= 8 ? 'near_distance'
-        : hud.meters > 1500 ? 'distance_out_of_range' : null);
-    return { ok: reason === null, reason, hud };
+        : hud.meters > 1500 ? 'distance_out_of_range' : feedback.blocked ? 'travel_recovery_required' : null);
+    return { ok: reason === null, reason, hud, feedback };
   }
 
   function questDistanceLabel(texts) {
@@ -139,7 +154,7 @@ const StoryGrounding=(()=>{
       direction: label.box[0] + label.box[2] / 2 < 880 ? 'left' : label.box[0] + label.box[2] / 2 > 1040 ? 'right' : 'center', verified: false };
   }
 
- return {interaction,movementStop,sceneCue,navigationFeedback,interactionBlocked,questMenu,recoveryPrompt,questInstruction,mapMenu,questHud,travelEligibility,questDistanceLabel};
+ return {interaction,movementStop,sceneCue,navigationFeedback,travelFeedback,interactionBlocked,questMenu,recoveryPrompt,questInstruction,mapMenu,questHud,travelEligibility,questDistanceLabel};
 })();
 
 if(typeof module!=='undefined'&&module.exports)module.exports=StoryGrounding;

@@ -31,7 +31,7 @@ function validateDecision(value,request,observation){
  if(request.focusQuest&&value.quest&&value.quest!==request.focusQuest)throw Error('当前任务固定为'+request.focusQuest+'；查看另一项详情不代表任务完成或允许换任务');
  if(a.kind==='travel_quest'){
   if(Object.keys(a).some(k=>k!=='kind'))throw Error('travel_quest只接收意图，方向与坐标必须由原生本地视觉计算');
-  const gate=StoryTravel.eligibility({texts:request.texts,scene:observation.scene,uncertain:observation.uncertain},grounding);
+  const gate=StoryTravel.eligibility({texts:request.texts,scene:observation.scene,uncertain:observation.uncertain,recentNativeSteps:request.recentNativeSteps},grounding);
   if(!gate.ok)throw Error('当前不能原生前往任务点：'+gate.reason+'；请依据当前界面选择交互、对话、返回世界或重新观察');
  }
  if(a.kind==='complete_quest'){
@@ -190,7 +190,7 @@ async function runStory(goal,{root,env,signal,reportProgress=()=>{},runId}){
     observation.navigationFeedback=grounding.navigationFeedback(request.recentNativeSteps);
     observation.taskFocus={quest:request.focusQuest,completionEvidence:request.focusQuest?completionEvidence(request.texts,request.focusQuest):null,rule:'当前任务在本训练会话内保持。不能为刷新列表、绕过文字重复或跟标失败切换其他任务。如当前详情误停另一项，核对当前菜单中原任务条目，允许scope:quest_list定位同名列表；不要追踪另一项。只有这里completionEvidence非空时才可由模型选择{kind:"complete_quest",quest:当前任务名}记录当前OCR完成证据，这一步不发送输入；之后才能自主选择下一项已接取任务。没有完成证据就保持当前任务或stop说明问题。'};
     observation.trackingEvidence=trackingEvidence(observation,request.texts,questMemory?.quest);
-    observation.travelQuest=StoryTravel.eligibility({texts:request.texts,scene:observation.scene,uncertain:observation.uncertain},grounding);
+    observation.travelQuest=StoryTravel.eligibility({texts:request.texts,scene:observation.scene,uncertain:observation.uncertain,recentNativeSteps:request.recentNativeSteps},grounding);
     observation.navigationFeedback.rule='blocked=true时不能继续follow_marker；必须依据当前地形选择有界恢复或停止。转向不变、距离不降均会提前返回，不把动作次数当作进展。';
     observation.frameEvidence={seq:request.seq,capturedAt:request.capturedAt,ageMs:Date.now()-request.capturedAt,previousActionFinishedAt:request.lastStep?.finishedAt||null,rule:'这是上一动作完成后新采集的画面，已完成本地识别；不是等待中的观察。不要仅为等待新画面反复wait。'};
     if(observation.questArea)observation.questArea.availableAction='在world/open的搜索区，move允许80到1600ms，每400ms释放并重新检查OCR；用于没有精确标记时探索当前可走区域。出现F交互提示、菜单、对话或任务文字变化则停止并重新观察。';

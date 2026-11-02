@@ -94,6 +94,20 @@ const StoryGrounding=(()=>{
   }
   return attempts>=2;
  }
+ function travelFeedback(steps){
+  let failures=0;
+  const failedReasons=new Set(['bearing_unavailable','alignment_stalled','position_unavailable','position_unstable','direction_unverified','distance_stalled','distance_increased','leg_timeout','native_api_unavailable','native_error']);
+  for(const step of steps||[]){
+   const d=detail(step);
+   // A sent recovery move permits a new attempt; it is not proof of arrival.
+   if(step.action?.kind==='move'&&d?.movedMs>0||step.action?.kind==='advance_quest'&&d?.trace?.length>0||step.action?.kind==='teleport'&&String(step.detail).includes('传送调用返回')){failures=0;continue;}
+   if(step.action?.kind!=='travel_quest')continue;
+   const p=d?.progress;
+   if(p&&normal(p.stageBefore)===normal(p.stageAfter)&&Number.isFinite(p.distanceBefore)&&Number.isFinite(p.distanceAfter)&&p.distanceBefore>p.distanceAfter){failures=0;continue;}
+   if(failedReasons.has(d?.stopReason))failures++;
+  }
+  return {failedTravels:failures,blocked:failures>=2};
+ }
   function questHud(texts) {
     const rows = positioned(texts);
     const instructions = rows.filter(row => questInstruction([row]));
@@ -112,13 +126,14 @@ const StoryGrounding=(()=>{
     return { stage: instruction.text, distance: values[0], meters: values[0], source: 'bettergi_ocr_quest_hud', verified: false };
   }
 
-  function travelEligibility({ texts, scene, uncertain = false }) {
+  function travelEligibility({ texts, scene, uncertain = false, recentNativeSteps = [] }) {
     const stop = movementStop(texts);
     const hud = questHud(texts);
+    const feedback = travelFeedback(recentNativeSteps);
     const reason = uncertain ? 'observation_uncertain' : scene !== 'world' ? 'not_world'
       : stop || (!hud ? 'hud_unavailable' : hud.meters <= 8 ? 'near_distance'
-        : hud.meters > 1500 ? 'distance_out_of_range' : null);
-    return { ok: reason === null, reason, hud };
+        : hud.meters > 1500 ? 'distance_out_of_range' : feedback.blocked ? 'travel_recovery_required' : null);
+    return { ok: reason === null, reason, hud, feedback };
   }
 
   function questDistanceLabel(texts) {
@@ -141,7 +156,7 @@ const StoryGrounding=(()=>{
       direction: label.box[0] + label.box[2] / 2 < 880 ? 'left' : label.box[0] + label.box[2] / 2 > 1040 ? 'right' : 'center', verified: false };
   }
 
- return {interaction,movementStop,sceneCue,navigationFeedback,interactionBlocked,questMenu,recoveryPrompt,questInstruction,mapMenu,questHud,travelEligibility,questDistanceLabel};
+ return {interaction,movementStop,sceneCue,navigationFeedback,travelFeedback,interactionBlocked,questMenu,recoveryPrompt,questInstruction,mapMenu,questHud,travelEligibility,questDistanceLabel};
 })();
 
 if(typeof module!=='undefined'&&module.exports)module.exports=StoryGrounding;
@@ -190,7 +205,7 @@ const StoryTravel = (() => {
       if (hud.meters > 1500) return 'distance_out_of_range';
       return null;
     }
-    async function align(stage, trace) {
+    async function align(stage, trace, camera) {
       const mats = [], recognizers = [], templateLoads = [];
       try {
         for (const name of ['quest-marker.png', 'quest-marker-blue.png']) {
@@ -204,7 +219,7 @@ const StoryTravel = (() => {
             templateLoads.push({ name, loaded: false, error: String(error.message || error).slice(0, 160) });
           }
         }
-        budgetCheck(); moveMouseBy(0, 7000); await sleep(400);
+        budgetCheck(); moveMouseBy(0, 7000); camera.overhead = true; await sleep(400);
         budgetCheck(); keyDown('VK_V');
         try { await sleep(80); } finally { keyUp('VK_V'); }
         await sleep(3000);
@@ -275,6 +290,7 @@ const StoryTravel = (() => {
 
     return async function travelQuest(seq, options = {}) {
       const startedAt = now();
+      const camera = { overhead: false };
       const result = { kind: 'quest-travel', intent: 'travel_quest', seq, legs: [], bearings: [], movedLegs: 0,
         attemptedLegs: 0, stopReason: null, verified: false,
         movementMsSent: null, movementTelemetryComplete: false, interactionChecks: 'between_legs',
@@ -284,7 +300,8 @@ const StoryTravel = (() => {
           result.stopReason = 'native_api_unavailable'; return result;
         }
         const texts = capture();
-        const initial = eligibility({ texts, scene: options.scene || 'world', uncertain: options.uncertain }, grounding);
+        const initial = eligibility({ texts, scene: options.scene || 'world', uncertain: options.uncertain,
+          recentNativeSteps: options.recentNativeSteps }, grounding);
         if (!initial.ok) { result.stopReason = initial.reason; return result; }
         const stage = initial.hud.stage;
         result.progress = { distanceBefore: initial.hud.meters, distanceAfter: initial.hud.meters,
@@ -293,7 +310,7 @@ const StoryTravel = (() => {
           const before = capture(), stop = currentStop(before, stage);
           if (stop) { result.stopReason = stop; break; }
           const bearingTrace = []; result.bearings.push(bearingTrace);
-          const bearing = await align(stage, bearingTrace);
+          const bearing = await align(stage, bearingTrace, camera);
           if (bearing.stop) { result.stopReason = bearing.stop; break; }
           budgetCheck();
           const p1 = genshin.getPositionFromMap('Teyvat', 0);
@@ -313,7 +330,7 @@ const StoryTravel = (() => {
           if (freshStop) { result.stopReason = freshStop; break; }
           const hud = readHud(fresh, grounding), length = Math.min(hud.meters, index === 0 ? 25 : 60);
           const to = targetForHeading(from, theta, length);
-          budgetCheck(); middleButtonClick(); await sleep(200); budgetCheck();
+          budgetCheck(); middleButtonClick(); camera.overhead = false; await sleep(200); budgetCheck();
           const budgetMs = Math.min(30000, getDeadline() - now() - marginMs);
           if (budgetMs <= 0) { result.stopReason = 'deadline'; break; }
           const leg = { from, samples: [from1, from], to, theta, thetaUnit: 'degrees', length,
@@ -369,6 +386,28 @@ const StoryTravel = (() => {
         result.error = String(error.message || error).slice(0, 300);
       } finally {
         for (const key of ['VK_W', 'VK_A', 'VK_S', 'VK_D', 'VK_V', 'VK_SPACE']) try { keyUp(key); } catch {}
+        result.cameraReset = { sent: false, reason: 'not_overhead' };
+        if (camera.overhead) {
+          // This is a guarded final action, not unconditional input cleanup.
+          // Never resume input after an exception/cancellation or blocked scene,
+          // even if a subsequent check would happen to look usable again.
+          const blocked = ['native_error', 'deadline', 'leg_timeout', 'menu', 'map', 'dialogue', 'interaction_prompt'];
+          if (blocked.includes(result.stopReason)) result.cameraReset.reason = 'blocked_stop:' + result.stopReason;
+          else {
+            try {
+              const texts = capture(), stop = grounding.movementStop(texts);
+              if (stop) result.cameraReset.reason = 'fresh_stop:' + stop;
+              else if (!readHud(texts, grounding)) result.cameraReset.reason = 'fresh_hud_unavailable';
+              else {
+                budgetCheck(); middleButtonClick(); camera.overhead = false;
+                result.cameraReset = { sent: true, reason: 'overhead_scan_finished', at: now() };
+              }
+            } catch (error) {
+              result.cameraReset = { sent: false, reason: error.travelReason || 'guard_failed',
+                errorCode: error.code || null, error: String(error.message || error).slice(0, 160) };
+            }
+          }
+        }
         result.finishedAt = now(); result.durationMs = result.finishedAt - startedAt;
       }
       return result;
@@ -635,7 +674,7 @@ else (async function(){
    }else if(action.kind==='wait'){await sleep(2000);}
    else if(action.kind==='complete_quest'){detail=JSON.stringify({kind:'completion_acknowledgement',quest:action.quest,inputSent:false,source:'server_ocr_evidence',verified:false});}
    else if(action.kind==='list_waypoints'){detail='查询地图目录：'+action.area;}
-   else if(action.kind==='travel_quest'){detail=JSON.stringify(await travelQuest(seq));}
+   else if(action.kind==='travel_quest'){detail=JSON.stringify(await travelQuest(seq,{recentNativeSteps:priorSteps}));}
    else if(action.kind==='follow_marker'){detail=StoryGrounding.navigationFeedback(priorSteps).blocked?JSON.stringify({kind:'marker-follow',movedMs:0,stopReason:'retry_limit',verified:false}):await followMarker(seq);}
    else if(action.kind==='reset_camera'){guardedMiddleButtonClick();await sleep(600);detail='镜头复位输入已发送，等待下一帧核对';}
    else if(action.kind==='advance_quest'){detail=await advanceQuest(action.key,seq);}

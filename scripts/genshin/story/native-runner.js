@@ -254,7 +254,7 @@ else (async function(){
    }else if(action.kind==='wait'){await sleep(2000);}
    else if(action.kind==='complete_quest'){detail=JSON.stringify({kind:'completion_acknowledgement',quest:action.quest,inputSent:false,source:'server_ocr_evidence',verified:false});}
    else if(action.kind==='list_waypoints'){detail='查询地图目录：'+action.area;}
-   else if(action.kind==='travel_quest'){detail=JSON.stringify(await travelQuest(seq));}
+   else if(action.kind==='travel_quest'){detail=JSON.stringify(await travelQuest(seq,{recentNativeSteps:priorSteps}));}
    else if(action.kind==='follow_marker'){detail=StoryGrounding.navigationFeedback(priorSteps).blocked?JSON.stringify({kind:'marker-follow',movedMs:0,stopReason:'retry_limit',verified:false}):await followMarker(seq);}
    else if(action.kind==='reset_camera'){guardedMiddleButtonClick();await sleep(600);detail='镜头复位输入已发送，等待下一帧核对';}
    else if(action.kind==='advance_quest'){detail=await advanceQuest(action.key,seq);}

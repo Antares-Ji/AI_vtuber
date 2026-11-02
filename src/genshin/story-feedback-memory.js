@@ -17,7 +17,8 @@ function signature(steps,targets=interactionTargets(steps)){
   const count=blocked?2:grounding.interactionBlocked([...steps,probe],target)?1:0;
   return count?[[target,count]]:[];
  }).sort((a,b)=>a[0].localeCompare(b[0]));
- return JSON.stringify({follow:Math.min(2,grounding.navigationFeedback(steps).failedFollows),interactions});
+ return JSON.stringify({follow:Math.min(2,grounding.navigationFeedback(steps).failedFollows),
+  travel:Math.min(2,grounding.travelFeedback(steps).failedTravels),interactions});
 }
 function compactSteps(steps){
  let recent=[];
@@ -28,7 +29,7 @@ function compactSteps(steps){
    const without=recent.filter((_,index)=>index!==i);
    if(signature(without,targets)===wanted)recent=without;else i++;
   }
-  // With the shared grounding FSM, at most two navigation and two interaction
+  // With the shared grounding FSM, navigation, travel and interaction failure
   // witnesses survive. Refuse an incompatible rule change rather than silently
   // dropping old failures at an arbitrary history boundary.
   if(recent.length>MAX_RECENT_STEPS)throw Error('Story feedback cannot be compacted without losing retry state');
@@ -111,7 +112,14 @@ class StoryFeedbackMemory{
   const events=this.data.events.filter(e=>e.contextId===this.contextId).sort((a,b)=>order.get(a.sessionId)-order.get(b.sessionId)||a.step.seq-b.step.seq);
   const steps=events.map(e=>e.step),recentNativeSteps=compactSteps(steps);
   const state=JSON.parse(signature(steps));
-  return {quest:this.quest,stage:this.stage,contextId:this.contextId,recentNativeSteps,navigationFeedback:grounding.navigationFeedback(steps),interactionFeedback:state.interactions.map(([target,attemptsLowerBound])=>({target,attemptsLowerBound,blocked:attemptsLowerBound>=2})),stats:{nativeReceipts:steps.length,followFailureReceipts:steps.filter(s=>s.action.kind==='follow_marker'&&grounding.navigationFeedback([s]).failedFollows>0).length,unchangedInteractionReceipts:steps.filter(s=>{const d=parseDetail(s);return d?.kind==='interaction'&&d.sent===true&&d.outcome==='prompt_unchanged';}).length},verification:'native_receipts_not_game_success'};
+  return {quest:this.quest,stage:this.stage,contextId:this.contextId,recentNativeSteps,
+   navigationFeedback:grounding.navigationFeedback(steps),travelFeedback:grounding.travelFeedback(steps),
+   interactionFeedback:state.interactions.map(([target,attemptsLowerBound])=>({target,attemptsLowerBound,blocked:attemptsLowerBound>=2})),
+   stats:{nativeReceipts:steps.length,
+    followFailureReceipts:steps.filter(s=>s.action.kind==='follow_marker'&&grounding.navigationFeedback([s]).failedFollows>0).length,
+    travelFailureReceipts:steps.filter(s=>s.action.kind==='travel_quest'&&grounding.travelFeedback([s]).failedTravels>0).length,
+    unchangedInteractionReceipts:steps.filter(s=>{const d=parseDetail(s);return d?.kind==='interaction'&&d.sent===true&&d.outcome==='prompt_unchanged';}).length},
+   verification:'native_receipts_not_game_success'};
  }
  clear({quest=this.quest,stage=this.stage,allStages=false}={}){
   quest=validQuest(quest);stage=validStage(stage);this._load();

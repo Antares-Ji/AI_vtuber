@@ -21,7 +21,7 @@ function harness(options = {}) {
     return rows;
   };
   const deps = {
-    grounding, now: () => clock, getDeadline: () => options.deadline || 1000000,
+    grounding: options.grounding || grounding, now: () => clock, getDeadline: () => options.deadline || 1000000,
     sleep: async ms => { clock += ms; },
     checkInput() {
       if (options.cancelDuringScan && yawTurns >= 1) throw Object.assign(Error('focus lost'), { code: 'STORY_FOCUS_LOST' });
@@ -145,6 +145,63 @@ test('template loading failure is explicit and does not prevent valid OCR fallba
   assert.equal(result.bearings[0][0].templateLoads.length, 2);
   assert.ok(result.bearings[0][0].templateLoads.every(load => load.loaded === false && load.error.includes('unavailable')));
   assert.equal(result.bearings[0][0].fallbackReason, 'accepted');
+});
+test('failed overhead scan resets camera once after fresh world evidence without walking', async () => {
+  const h = harness({ templates: false, label: false }), result = await h.run(1);
+  assert.equal(result.stopReason, 'bearing_unavailable');
+  assert.equal(result.cameraReset.sent, true);
+  assert.equal(result.cameraReset.reason, 'overhead_scan_finished');
+  assert.equal(h.events.filter(e => e === 'reset').length, 1);
+  assert.equal(h.routes.length, 0); assert.equal(h.events.includes('down:VK_W'), false);
+  assert.doesNotThrow(() => JSON.stringify(result));
+});
+test('fresh menu/dialogue/F or missing HUD prevents final camera reset', async () => {
+  const blockedRows = [
+    [{ text: '商城', box: [170, 440, 50, 20] }],
+    [{ text: '这是一个当前剧情的对话字幕', box: [300, 940, 600, 40] }, { text: '派蒙', box: [850, 850, 80, 30] }],
+    [...hudRows(), { text: 'F', box: [1100, 500, 20, 20] }, { text: '法拉', box: [1140, 500, 100, 20] }], []
+  ];
+  for (const rows of blockedRows) {
+    let finalReads = 0;
+    const h = harness({ templates: false, rowsAtYaw: yaw => yaw === 8 && ++finalReads > 1 ? rows : hudRows() });
+    const result = await h.run(1);
+    assert.equal(result.stopReason, 'bearing_unavailable'); assert.equal(result.cameraReset.sent, false);
+    assert.match(result.cameraReset.reason, /^fresh_/);
+    assert.equal(h.events.includes('reset'), false); assert.equal(h.routes.length, 0);
+  }
+});
+test('camera final action rechecks deadline and cancellation after OCR without masking scan failure', async () => {
+  for (const mode of ['deadline', 'cancel']) {
+    let finalReads = 0;
+    const options = { templates: false, rowsAtYaw: yaw => {
+      if (yaw === 8 && ++finalReads > 1) {
+        if (mode === 'deadline') options.deadline = 1;
+        else options.cancelDuringScan = true;
+      }
+      return hudRows();
+    } };
+    const h = harness(options), result = await h.run(1);
+    assert.equal(result.stopReason, 'bearing_unavailable'); assert.equal(result.cameraReset.sent, false);
+    assert.equal(result.cameraReset.reason, mode === 'deadline' ? 'deadline' : 'guard_failed');
+    if (mode === 'cancel') assert.equal(result.cameraReset.errorCode, 'STORY_FOCUS_LOST');
+    assert.equal(h.events.includes('reset'), false); assert.equal(h.routes.length, 0);
+  }
+});
+test('cancelled or expired scans never send final reset even if cleanup could retry', async () => {
+  for (const options of [{ deadline: 6800 }, { cancelDuringScan: true }]) {
+    const h = harness({ templates: false, label: false, ...options }), result = await h.run(1);
+    assert.equal(result.cameraReset.sent, false);
+    assert.match(result.cameraReset.reason, /^blocked_stop:/);
+    assert.equal(h.events.includes('reset'), false); assert.equal(h.routes.length, 0);
+  }
+});
+test('native eligibility receives bounded history before any camera input', async () => {
+  const history = [{ seq: 4, detail: 'prior failure' }]; let received;
+  const h = harness({ grounding: { ...grounding, travelEligibility(input) {
+    received = input.recentNativeSteps; return { ok: false, reason: 'travel_blocked', hud: null };
+  } } }), result = await h.run(1, { recentNativeSteps: history });
+  assert.equal(received, history); assert.equal(result.stopReason, 'travel_blocked');
+  assert.equal(h.events.some(e => Array.isArray(e) || e === 'reset' || e.startsWith('down:')), false);
 });
 test('OCR fallback can align, uses independent uncached samples and single walk path', async () => {
   const h = harness({ templates: false }), result = await h.run(2);
