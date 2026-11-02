@@ -7,7 +7,7 @@ else (async function(){
  const save=()=>file.writeTextSync('receipt.json',JSON.stringify(receipt));
  const normalize=s=>String(s||'').replace(/\s/g,'');
  let activeInput=null,observationDelayMs=400,departedInteraction=null,seekState=null;
- const inputKinds=new Set(['key','click_text','choose_dialogue','follow_marker','reset_camera','advance_quest','travel_quest','turn','teleport','move','fight','leave_interaction','navigate','seek_quest','search_area']);
+ const inputKinds=new Set(['key','click_text','choose_dialogue','follow_marker','reset_camera','advance_quest','travel_quest','turn','teleport','move','fight','leave_interaction','navigate','seek_quest','search_area','quest_route']);
  function inputFailure(code,message){
   const error=Error(message);error.code=code;
   if(activeInput){activeInput.errorCode=code;activeInput.failedAt=Date.now();}
@@ -62,6 +62,7 @@ else (async function(){
   world:()=>{checkInput();const f=captureGameRegion();try{if(typeof getOwnedSceneObservation==='undefined')return false;const v=JSON.parse(getOwnedSceneObservation(f));return v.ui==='Main'&&v.motion==='Normal';}finally{f.dispose();}}
  });
  const searchArea=StoryAreaSearch.create({grounding:StoryGrounding,read:readFreshTexts,position:()=>{checkInput();const p=genshin.getPositionFromMap('Teyvat',0);return p?{x:Number(p.x??p.X),y:Number(p.y??p.Y)}:null;},pathingScript:typeof pathingScript==='undefined'?null:pathingScript,createCancellationTokenSource:()=>new CancellationTokenSource(),monitorPath:StoryContinuousNavigation.monitorPath,sleep,checkInput,getDeadline:()=>Math.min(activeInput?.deadlineAt||sessionDeadline,sessionDeadline),movementStop:rows=>StoryContinuousNavigation.departureStop(rows,StoryGrounding,departedInteraction)});
+ const commissionRoute=StoryCommissionRoute.create({catalog:StoryCommissionCatalog,grounding:StoryGrounding,read:readFreshTexts,position:()=>{checkInput();const p=genshin.getPositionFromMap('Teyvat',0);return p?{x:Number(p.x??p.X),y:Number(p.y??p.Y)}:null;},pathingScript:typeof pathingScript==='undefined'?null:pathingScript,createCancellationTokenSource:()=>new CancellationTokenSource(),monitorPath:StoryContinuousNavigation.monitorPath,sleep,checkInput,getDeadline:()=>Math.min(activeInput?.deadlineAt||sessionDeadline,sessionDeadline),movementStop:rows=>StoryContinuousNavigation.departureStop(rows,StoryGrounding,departedInteraction)});
  const travelQuest=StoryTravel.createTravelQuest({
   grounding:StoryGrounding,captureGameRegion,readTexts,sleep,now:()=>Date.now(),checkInput,
   keyDown:guardedKeyDown,keyUp:key=>keyUp(key),moveMouseBy:guardedMoveMouseBy,middleButtonClick:guardedMiddleButtonClick,
@@ -300,6 +301,7 @@ else (async function(){
    else if(action.kind==='advance_quest'){detail=JSON.stringify(await navigate({key:action.key,ms:8000}));}
    else if(action.kind==='navigate'){detail=JSON.stringify(await navigate(action));}
    else if(action.kind==='search_area'){detail=JSON.stringify(await searchArea(decision.areaSearchState));seekState=null;}
+   else if(action.kind==='quest_route'){detail=JSON.stringify(await commissionRoute(action.id,decision.commissionRouteStates?.[action.id]));seekState=null;}
    else if(action.kind==='seek_quest'){
     const hud=StoryGrounding.questHud(readFreshTexts());
     if(!hud||hud.meters<=5||hud.meters>300)throw Error('本地距离反馈寻路需要当前5–300m任务HUD');

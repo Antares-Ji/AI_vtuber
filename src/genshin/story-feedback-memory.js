@@ -113,8 +113,10 @@ class StoryFeedbackMemory{
   const steps=events.map(e=>e.step),recentNativeSteps=compactSteps(steps);
   const state=JSON.parse(signature(steps));
   const search=steps.map(parseDetail).filter(d=>d?.kind==='area-search'&&d.state?.version===1).at(-1);
+  const commissionRouteStates={};for(const d of steps.map(parseDetail))if(d?.kind==='commission-route'&&d.state?.id)commissionRouteStates[d.state.id]=d.state;
   return {quest:this.quest,stage:this.stage,contextId:this.contextId,recentNativeSteps,
    areaSearchState:search?.state||null,
+   commissionRouteStates,
    navigationFeedback:grounding.navigationFeedback(steps),travelFeedback:grounding.travelFeedback(steps),
    interactionFeedback:state.interactions.map(([target,attemptsLowerBound])=>({target,attemptsLowerBound,blocked:attemptsLowerBound>=2})),
    stats:{nativeReceipts:steps.length,

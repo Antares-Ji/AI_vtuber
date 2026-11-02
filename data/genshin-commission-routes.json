@@ -1,0 +1,354 @@
+{
+  "version": 1,
+  "source": {
+    "repository": "https://github.com/babalae/bettergi-scripts-list",
+    "commit": "6d769e42f17bc1f7dc209f0446b2f7e42bf06e33",
+    "downloadedAt": 1793642979045
+  },
+  "notice": "Reference route data only; embedded input/combat actions removed. Current BGI CV, HUD and interactions must verify execution.",
+  "routes": [
+    {
+      "id": "urgent-wood-1",
+      "quest": "紧急修理",
+      "variant": "苍风高地",
+      "stagePattern": "收集木材",
+      "title": "木板调查点1",
+      "anchor": {
+        "x": -549.673828125,
+        "y": 1957.1962890625
+      },
+      "maxAnchorDistance": 170,
+      "sourceFile": "repo/js/AutoCommissionNova/process/蒙德/NPC/紧急修理/苍风高地/紧急修理-2.json",
+      "sha256": "75609ba25784bddfecc90ece1b08a5850a6e141ceab2b1b2f15317be84997e1d",
+      "author": "云闲vsv",
+      "positions": [
+        {
+          "id": 1,
+          "x": -553.3740234375,
+          "y": 1960.9912109375,
+          "type": "path",
+          "move_mode": "walk",
+          "action": ""
+        },
+        {
+          "id": 2,
+          "x": -565.0654296875,
+          "y": 1970.35400390625,
+          "type": "target",
+          "move_mode": "walk",
+          "action": ""
+        },
+        {
+          "id": 3,
+          "x": -569.5068359375,
+          "y": 1969.12646484375,
+          "type": "path",
+          "move_mode": "walk",
+          "action": ""
+        },
+        {
+          "id": 4,
+          "x": -574.873046875,
+          "y": 1968.79345703125,
+          "type": "target",
+          "move_mode": "walk",
+          "action": ""
+        }
+      ]
+    },
+    {
+      "id": "urgent-wood-2",
+      "quest": "紧急修理",
+      "variant": "苍风高地",
+      "stagePattern": "收集木材",
+      "title": "木板调查点2",
+      "anchor": {
+        "x": -549.673828125,
+        "y": 1957.1962890625
+      },
+      "maxAnchorDistance": 170,
+      "sourceFile": "repo/js/AutoCommissionNova/process/蒙德/NPC/紧急修理/苍风高地/紧急修理-2 (1).json",
+      "sha256": "244f7800cd4ca62d1f79bc152c9f09ac0ac51b5d769850436b8b3d23f6c80199",
+      "author": "云闲vsv",
+      "positions": [
+        {
+          "id": 1,
+          "x": -574.873046875,
+          "y": 1968.79345703125,
+          "type": "path",
+          "move_mode": "walk",
+          "action": ""
+        },
+        {
+          "id": 2,
+          "x": -576.5888671875,
+          "y": 1968.43505859375,
+          "type": "path",
+          "move_mode": "walk",
+          "action": ""
+        },
+        {
+          "id": 3,
+          "x": -579.7138671875,
+          "y": 1967.87548828125,
+          "type": "target",
+          "move_mode": "walk",
+          "action": ""
+        }
+      ]
+    },
+    {
+      "id": "urgent-wood-3",
+      "quest": "紧急修理",
+      "variant": "苍风高地",
+      "stagePattern": "收集木材",
+      "title": "木板调查点3",
+      "anchor": {
+        "x": -549.673828125,
+        "y": 1957.1962890625
+      },
+      "maxAnchorDistance": 170,
+      "sourceFile": "repo/js/AutoCommissionNova/process/蒙德/NPC/紧急修理/苍风高地/紧急修理-2 (2).json",
+      "sha256": "0b82c5d77bdb692091fc9f30e3a5bfa48e34c4a142083913707d09ebb76215cb",
+      "author": "云闲vsv",
+      "positions": [
+        {
+          "id": 1,
+          "x": -579.7138671875,
+          "y": 1967.87548828125,
+          "type": "path",
+          "move_mode": "walk",
+          "action": ""
+        },
+        {
+          "id": 2,
+          "x": -585.076171875,
+          "y": 1966.9833984375,
+          "type": "path",
+          "move_mode": "walk",
+          "action": ""
+        },
+        {
+          "id": 3,
+          "x": -590.5458984375,
+          "y": 1966.08056640625,
+          "type": "target",
+          "move_mode": "walk",
+          "action": ""
+        }
+      ]
+    },
+    {
+      "id": "urgent-npc",
+      "quest": "紧急修理",
+      "variant": "苍风高地",
+      "stagePattern": "木板.*交给|交给.*木板|和法拉对话",
+      "title": "返回法拉",
+      "anchor": {
+        "x": -549.673828125,
+        "y": 1957.1962890625
+      },
+      "maxAnchorDistance": 170,
+      "sourceFile": "repo/js/AutoCommissionNova/process/蒙德/NPC/紧急修理/苍风高地/紧急修理-2 (3).json",
+      "sha256": "9ce94abab6636a13c1018b8eef42407aa42695ee2ca9f9512bdd2838c4d6c0f7",
+      "author": "云闲vsv",
+      "positions": [
+        {
+          "id": 1,
+          "x": -582.3701171875,
+          "y": 1956.986328125,
+          "type": "path",
+          "move_mode": "walk",
+          "action": ""
+        },
+        {
+          "id": 2,
+          "x": -554.8212890625,
+          "y": 1957.78515625,
+          "type": "path",
+          "move_mode": "walk",
+          "action": ""
+        },
+        {
+          "id": 3,
+          "x": -549.7423828125,
+          "y": 1957.53857421875,
+          "type": "target",
+          "move_mode": "walk",
+          "action": ""
+        }
+      ]
+    },
+    {
+      "id": "urgent-battle",
+      "quest": "紧急修理",
+      "variant": "苍风高地",
+      "stagePattern": "消灭.*魔物",
+      "title": "第二轮魔物区域",
+      "anchor": {
+        "x": -549.673828125,
+        "y": 1957.1962890625
+      },
+      "maxAnchorDistance": 170,
+      "sourceFile": "repo/js/AutoCommissionNova/process/蒙德/NPC/紧急修理/苍风高地/紧急修理-3-战斗前.json",
+      "sha256": "a10d596d7edf24f5057c06fa168ebc9c3fd6af6218c75daa7ec59d1157d4d35c",
+      "author": "云闲vsv",
+      "positions": [
+        {
+          "id": 1,
+          "x": -560.8115234375,
+          "y": 1955.16357421875,
+          "type": "path",
+          "move_mode": "walk",
+          "action": ""
+        },
+        {
+          "id": 2,
+          "x": -546.9423828125,
+          "y": 1961.5341796875,
+          "type": "path",
+          "move_mode": "walk",
+          "action": ""
+        },
+        {
+          "id": 3,
+          "x": -542.6171875,
+          "y": 1947.8896484375,
+          "type": "path",
+          "move_mode": "walk",
+          "action": ""
+        },
+        {
+          "id": 4,
+          "x": -536.1142578125,
+          "y": 1952.3466796875,
+          "type": "path",
+          "move_mode": "walk",
+          "action": ""
+        },
+        {
+          "id": 5,
+          "x": -546.0009765625,
+          "y": 1955.2294921875,
+          "type": "path",
+          "move_mode": "walk",
+          "action": ""
+        }
+      ]
+    },
+    {
+      "id": "urgent-rope",
+      "quest": "紧急修理",
+      "variant": "苍风高地",
+      "stagePattern": "收集绳索",
+      "title": "绳索调查点",
+      "anchor": {
+        "x": -549.673828125,
+        "y": 1957.1962890625
+      },
+      "maxAnchorDistance": 170,
+      "sourceFile": "repo/js/AutoCommissionNova/process/蒙德/NPC/紧急修理/苍风高地/紧急修理-4.json",
+      "sha256": "b80ced7452fd5dbbfa94a681decc25198f88e68a31c39895392da2b31ea66724",
+      "author": "云闲vsv",
+      "positions": [
+        {
+          "id": 1,
+          "x": -547.6806640625,
+          "y": 1961.140625,
+          "type": "path",
+          "move_mode": "walk",
+          "action": ""
+        },
+        {
+          "id": 2,
+          "x": -618.7294921875,
+          "y": 1938.83056640625,
+          "type": "path",
+          "move_mode": "walk",
+          "action": ""
+        },
+        {
+          "id": 3,
+          "x": -629.1767578125,
+          "y": 1926.9873046875,
+          "type": "path",
+          "move_mode": "walk",
+          "action": ""
+        },
+        {
+          "id": 4,
+          "x": -633.1669921875,
+          "y": 1924.76025390625,
+          "type": "path",
+          "move_mode": "walk",
+          "action": ""
+        },
+        {
+          "id": 5,
+          "x": -638.3837890625,
+          "y": 1923.458984375,
+          "type": "target",
+          "move_mode": "walk",
+          "action": ""
+        }
+      ]
+    },
+    {
+      "id": "urgent-rope-return",
+      "quest": "紧急修理",
+      "variant": "苍风高地",
+      "stagePattern": "绳索.*交给|交给.*绳索",
+      "title": "将绳索交给法拉",
+      "anchor": {
+        "x": -549.673828125,
+        "y": 1957.1962890625
+      },
+      "maxAnchorDistance": 170,
+      "sourceFile": "repo/js/AutoCommissionNova/process/蒙德/NPC/紧急修理/苍风高地/紧急修理-4 (1).json",
+      "sha256": "de7019d00b64137434670b74930cb4e09dbd50d3a879ad0f5f34aad9ee150265",
+      "author": "云闲vsv",
+      "positions": [
+        {
+          "id": 1,
+          "x": -625.84765625,
+          "y": 1927.81787109375,
+          "type": "path",
+          "move_mode": "walk",
+          "action": ""
+        },
+        {
+          "id": 2,
+          "x": -600.5126953125,
+          "y": 1949.896484375,
+          "type": "path",
+          "move_mode": "walk",
+          "action": ""
+        },
+        {
+          "id": 3,
+          "x": -557.7158203125,
+          "y": 1956.599609375,
+          "type": "path",
+          "move_mode": "walk",
+          "action": ""
+        },
+        {
+          "id": 4,
+          "x": -552.6669921875,
+          "y": 1957.3408203125,
+          "type": "path",
+          "move_mode": "walk",
+          "action": ""
+        },
+        {
+          "id": 5,
+          "x": -549.7499398251057,
+          "y": 1957.375,
+          "type": "target",
+          "move_mode": "walk",
+          "action": ""
+        }
+      ]
+    }
+  ]
+}
