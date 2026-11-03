@@ -71,6 +71,15 @@ const StoryGrounding=(()=>{
   if(sceneCue(texts))return {state:'not_world',candidates:[]};
   const rows=positioned(texts);
   // BetterGI AutoPick's F area, including its slightly shifted NPC/chat row.
+  // Native AutoPick can recognize the icon even when full-frame OCR says 0.
+  // A same-frame native match supersedes OCR pairs; missing/ambiguous labels
+  // block movement and interaction rather than silently ignoring the prompt.
+  const native=rows.filter(t=>t.source==='bettergi_native_f_label');
+  if(native.length){
+   const p=native[0],valid=native.length===1&&p.count===1&&normal(p.text).length>=2
+    &&Array.isArray(p.anchor)&&p.anchor.length===4&&p.anchor.every(Number.isFinite);
+   return {state:valid?'unique':'ambiguous',candidates:valid?[{text:p.text,box:p.box,anchor:p.anchor,source:p.source}]:[]};
+  }
   // Coordinates are OCR rectangles in BetterGI's normalized 1920x1080 frame.
   const anchors=rows.filter(t=>normal(t.text)==='F'&&t.box[0]>=1080&&t.box[0]<=1280&&t.box[1]>=300&&t.box[1]<=780&&t.box[2]<=65&&t.box[3]<=65);
   const candidates=[];
@@ -1244,6 +1253,10 @@ else (async function(){
    const [x,y,w,h]=instruction.box,top=Math.round(y+h),left=Math.max(0,Math.round(x-8));
    const small=frame.findMulti(RecognitionObject.ocr(left,top,Math.min(300,frame.width-left),Math.min(65,frame.height-top)));
    for(let i=0;i<small.count&&texts.length<100;i++)if(/^\s*\d{1,6}\s*(m|米)\s*$/i.test(String(small[i].text||''))||/已到达任务区域|在此区域内搜索目标/.test(String(small[i].text||'')))texts.push({id:'distance-'+i,source:'quest_distance_crop',text:String(small[i].text),box:[small[i].x,small[i].y,small[i].width,small[i].height]});
+  }
+  if(typeof getOwnedInteractionPrompt!=='undefined'){
+   const prompt=JSON.parse(getOwnedInteractionPrompt(frame));
+   if(prompt&&texts.length<100)texts.push({...prompt,id:'native-f-prompt'});
   }
   return texts;
  }

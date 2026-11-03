@@ -177,6 +177,39 @@ if 'runOwnedQuestUnstuck' not in s:
     engine.write_text(s.replace(anchor,anchor+addition),encoding='utf-8')
 print('Installed owned near-tracking adapter; no path/CV reimplementation')
 
+# Reuse AutoPick's template and label reader on the SAME capture. Whole-frame
+# OCR sometimes reads the F icon as 0; that must not hide a native prompt.
+s=engine.read_text(encoding='utf-8')
+if 'getOwnedInteractionPrompt' not in s:
+    anchor='            engine.AddHostObject("isGameActive", (Func<bool>)OwnedGameFocus.IsGameActive);'
+    addition='''
+            engine.AddHostObject("getOwnedInteractionPrompt", (Func<ImageRegion, string>)(frame =>
+            {
+                if (!BetterGenshinImpact.GameTask.Common.BgiVision.Bv.IsInMainUi(frame))
+                    return "null";
+                var ro = BetterGenshinImpact.GameTask.AutoPick.Assets.AutoPickAssets.Get(frame,
+                    BetterGenshinImpact.GameTask.TaskContext.Instance().Config.AutoPickConfig.PickKey).PickRo;
+                var matches = frame.FindMulti(ro);
+                try
+                {
+                    if (matches.Count == 0) return "null";
+                    var m = matches[0];
+                    var scale = BetterGenshinImpact.GameTask.TaskContext.Instance().SystemInfo.AssetScale;
+                    var label = matches.Count == 1 ? BetterGenshinImpact.GameTask.Common.BgiVision.Bv.FindFKeyText(frame) : "";
+                    return System.Text.Json.JsonSerializer.Serialize(new {source="bettergi_native_f_label",
+                        text=label, count=matches.Count, anchor=new[]{m.X,m.Y,m.Width,m.Height},
+                        box=new[]{m.X+(int)(115*scale),m.Y,(int)(285*scale),m.Height}});
+                }
+                finally { foreach (var match in matches) match.Dispose(); }
+            }));'''
+    assert s.count(anchor)==1
+    engine.write_text(s.replace(anchor,anchor+addition),encoding='utf-8')
+
+s=engine.read_text(encoding='utf-8')
+import re
+s=re.sub(r'(?<!\.)\bTaskContext\.Instance\(\)', 'BetterGenshinImpact.GameTask.TaskContext.Instance()', s)
+engine.write_text(s,encoding='utf-8')
+
 s=target.read_text(encoding='utf-8')
 if '_ownedBestDistance' not in s:
     s=s.replace('    private bool _ownedEscaping;', '''    private bool _ownedEscaping;

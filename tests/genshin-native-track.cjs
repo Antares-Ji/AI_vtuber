@@ -1,6 +1,17 @@
 const {test}=require('node:test'),assert=require('node:assert/strict');
 const g=require('../scripts/genshin/story-main'),{validateDecision}=require('../src/genshin/story-runtime');
 const rows=[{text:'返回「旗舰」休息',box:[75,246,230,33]},{text:'高处60m',box:[80,280,120,25]}];
+test('native AutoPick resolves an OCR-missed F while ambiguous native prompts remain blocked',()=>{
+ const p={source:'bettergi_native_f_label',text:'坐下',count:1,box:[1300,500,100,30],anchor:[1180,500,30,30]};
+ const ocr=[{text:'0',box:p.anchor},{text:'坐下',box:p.box}];
+ assert.equal(g.interaction(ocr).state,'absent');
+ assert.equal(g.interaction([...ocr,p]).state,'unique');
+ assert.equal(g.interaction([...ocr,p]).candidates[0].source,p.source);
+ assert.equal(g.movementStop([...ocr,p]),'interaction_prompt');
+ for(const bad of [{...p,count:2},{...p,text:''},{...p,anchor:null}])assert.equal(g.interaction([...ocr,bad]).state,'ambiguous');
+ assert.equal(g.interaction([...ocr,p,p]).state,'ambiguous');
+ assert.equal(g.interaction([...ocr,{...p,source:'model_guess'}]).state,'absent');
+});
 test('elevated HUD distance remains associated with its instruction and retains elevation',()=>{
  assert.equal(g.questHud(rows).meters,60);assert.equal(g.questHud(rows).elevation,'高处');
  assert.equal(g.questHud([rows[0],{...rows[1],box:[1200,600,120,25]}]),null);

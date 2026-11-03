@@ -160,6 +160,10 @@ else (async function(){
    const small=frame.findMulti(RecognitionObject.ocr(left,top,Math.min(300,frame.width-left),Math.min(65,frame.height-top)));
    for(let i=0;i<small.count&&texts.length<100;i++)if(/^\s*\d{1,6}\s*(m|米)\s*$/i.test(String(small[i].text||''))||/已到达任务区域|在此区域内搜索目标/.test(String(small[i].text||'')))texts.push({id:'distance-'+i,source:'quest_distance_crop',text:String(small[i].text),box:[small[i].x,small[i].y,small[i].width,small[i].height]});
   }
+  if(typeof getOwnedInteractionPrompt!=='undefined'){
+   const prompt=JSON.parse(getOwnedInteractionPrompt(frame));
+   if(prompt&&texts.length<100)texts.push({...prompt,id:'native-f-prompt'});
+  }
   return texts;
  }
  function questHud(texts){
