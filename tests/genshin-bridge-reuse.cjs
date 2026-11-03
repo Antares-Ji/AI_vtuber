@@ -15,6 +15,12 @@ test('repeated connect and console reload reuse one authorized helper without in
  assert.equal((await first.start({root,reuseSession:session})).pid,42);assert.equal((await first.start({root,reuseSession:session})).pid,42);
  assert.equal((await load(root,calls).start({root,reuseSession:session})).pid,42);
  assert.equal(calls.length,2);assert.ok(calls.every(args=>args[0].endsWith('bridge-identify.py')));
+ const id='22222222-2222-2222-2222-222222222222',file=path.join(folder,'result-'+id+'.json');
+ assert.equal(first.completedResult(id),null);
+ fs.writeFileSync(file,JSON.stringify({id,processStopped:true,inputReleased:false}));assert.equal(first.completedResult(id),null);
+ fs.writeFileSync(file,JSON.stringify({id,processStopped:true,inputReleased:true}));assert.equal(first.completedResult(id).session,session);
+ assert.equal(first.completedResult('../result-any'),null);
+ fs.writeFileSync(file,JSON.stringify({id:session,processStopped:true,inputReleased:true}));assert.equal(first.completedResult(id),null);
 });
 test('story provider failure is retained after confirmed cleanup instead of being replaced by watchdog stop',async t=>{
  const root=fs.mkdtempSync(path.join(os.tmpdir(),'bgi-story-failure-'));t.after(()=>fs.rmSync(root,{recursive:true,force:true}));
@@ -22,7 +28,7 @@ test('story provider failure is retained after confirmed cleanup instead of bein
  fs.mkdirSync(folder,{recursive:true});fs.writeFileSync(path.join(base,'current.json'),JSON.stringify({session}));fs.writeFileSync(path.join(folder,'heartbeat'),'1');
  fs.writeFileSync(path.join(folder,'status.json'),JSON.stringify({ready:true,busy:false,pid:42,supervisorVersion:8,heartbeatAt:Date.now()/1000}));
  fs.mkdirSync(path.join(root,'scripts/genshin/assets'),{recursive:true});
- for(const name of ['quest-marker.png','quest-marker-blue.png'])fs.writeFileSync(path.join(root,'scripts/genshin/assets',name),'fixture');
+ for(const name of ['quest-marker.png','quest-marker-blue.png','minimap-commission.png','minimap-candidates.source.json','minimap-commission.source.json'])fs.writeFileSync(path.join(root,'scripts/genshin/assets',name),'fixture');
  let id,cleanupReads=0,decisions=0;
  const mockFs={...fs,
   renameSync:(a,b)=>{fs.renameSync(a,b);if(path.basename(b).startsWith('job-')){

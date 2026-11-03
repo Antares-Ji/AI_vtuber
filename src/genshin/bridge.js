@@ -11,6 +11,11 @@ const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 let session = null, folder = null, heartbeat = null, starting = null, active = null, lastResult = null;
 function read(file) { try { return JSON.parse(fs.readFileSync(file, 'utf8')); } catch { return null; } }
 function status() { const value = folder && read(path.join(folder, 'status.json')); const stale=Boolean(value&&Date.now()-value.heartbeatAt*1000>15000);return { ...(value || {ready:false,busy:false}),ready:Boolean(value?.ready&&!value.closedAt&&!stale),stale,session, active, lastResult, operations:['capture','path','task','cancelProbe','window','dismiss_menu','locate','story'], tasks:TASKS }; }
+function completedResult(id){
+  if(!folder||typeof id!=='string'||!/^[0-9a-f-]{36}$/i.test(id))return null;
+  const result=read(path.join(folder,'result-'+id+'.json'));
+  return result?.id===id&&result.inputReleased===true&&result.processStopped===true?{...result,session}:null;
+}
 async function processAlive(root=ROOT) {
   const output=await runFile(path.join(root,'runtime/vlm-env/Scripts/python.exe'),[path.join(root,'scripts/genshin/bridge-identify.py'),session,'--probe'],{cwd:root,windowsHide:true,timeout:3000,maxBuffer:8192});
   return JSON.parse(output.stdout).alive===true;
@@ -148,4 +153,4 @@ function evidence(sessionId,id,name) {
   const file=path.join(folder,'evidence-'+id,name);if(!fs.existsSync(file))throw Error('截图尚未生成');return file;
 }
 async function disconnect(){if(active||status().busy)throw Error('请先停止并等待 BetterGI 释放输入');if(!folder)return status();clearInterval(heartbeat);fs.writeFileSync(path.join(folder,'shutdown'),'stop');const deadline=Date.now()+15000;while(Date.now()<deadline){if(status().closedAt)return status();if(!await processAlive()){fs.writeFileSync(path.join(folder,'status.json'),JSON.stringify({...read(path.join(folder,'status.json')),ready:false,closedAt:Date.now()/1000,exitConfirmedByProcessProbe:true}));return status();}await delay(300);}throw Error('管理进程尚未确认退出');}
-module.exports={start,status,execute,validate,evidence,disconnect,TASKS};
+module.exports={start,status,completedResult,execute,validate,evidence,disconnect,TASKS};

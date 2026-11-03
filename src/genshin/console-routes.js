@@ -27,7 +27,9 @@ function createGenshinConsole({ host, brain, parseBody, send, root = ROOT, env =
       if(state.busy||state.active)return false;
       const execution=run?.result?.execution||story?.execution;
       const nativeId=execution?.id||saved?.nativeId;
-      return Boolean(nativeId&&state.lastResult?.id===nativeId&&state.lastResult.inputReleased===true&&state.lastResult.processStopped===true);
+      if(state.lastResult?.inputReleased!==true||state.lastResult.processStopped!==true)return false;
+      const result=state.lastResult.id===nativeId?state.lastResult:bridge.completedResult(nativeId);
+      return Boolean(nativeId&&result?.id===nativeId&&result.inputReleased===true&&result.processStopped===true);
     },
     ready:async()=>{
       const state=bridge.status();if(!state.ready||state.busy||state.active)return false;

@@ -62,6 +62,17 @@ test('resume rejects mismatched tokens and unrelated cleanup receipts without st
  f.setStory(null);f.bridgeState.lastResult.id='22222222-2222-4222-8222-222222222222';
  assert.equal((await f.request('/story/resume',{sessionId:saved.sessionId,revision:saved.revision})).code,400);assert.equal(f.starts.length,1);
 });
+test('window recovery may follow story cleanup without losing the exact story receipt',async t=>{
+ const f=fixture(t);await f.request('/story/start',{goal:'继续当前剧情'});f.setStory({runId:'r1',nativeId:NATIVE});
+ await f.request('/story/pause-for-repair',{});const saved=f.read();f.setStory(null);
+ f.bridgeState.lastResult={id:'22222222-2222-4222-8222-222222222222',inputReleased:true,processStopped:true};
+ t.mock.method(bridge,'completedResult',id=>id===NATIVE?{id,inputReleased:true,processStopped:true}:null);
+ f.bridgeState.lastResult.inputReleased=false;
+ assert.equal((await f.request('/story/resume',{sessionId:saved.sessionId,revision:saved.revision})).code,400);
+ f.bridgeState.lastResult.inputReleased=true;
+ assert.equal((await f.request('/story/resume',{sessionId:saved.sessionId,revision:saved.revision})).code,202);
+ assert.equal(f.starts.length,2);
+});
 test('a later unrelated story snapshot cannot supply native evidence to the current session',async t=>{
  const f=fixture(t);await f.request('/story/start',{goal:'继续当前剧情',continuationMode:'until_stopped'});
  f.setStory({runId:'different-run',startedAt:Date.now()+10000,nativeId:NATIVE});
