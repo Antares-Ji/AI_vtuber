@@ -39,7 +39,7 @@ async function finish({split=false,restart=false,resume=false}={}){
    }else {await new Promise(resolve=>setTimeout(resolve,2000));await obs.call('SetRecordDirectory',{recordDirectory:record.previousDirectory});}
   }
  }finally{await obs.disconnect();}
- record.output=path.join(record.directory,'emergency-repair-20x-'+record.startedAt+'.mp4');
+ record.output=path.join(record.directory,'genshin-20x-'+record.startedAt+'.mp4');
  fs.writeFileSync(marker,JSON.stringify(nextRecord||record,null,2));
  const ffmpeg=path.join(root,'runtime/asr-env/Lib/site-packages/imageio_ffmpeg/binaries/ffmpeg-win-x86_64-v7.1.exe');
  await new Promise((resolve,reject)=>{

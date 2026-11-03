@@ -4,6 +4,10 @@ const {questMenu,questInstruction}=require('../../scripts/genshin/story-main');
 function questFromEvidence(e,source){
  const texts=e?.request?.texts,quest=e?.decision?.quest;
  if(!Array.isArray(texts)||typeof quest!=='string'||!quest||!questMenu(texts)&&!texts.some(t=>/任务专注模式/.test(t.text)))return null;
+ // The frame precedes the action. Selecting a different list entry cannot
+ // commit the old detail panel as the chosen task.
+ const action=e.decision.action;
+ if(action?.kind==='click_text'&&action.scope==='quest_list'&&action.text!==quest)return null;
  // The right-hand detail panel distinguishes the selected quest from the list.
  const details=texts.filter(t=>Array.isArray(t.box)&&t.box[0]>700&&t.box[1]<700).map(t=>t.text);
  if(!details.some(t=>t===quest))return null;

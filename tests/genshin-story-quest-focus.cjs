@@ -1,6 +1,25 @@
 const {test}=require('node:test'),assert=require('node:assert/strict'),fs=require('node:fs'),os=require('node:os'),path=require('node:path');
 const {StoryQuestFocus,completionEvidence}=require('../src/genshin/story-quest-focus');
 const memory=(quest,at=100)=>({quest,details:[quest,'任务详情'],source:'test-menu-evidence',at,verification:'historical_bettergi_ocr_recheck_current_step'});
+const {questFromEvidence}=require('../src/genshin/story-memory');
+function preselection(){return {at:110,decision:{quest:'个男孩的去信',action:{kind:'click_text',scope:'quest_list',text:'两次视线的交汇'}},request:{texts:[
+ {text:'任务专注模式'},{text:'进行中'},{text:'个男孩的去信',box:[880,120,220,35]},
+ {text:'两次视线的交汇',box:[190,200,220,35]}]}};}
+test('selecting another list row never anchors the pre-action detail title',()=>{
+ const e=preselection();assert.equal(questFromEvidence(e,'source'),null);
+ e.decision.action={kind:'click_text',text:'追踪目标'};
+ assert.equal(questFromEvidence(e,'source').quest,'个男孩的去信');
+});
+test('restart repairs only a proven preselection anchor and preserves its audit',t=>{
+ const root=fixture(t),directory=path.join(root,'runtime/genshin/story/trial');fs.mkdirSync(directory,{recursive:true});
+ const source=path.join(directory,'step-2.json');fs.writeFileSync(source,JSON.stringify(preselection()));
+ const old={...memory('个男孩的去信',110),source};
+ const focus=new StoryQuestFocus({root,sessionId:'repair',startedAt:100,initialMemory:old});
+ const resumed=new StoryQuestFocus({root,sessionId:'repair',startedAt:100});
+ assert.equal(resumed.snapshot().memory,null);
+ const audit=JSON.parse(fs.readFileSync(focus.file));assert.equal(audit.repairs.length,1);assert.deepEqual(audit.repairs[0].memory,old);
+ assert.equal(new StoryQuestFocus({root,sessionId:'repair',startedAt:100}).snapshot().memory,null);
+});
 function fixture(t){const root=fs.mkdtempSync(path.join(os.tmpdir(),'genshin-focus-'));t.after(()=>fs.rmSync(root,{recursive:true,force:true}));return root;}
 function row(root,folder,seq,quest,at){
  const directory=path.join(root,'runtime/genshin/story',folder);fs.mkdirSync(directory,{recursive:true});

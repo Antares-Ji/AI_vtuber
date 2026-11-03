@@ -45,7 +45,7 @@ class StoryQuestFocus{
   this.sessionId=sessionId;
   const key=createHash('sha256').update(sessionId).digest('hex');
   this.file=path.join(root,'runtime/genshin/story-quest-focus',key+'.json');
-  if(fs.existsSync(this.file)){this._load();return;}
+  if(fs.existsSync(this.file)){this._load();this._repairPreselectionAnchor(root);return;}
   const migrated=earliestMemory(root,startedAt);
   this.state={version:1,sessionId,startedAt,memory:migrated?validMemory(migrated):initialMemory?validMemory(initialMemory):null,completions:[],createdAt:Date.now(),initializedFrom:migrated?'earliest_session_menu_evidence':initialMemory?'provided_memory':'no_memory'};
   this._save();
@@ -61,6 +61,21 @@ class StoryQuestFocus{
   const temporary=this.file+'.'+randomUUID()+'.tmp';
   try{fs.writeFileSync(temporary,JSON.stringify(this.state,null,2),'utf8');fs.renameSync(temporary,this.file);}
   finally{if(fs.existsSync(temporary))fs.unlinkSync(temporary);}
+ }
+ _repairPreselectionAnchor(root){
+  const memory=this.state.memory;if(!memory)return;
+  const base=path.resolve(root,'runtime/genshin/story'),source=path.resolve(memory.source);
+  const relative=path.relative(base,source);
+  if(relative.startsWith('..')||path.isAbsolute(relative))return;
+  let evidence;try{evidence=JSON.parse(fs.readFileSync(source,'utf8'));}catch{return;}
+  const action=evidence.decision?.action;
+  if(evidence.at!==memory.at||evidence.decision?.quest!==memory.quest||
+   action?.kind!=='click_text'||action.scope!=='quest_list'||action.text===memory.quest||
+   !questMenu(evidence.request?.texts)?.entries.some(e=>e.text===action.text))return;
+  // Repair only the proven pre-action bookkeeping bug; never guess a new
+  // title, rewrite OCR, or discard a legitimately selected/tracked task.
+  this.state.repairs=[...(this.state.repairs||[]),{at:Date.now(),reason:'preselection_panel_anchored',memory,action}];
+  this.state.memory=null;this._save();
  }
  snapshot(){return clone({memory:this.state.memory,completions:this.state.completions});}
  select(memory){
