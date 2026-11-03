@@ -580,6 +580,58 @@
           "action": ""
         }
       ]
+    },
+    {
+      "id": "flagship-walk",
+      "quest": "两次视线的交汇",
+      "stagePattern": "返回.*旗舰.*休息",
+      "title": "旗舰入口剩余步行段（不再传送）",
+      "mode": "recorded_continue",
+      "anchor": {
+        "x": 9452.8057,
+        "y": 1661.5112
+      },
+      "maxAnchorDistance": 200,
+      "sourceRepository": "https://github.com/babalae/bettergi-scripts-list",
+      "sourceCommit": "64872afb5ad8f9c5931c31cbc055233b6716b513",
+      "sourceFile": "repo/js/自动购买商品/assets/path/挪德卡莱-那夏镇-旗舰-德米安.json",
+      "sha256": "f3d576e6f54ce5df11744b3525cf3cf39895c21b7739e9b492d004ea5d85491d",
+      "notice": "Only recorded teleport/path coordinates. Removed upstream combat_script and all F/Space/merchant inputs. Stop at entrance; current BGI OCR and DeepSeek must choose entry.",
+      "positions": [
+        {
+          "id": 2,
+          "x": 9466.6641,
+          "y": 1657.7651,
+          "type": "path",
+          "move_mode": "run",
+          "action": ""
+        },
+        {
+          "id": 3,
+          "x": 9491.2451,
+          "y": 1609.6299,
+          "type": "path",
+          "move_mode": "run",
+          "action": ""
+        },
+        {
+          "id": 4,
+          "x": 9465.5547,
+          "y": 1596.207,
+          "type": "path",
+          "move_mode": "run",
+          "action": ""
+        },
+        {
+          "id": 5,
+          "x": 9461.2764,
+          "y": 1598.3384,
+          "type": "target",
+          "move_mode": "walk",
+          "action": ""
+        }
+      ],
+      "resumeFrom": "flagship-entrance"
     }
   ]
 }

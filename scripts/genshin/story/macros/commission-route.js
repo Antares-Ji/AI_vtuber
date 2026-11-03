@@ -4,13 +4,14 @@ const StoryCommissionRoute=(()=>{
   return catalog.routes.filter(r=>r.quest===quest&&new RegExp(r.stagePattern).test(stage||''))
    .filter(r=>r.mode!=='entry_recovery'||Object.values(states).some(s=>s.stage===stage&&s.failures>=2))
    .filter(r=>r.mode!=='entry_continue'||attempts.includes('urgent-entry'))
+   .filter(r=>!r.resumeFrom||attempts.includes(r.resumeFrom))
    .map(r=>({id:r.id,title:r.title,source:'bettergi_script_catalog',referenceOnly:true,
     recovery:Boolean(r.mode),
     completed:states[r.id]?.stage===stage&&states[r.id]?.cursor>=r.positions.length,
     blocked:Boolean(r.mode&&attempts.includes(r.id))||states[r.id]?.stage===stage&&(states[r.id]?.failures>=2||Boolean(r.mode)&&states[r.id]?.attempts>=1),
     cursor:states[r.id]?.stage===stage?states[r.id].cursor:0}));
  }
- function create({catalog,grounding,read,position,pathingScript,createCancellationTokenSource,monitorPath,sleep,checkInput,getDeadline,movementStop,now=Date.now}){
+ function create({catalog,grounding,read,nativeUi=()=>null,position,pathingScript,createCancellationTokenSource,monitorPath,sleep,checkInput,getDeadline,movementStop,now=Date.now}){
   return async function run(id,saved){
    checkInput();const route=catalog.routes.find(r=>r.id===id),rows=read(),stage=grounding.questInstruction(rows)?.text;
    const result={kind:'commission-route',id,stage,points:[],pathStarted:false,stopReason:null,verified:false};
@@ -36,7 +37,7 @@ const StoryCommissionRoute=(()=>{
       const next=grounding.questInstruction(fresh)?.text;
       // The upstream route owns its teleport/map/loading transition. These are
       // expected; a newly observed task stage or dialogue still interrupts it.
-      return {stopReason:now()-started<20000?null:grounding.sceneCue(fresh)==='dialogue'?'dialogue':next&&next!==stage?'stage_changed':null};
+      return {stopReason:now()-started<20000?null:nativeUi()==='Talk'?'dialogue':next&&next!==stage?'stage_changed':null};
      }});
      result.stopReason=watched.stopReason||(cts.isCancellationRequested?'path_timeout':null);
     }finally{try{cts.cancel();if(promise)await promise;}finally{cts.dispose();result.durationMs=now()-started;}}

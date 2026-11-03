@@ -97,3 +97,20 @@ test('exact preflight rejection releases only its own planned attempt across men
  reconcileRouteAttempt(attempted,pending,'native-a',{...lastStep,seq:3,detail:JSON.stringify({kind:'commission-route',id:action.id,points:[],stopReason:'stage_mismatch',pathStarted:true})});assert.ok(attempted.has(action.id));
  reconcileRouteAttempt(attempted,pending,'native-a',{...lastStep,seq:3});assert.equal(attempted.size,0);
 });
+test('loading text cannot cancel a BGI route; native Talk can, and continuation contains no teleport',async()=>{
+ const route=catalog.routes.find(r=>r.id==='flagship-walk');
+ assert.ok(route.positions.every(p=>p.type!=='teleport'&&!p.action));
+ assert.equal(macro.available(catalog,route.quest,'返回「旗舰」休息').some(r=>r.id===route.id),false);
+ assert.ok(macro.available(catalog,route.quest,'返回「旗舰」休息',{},[route.resumeFrom]).some(r=>r.id===route.id&&!r.blocked));
+ const loading=[{text:'武器',box:[930,854,59,30]},{text:'等级达到上限时，需要进行突破才能继续提升等级。',box:[708,897,497,27]}];
+ const observe=require('../src/genshin/bgi-observation').observe;
+ const observation=observe({texts:loading,nativeVision:{source:'bettergi_native_cv',ui:'Unknown'}});
+ assert.equal(observation.scene,'unknown');
+ assert.equal(require('../src/genshin/story-observation').corroborateDistances(observation,loading).observation.scene,'unknown');
+ let time=0,ui='Unknown',p=route.anchor;const stage=[{text:'返回「旗舰」休息',box:[80,246,250,30]}];
+ const run=macro.create({catalog,grounding:g,read:()=>stage,nativeUi:()=>ui,position:()=>p,sleep:async()=>{},now:()=>time,checkInput(){},getDeadline:()=>200000,movementStop:g.movementStop,
+ createCancellationTokenSource:()=>({token:{},cancelAfter(){},cancel(){},dispose(){}}),pathingScript:{async run(){p=route.positions.at(-1);}},monitorPath:async({run,inspect})=>{
+  await run();time+=25000;assert.equal(inspect(loading).stopReason,null);ui='Talk';assert.equal(inspect(loading).stopReason,'dialogue');ui='Main';return {stopReason:null};
+ }});
+ assert.equal((await run(route.id)).stopReason,'route_complete');
+});

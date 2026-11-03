@@ -4,8 +4,11 @@ const g=require('../../scripts/genshin/story-main');
 // carried by the exact native request that supplied the archived frame.
 function observe(request){
  const texts=request.texts||[],cv=request.nativeVision;
- const cue=g.sceneCue(texts);
  const native=cv?.source==='bettergi_native_cv' ? cv : null;
+ const ocrCue=g.sceneCue(texts);
+ // Loading tips have the same heading/body geometry as subtitles. Only BGI's
+ // Talk template can establish dialogue when native CV is present.
+ const cue=ocrCue==='dialogue'&&native&&native.ui!=='Talk'?null:ocrCue;
  let scene=cue||({Main:'world',Talk:'dialogue',BigMap:'map'}[native?.ui])||(native?.closable?'menu':'unknown');
  const instruction=g.questInstruction(texts);
  // Combat requires the current commission combat stage plus an independent
