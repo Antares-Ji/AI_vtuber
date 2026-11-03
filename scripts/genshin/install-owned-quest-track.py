@@ -209,3 +209,35 @@ s=engine.read_text(encoding='utf-8')
 s=s.replace('Func<int, System.Threading.CancellationToken, Task<string>>)((ms, ct)', 'Func<int, string, System.Threading.CancellationToken, Task<string>>)((ms, ignored, ct)')
 s=s.replace('.RunOwnedNearAsync(ms, ct)', '.RunOwnedNearAsync(ms, ignored, ct)')
 engine.write_text(s,encoding='utf-8')
+
+s=target.read_text(encoding='utf-8')
+if 'ReadOwnedHudDistance' not in s:
+    s=s.replace('    private int _ownedBestDistance = int.MaxValue;', '    private int _ownedBestDistance = int.MaxValue;\n    private string _ownedLastHudText = "";\n    private int _ownedNearReadings;')
+    old='''                using var distanceRegion = ra.CacheGreyMat[_missionDistanceRect];
+                var distance = StringUtils.TryExtractPositiveInt(OcrFactory.Paddle.OcrWithoutDetector(distanceRegion));'''
+    assert s.count(old)==1
+    s=s.replace(old,'                var distance = ReadOwnedHudDistance();')
+    s=s.replace('                if (distance is >= 0 and <= 3) throw new NormalEndException("native_near_hud");', '''                _ownedNearReadings = distance is >= 0 and <= 3 ? _ownedNearReadings + 1 : 0;
+                if (_ownedNearReadings >= 2) throw new NormalEndException("native_near_hud");''')
+    s=s.replace('recoveryCalls = _ownedEscapes, bestHudDistance', 'recoveryCalls = _ownedEscapes, lastHudText = _ownedLastHudText, bestHudDistance')
+    method=r'''
+    private int ReadOwnedHudDistance()
+    {
+        using var frame = CaptureToRectArea();
+        using var paimon = frame.Find(ElementRecognition.Get("PaimonMenu", frame));
+        if (!paimon.IsExist()) return -1;
+        var rows = OcrMissionTextRaList(paimon);
+        try
+        {
+            _ownedLastHudText = string.Join("|", rows.Select(r => r.Text));
+            var values = rows.Select(r => System.Text.RegularExpressions.Regex.Match(r.Text,
+                @"^\s*(?:(?:高处|低处)\s*)?(\d{1,5})\s*(?:m|米)\s*$", System.Text.RegularExpressions.RegexOptions.IgnoreCase))
+                .Where(m => m.Success).Select(m => int.Parse(m.Groups[1].Value)).Distinct().ToArray();
+            return values.Length == 1 ? values[0] : -1;
+        }
+        finally { foreach (var row in rows) row.Dispose(); }
+    }
+
+'''
+    s=s.replace('    private void CheckOwnedNear()',method+'    private void CheckOwnedNear()')
+    target.write_text(s,encoding='utf-8')

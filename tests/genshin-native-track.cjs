@@ -44,3 +44,21 @@ test('repeated invalid map coordinates block dependent navigation while native t
  assert.equal(validateDecision({action:{kind:'native_track'}},request,observation).action.kind,'native_track');
  assert.throws(()=>validateDecision({action:{kind:'seek_quest'}},request,observation),/地图坐标/);
 });
+test('native tracking delegates to BGI once and disposes its cancellation source even when BGI throws',async()=>{
+ const fs=require('node:fs'),vm=require('node:vm'),source=fs.readFileSync(require.resolve('../scripts/genshin/story-main.js'),'utf8');
+ for(const fail of [false,true]){
+  const files=new Map([['command.json',JSON.stringify({id:'native-test',timeoutMs:600000})]]),events=[];
+  const ctx={JSON,Date,Number,String,Math,Set,Error,
+   file:{readTextSync:n=>files.get(n),writeImageSync(){},writeTextSync(n,v){files.set(n,v);if(n==='story-request.json'){const r=JSON.parse(v);files.set('story-decision-'+r.seq+'.json',JSON.stringify({id:r.id,seq:r.seq,action:{kind:r.seq===1?'native_track':'stop'}}));}}},
+   captureGameRegion:()=>({width:1920,height:1080,srcMat:{},dispose(){},findMulti:()=>({count:2,0:{text:rows[0].text,x:75,y:246,width:230,height:33},1:{text:'高处60m',x:80,y:280,width:120,height:25}})}),
+   RecognitionObject:{ocr:()=>({})},dispatcher:{clearAllTriggers(){}},log:{info(){}},sleep:async()=>{},keyUp(){},
+   isGameActive:()=>true,ensureGameFocus:async()=>true,getOwnedSceneObservation:()=>JSON.stringify({source:'bettergi_native_cv',ui:'Main',motion:'Normal'}),
+   CancellationTokenSource:class{token={};cancelAfter(ms){assert.ok(ms<=30000);events.push('budget');}cancel(){events.push('cancel');}dispose(){events.push('dispose');}},
+   runOwnedQuestTrack:async(ms,ignored,token)=>{assert.ok(ms<=30000);assert.equal(ignored,'');assert.ok(token);events.push('native');if(fail)throw Error('native test failure');return JSON.stringify({kind:'bgi-native-track',stopReason:'returned',verified:false});}
+  };
+  await vm.runInNewContext(source,ctx);
+  assert.deepEqual(events,['budget','native','cancel','dispose']);
+  const receipt=JSON.parse(files.get('receipt.json'));assert.equal(receipt.state,fail?'error':'returned');
+  if(!fail)assert.equal(JSON.parse(receipt.steps[0].detail).verified,false);
+ }
+});
