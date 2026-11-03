@@ -53,7 +53,7 @@ else (async function(){
  const navigate=StoryContinuousNavigation.create({grounding:StoryGrounding,read:readFreshTexts,sleep,checkInput,keyDown:guardedKeyDown,keyUp:key=>keyUp(key),
   movementStop:rows=>{
    const stage=StoryGrounding.questInstruction(rows)?.text;
-   if(departedInteraction&&stage!==departedInteraction.stage)departedInteraction=null;
+   if(departedInteraction&&!StoryGrounding.sameQuestInstruction(stage,departedInteraction.stage))departedInteraction=null;
    // A model-authorized departure is a narrow handoff. Walking back within the
    // same bounded macro need not re-prompt about this exact unrelated object.
    return StoryContinuousNavigation.departureStop(rows,StoryGrounding,departedInteraction);
@@ -301,7 +301,11 @@ else (async function(){
    else if(action.kind==='list_waypoints'){detail='查询地图目录：'+action.area;}
    else if(action.kind==='native_unstuck'){
     checkInput();if(typeof runOwnedQuestUnstuck==='undefined')throw Error('BGI脱困接口不存在');
+    const before=readFreshTexts(),prompt=StoryGrounding.interaction(before),stage=StoryGrounding.questInstruction(before)?.text;
     const cts=new CancellationTokenSource();try{cts.cancelAfter(5000);detail=String(await runOwnedQuestUnstuck(cts.token));}finally{cts.cancel();cts.dispose();}seekState=null;
+    const result=JSON.parse(detail);
+    if(result.kind==='bgi-native-unstuck'&&result.stopReason==='returned'&&stage&&prompt.state==='unique')
+     departedInteraction={stage,text:prompt.candidates[0].text};
    }
    else if(action.kind==='native_track'){
     checkInput();const hud=StoryGrounding.questHud(readFreshTexts());
@@ -309,7 +313,7 @@ else (async function(){
     const cts=new CancellationTokenSource();try{
      const budget=Math.min(60000,activeInput.deadlineAt-Date.now()-2000,sessionDeadline-Date.now()-2000);
      if(budget<1000)throw Error('原生追踪剩余时间不足');cts.cancelAfter(budget);
-     const ignored=departedInteraction?.stage===hud.stage?departedInteraction.text:'';
+     const ignored=StoryGrounding.sameQuestInstruction(departedInteraction?.stage,hud.stage)?departedInteraction.text:'';
      detail=String(await runOwnedQuestTrack(budget,ignored,cts.token));
     }finally{cts.cancel();cts.dispose();}seekState=null;
    }

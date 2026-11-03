@@ -1,6 +1,7 @@
 // Shared pure OCR grounding. Requiring this file in Node never starts gameplay.
 const StoryGrounding=(()=>{
  const normal=s=>String(s||'').replace(/\s/g,'');
+ const sameQuestInstruction=(a,b)=>Boolean(a&&b&&normal(a).replace(/[「」『』“”‘’"']/g,'')===normal(b).replace(/[「」『』“”‘’"']/g,''));
  const positioned=texts=>(texts||[]).filter(t=>Array.isArray(t.box)&&t.box.length===4&&t.box.every(Number.isFinite));
  function questInstruction(texts){return positioned(texts).find(t=>/^(前往|前去|返回|寻找|跟随|尝试|抵达|[与和].+对话|收集|搜集|将.+交给|消灭所有魔物)/.test(normal(t.text))&&t.box[0]>=0&&t.box[0]<640&&t.box[1]>=0&&t.box[1]<540)||null;}
  function questMenu(texts){
@@ -193,7 +194,7 @@ const StoryGrounding=(()=>{
       direction: label.box[0] + label.box[2] / 2 < 880 ? 'left' : label.box[0] + label.box[2] / 2 > 1040 ? 'right' : 'center', verified: false };
   }
 
- return {interaction,collectionTarget,repeatedIncidentalInteraction,movementStop,sceneCue,navigationFeedback,travelFeedback,seekFeedback,interactionBlocked,questMenu,recoveryPrompt,loginPrompt,questInstruction,mapMenu,questHud,travelEligibility,questDistanceLabel};
+ return {interaction,collectionTarget,repeatedIncidentalInteraction,sameQuestInstruction,movementStop,sceneCue,navigationFeedback,travelFeedback,seekFeedback,interactionBlocked,questMenu,recoveryPrompt,loginPrompt,questInstruction,mapMenu,questHud,travelEligibility,questDistanceLabel};
 })();
 
 if(typeof module!=='undefined'&&module.exports)module.exports=StoryGrounding;

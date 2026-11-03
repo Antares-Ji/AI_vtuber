@@ -1,6 +1,24 @@
 const {test}=require('node:test'),assert=require('node:assert/strict');
 const g=require('../scripts/genshin/story-main'),{validateDecision}=require('../src/genshin/story-runtime');
 const rows=[{text:'返回「旗舰」休息',box:[75,246,230,33]},{text:'高处60m',box:[80,280,120,25]}];
+test('native recovery hands only its confirmed same-stage departed prompt to subsequent tracking',async()=>{
+ const fs=require('node:fs'),vm=require('node:vm'),source=fs.readFileSync(require.resolve('../scripts/genshin/story-main.js'),'utf8');
+ for(const [stopReason,nextStage,expected] of [['returned','返回『旗舰」休息','克鲁切'],['focus_lost','返回「旗舰」休息',''],['returned','前往比赛场地','']]){
+  let phase=0,ignored;
+  const files=new Map([['command.json',JSON.stringify({id:'handoff-test',timeoutMs:600000})]]);
+  const ctx={JSON,Date,Number,String,Math,Set,Error,
+   file:{readTextSync:n=>files.get(n),writeImageSync(){},writeTextSync(n,v){files.set(n,v);if(n==='story-request.json'){const r=JSON.parse(v);files.set('story-decision-'+r.seq+'.json',JSON.stringify({id:r.id,seq:r.seq,action:{kind:r.seq===1?'native_unstuck':r.seq===2?'native_track':'stop'}}));}}},
+   captureGameRegion:()=>({width:1920,height:1080,srcMat:{},dispose(){},findMulti:()=>({count:2,0:{text:phase?nextStage:rows[0].text,x:75,y:246,width:230,height:33},1:{text:'23m',x:80,y:280,width:120,height:25}})}),
+   RecognitionObject:{ocr:()=>({})},dispatcher:{clearAllTriggers(){}},log:{info(){}},sleep:async()=>{},keyUp(){},
+   isGameActive:()=>true,ensureGameFocus:async()=>true,getOwnedSceneObservation:()=>JSON.stringify({source:'bettergi_native_cv',ui:'Main',motion:'Normal'}),
+   getOwnedInteractionPrompt:()=>JSON.stringify(phase?null:{source:'bettergi_native_f_label',text:'克鲁切',count:1,anchor:[1103,523,32,32],box:[1218,523,285,32]}),
+   CancellationTokenSource:class{token={};cancelAfter(){}cancel(){}dispose(){}},
+   runOwnedQuestUnstuck:async()=>{phase=1;return JSON.stringify({kind:'bgi-native-unstuck',stopReason});},
+   runOwnedQuestTrack:async(ms,label)=>{ignored=label;return JSON.stringify({kind:'bgi-native-track',stopReason:'returned'});}
+  };
+  await vm.runInNewContext(source,ctx);assert.equal(JSON.parse(files.get('receipt.json')).state,'returned');assert.equal(ignored,expected);
+ }
+});
 test('repeated incidental F gets a departure alternative while named quest and collection targets remain eligible',()=>{
  const prompt={source:'bettergi_native_f_label',text:'克鲁切',count:1,box:[1218,523,285,32],anchor:[1103,523,32,32]};
  const request={texts:[...rows,prompt],interactionVisits:{'克鲁切':1}},o={scene:'world',uncertain:false};
