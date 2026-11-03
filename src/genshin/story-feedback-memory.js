@@ -18,7 +18,7 @@ function signature(steps,targets=interactionTargets(steps)){
   return count?[[target,count]]:[];
  }).sort((a,b)=>a[0].localeCompare(b[0]));
  return JSON.stringify({follow:Math.min(2,grounding.navigationFeedback(steps).failedFollows),
-  travel:Math.min(2,grounding.travelFeedback(steps).failedTravels),interactions});
+  travel:Math.min(2,grounding.travelFeedback(steps).failedTravels),seek:grounding.seekFeedback(steps).exhausted,interactions});
 }
 function compactSteps(steps){
  let recent=[];

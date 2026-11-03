@@ -8,6 +8,11 @@ const failed=seq=>step(seq,'travel_quest',{kind:'quest-travel',stopReason:'beari
  progress:{distanceBefore:184,distanceAfter:184,stageBefore:'前去查看详情',stageAfter:'前去查看详情'}});
 const gained=seq=>step(seq,'travel_quest',{kind:'quest-travel',stopReason:'leg_budget',movedLegs:1,
  progress:{distanceBefore:184,distanceAfter:154,stageBefore:'前去查看详情',stageAfter:'前去查看详情'}});
+test('compaction preserves exhausted seeker across waits and its actual turn reset',()=>{
+ const exhausted=step(1,'seek_quest',{stopReason:'directions_exhausted'}),waits=Array.from({length:30},(_,i)=>step(i+2,'wait'));
+ assert.equal(grounding.seekFeedback(compactSteps([exhausted,...waits])).exhausted,true);
+ assert.equal(grounding.seekFeedback(compactSteps([exhausted,...waits,step(40,'turn')])).exhausted,false);
+});
 function fixture(t,stage='前去查看详情'){
  const root=fs.mkdtempSync(path.join(os.tmpdir(),'genshin-travel-memory-'));
  t.after(()=>fs.rmSync(root,{recursive:true,force:true}));

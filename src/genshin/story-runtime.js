@@ -261,7 +261,7 @@ async function runStory(goal,{root,env,signal,reportProgress=()=>{},runId,direct
     const {decision,answer,rejected}=repaired;
     if(fast){decision.commentary='';decision.reason=decision.reason.slice(0,24);}
     if(decision.action.kind==='list_waypoints')selectedArea=decision.action.area;
-    if(decision.action.kind==='teleport'||decision.action.kind==='quest_route'&&decision.action.id.startsWith('urgent-entry'))teleportAttempts.add(decision.action.id);
+    if(decision.action.kind==='teleport'||decision.action.kind==='quest_route'&&commissionCatalog.routes.find(r=>r.id===decision.action.id)?.positions.some(p=>p.type==='teleport'))teleportAttempts.add(decision.action.id);
     const evidence={trainingSessionId:checkpoint?.sessionId||null,request,observation,rawObservation,observationError,visionRecord:vision.record,distanceEvidence,decision,rejected,provider:answer.provider,model:answer.model,usage:answer.usage||null,modelCalls:repaired.calls,
      pipeline:fast?{role,thinking:'disabled',maxOutputTokens:workers.profile(role,env).maxOutputTokens,lookahead:repaired.lookahead||lookahead.lastCheck}:null,
      image,sha256:hash,at:Date.now(),verified:false};

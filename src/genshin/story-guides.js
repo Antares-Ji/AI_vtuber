@@ -1,6 +1,10 @@
 'use strict';
 // External walkthroughs are planning references, never current game state.
 const guides={
+ '两次视线的交汇':{
+  source:'https://wiki.biligame.com/ys/两次视线的交汇',checkedAt:'2026-11-03',kind:'external_walkthrough_not_live_evidence',
+  notes:'返回旗舰休息需要先进入旗舰，再依据当前提示选择休息。已接入BGI脚本仓库的旗舰入口路线，只保留路径和传送坐标，不执行原脚本购物或盲按F。入口到达不等于休息完成。之后为淘汰赛抽签、参赛、观看比赛、休息和调查等剧情阶段；必须每步依据当前BGI OCR，不能把攻略当当前状态。'
+ },
  '紧急修理':{
   source:'https://wiki.biligame.com/ys/紧急修理',
   checkedAt:'2026-11-02',kind:'external_walkthrough_not_live_evidence',

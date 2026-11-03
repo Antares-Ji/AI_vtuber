@@ -18,6 +18,21 @@ test('catalog is a bounded sourced reference, strips all upstream executable act
  assert.deepEqual(macro.available(catalog,'紧急修理','收集木材').map(r=>r.id),['urgent-wood-1','urgent-wood-2','urgent-wood-3']);
  assert.equal(macro.available(catalog,'紧急修理','将结实的木板交给法拉')[0].id,'urgent-npc');
 });
+test('flagship reference keeps only upstream coordinates and independently checks the door arrival',async()=>{
+ const route=catalog.routes.find(r=>r.id==='flagship-entrance'),stage=[{text:'返回「旗舰」休息',box:[80,246,250,30]}];
+ assert.equal(route.sourceCommit,'64872afb5ad8f9c5931c31cbc055233b6716b513');assert.equal(route.positions.length,5);
+ assert.ok(route.positions.every(p=>p.action===''&&!p.action_params));
+ assert.equal(macro.available(catalog,route.quest,stage[0].text)[0].id,route.id);
+ assert.equal(macro.available(catalog,route.quest,'参加淘汰赛').length,0);
+ assert.equal(macro.available(catalog,route.quest,stage[0].text,{},[route.id])[0].blocked,true);
+ let p=route.anchor;const paths=[];
+ const run=macro.create({catalog,grounding:g,read:()=>stage,position:()=>p,sleep:async()=>{},now:()=>1000,checkInput(){},getDeadline:()=>200000,movementStop:g.movementStop,
+ createCancellationTokenSource:()=>({token:{},cancelAfter(){},cancel(){},dispose(){}}),pathingScript:{async run(json){const r=JSON.parse(json);paths.push(r);p=r.positions.at(-1);}},monitorPath:async({run})=>{await run();return {stopReason:null};}});
+ const result=await run(route.id);assert.equal(result.stopReason,'route_complete');assert.equal(result.sourceCommit,route.sourceCommit);assert.equal(result.verified,false);
+ assert.deepEqual(paths[0].positions,route.positions);
+ const memory=require('../src/genshin/story-memory').navigationFromEvidence([{e:{decision:{quest:route.quest,action:{kind:'quest_route',id:route.id}},request:{texts:stage}}}],route.quest);
+ assert.deepEqual(memory.teleportAttempts,[route.id]);
+});
 test('wrong stage, far variant, or F blocks all native paths',async()=>{
  for(const opts of [{stage:[{text:'收集绳索',box:[80,246,180,30]}]},{point:{x:0,y:0}},{stage:[...rows,{text:'F',box:[1100,480,25,30]},{text:'调查',box:[1150,480,80,30]}]}]){
   const h=fixture(opts),r=await h.run('urgent-wood-1');assert.equal(h.paths.length,0);assert.notEqual(r.stopReason,'route_complete');

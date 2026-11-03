@@ -27,7 +27,7 @@ const StoryCommissionRoute=(()=>{
     }
     const cts=createCancellationTokenSource();let promise=null;
     const started=now(),budget=Math.min(100000,getDeadline()-now()-3000);if(budget<=0)return {...result,stopReason:'deadline'};
-    result.sourceFile=route.sourceFile;result.sourceCommit=catalog.source.commit;result.from=p2;
+    result.sourceFile=route.sourceFile;result.sourceCommit=route.sourceCommit||catalog.source.commit;result.from=p2;
     try{
      cts.cancelAfter(budget);checkInput();
      promise=Promise.resolve(pathingScript.run(JSON.stringify({info:{name:'AI-VTuber-entry-recovery',type:'collect',map_name:'Teyvat',bgi_version:'0.66.0'},positions:route.positions}),cts.token));
@@ -48,7 +48,7 @@ const StoryCommissionRoute=(()=>{
    let cursor=saved?.id===id&&saved.stage===stage&&saved.sha256===route.sha256&&Number.isInteger(saved.cursor)&&saved.cursor>=0&&saved.cursor<=route.positions.length?saved.cursor:0;
    let failures=saved?.id===id&&saved.stage===stage&&saved.sha256===route.sha256?saved.failures||0:0;
    if(failures>=2)return {...result,stopReason:'route_retry_limit'};
-   result.sourceFile=route.sourceFile;result.sourceCommit=catalog.source.commit;result.cursorBefore=cursor;
+   result.sourceFile=route.sourceFile;result.sourceCommit=route.sourceCommit||catalog.source.commit;result.cursorBefore=cursor;
    const started=now();
    for(let n=0;n<10&&cursor<route.positions.length&&now()-started<75000;n++){
     checkInput();const target=route.positions[cursor],at=position();
