@@ -71,6 +71,34 @@ if 'RunOwnedNearAsync' not in s:
     s=s.replace('                // 随机移动\n                Logger.LogInformation("未找到追踪点");','                // No guessed movement when native BGI marker recognition fails.\n                if (_ownedNear && ++_ownedMissing >= 10) throw new NormalEndException("native_marker_missing");\n                Logger.LogInformation("未找到追踪点");')
     s=s.replace('            Logger.LogWarning("首次未找到追踪点");','            Logger.LogWarning("首次未找到追踪点");\n            if (_ownedNear) _ownedStop = "native_marker_missing";')
     target.write_text(s,encoding='utf-8')
+
+# Owned calls must not spin forever waiting for an exact pixel/sign crossing.
+# Keep BGI's recognizer, steering and escape implementation; fix convergence
+# and require native HUD evidence before treating the marker as arrival.
+s=target.read_text(encoding='utf-8')
+if '_ownedTrackSamples' not in s:
+    s=s.replace('    private int _ownedFrames;', '''    private int _ownedFrames;
+    private readonly List<object> _ownedTrackSamples = new();
+    private DateTime _ownedLastTrackSample = DateTime.MinValue;''')
+    s=s.replace('frames = _ownedFrames,', 'trackSamples = _ownedTrackSamples, frames = _ownedFrames,',1)
+    s=s.replace('''                    Debug.WriteLine("使追踪点位于俯视角上方");
+                    continue;''', '''                    Debug.WriteLine("使追踪点位于俯视角上方");
+                    if (_ownedNear) Sleep(100, _ct);
+                    continue;''')
+    s=s.replace('''                if (moveX == 0 || prevMoveX * moveX < 0)''', '''                var ownedAligned = _ownedNear && Math.Abs(centerX - CaptureRect.Width / 2) <= 32 * AssetScale;
+                if (_ownedNear && (DateTime.UtcNow - _ownedLastTrackSample).TotalSeconds >= 1)
+                {
+                    _ownedLastTrackSample = DateTime.UtcNow;
+                    _ownedTrackSamples.Add(new {x=centerX, y=centerY, moveX, wDown, aligned=ownedAligned});
+                }
+                if (_ownedNear && wDown && Math.Abs(centerX - CaptureRect.Width / 2) > CaptureRect.Width / 6)
+                {
+                    InputHub.Foreground.SimulateAction(GIActions.MoveForward, KeyType.KeyUp);
+                    wDown = false;
+                }
+                if (ownedAligned || moveX == 0 || prevMoveX * moveX < 0)''')
+    s=s.replace('''                if (Math.Abs(moveX) < 50 && Math.Abs(centerY - CaptureRect.Height / 2) < 200)''', '''                if (!_ownedNear && Math.Abs(moveX) < 50 && Math.Abs(centerY - CaptureRect.Height / 2) < 200)''')
+    target.write_text(s,encoding='utf-8')
 s=target.read_text(encoding='utf-8')
 s=s.replace('if (!OwnedGameFocus.IsGameActive())', 'if (!BetterGenshinImpact.Core.Script.Dependence.OwnedGameFocus.IsGameActive())')
 target.write_text(s,encoding='utf-8')
