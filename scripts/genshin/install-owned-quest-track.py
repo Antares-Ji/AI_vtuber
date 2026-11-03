@@ -387,3 +387,17 @@ if 'WaitOwnedPromptLabel' not in s:
 '''
     s=s.replace('    private void CheckOwnedNear() =>',method+'    private void CheckOwnedNear() =>')
     target.write_text(s,encoding='utf-8')
+
+# A fresh wrapper instance must not reset explicit recovery to the same move.
+# Continue the upstream back/left/right phases within one owned BGI process.
+t=trap.read_text(encoding='utf-8')
+if 'int? initialActionIndex' not in t:
+    t=t.replace('bool resetAfterIdle = true)', 'bool resetAfterIdle = true, int? initialActionIndex = null)')
+    t=t.replace('private int _lastActionIndex = resetAfterIdle ? 0 : -1;', 'private int _lastActionIndex = initialActionIndex ?? (resetAfterIdle ? 0 : -1);')
+    trap.write_text(t,encoding='utf-8')
+s=target.read_text(encoding='utf-8')
+if '_ownedEscapePhase' not in s:
+    s=s.replace('    private bool _ownedNear;', '    private bool _ownedNear;\n    private static int _ownedEscapePhase;')
+    s=s.replace('new BetterGenshinImpact.GameTask.AutoPathing.TrapEscaper(_ct, CheckOwnedNear).RotateAndMove()',
+                'new BetterGenshinImpact.GameTask.AutoPathing.TrapEscaper(_ct, CheckOwnedNear, false, (Interlocked.Increment(ref _ownedEscapePhase) - 1) % 3).RotateAndMove()')
+    target.write_text(s,encoding='utf-8')
