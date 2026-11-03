@@ -90,6 +90,28 @@ function median(values){
  if(!values.length)return null;
  const s=[...values].sort((a,b)=>a-b),m=Math.floor(s.length/2);return s.length%2?s[m]:(s[m-1]+s[m])/2;
 }
+function taskProgress(rows){
+ const stages=[],completions=[],seen=new Set();let previous=null,total=0,lastBoundary=0;
+ for(const r of rows){
+  const task=quest(r),instruction=r.observation?.scene==='world'&&!r.observation.uncertain&&grounding.questInstruction(r.request?.texts);
+  if(task&&instruction){
+   const current={task,stage:instruction.text};
+   if(previous&&normal(previous.task)===normal(task)&&!require('../../src/genshin/story-memory').compatibleStage(previous.stage,current.stage)){
+    stages.push({task,from:previous.stage,to:current.stage,at:frameTime(r),tokensSincePreviousBoundary:total-lastBoundary});
+    lastBoundary=total;
+   }else if(!previous||normal(previous.task)!==normal(task))lastBoundary=total;
+   previous=current;
+  }
+  const completion=r.observation?.visionSource==='bettergi_native_cv_ocr'&&require('../../src/genshin/story-quest-focus').completionEvidence(r.request?.texts,task);
+  const key=JSON.stringify([r.trainingSessionId||r.request?.trainingSessionId||nativeId(r),task]);
+  if(completion&&!seen.has(key)){seen.add(key);completions.push({task,at:frameTime(r)});}
+  total+=frameTokens(r).total;
+ }
+ return {observedStageTransitions:stages.length,stages,verifiedCompletions:completions.length,completions,
+  tokensPerStageTransition:stages.length?Math.round(total/stages.length):null,
+  tokensPerVerifiedCompletion:completions.length?Math.round(total/completions.length):null,
+  scope:'selected_evidence_window_including_retries; not a full-task cost unless the window covers its entire session'};
+}
 function travelEvaluation(rows,receipts){
  const beforeByKey=new Map(rows.filter(frameKey).map(r=>[frameKey(r),r]));
  const calls=receipts.filter(e=>e.step.action.kind==='travel_quest'||detail(e.step)?.kind==='quest-travel').map(e=>{
@@ -145,8 +167,9 @@ function evaluate(input,now=Date.now(),o={}){
  if(rows.length&&now-(rows.at(-1).at||frameTime(rows.at(-1)))>600000)alerts.push({code:'NO_NEW_FRAMES',msg:'超过10分钟没有新帧'});
  if(tail.length>=6&&menuCount/tail.length>0.6)alerts.push({code:'MENU_LOOP',msg:`最近${tail.length}帧有${menuCount}帧处于菜单、地图或加载界面`});
  if(maxRepeat>=4)alerts.push({code:'REPEATED_ACTION',msg:`同一动作连续重复${maxRepeat}次`});
- if(tail.length>=8&&gain!==null&&gain<5)alerts.push({code:'NO_PROGRESS',msg:`最近同任务阶段HUD距离仅下降${gain}m`});
- if(tailTokens>150000&&(gain===null||gain<5))alerts.push({code:'TOKEN_BURN',msg:`最近窗口消耗${tailTokens}tokens但无独立可测进展`});
+ const progress=taskProgress(rows),recentProgress=taskProgress(tail);
+ if(tail.length>=8&&gain!==null&&gain<5&&!recentProgress.observedStageTransitions)alerts.push({code:'NO_PROGRESS',msg:`最近同任务阶段HUD距离仅下降${gain}m`});
+ if(tailTokens>150000&&(gain===null||gain<5)&&!recentProgress.observedStageTransitions&&!recentProgress.verifiedCompletions)alerts.push({code:'TOKEN_BURN',msg:`最近窗口消耗${tailTokens}tokens但无独立可测进展`});
  const finalFrame=rows.at(-1);
  const completion=finalFrame?.observation?.visionSource==='bettergi_native_cv_ocr'
   ?require('../../src/genshin/story-quest-focus').completionEvidence(finalFrame.request?.texts,quest(finalFrame)):null;
@@ -167,7 +190,7 @@ function evaluate(input,now=Date.now(),o={}){
    task:last?.task??null,stage:last?.stage??null,source:'task_hud_ocr'},
   stages,recentWindow:{frames:tail.length,nonWorld:tailNonWorld,menuFrames:menuCount,maxRepeat,tokens:tailTokens,distanceGained:gain,
    comparableReadings:comparable.length,stages:[...new Set(tailReadings.map(r=>r.stage))]},
-  travelQuest:travelEvaluation(rows,receipts),completion,verdict,alerts,
+  travelQuest:travelEvaluation(rows,receipts),progress,completion,verdict,alerts,
   limitation:'只累计显式原生移动计数；PathExecutor按键时长未知，pathDurationMs仅墙钟耗时。HUD距离必须同任务阶段；宏内部progress单列，不代替独立后帧，也不证明任务完成。历史无trainingSessionId时仅按时间窗和已观察nativeId限定。'};
 }
 module.exports={evaluate,movedMs,hudReading,mergeReceipts,frameTokens};

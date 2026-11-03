@@ -14,6 +14,22 @@ function frame(seq,meters=500,{id='native-a',task='任务甲',stage='前去查�
   distanceEvidence:{meters:[999]},decision:{action:{kind:'travel_quest'}},modelCalls:[{usage:{total_tokens:1000}}]};
 }
 function threeCalls(){return [frame(1,500),frame(2,460,{lastStep:step(1)}),frame(3,450,{lastStep:step(2)}),frame(4,410,{lastStep:step(3)})];}
+test('stage transitions prevent distance-only no-progress warnings and expose window token cost',()=>{
+ const rows=Array.from({length:10},(_,i)=>frame(i+1,1,{stage:i<3?'收集木材':'将木板交给法拉'}));
+ const r=evaluate(rows,11000);assert.equal(r.progress.observedStageTransitions,1);
+ assert.equal(r.progress.tokensPerStageTransition,10000);assert.equal(r.progress.stages[0].tokensSincePreviousBoundary,3000);
+ assert.equal(r.progress.tokensPerVerifiedCompletion,null);assert.ok(!r.alerts.some(a=>a.code==='NO_PROGRESS'));
+});
+test('changing tasks or OCR truncation cannot count as a stage transition',()=>{
+ const rows=[frame(1,10,{stage:'前去查看详情'}),frame(2,10,{stage:'前去查看详情附近'}),frame(3,10,{task:'任务乙',stage:'收集绳索'})];
+ assert.equal(evaluate(rows,4000).progress.observedStageTransitions,0);
+});
+test('completion KPI deduplicates BGI banners and rejects model-only completion',()=>{
+ const rows=[frame(1),frame(2),frame(3)];
+ for(const r of rows.slice(1)){r.request.texts=[{text:'任务甲'},{text:'任务完成'}];r.observation.visionSource='bettergi_native_cv_ocr';}
+ const p=evaluate(rows,4000).progress;assert.equal(p.verifiedCompletions,1);assert.equal(p.tokensPerVerifiedCompletion,3000);
+ for(const r of rows)r.observation.visionSource='model';assert.equal(evaluate(rows,4000).progress.verifiedCompletions,0);
+});
 test('only the latest same-quest BGI completion evidence overrides no-progress heuristics',()=>{
  const last=frame(10,0);last.observation.visionSource='bettergi_native_cv_ocr';
  last.request.texts=[{text:'任务甲',box:[78,248,120,30]},{text:'任务完成',box:[78,284,120,35]},{text:'委托完成',box:[800,200,200,50]}];
