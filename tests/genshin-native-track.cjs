@@ -33,3 +33,14 @@ test('native recovery requires repeated actual receipts and never counts duplica
  for(const o of [{...observation,scene:'menu'},{...observation,nativeRecovery:{available:false}}])assert.throws(()=>validateDecision({action:{kind:'native_unstuck'}},request,o));
  assert.throws(()=>validateDecision({action:{kind:'native_unstuck',key:'W'}},request,observation));
 });
+test('repeated invalid map coordinates block dependent navigation while native tracking remains eligible',()=>{
+ const {mapPositionFailures}=require('../src/genshin/story-feedback-memory');
+ const receipt=d=>({detail:JSON.stringify(d)});
+ const bad=[receipt({kind:'continuous-navigation',stopReason:'position_unavailable'}),receipt({kind:'quest-seek',stopReason:'position_unstable'})];
+ assert.equal(mapPositionFailures([...bad,receipt({kind:'bgi-native-track',stopReason:'returned'})]),2);
+ assert.equal(mapPositionFailures([...bad,receipt({kind:'commission-route',stopReason:'route_complete',after:{x:1,y:2}})]),0);
+ const request={texts:rows,capabilities:{nativeQuestTrack:true},nativeTrackAttempts:0,mapPositionFailures:2};
+ const observation={scene:'world',nativeVision:{source:'bettergi_native_cv',ui:'Main'}};
+ assert.equal(validateDecision({action:{kind:'native_track'}},request,observation).action.kind,'native_track');
+ assert.throws(()=>validateDecision({action:{kind:'seek_quest'}},request,observation),/地图坐标/);
+});

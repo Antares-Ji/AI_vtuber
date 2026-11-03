@@ -38,6 +38,7 @@ function prompt(context,{role=workerFor(context.observation),rejected=[],handoff
  if(!o.nativeTracking?.available)base.availableIntents=base.availableIntents.filter(k=>k!=='native_track');
  if(!o.nativeRecovery?.available)base.availableIntents=base.availableIntents.filter(k=>k!=='native_unstuck');
  else base.availableIntents=base.availableIntents.filter(k=>k!=='leave_interaction');
+ if(o.mapPosition?.available===false)base.availableIntents=base.availableIntents.filter(k=>!['travel_quest','navigate','advance_quest','seek_quest','search_area'].includes(k));
  if(target&&grounding.collectionTarget(context.texts,target)){
   base.availableIntents=base.availableIntents.filter(k=>k!=='leave_interaction');
   base.collectionInteraction={target,preferredAction:{kind:'key',key:'F',text:target},reason:'当前搜集阶段的调查/物品候选；先交互并用新HUD核验结果'};

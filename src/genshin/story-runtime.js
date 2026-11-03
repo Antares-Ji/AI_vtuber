@@ -30,6 +30,7 @@ function validateDecision(value,request,observation){
  const a=value?.action;
  if(!a||!['key','click_text','choose_dialogue','wait','stop','move','fight','list_waypoints','teleport','follow_marker','turn','reset_camera','advance_quest','travel_quest','complete_quest','leave_interaction','navigate','seek_quest','search_area','quest_route','native_track','native_unstuck'].includes(a.kind))throw Error('剧情动作格式无效');
  const action={kind:a.kind};
+ if(request.mapPositionFailures>=2&&['travel_quest','navigate','advance_quest','seek_quest','search_area'].includes(a.kind))throw Error('BGI地图坐标连续不可用；改用不依赖地图坐标的BGI原生近程追踪/脱困，不能重复失败的地图定位动作');
  if(a.kind==='native_unstuck'&&(!request.capabilities?.nativeQuestUnstuck||!observation.nativeRecovery?.available||observation.scene!=='world'||observation.nativeVision?.ui!=='Main'||Object.keys(a).some(k=>k!=='kind')))throw Error('BGI脱困需要主界面及当前重复卡点回执，不接受坐标或任意输入');
  if(a.kind==='native_track'){
   const hud=grounding.questHud(request.texts),cv=observation.nativeVision;
@@ -218,6 +219,7 @@ async function runStory(goal,{root,env,signal,reportProgress=()=>{},runId,direct
     request.recentNativeSteps=savedFeedback.recentNativeSteps;
     request.areaSearchState=savedFeedback.areaSearchState;
     request.commissionRouteStates=savedFeedback.commissionRouteStates;
+    request.mapPositionFailures=savedFeedback.mapPositionFailures;
     latest.taskStage=navigationStage;
     request.teleportAttempts=[...teleportAttempts];
     request.nativeTrackAttempts=nativeTrackAttempts;
@@ -241,6 +243,8 @@ async function runStory(goal,{root,env,signal,reportProgress=()=>{},runId,direct
     observation.taskFocus={quest:request.focusQuest,completionEvidence:request.focusQuest?completionEvidence(request.texts,request.focusQuest):null,rule:'当前任务在本训练会话内保持。不能为刷新列表、绕过文字重复或跟标失败切换其他任务。如当前详情误停另一项，核对当前菜单中原任务条目，允许scope:quest_list定位同名列表；不要追踪另一项。只有这里completionEvidence非空时才可由模型选择{kind:"complete_quest",quest:当前任务名}记录当前OCR完成证据，这一步不发送输入；之后才能自主选择下一项已接取任务。没有完成证据就保持当前任务或stop说明问题。'};
     observation.trackingEvidence=trackingEvidence(observation,request.texts,questMemory?.quest);
     observation.travelQuest=StoryTravel.eligibility({texts:request.texts,scene:observation.scene,uncertain:observation.uncertain,recentNativeSteps:request.recentNativeSteps},grounding);
+    if(request.mapPositionFailures>=2)observation.travelQuest={...observation.travelQuest,ok:false,reason:'map_position_unavailable'};
+    observation.mapPosition={available:request.mapPositionFailures<2,failedReceipts:request.mapPositionFailures,rule:'连续原生定位失败时不重复使用依赖大地图坐标的导航，BGI原生近程追踪不依赖大地图坐标。'};
     const nearHud=grounding.questHud(request.texts);
     observation.nativeTracking={available:request.capabilities?.nativeQuestTrack===true&&nativeTrackAttempts<2&&observation.scene==='world'&&observation.nativeVision?.ui==='Main'&&nearHud?.meters>=4&&nearHud.meters<=150&&!grounding.movementStop(request.texts),attempts:nativeTrackAttempts,source:'BetterGI.AutoTrackTask',rule:'BGI自带近程任务追踪，限时30秒，本地模板识别追踪点；可用于室内，无需大地图坐标。返回后重新观察，不把调用当到达。'};
     const localReceipts=[...history.map(e=>e.request.lastStep),request.lastStep].filter(Boolean);

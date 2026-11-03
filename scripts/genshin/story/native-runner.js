@@ -305,7 +305,8 @@ else (async function(){
     const cts=new CancellationTokenSource();try{
      const budget=Math.min(30000,activeInput.deadlineAt-Date.now()-2000,sessionDeadline-Date.now()-2000);
      if(budget<1000)throw Error('原生追踪剩余时间不足');cts.cancelAfter(budget);
-     detail=String(await runOwnedQuestTrack(budget,cts.token));
+     const ignored=departedInteraction?.stage===hud.stage?departedInteraction.text:'';
+     detail=String(await runOwnedQuestTrack(budget,ignored,cts.token));
     }finally{cts.cancel();cts.dispose();}seekState=null;
    }
    else if(action.kind==='travel_quest'){detail=JSON.stringify(await travelQuest(seq,{recentNativeSteps:priorSteps}));}

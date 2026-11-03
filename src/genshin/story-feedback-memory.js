@@ -6,6 +6,15 @@ const MAX_RECENT_STEPS=16;
 const normal=value=>String(value||'').replace(/\s/g,'');
 const clone=value=>JSON.parse(JSON.stringify(value));
 function parseDetail(step){try{return JSON.parse(step.detail);}catch{return null;}}
+function mapPositionFailures(steps){
+ let failures=0;
+ for(const s of steps){const d=parseDetail(s);if(!d)continue;
+  if(['position_unavailable','position_unstable'].includes(d.stopReason))failures++;
+  else if(d.kind==='commission-route'&&d.stopReason==='route_complete'&&Number.isFinite(d.after?.x)&&Number.isFinite(d.after?.y))failures=0;
+  else if(d.kind==='continuous-navigation'&&d.movementMsSent>0&&['duration_budget','near_distance'].includes(d.stopReason))failures=0;
+ }
+ return failures;
+}
 function interactionTargets(steps){return [...new Set(steps.map(parseDetail).filter(d=>d?.kind==='interaction'&&typeof d.target==='string').map(d=>normal(d.target)).filter(Boolean))];}
 // Preserve both the zero/one/two failure state and the blocking state. Testing
 // a hypothetical second receipt is a pure predicate probe, never an input or a
@@ -120,6 +129,7 @@ class StoryFeedbackMemory{
    commissionRouteStates[d.state.id]={...d.state,failures};
   }
   return {quest:this.quest,stage:this.stage,contextId:this.contextId,recentNativeSteps,
+   mapPositionFailures:mapPositionFailures(steps),
    areaSearchState:search?.state||null,
    commissionRouteStates,
    navigationFeedback:grounding.navigationFeedback(steps),travelFeedback:grounding.travelFeedback(steps),
@@ -139,4 +149,4 @@ class StoryFeedbackMemory{
   this._save();return this.snapshot();
  }
 }
-module.exports={StoryFeedbackMemory,compactSteps,MAX_RECENT_STEPS};
+module.exports={StoryFeedbackMemory,compactSteps,MAX_RECENT_STEPS,mapPositionFailures};

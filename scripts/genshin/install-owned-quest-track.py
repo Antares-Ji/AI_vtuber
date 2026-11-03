@@ -148,3 +148,64 @@ if 'runOwnedQuestUnstuck' not in s:
                 new BetterGenshinImpact.GameTask.AutoSkip.AutoTrackTask(new BetterGenshinImpact.GameTask.AutoSkip.Model.AutoTrackParam()).RunOwnedEscapeAsync(ct)));'''
     engine.write_text(s.replace(anchor,anchor+addition),encoding='utf-8')
 print('Installed owned near-tracking adapter; no path/CV reimplementation')
+
+s=target.read_text(encoding='utf-8')
+if '_ownedBestDistance' not in s:
+    s=s.replace('    private bool _ownedEscaping;', '''    private bool _ownedEscaping;
+    private string _ownedIgnoredF = "";
+    private int _ownedBestDistance = int.MaxValue;
+    private int _ownedEscapes;
+    private DateTime _ownedLastProgress = DateTime.UtcNow;
+    private DateTime _ownedLastDistanceRead = DateTime.MinValue;
+    private BetterGenshinImpact.GameTask.AutoPathing.TrapEscaper? _ownedTrap;''')
+    s=s.replace('RunOwnedNearAsync(int timeoutMs, CancellationToken parent)', 'RunOwnedNearAsync(int timeoutMs, string ignoredF, CancellationToken parent)')
+    s=s.replace('            _ownedNear = true;\n            var watch', '            _ownedNear = true;\n            _ownedIgnoredF = ignoredF ?? "";\n            _ownedTrap = new BetterGenshinImpact.GameTask.AutoPathing.TrapEscaper(_ct, CheckOwnedNear);\n            var watch',1)
+    s=s.replace('forwardStarts = _ownedForwardStarts, verified = false', 'forwardStarts = _ownedForwardStarts, recoveryCalls = _ownedEscapes, bestHudDistance = _ownedBestDistance == int.MaxValue ? (int?)null : _ownedBestDistance, verified = false')
+    s=s.replace('        if (!_ownedEscaping && Bv.FindF(frame)) throw new NormalEndException("native_interaction_prompt");', '''        if (!_ownedEscaping && Bv.FindF(frame))
+        {
+            var label = Bv.FindFKeyText(frame).Replace(" ", "").Trim();
+            if (string.IsNullOrWhiteSpace(_ownedIgnoredF) || label != _ownedIgnoredF.Replace(" ", "").Trim())
+                throw new NormalEndException("native_interaction_prompt");
+        }''')
+    anchor='''            CheckOwnedNear();
+            using var ra = CaptureToRectArea();
+            var blueTrackPointRa = ra.Find(ElementRecognition.Get("BlueTrackPoint", ra));'''
+    addition='''            CheckOwnedNear();
+            using var ra = CaptureToRectArea();
+            if (_ownedNear && _missionDistanceRect.Width > 0 && (DateTime.UtcNow - _ownedLastDistanceRead).TotalSeconds >= 1)
+            {
+                _ownedLastDistanceRead = DateTime.UtcNow;
+                using var distanceRegion = ra.CacheGreyMat[_missionDistanceRect];
+                var distance = StringUtils.TryExtractPositiveInt(OcrFactory.Paddle.OcrWithoutDetector(distanceRegion));
+                if (distance >= 0 && distance < _ownedBestDistance)
+                {
+                    _ownedBestDistance = distance;
+                    _ownedLastProgress = DateTime.UtcNow;
+                }
+                if (distance is >= 0 and <= 3) throw new NormalEndException("native_near_hud");
+                if (distance >= 0 && wDown && (DateTime.UtcNow - _ownedLastProgress).TotalSeconds > 4)
+                {
+                    if (_ownedEscapes >= 3) throw new NormalEndException("native_stalled_after_recovery");
+                    InputHub.Foreground.SimulateAction(GIActions.MoveForward, KeyType.KeyUp);
+                    wDown = false;
+                    _ownedEscaping = true;
+                    try { _ownedTrap!.RotateAndMove().GetAwaiter().GetResult(); _ownedEscapes++; }
+                    finally { _ownedEscaping = false; }
+                    _ownedLastProgress = DateTime.UtcNow;
+                    prevMoveX = 0;
+                    continue;
+                }
+            }
+            var blueTrackPointRa = ra.Find(ElementRecognition.Get("BlueTrackPoint", ra));'''
+    assert s.count(anchor)==1, 'Pinned native loop changed'
+    s=s.replace(anchor,addition)
+    # Recovery can hold lateral keys when cancellation interrupts Sleep.
+    s=s.replace('''                InputHub.Foreground.SimulateAction(GIActions.MoveForward, KeyType.KeyUp);
+                _ownedNear = false;''', '''                foreach (var action in new[] {GIActions.MoveForward, GIActions.MoveBackward, GIActions.MoveLeft, GIActions.MoveRight, GIActions.Jump})
+                    InputHub.Foreground.SimulateAction(action, KeyType.KeyUp);
+                _ownedNear = false;''',1)
+    target.write_text(s,encoding='utf-8')
+s=engine.read_text(encoding='utf-8')
+s=s.replace('Func<int, System.Threading.CancellationToken, Task<string>>)((ms, ct)', 'Func<int, string, System.Threading.CancellationToken, Task<string>>)((ms, ignored, ct)')
+s=s.replace('.RunOwnedNearAsync(ms, ct)', '.RunOwnedNearAsync(ms, ignored, ct)')
+engine.write_text(s,encoding='utf-8')
