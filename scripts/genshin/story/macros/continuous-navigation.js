@@ -1,5 +1,6 @@
 // Local feedback owns held movement; cloud inference runs only at intent boundaries.
 const StoryContinuousNavigation = (() => {
+  const stageText=value=>String(value||'').replace(/[\s「」『』“”"']/g,'');
   function departureStop(rows,grounding,departure){
     const stop=grounding.movementStop(rows),stage=grounding.questInstruction(rows)?.text,p=grounding.interaction(rows);
     return stop==='interaction_prompt'&&departure?.stage===stage&&p.state==='unique'&&p.candidates[0].text===departure.text?null:stop;
@@ -32,7 +33,7 @@ const StoryContinuousNavigation = (() => {
           result.checks.push({at, distance});
           result.stopReason = movementStop(rows);
           if (!result.stopReason && deps.world && !deps.world()) result.stopReason = 'native_world_changed';
-          if (!result.stopReason && instruction && instruction.text !== stage) result.stopReason = 'stage_changed';
+          if (!result.stopReason && instruction && stageText(instruction.text) !== stageText(stage)) result.stopReason = 'stage_changed';
           missing = instruction ? 0 : missing + 1;
           if (!result.stopReason && missing >= 2) result.stopReason = 'stage_missing';
           if (distance !== null && previousDistance !== null) {

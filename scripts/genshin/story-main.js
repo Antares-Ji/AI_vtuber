@@ -487,6 +487,7 @@ if(typeof module!=='undefined'&&module.exports)module.exports=StoryPostActionPos
 // Source: story/macros/continuous-navigation.js
 // Local feedback owns held movement; cloud inference runs only at intent boundaries.
 const StoryContinuousNavigation = (() => {
+  const stageText=value=>String(value||'').replace(/[\s「」『』“”"']/g,'');
   function departureStop(rows,grounding,departure){
     const stop=grounding.movementStop(rows),stage=grounding.questInstruction(rows)?.text,p=grounding.interaction(rows);
     return stop==='interaction_prompt'&&departure?.stage===stage&&p.state==='unique'&&p.candidates[0].text===departure.text?null:stop;
@@ -519,7 +520,7 @@ const StoryContinuousNavigation = (() => {
           result.checks.push({at, distance});
           result.stopReason = movementStop(rows);
           if (!result.stopReason && deps.world && !deps.world()) result.stopReason = 'native_world_changed';
-          if (!result.stopReason && instruction && instruction.text !== stage) result.stopReason = 'stage_changed';
+          if (!result.stopReason && instruction && stageText(instruction.text) !== stageText(stage)) result.stopReason = 'stage_changed';
           missing = instruction ? 0 : missing + 1;
           if (!result.stopReason && missing >= 2) result.stopReason = 'stage_missing';
           if (distance !== null && previousDistance !== null) {
@@ -751,7 +752,7 @@ if(typeof module!=='undefined'&&module.exports)module.exports=StoryCommissionRou
 // Source: story/macros/travel-quest.js
 // Shared native intent macro and pure evidence rules. Loading in Node sends no input.
 const StoryTravel = (() => {
-  const normal = value => String(value || '').replace(/\s/g, '');
+  const normal = value => String(value || '').replace(/[\s「」『』“”"']/g, '');
   const positioned = texts => (texts || []).filter(row => Array.isArray(row.box)
     && row.box.length === 4 && row.box.every(Number.isFinite));
   const readHud = (texts, grounding) => grounding.questHud(texts);
@@ -819,6 +820,7 @@ const StoryTravel = (() => {
           try {
             const texts = readTexts(frame);
             stop = currentStop(texts, stage); hud = readHud(texts, grounding);
+            entry.stage = hud?.stage ?? null;
             entry.distance = hud?.meters ?? null;
             entry.ocrDistances = positioned(texts).filter(row => /^\d{1,5}(?:m|米)$/i.test(normal(row.text)))
               .slice(0, 12).map(row => ({ text: row.text, box: row.box, source: row.source || 'full_frame' }));

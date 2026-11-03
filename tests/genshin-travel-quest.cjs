@@ -69,6 +69,15 @@ test('heading is degrees and both game axes invert image-space direction', () =>
   for (const args of [[null, 0, 25], [{ x: 1, y: 2 }, NaN, 25], [{ x: 1, y: 2 }, 0, 181]])
     assert.throws(() => travel.targetForHeading(...args));
 });
+test('OCR quote variants do not end an unchanged task, while a different objective still stops',async()=>{
+ for(const changed of [false,true]){
+  const h=harness({templates:false,label:false,rowsAtYaw:yaw=>hudRows(188,yaw?changed?'返回另一个地点':'返回『旗舰」休息':'返回「旗舰」休息')});
+  const result=await h.run(1);
+  assert.equal(result.stopReason,changed?'stage_changed':'bearing_unavailable');
+  assert.equal(h.routes.length,0);
+  assert.equal(result.bearings[0].at(-1).stage,changed?'返回另一个地点':'返回『旗舰」休息');
+ }
+});
 test('eligibility requires unique current HUD stage/distance and permits only bounded world travel', () => {
   assert.equal(travel.eligibility({ texts: hudRows(), scene: 'world' }, grounding).ok, true);
   assert.equal(travel.readHud(hudRows(), grounding).distance, 184);

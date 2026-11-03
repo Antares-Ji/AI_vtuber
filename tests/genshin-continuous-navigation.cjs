@@ -15,6 +15,10 @@ test('8-second local navigation holds once across 40 observations without model 
  assert.equal(r.checks.length,40);assert.equal(r.movementMsSent,8000);assert.equal(h.events.length,2);
  assert.deepEqual(h.events.map(e=>e[0]),['down','up']);assert.equal(r.stopReason,'duration_budget');
 });
+test('quote-only OCR variation preserves a continuous objective',async()=>{
+ const h=fixture(n=>[{text:n?'返回『旗舰」休息':'返回「旗舰」休息',box:[80,250,160,30]}]);
+ const r=await h.run({key:'W',ms:8000});assert.equal(r.stopReason,'duration_budget');assert.equal(r.movementMsSent,8000);
+});
 test('new interaction/menu/stage interrupts continuously held movement',async()=>{
  for(const [rows,reason] of [[f,'interaction_prompt'],[[{text:'商城',box:[100,100,80,30]}],'menu'],[[{text:'和法拉对话',box:[80,250,160,30]}],'stage_changed']]){
   const h=fixture(n=>n<3?stage:rows),r=await h.run({key:'W',ms:8000});

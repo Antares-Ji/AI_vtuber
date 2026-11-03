@@ -1,6 +1,6 @@
 // Shared native intent macro and pure evidence rules. Loading in Node sends no input.
 const StoryTravel = (() => {
-  const normal = value => String(value || '').replace(/\s/g, '');
+  const normal = value => String(value || '').replace(/[\s「」『』“”"']/g, '');
   const positioned = texts => (texts || []).filter(row => Array.isArray(row.box)
     && row.box.length === 4 && row.box.every(Number.isFinite));
   const readHud = (texts, grounding) => grounding.questHud(texts);
@@ -68,6 +68,7 @@ const StoryTravel = (() => {
           try {
             const texts = readTexts(frame);
             stop = currentStop(texts, stage); hud = readHud(texts, grounding);
+            entry.stage = hud?.stage ?? null;
             entry.distance = hud?.meters ?? null;
             entry.ocrDistances = positioned(texts).filter(row => /^\d{1,5}(?:m|米)$/i.test(normal(row.text)))
               .slice(0, 12).map(row => ({ text: row.text, box: row.box, source: row.source || 'full_frame' }));
