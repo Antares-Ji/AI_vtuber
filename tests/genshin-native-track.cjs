@@ -1,6 +1,15 @@
 const {test}=require('node:test'),assert=require('node:assert/strict');
 const g=require('../scripts/genshin/story-main'),{validateDecision}=require('../src/genshin/story-runtime');
 const rows=[{text:'返回「旗舰」休息',box:[75,246,230,33]},{text:'高处60m',box:[80,280,120,25]}];
+test('repeated incidental F gets a departure alternative while named quest and collection targets remain eligible',()=>{
+ const prompt={source:'bettergi_native_f_label',text:'克鲁切',count:1,box:[1218,523,285,32],anchor:[1103,523,32,32]};
+ const request={texts:[...rows,prompt],interactionVisits:{'克鲁切':1}},o={scene:'world',uncertain:false};
+ assert.throws(()=>validateDecision({action:{kind:'key',key:'F',text:'克鲁切'}},request,o),/非任务目标/);
+ assert.equal(validateDecision({action:{kind:'leave_interaction',text:'克鲁切',key:'W'}},request,o).action.kind,'leave_interaction');
+ assert.equal(g.repeatedIncidentalInteraction([{text:'和克鲁切对话',box:rows[0].box}],'克鲁切',request.interactionVisits),false);
+ assert.equal(g.repeatedIncidentalInteraction([{text:'收集木材',box:rows[0].box}],'调查',{'调查':2}),false);
+ assert.equal(g.repeatedIncidentalInteraction(rows,'休息',{'休息':1}),false);
+});
 test('native AutoPick resolves an OCR-missed F while ambiguous native prompts remain blocked',()=>{
  const p={source:'bettergi_native_f_label',text:'坐下',count:1,box:[1300,500,100,30],anchor:[1180,500,30,30]};
  const ocr=[{text:'0',box:p.anchor},{text:'坐下',box:p.box}];

@@ -94,6 +94,13 @@ const StoryGrounding=(()=>{
   const stage=questInstruction(texts)?.text||'';
   return /收集|搜集|寻找/.test(stage)&&/调查|木板|木材|绳索/.test(normal(target));
  }
+ function repeatedIncidentalInteraction(texts,target,visits){
+  const name=normal(target),stage=normal(questInstruction(texts)?.text);
+  // A changed stage has its own persistent bucket. Collection points and
+  // explicitly named objectives may legitimately require several interactions.
+  return Boolean(stage&&name&&(visits?.[name]||0)>=1&&!stage.includes(name)
+   &&!collectionTarget(texts,target)&&!/^进入|^离开|^返回/.test(name));
+ }
  function movementStop(texts){return sceneCue(texts)||(['unique','ambiguous'].includes(interaction(texts).state)?'interaction_prompt':null);}
  function detail(step){try{return JSON.parse(step?.detail);}catch{return null;}}
  function navigationFeedback(steps){
@@ -189,7 +196,7 @@ const StoryGrounding=(()=>{
       direction: label.box[0] + label.box[2] / 2 < 880 ? 'left' : label.box[0] + label.box[2] / 2 > 1040 ? 'right' : 'center', verified: false };
   }
 
- return {interaction,collectionTarget,movementStop,sceneCue,navigationFeedback,travelFeedback,seekFeedback,interactionBlocked,questMenu,recoveryPrompt,loginPrompt,questInstruction,mapMenu,questHud,travelEligibility,questDistanceLabel};
+ return {interaction,collectionTarget,repeatedIncidentalInteraction,movementStop,sceneCue,navigationFeedback,travelFeedback,seekFeedback,interactionBlocked,questMenu,recoveryPrompt,loginPrompt,questInstruction,mapMenu,questHud,travelEligibility,questDistanceLabel};
 })();
 
 if(typeof module!=='undefined'&&module.exports)module.exports=StoryGrounding;

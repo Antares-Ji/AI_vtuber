@@ -8,6 +8,12 @@ function fixture(t){
  return {root,env:{GENSHIN_DEEPSEEK_API_KEY:'test-key'}};
 }
 const context={goal:'只做当前任务',observation:{scene:'world',uncertain:false,navigation:{terrain:'open'},interaction:{state:'none'},summary:'冗长解说'},texts:[],mapAreas:[],waypoints:[]};
+test('native ready dialogue offers SPACE instead of waiting for already displayed subtitles',()=>{
+ const p=workers.prompt({...context,observation:{scene:'dialogue',uncertain:false,nativeVision:{ui:'Talk'},dialogue:{subtitle:'应招的人？先填写表格吧。',options:[]}}});
+ assert.match(p.instructions,/当前帧已经就绪/);assert.match(p.instructions,/原生有界对话宏/);
+ const unknown=workers.prompt({...context,observation:{scene:'unknown',uncertain:true}});
+ assert.ok(!unknown.instructions.includes('当前帧已经就绪'));
+});
 test('distant objectives preserve task-region evidence and offer catalog travel instead of waiting',()=>{
  const c={...context,questMemory:{quest:'任务甲',details:['任务甲','蒙德 清泉镇']},mapAreas:['清泉镇'],observation:{...context.observation,travelQuest:{ok:false,reason:'distance_out_of_range',hud:{meters:6000}}}};
  const p=workers.prompt(c),d=JSON.parse(p.input);

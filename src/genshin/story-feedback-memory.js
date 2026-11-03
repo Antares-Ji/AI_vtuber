@@ -120,6 +120,9 @@ class StoryFeedbackMemory{
   const order=new Map(this.data.sessions.map(s=>[s.id,s.order]));
   const events=this.data.events.filter(e=>e.contextId===this.contextId).sort((a,b)=>order.get(a.sessionId)-order.get(b.sessionId)||a.step.seq-b.step.seq);
   const steps=events.map(e=>e.step),recentNativeSteps=compactSteps(steps);
+  const interactionVisits={};
+  for(const d of steps.map(parseDetail))if(d?.kind==='interaction'&&d.sent===true&&normal(d.target))
+   interactionVisits[normal(d.target)]=(interactionVisits[normal(d.target)]||0)+1;
   const state=JSON.parse(signature(steps));
   const search=steps.map(parseDetail).filter(d=>d?.kind==='area-search'&&d.state?.version===1).at(-1);
   const commissionRouteStates={};for(const d of steps.map(parseDetail))if(d?.kind==='commission-route'&&d.state?.id){
@@ -130,6 +133,7 @@ class StoryFeedbackMemory{
   }
   return {quest:this.quest,stage:this.stage,contextId:this.contextId,recentNativeSteps,
    mapPositionFailures:mapPositionFailures(steps),
+   interactionVisits,
    areaSearchState:search?.state||null,
    commissionRouteStates,
    navigationFeedback:grounding.navigationFeedback(steps),travelFeedback:grounding.travelFeedback(steps),

@@ -72,6 +72,7 @@ function validateDecision(value,request,observation){
    if(a.text!==undefined&&a.text!==target)throw Error('F交互目标与当前OCR文字不一致');
    if(/购买|兑换|创世结晶|原石|解锁|祈愿|充值/.test(target))throw Error('当前剧情不执行消费或解锁交互');
    if(grounding.interactionBlocked(request.recentNativeSteps,target))throw Error('同一F目标两次没有界面变化，请重新定位或停止，不能连续盲按');
+   if(grounding.repeatedIncidentalInteraction(request.texts,target,request.interactionVisits))throw Error('同阶段已交互过这个非任务目标，且任务阶段未推进；请离开该目标继续寻路');
    action.text=target;
   }
  }
@@ -220,6 +221,7 @@ async function runStory(goal,{root,env,signal,reportProgress=()=>{},runId,direct
     request.areaSearchState=savedFeedback.areaSearchState;
     request.commissionRouteStates=savedFeedback.commissionRouteStates;
     request.mapPositionFailures=savedFeedback.mapPositionFailures;
+    request.interactionVisits=savedFeedback.interactionVisits;
     latest.taskStage=navigationStage;
     request.teleportAttempts=[...teleportAttempts];
     request.nativeTrackAttempts=nativeTrackAttempts;
@@ -234,6 +236,8 @@ async function runStory(goal,{root,env,signal,reportProgress=()=>{},runId,direct
     distanceEvidence.rule='只有meters中的值可作为本轮距离读数；rawMeters及texts内的距离可能漏字。右上角网络延迟（例如24ms误读24m）不是任务距离，已排除。conflicting_ocr或unconfirmed_distance_jump时不得宣称距离、接近或到达，需重新观察。';
     request.distanceEvidence=distanceEvidence;
     observation.interaction=grounding.interaction(request.texts);
+    const currentF=observation.interaction.candidates[0]?.text;
+    observation.interaction.repeatedIncidental=grounding.repeatedIncidentalInteraction(request.texts,currentF,request.interactionVisits);
     if(observation.recoveryPrompt)observation.recoveryPrompt.rule='当前OCR显示复苏提示及原因说明，不是普通大世界环境提示。controls是当前可见文字按钮，可由模型选择click_text并由原生OCR重新定位；也可wait或stop。不能据此推断全部角色状态，不能宣称已经复苏，必须在下一帧核对界面变化。';
     observation.interaction.rule='仅state=unique时可选择key:F，text使用candidates里的目标文字。执行前重新OCR复核；回执sent只证明按键发送，scene_changed或提示消失也不等于任务完成。多目标或识别不到F时先重新观察定位。';
     if(observation.questMenu)observation.questMenu.availableAction='这是任务菜单，不是大世界。右侧title是已选任务，不表示已经追踪；controls给出当前追踪按钮。entries.distanceMeters只属于对应列表行，null表示未关联；禁止拿别的任务距离或全屏最小距离判断所选任务远近。需要选择左侧条目时使用{kind:"click_text",text:entries中逐字一致文字,scope:"quest_list"}，可区分同名详情标题；左侧仍有重复文字则不可唯一定位。右侧追踪按钮使用普通click_text逐字选择。';

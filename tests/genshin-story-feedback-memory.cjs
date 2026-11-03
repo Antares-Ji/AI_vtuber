@@ -17,6 +17,16 @@ test('cross-segment follow failures and unchanged F persist through forty waits 
  assert.equal(loaded.stats.nativeReceipts,44);assert.equal(loaded.stats.unchangedInteractionReceipts,2);
 });
 function sWithoutAdded({added,...rest}){return rest;}
+test('incidental interaction visits survive compaction/restart without counting plans or rejected input',t=>{
+ const {root,memory}=fixture(t,{stage:'返回「旗舰」休息'});
+ const visit=step(1,'key',{kind:'interaction',target:'克鲁切',sent:true,outcome:'scene_changed'},{key:'F',text:'克鲁切'});
+ memory.merge({sessionId:'visits',steps:[visit,step(2,'key',{kind:'interaction',target:'坐下',sent:false})]});
+ memory.merge({sessionId:'visits',lastStep:visit});
+ const restored=new StoryFeedbackMemory({root,quest:'神秘岛的传说',stage:'返回「旗舰」休息'});
+ assert.deepEqual(restored.snapshot().interactionVisits,{'克鲁切':1});
+ restored.setContext({stage:'和克鲁切对话',confirmedStageChange:true});
+ assert.deepEqual(restored.snapshot().interactionVisits,{});
+});
 test('area search cursor survives receipt compaction and process restart, isolated by task stage',t=>{
  const {root,memory}=fixture(t);const state={version:1,stage:'跟随骗子向导',origin:{x:100,y:200},cursor:12};
  memory.merge({sessionId:'search',steps:[step(1,'search_area',{kind:'area-search',state}),...Array.from({length:40},(_,i)=>step(i+2,'wait'))]});

@@ -67,7 +67,9 @@ function prompt(context,{role=workerFor(context.observation),rejected=[],handoff
  const distantRule=distant?'\n当前HUD超过1500m，仅表示近距离travel_quest宏不可用，不是需要等待。任务距离不会自动缩短。依据questDestination的任务详情地名，从mapAreas选匹配区域list_waypoints，再由waypoints目录选择未尝试teleport；BGI负责传送和后续寻路。目录或区域不存在则stop说明缺口，不反复wait或开关任务菜单。':base.observation.seekFeedback?.exhausted?'\n本地四方向已耗尽，不再提供seek_quest。可以选择有界turn改变视角后重新观察并恢复本地搜索，或选择已有目录路线/传送；没有恢复依据则stop。wait和重复旧seek不会清除耗尽状态。':'';
  const nativeRule=!routePriority&&o.nativeTracking?.available?'\n当前BGI原生近程任务追踪可用，优先选择{"action":{"kind":"native_track"}}。这是BGI自带AutoTrackTask，不需要室内大地图坐标；旧navigate/seek失败不等于此新能力失败。只按当前HUD试运行，结束后复核新场景。':'';
  const recoveryRule=o.nativeRecovery?.available?'\n当前回执确认重复卡点，新的BGI原生脱困能力可用，优先{"action":{"kind":"native_unstuck"}}。不要重复leave_interaction往同一方向顶墙，也不要把旧跟踪失败当作这个新能力已失败。':'';
- return {input:JSON.stringify(base),instructions:RULES+(routePriority?routeRule:priority)+distantRule+nativeRule+recoveryRule+(forecast?'\n这是执行中的动作之后的假设状态，只预规划一步，绝不发送输入。若无法依据已知数据规划则wait。':'')};
+ const interactionRule=o.interaction?.repeatedIncidental?'\n同阶段已与当前非任务F目标交互过，任务没有推进；不能再F。选择leave_interaction离开，或使用当前available的native_unstuck，随后继续BGI寻路。唯一F只说明能交互，不证明是任务目标。':'';
+ const dialogueRule=o.scene==='dialogue'&&!o.uncertain&&o.nativeVision?.ui==='Talk'&&o.dialogue?'\nBGI已确认当前对话。没有回复选项时选择{"action":{"kind":"key","key":"SPACE"}}，由原生有界对话宏推进并在选项出现时返回；有选项时逐字choose_dialogue。当前帧已经就绪，不需要wait等待已经显示的台词。':'';
+ return {input:JSON.stringify(base),instructions:RULES+(routePriority?routeRule:priority)+distantRule+nativeRule+recoveryRule+interactionRule+dialogueRule+(forecast?'\n这是执行中的动作之后的假设状态，只预规划一步，绝不发送输入。若无法依据已知数据规划则wait。':'')};
 }
 function normalize(value,request){
  return {...value,reason:String(value?.reason||'执行当前有据动作').slice(0,24),commentary:'',quest:request.focusQuest||grounding.questMenu(request.texts)?.title||''};
