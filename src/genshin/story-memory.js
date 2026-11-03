@@ -64,6 +64,13 @@ function nativeTrackingProgress(previous,current){
  const g=require('../../scripts/genshin/story-main'),before=g.questHud(previous.request.texts),after=g.questHud(current.texts);
  return Boolean(before&&after&&compatibleStage(before.stage,after.stage)&&after.meters<=before.meters-2);
 }
+function nativeRecoveryNeeded(steps,target){
+ const unique=[...new Map((steps||[]).filter(Boolean).map(s=>[s.seq,s])).values()].slice(-6);
+ return unique.filter(s=>{let d;try{d=JSON.parse(s.detail);}catch{return false;}
+  return target?s.action?.kind==='leave_interaction'&&d.kind==='leave_interaction'&&d.target===target&&d.movementMsSent>0:
+   s.action?.kind==='native_track'&&d.kind==='bgi-native-track'&&['cancelled_or_budget','returned','native_marker_missing'].includes(d.stopReason);
+ }).length>=2;
+}
 function navigationFromEvidence(rows,quest){
  const matching=rows.filter(({e})=>e.decision?.quest===quest);
  const stage=matching.map(({e})=>questStage(e.request?.texts)).find(Boolean)||null;
@@ -80,4 +87,4 @@ function navigationFromEvidence(rows,quest){
  return {stage,teleportAttempts:[...attempted],routeAttemptKeys:[...pending],verification:'historical_attempts_not_arrival',previousSteps:matching.slice(0,5).reverse().map(({e})=>({observation:e.observation,decision:e.decision,lastStep:e.request.lastStep}))};
 }
 function readNavigationMemory(root,quest){return navigationFromEvidence(recentEvidence(root),quest);}
-module.exports={readQuestMemory,questFromEvidence,questStage,readNavigationMemory,navigationFromEvidence,compatibleStage,updateNavigationStage,routePreflightRejected,reconcileRouteAttempt,nativeTrackingProgress};
+module.exports={readQuestMemory,questFromEvidence,questStage,readNavigationMemory,navigationFromEvidence,compatibleStage,updateNavigationStage,routePreflightRejected,reconcileRouteAttempt,nativeTrackingProgress,nativeRecoveryNeeded};

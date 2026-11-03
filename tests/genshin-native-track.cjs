@@ -21,3 +21,15 @@ test('only independently observed same-stage progress renews native tracking bud
  assert.equal(nativeTrackingProgress(previous,current),true);
  for(const change of [{id:'other'},{capturedAt:1000},{texts:rows},{texts:[{...rows[0],text:'前往另一个地方'},current.texts[1]]},{lastStep:{...current.lastStep,seq:2}},{nativeVision:{source:'bettergi_native_cv',ui:'Unknown'}}])assert.equal(nativeTrackingProgress(previous,{...current,...change}),false);
 });
+test('native recovery requires repeated actual receipts and never counts duplicated plans',()=>{
+ const {nativeRecoveryNeeded}=require('../src/genshin/story-memory');
+ const receipt=seq=>({seq,action:{kind:'leave_interaction'},detail:JSON.stringify({kind:'leave_interaction',target:'克鲁切',movementMsSent:400})});
+ assert.equal(nativeRecoveryNeeded([receipt(1),receipt(1)],'克鲁切'),false);
+ assert.equal(nativeRecoveryNeeded([receipt(1),receipt(2)],'克鲁切'),true);
+ assert.equal(nativeRecoveryNeeded([receipt(1),receipt(2)],'休息'),false);
+ const request={texts:rows,capabilities:{nativeQuestUnstuck:true}};
+ const observation={scene:'world',nativeVision:{source:'bettergi_native_cv',ui:'Main'},nativeRecovery:{available:true}};
+ assert.equal(validateDecision({action:{kind:'native_unstuck'}},request,observation).action.kind,'native_unstuck');
+ for(const o of [{...observation,scene:'menu'},{...observation,nativeRecovery:{available:false}}])assert.throws(()=>validateDecision({action:{kind:'native_unstuck'}},request,o));
+ assert.throws(()=>validateDecision({action:{kind:'native_unstuck',key:'W'}},request,observation));
+});

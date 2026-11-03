@@ -4,7 +4,7 @@ const bridge=require('./bridge'),{respond}=require('./model-provider');
 const waypointCatalog=require('./story-waypoints'),{installation}=require('./installation');
 const {corroborateDistances,trackingEvidence}=require('./story-observation');
 const StoryTravel=require('../../scripts/genshin/story/macros/travel-quest');
-const {readQuestMemory,questFromEvidence,questStage,readNavigationMemory,updateNavigationStage,reconcileRouteAttempt,nativeTrackingProgress}=require('./story-memory');
+const {readQuestMemory,questFromEvidence,questStage,readNavigationMemory,updateNavigationStage,reconcileRouteAttempt,nativeTrackingProgress,nativeRecoveryNeeded}=require('./story-memory');
 const {questGuide}=require('./story-guides');
 const grounding=require('../../scripts/genshin/story-main');
 const {frameBudget}=require('./story-deadline');
@@ -28,8 +28,9 @@ function commentaryReceipt(id,phase,audioEnabled,consumer='legacy'){
 }
 function validateDecision(value,request,observation){
  const a=value?.action;
- if(!a||!['key','click_text','choose_dialogue','wait','stop','move','fight','list_waypoints','teleport','follow_marker','turn','reset_camera','advance_quest','travel_quest','complete_quest','leave_interaction','navigate','seek_quest','search_area','quest_route','native_track'].includes(a.kind))throw Error('剧情动作格式无效');
+ if(!a||!['key','click_text','choose_dialogue','wait','stop','move','fight','list_waypoints','teleport','follow_marker','turn','reset_camera','advance_quest','travel_quest','complete_quest','leave_interaction','navigate','seek_quest','search_area','quest_route','native_track','native_unstuck'].includes(a.kind))throw Error('剧情动作格式无效');
  const action={kind:a.kind};
+ if(a.kind==='native_unstuck'&&(!request.capabilities?.nativeQuestUnstuck||!observation.nativeRecovery?.available||observation.scene!=='world'||observation.nativeVision?.ui!=='Main'||Object.keys(a).some(k=>k!=='kind')))throw Error('BGI脱困需要主界面及当前重复卡点回执，不接受坐标或任意输入');
  if(a.kind==='native_track'){
   const hud=grounding.questHud(request.texts),cv=observation.nativeVision;
   if(!request.capabilities?.nativeQuestTrack||request.nativeTrackAttempts>=2||observation.scene!=='world'||cv?.source!=='bettergi_native_cv'||cv.ui!=='Main'||!hud||hud.meters<4||hud.meters>150||grounding.movementStop(request.texts)||Object.keys(a).some(k=>k!=='kind'))throw Error('BGI原生近程追踪需要当前主界面、4–150米任务提示、可用接口及剩余尝试，不接受自定坐标');
@@ -189,7 +190,7 @@ async function runStory(goal,{root,env,signal,reportProgress=()=>{},runId,direct
  let stageState={stage:navigationStage,pending:null};
  const feedback=new StoryFeedbackMemory({root,quest:questMemory?.quest||goal,stage:navigationStage});
  const teleportAttempts=new Set(navigationMemory.teleportAttempts);
- let nativeTrackAttempts=0;
+ let nativeTrackAttempts=0,nativeUnstuckAttempts=0;
  const routeAttemptKeys=new Map(navigationMemory.routeAttemptKeys);
  for(const area of waypointCatalog.areas(points))if(questMemory?.details.some(t=>t.replace(/[「」\s]/g,'').includes(area.replace(/[「」\s]/g,''))))observedAreas.add(area);
  try{
@@ -210,7 +211,7 @@ async function runStory(goal,{root,env,signal,reportProgress=()=>{},runId,direct
     if(nativeTrackingProgress(history.at(-1),request))nativeTrackAttempts=0;
     const currentStage=questStage(request.texts);
     stageState=updateNavigationStage(stageState,currentStage);
-    if(stageState.changed){teleportAttempts.clear();routeAttemptKeys.clear();nativeTrackAttempts=0;}
+    if(stageState.changed){teleportAttempts.clear();routeAttemptKeys.clear();nativeTrackAttempts=0;nativeUnstuckAttempts=0;}
     navigationStage=stageState.stage;
     feedback.setContext({quest:questMemory?.quest||goal,stage:navigationStage,confirmedStageChange:stageState.changed});
     const savedFeedback=feedback.snapshot();
@@ -242,6 +243,9 @@ async function runStory(goal,{root,env,signal,reportProgress=()=>{},runId,direct
     observation.travelQuest=StoryTravel.eligibility({texts:request.texts,scene:observation.scene,uncertain:observation.uncertain,recentNativeSteps:request.recentNativeSteps},grounding);
     const nearHud=grounding.questHud(request.texts);
     observation.nativeTracking={available:request.capabilities?.nativeQuestTrack===true&&nativeTrackAttempts<2&&observation.scene==='world'&&observation.nativeVision?.ui==='Main'&&nearHud?.meters>=4&&nearHud.meters<=150&&!grounding.movementStop(request.texts),attempts:nativeTrackAttempts,source:'BetterGI.AutoTrackTask',rule:'BGI自带近程任务追踪，限时30秒，本地模板识别追踪点；可用于室内，无需大地图坐标。返回后重新观察，不把调用当到达。'};
+    const localReceipts=[...history.map(e=>e.request.lastStep),request.lastStep].filter(Boolean);
+    const blockedTarget=observation.interaction?.state==='unique'?observation.interaction.candidates[0].text:null;
+    observation.nativeRecovery={available:request.capabilities?.nativeQuestUnstuck===true&&nativeUnstuckAttempts<2&&observation.scene==='world'&&observation.nativeVision?.ui==='Main'&&Boolean(nearHud)&&nativeRecoveryNeeded(localReceipts,blockedTarget)&&!(blockedTarget&&grounding.collectionTarget(request.texts,blockedTarget)),attempts:nativeUnstuckAttempts,source:'BetterGI.TrapEscaper.RotateAndMove',target:blockedTarget,rule:'重复离开同一NPC仍卡住或两次原生追踪受阻，可调用BGI原生脱困（有界后退/侧移/跳跃，包含原生脱离动作）；之后重新识别，不重复W空转。'};
     if(request.capabilities?.minimapProjection===false)observation.travelQuest={...observation.travelQuest,ok:false,reason:'projection_api_unavailable'};
     observation.navigationFeedback.rule='blocked=true时不能继续follow_marker；必须依据当前地形选择有界恢复或停止。转向不变、距离不降均会提前返回，不把动作次数当作进展。';
     observation.frameEvidence={seq:request.seq,capturedAt:request.capturedAt,ageMs:Date.now()-request.capturedAt,previousActionFinishedAt:request.lastStep?.finishedAt||null,rule:'这是上一动作完成后新采集的画面，已完成本地识别；不是等待中的观察。不要仅为等待新画面反复wait。'};
@@ -271,6 +275,7 @@ async function runStory(goal,{root,env,signal,reportProgress=()=>{},runId,direct
     signal.throwIfAborted();
     const {decision,answer,rejected}=repaired;
     if(decision.action.kind==='native_track')nativeTrackAttempts++;
+    if(decision.action.kind==='native_unstuck'){nativeUnstuckAttempts++;nativeTrackAttempts=0;}
     if(fast){decision.commentary='';decision.reason=decision.reason.slice(0,24);}
     if(decision.action.kind==='list_waypoints')selectedArea=decision.action.area;
     if(decision.action.kind==='teleport'||decision.action.kind==='quest_route'&&commissionCatalog.routes.find(r=>r.id===decision.action.id)?.positions.some(p=>p.type==='teleport')){

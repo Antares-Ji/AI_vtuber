@@ -74,6 +74,63 @@ if 'RunOwnedNearAsync' not in s:
 s=target.read_text(encoding='utf-8')
 s=s.replace('if (!OwnedGameFocus.IsGameActive())', 'if (!BetterGenshinImpact.Core.Script.Dependence.OwnedGameFocus.IsGameActive())')
 target.write_text(s,encoding='utf-8')
+if 'RunOwnedEscapeAsync' not in s:
+    marker='    private void CheckOwnedNear()'
+    extra=r'''
+    public async System.Threading.Tasks.Task<string> RunOwnedEscapeAsync(CancellationToken parent)
+    {
+        using var linked = CancellationTokenSource.CreateLinkedTokenSource(parent,
+            BetterGenshinImpact.Service.Execution.ExecutionScope.Current!.Token);
+        linked.CancelAfter(5000);
+        _ct = linked.Token; _ownedNear = true;
+        var watch = Stopwatch.StartNew();
+        var reason = "returned";
+        try
+        {
+            CheckOwnedNear();
+            await new BetterGenshinImpact.GameTask.AutoPathing.TrapEscaper(_ct, CheckOwnedNear).RotateAndMove();
+            _ct.ThrowIfCancellationRequested();
+        }
+        catch (OperationCanceledException) { reason = "cancelled_or_budget"; }
+        catch (NormalEndException e) { reason = e.Message; }
+        finally
+        {
+            foreach (var action in new[] {GIActions.MoveForward, GIActions.MoveBackward, GIActions.MoveLeft, GIActions.MoveRight, GIActions.Jump})
+                InputHub.Foreground.SimulateAction(action, KeyType.KeyUp);
+            _ownedNear = false;
+        }
+        return System.Text.Json.JsonSerializer.Serialize(new {kind="bgi-native-unstuck",
+            implementation="TrapEscaper.RotateAndMove", stopReason=reason,
+            durationMs=watch.ElapsedMilliseconds, verified=false});
+    }
+
+'''
+    assert s.count(marker)==1
+    s=s.replace(marker,extra+marker)
+    s=s.replace('                StartTrackPoint();\n            }\n            catch', '                StartTrackPoint();\n                _ct.ThrowIfCancellationRequested();\n            }\n            catch',1)
+    target.write_text(s,encoding='utf-8')
+trap=source/'GameTask/AutoPathing/TrapEscaper.cs'
+t=trap.read_text(encoding='utf-8')
+if 'Action? checkInput' not in t:
+    t=t.replace('public class TrapEscaper(CancellationToken ct)', 'public class TrapEscaper(CancellationToken ct, Action? checkInput = null)')
+    lines=[]
+    for line in t.splitlines():
+        if 'InputHub.Foreground.' in line and 'KeyType.KeyUp' not in line:
+            lines.append(line[:len(line)-len(line.lstrip())]+'checkInput?.Invoke();')
+        lines.append(line)
+    t='\n'.join(lines)+'\n'
+    import re
+    t=re.sub(r'Sleep\((75|700|500|300|delay)\);',r'Sleep(\1, ct);',t)
+    trap.write_text(t,encoding='utf-8')
+s=target.read_text(encoding='utf-8')
+if '_ownedForwardStarts' not in s:
+    s=s.replace('    private int _ownedFrames;', '    private int _ownedFrames;\n    private int _ownedTurns;\n    private int _ownedForwardStarts;\n    private bool _ownedEscaping;')
+    s=s.replace('_ct = linked.Token; _ownedNear = true;', '_ct = linked.Token; _ownedNear = true; _ownedEscaping = true;')
+    s=s.replace('                frames = _ownedFrames, verified = false', '                frames = _ownedFrames, turns = _ownedTurns, forwardStarts = _ownedForwardStarts, verified = false')
+    s=s.replace('                    InputHub.Foreground.Mouse.MoveMouseBy(moveX, 0);', '                    if (_ownedNear) _ownedTurns++;\n                    InputHub.Foreground.Mouse.MoveMouseBy(moveX, 0);')
+    s=s.replace('                        InputHub.Foreground.SimulateAction(GIActions.MoveForward, KeyType.KeyDown);', '                        if (_ownedNear) _ownedForwardStarts++;\n                        InputHub.Foreground.SimulateAction(GIActions.MoveForward, KeyType.KeyDown);')
+    s=s.replace('        _ownedFrames++;', '        if (!_ownedEscaping && Bv.FindF(frame)) throw new NormalEndException("native_interaction_prompt");\n        _ownedFrames++;')
+    target.write_text(s,encoding='utf-8')
 engine=source/'Core/Script/EngineExtend.cs'
 s=engine.read_text(encoding='utf-8')
 if 'runOwnedQuestTrack' not in s:
@@ -82,5 +139,12 @@ if 'runOwnedQuestTrack' not in s:
             engine.AddHostObject("runOwnedQuestTrack", (Func<int, System.Threading.CancellationToken, Task<string>>)((ms, ct) =>
                 new BetterGenshinImpact.GameTask.AutoSkip.AutoTrackTask(new BetterGenshinImpact.GameTask.AutoSkip.Model.AutoTrackParam()).RunOwnedNearAsync(ms, ct)));'''
     assert s.count(anchor)==1
+    engine.write_text(s.replace(anchor,anchor+addition),encoding='utf-8')
+s=engine.read_text(encoding='utf-8')
+if 'runOwnedQuestUnstuck' not in s:
+    anchor='            engine.AddHostObject("isGameActive", (Func<bool>)OwnedGameFocus.IsGameActive);'
+    addition='''
+            engine.AddHostObject("runOwnedQuestUnstuck", (Func<System.Threading.CancellationToken, Task<string>>)(ct =>
+                new BetterGenshinImpact.GameTask.AutoSkip.AutoTrackTask(new BetterGenshinImpact.GameTask.AutoSkip.Model.AutoTrackParam()).RunOwnedEscapeAsync(ct)));'''
     engine.write_text(s.replace(anchor,anchor+addition),encoding='utf-8')
 print('Installed owned near-tracking adapter; no path/CV reimplementation')

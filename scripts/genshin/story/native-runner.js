@@ -7,7 +7,7 @@ else (async function(){
  const save=()=>file.writeTextSync('receipt.json',JSON.stringify(receipt));
  const normalize=s=>String(s||'').replace(/\s/g,'');
  let activeInput=null,observationDelayMs=400,departedInteraction=null,seekState=null;
- const inputKinds=new Set(['native_track','key','click_text','choose_dialogue','follow_marker','reset_camera','advance_quest','travel_quest','turn','teleport','move','fight','leave_interaction','navigate','seek_quest','search_area','quest_route']);
+ const inputKinds=new Set(['native_unstuck','native_track','key','click_text','choose_dialogue','follow_marker','reset_camera','advance_quest','travel_quest','turn','teleport','move','fight','leave_interaction','navigate','seek_quest','search_area','quest_route']);
  function inputFailure(code,message){
   const error=Error(message);error.code=code;
   if(activeInput){activeInput.errorCode=code;activeInput.failedAt=Date.now();}
@@ -213,7 +213,7 @@ else (async function(){
    const frame=captureGameRegion();let texts,nativeVision=null;
    try{texts=readTexts(frame);if(typeof getOwnedSceneObservation!=='undefined')nativeVision=JSON.parse(getOwnedSceneObservation(frame));file.writeImageSync('story-'+seq+'.png',frame.srcMat);}finally{frame.dispose();}
    const capturedAt=captureStartedAt,decisionDeadline=Math.min(capturedAt+120000,sessionDeadline);
-   const capabilities={nativeQuestTrack:typeof runOwnedQuestTrack!=='undefined',minimapProjection:typeof getOwnedMinimapProjection!=='undefined',continuousNavigation:true,nativeScene:typeof getOwnedSceneObservation!=='undefined'};
+   const capabilities={nativeQuestUnstuck:typeof runOwnedQuestUnstuck!=='undefined',nativeQuestTrack:typeof runOwnedQuestTrack!=='undefined',minimapProjection:typeof getOwnedMinimapProjection!=='undefined',continuousNavigation:true,nativeScene:typeof getOwnedSceneObservation!=='undefined'};
    const request={id:command.id,seq,capturedAt,deadlineAt:decisionDeadline,image:'story-'+seq+'.png',texts,position,capabilities,nativeVision,lastStep:receipt.steps.slice(-1)[0]||null};
    file.writeTextSync('story-request.json',JSON.stringify(request));
    log.info('AI-VTuber剧情：等待模型决策，步骤 '+seq);
@@ -295,6 +295,10 @@ else (async function(){
    }else if(action.kind==='wait'){await sleep(2000);}
    else if(action.kind==='complete_quest'){detail=JSON.stringify({kind:'completion_acknowledgement',quest:action.quest,inputSent:false,source:'server_ocr_evidence',verified:false});}
    else if(action.kind==='list_waypoints'){detail='查询地图目录：'+action.area;}
+   else if(action.kind==='native_unstuck'){
+    checkInput();if(typeof runOwnedQuestUnstuck==='undefined')throw Error('BGI脱困接口不存在');
+    const cts=new CancellationTokenSource();try{cts.cancelAfter(5000);detail=String(await runOwnedQuestUnstuck(cts.token));}finally{cts.cancel();cts.dispose();}seekState=null;
+   }
    else if(action.kind==='native_track'){
     checkInput();const hud=StoryGrounding.questHud(readFreshTexts());
     if(typeof runOwnedQuestTrack==='undefined'||!hud||hud.meters<4||hud.meters>150)throw Error('BGI原生近程追踪当前不可用');
