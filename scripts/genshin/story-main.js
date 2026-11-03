@@ -123,6 +123,15 @@ const StoryGrounding=(()=>{
   }
   return {failedTravels:failures,blocked:failures>=2};
  }
+ function seekFeedback(steps){
+  let exhausted=false;
+  for(const step of steps||[]){
+   if(['turn','teleport','quest_route','search_area'].includes(step.action?.kind)){exhausted=false;continue;}
+   const d=detail(step);
+   if(step.action?.kind==='seek_quest'&&d?.stopReason==='directions_exhausted')exhausted=true;
+  }
+  return {exhausted};
+ }
   function questHud(texts) {
     const rows = positioned(texts);
     const instructions = rows.filter(row => questInstruction([row]));
@@ -171,7 +180,7 @@ const StoryGrounding=(()=>{
       direction: label.box[0] + label.box[2] / 2 < 880 ? 'left' : label.box[0] + label.box[2] / 2 > 1040 ? 'right' : 'center', verified: false };
   }
 
- return {interaction,collectionTarget,movementStop,sceneCue,navigationFeedback,travelFeedback,interactionBlocked,questMenu,recoveryPrompt,loginPrompt,questInstruction,mapMenu,questHud,travelEligibility,questDistanceLabel};
+ return {interaction,collectionTarget,movementStop,sceneCue,navigationFeedback,travelFeedback,seekFeedback,interactionBlocked,questMenu,recoveryPrompt,loginPrompt,questInstruction,mapMenu,questHud,travelEligibility,questDistanceLabel};
 })();
 
 if(typeof module!=='undefined'&&module.exports)module.exports=StoryGrounding;

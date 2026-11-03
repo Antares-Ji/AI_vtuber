@@ -15,6 +15,15 @@ test('distant objectives preserve task-region evidence and offer catalog travel 
  assert.match(p.instructions,/不是需要等待/);assert.ok(d.availableIntents.includes('list_waypoints'));assert.ok(d.availableIntents.includes('teleport'));
  assert.ok(!workers.prompt(context).instructions.includes('当前HUD超过1500m'));
 });
+test('exhausted local search exposes recovery without offering the same empty search again',()=>{
+ const g=require('../scripts/genshin/story-main'),runtime=require('../src/genshin/story-runtime');
+ const failed={action:{kind:'seek_quest'},detail:JSON.stringify({kind:'quest-seek',stopReason:'directions_exhausted'})};
+ const steps=[failed,{action:{kind:'wait'}}];assert.equal(g.seekFeedback(steps).exhausted,true);
+ assert.equal(g.seekFeedback([...steps,{action:{kind:'turn'}}]).exhausted,false);
+ const p=workers.prompt({...context,observation:{...context.observation,seekFeedback:g.seekFeedback(steps)}}),data=JSON.parse(p.input);
+ assert.ok(!data.availableIntents.includes('seek_quest'));assert.ok(data.availableIntents.includes('turn'));assert.ok(data.availableIntents.includes('stop'));
+ assert.throws(()=>runtime.validateDecision({action:{kind:'seek_quest'}},{recentNativeSteps:steps,texts:[]},context.observation),/四方向已耗尽/);
+});
 test('collection investigation keeps the guide and is handed to F instead of walking away',()=>{
  const texts=[{text:'收集木材',box:[75,246,153,33]},{text:'F',box:[1100,480,25,30]},{text:'调查',box:[1150,480,80,30]}];
  const g=require('../scripts/genshin/story-main'),guide=require('../src/genshin/story-guides').questGuide('紧急修理');

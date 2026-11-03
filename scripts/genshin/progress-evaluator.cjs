@@ -93,7 +93,7 @@ function median(values){
 function taskProgress(rows){
  const stages=[],completions=[],seen=new Set();let previous=null,total=0,lastBoundary=0;
  for(const r of rows){
-  const task=quest(r),instruction=r.observation?.scene==='world'&&!r.observation.uncertain&&grounding.questInstruction(r.request?.texts);
+  const task=quest(r),instruction=['world','combat'].includes(r.observation?.scene)&&!r.observation.uncertain&&grounding.questInstruction(r.request?.texts);
   if(task&&instruction){
    const current={task,stage:instruction.text};
    if(previous&&normal(previous.task)===normal(task)&&!require('../../src/genshin/story-memory').compatibleStage(previous.stage,current.stage)){

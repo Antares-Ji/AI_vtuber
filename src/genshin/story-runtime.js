@@ -111,6 +111,7 @@ function validateDecision(value,request,observation){
   Object.assign(action,{key:a.key,ms:a.ms});
  }
  if(a.kind==='seek_quest'){
+  if(grounding.seekFeedback(request.recentNativeSteps||[request.lastStep].filter(Boolean)).exhausted)throw Error('本地四方向已耗尽；先有界turn改变视角或选择目录路线/传送，无法恢复则stop，不能重复seek_quest');
   const hud=grounding.questHud(request.texts),cv=observation.nativeVision;
   if(observation.scene!=='world'||cv?.source!=='bettergi_native_cv'||cv.ui!=='Main'||cv.motion!=='Normal'||!hud||hud.meters<=5||hud.meters>300||grounding.movementStop(request.texts))throw Error('seek_quest需要BGI原生大世界、普通运动状态及5–300m当前任务HUD；菜单先返回世界，未知场景重新观察');
  }
@@ -226,6 +227,7 @@ async function runStory(goal,{root,env,signal,reportProgress=()=>{},runId,direct
     if(observation.questMenu)observation.questMenu.availableAction='这是任务菜单，不是大世界。右侧title是已选任务，不表示已经追踪；controls给出当前追踪按钮。entries.distanceMeters只属于对应列表行，null表示未关联；禁止拿别的任务距离或全屏最小距离判断所选任务远近。需要选择左侧条目时使用{kind:"click_text",text:entries中逐字一致文字,scope:"quest_list"}，可区分同名详情标题；左侧仍有重复文字则不可唯一定位。右侧追踪按钮使用普通click_text逐字选择。';
     if(observation.questMenu?.listIncomplete)observation.questMenu.availableAction+='本帧仅确认右侧详情，列表标题/分类识别不完整，entries为空不是没有任务。不能依据左侧残字选任务；若当前title正是保持任务且控件为停止追踪，则已经追踪，不要再寻找任务入口或反复点击任务。';
     observation.navigationFeedback=grounding.navigationFeedback(request.recentNativeSteps);
+    observation.seekFeedback=grounding.seekFeedback(request.recentNativeSteps);
     observation.taskFocus={quest:request.focusQuest,completionEvidence:request.focusQuest?completionEvidence(request.texts,request.focusQuest):null,rule:'当前任务在本训练会话内保持。不能为刷新列表、绕过文字重复或跟标失败切换其他任务。如当前详情误停另一项，核对当前菜单中原任务条目，允许scope:quest_list定位同名列表；不要追踪另一项。只有这里completionEvidence非空时才可由模型选择{kind:"complete_quest",quest:当前任务名}记录当前OCR完成证据，这一步不发送输入；之后才能自主选择下一项已接取任务。没有完成证据就保持当前任务或stop说明问题。'};
     observation.trackingEvidence=trackingEvidence(observation,request.texts,questMemory?.quest);
     observation.travelQuest=StoryTravel.eligibility({texts:request.texts,scene:observation.scene,uncertain:observation.uncertain,recentNativeSteps:request.recentNativeSteps},grounding);

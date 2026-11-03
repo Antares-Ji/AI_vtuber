@@ -43,6 +43,7 @@ function prompt(context,{role=workerFor(context.observation),rejected=[],handoff
   base.collectionInteraction={target,preferredAction:{kind:'leave_interaction',text:target,key:'W'},reason:'此目标与当前收集材料无关；leave_interaction交回BGI搜索，不要反复阅读便条或烹饪'};
  }
  if(base.observation.travelQuest?.ok===false)base.availableIntents=base.availableIntents.filter(k=>k!=='travel_quest');
+ if(base.observation.seekFeedback?.exhausted)base.availableIntents=base.availableIntents.filter(k=>k!=='seek_quest');
  if(base.observation.travelQuest?.ok&&base.observation.travelQuest.feedback?.failedTravels===0){
   base.availableIntents=base.availableIntents.filter(k=>!['navigate','move','advance_quest','follow_marker'].includes(k));
   base.navigationPriority={intent:'travel_quest',reason:'当前任务HUD可用于BGI坐标定位，先执行原生CV闭环；失败后再提供探索动作'};
@@ -59,7 +60,7 @@ function prompt(context,{role=workerFor(context.observation),rejected=[],handoff
   base.observation.travelQuest?.hud?.meters>5&&base.observation.travelQuest.hud.meters<=300?'\n当前有5–300m任务距离，但图标寻路已有失败。可选择{action:{kind:"seek_quest"}}：BGI在本地以HUD距离变化选方向，CV检查移动和卡住，连续行走最多60秒，交互或阶段变化立即返回。优先此原生反馈意图，不再自己逐步猜W/转镜，也不要因为旧navigate失败就stop。':'';
  const routeRule=routePriority?'\n当前有匹配任务阶段的BGI原始目录路线，优先选择'+JSON.stringify({action:{kind:'quest_route',id:routePriority.id}})+'。原生复核当前CV区域后按目录连续寻路，途中出现F/任务阶段变化即停。路线只参考已知坐标，不证明物品仍在；出现唯一F再交给交互worker。先完成当前路线，再选下一个未完成路线；Climb时先X恢复。'+(routePriority.recovery?'该恢复路线专为离线录制路线入口不匹配导致的卡住提供一次传送+飞行回入口；失败历史正是启用恢复的依据，可选择此新恢复路线而不是重复失败路径或停止。':''):'';
  const distant=role==='movement'&&base.observation.travelQuest?.hud?.meters>1500;
- const distantRule=distant?'\n当前HUD超过1500m，仅表示近距离travel_quest宏不可用，不是需要等待。任务距离不会自动缩短。依据questDestination的任务详情地名，从mapAreas选匹配区域list_waypoints，再由waypoints目录选择未尝试teleport；BGI负责传送和后续寻路。目录或区域不存在则stop说明缺口，不反复wait或开关任务菜单。':'';
+ const distantRule=distant?'\n当前HUD超过1500m，仅表示近距离travel_quest宏不可用，不是需要等待。任务距离不会自动缩短。依据questDestination的任务详情地名，从mapAreas选匹配区域list_waypoints，再由waypoints目录选择未尝试teleport；BGI负责传送和后续寻路。目录或区域不存在则stop说明缺口，不反复wait或开关任务菜单。':base.observation.seekFeedback?.exhausted?'\n本地四方向已耗尽，不再提供seek_quest。可以选择有界turn改变视角后重新观察并恢复本地搜索，或选择已有目录路线/传送；没有恢复依据则stop。wait和重复旧seek不会清除耗尽状态。':'';
  return {input:JSON.stringify(base),instructions:RULES+(routePriority?routeRule:priority)+distantRule+(forecast?'\n这是执行中的动作之后的假设状态，只预规划一步，绝不发送输入。若无法依据已知数据规划则wait。':'')};
 }
 function normalize(value,request){

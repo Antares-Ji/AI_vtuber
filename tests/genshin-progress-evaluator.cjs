@@ -24,6 +24,10 @@ test('changing tasks or OCR truncation cannot count as a stage transition',()=>{
  const rows=[frame(1,10,{stage:'前去查看详情'}),frame(2,10,{stage:'前去查看详情附近'}),frame(3,10,{task:'任务乙',stage:'收集绳索'})];
  assert.equal(evaluate(rows,4000).progress.observedStageTransitions,0);
 });
+test('combat HUD stages participate in task progress without claiming a kill',()=>{
+ const r=evaluate([frame(1,2,{stage:'和法拉对话'}),frame(2,2,{stage:'消灭所有魔物',scene:'combat'})],3000);
+ assert.equal(r.progress.observedStageTransitions,1);assert.equal(r.progress.verifiedCompletions,0);
+});
 test('completion KPI deduplicates BGI banners and rejects model-only completion',()=>{
  const rows=[frame(1),frame(2),frame(3)];
  for(const r of rows.slice(1)){r.request.texts=[{text:'任务甲'},{text:'任务完成'}];r.observation.visionSource='bettergi_native_cv_ocr';}
