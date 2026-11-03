@@ -4,7 +4,7 @@ const bridge=require('./bridge'),{respond}=require('./model-provider');
 const waypointCatalog=require('./story-waypoints'),{installation}=require('./installation');
 const {corroborateDistances,trackingEvidence}=require('./story-observation');
 const StoryTravel=require('../../scripts/genshin/story/macros/travel-quest');
-const {readQuestMemory,questFromEvidence,questStage,readNavigationMemory,updateNavigationStage,reconcileRouteAttempt}=require('./story-memory');
+const {readQuestMemory,questFromEvidence,questStage,readNavigationMemory,updateNavigationStage,reconcileRouteAttempt,nativeTrackingProgress}=require('./story-memory');
 const {questGuide}=require('./story-guides');
 const grounding=require('../../scripts/genshin/story-main');
 const {frameBudget}=require('./story-deadline');
@@ -207,6 +207,7 @@ async function runStory(goal,{root,env,signal,reportProgress=()=>{},runId,direct
     request.focusQuest=questMemory?.quest||null;
     feedback.merge({sessionId:request.id,lastStep:request.lastStep});
     reconcileRouteAttempt(teleportAttempts,routeAttemptKeys,request.id,request.lastStep);
+    if(nativeTrackingProgress(history.at(-1),request))nativeTrackAttempts=0;
     const currentStage=questStage(request.texts);
     stageState=updateNavigationStage(stageState,currentStage);
     if(stageState.changed){teleportAttempts.clear();routeAttemptKeys.clear();nativeTrackAttempts=0;}

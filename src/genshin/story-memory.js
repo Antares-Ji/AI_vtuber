@@ -56,6 +56,14 @@ function reconcileRouteAttempt(attempted,pending,sessionId,step){
  const id=step.action.id,key=JSON.stringify([sessionId,step.seq]);
  if(pending.get(id)===key){attempted.delete(id);pending.delete(id);}
 }
+function nativeTrackingProgress(previous,current){
+ const step=current?.lastStep;
+ if(previous?.decision?.action?.kind!=='native_track'||step?.action?.kind!=='native_track'||previous.request?.id!==current.id||previous.request?.seq!==step.seq||!Number.isFinite(step.finishedAt)||current.capturedAt<=step.finishedAt||current.nativeVision?.source!=='bettergi_native_cv'||current.nativeVision.ui!=='Main')return false;
+ let d;try{d=JSON.parse(step.detail);}catch{return false;}
+ if(d?.kind!=='bgi-native-track')return false;
+ const g=require('../../scripts/genshin/story-main'),before=g.questHud(previous.request.texts),after=g.questHud(current.texts);
+ return Boolean(before&&after&&compatibleStage(before.stage,after.stage)&&after.meters<=before.meters-2);
+}
 function navigationFromEvidence(rows,quest){
  const matching=rows.filter(({e})=>e.decision?.quest===quest);
  const stage=matching.map(({e})=>questStage(e.request?.texts)).find(Boolean)||null;
@@ -72,4 +80,4 @@ function navigationFromEvidence(rows,quest){
  return {stage,teleportAttempts:[...attempted],routeAttemptKeys:[...pending],verification:'historical_attempts_not_arrival',previousSteps:matching.slice(0,5).reverse().map(({e})=>({observation:e.observation,decision:e.decision,lastStep:e.request.lastStep}))};
 }
 function readNavigationMemory(root,quest){return navigationFromEvidence(recentEvidence(root),quest);}
-module.exports={readQuestMemory,questFromEvidence,questStage,readNavigationMemory,navigationFromEvidence,compatibleStage,updateNavigationStage,routePreflightRejected,reconcileRouteAttempt};
+module.exports={readQuestMemory,questFromEvidence,questStage,readNavigationMemory,navigationFromEvidence,compatibleStage,updateNavigationStage,routePreflightRejected,reconcileRouteAttempt,nativeTrackingProgress};

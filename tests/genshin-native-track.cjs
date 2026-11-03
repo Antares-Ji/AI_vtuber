@@ -14,3 +14,10 @@ test('native near tracking requires current BGI UI, near HUD, actual capability 
  assert.throws(()=>validateDecision({action:{kind:'native_track',x:10}},request,observation));
  assert.throws(()=>validateDecision({action:{kind:'native_track'}},request,{...observation,scene:'menu'}));
 });
+test('only independently observed same-stage progress renews native tracking budget',()=>{
+ const {nativeTrackingProgress}=require('../src/genshin/story-memory');
+ const previous={request:{id:'a',seq:1,texts:rows},decision:{action:{kind:'native_track'}}};
+ const current={id:'a',capturedAt:3000,nativeVision:{source:'bettergi_native_cv',ui:'Main'},texts:[rows[0],{...rows[1],text:'高处52m'}],lastStep:{seq:1,finishedAt:2000,action:{kind:'native_track'},detail:JSON.stringify({kind:'bgi-native-track',stopReason:'returned'})}};
+ assert.equal(nativeTrackingProgress(previous,current),true);
+ for(const change of [{id:'other'},{capturedAt:1000},{texts:rows},{texts:[{...rows[0],text:'前往另一个地方'},current.texts[1]]},{lastStep:{...current.lastStep,seq:2}},{nativeVision:{source:'bettergi_native_cv',ui:'Unknown'}}])assert.equal(nativeTrackingProgress(previous,{...current,...change}),false);
+});
