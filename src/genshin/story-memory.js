@@ -31,7 +31,7 @@ function questStage(texts){
  return questInstruction(texts)?.text||null;
 }
 function compatibleStage(a,b){
- const normalize=s=>String(s||'').replace(/\s/g,'');a=normalize(a);b=normalize(b);
+ const normalize=s=>String(s||'').replace(/[\s「」『』“”‘’"']/g,'');a=normalize(a);b=normalize(b);
  return Boolean(a&&b&&(a===b||Math.min(a.length,b.length)>=6&&(a.startsWith(b)||b.startsWith(a))));
 }
 // OCR suffix loss must not reset the attempted-waypoint ledger. A genuinely

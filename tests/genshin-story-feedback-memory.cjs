@@ -24,6 +24,8 @@ test('incidental interaction visits survive compaction/restart without counting 
  memory.merge({sessionId:'visits',lastStep:visit});
  const restored=new StoryFeedbackMemory({root,quest:'神秘岛的传说',stage:'返回「旗舰」休息'});
  assert.deepEqual(restored.snapshot().interactionVisits,{'克鲁切':1});
+ restored.setContext({stage:'返回『旗舰」休息',confirmedStageChange:true});
+ assert.deepEqual(restored.snapshot().interactionVisits,{'克鲁切':1});
  restored.setContext({stage:'和克鲁切对话',confirmedStageChange:true});
  assert.deepEqual(restored.snapshot().interactionVisits,{});
 });
