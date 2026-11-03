@@ -343,3 +343,47 @@ if 'ownedSamePrompt' not in s:
     s=s.replace(old,new)
     s=s.replace('Math.Clamp(timeoutMs, 1000, 30000)', 'Math.Clamp(timeoutMs, 1000, 60000)')
     target.write_text(s,encoding='utf-8')
+
+s=target.read_text(encoding='utf-8')
+if 'WaitOwnedPromptLabel' not in s:
+    s=s.replace('    private void CheckOwnedNear()\n', '    private void CheckOwnedNear() => CheckOwnedNear(false);\n\n    private void CheckOwnedNear(bool wasForward)\n')
+    s=s.replace('''            if (!ownedSamePrompt) throw new NormalEndException("native_interaction_prompt");''', '''            if (!ownedSamePrompt && string.IsNullOrWhiteSpace(label) && !string.IsNullOrWhiteSpace(expected))
+                ownedSamePrompt = WaitOwnedPromptLabel(expected, wasForward);
+            if (!ownedSamePrompt) throw new NormalEndException("native_interaction_prompt");''')
+    s=s.replace('''        while (!_ct.IsCancellationRequested)
+        {
+            CheckOwnedNear();
+            using var ra''', '''        while (!_ct.IsCancellationRequested)
+        {
+            CheckOwnedNear(wDown);
+            using var ra''',1)
+    method='''
+    private bool WaitOwnedPromptLabel(string expected, bool wasForward)
+    {
+        // Stop first: the F icon may fade in before its text. A new or still
+        // ambiguous prompt must never be walked through on historical text.
+        InputHub.Foreground.SimulateAction(GIActions.MoveForward, KeyType.KeyUp);
+        for (int i = 0; i < 5; i++)
+        {
+            Sleep(120, _ct);
+            if (!BetterGenshinImpact.Core.Script.Dependence.OwnedGameFocus.IsGameActive())
+                throw new NormalEndException("focus_lost");
+            using var fresh = CaptureToRectArea();
+            if (!Bv.IsInMainUi(fresh)) throw new NormalEndException("native_world_changed");
+            var present = Bv.FindF(fresh);
+            var text = present ? Bv.FindFKeyText(fresh).Replace(" ", "").Trim() : "";
+            _ownedLastF = text;
+            if (!present || text == expected)
+            {
+                _ct.ThrowIfCancellationRequested();
+                if (wasForward) InputHub.Foreground.SimulateAction(GIActions.MoveForward, KeyType.KeyDown);
+                return true;
+            }
+            if (!string.IsNullOrWhiteSpace(text)) return false;
+        }
+        return false;
+    }
+
+'''
+    s=s.replace('    private void CheckOwnedNear() =>',method+'    private void CheckOwnedNear() =>')
+    target.write_text(s,encoding='utf-8')
