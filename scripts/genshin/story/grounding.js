@@ -136,15 +136,15 @@ const StoryGrounding=(()=>{
     const instruction = instructions[0];
     const [x, y, width, height] = instruction.box;
     const readings = rows.flatMap(row => {
-      const match = normal(row.text).match(/^(\d{1,5})(?:m|米)$/i);
+      const match = normal(row.text).match(/^(?:(高处|低处))?(\d{1,5})(?:m|米)$/i);
       return match && row.box[0] >= x - 30 && row.box[0] < x + Math.min(width, 220)
         && row.box[1] >= y + height - 8 && row.box[1] < y + height + 85
-        ? [{ ...row, meters: Number(match[1]) }] : [];
+        ? [{ ...row, meters: Number(match[2]), elevation:match[1]||null }] : [];
     });
     const crop = readings.filter(row => row.source === 'quest_distance_crop');
     const values = [...new Set((crop.length ? crop : readings).map(row => row.meters))];
     if (values.length !== 1) return null;
-    return { stage: instruction.text, distance: values[0], meters: values[0], source: 'bettergi_ocr_quest_hud', verified: false };
+    return { stage: instruction.text, distance: values[0], meters: values[0], elevation:readings.find(r=>r.elevation)?.elevation||null, source: 'bettergi_ocr_quest_hud', verified: false };
   }
 
   function travelEligibility({ texts, scene, uncertain = false, recentNativeSteps = [] }) {
