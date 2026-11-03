@@ -6,6 +6,7 @@
 - DeepSeek 查询那夏镇目录并选择传送，独立后帧 HUD 9764→188m。后续本地距离反馈步行推进至142m；四方向搜索耗尽，DeepSeek stop。没有任务阶段推进、F交互或完成证据；PathExecutor实际段数0，不能宣称通用投影寻路通过。
 - 前评估为idle、0帧/0token；后63个DeepSeek帧、155336 token、显式移动31761ms、0阶段变化、0完成，全部费用帧完整。整体6224→142m包含传送，不是步行距离。最终 inputReleased/processStopped=true，continuation halted/model_stop。
 - OBS场景 `Genshin - Game Only`，单一原神窗口源。录像包括修复等待过程，不剪掉失败。使用20x、`-an`导出。
+- 已核验导出 `runtime/genshin/recordings/genshin-20x-1793727500692.mp4`：原片950.30秒→47.50秒、无音轨、首中尾3处解码成功；SHA256 `9cba0d6f6b24d7b4cbdb0d4dff2d0ed4888d6058bc98a34372b618065cb9a1ce`。OBS已停录并恢复原输出目录。
 
 ## 本轮修复
 
