@@ -307,7 +307,7 @@ else (async function(){
     checkInput();const hud=StoryGrounding.questHud(readFreshTexts());
     if(typeof runOwnedQuestTrack==='undefined'||!hud||hud.meters<4||hud.meters>150)throw Error('BGI原生近程追踪当前不可用');
     const cts=new CancellationTokenSource();try{
-     const budget=Math.min(30000,activeInput.deadlineAt-Date.now()-2000,sessionDeadline-Date.now()-2000);
+     const budget=Math.min(60000,activeInput.deadlineAt-Date.now()-2000,sessionDeadline-Date.now()-2000);
      if(budget<1000)throw Error('原生追踪剩余时间不足');cts.cancelAfter(budget);
      const ignored=departedInteraction?.stage===hud.stage?departedInteraction.text:'';
      detail=String(await runOwnedQuestTrack(budget,ignored,cts.token));

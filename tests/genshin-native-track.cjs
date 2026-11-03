@@ -73,8 +73,8 @@ test('native tracking delegates to BGI once and disposes its cancellation source
    captureGameRegion:()=>({width:1920,height:1080,srcMat:{},dispose(){},findMulti:()=>({count:2,0:{text:rows[0].text,x:75,y:246,width:230,height:33},1:{text:'高处60m',x:80,y:280,width:120,height:25}})}),
    RecognitionObject:{ocr:()=>({})},dispatcher:{clearAllTriggers(){}},log:{info(){}},sleep:async()=>{},keyUp(){},
    isGameActive:()=>true,ensureGameFocus:async()=>true,getOwnedSceneObservation:()=>JSON.stringify({source:'bettergi_native_cv',ui:'Main',motion:'Normal'}),
-   CancellationTokenSource:class{token={};cancelAfter(ms){assert.ok(ms<=30000);events.push('budget');}cancel(){events.push('cancel');}dispose(){events.push('dispose');}},
-   runOwnedQuestTrack:async(ms,ignored,token)=>{assert.ok(ms<=30000);assert.equal(ignored,'');assert.ok(token);events.push('native');if(fail)throw Error('native test failure');return JSON.stringify({kind:'bgi-native-track',stopReason:'returned',verified:false});}
+   CancellationTokenSource:class{token={};cancelAfter(ms){assert.ok(ms<=60000);events.push('budget');}cancel(){events.push('cancel');}dispose(){events.push('dispose');}},
+   runOwnedQuestTrack:async(ms,ignored,token)=>{assert.ok(ms<=60000);assert.equal(ignored,'');assert.ok(token);events.push('native');if(fail)throw Error('native test failure');return JSON.stringify({kind:'bgi-native-track',stopReason:'returned',verified:false});}
   };
   await vm.runInNewContext(source,ctx);
   assert.deepEqual(events,['budget','native','cancel','dispose']);

@@ -326,3 +326,20 @@ if 'bool resetAfterIdle' not in t:
     t=t.replace('private int _lastActionIndex = 0;', 'private int _lastActionIndex = resetAfterIdle ? 0 : -1;')
     t=t.replace('if (timeSinceLastAction.TotalSeconds >= 10)', 'if (resetAfterIdle && timeSinceLastAction.TotalSeconds >= 10)')
     trap.write_text(t,encoding='utf-8')
+
+s=target.read_text(encoding='utf-8')
+if 'ownedSamePrompt' not in s:
+    old='''            if (string.IsNullOrWhiteSpace(_ownedIgnoredF) || label != _ownedIgnoredF.Replace(" ", "").Trim())
+                throw new NormalEndException("native_interaction_prompt");'''
+    new='''            var expected = _ownedIgnoredF.Replace(" ", "").Trim();
+            // AutoPick's single-line white-text crop may be empty as the label
+            // fades in. Its existing detector-based FindF(text) can independently
+            // confirm the exact departed target on this same frame.
+            var ownedSamePrompt = !string.IsNullOrWhiteSpace(expected) &&
+                (label == expected || (string.IsNullOrWhiteSpace(label) &&
+                    Bv.FindF(frame, "^\\\\s*" + System.Text.RegularExpressions.Regex.Escape(expected) + "\\\\s*$")));
+            if (!ownedSamePrompt) throw new NormalEndException("native_interaction_prompt");'''
+    assert s.count(old)==1
+    s=s.replace(old,new)
+    s=s.replace('Math.Clamp(timeoutMs, 1000, 30000)', 'Math.Clamp(timeoutMs, 1000, 60000)')
+    target.write_text(s,encoding='utf-8')
