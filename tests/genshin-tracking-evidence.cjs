@@ -15,7 +15,7 @@ function menuTexts(title='紧急修理',control='停止追踪'){
 function menuObservation(texts){return {scene:'menu',uncertain:false,questMenu:grounding.questMenu(texts)};}
 test('quest instruction and persisted stage recognize 前去 together with existing HUD verbs',()=>{
  assert.equal(typeof grounding.questInstruction,'function');
- for(const text of ['前去查看详情','前往指定地点','寻找任务目标','跟随骗子向导','尝试打开机关','抵达目标地点','与千岩军对话']){
+ for(const text of ['前去查看详情','前往指定地点','返回「旗舰」休息','寻找任务目标','跟随骗子向导','尝试打开机关','抵达目标地点','与千岩军对话']){
   const row=hud(text);
   assert.deepEqual(grounding.questInstruction([row]),row,text);
   assert.equal(questStage([row]),text,text);

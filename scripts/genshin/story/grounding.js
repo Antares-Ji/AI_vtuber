@@ -2,7 +2,7 @@
 const StoryGrounding=(()=>{
  const normal=s=>String(s||'').replace(/\s/g,'');
  const positioned=texts=>(texts||[]).filter(t=>Array.isArray(t.box)&&t.box.length===4&&t.box.every(Number.isFinite));
- function questInstruction(texts){return positioned(texts).find(t=>/^(前往|前去|寻找|跟随|尝试|抵达|[与和].+对话|收集|搜集|将.+交给|消灭所有魔物)/.test(normal(t.text))&&t.box[0]>=0&&t.box[0]<640&&t.box[1]>=0&&t.box[1]<540)||null;}
+ function questInstruction(texts){return positioned(texts).find(t=>/^(前往|前去|返回|寻找|跟随|尝试|抵达|[与和].+对话|收集|搜集|将.+交给|消灭所有魔物)/.test(normal(t.text))&&t.box[0]>=0&&t.box[0]<640&&t.box[1]>=0&&t.box[1]<540)||null;}
  function questMenu(texts){
   const rows=positioned(texts),compact=(texts||[]).map(t=>normal(t.text));
   const legacy=compact.some(t=>t.includes('任务专注模式'))&&compact.some(t=>/进行中|传说任务|完成系列任务/.test(t));
@@ -12,7 +12,7 @@ const StoryGrounding=(()=>{
   const titles=rows.filter(t=>t.box[0]>700&&t.box[0]<1500&&t.box[1]>=100&&t.box[1]<165&&t.box[2]>50&&String(t.text).length>=2);
   const complete=legacy||header&&controls&&category&&titles.length===1;
   const tracking=rows.filter(t=>/^(追踪目标|停止追踪|开始追踪)$/.test(normal(t.text))&&t.box[0]>1400&&t.box[0]<1850&&t.box[1]>930&&t.box[1]<1040&&t.box[2]>50&&t.box[2]<300&&t.box[3]<65);
-  const stage=rows.some(t=>t.box[0]>800&&t.box[0]<1300&&t.box[1]>=180&&t.box[1]<300&&t.box[2]>50&&/^(前往|前去|寻找|跟随|尝试|抵达|与.+对话)/.test(normal(t.text)));
+  const stage=rows.some(t=>t.box[0]>800&&t.box[0]<1300&&t.box[1]>=180&&t.box[1]<300&&t.box[2]>50&&/^(前往|前去|返回|寻找|跟随|尝试|抵达|与.+对话)/.test(normal(t.text)));
   const descriptions=rows.filter(t=>t.box[0]>800&&t.box[0]<1100&&t.box[1]>=300&&t.box[1]<700&&t.box[2]>250&&t.box[3]<65&&normal(t.text).length>=12);
   // A partially obscured list is not a selectable list. Recognize only the
   // independently complete right-hand detail panel, retaining no guessed entries.
