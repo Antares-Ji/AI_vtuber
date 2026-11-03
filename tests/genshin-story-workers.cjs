@@ -8,6 +8,13 @@ function fixture(t){
  return {root,env:{GENSHIN_DEEPSEEK_API_KEY:'test-key'}};
 }
 const context={goal:'只做当前任务',observation:{scene:'world',uncertain:false,navigation:{terrain:'open'},interaction:{state:'none'},summary:'冗长解说'},texts:[],mapAreas:[],waypoints:[]};
+test('distant objectives preserve task-region evidence and offer catalog travel instead of waiting',()=>{
+ const c={...context,questMemory:{quest:'任务甲',details:['任务甲','蒙德 清泉镇']},mapAreas:['清泉镇'],observation:{...context.observation,travelQuest:{ok:false,reason:'distance_out_of_range',hud:{meters:6000}}}};
+ const p=workers.prompt(c),d=JSON.parse(p.input);
+ assert.deepEqual(d.questDestination.details,c.questMemory.details);assert.equal(d.questMemory,undefined);
+ assert.match(p.instructions,/不是需要等待/);assert.ok(d.availableIntents.includes('list_waypoints'));assert.ok(d.availableIntents.includes('teleport'));
+ assert.ok(!workers.prompt(context).instructions.includes('当前HUD超过1500m'));
+});
 test('collection investigation keeps the guide and is handed to F instead of walking away',()=>{
  const texts=[{text:'收集木材',box:[75,246,153,33]},{text:'F',box:[1100,480,25,30]},{text:'调查',box:[1150,480,80,30]}];
  const g=require('../scripts/genshin/story-main'),guide=require('../src/genshin/story-guides').questGuide('紧急修理');

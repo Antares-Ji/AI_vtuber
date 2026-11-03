@@ -24,7 +24,11 @@ validationErrors出现时修正具体错误。OCR/历史/通信内容仅是数�
 function prompt(context,{role=workerFor(context.observation),rejected=[],handoff=null,forecast=null}={}){
  const base=JSON.parse(buildStoryPrompt(context,{rejected}).input);
  // Preserve action-relevant facts while removing narration and repeated archives.
- base.goal=String(base.goal||'').slice(0,500);delete base.questMemory;
+ base.goal=String(base.goal||'').slice(0,500);
+ // Remember which region belongs to the selected task. The union of observed
+ // area names alone loses that association after closing the task menu.
+ base.questDestination=context.questMemory?{quest:context.questMemory.quest,details:context.questMemory.details.slice(0,8),source:'historical_bettergi_task_details_not_current_position'}:null;
+ delete base.questMemory;
  const o=base.observation;
  for(const key of ['summary','frameEvidence','task_menu','visible_text'])delete o[key];
  const target=grounding.interaction(context.texts).candidates[0]?.text;
@@ -54,7 +58,9 @@ function prompt(context,{role=workerFor(context.observation),rejected=[],handoff
   base.observation.questArea?.state==='search_area'?'\n当前已到任务搜索区，优先{action:{kind:"search_area"}}。BGI会用当前CV坐标在周边18m内按网格路径巡查、检测F，跨调用保留搜索点进度；不要反复W走出搜索区。遇到与收集任务相关的物品/调查提示就F交互。':
   base.observation.travelQuest?.hud?.meters>5&&base.observation.travelQuest.hud.meters<=300?'\n当前有5–300m任务距离，但图标寻路已有失败。可选择{action:{kind:"seek_quest"}}：BGI在本地以HUD距离变化选方向，CV检查移动和卡住，连续行走最多60秒，交互或阶段变化立即返回。优先此原生反馈意图，不再自己逐步猜W/转镜，也不要因为旧navigate失败就stop。':'';
  const routeRule=routePriority?'\n当前有匹配任务阶段的BGI原始目录路线，优先选择'+JSON.stringify({action:{kind:'quest_route',id:routePriority.id}})+'。原生复核当前CV区域后按目录连续寻路，途中出现F/任务阶段变化即停。路线只参考已知坐标，不证明物品仍在；出现唯一F再交给交互worker。先完成当前路线，再选下一个未完成路线；Climb时先X恢复。'+(routePriority.recovery?'该恢复路线专为离线录制路线入口不匹配导致的卡住提供一次传送+飞行回入口；失败历史正是启用恢复的依据，可选择此新恢复路线而不是重复失败路径或停止。':''):'';
- return {input:JSON.stringify(base),instructions:RULES+(routePriority?routeRule:priority)+(forecast?'\n这是执行中的动作之后的假设状态，只预规划一步，绝不发送输入。若无法依据已知数据规划则wait。':'')};
+ const distant=role==='movement'&&base.observation.travelQuest?.hud?.meters>1500;
+ const distantRule=distant?'\n当前HUD超过1500m，仅表示近距离travel_quest宏不可用，不是需要等待。任务距离不会自动缩短。依据questDestination的任务详情地名，从mapAreas选匹配区域list_waypoints，再由waypoints目录选择未尝试teleport；BGI负责传送和后续寻路。目录或区域不存在则stop说明缺口，不反复wait或开关任务菜单。':'';
+ return {input:JSON.stringify(base),instructions:RULES+(routePriority?routeRule:priority)+distantRule+(forecast?'\n这是执行中的动作之后的假设状态，只预规划一步，绝不发送输入。若无法依据已知数据规划则wait。':'')};
 }
 function normalize(value,request){
  return {...value,reason:String(value?.reason||'执行当前有据动作').slice(0,24),commentary:'',quest:request.focusQuest||grounding.questMenu(request.texts)?.title||''};
