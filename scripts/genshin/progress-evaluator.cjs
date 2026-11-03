@@ -152,6 +152,11 @@ function evaluate(input,now=Date.now(),o={}){
   if(d.kind==='area-search'||d.kind==='commission-route'){
    const points=Array.isArray(d.points)?d.points:[];nativePathLegs+=points.length;
    pathDurationMs+=points.reduce((s,p)=>s+(finite(p.durationMs)?p.durationMs:0),0);telemetryComplete=false;
+   // Whole catalog routes invoke PathExecutor once, without per-point receipts.
+   // Count the call's wall time, never infer walking time or arrival from it.
+   if(!points.length&&d.kind==='commission-route'&&d.pathStarted===true){
+    nativePathLegs++;if(finite(d.durationMs)&&d.durationMs>=0)pathDurationMs+=d.durationMs;
+   }
   }
  }
  const readings=rows.map(hudReading).filter(Boolean),stages=[];

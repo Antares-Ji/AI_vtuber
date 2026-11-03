@@ -14,6 +14,13 @@ function frame(seq,meters=500,{id='native-a',task='任务甲',stage='前去查�
   distanceEvidence:{meters:[999]},decision:{action:{kind:'travel_quest'}},modelCalls:[{usage:{total_tokens:1000}}]};
 }
 function threeCalls(){return [frame(1,500),frame(2,460,{lastStep:step(1)}),frame(3,450,{lastStep:step(2)}),frame(4,410,{lastStep:step(3)})];}
+test('whole catalog path time counts once without inventing movement, arrival, or preflight execution',()=>{
+ const first=step(1,'quest_route',{kind:'commission-route',pathStarted:true,points:[],durationMs:65460,stopReason:'dialogue'});
+ const preflight=step(2,'quest_route',{kind:'commission-route',pathStarted:false,points:[],stopReason:'stage_mismatch'});
+ const r=evaluate([frame(1),frame(2,500,{lastStep:first}),frame(3,500,{lastStep:preflight})],4000);
+ assert.equal(r.nativePathLegs,1);assert.equal(r.pathDurationMs,65460);assert.equal(r.movementMsSent,0);
+ assert.equal(r.movementTelemetryComplete,false);assert.equal(r.progress.verifiedCompletions,0);assert.equal(r.travelQuest.passed,false);
+});
 test('stage transitions prevent distance-only no-progress warnings and expose window token cost',()=>{
  const rows=Array.from({length:10},(_,i)=>frame(i+1,1,{stage:i<3?'收集木材':'将木板交给法拉'}));
  const r=evaluate(rows,11000);assert.equal(r.progress.observedStageTransitions,1);
