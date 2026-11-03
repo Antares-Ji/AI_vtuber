@@ -302,3 +302,27 @@ if 'ReadOwnedHudDistance' not in s:
 '''
     s=s.replace('    private void CheckOwnedNear()',method+'    private void CheckOwnedNear()')
     target.write_text(s,encoding='utf-8')
+
+s=target.read_text(encoding='utf-8')
+if '_ownedForwardSince' not in s:
+    s=s.replace('    private int _ownedForwardStarts;', '''    private int _ownedForwardStarts;
+    private DateTime _ownedForwardSince = DateTime.MaxValue;
+    private string _ownedLastF = "";''')
+    s=s.replace('forwardStarts = _ownedForwardStarts,', 'forwardStarts = _ownedForwardStarts, ignoredF = _ownedIgnoredF, lastF = _ownedLastF,')
+    s=s.replace('''            var label = Bv.FindFKeyText(frame).Replace(" ", "").Trim();''', '''            var label = Bv.FindFKeyText(frame).Replace(" ", "").Trim();
+            _ownedLastF = label;''')
+    s=s.replace('''if (distance >= 0 && wDown && (DateTime.UtcNow - _ownedLastProgress).TotalSeconds > 4)''', '''if (distance >= 0 && wDown && (DateTime.UtcNow - _ownedLastProgress).TotalSeconds > 4
+                    && (DateTime.UtcNow - _ownedForwardSince).TotalSeconds > 4)''')
+    s=s.replace('''                        if (_ownedNear) _ownedForwardStarts++;''', '''                        if (_ownedNear) { _ownedForwardStarts++; _ownedForwardSince = DateTime.UtcNow; }''')
+    # The upstream escape object's 10-second idle reset makes every recovery
+    # "backwards" when camera alignment itself takes >10s. Preserve BGI's
+    # built-in back/left/right sequence during this bounded owned call.
+    s=s.replace('new BetterGenshinImpact.GameTask.AutoPathing.TrapEscaper(_ct, CheckOwnedNear);',
+                'new BetterGenshinImpact.GameTask.AutoPathing.TrapEscaper(_ct, CheckOwnedNear, false);')
+    target.write_text(s,encoding='utf-8')
+t=trap.read_text(encoding='utf-8')
+if 'bool resetAfterIdle' not in t:
+    t=t.replace('Action? checkInput = null)', 'Action? checkInput = null, bool resetAfterIdle = true)')
+    t=t.replace('private int _lastActionIndex = 0;', 'private int _lastActionIndex = resetAfterIdle ? 0 : -1;')
+    t=t.replace('if (timeSinceLastAction.TotalSeconds >= 10)', 'if (resetAfterIdle && timeSinceLastAction.TotalSeconds >= 10)')
+    trap.write_text(t,encoding='utf-8')
