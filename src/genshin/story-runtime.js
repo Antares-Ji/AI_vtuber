@@ -4,7 +4,7 @@ const bridge=require('./bridge'),{respond}=require('./model-provider');
 const waypointCatalog=require('./story-waypoints'),{installation}=require('./installation');
 const {corroborateDistances,trackingEvidence}=require('./story-observation');
 const StoryTravel=require('../../scripts/genshin/story/macros/travel-quest');
-const {readQuestMemory,questFromEvidence,questStage,readNavigationMemory,updateNavigationStage}=require('./story-memory');
+const {readQuestMemory,questFromEvidence,questStage,readNavigationMemory,updateNavigationStage,reconcileRouteAttempt}=require('./story-memory');
 const {questGuide}=require('./story-guides');
 const grounding=require('../../scripts/genshin/story-main');
 const {frameBudget}=require('./story-deadline');
@@ -185,6 +185,7 @@ async function runStory(goal,{root,env,signal,reportProgress=()=>{},runId,direct
  let stageState={stage:navigationStage,pending:null};
  const feedback=new StoryFeedbackMemory({root,quest:questMemory?.quest||goal,stage:navigationStage});
  const teleportAttempts=new Set(navigationMemory.teleportAttempts);
+ const routeAttemptKeys=new Map(navigationMemory.routeAttemptKeys);
  for(const area of waypointCatalog.areas(points))if(questMemory?.details.some(t=>t.replace(/[「」\s]/g,'').includes(area.replace(/[「」\s]/g,''))))observedAreas.add(area);
  try{
   const execution=await bridge.execute({operation:'story',timeoutMs:600000},{signal,reportProgress,
@@ -200,9 +201,10 @@ async function runStory(goal,{root,env,signal,reportProgress=()=>{},runId,direct
     request.recentActions=history.slice(-3).map(e=>e.decision.action);
     request.focusQuest=questMemory?.quest||null;
     feedback.merge({sessionId:request.id,lastStep:request.lastStep});
+    reconcileRouteAttempt(teleportAttempts,routeAttemptKeys,request.id,request.lastStep);
     const currentStage=questStage(request.texts);
     stageState=updateNavigationStage(stageState,currentStage);
-    if(stageState.changed)teleportAttempts.clear();
+    if(stageState.changed){teleportAttempts.clear();routeAttemptKeys.clear();}
     navigationStage=stageState.stage;
     feedback.setContext({quest:questMemory?.quest||goal,stage:navigationStage,confirmedStageChange:stageState.changed});
     const savedFeedback=feedback.snapshot();
@@ -261,7 +263,9 @@ async function runStory(goal,{root,env,signal,reportProgress=()=>{},runId,direct
     const {decision,answer,rejected}=repaired;
     if(fast){decision.commentary='';decision.reason=decision.reason.slice(0,24);}
     if(decision.action.kind==='list_waypoints')selectedArea=decision.action.area;
-    if(decision.action.kind==='teleport'||decision.action.kind==='quest_route'&&commissionCatalog.routes.find(r=>r.id===decision.action.id)?.positions.some(p=>p.type==='teleport'))teleportAttempts.add(decision.action.id);
+    if(decision.action.kind==='teleport'||decision.action.kind==='quest_route'&&commissionCatalog.routes.find(r=>r.id===decision.action.id)?.positions.some(p=>p.type==='teleport')){
+     teleportAttempts.add(decision.action.id);routeAttemptKeys.set(decision.action.id,JSON.stringify([request.id,request.seq]));
+    }
     const evidence={trainingSessionId:checkpoint?.sessionId||null,request,observation,rawObservation,observationError,visionRecord:vision.record,distanceEvidence,decision,rejected,provider:answer.provider,model:answer.model,usage:answer.usage||null,modelCalls:repaired.calls,
      pipeline:fast?{role,thinking:'disabled',maxOutputTokens:workers.profile(role,env).maxOutputTokens,lookahead:repaired.lookahead||lookahead.lastCheck}:null,
      image,sha256:hash,at:Date.now(),verified:false};
@@ -270,7 +274,7 @@ async function runStory(goal,{root,env,signal,reportProgress=()=>{},runId,direct
      const completed=focus.acknowledgeCompletion({id:request.id,seq:request.seq,texts:request.texts});
      if(!completed.acknowledged)throw Error('任务完成证据未存入当前训练会话，未撤销任务保持');
      questMemory=null;
-     navigationStage=null;stageState={stage:null,pending:null};teleportAttempts.clear();observedAreas.clear();selectedArea='';
+     navigationStage=null;stageState={stage:null,pending:null};teleportAttempts.clear();routeAttemptKeys.clear();observedAreas.clear();selectedArea='';
     }else{
      const memory=questFromEvidence(evidence,path.join(folder,`step-${request.seq}.json`));
      if(memory){focus.select(memory);questMemory=focus.snapshot().memory;}

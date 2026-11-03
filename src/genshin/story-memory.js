@@ -43,16 +43,33 @@ function updateNavigationStage(state,reading){
  if(state.pending===reading)return {stage:reading,pending:null,changed:true};
  return {...state,pending:reading,changed:false};
 }
+function routePreflightRejected(step){
+ let d;try{d=JSON.parse(step?.detail);}catch{return false;}
+ if(step?.action?.kind!=='quest_route'||d?.kind!=='commission-route'||d.id!==step.action.id)return false;
+ // Older native receipts omitted pathStarted. These three exits precede any
+ // path call; require their complete empty receipt shape for migration.
+ return ['stage_mismatch','position_unstable','wrong_variant_region'].includes(d.stopReason)&&
+  d.pathStarted!==true&&Array.isArray(d.points)&&d.points.length===0&&!d.state&&!d.from&&!d.durationMs;
+}
+function reconcileRouteAttempt(attempted,pending,sessionId,step){
+ if(!sessionId||!Number.isInteger(step?.seq)||!routePreflightRejected(step))return;
+ const id=step.action.id,key=JSON.stringify([sessionId,step.seq]);
+ if(pending.get(id)===key){attempted.delete(id);pending.delete(id);}
+}
 function navigationFromEvidence(rows,quest){
  const matching=rows.filter(({e})=>e.decision?.quest===quest);
  const stage=matching.map(({e})=>questStage(e.request?.texts)).find(Boolean)||null;
- const attempted=new Set();
- for(const {e} of matching){
+ const attempted=new Set(),pending=new Map();
+ for(const {e} of [...matching].reverse()){
+  reconcileRouteAttempt(attempted,pending,e.request?.id,e.request?.lastStep);
   if(!stage||!compatibleStage(questStage(e.request?.texts),stage))continue;
-  if(e.decision?.action?.kind==='teleport'||e.decision?.action?.kind==='quest_route'&&require('../../data/genshin-commission-routes.json').routes.find(r=>r.id===e.decision.action.id)?.positions.some(p=>p.type==='teleport'))attempted.add(e.decision.action.id);
+  if(e.decision?.action?.kind==='teleport'||e.decision?.action?.kind==='quest_route'&&require('../../data/genshin-commission-routes.json').routes.find(r=>r.id===e.decision.action.id)?.positions.some(p=>p.type==='teleport')){
+   attempted.add(e.decision.action.id);
+   pending.set(e.decision.action.id,JSON.stringify([e.request?.id,e.request?.seq]));
+  }
   if(e.request?.lastStep?.action?.kind==='teleport')attempted.add(e.request.lastStep.action.id);
  }
- return {stage,teleportAttempts:[...attempted],verification:'historical_attempts_not_arrival',previousSteps:matching.slice(0,5).reverse().map(({e})=>({observation:e.observation,decision:e.decision,lastStep:e.request.lastStep}))};
+ return {stage,teleportAttempts:[...attempted],routeAttemptKeys:[...pending],verification:'historical_attempts_not_arrival',previousSteps:matching.slice(0,5).reverse().map(({e})=>({observation:e.observation,decision:e.decision,lastStep:e.request.lastStep}))};
 }
 function readNavigationMemory(root,quest){return navigationFromEvidence(recentEvidence(root),quest);}
-module.exports={readQuestMemory,questFromEvidence,questStage,readNavigationMemory,navigationFromEvidence,compatibleStage,updateNavigationStage};
+module.exports={readQuestMemory,questFromEvidence,questStage,readNavigationMemory,navigationFromEvidence,compatibleStage,updateNavigationStage,routePreflightRejected,reconcileRouteAttempt};

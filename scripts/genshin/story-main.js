@@ -689,7 +689,7 @@ const StoryCommissionRoute=(()=>{
  function create({catalog,grounding,read,position,pathingScript,createCancellationTokenSource,monitorPath,sleep,checkInput,getDeadline,movementStop,now=Date.now}){
   return async function run(id,saved){
    checkInput();const route=catalog.routes.find(r=>r.id===id),rows=read(),stage=grounding.questInstruction(rows)?.text;
-   const result={kind:'commission-route',id,stage,points:[],stopReason:null,verified:false};
+   const result={kind:'commission-route',id,stage,points:[],pathStarted:false,stopReason:null,verified:false};
    if(!route||!stage||!new RegExp(route.stagePattern).test(stage))return {...result,stopReason:'stage_mismatch'};
    const stop=movementStop(rows);if(stop)return {...result,stopReason:stop};
    const p=position();await sleep(100);checkInput();const p2=position();
@@ -706,6 +706,7 @@ const StoryCommissionRoute=(()=>{
     result.sourceFile=route.sourceFile;result.sourceCommit=route.sourceCommit||catalog.source.commit;result.from=p2;
     try{
      cts.cancelAfter(budget);checkInput();
+     result.pathStarted=true;
      promise=Promise.resolve(pathingScript.run(JSON.stringify({info:{name:'AI-VTuber-entry-recovery',type:'collect',map_name:'Teyvat',bgi_version:'0.66.0'},positions:route.positions}),cts.token));
      const watched=await monitorPath({run:()=>promise,cts,read,checkInput,sleep,now,inspect:fresh=>{
       const next=grounding.questInstruction(fresh)?.text;
@@ -735,6 +736,7 @@ const StoryCommissionRoute=(()=>{
     const entry={index:cursor,from:at,to:{x:target.x,y:target.y},startedAt:now()};result.points.push(entry);
     try{
      cts.cancelAfter(budget);checkInput();
+     result.pathStarted=true;
      // Each point is checked independently because upstream PathExecutor can return after an exception.
      promise=Promise.resolve(pathingScript.run(JSON.stringify({info:{name:'AI-VTuber-'+id,type:'collect',map_name:'Teyvat',bgi_version:'0.66.0'},positions:[{...target,id:1,action:''}]}),cts.token));
      const watched=await monitorPath({run:()=>promise,cts,read,checkInput,sleep,now,inspect:fresh=>{

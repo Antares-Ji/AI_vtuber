@@ -81,3 +81,19 @@ test('continuing an interrupted teleport cannot send another teleport or walk fr
  const route=catalog.routes.find(r=>r.id==='urgent-entry-continue');assert.ok(route.positions.every(p=>p.type!=='teleport'));
  const h=fixture({point:{x:-550,y:1957}});assert.equal((await h.run(route.id)).stopReason,'entry_start_unverified');assert.equal(h.paths.length,0);
 });
+test('exact preflight rejection releases only its own planned attempt across menu frames and restart',()=>{
+ const {navigationFromEvidence,reconcileRouteAttempt}=require('../src/genshin/story-memory');
+ const action={kind:'quest_route',id:'flagship-entrance'},quest='两次视线的交汇';
+ const texts=[{text:'返回「旗舰」休息',box:[80,246,250,30]}];
+ const lastStep={seq:1,action,detail:JSON.stringify({kind:'commission-route',id:action.id,points:[],stopReason:'stage_mismatch',verified:false})};
+ const plan={e:{request:{id:'native-a',seq:1,texts},decision:{quest,action}}};
+ const receipt={e:{request:{id:'native-a',seq:2,texts:[],lastStep},decision:{quest,action:{kind:'key',key:'ESCAPE'}}}};
+ assert.deepEqual(navigationFromEvidence([receipt,plan],quest).teleportAttempts,[]);
+ const retry={e:{request:{id:'native-a',seq:3,texts},decision:{quest,action}}};
+ assert.deepEqual(navigationFromEvidence([retry,receipt,plan],quest).teleportAttempts,[action.id]);
+ const attempted=new Set([action.id]),pending=new Map([[action.id,JSON.stringify(['native-a',3])]]);
+ reconcileRouteAttempt(attempted,pending,'native-a',lastStep);assert.ok(attempted.has(action.id),'old receipt cannot clear later unreceipted attempt');
+ reconcileRouteAttempt(attempted,pending,'native-b',{...lastStep,seq:3});assert.ok(attempted.has(action.id),'other session cannot clear attempt');
+ reconcileRouteAttempt(attempted,pending,'native-a',{...lastStep,seq:3,detail:JSON.stringify({kind:'commission-route',id:action.id,points:[],stopReason:'stage_mismatch',pathStarted:true})});assert.ok(attempted.has(action.id));
+ reconcileRouteAttempt(attempted,pending,'native-a',{...lastStep,seq:3});assert.equal(attempted.size,0);
+});
