@@ -114,3 +114,14 @@ test('loading text cannot cancel a BGI route; native Talk can, and continuation 
  }});
  assert.equal((await run(route.id)).stopReason,'route_complete');
 });
+test('quote-only HUD variants cannot reopen completed or already attempted flagship routes',()=>{
+ const route=catalog.routes.find(r=>r.id==='flagship-walk'),stage='返回「旗舰」休息';
+ const states={[route.id]:{id:route.id,stage,cursor:route.positions.length,attempts:1,sha256:route.sha256}};
+ for(const variant of [stage,'返回『旗舰」休息','返回旗舰休息']){
+  const found=macro.available(catalog,route.quest,variant,states,[route.resumeFrom]).find(r=>r.id===route.id);
+  assert.equal(found.blocked,true);assert.equal(found.completed,true);
+  const {validateDecision}=require('../src/genshin/story-runtime');
+  assert.throws(()=>validateDecision({action:{kind:'quest_route',id:route.id}},{texts:[{text:variant,box:[80,246,250,30]}],focusQuest:route.quest,commissionRouteStates:states,teleportAttempts:[route.resumeFrom]},{scene:'world',nativeVision:{ui:'Main'}}));
+ }
+ assert.equal(macro.available(catalog,route.quest,'参加淘汰赛',states,[route.resumeFrom]).length,0);
+});

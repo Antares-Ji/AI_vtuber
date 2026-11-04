@@ -1,15 +1,16 @@
 // Curated upstream BGI routes. Models select an ID; coordinates stay in the catalog.
 const StoryCommissionRoute=(()=>{
+ function sameStage(a,b){return Boolean(a&&b)&&String(a).replace(/[\s「」『』“”"']/g,'')===String(b).replace(/[\s「」『』“”"']/g,'');}
  function available(catalog,quest,stage,states={},attempts=[]){
   return catalog.routes.filter(r=>r.quest===quest&&new RegExp(r.stagePattern).test(stage||''))
-   .filter(r=>r.mode!=='entry_recovery'||Object.values(states).some(s=>s.stage===stage&&s.failures>=2))
+   .filter(r=>r.mode!=='entry_recovery'||Object.values(states).some(s=>sameStage(s.stage,stage)&&s.failures>=2))
    .filter(r=>r.mode!=='entry_continue'||attempts.includes('urgent-entry'))
    .filter(r=>!r.resumeFrom||attempts.includes(r.resumeFrom))
    .map(r=>({id:r.id,title:r.title,source:'bettergi_script_catalog',referenceOnly:true,
     recovery:Boolean(r.mode),
-    completed:states[r.id]?.stage===stage&&states[r.id]?.cursor>=r.positions.length,
-    blocked:Boolean(r.mode&&attempts.includes(r.id))||states[r.id]?.stage===stage&&(states[r.id]?.failures>=2||Boolean(r.mode)&&states[r.id]?.attempts>=1),
-    cursor:states[r.id]?.stage===stage?states[r.id].cursor:0}));
+    completed:sameStage(states[r.id]?.stage,stage)&&states[r.id]?.cursor>=r.positions.length,
+    blocked:Boolean(r.mode&&attempts.includes(r.id))||sameStage(states[r.id]?.stage,stage)&&(states[r.id]?.failures>=2||Boolean(r.mode)&&states[r.id]?.attempts>=1),
+    cursor:sameStage(states[r.id]?.stage,stage)?states[r.id].cursor:0}));
  }
  function create({catalog,grounding,read,nativeUi=()=>null,position,pathingScript,createCancellationTokenSource,monitorPath,sleep,checkInput,getDeadline,movementStop,now=Date.now}){
   return async function run(id,saved){
@@ -37,7 +38,7 @@ const StoryCommissionRoute=(()=>{
       const next=grounding.questInstruction(fresh)?.text;
       // The upstream route owns its teleport/map/loading transition. These are
       // expected; a newly observed task stage or dialogue still interrupts it.
-      return {stopReason:now()-started<20000?null:nativeUi()==='Talk'?'dialogue':next&&next!==stage?'stage_changed':null};
+      return {stopReason:now()-started<20000?null:nativeUi()==='Talk'?'dialogue':next&&!sameStage(next,stage)?'stage_changed':null};
      }});
      result.stopReason=watched.stopReason||(cts.isCancellationRequested?'path_timeout':null);
     }finally{try{cts.cancel();if(promise)await promise;}finally{cts.dispose();result.durationMs=now()-started;}}
@@ -47,8 +48,8 @@ const StoryCommissionRoute=(()=>{
     result.state={id,stage,sha256:route.sha256,cursor:arrived?route.positions.length:0,attempts:1};
     result.stopReason||=arrived?'route_complete':'arrival_unverified';return result;
    }
-   let cursor=saved?.id===id&&saved.stage===stage&&saved.sha256===route.sha256&&Number.isInteger(saved.cursor)&&saved.cursor>=0&&saved.cursor<=route.positions.length?saved.cursor:0;
-   let failures=saved?.id===id&&saved.stage===stage&&saved.sha256===route.sha256?saved.failures||0:0;
+   let cursor=saved?.id===id&&sameStage(saved.stage,stage)&&saved.sha256===route.sha256&&Number.isInteger(saved.cursor)&&saved.cursor>=0&&saved.cursor<=route.positions.length?saved.cursor:0;
+   let failures=saved?.id===id&&sameStage(saved.stage,stage)&&saved.sha256===route.sha256?saved.failures||0:0;
    if(failures>=2)return {...result,stopReason:'route_retry_limit'};
    result.sourceFile=route.sourceFile;result.sourceCommit=route.sourceCommit||catalog.source.commit;result.cursorBefore=cursor;
    const started=now();
@@ -66,7 +67,7 @@ const StoryCommissionRoute=(()=>{
      promise=Promise.resolve(pathingScript.run(JSON.stringify({info:{name:'AI-VTuber-'+id,type:'collect',map_name:'Teyvat',bgi_version:'0.66.0'},positions:[{...target,id:1,action:''}]}),cts.token));
      const watched=await monitorPath({run:()=>promise,cts,read,checkInput,sleep,now,inspect:fresh=>{
       const next=grounding.questInstruction(fresh)?.text;
-      return {stopReason:movementStop(fresh)||(!next||next!==stage?'stage_changed_or_missing':null)};
+      return {stopReason:movementStop(fresh)||(!next||!sameStage(next,stage)?'stage_changed_or_missing':null)};
      }});
      entry.stopReason=watched.stopReason||(cts.isCancellationRequested?'path_timeout':null);
     }finally{try{cts.cancel();if(promise)await promise;}finally{cts.dispose();entry.durationMs=now()-entry.startedAt;}}
