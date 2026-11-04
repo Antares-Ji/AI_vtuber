@@ -26,6 +26,11 @@ test('native ready dialogue offers SPACE instead of waiting for already displaye
  const unknown=workers.prompt({...context,observation:{scene:'unknown',uncertain:true}});
  assert.ok(!unknown.instructions.includes('当前帧已经就绪'));
 });
+test('image assistance keeps native Climb recovery while hiding failed marker priority',()=>{
+ const p=workers.prompt({...context,observation:{...context.observation,nativeVision:{ui:'Main',motion:'Climb'},nativeTracking:{available:true}}},{imageAssistance:true});
+ assert.match(p.instructions,/BGI原生CV确认当前正在攀爬/);assert.match(p.instructions,/key:"X"/);
+ assert.ok(!p.instructions.includes('当前BGI原生近程任务追踪可用，优先选择'));
+});
 test('distant objectives preserve task-region evidence and offer catalog travel instead of waiting',()=>{
  const c={...context,questMemory:{quest:'任务甲',details:['任务甲','蒙德 清泉镇']},mapAreas:['清泉镇'],observation:{...context.observation,travelQuest:{ok:false,reason:'distance_out_of_range',hud:{meters:6000}}}};
  const p=workers.prompt(c),d=JSON.parse(p.input);
