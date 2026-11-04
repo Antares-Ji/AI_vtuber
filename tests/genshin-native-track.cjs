@@ -189,3 +189,25 @@ test('V tracking takes two BGI samples after release and keeps the final frame a
  assert.equal(d.samples[1].capturedAt-d.samples[0].capturedAt,1000);assert.ok(requests[1].capturedAt-d.samples[1].capturedAt>=1500);
  assert.ok(images.includes('tracking-1-500.png'));assert.ok(images.includes('tracking-1-1500.png'));assert.equal(keys.size,0);
 });
+test('turn receipts expose BGI yaw wraparound and preserve unavailable readings as null',async()=>{
+ const fs=require('node:fs'),vm=require('node:vm'),source=fs.readFileSync(require.resolve('../scripts/genshin/story-main.js'),'utf8');
+ for(const samples of [[355,5],[5,355],[NaN,undefined]]){
+  const angles=[...samples],moves=[],requests=[],files=new Map([['command.json',JSON.stringify({id:'turn-yaw',timeoutMs:600000})]]);
+  const ctx={JSON,Date,Number,String,Math,Set,Error,
+   file:{readTextSync:n=>files.get(n),writeImageSync(){},writeTextSync(n,v){files.set(n,v);if(n==='story-request.json'){const r=JSON.parse(v);requests.push(r);files.set('story-decision-'+r.seq+'.json',JSON.stringify({id:r.id,seq:r.seq,action:r.seq===1?{kind:'turn',dx:200,dy:0}:{kind:'stop'}}));}}},
+   captureGameRegion:()=>({width:1920,height:1080,srcMat:{},dispose(){},findMulti:()=>({count:2,0:{text:rows[0].text,x:75,y:246,width:230,height:33},1:{text:'高处60m',x:80,y:280,width:120,height:25}})}),
+   RecognitionObject:{ocr:()=>({})},dispatcher:{clearAllTriggers(){}},log:{info(){}},sleep:async()=>{},keyUp(){},
+   isGameActive:()=>true,ensureGameFocus:async()=>true,getOwnedSceneObservation:()=>JSON.stringify({source:'bettergi_native_cv',ui:'Main',motion:'Normal'}),
+   genshin:{getCameraOrientation:()=>angles.shift()},moveMouseBy:(x,y)=>moves.push([x,y])};
+  await vm.runInNewContext(source,ctx);
+  assert.deepEqual(moves,[[200,0]]);
+  const d=JSON.parse(requests[1].lastStep.detail);
+  assert.equal(d.kind,'camera-turn');assert.equal(d.inputSent,true);assert.equal(d.verified,false);
+  assert.equal(d.cameraOrientation.source,'bettergi_native_cv');assert.equal(d.cameraOrientation.scope,'horizontal_yaw_only');
+  assert.equal(d.cameraOrientation.deltaDegrees,Number.isFinite(samples[0])?(samples[0]===355?10:-10):null);
+  if(!Number.isFinite(samples[0]))assert.equal(d.cameraOrientation.before,null);
+  const {compactHistory}=require('../src/genshin/story-prompt');
+  const history=compactHistory({nativeId:'turn-yaw',lastNativeStep:requests[1].lastStep});
+  assert.deepEqual(history.recentNativeSteps[0].cameraOrientation,d.cameraOrientation);
+ }
+});

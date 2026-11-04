@@ -358,7 +358,18 @@ else (async function(){
    }
    else if(action.kind==='turn'){
     if(!Number.isInteger(action.dx)||!Number.isInteger(action.dy)||Math.abs(action.dx)>600||Math.abs(action.dy)>250)throw Error('无效的有界镜头转动');
+    const readYaw=()=>{
+     checkInput();
+     try{
+      if(typeof genshin==='undefined'||typeof genshin.getCameraOrientation!=='function')return null;
+      const value=genshin.getCameraOrientation();
+      return typeof value==='number'&&Number.isFinite(value)?{degrees:((value%360)+360)%360,capturedAt:Date.now()}:null;
+     }catch{return null;}
+    };
+    const before=readYaw();
     guardedMoveMouseBy(action.dx,action.dy);seekState=null;await sleep(400);
+    const after=readYaw();
+    detail=JSON.stringify({kind:'camera-turn',inputSent:true,cameraOrientation:{source:'bettergi_native_cv',before,after,deltaDegrees:before&&after?((after.degrees-before.degrees+540)%360)-180:null,scope:'horizontal_yaw_only'},verified:false});
    }
    else if(action.kind==='teleport'){
     if(typeof action.id!=='string'||!Number.isFinite(action.x)||!Number.isFinite(action.y)||Math.abs(action.x)>30000||Math.abs(action.y)>30000)throw Error('无效的目录传送点');

@@ -36,7 +36,7 @@ function compactReceipt(step,nativeId){
   action:facts(step.action),finishedAt:step.finishedAt??null,verified:step.verified===true};
  if(d&&typeof d==='object'){
   for(const key of ['kind','stopReason','reason','progress','movedMs','movementMsSent','movementTelemetryComplete',
-   'sent','outcome','target','observedScene','cameraReset','movedLegs','attemptedLegs','pathDurationMs']){
+   'sent','outcome','target','observedScene','cameraReset','cameraOrientation','inputSent','movedLegs','attemptedLegs','pathDurationMs']){
    if(d[key]!==undefined)out[key]=facts(d[key]);
   }
   if(Array.isArray(d.legs))out.legCount=d.legs.length;
