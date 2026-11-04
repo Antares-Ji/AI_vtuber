@@ -17,6 +17,15 @@ test('cross-segment follow failures and unchanged F persist through forty waits 
  assert.equal(loaded.stats.nativeReceipts,44);assert.equal(loaded.stats.unchangedInteractionReceipts,2);
 });
 function sWithoutAdded({added,...rest}){return rest;}
+test('tracking input history survives compaction without claiming menu tracking or a visible trail',t=>{
+ const {root,memory}=fixture(t);
+ const refresh=step(1,'key',{kind:'quest_tracking_refresh',inputSent:true},{key:'V'});
+ memory.merge({sessionId:'tracking-inputs',steps:[refresh,step(2,'key',{kind:'quest_tracking_refresh',inputSent:false},{key:'V'}),step(3,'key',{}, {key:'J'}),...Array.from({length:40},(_,i)=>step(i+4,'wait'))]});
+ memory.merge({sessionId:'tracking-inputs',lastStep:refresh});
+ const restored=new StoryFeedbackMemory({root,quest:'神秘岛的传说',stage:'跟随骗子向导'});
+ assert.deepEqual(restored.snapshot().trackingInputs,{source:'native_receipts_not_tracking_confirmation',refreshCount:1,lastRefreshAt:100,menuOpenCount:1,lastMenuOpenAt:300});
+ restored.setContext({stage:'收集绳索',confirmedStageChange:true});assert.equal(restored.snapshot().trackingInputs.refreshCount,0);
+});
 test('native tracking stalls survive restart and compaction but stay scoped to the stage',t=>{
  const {root,memory}=fixture(t);
  const stalled=step(1,'native_track',{kind:'bgi-native-track',stopReason:'native_stalled_after_recovery'});

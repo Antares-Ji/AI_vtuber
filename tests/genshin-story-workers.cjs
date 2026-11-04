@@ -8,6 +8,15 @@ function fixture(t){
  return {root,env:{GENSHIN_DEEPSEEK_API_KEY:'test-key'}};
 }
 const context={goal:'只做当前任务',observation:{scene:'world',uncertain:false,navigation:{terrain:'open'},interaction:{state:'none'},summary:'冗长解说'},texts:[],mapAreas:[],waypoints:[]};
+test('image navigation retains bounded prior assessments and distinguishes tracking inputs from confirmation',()=>{
+ const previousSteps=Array.from({length:5},(_,i)=>({capturedAt:i,cloudImageAssessment:{groundTrailVisible:false,nearObstacle:'墙'+i},decision:{action:{kind:'move',key:'W',ms:400}},observation:{travelQuest:{hud:{meters:20+i}}}}));
+ const c={...context,previousSteps,observation:{...context.observation,trackingInputs:{refreshCount:2,menuOpenCount:0}}};
+ const p=workers.prompt(c,{imageAssistance:true}),d=JSON.parse(p.input);
+ assert.equal(d.recentImageObservations.length,3);assert.equal(d.recentImageObservations[0].capturedAt,2);
+ assert.equal(d.recentImageObservations[2].execution,'check_recentNativeSteps_for_receipt');
+ assert.equal(d.observation.trackingInputs.refreshCount,2);assert.match(p.instructions,/停止追踪表示已启用，不要点击它/);
+ assert.equal(JSON.parse(workers.prompt(c).input).recentImageObservations,undefined);
+});
 test('native ready dialogue offers SPACE instead of waiting for already displayed subtitles',()=>{
  const p=workers.prompt({...context,observation:{scene:'dialogue',uncertain:false,nativeVision:{ui:'Talk'},dialogue:{subtitle:'应招的人？先填写表格吧。',options:[]}}});
  assert.match(p.instructions,/当前帧已经就绪/);assert.match(p.instructions,/原生有界对话宏/);

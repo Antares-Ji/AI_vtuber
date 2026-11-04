@@ -248,6 +248,7 @@ async function runStory(goal,{root,env,signal,reportProgress=()=>{},runId,direct
     observation.seekFeedback=grounding.seekFeedback(request.recentNativeSteps);
     observation.taskFocus={quest:request.focusQuest,completionEvidence:request.focusQuest?completionEvidence(request.texts,request.focusQuest):null,rule:'当前任务在本训练会话内保持。不能为刷新列表、绕过文字重复或跟标失败切换其他任务。如当前详情误停另一项，核对当前菜单中原任务条目，允许scope:quest_list定位同名列表；不要追踪另一项。只有这里completionEvidence非空时才可由模型选择{kind:"complete_quest",quest:当前任务名}记录当前OCR完成证据，这一步不发送输入；之后才能自主选择下一项已接取任务。没有完成证据就保持当前任务或stop说明问题。'};
     observation.trackingEvidence=trackingEvidence(observation,request.texts,questMemory?.quest);
+    observation.trackingInputs=savedFeedback.trackingInputs;
     observation.travelQuest=StoryTravel.eligibility({texts:request.texts,scene:observation.scene,uncertain:observation.uncertain,recentNativeSteps:request.recentNativeSteps},grounding);
     if(request.mapPositionFailures>=2)observation.travelQuest={...observation.travelQuest,ok:false,reason:'map_position_unavailable'};
     observation.mapPosition={available:request.mapPositionFailures<2,failedReceipts:request.mapPositionFailures,rule:'连续原生定位失败时不重复使用依赖大地图坐标的导航，BGI原生近程追踪不依赖大地图坐标。'};
@@ -276,7 +277,7 @@ async function runStory(goal,{root,env,signal,reportProgress=()=>{},runId,direct
      observation,distanceEvidence,texts:request.texts,mapAreas:request.mapAreas,
      observedAreas:request.observedAreas,selectedArea,waypoints:request.waypoints,nativeId:request.id,
      previousSteps:history.slice(-3).map(e=>({nativeId:e.request.id,seq:e.request.seq,
-      observation:e.observation,decision:e.decision,lastStep:e.request.lastStep})),lastNativeStep:request.lastStep};
+      observation:e.observation,decision:e.decision,lastStep:e.request.lastStep,cloudImageAssessment:e.cloudImageAssessment,capturedAt:e.request.capturedAt})),lastNativeStep:request.lastStep};
     const role=workers.workerFor(observation);
     const availableIntents=JSON.parse(workers.prompt(context,{role,imageAssistance}).input).availableIntents;
     const fastValidate=(value,r,o)=>{workers.validateRole(value,role,availableIntents);return validateDecision(workers.normalize(value,r),r,o);};

@@ -123,6 +123,8 @@ class StoryFeedbackMemory{
   const interactionVisits={};
   for(const d of steps.map(parseDetail))if(d?.kind==='interaction'&&d.sent===true&&normal(d.target))
    interactionVisits[normal(d.target)]=(interactionVisits[normal(d.target)]||0)+1;
+  const refreshes=steps.filter(s=>s.action.kind==='key'&&s.action.key==='V'&&parseDetail(s)?.kind==='quest_tracking_refresh'&&parseDetail(s)?.inputSent===true);
+  const menuOpens=steps.filter(s=>s.action.kind==='key'&&s.action.key==='J'&&Number.isFinite(s.finishedAt));
   const state=JSON.parse(signature(steps));
   const search=steps.map(parseDetail).filter(d=>d?.kind==='area-search'&&d.state?.version===1).at(-1);
   const commissionRouteStates={};for(const d of steps.map(parseDetail))if(d?.kind==='commission-route'&&d.state?.id){
@@ -135,6 +137,7 @@ class StoryFeedbackMemory{
    mapPositionFailures:mapPositionFailures(steps),
    nativeTrackingStalls:steps.map(parseDetail).filter(d=>d?.kind==='bgi-native-track'&&d.stopReason==='native_stalled_after_recovery').length,
    interactionVisits,
+   trackingInputs:{source:'native_receipts_not_tracking_confirmation',refreshCount:refreshes.length,lastRefreshAt:refreshes.at(-1)?.finishedAt||null,menuOpenCount:menuOpens.length,lastMenuOpenAt:menuOpens.at(-1)?.finishedAt||null},
    areaSearchState:search?.state||null,
    commissionRouteStates,
    navigationFeedback:grounding.navigationFeedback(steps),travelFeedback:grounding.travelFeedback(steps),
