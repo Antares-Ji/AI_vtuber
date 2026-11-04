@@ -12,6 +12,7 @@ const {buildStoryPrompt}=require('./story-prompt');
 const {StoryFeedbackMemory}=require('./story-feedback-memory');
 const {StoryQuestFocus,completionEvidence}=require('./story-quest-focus');
 const workers=require('./story-workers');
+const storyImage=require('./story-image');
 const commissionRoutes=require('../../scripts/genshin/story/macros/commission-route');
 const commissionCatalog=require('../../data/genshin-commission-routes.json');
 const {StoryLookahead}=require('./story-lookahead');
@@ -167,7 +168,7 @@ async function decideWithRepair(call,request,observation,signal,budget=null,vali
   budget?.check();
   if(attempt&&budget&&budget.remaining()<15000)break;
   const answer=await call(rejected);signal.throwIfAborted();
-  calls.push({provider:answer.provider,model:answer.model,usage:answer.usage||null,worker:answer.worker,requestPolicy:answer.requestPolicy,latencyMs:answer.latencyMs,reasoningTokens:answer.reasoningTokens});
+  calls.push({provider:answer.provider,model:answer.model,usage:answer.usage||null,worker:answer.worker,requestPolicy:answer.requestPolicy,latencyMs:answer.latencyMs,reasoningTokens:answer.reasoningTokens,imageInput:answer.imageInput||null});
   budget?.check();
   try{const value=JSON.parse(answer.text);return {decision:validator(value,request,observation),prediction:value.prediction,answer,rejected,calls};}
   catch(error){rejected.push({text:answer.text,error:error.message,provider:answer.provider,model:answer.model,usage:answer.usage||null});}
@@ -267,16 +268,18 @@ async function runStory(goal,{root,env,signal,reportProgress=()=>{},runId,direct
     if(createHash('sha256').update(fs.readFileSync(image)).digest('hex')!==hash)throw Error('剧情截图发生变化');
     reportProgress('story-deciding',`步骤${request.seq}：${direct?'等待导演直接指令':fast?'快速决策':'模型决策'}`);
     latest={...latest,state:'deciding'};
+    const imageAssistance=fast&&observation.scene==='world'&&storyImage.enabled(root);
     const context={goal,questMemory,navigationMemory:request.navigationMemory,
+     ...(imageAssistance?{frameImage:{path:image,sha256:hash,capturedAt:request.capturedAt,seq:request.seq,source:'bettergi_owned_capture'}}:{}),
      observation,distanceEvidence,texts:request.texts,mapAreas:request.mapAreas,
      observedAreas:request.observedAreas,selectedArea,waypoints:request.waypoints,nativeId:request.id,
      previousSteps:history.slice(-3).map(e=>({nativeId:e.request.id,seq:e.request.seq,
       observation:e.observation,decision:e.decision,lastStep:e.request.lastStep})),lastNativeStep:request.lastStep};
     const role=workers.workerFor(observation);
     const fastValidate=(value,r,o)=>{workers.validateRole(value,role);return validateDecision(workers.normalize(value,r),r,o);};
-    const cached=fast?lookahead.consume({request,observation,validate:fastValidate}):null;
+    const cached=fast&&!imageAssistance?lookahead.consume({request,observation,validate:fastValidate}):null;
     const repaired=direct?await require('./direct-control').wait({request,observation,context,validate:validateDecision,signal:budget.signal()}):cached || (fast ?
-     await decideWithRepair(rejected=>workers.call(context,{root,env,signal:budget.signal(20000),role,rejected,handoff}),request,observation,signal,budget,fastValidate) : await decideWithRepair(rejected=>{
+     await decideWithRepair(rejected=>workers.call(context,{root,env,signal:budget.signal(imageAssistance?45000:20000),role,rejected,handoff}),request,observation,signal,budget,fastValidate) : await decideWithRepair(rejected=>{
      const prompt=buildStoryPrompt(context,{rejected});
      return respond(prompt.input,{dataRoot:root,env,signal:budget.signal(),instructions:prompt.instructions,
      schema:{type:'object',required:['action','reason','commentary','quest'],properties:{action:{type:'object'},reason:{type:'string'},commentary:{type:'string'},quest:{type:'string'}}}});},request,observation,signal,budget));
@@ -289,8 +292,8 @@ async function runStory(goal,{root,env,signal,reportProgress=()=>{},runId,direct
     if(decision.action.kind==='teleport'||decision.action.kind==='quest_route'&&commissionCatalog.routes.find(r=>r.id===decision.action.id)?.positions.some(p=>p.type==='teleport')){
      teleportAttempts.add(decision.action.id);routeAttemptKeys.set(decision.action.id,JSON.stringify([request.id,request.seq]));
     }
-    const evidence={trainingSessionId:checkpoint?.sessionId||null,request,observation,rawObservation,observationError,visionRecord:vision.record,distanceEvidence,decision,rejected,provider:answer.provider,model:answer.model,usage:answer.usage||null,modelCalls:repaired.calls,
-     pipeline:fast?{role,thinking:'disabled',maxOutputTokens:workers.profile(role,env).maxOutputTokens,lookahead:repaired.lookahead||lookahead.lastCheck}:null,
+    const evidence={trainingSessionId:checkpoint?.sessionId||null,request,observation,rawObservation,observationError,visionRecord:vision.record,imageAssistance:answer.imageInput||null,distanceEvidence,decision,rejected,provider:answer.provider,model:answer.model,usage:answer.usage||null,modelCalls:repaired.calls,
+     pipeline:fast?{role,thinking:'disabled',maxOutputTokens:answer.requestPolicy?.maxOutputTokens||workers.profile(role,env).maxOutputTokens,observationProvider:answer.imageInput?'bettergi_cv_ocr_and_deepseek_image':'bettergi_cv_ocr',lookahead:imageAssistance?'disabled_current_image_required':repaired.lookahead||lookahead.lastCheck}:null,
      image,sha256:hash,at:Date.now(),verified:false};
     fs.writeFileSync(path.join(folder,`step-${request.seq}.json`),JSON.stringify(evidence,null,2));
     if(decision.action.kind==='complete_quest'){
@@ -306,7 +309,7 @@ async function runStory(goal,{root,env,signal,reportProgress=()=>{},runId,direct
     latest={...latest,state:'executing',goal,folder,steps:request.seq,observationSeq:request.seq,observationAt:request.capturedAt,observation,decision,provider:answer.provider,model:answer.model,usage:answer.usage||null,pipeline:evidence.pipeline,error:null,errorCode:null,verified:false};
     if(decision.commentary){events.push({id:randomUUID(),at:Date.now(),text:decision.commentary,seq:request.seq,provider:answer.provider,model:answer.model});events=events.slice(-30);}
     reportProgress('story-executing',`步骤${request.seq}：${decision.action.kind}`);
-    if(fast){
+    if(fast&&!imageAssistance){
      handoff={from:role,state:'planned_not_observed',action:decision.action,quest:request.focusQuest,stage:navigationStage};
      lookahead.start({decision,prediction:repaired.prediction,request,observation,context,
       plan:(projected,forecast,prefetchSignal)=>workers.call(projected,{root,env,signal:prefetchSignal,role:'movement',handoff,forecast}),
