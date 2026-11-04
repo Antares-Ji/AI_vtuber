@@ -93,7 +93,8 @@ function validateRole(value,role,availableIntents){
   throw Error('move仅80–600ms微调；赶路请选择navigate连续行走或travel_quest原生CV寻路');
 }
 async function call(context,{root,env={},signal,role=workerFor(context.observation),rejected=[],handoff=null,forecast=null,fetchImpl}={}){
- const picture=!forecast&&storyImage.eligible(context.observation)&&context.frameImage&&storyImage.enabled(root)?storyImage.load(context.frameImage,root):null;
+ const pictures=!forecast&&storyImage.eligible(context.observation)&&context.frameImage&&storyImage.enabled(root)?storyImage.loadSequence(context.frameImage,context.trackingFrames||[],root):[];
+ const picture=pictures.at(-1)||null;
  const policy=picture?{...profile(role,env),model:'deepseek-flash',maxOutputTokens:640}:profile(role,env),built=prompt(context,{role,rejected,handoff,forecast,imageAssistance:Boolean(picture)});
  // Keep provider selection explicit. The fast dual-worker pipeline is DeepSeek-only.
  if(settings({dataRoot:root,env}).provider!=='deepseek')throw Error('低延迟双worker需要手动选择DeepSeek；未切换供应商');
@@ -104,8 +105,13 @@ async function call(context,{root,env={},signal,role=workerFor(context.observati
   schema.required=['imageAssessment','action'];
   schema.properties.imageAssessment={type:'object',required:['groundTrailVisible','groundTrail','nearObstacle','openPassage'],properties:{groundTrailVisible:{type:'boolean'},groundTrail:{type:'string'},nearObstacle:{type:'string'},openPassage:{type:'string'}}};
   built.instructions+='\n本次先输出imageAssessment再输出action。用当前截图逐项确认：groundTrailVisible是否真看见地面连续星光（不能把任务菱形/小地图当星光）；groundTrail用简短文字描述路线从脚下往哪里延伸与转弯，看不到就写未见；nearObstacle描述贴近角色的障碍；openPassage描述当前看得到的可走方向、门或台阶。不要编造遮挡后的路线。根据这些事实再选动作；看不见星光也可从可见通道探索，不能反复V或一直向已确认障碍走。';
+  built.instructions+='\n场景的固定灯带、发光地板接缝和装饰光不能仅凭发光就认定为任务星光；需要可见粒子轨迹等依据，证据不足就填groundTrailVisible:false。';
+  if(pictures.length>1){
+   built.input+='\ntrackingImageSequence='+JSON.stringify(pictures.map((p,i)=>({index:i+1,capturedAt:p.evidence.capturedAt,current:i===pictures.length-1,source:'bettergi_owned_capture'})));
+   built.instructions+='\n本次图片按时间顺序：前两张是同一次V追踪后约0.5秒、1.5秒的BGI采样，最后一张才是当前画面。利用序列区分短暂粒子与固定灯带；动作、交互、障碍必须以最后一张及当前BGI OCR为准。早期出现后消失的星光可描述在groundTrail中，但不可谎称当前仍可见。';
+  }
  }
- const answer=await respond(built.input,{dataRoot:root,env,signal,fetchImpl,instructions:built.instructions,schema,...policy,...(picture?{imageUrl:picture.url}:{})});
- return {...answer,worker:role,latencyMs:Date.now()-startedAt,imageInput:picture?.evidence||null};
+ const answer=await respond(built.input,{dataRoot:root,env,signal,fetchImpl,instructions:built.instructions,schema,...policy,...(picture?{imageUrls:pictures.map(p=>p.url)}:{})});
+ return {...answer,worker:role,latencyMs:Date.now()-startedAt,imageInput:picture?{...picture.evidence,...(pictures.length>1?{sequence:pictures.map(p=>p.evidence)}:{})}:null};
 }
 module.exports={workerFor,profile,prompt,normalize,validateRole,call,MOVEMENT,INTERACTION};

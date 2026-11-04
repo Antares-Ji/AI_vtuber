@@ -39,6 +39,26 @@ test('forecast, dialogue and opt-out calls remain text-only',async t=>{
   assert.equal(typeof body.messages[1].content,'string');assert.equal(answer.imageInput,null);
  }
 });
+test('tracking burst copies only adjacent owned samples and sends them chronologically before the current frame',async t=>{
+ const f=fixture(t),native=path.join(f.root,'native-script');fs.mkdirSync(native);
+ const now=Date.now(),samples=[500,1500].map((offsetMs,i)=>({image:`tracking-1-${offsetMs}.png`,offsetMs,capturedAt:now-3000+i*1000}));
+ for(const sample of samples)fs.writeFileSync(path.join(native,sample.image),f.bytes);
+ const request={seq:2,capturedAt:now,lastStep:{seq:1,action:{kind:'key',key:'V'},detail:JSON.stringify({kind:'quest_tracking_refresh',inputSent:true,samples})}};
+ const frames=image.copyTrackingFrames(request,path.join(native,'story-2.png'),f.root);
+ assert.equal(frames.length,2);assert.equal(frames[0].seq,1);
+ const frame={...f.frame,seq:2,capturedAt:now};let body;
+ const answer=await workers.call({observation,texts:[],frameImage:frame,trackingFrames:frames},{...f,fetchImpl:async(_,req)=>{body=JSON.parse(req.body);return {ok:true,json:async()=>({choices:[{finish_reason:'stop',message:{content:'{"action":{"kind":"wait"}}'}}]})};}});
+ assert.equal(body.messages[1].content.filter(v=>v.type==='image_url').length,3);
+ assert.deepEqual(answer.imageInput.sequence.map(p=>p.capturedAt),[now-3000,now-2000,now]);
+ assert.ok(!JSON.stringify(answer).includes('base64'));assert.match(body.messages[0].content,/固定灯带/);
+ for(const changes of [{seq:3},{capturedAt:now+20000},{lastStep:{...request.lastStep,detail:JSON.stringify({kind:'quest_tracking_refresh',inputSent:true,samples:[{...samples[0],image:'../frame.png'}]})}}]){
+  if(changes.seq)assert.deepEqual(image.copyTrackingFrames({...request,...changes},path.join(native,'story-2.png'),f.root),[]);
+  else assert.throws(()=>image.copyTrackingFrames({...request,...changes},path.join(native,'story-2.png'),f.root));
+ }
+ assert.throws(()=>image.loadSequence(frame,[{...frames[0],seq:20}],f.root),/紧邻/);
+ assert.throws(()=>image.loadSequence(frame,[frames[1],frames[0]],f.root),/紧邻/);
+ assert.throws(()=>image.loadSequence(frame,[...frames,frames[0]],f.root),/最多/);
+});
 test('image does not switch providers or bypass OCR interaction/completion validation',async t=>{
  const f=fixture(t);provider.selectProvider('openai',{dataRoot:f.root});
  await assert.rejects(provider.respond('x',{dataRoot:f.root,env:f.env,imageUrl:'data:image/png;base64,abc=',model:'deepseek-flash'}),/未切换供应商/);

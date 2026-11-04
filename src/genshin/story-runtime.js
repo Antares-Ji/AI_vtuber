@@ -272,8 +272,9 @@ async function runStory(goal,{root,env,signal,reportProgress=()=>{},runId,direct
     reportProgress('story-deciding',`步骤${request.seq}：${direct?'等待导演直接指令':fast?'快速决策':'模型决策'}`);
     latest={...latest,state:'deciding'};
     const imageAssistance=fast&&storyImage.eligible(observation)&&storyImage.enabled(root);
+    const trackingFrames=imageAssistance?storyImage.copyTrackingFrames(request,source,root):[];
     const context={goal,questMemory,navigationMemory:request.navigationMemory,
-     ...(imageAssistance?{frameImage:{path:image,sha256:hash,capturedAt:request.capturedAt,seq:request.seq,source:'bettergi_owned_capture'}}:{}),
+     ...(imageAssistance?{frameImage:{path:image,sha256:hash,capturedAt:request.capturedAt,seq:request.seq,source:'bettergi_owned_capture'},trackingFrames}:{}),
      observation,distanceEvidence,texts:request.texts,mapAreas:request.mapAreas,
      observedAreas:request.observedAreas,selectedArea,waypoints:request.waypoints,nativeId:request.id,
      previousSteps:history.slice(-3).map(e=>({nativeId:e.request.id,seq:e.request.seq,

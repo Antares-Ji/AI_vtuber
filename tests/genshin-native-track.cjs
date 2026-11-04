@@ -102,3 +102,17 @@ test('native tracking delegates to BGI once and disposes its cancellation source
   if(fail==='hudgone'){const d=JSON.parse(receipt.steps[0].detail);assert.equal(d.stopReason,'hud_changed_or_missing');assert.equal(d.inputSent,false);}
  }
 });
+test('V tracking takes two BGI samples after release and keeps the final frame and input cleanup',async()=>{
+ const fs=require('node:fs'),vm=require('node:vm'),source=fs.readFileSync(require.resolve('../scripts/genshin/story-main.js'),'utf8');
+ let now=10000;const keys=new Set(),images=[],requests=[],files=new Map([['command.json',JSON.stringify({id:'burst-test',timeoutMs:600000})]]);
+ const ctx={JSON,Date:{now:()=>now},Number,String,Math,Set,Error,
+  file:{readTextSync:n=>files.get(n),writeImageSync(n){if(n.startsWith('tracking-'))assert.equal(keys.size,0);images.push(n);},writeTextSync(n,v){files.set(n,v);if(n==='story-request.json'){const r=JSON.parse(v);requests.push(r);files.set('story-decision-'+r.seq+'.json',JSON.stringify({id:r.id,seq:r.seq,action:r.seq===1?{kind:'key',key:'V'}:{kind:'stop'}}));}}},
+  captureGameRegion:()=>({width:1920,height:1080,srcMat:{},dispose(){},findMulti:()=>({count:2,0:{text:rows[0].text,x:75,y:246,width:230,height:33},1:{text:'高处60m',x:80,y:280,width:120,height:25}})}),
+  RecognitionObject:{ocr:()=>({})},dispatcher:{clearAllTriggers(){}},log:{info(){}},sleep:async ms=>{now+=ms;},keyDown:k=>keys.add(k),keyUp:k=>keys.delete(k),
+  isGameActive:()=>true,ensureGameFocus:async()=>true,getOwnedSceneObservation:()=>JSON.stringify({source:'bettergi_native_cv',ui:'Main',motion:'Normal'})};
+ await vm.runInNewContext(source,ctx);
+ const receipt=JSON.parse(files.get('receipt.json'));assert.equal(receipt.state,'returned');
+ const d=JSON.parse(requests[1].lastStep.detail);assert.equal(d.inputSent,true);assert.equal(d.samples.length,2);
+ assert.equal(d.samples[1].capturedAt-d.samples[0].capturedAt,1000);assert.ok(requests[1].capturedAt-d.samples[1].capturedAt>=1500);
+ assert.ok(images.includes('tracking-1-500.png'));assert.ok(images.includes('tracking-1-1500.png'));assert.equal(keys.size,0);
+});

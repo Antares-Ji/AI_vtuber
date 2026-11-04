@@ -30,7 +30,8 @@ function selectProvider(provider, { dataRoot = ROOT } = {}) {
 }
 async function respond(input, options = {}) {
   const c = settings(options); options.signal?.throwIfAborted();
-  if(options.imageUrl&&(c.provider!=='deepseek'||options.model!=='deepseek-flash'||!/^data:image\/png;base64,[A-Za-z0-9+/=]+$/.test(options.imageUrl)))throw Error('原神截图辅助仅支持显式DeepSeek Flash PNG输入，未切换供应商');
+  const imageUrls=options.imageUrls??(options.imageUrl?[options.imageUrl]:[]);
+  if(!Array.isArray(imageUrls)||imageUrls.length>3||imageUrls.some(url=>c.provider!=='deepseek'||options.model!=='deepseek-flash'||typeof url!=='string'||!/^data:image\/png;base64,[A-Za-z0-9+/=]+$/.test(url)))throw Error('原神截图辅助仅支持显式DeepSeek Flash PNG输入，未切换供应商');
   if (c.provider === 'openai') return openai.respond(input, options);
   if (!c.key) throw Error('未配置 DeepSeek API 密钥');
   const maxTokens=options.maxOutputTokens??2048;
@@ -42,7 +43,7 @@ async function respond(input, options = {}) {
     headers: { 'content-type': 'application/json', authorization: `Bearer ${c.key}` },
     body: JSON.stringify({ model, max_tokens:maxTokens, ...(options.thinking===false?{thinking:{type:'disabled'}}:{}), messages: [
       { role: 'system', content: (options.instructions || '用中文准确回答。') + (options.schema ? '\n仅返回符合以下 schema 的 JSON：' + JSON.stringify(options.schema) : '') },
-      { role: 'user', content: options.imageUrl?[{type:'text',text:input},{type:'image_url',image_url:{url:options.imageUrl,detail:'original'}}]:input }], ...(options.schema ? { response_format: { type: 'json_object' } } : {}) }) });
+      { role: 'user', content: imageUrls.length?[{type:'text',text:input},...imageUrls.map(url=>({type:'image_url',image_url:{url,detail:'original'}}))]:input }], ...(options.schema ? { response_format: { type: 'json_object' } } : {}) }) });
   const data = await response.json(); signal.throwIfAborted();
   if (!response.ok) {
     const detail=response.status===402?'API 余额不足，请补充 DeepSeek API 余额后继续':'请求失败，请检查模型权限或网络';
