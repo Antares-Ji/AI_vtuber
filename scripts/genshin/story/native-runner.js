@@ -244,10 +244,12 @@ else (async function(){
    }
    if(action.kind==='key'){
     if(!['J','M','ESCAPE','F','V','SPACE','X'].includes(action.key))throw Error('不允许的剧情按键');
+    let keyStillApplicable=true;
     if(action.key==='X'){
-     const f=captureGameRegion();try{if(typeof getOwnedSceneObservation==='undefined'||JSON.parse(getOwnedSceneObservation(f)).motion!=='Climb')throw Error('攀爬状态已变化，未发送X');}finally{f.dispose();}
+     const f=captureGameRegion();try{if(typeof getOwnedSceneObservation==='undefined')throw Error('BGI状态接口不存在');keyStillApplicable=JSON.parse(getOwnedSceneObservation(f)).motion==='Climb';}finally{f.dispose();}
     }
-    if(action.key==='F')detail=await interact(action,priorSteps);
+    if(!keyStillApplicable)detail=JSON.stringify({kind:'key-preflight',key:action.key,stopReason:'motion_changed',inputSent:false,verified:false});
+    else if(action.key==='F')detail=await interact(action,priorSteps);
     else if(action.key==='SPACE'&&StoryGrounding.sceneCue(readFreshTexts())==='dialogue')detail=JSON.stringify(await StoryContinuousNavigation.advanceDialogue({grounding:StoryGrounding,read:readFreshTexts,checkInput,keyDown:guardedKeyDown,keyUp:key=>keyUp(key),sleep}));
     else {const key=action.key==='ESCAPE'?'VK_ESCAPE':action.key==='SPACE'?'VK_SPACE':'VK_'+action.key;
     guardedKeyDown(key);try{await sleep(80);}finally{keyUp(key);}
@@ -335,10 +337,14 @@ else (async function(){
    else if(action.kind==='travel_quest'){detail=JSON.stringify(await travelQuest(seq,{recentNativeSteps:priorSteps}));}
    else if(action.kind==='follow_marker'){detail=StoryGrounding.navigationFeedback(priorSteps).blocked?JSON.stringify({kind:'marker-follow',movedMs:0,stopReason:'retry_limit',verified:false}):await followMarker(seq);}
    else if(action.kind==='reset_camera'){
-    const f=captureGameRegion();try{if(typeof getOwnedSceneObservation==='undefined'||JSON.parse(getOwnedSceneObservation(f)).ui!=='Main')throw Error('镜头调整前已离开主界面');}finally{f.dispose();}
-    if(action.zoomOut===true){if(typeof verticalScroll==='undefined')throw Error('BGI镜头缩放接口不存在');checkInput();verticalScroll(-6);await sleep(300);}
-    guardedMiddleButtonClick();await sleep(600);
-    detail=JSON.stringify({kind:'camera-reset',zoomOutSent:action.zoomOut===true,scrollClicks:action.zoomOut===true?-6:0,inputSent:true,verified:false});
+    let cameraStillApplicable=false;
+    const f=captureGameRegion();try{if(typeof getOwnedSceneObservation==='undefined')throw Error('BGI状态接口不存在');cameraStillApplicable=JSON.parse(getOwnedSceneObservation(f)).ui==='Main';}finally{f.dispose();}
+    if(!cameraStillApplicable)detail=JSON.stringify({kind:'camera-reset',stopReason:'ui_changed',inputSent:false,verified:false});
+    else{
+     if(action.zoomOut===true){if(typeof verticalScroll==='undefined')throw Error('BGI镜头缩放接口不存在');checkInput();verticalScroll(-6);await sleep(300);}
+     guardedMiddleButtonClick();await sleep(600);
+     detail=JSON.stringify({kind:'camera-reset',zoomOutSent:action.zoomOut===true,scrollClicks:action.zoomOut===true?-6:0,inputSent:true,verified:false});
+    }
    }
    else if(action.kind==='advance_quest'){detail=JSON.stringify(await navigate({key:action.key,ms:8000}));}
    else if(action.kind==='navigate'){detail=JSON.stringify(await navigate(action));}

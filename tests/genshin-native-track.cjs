@@ -116,9 +116,22 @@ test('BGI zoom uses bounded native scroll only after fresh Main UI and releases 
   await vm.runInNewContext(source,ctx);
   assert.deepEqual(events.filter(e=>e[0]!=='up'),changed?[]:[['scroll',-6],['middle']]);
   assert.ok(events.some(e=>e[0]==='up'&&e[1]==='VK_W'));
-  const receipt=JSON.parse(files.get('receipt.json'));assert.equal(receipt.state,changed?'error':'returned');
+  const receipt=JSON.parse(files.get('receipt.json'));assert.equal(receipt.state,'returned');
+  if(changed)assert.equal(JSON.parse(receipt.steps[0].detail).inputSent,false);
   if(!changed)assert.equal(JSON.parse(receipt.steps[0].detail).zoomOutSent,true);
  }
+});
+test('a Climb to Normal transition skips X and continues to a fresh observation',async()=>{
+ const fs=require('node:fs'),vm=require('node:vm'),source=fs.readFileSync(require.resolve('../scripts/genshin/story-main.js'),'utf8');
+ let motion='Climb';const requests=[],pressed=[],files=new Map([['command.json',JSON.stringify({id:'climb-transition',timeoutMs:600000})]]);
+ const ctx={JSON,Date,Number,String,Math,Set,Error,
+  file:{readTextSync:n=>files.get(n),writeImageSync(){},writeTextSync(n,v){files.set(n,v);if(n==='story-request.json'){const r=JSON.parse(v);requests.push(r);files.set('story-decision-'+r.seq+'.json',JSON.stringify({id:r.id,seq:r.seq,action:r.seq===1?{kind:'key',key:'X'}:{kind:'stop'}}));motion='Normal';}}},
+  captureGameRegion:()=>({width:1920,height:1080,srcMat:{},dispose(){},findMulti:()=>({count:2,0:{text:rows[0].text,x:75,y:246,width:230,height:33},1:{text:'高处60m',x:80,y:280,width:120,height:25}})}),
+  RecognitionObject:{ocr:()=>({})},dispatcher:{clearAllTriggers(){}},log:{info(){}},sleep:async()=>{},keyDown:k=>pressed.push(k),keyUp(){},
+  isGameActive:()=>true,ensureGameFocus:async()=>true,getOwnedSceneObservation:()=>JSON.stringify({source:'bettergi_native_cv',ui:'Main',motion})};
+ await vm.runInNewContext(source,ctx);
+ assert.deepEqual(pressed,[]);assert.equal(requests.length,2);assert.equal(requests[1].nativeVision.motion,'Normal');
+ const receipt=JSON.parse(files.get('receipt.json'));assert.equal(receipt.state,'returned');assert.equal(JSON.parse(receipt.steps[0].detail).stopReason,'motion_changed');assert.equal(JSON.parse(receipt.steps[0].detail).inputSent,false);
 });
 test('camera-loop recovery counts executed same-stage turns and resets on movement or mismatched receipts',()=>{
  const {rotationLoopEvidence}=require('../src/genshin/story-memory');
