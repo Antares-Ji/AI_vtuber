@@ -35,6 +35,21 @@ test('native tracking stalls survive restart and compaction but stay scoped to t
  assert.equal(restored.snapshot().nativeTrackingStalls,1);
  restored.setContext({stage:'收集绳索',confirmedStageChange:true});assert.equal(restored.snapshot().nativeTrackingStalls,0);
 });
+test('legacy quote-variant buckets cannot hide native failures or visited targets after restart',t=>{
+ const {root,memory}=fixture(t,{stage:'返回「旗舰」休息'});
+ memory.merge({sessionId:'legacy-a',steps:[step(1,'native_track',{kind:'bgi-native-track',stopReason:'native_stalled_after_recovery'})]});
+ const data=JSON.parse(fs.readFileSync(memory.file));
+ data.contexts.push({id:'old-quote-variant',quest:memory.quest,stage:'返回『旗舰」休息',createdAt:1});
+ data.sessions.push({id:'legacy-b',order:1,seen:[1]});data.events.push({sessionId:'legacy-b',contextId:'old-quote-variant',step:f(1,'坐下')});
+ fs.writeFileSync(memory.file,JSON.stringify(data));
+ for(const stage of ['返回「旗舰」休息','返回『旗舰」休息']){
+  const restored=new StoryFeedbackMemory({root,quest:memory.quest,stage}),s=restored.snapshot();
+  assert.equal(s.nativeTrackingStalls,1);assert.equal(s.interactionVisits['坐下'],1);assert.equal(s.stats.nativeReceipts,2);
+ }
+ const restored=new StoryFeedbackMemory({root,quest:memory.quest,stage:'返回『旗舰」休息'});
+ restored.clear();assert.equal(restored.snapshot().stats.nativeReceipts,0);
+ assert.equal(restored.merge({sessionId:'legacy-b',lastStep:f(1,'坐下')}).added,0);
+});
 test('incidental interaction visits survive compaction/restart without counting plans or rejected input',t=>{
  const {root,memory}=fixture(t,{stage:'返回「旗舰」休息'});
  const visit=step(1,'key',{kind:'interaction',target:'克鲁切',sent:true,outcome:'scene_changed'},{key:'F',text:'克鲁切'});

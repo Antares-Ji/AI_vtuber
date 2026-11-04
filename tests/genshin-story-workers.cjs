@@ -27,7 +27,7 @@ test('native ready dialogue offers SPACE instead of waiting for already displaye
  assert.ok(!unknown.instructions.includes('当前帧已经就绪'));
 });
 test('image assistance keeps native Climb recovery while hiding failed marker priority',()=>{
- const p=workers.prompt({...context,observation:{...context.observation,nativeVision:{ui:'Main',motion:'Climb'},nativeTracking:{available:true}}},{imageAssistance:true});
+ const p=workers.prompt({...context,observation:{...context.observation,nativeVision:{ui:'Main',motion:'Climb'},nativeTracking:{available:true},commissionRoutes:[{id:'entrance',recovery:true}]}},{imageAssistance:true});
  assert.match(p.instructions,/BGI原生CV确认当前正在攀爬/);assert.match(p.instructions,/key:"X"/);
  assert.ok(!p.instructions.includes('当前BGI原生近程任务追踪可用，优先选择'));
 });

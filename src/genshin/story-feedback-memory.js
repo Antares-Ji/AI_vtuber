@@ -4,6 +4,7 @@ const grounding=require('../../scripts/genshin/story-main');
 const {compatibleStage}=require('./story-memory');
 const MAX_RECENT_STEPS=16;
 const normal=value=>String(value||'').replace(/\s/g,'');
+const stageKey=value=>normal(value).replace(/[「」『』“”‘’"']/g,'');
 const clone=value=>JSON.parse(JSON.stringify(value));
 function parseDetail(step){try{return JSON.parse(step.detail);}catch{return null;}}
 function mapPositionFailures(steps){
@@ -74,7 +75,7 @@ class StoryFeedbackMemory{
  }
  _select(quest,stage){
   const sameQuest=this.data.contexts.filter(c=>normal(c.quest)===normal(quest));
-  let context=sameQuest.find(c=>normal(c.stage)===normal(stage));
+  let context=sameQuest.find(c=>stageKey(c.stage)===stageKey(stage));
   const compatible=stage?sameQuest.filter(c=>c.stage&&compatibleStage(c.stage,stage)):[];
   if(!context&&compatible.length===1)context=compatible[0];
   if(!context){context={id:identity(quest,stage),quest,stage,createdAt:Date.now()};this.data.contexts.push(context);}
@@ -118,7 +119,10 @@ class StoryFeedbackMemory{
  }
  snapshot(){
   const order=new Map(this.data.sessions.map(s=>[s.id,s.order]));
-  const events=this.data.events.filter(e=>e.contextId===this.contextId).sort((a,b)=>order.get(a.sessionId)-order.get(b.sessionId)||a.step.seq-b.step.seq);
+  // Older versions created separate buckets for OCR quote variants. Read all
+  // exact canonical aliases without deleting or rewriting the native ledger.
+  const contextIds=new Set(this.data.contexts.filter(c=>normal(c.quest)===normal(this.quest)&&stageKey(c.stage)===stageKey(this.stage)).map(c=>c.id));
+  const events=this.data.events.filter(e=>contextIds.has(e.contextId)).sort((a,b)=>order.get(a.sessionId)-order.get(b.sessionId)||a.step.seq-b.step.seq);
   const steps=events.map(e=>e.step),recentNativeSteps=compactSteps(steps);
   const interactionVisits={};
   for(const d of steps.map(parseDetail))if(d?.kind==='interaction'&&d.sent===true&&normal(d.target))
@@ -150,7 +154,7 @@ class StoryFeedbackMemory{
  }
  clear({quest=this.quest,stage=this.stage,allStages=false}={}){
   quest=validQuest(quest);stage=validStage(stage);this._load();
-  const ids=new Set(this.data.contexts.filter(c=>normal(c.quest)===normal(quest)&&(allStages||normal(c.stage)===normal(stage))).map(c=>c.id));
+  const ids=new Set(this.data.contexts.filter(c=>normal(c.quest)===normal(quest)&&(allStages||stageKey(c.stage)===stageKey(stage))).map(c=>c.id));
   this.data.events=this.data.events.filter(e=>!ids.has(e.contextId));
   // Keep session+seq tombstones: a delayed final receipt must not resurrect
   // explicitly cleared failures, or be attributed to a different quest.
