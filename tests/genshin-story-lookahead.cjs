@@ -110,10 +110,12 @@ test('a speculative wait cannot stall a matching frame, and cancelled billing st
  queue.start({...f,plan:async()=>{throw Object.assign(Error('request aborted'),{name:'AbortError'});},onResult:answer=>charges.push(answer)});await queue.pending.done;
  assert.equal(charges.length,1);assert.equal(charges[0].usage,null);assert.equal(frameTokens({modelCalls:charges}).complete,false);await queue.close();
 });
-test('post-teleport CV uses two uncached samples; ordinary actions never invoke position API',async()=>{
+test('post-transition CV uses two uncached samples; ordinary actions never invoke position API',async()=>{
  let calls=0,now=100;
  const deps={lastStep:{action:{kind:'move'}},genshin:{getPositionFromMap:(map,cache)=>{calls++;assert.equal(map,'Teyvat');assert.equal(cache,0);return {X:10,Y:20};}},sleep:async ms=>{now+=ms;},now:()=>now,deadline:10000};
  assert.equal(await position.sample(deps),null);assert.equal(calls,0);
  const result=await position.sample({...deps,lastStep:{action:{kind:'teleport'}}});assert.equal(result.stable,true);assert.equal(calls,2);assert.equal(result.samples.length,2);
+ for(const lastStep of [{action:{kind:'native_unstuck'},detail:JSON.stringify({kind:'bgi-native-unstuck',durationMs:2700})},{action:{kind:'key',key:'F'},detail:JSON.stringify({kind:'interaction',target:'上行',sent:true,outcome:'prompt_changed_or_missing'})}])assert.equal((await position.sample({...deps,lastStep})).stable,true);
+ for(const target of ['坐下','克鲁切'])assert.equal(await position.sample({...deps,lastStep:{action:{kind:'key',key:'F'},detail:JSON.stringify({kind:'interaction',target,sent:true,outcome:'prompt_changed_or_missing'})}}),null);
  const failed=await position.sample({...deps,lastStep:{action:{kind:'teleport'}},genshin:{getPositionFromMap:()=>{throw Error('not in world');}}});assert.equal(failed.stable,false);
 });

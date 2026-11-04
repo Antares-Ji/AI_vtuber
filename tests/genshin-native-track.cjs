@@ -88,6 +88,12 @@ test('image short-move recovery requires matched native inputs and independent u
  const recovered={...current,lastStep:{...current.lastStep,action:{kind:'native_unstuck'}}};
  assert.equal(movementStallEvidence(history,recovered).stalled,false);
 });
+test('reacquired map coordinates must be fresh stable BGI samples and never just a success flag',()=>{
+ const {freshMapPosition}=require('../src/genshin/story-memory');
+ const r={capturedAt:20000,position:{source:'bettergi_minimap_cv',stable:true,samples:[{x:100,y:200,at:19500},{x:101,y:201,at:19800}]}};
+ assert.equal(freshMapPosition(r),true);
+ for(const p of [{...r.position,source:'model'},{...r.position,samples:[]},{...r.position,stable:false},{...r.position,samples:[r.position.samples[0],{x:200,y:300,at:19800}]},{...r.position,samples:r.position.samples.map(s=>({...s,at:10000}))},{...r.position,samples:r.position.samples.map(s=>({...s,at:21000}))}])assert.equal(freshMapPosition({...r,position:p}),false);
+});
 test('repeated invalid map coordinates block dependent navigation while native tracking remains eligible',()=>{
  const {mapPositionFailures}=require('../src/genshin/story-feedback-memory');
  const receipt=d=>({detail:JSON.stringify(d)});

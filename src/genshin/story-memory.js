@@ -88,6 +88,10 @@ function movementStallEvidence(history,current){
  }
  return {source:'independent_bettergi_hud_after_native_moves',stalled:attempts>=3&&movementMs>=1000,attempts,movementMs,beforeDistance,afterDistance,verified:false};
 }
+function freshMapPosition(request){
+ const p=request.position,s=p?.samples;
+ return p?.source==='bettergi_minimap_cv'&&p.stable===true&&Array.isArray(s)&&s.length===2&&s.every(v=>Number.isFinite(v.x)&&Number.isFinite(v.y)&&Number.isFinite(v.at)&&request.capturedAt>=v.at&&request.capturedAt-v.at<=5000)&&s[0].at<=s[1].at&&Math.hypot(s[0].x-s[1].x,s[0].y-s[1].y)<=10;
+}
 function navigationFromEvidence(rows,quest){
  const matching=rows.filter(({e})=>e.decision?.quest===quest);
  const stage=matching.map(({e})=>questStage(e.request?.texts)).find(Boolean)||null;
@@ -104,4 +108,4 @@ function navigationFromEvidence(rows,quest){
  return {stage,teleportAttempts:[...attempted],routeAttemptKeys:[...pending],verification:'historical_attempts_not_arrival',previousSteps:matching.slice(0,5).reverse().map(({e})=>({observation:e.observation,decision:e.decision,lastStep:e.request.lastStep}))};
 }
 function readNavigationMemory(root,quest){return navigationFromEvidence(recentEvidence(root),quest);}
-module.exports={readQuestMemory,questFromEvidence,questStage,readNavigationMemory,navigationFromEvidence,compatibleStage,updateNavigationStage,routePreflightRejected,reconcileRouteAttempt,nativeTrackingProgress,nativeRecoveryNeeded,movementStallEvidence};
+module.exports={readQuestMemory,questFromEvidence,questStage,readNavigationMemory,navigationFromEvidence,compatibleStage,updateNavigationStage,routePreflightRejected,reconcileRouteAttempt,nativeTrackingProgress,nativeRecoveryNeeded,movementStallEvidence,freshMapPosition};

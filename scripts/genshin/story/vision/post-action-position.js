@@ -1,7 +1,10 @@
 // Fresh local minimap CV evidence for checking a predicted teleport destination.
 const StoryPostActionPosition=(()=>{
  async function sample({lastStep,genshin,sleep,now=Date.now,deadline}){
-  if(lastStep?.action?.kind!=='teleport')return null;
+  let detail;try{detail=JSON.parse(lastStep?.detail);}catch{}
+  const transport=lastStep?.action?.kind==='key'&&lastStep.action.key==='F'&&detail?.kind==='interaction'&&detail.sent===true&&detail.outcome!=='prompt_unchanged'&&/^(进入|离开|上行$|下行$)/.test(detail.target||'');
+  const recovery=lastStep?.action?.kind==='native_unstuck'&&detail?.kind==='bgi-native-unstuck'&&detail.durationMs>0;
+  if(lastStep?.action?.kind!=='teleport'&&!transport&&!recovery)return null;
   const result={source:'bettergi_minimap_cv',stable:false,samples:[]};
   try{
    for(let i=0;i<2;i++){

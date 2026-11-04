@@ -4,7 +4,7 @@ const bridge=require('./bridge'),{respond}=require('./model-provider');
 const waypointCatalog=require('./story-waypoints'),{installation}=require('./installation');
 const {corroborateDistances,trackingEvidence}=require('./story-observation');
 const StoryTravel=require('../../scripts/genshin/story/macros/travel-quest');
-const {readQuestMemory,questFromEvidence,questStage,readNavigationMemory,updateNavigationStage,reconcileRouteAttempt,nativeTrackingProgress,nativeRecoveryNeeded,movementStallEvidence}=require('./story-memory');
+const {readQuestMemory,questFromEvidence,questStage,readNavigationMemory,updateNavigationStage,reconcileRouteAttempt,nativeTrackingProgress,nativeRecoveryNeeded,movementStallEvidence,freshMapPosition}=require('./story-memory');
 const {questGuide}=require('./story-guides');
 const grounding=require('../../scripts/genshin/story-main');
 const {frameBudget}=require('./story-deadline');
@@ -221,7 +221,9 @@ async function runStory(goal,{root,env,signal,reportProgress=()=>{},runId,direct
     request.recentNativeSteps=savedFeedback.recentNativeSteps;
     request.areaSearchState=savedFeedback.areaSearchState;
     request.commissionRouteStates=savedFeedback.commissionRouteStates;
-    request.mapPositionFailures=savedFeedback.mapPositionFailures;
+    request.previousMapPositionFailures=savedFeedback.mapPositionFailures;
+    request.mapPositionReacquired=freshMapPosition(request);
+    request.mapPositionFailures=request.mapPositionReacquired?0:savedFeedback.mapPositionFailures;
     request.nativeTrackingStalls=savedFeedback.nativeTrackingStalls;
     request.interactionVisits=savedFeedback.interactionVisits;
     latest.taskStage=navigationStage;
@@ -251,7 +253,7 @@ async function runStory(goal,{root,env,signal,reportProgress=()=>{},runId,direct
     observation.trackingInputs=savedFeedback.trackingInputs;
     observation.travelQuest=StoryTravel.eligibility({texts:request.texts,scene:observation.scene,uncertain:observation.uncertain,recentNativeSteps:request.recentNativeSteps},grounding);
     if(request.mapPositionFailures>=2)observation.travelQuest={...observation.travelQuest,ok:false,reason:'map_position_unavailable'};
-    observation.mapPosition={available:request.mapPositionFailures<2,failedReceipts:request.mapPositionFailures,rule:'连续原生定位失败时不重复使用依赖大地图坐标的导航，BGI原生近程追踪不依赖大地图坐标。'};
+    observation.mapPosition={available:request.mapPositionFailures<2,failedReceipts:request.mapPositionFailures,previousFailedReceipts:request.previousMapPositionFailures,reacquired:request.mapPositionReacquired,samples:request.mapPositionReacquired?request.position.samples:[],rule:'换场景/原生脱困后BGI两次新鲜稳定定位可为本帧重新提供坐标导航；不删除历史失败或证明已到达。未重新定位时仍限制重复使用失效坐标。'};
     const nearHud=grounding.questHud(request.texts);
     observation.nativeTracking={available:request.capabilities?.nativeQuestTrack===true&&nativeTrackAttempts<2&&observation.scene==='world'&&observation.nativeVision?.ui==='Main'&&nearHud?.meters>=4&&nearHud.meters<=150&&!grounding.movementStop(request.texts),attempts:nativeTrackAttempts,source:'BetterGI.AutoTrackTask',rule:'BGI自带近程任务追踪，限时60秒，本地模板识别追踪点；可用于室内，无需大地图坐标。返回后重新观察，不把调用当到达。'};
     if(storyImage.enabled(root)&&request.nativeTrackingStalls>0)observation.nativeTracking={...observation.nativeTracking,available:false,stalls:request.nativeTrackingStalls,reason:'same_stage_native_stalled_use_image_ground_trail',rule:'本阶段原生跟标及三轮脱困已失败。该接口识别单个任务标记，不解析地面星光路线。使用已授权的当前BGI截图沿地面星光判断方向，再由BGI执行move/turn；不要再次调用相同失败接口。'};
