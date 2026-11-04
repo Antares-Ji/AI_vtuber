@@ -100,7 +100,10 @@ test('camera-loop recovery counts executed same-stage turns and resets on moveme
  const history=[1,2,3,4].map(n=>({request:frame(n)})),current=frame(5);
  assert.equal(rotationLoopEvidence(history,current).repeated,true);
  for(const edit of [{id:'other'},{capturedAt:200000},{nativeVision:{ui:'Talk',motion:'Normal'}},{lastStep:{...current.lastStep,seq:1}},{lastStep:{...current.lastStep,action:{kind:'move'}}}])assert.equal(rotationLoopEvidence(history,{...current,...edit}).repeated,false);
- assert.equal(rotationLoopEvidence(history.slice(1),current).repeated,false);
+ assert.equal(rotationLoopEvidence(history.slice(1),current).repeated,true);
+ assert.equal(rotationLoopEvidence(history.slice(2),current).repeated,false);
+ const idle={...frame(6),lastStep:{...frame(6).lastStep,action:{kind:'wait'}}};
+ assert.equal(rotationLoopEvidence([...history,{request:current}],idle).repeated,true);
 });
 test('repeated invalid map coordinates block dependent navigation while native tracking remains eligible',()=>{
  const {mapPositionFailures}=require('../src/genshin/story-feedback-memory');

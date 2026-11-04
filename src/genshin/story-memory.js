@@ -97,7 +97,7 @@ function rotationLoopEvidence(history,current){
  const g=require('../../scripts/genshin/story-main');let turns=0;
  for(let i=1;i<frames.length;i++){
   const before=frames[i-1],after=frames[i],step=after.lastStep;
-  if(step?.action?.kind==='key'&&step.action.key==='V')continue;
+  if(step?.action?.kind==='wait'||step?.action?.kind==='key'&&step.action.key==='V')continue;
   if(!['turn','reset_camera'].includes(step?.action?.kind)){turns=0;continue;}
   const a=g.questHud(before.texts),b=g.questHud(after.texts);
   const matched=before.id===after.id&&before.seq===step.seq&&Number.isFinite(step.finishedAt)&&after.capturedAt>step.finishedAt&&current.capturedAt-before.capturedAt<90000;
@@ -105,7 +105,7 @@ function rotationLoopEvidence(history,current){
   if(!matched||!main||!a||!b||!compatibleStage(a.stage,b.stage)||Math.abs(a.meters-b.meters)>1){turns=0;continue;}
   turns++;
  }
- return {source:'native_camera_receipts_and_independent_bgi_hud',repeated:turns>=4,turns,rule:'连续转镜未产生任务推进，仅证明观察循环，不证明存在障碍；可让BGI原生脱困或寻路，返回后重新观察。'};
+ return {source:'native_camera_receipts_and_independent_bgi_hud',repeated:turns>=3,turns,rule:'连续转镜未产生任务推进，仅证明观察循环，不证明存在障碍；可让BGI原生脱困或寻路，返回后重新观察。'};
 }
 function navigationFromEvidence(rows,quest){
  const matching=rows.filter(({e})=>e.decision?.quest===quest);
