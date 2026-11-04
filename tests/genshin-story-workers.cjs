@@ -8,6 +8,19 @@ function fixture(t){
  return {root,env:{GENSHIN_DEEPSEEK_API_KEY:'test-key'}};
 }
 const context={goal:'只做当前任务',observation:{scene:'world',uncertain:false,navigation:{terrain:'open'},interaction:{state:'none'},summary:'冗长解说'},texts:[],mapAreas:[],waypoints:[]};
+test('image departure contract retains the exact current F label and names the direction parameter',()=>{
+ const target='「甜甜花」的种子',texts=[{text:'返回「旗舰」休息',box:[80,240,220,35]},
+  {source:'bettergi_native_f_label',text:target,count:1,anchor:[1103,523,32,32],box:[1218,523,285,32]}];
+ const c={...context,texts,observation:{...context.observation,interaction:{state:'unique',candidates:[{text:target}]}}};
+ const data=JSON.parse(workers.prompt(c,{imageAssistance:true}).input);
+ assert.deepEqual(data.departureContract.requiredFields,['kind','text','key']);
+ assert.equal(data.departureContract.text,target);assert.deepEqual(data.departureContract.allowedKeys,['W','A','S','D']);
+ const {validateDecision}=require('../src/genshin/story-runtime'),action={kind:'leave_interaction',text:target,key:'A'};
+ assert.equal(validateDecision({action},{texts},c.observation).action.key,'A');
+ assert.throws(()=>validateDecision({action:{kind:'leave_interaction',direction:'left'}},{texts},c.observation),/action.text必须逐字/);
+ assert.throws(()=>validateDecision({action:{kind:'leave_interaction',text:target,direction:'left'}},{texts},c.observation),/action.key/);
+ assert.equal(JSON.parse(workers.prompt(context,{imageAssistance:true}).input).departureContract,undefined);
+});
 test('image navigation retains bounded prior assessments and distinguishes tracking inputs from confirmation',()=>{
  const previousSteps=Array.from({length:5},(_,i)=>({capturedAt:i,cloudImageAssessment:{groundTrailVisible:false,nearObstacle:'墙'+i},decision:{action:{kind:'move',key:'W',ms:400}},observation:{travelQuest:{hud:{meters:20+i}}}}));
  const c={...context,previousSteps,observation:{...context.observation,trackingInputs:{refreshCount:2,menuOpenCount:0}}};

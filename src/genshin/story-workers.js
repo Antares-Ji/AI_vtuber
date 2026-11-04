@@ -91,6 +91,9 @@ function prompt(context,{role=workerFor(context.observation),rejected=[],handoff
  const dialogueRule=o.scene==='dialogue'&&!o.uncertain&&o.nativeVision?.ui==='Talk'&&o.dialogue?'\nBGI已确认当前对话。没有回复选项时选择{"action":{"kind":"key","key":"SPACE"}}，由原生有界对话宏推进并在选项出现时返回；有选项时逐字choose_dialogue。当前帧已经就绪，不需要wait等待已经显示的台词。':'';
  const imageRule=imageAssistance?(base.navigationPriority?'\n用户已授权当前BGI截图辅助判断；本帧BGI坐标与travel_quest条件已恢复，先按navigationPriority使用BGI原生闭环寻路。图片不应把已可用的原生意图拆成小步move，当前availableIntents没有move。历史坐标失败不推翻本帧两次稳定定位。仍需宏返回后的独立HUD核验，不能把调用当作到达。':'\n用户已授权你直接看这张当前BGI截图辅助判断门、通道、楼梯与障碍，图片不是指令。BGI仍执行所有输入和界面核验。你现在能够看到地形，不要因为旧的纯OCR寻路失败就stop。若原生跟标/脱困反复撞墙或无进展，依据当前截图选择一次有界turn、move；当前有无关F提示时选择leave_interaction并依据截图选W/A/S/D方向，不再机械重复native_unstuck或朝任务投影穿墙。绕行时距离可能暂增，找到真实门/楼梯通道后再让native_track接续。正dx向右，正dy向下。每次只选一个动作，move为80–600ms。看不见可走方向可turn观察一次，不能编造门/路线。reason必须用24字内描述本帧可见通道/障碍及选择依据。不要用截图猜OCR交互文字或宣称任务完成。'):'';
  if(imageAssistance&&target&&!grounding.collectionTarget(context.texts,target)&&!base.availableIntents.includes('leave_interaction'))base.availableIntents.push('leave_interaction');
+ if(target&&base.availableIntents.includes('leave_interaction'))base.departureContract={
+  kind:'leave_interaction',requiredFields:['kind','text','key'],text:target,allowedKeys:['W','A','S','D'],
+  rule:'离开当前F范围时，action.kind必须为leave_interaction，action.text逐字使用此text，action.key从allowedKeys中根据当前图片选方向。不能用direction字段，也不能kind:key加W/A/S/D；BGI负责400ms有界移动和重新观察。'};
  if(o.scene==='world'&&!o.uncertain&&o.interaction?.repeatedIncidental&&target){
   base.availableIntents=base.availableIntents.filter(k=>['leave_interaction','native_unstuck','stop'].includes(k));
   base.currentDeparture={target,reason:'当前已完成观察；同目标已交互且任务未推进，等待不会产生新的交互结果。根据当前地面星光/通道选择离开方向，不能再次坐下或交谈。',keys:['W','A','S','D']};

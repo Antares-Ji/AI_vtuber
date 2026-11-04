@@ -130,7 +130,9 @@ function validateDecision(value,request,observation){
  if(a.kind==='leave_interaction'){
   const p=grounding.interaction(request.texts);
   if(grounding.collectionTarget(request.texts,a.text))throw Error('当前收集阶段的调查/木板候选不能直接离开；选择唯一F交互后重新核验HUD');
-  if(observation.scene!=='world'||p.state!=='unique'||p.candidates[0].text!==a.text||!['W','A','S','D'].includes(a.key))throw Error('离开交互需要当前唯一目标及明确方向');
+  if(observation.scene!=='world'||p.state!=='unique')throw Error('离开交互需要当前大世界唯一F目标');
+  if(p.candidates[0].text!==a.text)throw Error('leave_interaction的action.text必须逐字为'+JSON.stringify(p.candidates[0].text)+'；同时提供action.key为W/A/S/D之一');
+  if(!['W','A','S','D'].includes(a.key))throw Error('leave_interaction缺少有效action.key；根据当前图选W/A/S/D之一，用key字段而非direction，并保留当前action.text');
   Object.assign(action,{text:a.text,key:a.key,ms:400});
  }
  if(a.kind==='advance_quest'){
