@@ -133,6 +133,7 @@ class StoryFeedbackMemory{
   }
   return {quest:this.quest,stage:this.stage,contextId:this.contextId,recentNativeSteps,
    mapPositionFailures:mapPositionFailures(steps),
+   nativeTrackingStalls:steps.map(parseDetail).filter(d=>d?.kind==='bgi-native-track'&&d.stopReason==='native_stalled_after_recovery').length,
    interactionVisits,
    areaSearchState:search?.state||null,
    commissionRouteStates,

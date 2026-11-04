@@ -222,6 +222,7 @@ async function runStory(goal,{root,env,signal,reportProgress=()=>{},runId,direct
     request.areaSearchState=savedFeedback.areaSearchState;
     request.commissionRouteStates=savedFeedback.commissionRouteStates;
     request.mapPositionFailures=savedFeedback.mapPositionFailures;
+    request.nativeTrackingStalls=savedFeedback.nativeTrackingStalls;
     request.interactionVisits=savedFeedback.interactionVisits;
     latest.taskStage=navigationStage;
     request.teleportAttempts=[...teleportAttempts];
@@ -252,6 +253,7 @@ async function runStory(goal,{root,env,signal,reportProgress=()=>{},runId,direct
     observation.mapPosition={available:request.mapPositionFailures<2,failedReceipts:request.mapPositionFailures,rule:'连续原生定位失败时不重复使用依赖大地图坐标的导航，BGI原生近程追踪不依赖大地图坐标。'};
     const nearHud=grounding.questHud(request.texts);
     observation.nativeTracking={available:request.capabilities?.nativeQuestTrack===true&&nativeTrackAttempts<2&&observation.scene==='world'&&observation.nativeVision?.ui==='Main'&&nearHud?.meters>=4&&nearHud.meters<=150&&!grounding.movementStop(request.texts),attempts:nativeTrackAttempts,source:'BetterGI.AutoTrackTask',rule:'BGI自带近程任务追踪，限时60秒，本地模板识别追踪点；可用于室内，无需大地图坐标。返回后重新观察，不把调用当到达。'};
+    if(storyImage.enabled(root)&&request.nativeTrackingStalls>0)observation.nativeTracking={...observation.nativeTracking,available:false,stalls:request.nativeTrackingStalls,reason:'same_stage_native_stalled_use_image_ground_trail',rule:'本阶段原生跟标及三轮脱困已失败。该接口识别单个任务标记，不解析地面星光路线。使用已授权的当前BGI截图沿地面星光判断方向，再由BGI执行move/turn；不要再次调用相同失败接口。'};
     const localReceipts=[...history.map(e=>e.request.lastStep),request.lastStep].filter(Boolean);
     const blockedTarget=observation.interaction?.state==='unique'?observation.interaction.candidates[0].text:null;
     observation.nativeRecovery={available:request.capabilities?.nativeQuestUnstuck===true&&nativeUnstuckAttempts<2&&observation.scene==='world'&&observation.nativeVision?.ui==='Main'&&Boolean(nearHud)&&(observation.interaction.repeatedIncidental||nativeRecoveryNeeded(localReceipts,blockedTarget))&&!(blockedTarget&&grounding.collectionTarget(request.texts,blockedTarget)),attempts:nativeUnstuckAttempts,source:'BetterGI.TrapEscaper.RotateAndMove',target:blockedTarget,rule:'同阶段已访问的非任务NPC挡路、重复离开仍卡住或两次原生追踪受阻，可调用BGI原生脱困（有界后退/侧移/跳跃，包含原生脱离动作）；之后重新识别，不重复W空转。'};

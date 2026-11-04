@@ -77,7 +77,8 @@ function prompt(context,{role=workerFor(context.observation),rejected=[],handoff
   base.currentDeparture={target,reason:'当前已完成观察；同目标已交互且任务未推进，等待不会产生新的交互结果。根据当前地面星光/通道选择离开方向，不能再次坐下或交谈。',keys:['W','A','S','D']};
  }
  const trailRule=imageAssistance?'\n用户补充：追踪任务后地面会出现一条星光引路线，已经给出可走路线。当前world中先看脚下到前方地面的连续星光，沿它的延伸和转弯方向选择BGI动作；不要只朝空中任务菱形投影直走穿墙，也不要把右上HUD蓝图标当路线。星光看不见时可先选择一次key:V显示追踪，再根据新截图沿地面路线前进；不要连按V或在星光可见时重新盲跟标。高处/低处目标应沿星光找到楼梯、门或升降通道。呼叫/开门/升降等环境交互可能是路线的一部分，不因名称与任务标题不同就当无关NPC；只在当前BGI唯一F文字可核验时才交互。未知场景仍只wait/stop，菜单先按当前BGI界面证据处理。':'';
- return {input:JSON.stringify(base),instructions:RULES+(routePriority?routeRule:imageAssistance?'':priority)+distantRule+(imageAssistance?'':nativeRule+recoveryRule)+interactionRule+dialogueRule+imageRule+trailRule+(forecast?'\n这是执行中的动作之后的假设状态，只预规划一步，绝不发送输入。若无法依据已知数据规划则wait。':'')};
+ const trackerLimit=imageAssistance?'\n能力区别：native_track调用BGI单个蓝色目标标记追踪器，它不识别地面星光的弯曲路线，不是通用室内绕障碍。看到桌角/墙挡路时，不能把native_track当作沿星光绕行；由你看当前截图选择move/turn，并说明可见依据。若地面在视野之外，可适当向下转镜头再观察；先离开近处遮挡再找路线。':'';
+ return {input:JSON.stringify(base),instructions:RULES+(routePriority?routeRule:imageAssistance?'':priority)+distantRule+(imageAssistance?'':nativeRule+recoveryRule)+interactionRule+dialogueRule+imageRule+trailRule+trackerLimit+(forecast?'\n这是执行中的动作之后的假设状态，只预规划一步，绝不发送输入。若无法依据已知数据规划则wait。':'')};
 }
 function normalize(value,request){
  return {...value,reason:String(value?.reason||'执行当前有据动作').slice(0,24),commentary:'',quest:request.focusQuest||grounding.questMenu(request.texts)?.title||''};

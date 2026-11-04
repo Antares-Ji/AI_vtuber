@@ -17,6 +17,15 @@ test('cross-segment follow failures and unchanged F persist through forty waits 
  assert.equal(loaded.stats.nativeReceipts,44);assert.equal(loaded.stats.unchangedInteractionReceipts,2);
 });
 function sWithoutAdded({added,...rest}){return rest;}
+test('native tracking stalls survive restart and compaction but stay scoped to the stage',t=>{
+ const {root,memory}=fixture(t);
+ const stalled=step(1,'native_track',{kind:'bgi-native-track',stopReason:'native_stalled_after_recovery'});
+ memory.merge({sessionId:'tracking',steps:[stalled,...Array.from({length:40},(_,i)=>step(i+2,'wait'))]});
+ memory.merge({sessionId:'tracking',lastStep:stalled});
+ const restored=new StoryFeedbackMemory({root,quest:'神秘岛的传说',stage:'跟随骗子向导'});
+ assert.equal(restored.snapshot().nativeTrackingStalls,1);
+ restored.setContext({stage:'收集绳索',confirmedStageChange:true});assert.equal(restored.snapshot().nativeTrackingStalls,0);
+});
 test('incidental interaction visits survive compaction/restart without counting plans or rejected input',t=>{
  const {root,memory}=fixture(t,{stage:'返回「旗舰」休息'});
  const visit=step(1,'key',{kind:'interaction',target:'克鲁切',sent:true,outcome:'scene_changed'},{key:'F',text:'克鲁切'});
