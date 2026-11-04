@@ -42,6 +42,7 @@ function prompt(context,{role=workerFor(context.observation),rejected=[],handoff
  if(o.navigation)delete o.navigation.evidence;
  if(imageAssistance&&o.travelQuest?.reason==='repeated_marker_bearing_unavailable')base.groundTrailNavigation={source:'native_failed_marker_receipts',rule:'travel_quest只识别目标标记方位，不解析弯曲地面星光；本阶段已多次失标，不再重复扫描。BGI地图定位可用且当前图片星光/通道方向明确时，可用navigate(key:W/A/S/D,ms:400–8000)连续走，由BGI OCR/CV监测F/阶段/停滞并停下。只有近处拐弯/障碍用move；未知地形不能长走。'};
  base.navigationMemory={stage:base.navigationMemory.stage,teleportAttempts:base.navigationMemory.teleportAttempts};
+ if(imageAssistance&&context.historicalExploration)base.historicalExploration=context.historicalExploration;
  base.availableIntents=[...(role==='movement'?MOVEMENT:INTERACTION)];
  if(!o.nativeTracking?.available)base.availableIntents=base.availableIntents.filter(k=>k!=='native_track');
  if(!o.nativeRecovery?.available)base.availableIntents=base.availableIntents.filter(k=>k!=='native_unstuck');
@@ -130,6 +131,7 @@ async function call(context,{root,env={},signal,role=workerFor(context.observati
   schema.properties.imageAssessment={type:'object',required:['groundTrailVisible','groundTrail','nearObstacle','openPassage'],properties:{groundTrailVisible:{type:'boolean'},groundTrail:{type:'string'},nearObstacle:{type:'string'},openPassage:{type:'string'}}};
   built.instructions+='\n本次先输出imageAssessment再输出action。用当前截图逐项确认：groundTrailVisible是否真看见地面连续星光（不能把任务菱形/小地图当星光）；groundTrail用简短文字描述路线从脚下往哪里延伸与转弯，看不到就写未见；nearObstacle描述贴近角色的障碍；openPassage描述当前看得到的可走方向、门或台阶。不要编造遮挡后的路线。根据这些事实再选动作；看不见星光也可从可见通道探索，不能反复V或一直向已确认障碍走。';
   built.instructions+='\n场景的固定灯带、发光地板接缝和装饰光不能仅凭发光就认定为任务星光；需要可见粒子轨迹等依据，证据不足就填groundTrailVisible:false。';
+  if(context.historicalExploration)built.instructions+='\nhistoricalExploration保留本任务同阶段此前经过的地标及不同高低楼层的最近距离，跨执行段不丢失。用它辨认是否又回到已探索通道；不要把每段开始都当新区域。最近距离不代表正确楼层或可直达，不能据历史文字盲走；结合当前图和星光找尚未探索的真实门/楼梯。';
   if(pictures.length>1){
    built.input+='\ntrackingImageSequence='+JSON.stringify(pictures.map((p,i)=>({index:i+1,capturedAt:p.evidence.capturedAt,current:i===pictures.length-1,source:'bettergi_owned_capture'})));
    if(trackingBurst)built.instructions+='\n本次图片按时间顺序：前两张是同一次V追踪后约0.5秒、1.5秒的BGI采样，最后一张才是当前画面。利用序列区分短暂粒子与固定灯带；动作、交互、障碍必须以最后一张及当前BGI OCR为准。早期出现后消失的星光可描述在groundTrail中，但不可谎称当前仍可见。';

@@ -125,5 +125,8 @@ function navigationFromEvidence(rows,quest){
  }
  return {stage,teleportAttempts:[...attempted],routeAttemptKeys:[...pending],verification:'historical_attempts_not_arrival',previousSteps:matching.slice(0,5).reverse().map(({e})=>({observation:e.observation,decision:e.decision,lastStep:e.request.lastStep}))};
 }
-function readNavigationMemory(root,quest){return navigationFromEvidence(recentEvidence(root),quest);}
+function readNavigationMemory(root,quest,{sessionId}={}){
+ const rows=recentEvidence(root),memory=navigationFromEvidence(rows,quest),exploration=require('./story-exploration');
+ return {...memory,exploration:exploration.summarize(rows.map(({e})=>exploration.frame(e)),{quest,stage:memory.stage,sessionId})};
+}
 module.exports={readQuestMemory,questFromEvidence,questStage,readNavigationMemory,navigationFromEvidence,compatibleStage,updateNavigationStage,routePreflightRejected,reconcileRouteAttempt,nativeTrackingProgress,nativeRecoveryNeeded,movementStallEvidence,freshMapPosition,rotationLoopEvidence};

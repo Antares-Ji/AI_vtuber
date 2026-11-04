@@ -13,6 +13,7 @@ const {StoryFeedbackMemory}=require('./story-feedback-memory');
 const {StoryQuestFocus,completionEvidence}=require('./story-quest-focus');
 const workers=require('./story-workers');
 const storyImage=require('./story-image');
+const exploration=require('./story-exploration');
 const commissionRoutes=require('../../scripts/genshin/story/macros/commission-route');
 const commissionCatalog=require('../../data/genshin-commission-routes.json');
 const {StoryLookahead}=require('./story-lookahead');
@@ -195,7 +196,7 @@ async function runStory(goal,{root,env,signal,reportProgress=()=>{},runId,direct
  const checkpoint=saved?.runId===runId?saved:null;
  const focus=new StoryQuestFocus({root,sessionId:checkpoint?.sessionId||runId,startedAt:checkpoint?.startedAt||Date.now(),initialMemory:readQuestMemory(root)});
  let questMemory=focus.snapshot().memory;
- const navigationMemory=readNavigationMemory(root,questMemory?.quest);
+ const navigationMemory=readNavigationMemory(root,questMemory?.quest,{sessionId:checkpoint?.sessionId});
  let navigationStage=navigationMemory.stage;
  let stageState={stage:navigationStage,pending:null};
  const feedback=new StoryFeedbackMemory({root,quest:questMemory?.quest||goal,stage:navigationStage});
@@ -288,6 +289,7 @@ async function runStory(goal,{root,env,signal,reportProgress=()=>{},runId,direct
     const imageAssistance=fast&&storyImage.eligible(observation)&&storyImage.enabled(root);
     const trackingFrames=imageAssistance?storyImage.copyTrackingFrames(request,source,root):[];
     const context={goal,questMemory,navigationMemory:request.navigationMemory,
+     historicalExploration:imageAssistance?exploration.summarize([...exploration.entries(navigationMemory.exploration),...history.map(exploration.frame)],{quest:request.focusQuest,stage:navigationStage,sessionId:checkpoint?.sessionId,now:request.capturedAt}):null,
      ...(imageAssistance?{frameImage:{path:image,sha256:hash,capturedAt:request.capturedAt,seq:request.seq,nativeId:request.id,source:'bettergi_owned_capture'},trackingFrames,previousFrameImage:storyImage.previousActionFrame(history.at(-1),request,observation)}:{}),
      observation,distanceEvidence,texts:request.texts,mapAreas:request.mapAreas,
      observedAreas:request.observedAreas,selectedArea,waypoints:request.waypoints,nativeId:request.id,
@@ -315,6 +317,7 @@ async function runStory(goal,{root,env,signal,reportProgress=()=>{},runId,direct
      pipeline:fast?{role,thinking:'disabled',maxOutputTokens:answer.requestPolicy?.maxOutputTokens||workers.profile(role,env).maxOutputTokens,observationProvider:answer.imageInput?'bettergi_cv_ocr_and_deepseek_image':'bettergi_cv_ocr',lookahead:imageAssistance?'disabled_current_image_required':repaired.lookahead||lookahead.lastCheck}:null,
      image,sha256:hash,at:Date.now(),verified:false};
     evidence.cloudImageAssessment=repaired.imageAssessment||null;
+    evidence.explorationContext=context.historicalExploration||null;
     fs.writeFileSync(path.join(folder,`step-${request.seq}.json`),JSON.stringify(evidence,null,2));
     if(decision.action.kind==='complete_quest'){
      const completed=focus.acknowledgeCompletion({id:request.id,seq:request.seq,texts:request.texts});
