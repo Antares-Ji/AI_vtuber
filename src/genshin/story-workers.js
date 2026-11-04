@@ -85,6 +85,10 @@ function prompt(context,{role=workerFor(context.observation),rejected=[],handoff
  const routePriority=role==='movement'&&(routeCandidates.find(r=>r.recovery)||routeCandidates[0]);
  if(routePriority)base.availableIntents=base.availableIntents.filter(k=>!['search_area','seek_quest','navigate','move','travel_quest','advance_quest','follow_marker'].includes(k));
  else base.availableIntents=base.availableIntents.filter(k=>k!=='quest_route');
+ if(routePriority?.reentry&&o.nativeVision?.ui==='Main'&&o.nativeVision?.motion==='Normal'){
+  base.availableIntents=base.availableIntents.filter(k=>['quest_route','key','wait','stop'].includes(k));
+  base.entryRecoveryPriority={id:routePriority.id,recover:true,reason:'原生跟标和多次脱困均已有失败回执，现在有一次已知BGI坐标路线可退出卡点；该路线不依赖从贴脸截图猜方向，停止继续原地镜头循环。选择该目录恢复或说明具体阻塞。'};
+ }
  const priority=base.observation.nativeVision?.motion==='Climb'?'\nBGI原生CV确认当前正在攀爬。持续wait不会松开墙壁，可选择{action:{kind:"key",key:"X"}}脱离攀爬；原生会再次确认Climb再按X。随后根据新画面改方向，不重复向墙直走。':base.navigationPriority?'\n本帧已校验：travel_quest可用、failedTravels=0。navigate/按W的失败只证明该固定方向不对，不是CV寻路失败；历史stop也不是当前阻塞。先让BGI通过travel_quest识别任务方位、闭环行走，不要因为旧的直走失败而停止。':
   base.observation.questArea?.state==='search_area'?'\n当前已到任务搜索区，优先{action:{kind:"search_area"}}。BGI会用当前CV坐标在周边18m内按网格路径巡查、检测F，跨调用保留搜索点进度；不要反复W走出搜索区。遇到与收集任务相关的物品/调查提示就F交互。':
   base.observation.travelQuest?.hud?.meters>5&&base.observation.travelQuest.hud.meters<=300?'\n当前有5–300m任务距离，但图标寻路已有失败。可选择{action:{kind:"seek_quest"}}：BGI在本地以HUD距离变化选方向，CV检查移动和卡住，连续行走最多60秒，交互或阶段变化立即返回。优先此原生反馈意图，不再自己逐步猜W/转镜，也不要因为旧navigate失败就stop。':'';

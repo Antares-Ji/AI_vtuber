@@ -12,6 +12,10 @@ test('catalog entry recovery tells DeepSeek to explicitly select the one-time re
  const c={...context,observation:{...context.observation,commissionRoutes:[{id:'flagship-official-entry',completed:false,blocked:false,recovery:true,reentry:true}]}};
  const p=workers.prompt(c,{imageAssistance:true}),data=JSON.parse(p.input);
  assert.ok(data.availableIntents.includes('quest_route'));assert.match(p.instructions,/"recover":true/);assert.match(p.instructions,/每阶段只允许一次/);
+ const main={...c,observation:{...c.observation,nativeVision:{ui:'Main',motion:'Normal'}}};
+ const offered=JSON.parse(workers.prompt(main,{imageAssistance:true}).input);
+ assert.deepEqual(offered.availableIntents,['quest_route','key','wait','stop']);
+ assert.equal(offered.entryRecoveryPriority.recover,true);
 });
 test('semantic camera directions convert down to positive native dy without trusting sign prose',()=>{
  const request={focusQuest:'任务',texts:[]},normalize=action=>workers.normalize({action},request).action;
