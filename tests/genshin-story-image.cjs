@@ -43,4 +43,6 @@ test('image does not switch providers or bypass OCR interaction/completion valid
  const {validateDecision}=require('../src/genshin/story-runtime');
  assert.throws(()=>validateDecision({action:{kind:'key',key:'F',text:'休息'}},{texts:[]},observation),/唯一/);
  assert.throws(()=>validateDecision({action:{kind:'complete_quest',quest:'任务'}},{texts:[],focusQuest:'任务'},observation),/完成文字/);
+ assert.equal(image.eligible({scene:'menu'}),true);assert.equal(image.eligible({scene:'unknown'}),true);
+ assert.throws(()=>validateDecision({action:{kind:'move',key:'W',ms:600}},{texts:[]},{scene:'unknown',uncertain:true}),/场景不确定/);
 });

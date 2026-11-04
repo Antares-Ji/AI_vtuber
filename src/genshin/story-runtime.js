@@ -268,7 +268,7 @@ async function runStory(goal,{root,env,signal,reportProgress=()=>{},runId,direct
     if(createHash('sha256').update(fs.readFileSync(image)).digest('hex')!==hash)throw Error('剧情截图发生变化');
     reportProgress('story-deciding',`步骤${request.seq}：${direct?'等待导演直接指令':fast?'快速决策':'模型决策'}`);
     latest={...latest,state:'deciding'};
-    const imageAssistance=fast&&observation.scene==='world'&&storyImage.enabled(root);
+    const imageAssistance=fast&&storyImage.eligible(observation)&&storyImage.enabled(root);
     const context={goal,questMemory,navigationMemory:request.navigationMemory,
      ...(imageAssistance?{frameImage:{path:image,sha256:hash,capturedAt:request.capturedAt,seq:request.seq,source:'bettergi_owned_capture'}}:{}),
      observation,distanceEvidence,texts:request.texts,mapAreas:request.mapAreas,

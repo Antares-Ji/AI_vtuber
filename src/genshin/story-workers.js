@@ -84,7 +84,7 @@ function validateRole(value,role){
   throw Error('move仅80–600ms微调；赶路请选择navigate连续行走或travel_quest原生CV寻路');
 }
 async function call(context,{root,env={},signal,role=workerFor(context.observation),rejected=[],handoff=null,forecast=null,fetchImpl}={}){
- const picture=!forecast&&context.observation.scene==='world'&&context.frameImage&&storyImage.enabled(root)?storyImage.load(context.frameImage,root):null;
+ const picture=!forecast&&storyImage.eligible(context.observation)&&context.frameImage&&storyImage.enabled(root)?storyImage.load(context.frameImage,root):null;
  const policy=picture?{...profile(role,env),model:'deepseek-flash',maxOutputTokens:384}:profile(role,env),built=prompt(context,{role,rejected,handoff,forecast,imageAssistance:Boolean(picture)});
  // Keep provider selection explicit. The fast dual-worker pipeline is DeepSeek-only.
  if(settings({dataRoot:root,env}).provider!=='deepseek')throw Error('低延迟双worker需要手动选择DeepSeek；未切换供应商');

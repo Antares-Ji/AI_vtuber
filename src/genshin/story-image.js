@@ -17,4 +17,5 @@ function load(frame,root,now=Date.now()){
  if(hash!==frame.sha256||bytes.subarray(0,8).toString('hex')!=='89504e470d0a1a0a')throw Error('BGI截图哈希或PNG格式无效');
  return {url:'data:image/png;base64,'+bytes.toString('base64'),evidence:{source:frame.source,provider:'deepseek',model:'deepseek-flash',seq:frame.seq,capturedAt:frame.capturedAt,sha256:hash,bytes:bytes.length}};
 }
-module.exports={enabled,load};
+function eligible(observation){return ['world','menu','unknown'].includes(observation?.scene);}
+module.exports={enabled,load,eligible};
