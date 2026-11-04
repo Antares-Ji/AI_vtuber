@@ -26,6 +26,7 @@ test('live image uses DeepSeek Flash and reports hash without retaining image by
  assert.equal(body.model,'deepseek-flash');assert.equal(body.max_tokens,384);assert.equal(body.thinking.type,'disabled');
  assert.equal(body.messages[1].content[1].type,'image_url');assert.equal(body.messages[1].content[1].image_url.detail,'original');
  assert.match(body.messages[0].content,/当前BGI截图/);assert.ok(!body.messages[0].content.includes('新的BGI原生脱困能力可用，优先'));
+ assert.match(body.messages[0].content,/地面.*星光/);assert.match(body.messages[0].content,/一次key:V/);
  assert.equal(answer.imageInput.sha256,f.frame.sha256);assert.ok(!JSON.stringify(answer).includes('base64'));
 });
 test('forecast, dialogue and opt-out calls remain text-only',async t=>{

@@ -84,19 +84,21 @@ test('repeated invalid map coordinates block dependent navigation while native t
 });
 test('native tracking delegates to BGI once and disposes its cancellation source even when BGI throws',async()=>{
  const fs=require('node:fs'),vm=require('node:vm'),source=fs.readFileSync(require.resolve('../scripts/genshin/story-main.js'),'utf8');
- for(const fail of [false,true]){
+ for(const fail of [false,true,'hudgone']){
+  let omitHud=false;
   const files=new Map([['command.json',JSON.stringify({id:'native-test',timeoutMs:600000})]]),events=[];
   const ctx={JSON,Date,Number,String,Math,Set,Error,
-   file:{readTextSync:n=>files.get(n),writeImageSync(){},writeTextSync(n,v){files.set(n,v);if(n==='story-request.json'){const r=JSON.parse(v);files.set('story-decision-'+r.seq+'.json',JSON.stringify({id:r.id,seq:r.seq,action:{kind:r.seq===1?'native_track':'stop'}}));}}},
-   captureGameRegion:()=>({width:1920,height:1080,srcMat:{},dispose(){},findMulti:()=>({count:2,0:{text:rows[0].text,x:75,y:246,width:230,height:33},1:{text:'高处60m',x:80,y:280,width:120,height:25}})}),
+   file:{readTextSync:n=>files.get(n),writeImageSync(){},writeTextSync(n,v){files.set(n,v);if(n==='story-request.json'){const r=JSON.parse(v);files.set('story-decision-'+r.seq+'.json',JSON.stringify({id:r.id,seq:r.seq,action:{kind:r.seq===1?'native_track':'stop'}}));if(fail==='hudgone')omitHud=true;}}},
+   captureGameRegion:()=>({width:1920,height:1080,srcMat:{},dispose(){},findMulti:()=>({count:omitHud?1:2,0:{text:rows[0].text,x:75,y:246,width:230,height:33},1:{text:'高处60m',x:80,y:280,width:120,height:25}})}),
    RecognitionObject:{ocr:()=>({})},dispatcher:{clearAllTriggers(){}},log:{info(){}},sleep:async()=>{},keyUp(){},
    isGameActive:()=>true,ensureGameFocus:async()=>true,getOwnedSceneObservation:()=>JSON.stringify({source:'bettergi_native_cv',ui:'Main',motion:'Normal'}),
    CancellationTokenSource:class{token={};cancelAfter(ms){assert.ok(ms<=60000);events.push('budget');}cancel(){events.push('cancel');}dispose(){events.push('dispose');}},
    runOwnedQuestTrack:async(ms,ignored,token)=>{assert.ok(ms<=60000);assert.equal(ignored,'');assert.ok(token);events.push('native');if(fail)throw Error('native test failure');return JSON.stringify({kind:'bgi-native-track',stopReason:'returned',verified:false});}
   };
   await vm.runInNewContext(source,ctx);
-  assert.deepEqual(events,['budget','native','cancel','dispose']);
-  const receipt=JSON.parse(files.get('receipt.json'));assert.equal(receipt.state,fail?'error':'returned');
-  if(!fail)assert.equal(JSON.parse(receipt.steps[0].detail).verified,false);
+  assert.deepEqual(events,fail==='hudgone'?[]:['budget','native','cancel','dispose']);
+  const receipt=JSON.parse(files.get('receipt.json'));assert.equal(receipt.state,fail===true?'error':'returned');
+  if(fail!==true)assert.equal(JSON.parse(receipt.steps[0].detail).verified,false);
+  if(fail==='hudgone'){const d=JSON.parse(receipt.steps[0].detail);assert.equal(d.stopReason,'hud_changed_or_missing');assert.equal(d.inputSent,false);}
  }
 });

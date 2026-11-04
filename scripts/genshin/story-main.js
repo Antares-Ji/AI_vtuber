@@ -1411,13 +1411,17 @@ else (async function(){
    }
    else if(action.kind==='native_track'){
     checkInput();const hud=StoryGrounding.questHud(readFreshTexts());
-    if(typeof runOwnedQuestTrack==='undefined'||!hud||hud.meters<4||hud.meters>150)throw Error('BGI原生近程追踪当前不可用');
+    if(typeof runOwnedQuestTrack==='undefined')throw Error('BGI原生近程追踪接口不存在');
+    if(!hud||hud.meters<4||hud.meters>150){
+     detail=JSON.stringify({kind:'bgi-native-track',stopReason:'hud_changed_or_missing',inputSent:false,verified:false});
+    }else{
     const cts=new CancellationTokenSource();try{
      const budget=Math.min(60000,activeInput.deadlineAt-Date.now()-2000,sessionDeadline-Date.now()-2000);
      if(budget<1000)throw Error('原生追踪剩余时间不足');cts.cancelAfter(budget);
      const ignored=StoryGrounding.sameQuestInstruction(departedInteraction?.stage,hud.stage)?departedInteraction.text:'';
      detail=String(await runOwnedQuestTrack(budget,ignored,cts.token));
     }finally{cts.cancel();cts.dispose();}seekState=null;
+    }
    }
    else if(action.kind==='travel_quest'){detail=JSON.stringify(await travelQuest(seq,{recentNativeSteps:priorSteps}));}
    else if(action.kind==='follow_marker'){detail=StoryGrounding.navigationFeedback(priorSteps).blocked?JSON.stringify({kind:'marker-follow',movedMs:0,stopReason:'retry_limit',verified:false}):await followMarker(seq);}
