@@ -209,12 +209,15 @@ else (async function(){
   result.outcome=scene?'scene_changed':after.state==='unique'&&normalize(after.candidates[0].text)===normalize(action.text)?'prompt_unchanged':'prompt_changed_or_missing';
   result.observedScene=scene;return JSON.stringify(result);
  }
+ const observePosition=StoryPostActionPosition.createSampler();
  dispatcher.clearAllTriggers();save();
  try{
   const first=captureGameRegion();try{file.writeImageSync('before.png',first.srcMat);}finally{first.dispose();}
   for(let seq=1;seq<=40&&Date.now()<sessionDeadline;seq++){
    await sleep(observationDelayMs);
-   const position=await StoryPostActionPosition.sample({lastStep:receipt.steps.slice(-1)[0],genshin:typeof genshin==='undefined'?null:genshin,sleep,deadline:sessionDeadline});
+   const position=await observePosition({lastStep:receipt.steps.slice(-1)[0],genshin:typeof genshin==='undefined'?null:genshin,sleep,deadline:sessionDeadline,readScene:()=>{
+    const f=captureGameRegion();try{return typeof getOwnedSceneObservation==='undefined'?null:JSON.parse(getOwnedSceneObservation(f));}finally{f.dispose();}
+   }});
    const captureStartedAt=Date.now();
    const frame=captureGameRegion();let texts,nativeVision=null;
    try{texts=readTexts(frame);if(typeof getOwnedSceneObservation!=='undefined')nativeVision=JSON.parse(getOwnedSceneObservation(frame));file.writeImageSync('story-'+seq+'.png',frame.srcMat);}finally{frame.dispose();}

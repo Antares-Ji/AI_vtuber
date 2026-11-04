@@ -6,6 +6,20 @@ const {validateDecision}=require('../src/genshin/story-runtime');
 const {frameTokens}=require('../scripts/genshin/progress-evaluator.cjs');
 const position=require('../scripts/genshin/story/vision/post-action-position');
 const clone=v=>JSON.parse(JSON.stringify(v));
+test('BGI localization survives turns only through new samples and backs off failed indoor probes',async()=>{
+ let now=100,calls=0,fail=false,scene={ui:'Main',motion:'Normal'};
+ const observe=position.createSampler(),deps={now:()=>now,deadline:1000000,sleep:async ms=>{now+=ms;},readScene:()=>scene,genshin:{getPositionFromMap:()=>{calls++;if(fail)throw Error('no map match');return {x:calls,y:20};}}};
+ assert.equal((await observe(deps)).stable,true);assert.equal(calls,2);
+ now+=1000;
+ const next=await observe({...deps,lastStep:{action:{kind:'turn'}}});
+ assert.equal(next.stable,true);assert.equal(calls,4);assert.equal(next.samples[0].x,3);
+ fail=true;now+=1000;assert.equal((await observe(deps)).stable,false);const failedCalls=calls;
+ now+=1000;assert.equal(await observe(deps),null);assert.equal(calls,failedCalls);
+ now+=30000;assert.equal((await observe(deps)).stable,false);assert.equal(calls,failedCalls+1);
+ fail=false;now+=1000;assert.equal((await observe({...deps,lastStep:{action:{kind:'key',key:'V'}}})).stable,true);
+ const beforeMenu=calls;scene={ui:'Talk',motion:'Normal'};assert.equal(await observe(deps),null);assert.equal(calls,beforeMenu);
+ scene={ui:'Main',motion:'Climb'};assert.equal(await observe({...deps,lastStep:{action:{kind:'native_unstuck'}}}),null);assert.equal(calls,beforeMenu);
+});
 function fixture(){
  const now=Date.now(),texts=[{text:'前去查看详情',box:[75,246,153,33]},{text:'100m',box:[80,280,70,25]}];
  const request={id:'native-a',seq:1,capturedAt:now-1000,deadlineAt:now+10000,focusQuest:'紧急修理',texts};
