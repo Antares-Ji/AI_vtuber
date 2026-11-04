@@ -40,6 +40,7 @@ function prompt(context,{role=workerFor(context.observation),rejected=[],handoff
  const target=grounding.interaction(context.texts).candidates[0]?.text;
  if(target&&grounding.traversalTarget(target))base.traversalInteraction={target,source:'current_bettergi_unique_f',kind:'environment_transport_control',rule:'可重复使用的门或升降机关，不是无关NPC；结合当前星光/楼层与图像选择是否F，仍需唯一文字复核且两次无变化回执会阻断重复按键。'};
  if(o.navigation)delete o.navigation.evidence;
+ if(imageAssistance&&o.travelQuest?.reason==='repeated_marker_bearing_unavailable')base.groundTrailNavigation={source:'native_failed_marker_receipts',rule:'travel_quest只识别目标标记方位，不解析弯曲地面星光；本阶段已多次失标，不再重复扫描。BGI地图定位可用且当前图片星光/通道方向明确时，可用navigate(key:W/A/S/D,ms:400–8000)连续走，由BGI OCR/CV监测F/阶段/停滞并停下。只有近处拐弯/障碍用move；未知地形不能长走。'};
  base.navigationMemory={stage:base.navigationMemory.stage,teleportAttempts:base.navigationMemory.teleportAttempts};
  base.availableIntents=[...(role==='movement'?MOVEMENT:INTERACTION)];
  if(!o.nativeTracking?.available)base.availableIntents=base.availableIntents.filter(k=>k!=='native_track');

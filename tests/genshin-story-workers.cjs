@@ -110,6 +110,16 @@ test('movement delegates continuous navigation and keeps fine adjustment bounded
  assert.ok(workers.prompt(context).instructions.includes('连续走最多180m'));
  assert.doesNotThrow(()=>workers.validateRole({action:{kind:'advance_quest',key:'W'}},'movement'));
 });
+test('image navigation after repeated native marker misses offers continuous BGI movement instead of another marker scan',()=>{
+ const runtime=require('../src/genshin/story-runtime');
+ const observation={...context.observation,travelQuest:{ok:false,reason:'repeated_marker_bearing_unavailable',markerBearingFailures:2},mapPosition:{available:true},nativeVision:{source:'bettergi_native_cv',ui:'Main',motion:'Normal'}};
+ const data=JSON.parse(workers.prompt({...context,observation},{imageAssistance:true}).input);
+ assert.ok(!data.availableIntents.includes('travel_quest'));assert.ok(data.availableIntents.includes('navigate'));assert.ok(data.groundTrailNavigation);
+ const request={texts:[{text:'返回「旗舰」休息',box:[75,246,230,33]},{text:'高处25m',box:[80,280,120,25]}],imageAssistedBearingUnavailable:true,recentNativeSteps:[]};
+ assert.throws(()=>runtime.validateDecision({action:{kind:'travel_quest'}},request,observation),/方位/);
+ assert.equal(runtime.validateDecision({action:{kind:'navigate',key:'W',ms:2000}},request,observation).action.kind,'navigate');
+ assert.throws(()=>runtime.validateDecision({action:{kind:'navigate',key:'W',ms:2000}},{...request,imageAssistedBearingUnavailable:false},observation),/原生CV寻路/);
+});
 test('camera loop replaces more rotation with available BGI recovery, never removes the only alternative',()=>{
  const observation={...context.observation,rotationFeedback:{repeated:true},nativeRecovery:{available:true}};
  const data=JSON.parse(workers.prompt({...context,observation},{imageAssistance:true}).input);

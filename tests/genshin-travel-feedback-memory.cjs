@@ -18,6 +18,14 @@ function fixture(t,stage='前去查看详情'){
  t.after(()=>fs.rmSync(root,{recursive:true,force:true}));
  return {root,memory:new StoryFeedbackMemory({root,quest:'紧急修理',stage})};
 }
+test('marker misses persist through small moves and reload but not a different stage or actual path leg',t=>{
+ const {root,memory}=fixture(t);
+ memory.merge({sessionId:'one',steps:[failed(1),step(2,'move',{movedMs:400}),failed(3),step(4,'move',{movedMs:400})]});
+ assert.equal(memory.snapshot().markerBearingFailures,2);
+ const loaded=new StoryFeedbackMemory({root,quest:'紧急修理',stage:'前去查看详情'});assert.equal(loaded.snapshot().markerBearingFailures,2);
+ assert.equal(new StoryFeedbackMemory({root,quest:'紧急修理',stage:'收集木材'}).snapshot().markerBearingFailures,0);
+ loaded.merge({sessionId:'two',steps:[gained(1)]});assert.equal(loaded.snapshot().markerBearingFailures,0);
+});
 test('two travel failures remain blocked across wait, turn, reset, native segments and reload',t=>{
  const {root,memory}=fixture(t);
  memory.merge({sessionId:'one',steps:[failed(1),step(2,'wait'),step(3,'turn')]});

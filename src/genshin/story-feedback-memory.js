@@ -130,6 +130,12 @@ class StoryFeedbackMemory{
   const refreshes=steps.filter(s=>s.action.kind==='key'&&s.action.key==='V'&&parseDetail(s)?.kind==='quest_tracking_refresh'&&parseDetail(s)?.inputSent===true);
   const menuOpens=steps.filter(s=>s.action.kind==='key'&&s.action.key==='J'&&Number.isFinite(s.finishedAt));
   const state=JSON.parse(signature(steps));
+  let markerBearingFailures=0;
+  for(const step of steps){
+   const d=parseDetail(step);if(step.action.kind!=='travel_quest'||d?.kind!=='quest-travel')continue;
+   if(d.movedLegs>0)markerBearingFailures=0;
+   else if(d.stopReason==='bearing_unavailable')markerBearingFailures++;
+  }
   const search=steps.map(parseDetail).filter(d=>d?.kind==='area-search'&&d.state?.version===1).at(-1);
   const commissionRouteStates={};for(const d of steps.map(parseDetail))if(d?.kind==='commission-route'&&d.state?.id){
    const previous=commissionRouteStates[d.state.id];
@@ -139,6 +145,7 @@ class StoryFeedbackMemory{
   }
   return {quest:this.quest,stage:this.stage,contextId:this.contextId,recentNativeSteps,
    mapPositionFailures:mapPositionFailures(steps),
+   markerBearingFailures,
    nativeTrackingStalls:steps.map(parseDetail).filter(d=>d?.kind==='bgi-native-track'&&d.stopReason==='native_stalled_after_recovery').length,
    interactionVisits,
    trackingInputs:{source:'native_receipts_not_tracking_confirmation',refreshCount:refreshes.length,lastRefreshAt:refreshes.at(-1)?.finishedAt||null,menuOpenCount:menuOpens.length,lastMenuOpenAt:menuOpens.at(-1)?.finishedAt||null},

@@ -51,6 +51,7 @@ function validateDecision(value,request,observation){
  if(grounding.recoveryPrompt(request.texts)&&!['click_text','wait','stop'].includes(a.kind))throw Error('当前是复苏提示界面；依据当前OCR按钮决策，不能发送大世界按键或导航动作');
  if(request.focusQuest&&value.quest&&value.quest!==request.focusQuest)throw Error('当前任务固定为'+request.focusQuest+'；查看另一项详情不代表任务完成或允许换任务');
  if(a.kind==='travel_quest'){
+  if(request.imageAssistedBearingUnavailable)throw Error('本阶段BGI目标标记方位已多次识别失败；当前图片辅助应沿地面星光选择可用的navigate/短移，不能把travel_quest当作地面星光解析器');
   if(request.capabilities?.minimapProjection===false)throw Error('原生方位API未部署，改用当前可用的navigate/advance_quest或核对任务');
   if(Object.keys(a).some(k=>k!=='kind'))throw Error('travel_quest只接收意图，方向与坐标必须由原生本地视觉计算');
   const gate=StoryTravel.eligibility({texts:request.texts,scene:observation.scene,uncertain:observation.uncertain,recentNativeSteps:request.recentNativeSteps},grounding);
@@ -110,7 +111,7 @@ function validateDecision(value,request,observation){
  }
  if(a.kind==='navigate'){
   const route=StoryTravel.eligibility({texts:request.texts,scene:observation.scene,uncertain:observation.uncertain,recentNativeSteps:request.recentNativeSteps},grounding);
-  if(route.ok&&route.feedback.failedTravels===0&&request.capabilities?.minimapProjection!==false)throw Error('当前已有任务距离且原生CV寻路可用，请选择{kind:"travel_quest"}让BGI定位并修正方向；不能反复按同一方向盲走');
+  if(route.ok&&route.feedback.failedTravels===0&&request.capabilities?.minimapProjection!==false&&!request.imageAssistedBearingUnavailable)throw Error('当前已有任务距离且原生CV寻路可用，请选择{kind:"travel_quest"}让BGI定位并修正方向；不能反复按同一方向盲走');
   const previous=request.lastStep;let previousDetail;try{previousDetail=JSON.parse(previous?.detail);}catch{}
   if(previous?.action?.kind==='navigate'&&previous.action.key===a.key&&/distance_increased|distance_stalled|position_stalled/.test(previousDetail?.stopReason||''))throw Error('上一相同方向已反增距离或卡住；改用travel_quest，或选择其他方向/有据转向，不能重复原方向');
   const nativeWorld=observation.nativeVision?.source==='bettergi_native_cv'&&observation.nativeVision.ui==='Main'&&observation.nativeVision.motion==='Normal';
@@ -229,6 +230,7 @@ async function runStory(goal,{root,env,signal,reportProgress=()=>{},runId,direct
     request.mapPositionReacquired=freshMapPosition(request);
     request.mapPositionFailures=request.mapPositionReacquired?0:savedFeedback.mapPositionFailures;
     request.nativeTrackingStalls=savedFeedback.nativeTrackingStalls;
+    request.imageAssistedBearingUnavailable=storyImage.enabled(root)&&savedFeedback.markerBearingFailures>=2;
     request.interactionVisits=savedFeedback.interactionVisits;
     latest.taskStage=navigationStage;
     request.teleportAttempts=[...teleportAttempts];
@@ -257,6 +259,7 @@ async function runStory(goal,{root,env,signal,reportProgress=()=>{},runId,direct
     observation.trackingInputs=savedFeedback.trackingInputs;
     observation.travelQuest=StoryTravel.eligibility({texts:request.texts,scene:observation.scene,uncertain:observation.uncertain,recentNativeSteps:request.recentNativeSteps},grounding);
     if(request.mapPositionFailures>=2)observation.travelQuest={...observation.travelQuest,ok:false,reason:'map_position_unavailable'};
+    if(request.imageAssistedBearingUnavailable)observation.travelQuest={...observation.travelQuest,ok:false,reason:'repeated_marker_bearing_unavailable',markerBearingFailures:savedFeedback.markerBearingFailures};
     observation.mapPosition={available:request.mapPositionFailures<2,failedReceipts:request.mapPositionFailures,previousFailedReceipts:request.previousMapPositionFailures,reacquired:request.mapPositionReacquired,samples:request.mapPositionReacquired?request.position.samples:[],rule:'换场景/原生脱困后BGI两次新鲜稳定定位可为本帧重新提供坐标导航；不删除历史失败或证明已到达。未重新定位时仍限制重复使用失效坐标。'};
     const nearHud=grounding.questHud(request.texts);
     observation.nativeTracking={available:request.capabilities?.nativeQuestTrack===true&&nativeTrackAttempts<2&&observation.scene==='world'&&observation.nativeVision?.ui==='Main'&&nearHud?.meters>=4&&nearHud.meters<=150&&!grounding.movementStop(request.texts),attempts:nativeTrackAttempts,source:'BetterGI.AutoTrackTask',rule:'BGI自带近程任务追踪，限时60秒，本地模板识别追踪点；可用于室内，无需大地图坐标。返回后重新观察，不把调用当到达。'};
