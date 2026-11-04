@@ -101,6 +101,12 @@ test('task or stage changes cannot manufacture distance progress',()=>{
   assert.equal(r.travelQuest.recentCalls[0].reason,'task_or_stage_changed');
  }
 });
+test('quotation OCR variants share distance history without creating a stage transition',()=>{
+ const a=frame(1,44,{stage:'返回「旗舰」休息'}),b=frame(2,37,{stage:'返回『旗舰」休息'});
+ const r=evaluate([a,b],3000);
+ assert.equal(hudReading(a).context,hudReading(b).context);
+ assert.equal(r.distance.first,44);assert.equal(r.distance.last,37);assert.equal(r.progress.observedStageTransitions,0);
+});
 test('latest three actual macros need two independently observed reductions of 30m',()=>{
  const r=evaluate(threeCalls(),5000);
  assert.equal(r.travelQuest.calls,3);assert.equal(r.travelQuest.qualifyingCalls,2);

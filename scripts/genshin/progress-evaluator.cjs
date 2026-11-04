@@ -2,7 +2,7 @@
 // Read-only evidence evaluation: native returns and elapsed time are not arrival.
 const fs=require('node:fs'),path=require('node:path'),grounding=require('./story-main');
 const root=path.resolve(__dirname,'../..'),base=path.join(root,'runtime/genshin');
-const normal=v=>String(v||'').replace(/\s/g,''),finite=v=>typeof v==='number'&&Number.isFinite(v);
+const normal=v=>String(v||'').replace(/[\s「」『』“”‘’"']/g,''),finite=v=>typeof v==='number'&&Number.isFinite(v);
 const readJson=f=>{try{return JSON.parse(fs.readFileSync(f,'utf8'));}catch{return null;}};
 const detail=s=>{try{return typeof s?.detail==='string'?JSON.parse(s.detail):s?.detail||null;}catch{return null;}};
 const nativeId=r=>r.request?.id||r.nativeId||null,frameTime=r=>r.request?.capturedAt??r.at;
