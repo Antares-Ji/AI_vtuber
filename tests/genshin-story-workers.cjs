@@ -50,6 +50,15 @@ test('routing reserves movement for world and hands unique F/dialogue/menu to in
  assert.throws(()=>workers.validateRole({action:{kind:'choose_dialogue'}},'movement'));
  assert.throws(()=>workers.validateRole({action:{kind:'move'}},'interaction'));
 });
+test('already visited incidental prompt offers departure, not repeated F or idle waiting',()=>{
+ const texts=[{text:'返回「旗舰」休息',box:[75,246,230,33]},{source:'bettergi_native_f_label',text:'坐下',count:1,anchor:[1103,523,32,32],box:[1218,523,285,32]}];
+ const o={...context.observation,interaction:{state:'unique',repeatedIncidental:true},nativeRecovery:{available:true}};
+ const p=workers.prompt({...context,observation:o,texts},{imageAssistance:true}),d=JSON.parse(p.input);
+ assert.deepEqual(d.availableIntents,['native_unstuck','stop','leave_interaction']);
+ for(const kind of ['key','wait'])assert.throws(()=>workers.validateRole({action:{kind}},'interaction',d.availableIntents),/当前仅可选择/);
+ assert.doesNotThrow(()=>workers.validateRole({action:{kind:'leave_interaction',key:'A',text:'坐下'}},'interaction',d.availableIntents));
+ assert.ok(JSON.parse(workers.prompt({...context,observation:{...o,interaction:{state:'unique',repeatedIncidental:false}},texts}).input).availableIntents.includes('key'));
+});
 test('both workers disable thinking, enforce separate output caps and optionally use separate DeepSeek models',async t=>{
  const options=fixture(t),seen=[];
  for(const role of ['movement','interaction']){

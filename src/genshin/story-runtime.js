@@ -171,7 +171,7 @@ async function decideWithRepair(call,request,observation,signal,budget=null,vali
   calls.push({provider:answer.provider,model:answer.model,usage:answer.usage||null,worker:answer.worker,requestPolicy:answer.requestPolicy,latencyMs:answer.latencyMs,reasoningTokens:answer.reasoningTokens,imageInput:answer.imageInput||null});
   budget?.check();
   try{const value=JSON.parse(answer.text);return {decision:validator(value,request,observation),prediction:value.prediction,answer,rejected,calls};}
-  catch(error){rejected.push({text:answer.text,error:error.message,provider:answer.provider,model:answer.model,usage:answer.usage||null});}
+  catch(error){rejected.push({text:answer.text,error:error.message,provider:answer.provider,model:answer.model,usage:answer.usage||null,imageInput:answer.imageInput||null,requestPolicy:answer.requestPolicy});}
  }
  return {decision:{action:{kind:'wait'},reason:'决策未通过校验或剩余预算不足，重新采集画面：'+rejected.at(-1).error,commentary:'这个操作目标还没核对上，我重新看一下当前界面。',quest:''},answer:rejected.at(-1),rejected,calls};
 }
@@ -276,7 +276,8 @@ async function runStory(goal,{root,env,signal,reportProgress=()=>{},runId,direct
      previousSteps:history.slice(-3).map(e=>({nativeId:e.request.id,seq:e.request.seq,
       observation:e.observation,decision:e.decision,lastStep:e.request.lastStep})),lastNativeStep:request.lastStep};
     const role=workers.workerFor(observation);
-    const fastValidate=(value,r,o)=>{workers.validateRole(value,role);return validateDecision(workers.normalize(value,r),r,o);};
+    const availableIntents=JSON.parse(workers.prompt(context,{role,imageAssistance}).input).availableIntents;
+    const fastValidate=(value,r,o)=>{workers.validateRole(value,role,availableIntents);return validateDecision(workers.normalize(value,r),r,o);};
     const cached=fast&&!imageAssistance?lookahead.consume({request,observation,validate:fastValidate}):null;
     const repaired=direct?await require('./direct-control').wait({request,observation,context,validate:validateDecision,signal:budget.signal()}):cached || (fast ?
      await decideWithRepair(rejected=>workers.call(context,{root,env,signal:budget.signal(imageAssistance?45000:20000),role,rejected,handoff}),request,observation,signal,budget,fastValidate) : await decideWithRepair(rejected=>{
