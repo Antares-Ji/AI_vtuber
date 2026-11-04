@@ -60,6 +60,10 @@ function prompt(context,{role=workerFor(context.observation),rejected=[],handoff
  const reviewTracking=imageAssistance&&o.scene==='world'&&!o.uncertain&&o.trackingInputs?.refreshCount>0&&o.trackingInputs.menuOpenCount===0;
  if(reviewTracking)base.trackingReview={needed:true,source:'user_requested_tracking_check',quest:o.taskFocus?.quest||null,reason:'已发送V但本阶段尚无任务菜单核验回执；先确认同一任务的追踪状态，不能把按键成功当星光已出现'};
  if(imageAssistance)base.recentImageObservations=(context.previousSteps||[]).filter(e=>e.cloudImageAssessment).slice(-3).map(e=>({source:'historical_deepseek_image_assessment_not_current_fact',capturedAt:e.capturedAt,assessment:e.cloudImageAssessment,observedHud:e.observation?.travelQuest?.hud||null,plannedAction:e.decision?.action||null,execution:'check_recentNativeSteps_for_receipt'}));
+ const refreshAge=Number.isFinite(context.frameImage?.capturedAt)&&Number.isFinite(o.trackingInputs?.lastRefreshAt)?context.frameImage.capturedAt-o.trackingInputs.lastRefreshAt:null;
+ const recentImages=base.recentImageObservations||[];
+ const lostTrail=imageAssistance&&o.scene==='world'&&!o.uncertain&&o.nativeVision?.motion==='Normal'&&!target&&refreshAge>=15000&&recentImages.length>=2&&recentImages.slice(-2).every(e=>e.assessment.groundTrailVisible===false);
+ if(lostTrail)base.trackingRefresh={reason:'two_recent_images_without_trail',ageMs:refreshAge,source:'native_refresh_receipt_and_deepseek_image_history',priority:'refresh_current_tracking_before_more_exploration'};
  const routeCandidates=base.observation.commissionRoutes?.filter(r=>!r.completed&&!r.blocked)||[];
  const routePriority=role==='movement'&&(routeCandidates.find(r=>r.recovery)||routeCandidates[0]);
  if(routePriority)base.availableIntents=base.availableIntents.filter(k=>!['search_area','seek_quest','navigate','move','travel_quest','advance_quest','follow_marker'].includes(k));
@@ -84,7 +88,7 @@ function prompt(context,{role=workerFor(context.observation),rejected=[],handoff
  const trackerLimit=imageAssistance?'\n能力区别：native_track调用BGI单个蓝色目标标记追踪器，它不识别地面星光的弯曲路线，不是通用室内绕障碍。看到桌角/墙挡路时，不能把native_track当作沿星光绕行；由你看当前截图选择move/turn，并说明可见依据。若地面在视野之外，可适当向下转镜头再观察；先离开近处遮挡再找路线。':'';
  const trackingCheck=imageAssistance?'\n用户强调先直接追踪当前任务，地面才会出现星光。trackingInputs只证明按过键，不证明追踪启用或星光出现。若按V后的新图仍未见星光，且本阶段尚未打开任务菜单核验，可以用J核对taskFocus保持的同一任务：只有当前详情标题匹配且按钮为追踪目标/开始追踪时，才逐字click_text启用；停止追踪表示已启用，不要点击它。已核验则返回大世界继续，不循环开关菜单。recentImageObservations是过去的图像判断，结合实际回执和当前图判断是否撞同一障碍；不能当作当前路线。':'';
  if(base.traversalInteraction)base.traversalInteraction.actionExample={kind:'key',key:'F',text:target};
- return {input:JSON.stringify(base),instructions:RULES+(o.nativeVision?.motion==='Climb'?priority:routePriority?routeRule:imageAssistance?'':priority)+distantRule+(imageAssistance?'':nativeRule+recoveryRule)+interactionRule+dialogueRule+imageRule+trailRule+trackerLimit+trackingCheck+(reviewTracking?'\n本帧trackingReview.needed=true：用户要求的当前优先事项是核验同一任务已直接追踪。先通过任务菜单核验，而不是继续按旧灯带判断绕行；仅核验一次，不更换任务。':'')+(forecast?'\n这是执行中的动作之后的假设状态，只预规划一步，绝不发送输入。若无法依据已知数据规划则wait。':'')};
+ return {input:JSON.stringify(base),instructions:RULES+(o.nativeVision?.motion==='Climb'?priority:routePriority?routeRule:imageAssistance?'':priority)+distantRule+(imageAssistance?'':nativeRule+recoveryRule)+interactionRule+dialogueRule+imageRule+trailRule+trackerLimit+trackingCheck+(reviewTracking?'\n本帧trackingReview.needed=true：用户要求的当前优先事项是核验同一任务已直接追踪。先通过任务菜单核验，而不是继续按旧灯带判断绕行；仅核验一次，不更换任务。':'')+(lostTrail?'\ntrackingRefresh说明最近两次图片均未见星光，且距上次V已超过15秒。用户要沿追踪线走，当前优先用一次key:V重新显示同任务星光并取得BGI连续截图，再决定方向；不要再沿陈旧图片连续探索。它不是任务进度，V后仍需当前图像核验。':'')+(forecast?'\n这是执行中的动作之后的假设状态，只预规划一步，绝不发送输入。若无法依据已知数据规划则wait。':'')};
 }
 function normalize(value,request){
  return {...value,reason:String(value?.reason||'执行当前有据动作').slice(0,24),commentary:'',quest:request.focusQuest||grounding.questMenu(request.texts)?.title||''};

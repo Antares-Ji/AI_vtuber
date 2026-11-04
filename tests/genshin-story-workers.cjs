@@ -26,6 +26,12 @@ test('native ready dialogue offers SPACE instead of waiting for already displaye
  const unknown=workers.prompt({...context,observation:{scene:'unknown',uncertain:true}});
  assert.ok(!unknown.instructions.includes('当前帧已经就绪'));
 });
+test('lost trail refresh needs two image observations and an elapsed native receipt, never a planned V',()=>{
+ const c={...context,frameImage:{capturedAt:20000},previousSteps:[1,2].map(capturedAt=>({capturedAt,cloudImageAssessment:{groundTrailVisible:false}})),observation:{...context.observation,nativeVision:{ui:'Main',motion:'Normal'},trackingInputs:{lastRefreshAt:1000}}};
+ assert.equal(JSON.parse(workers.prompt(c,{imageAssistance:true}).input).trackingRefresh.ageMs,19000);
+ for(const change of [{frameImage:{capturedAt:12000}},{previousSteps:[c.previousSteps[0]]},{previousSteps:[c.previousSteps[0],{cloudImageAssessment:{groundTrailVisible:true}}]},{observation:{...c.observation,trackingInputs:{lastRefreshAt:null}}},{observation:{...c.observation,nativeVision:{motion:'Climb'}}}])
+  assert.equal(JSON.parse(workers.prompt({...c,...change},{imageAssistance:true}).input).trackingRefresh,undefined);
+});
 test('image assistance keeps native Climb recovery while hiding failed marker priority',()=>{
  const p=workers.prompt({...context,observation:{...context.observation,nativeVision:{ui:'Main',motion:'Climb'},nativeTracking:{available:true},commissionRoutes:[{id:'entrance',recovery:true}]}},{imageAssistance:true});
  assert.match(p.instructions,/BGI原生CV确认当前正在攀爬/);assert.match(p.instructions,/key:"X"/);
