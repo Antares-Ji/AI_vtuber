@@ -86,7 +86,10 @@ function movementStallEvidence(history,current){
   if(!attempts)beforeDistance=a.meters;
   afterDistance=b.meters;attempts++;movementMs+=detail.movedMs;
  }
- return {source:'independent_bettergi_hud_after_native_moves',stalled:attempts>=3&&movementMs>=1000,attempts,movementMs,beforeDistance,afterDistance,verified:false};
+ // Integer HUD readings commonly decrease only one metre per short move.
+ // Several such real gains must not be mistaken for a stationary character.
+ const cumulativeChange=beforeDistance===null||afterDistance===null?null:Math.abs(beforeDistance-afterDistance);
+ return {source:'independent_bettergi_hud_after_native_moves',stalled:attempts>=3&&movementMs>=1000&&cumulativeChange<=1,attempts,movementMs,beforeDistance,afterDistance,cumulativeChange,verified:false};
 }
 function freshMapPosition(request){
  const p=request.position,s=p?.samples;

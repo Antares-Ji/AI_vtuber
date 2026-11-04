@@ -85,6 +85,10 @@ test('image short-move recovery requires matched native inputs and independent u
  for(const c of [{...current,id:'other'},{...current,lastStep:null},{...current,lastStep:{...current.lastStep,seq:1}},{...current,lastStep:{...current.lastStep,detail:'{"movedMs":0}'}},frame(4,40),{...current,nativeVision:{ui:'Main',motion:'Climb'}},{...current,capturedAt:1000000}])
   assert.equal(movementStallEvidence(history,c).stalled,false);
  assert.equal(movementStallEvidence(history.slice(1),current).stalled,false);
+ const gradual=[frame(1,27),frame(2,26),frame(3,25)].map(request=>({request}));
+ assert.equal(movementStallEvidence(gradual,frame(4,24)).stalled,false,'three one-metre gains are real cumulative progress');
+ const detour=[frame(1,27),frame(2,28),frame(3,29)].map(request=>({request}));
+ assert.equal(movementStallEvidence(detour,frame(4,30)).stalled,false,'a measurable detour is not a stationary character');
  const recovered={...current,lastStep:{...current.lastStep,action:{kind:'native_unstuck'}}};
  assert.equal(movementStallEvidence(history,recovered).stalled,false);
 });
