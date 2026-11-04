@@ -156,7 +156,9 @@ const StoryGrounding=(()=>{
     const readings = rows.flatMap(row => {
       const match = normal(row.text).match(/^(?:(高处|低处))?(\d{1,5})(?:m|米)$/i);
       return match && row.box[0] >= x - 30 && row.box[0] < x + Math.min(width, 220)
-        && row.box[1] >= y + height - 8 && row.box[1] < y + height + 85
+        && row.box[1] >= y + height / 2
+        && row.box[1] + row.box[3] / 2 >= y + height - 8
+        && row.box[1] + row.box[3] / 2 < y + height + 85
         ? [{ ...row, meters: Number(match[2]), elevation:match[1]||null }] : [];
     });
     const crop = readings.filter(row => row.source === 'quest_distance_crop');

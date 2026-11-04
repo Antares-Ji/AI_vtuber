@@ -23,6 +23,14 @@ test('repair time is excluded without clearing the already consumed no-progress 
  h.returned();const saved=h.controller.snapshot();await h.controller.resume({sessionId:saved.sessionId,revision:saved.revision});
  assert.equal(now-h.controller.snapshot().progressBudget.since,10000);
 });
+test('OCR quotation variants cannot renew a stalled stage budget',()=>{
+ const c=new StoryContinuation({host:{},timer:false});
+ c.checkProgress({at:0,stage:'返回「旗舰」休息',distance:44});
+ c.checkProgress({at:1000,stage:'返回『旗舰」休息',distance:44});
+ assert.equal(c.snapshot().progressBudget.since,0);
+ assert.equal(c.checkProgress({at:900000,stage:'返回 旗舰 休息',distance:44}),true);
+ c.checkProgress({at:901000,stage:'进行淘汰赛抽签',distance:44});assert.equal(c.snapshot().progressBudget.since,901000);
+});
 function fixture({ready=async()=>true,cleanup=async()=>false,clock=()=>0,mode='bounded'}={}){
  const runs=new Map(),starts=[];
  const host={status:id=>runs.get(id),start:input=>{starts.push(input);const run={id:'r'+starts.length,state:'RUNNING'};runs.set(run.id,run);return run;}};

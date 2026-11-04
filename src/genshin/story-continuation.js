@@ -58,7 +58,8 @@ class StoryContinuation {
   if(old&&progress.at<=old.lastAt)return false;
   const distance=Number.isFinite(progress.distance)?progress.distance:null;
   const improved=old&&distance!==null&&old.distance!==null&&distance<=old.distance-5;
-  const reset=!old||old.stage!==progress.stage||improved;
+  const stageKey=s=>String(s||'').replace(/[\s「」『』“”‘’"']/g,'');
+  const reset=!old||stageKey(old.stage)!==stageKey(progress.stage)||improved;
   const next=reset?{stage:progress.stage,since:progress.at,distance,lastAt:progress.at}:{...old,lastAt:progress.at};
   this.persist({progressBudget:next});
   return progress.at-next.since>=15*60000;

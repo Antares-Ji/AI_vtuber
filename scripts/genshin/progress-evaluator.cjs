@@ -34,18 +34,10 @@ function selectFrames(input,o){
 // Only a task instruction and its adjacent OCR distance count as task HUD.
 function hudReading(r){
  if(r.observation?.scene!=='world'||r.observation?.uncertain===true)return null;
- const texts=r.request?.texts||[],instruction=grounding.questInstruction(texts),task=quest(r);
- if(!instruction||!normal(task))return null;
- const [x,y,w,h]=instruction.box;
- const nearby=texts.filter(t=>Array.isArray(t.box)&&t.box.length===4&&t.box.every(Number.isFinite)&&
-  t.box[0]>=x-30&&t.box[0]<x+Math.min(w,220)&&t.box[1]>=y+h-8&&t.box[1]<y+h+85);
- const cropped=nearby.filter(t=>t.source==='quest_distance_crop');
- const meters=[...new Set((cropped.length?cropped:nearby).flatMap(t=>{
-  const m=String(t.text).match(/^\s*(\d{1,5})\s*(?:m|米)\s*$/i);return m?[Number(m[1])]:[];
- }))];
- if(meters.length!==1)return null;
- return {task,stage:instruction.text,meters:meters[0],at:frameTime(r),
-  context:JSON.stringify([normal(task),normal(instruction.text)]),source:'task_hud_ocr'};
+ const hud=grounding.questHud(r.request?.texts||[]),task=quest(r);
+ if(!hud||!normal(task))return null;
+ return {task,stage:hud.stage,meters:hud.meters,elevation:hud.elevation,at:frameTime(r),
+  context:JSON.stringify([normal(task),normal(hud.stage)]),source:'task_hud_ocr'};
 }
 // Explicit receipt counters only; trace length and wall time are not key time.
 function movedMs(s){

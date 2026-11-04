@@ -14,6 +14,16 @@ function frame(seq,meters=500,{id='native-a',task='任务甲',stage='前去查�
   distanceEvidence:{meters:[999]},decision:{action:{kind:'travel_quest'}},modelCalls:[{usage:{total_tokens:1000}}]};
 }
 function threeCalls(){return [frame(1,500),frame(2,460,{lastStep:step(1)}),frame(3,450,{lastStep:step(2)}),frame(4,410,{lastStep:step(3)})];}
+test('elevated HUD with overlapping OCR boxes is shared with runtime and remains task scoped',()=>{
+ const row=frame(1,40,{stage:'返回「旗舰」休息'});
+ row.request.texts=[{text:'返回「旗舰」休息',box:[76,239,187,43]},{text:'高处40m',box:[77,271,111,32]},{text:'30 ms',box:[1826,79,63,23]}];
+ const g=require('../scripts/genshin/story-main');
+ assert.equal(g.questHud(row.request.texts).meters,40);assert.equal(hudReading(row).meters,40);assert.equal(hudReading(row).elevation,'高处');
+ for(const text of ['低处40m','40m','40米']){row.request.texts[1].text=text;assert.equal(hudReading(row).meters,40);}
+ row.request.texts[1].box=[77,230,111,32];assert.equal(hudReading(row),null);
+ row.request.texts[1].box=[900,271,111,32];assert.equal(hudReading(row),null);
+ row.request.texts[1].box=[77,271,111,32];row.request.texts.push({text:'返回其他房间',box:[75,350,180,35]});assert.equal(hudReading(row),null);
+});
 test('whole catalog path time counts once without inventing movement, arrival, or preflight execution',()=>{
  const first=step(1,'quest_route',{kind:'commission-route',pathStarted:true,points:[],durationMs:65460,stopReason:'dialogue'});
  const preflight=step(2,'quest_route',{kind:'commission-route',pathStarted:false,points:[],stopReason:'stage_mismatch'});

@@ -168,13 +168,8 @@ else (async function(){
  }
  function questHud(texts){
   if(texts.some(t=>/任务专注模式|队伍配置|商城/.test(t.text)))return null;
-  const instruction=StoryGrounding.questInstruction(texts);
-  if(!instruction)return null;
-  const [x,y,w,h]=instruction.box;
-  const nearby=texts.filter(t=>t.box[0]>=x-30&&t.box[0]<x+Math.min(w,220)&&t.box[1]>=y+h-8&&t.box[1]<y+h+85);
-  const focused=nearby.filter(t=>t.source==='quest_distance_crop');
-  const values=[...new Set((focused.length?focused:nearby).flatMap(t=>{const m=String(t.text).match(/^\s*(\d{1,5})\s*(?:m|米)\s*$/i);return m?[Number(m[1])]:[];}))];
-  return values.length===1?{stage:instruction.text,distance:values[0]}:null;
+  const hud=StoryGrounding.questHud(texts);
+  return hud?{stage:hud.stage,distance:hud.meters}:null;
  }
  async function advanceQuest(key,seq){
   if(!['W','A','S','D'].includes(key))throw Error('无效的本地距离反馈移动按键');
