@@ -12,6 +12,24 @@ function fixture(t){
  return {root,config,bytes,frame:{path:file,sha256:createHash('sha256').update(bytes).digest('hex'),seq:1,capturedAt:Date.now(),source:'bettergi_owned_capture'},env:{GENSHIN_DEEPSEEK_API_KEY:'test'}};
 }
 const observation={scene:'world',uncertain:false,interaction:{state:'none'},nativeTracking:{available:true},nativeRecovery:{available:true}};
+test('walkthrough frames are hash checked references; only the last BGI image is current',async t=>{
+ const f=fixture(t),refs=require('../src/genshin/story-reference-images'),directory=path.join(f.root,'runtime/genshin/references');fs.mkdirSync(directory,{recursive:true});
+ for(const n of [335,341])fs.writeFileSync(path.join(directory,n+'.png'),f.bytes);
+ const reference={source:'external_walkthrough_frames_not_current_game',url:'https://example.org/guide',frames:[335,341].map(sourceSecond=>({file:sourceSecond+'.png',sourceSecond,sha256:f.frame.sha256}))};
+ const c={observation:{...observation,travelQuest:{hud:{stage:'返回「旗舰」休息'}},walkthroughReference:{videoReference:reference}},texts:[],frameImage:f.frame};
+ assert.equal(refs.eligible(c),true);assert.equal(refs.eligible({...c,trackingFrames:[{}]}),false);assert.equal(refs.eligible({...c,frameImage:{...f.frame,seq:2}}),false);
+ let body;const fetchImpl=async(_,req)=>{body=JSON.parse(req.body);return {ok:true,json:async()=>({choices:[{finish_reason:'stop',message:{content:'{"action":{"kind":"wait"}}'}}]})};};
+ const answer=await workers.call(c,{...f,fetchImpl});
+ assert.equal(answer.imageInput.sequenceKind,'walkthrough_reference');assert.deepEqual(answer.imageInput.sequence.map(e=>e.source),['external_walkthrough_reference','external_walkthrough_reference','bettergi_owned_capture']);
+ assert.equal(answer.imageInput.sha256,f.frame.sha256);assert.equal(body.messages[1].content.filter(v=>v.type==='image_url').length,3);
+ assert.match(body.messages[0].content,/第3张才是当前BGI画面/);assert.ok(!body.messages[0].content.includes('两张图依次是上一动作'));
+ assert.ok(!JSON.stringify(answer).includes('base64'));
+ assert.throws(()=>refs.load(f.root,{...reference,frames:reference.frames.map(r=>({...r,sha256:'0'.repeat(64)}))}),/哈希/);
+ const outside=path.join(f.root,'outside.png');fs.writeFileSync(outside,f.bytes);
+ assert.throws(()=>refs.load(f.root,{...reference,frames:[{...reference.frames[0],file:outside},reference.frames[1]]}),/目录/);
+ fs.unlinkSync(path.join(directory,'335.png'));
+ const fallback=await workers.call(c,{...f,fetchImpl});assert.ok(fallback.imageInput.referenceWarning);assert.equal(body.messages[1].content.filter(v=>v.type==='image_url').length,1);
+});
 test('only opted-in current owned PNG with matching hash can enter vision transport',t=>{
  const f=fixture(t);assert.equal(image.load(f.frame,f.root).evidence.sha256,f.frame.sha256);
  for(const frame of [{...f.frame,capturedAt:Date.now()-100000},{...f.frame,sha256:'wrong'},{...f.frame,source:'desktop'}])assert.throws(()=>image.load(frame,f.root));

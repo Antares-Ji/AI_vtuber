@@ -2,6 +2,7 @@
 const {buildStoryPrompt}=require('./story-prompt');
 const {respond,settings}=require('./model-provider');
 const storyImage=require('./story-image');
+const referenceImages=require('./story-reference-images');
 const grounding=require('../../scripts/genshin/story-main');
 const MOVEMENT=['native_unstuck','native_track','quest_route','search_area','seek_quest','navigate','move','turn','reset_camera','travel_quest','advance_quest','follow_marker','teleport','list_waypoints','key','wait','stop'];
 const INTERACTION=['native_unstuck','leave_interaction','key','click_text','choose_dialogue','list_waypoints','teleport','complete_quest','fight','wait','stop'];
@@ -133,9 +134,14 @@ function validateRole(value,role,availableIntents){
 }
 async function call(context,{root,env={},signal,role=workerFor(context.observation),rejected=[],handoff=null,forecast=null,fetchImpl}={}){
  const trackingBurst=Boolean(context.trackingFrames?.length);
- const pictures=!forecast&&storyImage.eligible(context.observation)&&context.frameImage&&storyImage.enabled(root)?
+ let pictures=!forecast&&storyImage.eligible(context.observation)&&context.frameImage&&storyImage.enabled(root)?
   (trackingBurst?storyImage.loadSequence(context.frameImage,context.trackingFrames,root):storyImage.loadActionPair(context.frameImage,context.previousFrameImage,root)):[];
  const picture=pictures.at(-1)||null;
+ let walkthroughPair=false,referenceWarning=null;
+ if(picture&&role==='movement'&&referenceImages.eligible(context)){
+  try{pictures=[...referenceImages.load(root,context.observation.walkthroughReference.videoReference),picture];walkthroughPair=true;}
+  catch(error){referenceWarning=String(error.message).slice(0,160);}
+ }
  const policy=picture?{...profile(role,env),model:'deepseek-flash',maxOutputTokens:640}:profile(role,env),built=prompt(context,{role,rejected,handoff,forecast,imageAssistance:Boolean(picture)});
  // Keep provider selection explicit. The fast dual-worker pipeline is DeepSeek-only.
  if(settings({dataRoot:root,env}).provider!=='deepseek')throw Error('低延迟双worker需要手动选择DeepSeek；未切换供应商');
@@ -148,7 +154,12 @@ async function call(context,{root,env={},signal,role=workerFor(context.observati
   built.instructions+='\n本次先输出imageAssessment再输出action。用当前截图逐项确认：groundTrailVisible是否真看见地面连续星光（不能把任务菱形/小地图当星光）；groundTrail用简短文字描述路线从脚下往哪里延伸与转弯，看不到就写未见；nearObstacle描述贴近角色的障碍；openPassage描述当前看得到的可走方向、门或台阶。不要编造遮挡后的路线。根据这些事实再选动作；看不见星光也可从可见通道探索，不能反复V或一直向已确认障碍走。';
   built.instructions+='\n场景的固定灯带、发光地板接缝和装饰光不能仅凭发光就认定为任务星光；需要可见粒子轨迹等依据，证据不足就填groundTrailVisible:false。';
   if(context.historicalExploration)built.instructions+='\nhistoricalExploration保留本任务同阶段此前经过的地标及不同高低楼层的最近距离，跨执行段不丢失。用它辨认是否又回到已探索通道；不要把每段开始都当新区域。最近距离不代表正确楼层或可直达，不能据历史文字盲走；结合当前图和星光找尚未探索的真实门/楼梯。';
-  if(pictures.length>1){
+  if(walkthroughPair){
+   schema.properties.imageAssessment.properties.landmarkMatch={type:'string'};
+   schema.properties.imageAssessment.required.push('landmarkMatch');
+   built.input+='\nwalkthroughImageOrder='+JSON.stringify(pictures.map((p,i)=>({index:i+1,...p.evidence,current:i===2})));
+   built.instructions+='\n本次三张图：第1、2张是外部攻略历史参考（335秒酒馆大厅、341秒绿门走廊），第3张才是当前BGI画面。先逐项比较建筑门框、柜台、灯具、盆栽等固定地标，在imageAssessment.landmarkMatch简述第三张是否与参考对应；不对应就明确未知。参考左右不是当前方向，参考人物/交互不能当当前事实。用参考认识应寻找的门廊，而不是仅因前方开阔就一直探索；下一步行动、障碍、F交互和星光必须以第3张和当前BGI OCR为准。不得按参考图坐标操作。';
+  }else if(pictures.length>1){
    built.input+='\ntrackingImageSequence='+JSON.stringify(pictures.map((p,i)=>({index:i+1,capturedAt:p.evidence.capturedAt,current:i===pictures.length-1,source:'bettergi_owned_capture'})));
    if(trackingBurst)built.instructions+='\n本次图片按时间顺序：前两张是同一次V追踪后约0.5秒、1.5秒的BGI采样，最后一张才是当前画面。利用序列区分短暂粒子与固定灯带；动作、交互、障碍必须以最后一张及当前BGI OCR为准。早期出现后消失的星光可描述在groundTrail中，但不可谎称当前仍可见。';
    else{
@@ -158,6 +169,6 @@ async function call(context,{root,env={},signal,role=workerFor(context.observati
   }
  }
  const answer=await respond(built.input,{dataRoot:root,env,signal,fetchImpl,instructions:built.instructions,schema,...policy,...(picture?{imageUrls:pictures.map(p=>p.url)}:{})});
- return {...answer,worker:role,latencyMs:Date.now()-startedAt,imageInput:picture?{...picture.evidence,...(pictures.length>1?{sequence:pictures.map(p=>p.evidence),sequenceKind:trackingBurst?'tracking_burst':'completed_action_pair'}:{})}:null};
+ return {...answer,worker:role,latencyMs:Date.now()-startedAt,imageInput:picture?{...picture.evidence,...(pictures.length>1?{sequence:pictures.map(p=>p.evidence),sequenceKind:walkthroughPair?'walkthrough_reference':trackingBurst?'tracking_burst':'completed_action_pair'}:{}),...(referenceWarning?{referenceWarning}:{})}:null};
 }
 module.exports={workerFor,profile,prompt,normalize,validateRole,call,MOVEMENT,INTERACTION};

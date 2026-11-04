@@ -7,7 +7,7 @@ function frame(e){
  if(!e?.trainingSessionId||e.provider!=='deepseek'||!e.imageAssistance||!a||o?.scene!=='world'||r?.nativeVision?.source!=='bettergi_native_cv'||r.nativeVision.ui!=='Main'||!hud||!Number.isFinite(r.capturedAt)||!Number.isInteger(r.seq))return null;
  return {sessionId:e.trainingSessionId,quest:r.focusQuest||e.decision?.quest,nativeId:r.id,seq:r.seq,at:r.capturedAt,stage:hud.stage,
   hud:{meters:hud.meters,elevation:hud.elevation||null},
-  seenByDeepSeek:{groundTrailVisible:a.groundTrailVisible===true,groundTrail:short(a.groundTrail),nearObstacle:short(a.nearObstacle),openPassage:short(a.openPassage)}};
+  seenByDeepSeek:{groundTrailVisible:a.groundTrailVisible===true,groundTrail:short(a.groundTrail),nearObstacle:short(a.nearObstacle),openPassage:short(a.openPassage),...(typeof a.landmarkMatch==='string'?{landmarkMatch:short(a.landmarkMatch)}:{})}};
 }
 function summarize(frames,{quest,stage,sessionId,now=Date.now()}={}){
  if(!sessionId||!quest||!stage)return null;
