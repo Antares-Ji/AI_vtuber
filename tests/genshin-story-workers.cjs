@@ -42,6 +42,11 @@ test('stalled image moves expose the existing BGI recovery and camera reset',()=
  const data=JSON.parse(p.input);assert.ok(data.availableIntents.includes('native_unstuck'));assert.ok(data.availableIntents.includes('reset_camera'));
  assert.match(p.instructions,/三次实际短移/);assert.match(p.instructions,/原生中键/);
 });
+test('reacquired BGI navigation does not receive contradictory image micro-movement instructions',()=>{
+ const p=workers.prompt({...context,observation:{...context.observation,mapPosition:{available:true,reacquired:true},travelQuest:{ok:true,feedback:{failedTravels:0},hud:{meters:44}}}},{imageAssistance:true});
+ const d=JSON.parse(p.input);assert.ok(d.availableIntents.includes('travel_quest'));assert.ok(!d.availableIntents.includes('move'));
+ assert.match(p.instructions,/先按navigationPriority使用BGI原生闭环寻路/);assert.ok(!p.instructions.includes('每次只选一个动作，move为80–600ms'));
+});
 test('distant objectives preserve task-region evidence and offer catalog travel instead of waiting',()=>{
  const c={...context,questMemory:{quest:'任务甲',details:['任务甲','蒙德 清泉镇']},mapAreas:['清泉镇'],observation:{...context.observation,travelQuest:{ok:false,reason:'distance_out_of_range',hud:{meters:6000}}}};
  const p=workers.prompt(c),d=JSON.parse(p.input);
