@@ -77,6 +77,17 @@ test('native recovery requires repeated actual receipts and never counts duplica
  for(const o of [{...observation,scene:'menu'},{...observation,nativeRecovery:{available:false}}])assert.throws(()=>validateDecision({action:{kind:'native_unstuck'}},request,o));
  assert.throws(()=>validateDecision({action:{kind:'native_unstuck',key:'W'}},request,observation));
 });
+test('image short-move recovery requires matched native inputs and independent unchanged HUD',()=>{
+ const {movementStallEvidence}=require('../src/genshin/story-memory');
+ const frame=(seq,meters=46)=>({id:'stalled',seq,capturedAt:seq*1000,texts:[rows[0],{...rows[1],text:`高处${meters}m`}],nativeVision:{ui:'Main',motion:'Normal'},lastStep:seq===1?null:{seq:seq-1,action:{kind:'move',key:'W',ms:400},finishedAt:seq*1000-100,detail:JSON.stringify({movedMs:400,verified:false})}});
+ const history=[1,2,3].map(n=>({request:frame(n)})),current=frame(4);
+ assert.equal(movementStallEvidence(history,current).stalled,true);
+ for(const c of [{...current,id:'other'},{...current,lastStep:null},{...current,lastStep:{...current.lastStep,seq:1}},{...current,lastStep:{...current.lastStep,detail:'{"movedMs":0}'}},frame(4,40),{...current,nativeVision:{ui:'Main',motion:'Climb'}},{...current,capturedAt:1000000}])
+  assert.equal(movementStallEvidence(history,c).stalled,false);
+ assert.equal(movementStallEvidence(history.slice(1),current).stalled,false);
+ const recovered={...current,lastStep:{...current.lastStep,action:{kind:'native_unstuck'}}};
+ assert.equal(movementStallEvidence(history,recovered).stalled,false);
+});
 test('repeated invalid map coordinates block dependent navigation while native tracking remains eligible',()=>{
  const {mapPositionFailures}=require('../src/genshin/story-feedback-memory');
  const receipt=d=>({detail:JSON.stringify(d)});

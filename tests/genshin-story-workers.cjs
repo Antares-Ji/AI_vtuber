@@ -37,6 +37,11 @@ test('image assistance keeps native Climb recovery while hiding failed marker pr
  assert.match(p.instructions,/BGI原生CV确认当前正在攀爬/);assert.match(p.instructions,/key:"X"/);
  assert.ok(!p.instructions.includes('当前BGI原生近程任务追踪可用，优先选择'));
 });
+test('stalled image moves expose the existing BGI recovery and camera reset',()=>{
+ const p=workers.prompt({...context,observation:{...context.observation,movementFeedback:{stalled:true},nativeRecovery:{available:true}}},{imageAssistance:true});
+ const data=JSON.parse(p.input);assert.ok(data.availableIntents.includes('native_unstuck'));assert.ok(data.availableIntents.includes('reset_camera'));
+ assert.match(p.instructions,/三次实际短移/);assert.match(p.instructions,/原生中键/);
+});
 test('distant objectives preserve task-region evidence and offer catalog travel instead of waiting',()=>{
  const c={...context,questMemory:{quest:'任务甲',details:['任务甲','蒙德 清泉镇']},mapAreas:['清泉镇'],observation:{...context.observation,travelQuest:{ok:false,reason:'distance_out_of_range',hud:{meters:6000}}}};
  const p=workers.prompt(c),d=JSON.parse(p.input);

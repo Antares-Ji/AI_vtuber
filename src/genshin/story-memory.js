@@ -71,6 +71,23 @@ function nativeRecoveryNeeded(steps,target){
    s.action?.kind==='native_track'&&d.kind==='bgi-native-track'&&['cancelled_or_budget','returned','native_marker_missing'].includes(d.stopReason);
  }).length>=2;
 }
+function movementStallEvidence(history,current){
+ const frames=[...(history||[]).slice(-10).map(e=>e.request),current].filter(Boolean);
+ const g=require('../../scripts/genshin/story-main');let attempts=0,movementMs=0,beforeDistance=null,afterDistance=null;
+ for(let i=1;i<frames.length;i++){
+  const before=frames[i-1],after=frames[i],step=after.lastStep;
+  if(step?.action?.kind==='native_unstuck'){attempts=0;movementMs=0;continue;}
+  if(step?.action?.kind!=='move')continue;
+  const a=g.questHud(before.texts),b=g.questHud(after.texts);let detail;try{detail=JSON.parse(step.detail);}catch{continue;}
+  if(before.id!==after.id||before.seq!==step.seq||!Number.isFinite(step.finishedAt)||after.capturedAt<=step.finishedAt||current.capturedAt-before.capturedAt>120000||!a||!b||!compatibleStage(a.stage,b.stage)||before.nativeVision?.ui!=='Main'||after.nativeVision?.ui!=='Main'||before.nativeVision?.motion!=='Normal'||after.nativeVision?.motion!=='Normal'||!(detail.movedMs>=200)){
+   attempts=0;movementMs=0;continue;
+  }
+  if(Math.abs(a.meters-b.meters)>1){attempts=0;movementMs=0;continue;}
+  if(!attempts)beforeDistance=a.meters;
+  afterDistance=b.meters;attempts++;movementMs+=detail.movedMs;
+ }
+ return {source:'independent_bettergi_hud_after_native_moves',stalled:attempts>=3&&movementMs>=1000,attempts,movementMs,beforeDistance,afterDistance,verified:false};
+}
 function navigationFromEvidence(rows,quest){
  const matching=rows.filter(({e})=>e.decision?.quest===quest);
  const stage=matching.map(({e})=>questStage(e.request?.texts)).find(Boolean)||null;
@@ -87,4 +104,4 @@ function navigationFromEvidence(rows,quest){
  return {stage,teleportAttempts:[...attempted],routeAttemptKeys:[...pending],verification:'historical_attempts_not_arrival',previousSteps:matching.slice(0,5).reverse().map(({e})=>({observation:e.observation,decision:e.decision,lastStep:e.request.lastStep}))};
 }
 function readNavigationMemory(root,quest){return navigationFromEvidence(recentEvidence(root),quest);}
-module.exports={readQuestMemory,questFromEvidence,questStage,readNavigationMemory,navigationFromEvidence,compatibleStage,updateNavigationStage,routePreflightRejected,reconcileRouteAttempt,nativeTrackingProgress,nativeRecoveryNeeded};
+module.exports={readQuestMemory,questFromEvidence,questStage,readNavigationMemory,navigationFromEvidence,compatibleStage,updateNavigationStage,routePreflightRejected,reconcileRouteAttempt,nativeTrackingProgress,nativeRecoveryNeeded,movementStallEvidence};
