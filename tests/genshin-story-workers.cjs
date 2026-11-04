@@ -15,6 +15,9 @@ test('image navigation retains bounded prior assessments and distinguishes track
  assert.equal(d.recentImageObservations.length,3);assert.equal(d.recentImageObservations[0].capturedAt,2);
  assert.equal(d.recentImageObservations[2].execution,'check_recentNativeSteps_for_receipt');
  assert.equal(d.observation.trackingInputs.refreshCount,2);assert.match(p.instructions,/停止追踪表示已启用，不要点击它/);
+ assert.equal(d.trackingReview.needed,true);
+ const checked={...c,observation:{...c.observation,trackingInputs:{refreshCount:2,menuOpenCount:1}}};
+ assert.equal(JSON.parse(workers.prompt(checked,{imageAssistance:true}).input).trackingReview,undefined);
  assert.equal(JSON.parse(workers.prompt(c).input).recentImageObservations,undefined);
 });
 test('native ready dialogue offers SPACE instead of waiting for already displayed subtitles',()=>{
