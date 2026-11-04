@@ -6,7 +6,8 @@ const { deepseekFetch } = require('../runtime/deepseek-transport');
 const ROOT = path.resolve(__dirname, '../..');
 function read(file) { return fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, 'utf8').replace(/^\uFEFF/, '')) : {}; }
 function settings({ dataRoot = ROOT, env = process.env } = {}) {
-  const provider = read(path.join(dataRoot, 'data/genshin.local.json')).provider || 'openai';
+  const config = read(path.join(dataRoot, 'data/genshin.local.json'));
+  const provider = config.provider || 'openai';
   if (!['openai', 'deepseek'].includes(provider)) throw Error('原神模型供应商配置无效');
   if (provider === 'openai') return { ...openai.settings({ dataRoot, env }), provider };
   const saved = read(path.join(dataRoot, 'data/minecraft-engine.local.json'));
@@ -14,7 +15,9 @@ function settings({ dataRoot = ROOT, env = process.env } = {}) {
   const key = env.GENSHIN_DEEPSEEK_API_KEY || saved.deepseekApiKey || env.DEEPSEEK_API_KEY || (legacy ? env.OPENAI_API_KEY : '') || '';
   const model = env.GENSHIN_DEEPSEEK_MODEL || env.DEEPSEEK_MODEL || 'deepseek-chat';
   if (!/^[a-zA-Z0-9_.:-]{1,100}$/.test(model)) throw Error('DeepSeek 模型名称无效');
-  return { provider, key, model, url: 'https://api.deepseek.com/chat/completions' };
+  const networkRoute=config.deepseekNetworkRoute||'configured';
+  if(!['configured','system'].includes(networkRoute))throw Error('无效的DeepSeek网络路径');
+  return { provider, key, model, networkRoute, url: 'https://api.deepseek.com/chat/completions' };
 }
 function publicSettings(options) { const c = settings(options); return { provider: c.provider, model: c.model, keyConfigured: Boolean(c.key), fallback: false }; }
 function selectProvider(provider, { dataRoot = ROOT } = {}) {
@@ -35,7 +38,7 @@ async function respond(input, options = {}) {
   const model=options.model||c.model;
   if(!/^[a-zA-Z0-9_.:-]{1,100}$/.test(model))throw Error('DeepSeek 模型名称无效');
   const signal = options.signal ? AbortSignal.any([options.signal, AbortSignal.timeout(60000)]) : AbortSignal.timeout(60000);
-  const response = await (options.fetchImpl || deepseekFetch)(c.url, { method: 'POST', redirect: 'error', signal,
+  const response = await (options.fetchImpl || (c.networkRoute==='system'?globalThis.fetch:deepseekFetch))(c.url, { method: 'POST', redirect: 'error', signal,
     headers: { 'content-type': 'application/json', authorization: `Bearer ${c.key}` },
     body: JSON.stringify({ model, max_tokens:maxTokens, ...(options.thinking===false?{thinking:{type:'disabled'}}:{}), messages: [
       { role: 'system', content: (options.instructions || '用中文准确回答。') + (options.schema ? '\n仅返回符合以下 schema 的 JSON：' + JSON.stringify(options.schema) : '') },
@@ -49,7 +52,7 @@ async function respond(input, options = {}) {
   if (choice?.finish_reason !== 'stop' || typeof choice.message?.content !== 'string' || !choice.message.content.trim() || choice.message.content.length > 16000)
     throw Object.assign(Error('DeepSeek 未返回完整有效文本，未执行任务'),{code:'PROVIDER_INVALID_OUTPUT',provider:'deepseek',model:data.model||model,usage:data.usage||null});
   return { text: choice.message.content.trim(), provider: 'deepseek', model: data.model || model, usage: data.usage || null,
-    requestPolicy:{thinking:options.thinking===false?'disabled':'provider_default',maxOutputTokens:maxTokens},
+    requestPolicy:{thinking:options.thinking===false?'disabled':'provider_default',maxOutputTokens:maxTokens,networkRoute:c.networkRoute},
     reasoningTokens:data.usage?.completion_tokens_details?.reasoning_tokens??null,
     reasoningContentPresent:Boolean(choice.message.reasoning_content) };
 }

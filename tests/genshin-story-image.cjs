@@ -46,3 +46,9 @@ test('image does not switch providers or bypass OCR interaction/completion valid
  assert.equal(image.eligible({scene:'menu'}),true);assert.equal(image.eligible({scene:'unknown'}),true);
  assert.throws(()=>validateDecision({action:{kind:'move',key:'W',ms:600}},{texts:[]},{scene:'unknown',uncertain:true}),/场景不确定/);
 });
+test('explicit system route is used before sending and failure is never replayed',async t=>{
+ const f=fixture(t),config=JSON.parse(fs.readFileSync(f.config));config.deepseekNetworkRoute='system';fs.writeFileSync(f.config,JSON.stringify(config));
+ let calls=0;const original=globalThis.fetch;t.after(()=>{globalThis.fetch=original;});
+ globalThis.fetch=async url=>{calls++;assert.equal(url,'https://api.deepseek.com/chat/completions');throw Error('network test');};
+ await assert.rejects(provider.respond('test',{dataRoot:f.root,env:f.env}),/network test/);assert.equal(calls,1);
+});
