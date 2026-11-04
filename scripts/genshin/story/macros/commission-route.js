@@ -1,28 +1,35 @@
 // Curated upstream BGI routes. Models select an ID; coordinates stay in the catalog.
 const StoryCommissionRoute=(()=>{
  function sameStage(a,b){return Boolean(a&&b)&&String(a).replace(/[\s「」『』“”"']/g,'')===String(b).replace(/[\s「」『』“”"']/g,'');}
- function available(catalog,quest,stage,states={},attempts=[]){
+ function reentryAllowed(route,attempts=[],recovery={}){
+  return route?.reentryAfterUnstuck===true&&attempts.includes(route.id)&&recovery.nativeUnstucks>=2&&recovery.nativeTrackingStalls>=1&&!recovery.attempted?.includes(route.id);
+ }
+ function available(catalog,quest,stage,states={},attempts=[],recovery={}){
+  const knownAttempts=[...new Set([...attempts,...Object.entries(states).filter(([,s])=>sameStage(s.stage,stage)&&s.attempts>=1).map(([id])=>id)])];
   return catalog.routes.filter(r=>r.quest===quest&&new RegExp(r.stagePattern).test(stage||''))
    .filter(r=>r.mode!=='entry_recovery'||Object.values(states).some(s=>sameStage(s.stage,stage)&&s.failures>=2))
    .filter(r=>r.mode!=='entry_continue'||attempts.includes('urgent-entry'))
-   .filter(r=>!r.resumeFrom||attempts.includes(r.resumeFrom))
+   .filter(r=>!r.resumeFrom||knownAttempts.includes(r.resumeFrom))
    .map(r=>({id:r.id,title:r.title,source:'bettergi_script_catalog',referenceOnly:true,
+    reentry:reentryAllowed(r,knownAttempts,recovery),
     recovery:Boolean(r.mode),
-    completed:sameStage(states[r.id]?.stage,stage)&&states[r.id]?.cursor>=r.positions.length,
-    blocked:Boolean(r.mode&&attempts.includes(r.id))||sameStage(states[r.id]?.stage,stage)&&(states[r.id]?.failures>=2||Boolean(r.mode)&&states[r.id]?.attempts>=1),
+    completed:!reentryAllowed(r,knownAttempts,recovery)&&sameStage(states[r.id]?.stage,stage)&&states[r.id]?.cursor>=r.positions.length,
+    blocked:!reentryAllowed(r,knownAttempts,recovery)&&(Boolean(r.mode&&attempts.includes(r.id))||sameStage(states[r.id]?.stage,stage)&&(states[r.id]?.failures>=2||Boolean(r.mode)&&states[r.id]?.attempts>=1)),
     cursor:sameStage(states[r.id]?.stage,stage)?states[r.id].cursor:0}));
  }
  function create({catalog,grounding,read,nativeUi=()=>null,position,pathingScript,createCancellationTokenSource,monitorPath,sleep,checkInput,getDeadline,movementStop,now=Date.now}){
-  return async function run(id,saved){
+  return async function run(id,saved,{reenter=false,attempts=[],recovery={}}={}){
    checkInput();const route=catalog.routes.find(r=>r.id===id),rows=read(),stage=grounding.questInstruction(rows)?.text;
    const result={kind:'commission-route',id,stage,points:[],pathStarted:false,stopReason:null,verified:false};
    if(!route||!stage||!new RegExp(route.stagePattern).test(stage))return {...result,stopReason:'stage_mismatch'};
+   if(reenter&&!reentryAllowed(route,[...attempts,...(sameStage(saved?.stage,stage)&&saved?.attempts>=1?[id]:[])],recovery))return {...result,stopReason:'entry_recovery_unavailable'};
+   if(reenter)result.reentry=true;
    const stop=movementStop(rows);if(stop)return {...result,stopReason:stop};
    const p=position();await sleep(100);checkInput();const p2=position();
    if(!p||!p2||![p.x,p.y,p2.x,p2.y].every(Number.isFinite)||Math.hypot(p.x-p2.x,p.y-p2.y)>5)return {...result,stopReason:'position_unstable'};
    if(Math.hypot(p2.x-route.anchor.x,p2.y-route.anchor.y)>route.maxAnchorDistance)return {...result,stopReason:'wrong_variant_region'};
    if(route.mode){
-    if(saved?.attempts>=1)return {...result,stopReason:'entry_already_attempted'};
+    if(saved?.attempts>=1&&!reenter)return {...result,stopReason:'entry_already_attempted'};
     if(route.mode==='entry_continue'){
      const anchor=catalog.routes.find(r=>r.id==='urgent-entry').positions[0];
      if(Math.hypot(p2.x-anchor.x,p2.y-anchor.y)>20)return {...result,stopReason:'entry_start_unverified',from:p2};
@@ -82,6 +89,6 @@ const StoryCommissionRoute=(()=>{
    return result;
   };
  }
- return {available,create};
+ return {available,create,reentryAllowed};
 })();
 if(typeof module!=='undefined'&&module.exports)module.exports=StoryCommissionRoute;

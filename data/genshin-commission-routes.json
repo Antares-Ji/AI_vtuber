@@ -635,6 +635,7 @@
     },
     {
       "id": "flagship-official-entry",
+      "reentryAfterUnstuck": true,
       "quest": "两次视线的交汇",
       "stagePattern": "返回.*旗舰.*休息",
       "title": "旗舰入口（已切换BGI公版传送，纠正误选神像）",

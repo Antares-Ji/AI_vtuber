@@ -5,6 +5,16 @@ const step=(seq,kind,detail={},extra={})=>({seq,action:{kind,...extra},detail:ty
 const follow=seq=>step(seq,'follow_marker',{kind:'marker-follow',movedMs:0,stopReason:'marker_missing_or_ambiguous'});
 const f=(seq,target='骗子向导')=>step(seq,'key',{kind:'interaction',target,sent:true,outcome:'prompt_unchanged'},{key:'F',text:target});
 function fixture(t,options={}){const root=fs.mkdtempSync(path.join(os.tmpdir(),'genshin-feedback-'));t.after(()=>fs.rmSync(root,{recursive:true,force:true}));return {root,memory:new StoryFeedbackMemory({root,quest:'神秘岛的传说',stage:'跟随骗子向导',...options})};}
+test('entry recovery is reserved before input and survives a restart without a final native receipt',t=>{
+ const {root,memory}=fixture(t,{stage:'返回「旗舰」休息'});
+ memory.merge({sessionId:'recovery-native',steps:[step(1,'native_unstuck',{kind:'bgi-native-unstuck',stopReason:'returned'}),step(2,'native_unstuck',{kind:'bgi-native-unstuck',stopReason:'returned'}),step(3,'native_track',{kind:'bgi-native-track',stopReason:'native_stalled_after_recovery'})]});
+ assert.equal(memory.snapshot().entryRecovery.nativeUnstucks,2);
+ memory.markReentryAttempt('flagship-official-entry');
+ const restored=new StoryFeedbackMemory({root,quest:memory.quest,stage:'返回『旗舰」休息'});
+ assert.deepEqual(restored.snapshot().entryRecovery,{nativeUnstucks:2,nativeTrackingStalls:1,attempted:['flagship-official-entry']});
+ assert.throws(()=>restored.markReentryAttempt('flagship-official-entry'),/already attempted/);
+ restored.setContext({stage:'参加抽签',confirmedStageChange:true});assert.deepEqual(restored.snapshot().entryRecovery.attempted,[]);
+});
 test('cross-segment follow failures and unchanged F persist through forty waits and a restart',t=>{
  const {root,memory}=fixture(t);
  memory.merge({sessionId:'native-one',steps:[follow(1),follow(2),f(3)]});

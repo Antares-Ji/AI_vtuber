@@ -40,10 +40,14 @@ function validateDecision(value,request,observation){
  }
  if(a.kind==='quest_route'){
   if(a.id.startsWith('urgent-entry')&&request.teleportAttempts?.includes(a.id))throw Error('本阶段已经尝试过入口恢复，不能重复传送或重复恢复');
-  const routes=commissionRoutes.available(commissionCatalog,request.focusQuest,grounding.questInstruction(request.texts)?.text,request.commissionRouteStates,request.teleportAttempts);
-  if(observation.scene!=='world'||observation.nativeVision?.source!=='bettergi_native_cv'||observation.nativeVision.ui!=='Main'||!routes.some(r=>r.id===a.id&&!r.completed&&!r.blocked)||Object.keys(a).some(k=>!['kind','id'].includes(k)))throw Error('任务目录路线需要当前BGI世界、同任务阶段及未完成且未连续失败的目录id；不能输出自定坐标');
+  const routes=commissionRoutes.available(commissionCatalog,request.focusQuest,grounding.questInstruction(request.texts)?.text,request.commissionRouteStates,request.teleportAttempts,request.entryRecovery);
+  const candidate=routes.find(r=>r.id===a.id&&!r.completed&&!r.blocked);
+  if(observation.scene!=='world'||observation.nativeVision?.source!=='bettergi_native_cv'||observation.nativeVision.ui!=='Main'||!candidate||Object.keys(a).some(k=>!['kind','id','recover'].includes(k)))throw Error('任务目录路线需要当前BGI世界、同任务阶段及未完成且未连续失败的目录id；不能输出自定坐标');
+  if(Boolean(candidate.reentry)!==(a.recover===true)||a.recover!==undefined&&a.recover!==true)throw Error('入口脱困重入必须选择当前reentry目录并明确recover:true；每阶段仅一次');
+  if(a.recover===true&&observation.nativeVision.motion!=='Normal')throw Error('入口恢复需要BGI确认普通运动状态；攀爬时先脱离再重新观察');
   if(grounding.movementStop(request.texts))throw Error('先处理当前F交互或界面，再运行任务目录路线');
   action.id=a.id;
+  if(a.recover===true)action.recover=true;
  }
  if(observation.uncertain&&!['wait','stop'].includes(a.kind))throw Error('场景不确定，只能重新观察');
  const startup=grounding.loginPrompt(request.texts);
@@ -229,6 +233,7 @@ async function runStory(goal,{root,env,signal,reportProgress=()=>{},runId,direct
     request.recentNativeSteps=savedFeedback.recentNativeSteps;
     request.areaSearchState=savedFeedback.areaSearchState;
     request.commissionRouteStates=savedFeedback.commissionRouteStates;
+    request.entryRecovery=savedFeedback.entryRecovery;
     request.previousMapPositionFailures=savedFeedback.mapPositionFailures;
     request.mapPositionReacquired=freshMapPosition(request);
     request.mapPositionFailures=request.mapPositionReacquired?0:savedFeedback.mapPositionFailures;
@@ -279,7 +284,7 @@ async function runStory(goal,{root,env,signal,reportProgress=()=>{},runId,direct
     if(observation.questArea)observation.questArea.availableAction='world/open且当前任务阶段明确时，navigate连续持键400–8000ms，本地反复OCR检查F、菜单、阶段和距离，出现变化即释放返回。只有近目标微调使用move。';
     if(observation.dialogue)observation.dialogue.availableAction='这是当前帧OCR确认的对话。options不为空时选择{kind:"choose_dialogue",text:options中逐字一致的文字}；执行器只在回复选项区域复核并点击，因此可区分同名说话人与回复。不要重复按SPACE；没有选项时才用SPACE推进台词。';
     observation.walkthroughReference=questGuide(questMemory?.quest);
-    observation.commissionRoutes=commissionRoutes.available(commissionCatalog,request.focusQuest,grounding.questInstruction(request.texts)?.text,request.commissionRouteStates,request.teleportAttempts);
+    observation.commissionRoutes=commissionRoutes.available(commissionCatalog,request.focusQuest,grounding.questInstruction(request.texts)?.text,request.commissionRouteStates,request.teleportAttempts,request.entryRecovery);
     observation.availableNavigationAction='优先travel_quest的原生CV坐标寻路。无精确坐标但terrain=open且方向有依据时选择navigate(key:W/A/S/D,ms:400–8000)，持续持键、本地OCR反馈，不逐小步调用模型；有唯一≤150m任务距离也可advance_quest。阶段、F提示、菜单、距离反增或停滞即停。navigate没有全局避障能力；未知地形仅move微调。';
     request.navigationMemory={...navigationMemory,stage:navigationStage,teleportAttempts:request.teleportAttempts,rule:'同阶段已尝试过的锚点不得因服务重启而重复传送。历史结果不证明当前场景，仍须读取新帧。'};
     if(observation.questDistanceLabel)observation.questDistanceLabel.rule='当前帧本地OCR定位的场景距离标签与左上任务读数一致，可用于有界转向；目标居中且前方可走可move，无需再用失效的图标模板。box不是鼠标点击目标，不能证明沿途无障碍。';
@@ -319,6 +324,7 @@ async function runStory(goal,{root,env,signal,reportProgress=()=>{},runId,direct
     evidence.cloudImageAssessment=repaired.imageAssessment||null;
     evidence.modelAction=repaired.modelAction||null;
     evidence.explorationContext=context.historicalExploration||null;
+    if(decision.action.kind==='quest_route'&&decision.action.recover===true)feedback.markReentryAttempt(decision.action.id);
     fs.writeFileSync(path.join(folder,`step-${request.seq}.json`),JSON.stringify(evidence,null,2));
     if(decision.action.kind==='complete_quest'){
      const completed=focus.acknowledgeCompletion({id:request.id,seq:request.seq,texts:request.texts});
@@ -343,7 +349,7 @@ async function runStory(goal,{root,env,signal,reportProgress=()=>{},runId,direct
        fs.writeFileSync(path.join(folder,`step-${request.seq}.json`),JSON.stringify(evidence,null,2));
       }});
     }
-    return {...decision,feedbackSteps:request.recentNativeSteps,areaSearchState:request.areaSearchState,commissionRouteStates:request.commissionRouteStates,nextObservationDelayMs:fast&&role==='movement'?100:400};
+    return {...decision,feedbackSteps:request.recentNativeSteps,areaSearchState:request.areaSearchState,commissionRouteStates:request.commissionRouteStates,entryRecovery:request.entryRecovery,teleportAttempts:request.teleportAttempts,nextObservationDelayMs:fast&&role==='movement'?100:400};
     }catch(error){
      signal.throwIfAborted();
      if(budget.expired()||error.code==='STORY_FRAME_TIMEOUT'){

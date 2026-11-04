@@ -8,6 +8,11 @@ function fixture(t){
  return {root,env:{GENSHIN_DEEPSEEK_API_KEY:'test-key'}};
 }
 const context={goal:'只做当前任务',observation:{scene:'world',uncertain:false,navigation:{terrain:'open'},interaction:{state:'none'},summary:'冗长解说'},texts:[],mapAreas:[],waypoints:[]};
+test('catalog entry recovery tells DeepSeek to explicitly select the one-time reentry flag',()=>{
+ const c={...context,observation:{...context.observation,commissionRoutes:[{id:'flagship-official-entry',completed:false,blocked:false,recovery:true,reentry:true}]}};
+ const p=workers.prompt(c,{imageAssistance:true}),data=JSON.parse(p.input);
+ assert.ok(data.availableIntents.includes('quest_route'));assert.match(p.instructions,/"recover":true/);assert.match(p.instructions,/每阶段只允许一次/);
+});
 test('semantic camera directions convert down to positive native dy without trusting sign prose',()=>{
  const request={focusQuest:'任务',texts:[]},normalize=action=>workers.normalize({action},request).action;
  assert.deepEqual(normalize({kind:'turn',vertical:'down'}),{kind:'turn',dx:0,dy:200});

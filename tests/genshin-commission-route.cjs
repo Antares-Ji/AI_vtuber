@@ -2,6 +2,31 @@ const {test}=require('node:test'),assert=require('node:assert/strict');
 const macro=require('../scripts/genshin/story/macros/commission-route'),g=require('../scripts/genshin/story/grounding');
 const catalog=require('../data/genshin-commission-routes.json');
 const rows=[{text:'收集木材',box:[80,246,180,30]}];
+test('one sourced entry recovery requires both native failures and an explicit model reentry choice',()=>{
+ const route=catalog.routes.find(r=>r.id==='flagship-official-entry'),texts=[{text:'返回「旗舰」休息',box:[80,246,250,30]}],attempts=['flagship-entrance',route.id];
+ const recovery={nativeUnstucks:2,nativeTrackingStalls:1,attempted:[]},states={[route.id]:{stage:texts[0].text,cursor:5,attempts:1}};
+ const offered=rec=>macro.available(catalog,route.quest,texts[0].text,states,attempts,rec).find(r=>r.id===route.id);
+ assert.equal(offered(recovery).reentry,true);assert.equal(offered(recovery).blocked,false);assert.equal(offered(recovery).completed,false);
+ for(const rec of [{...recovery,nativeUnstucks:1},{...recovery,nativeTrackingStalls:0},{...recovery,attempted:[route.id]}])assert.equal(offered(rec).blocked,true);
+ assert.equal(macro.reentryAllowed(route,[],recovery),false);
+ const durableStates={...states,'flagship-entrance':{stage:texts[0].text,attempts:1}};
+ assert.equal(macro.available(catalog,route.quest,texts[0].text,durableStates,[],recovery).find(r=>r.id===route.id).reentry,true,'durable actual route receipts remain evidence after the archive scan window');
+ const request={texts,focusQuest:route.quest,teleportAttempts:attempts,commissionRouteStates:states,entryRecovery:recovery},observation={scene:'world',nativeVision:{source:'bettergi_native_cv',ui:'Main',motion:'Normal'}};
+ const {validateDecision}=require('../src/genshin/story-runtime');
+ assert.deepEqual(validateDecision({action:{kind:'quest_route',id:route.id,recover:true}},request,observation).action,{kind:'quest_route',id:route.id,recover:true});
+ assert.throws(()=>validateDecision({action:{kind:'quest_route',id:route.id}},request,observation),/recover:true/);
+ assert.throws(()=>validateDecision({action:{kind:'quest_route',id:route.id,recover:true}},request,{...observation,nativeVision:{...observation.nativeVision,motion:'Climb'}}),/普通运动/);
+});
+test('native reentry uses the original catalog path and cannot repeat after its durable reservation',async()=>{
+ const route=catalog.routes.find(r=>r.id==='flagship-official-entry'),stage=[{text:'返回「旗舰」休息',box:[80,246,250,30]}],attempts=['flagship-entrance',route.id];
+ let p=route.anchor;const paths=[];
+ const run=macro.create({catalog,grounding:g,read:()=>stage,position:()=>p,sleep:async()=>{},now:()=>1000,checkInput(){},getDeadline:()=>200000,movementStop:g.movementStop,
+  createCancellationTokenSource:()=>({token:{},cancelAfter(){},cancel(){},dispose(){}}),pathingScript:{async run(json){const r=JSON.parse(json);paths.push(r);p=r.positions.at(-1);}},monitorPath:async({run})=>{await run();return {stopReason:null};}});
+ const options={reenter:true,attempts,recovery:{nativeUnstucks:2,nativeTrackingStalls:1,attempted:[]}};
+ const r=await run(route.id,{attempts:1},options);assert.equal(r.reentry,true);assert.equal(r.stopReason,'route_complete');assert.deepEqual(paths[0].positions,route.positions);assert.equal(r.verified,false);
+ const second=await run(route.id,r.state,{...options,recovery:{...options.recovery,attempted:[route.id]}});
+ assert.equal(second.stopReason,'entry_recovery_unavailable');assert.equal(paths.length,1);
+});
 function fixture({stage=rows,point={x:-550,y:1957},arrives=true,stop=null}={}){
  let now=1000,p=point;const events=[],paths=[];
  const run=macro.create({catalog,grounding:g,read:()=>stage,position:()=>p,now:()=>now,sleep:async ms=>now+=ms,checkInput(){},getDeadline:()=>1000000,movementStop:g.movementStop,

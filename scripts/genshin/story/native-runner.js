@@ -349,7 +349,7 @@ else (async function(){
    else if(action.kind==='advance_quest'){detail=JSON.stringify(await navigate({key:action.key,ms:8000}));}
    else if(action.kind==='navigate'){detail=JSON.stringify(await navigate(action));}
    else if(action.kind==='search_area'){detail=JSON.stringify(await searchArea(decision.areaSearchState));seekState=null;}
-   else if(action.kind==='quest_route'){detail=JSON.stringify(await commissionRoute(action.id,decision.commissionRouteStates?.[action.id]));seekState=null;}
+   else if(action.kind==='quest_route'){detail=JSON.stringify(await commissionRoute(action.id,decision.commissionRouteStates?.[action.id],{reenter:action.recover===true,attempts:decision.teleportAttempts||[],recovery:decision.entryRecovery||{}}));seekState=null;}
    else if(action.kind==='seek_quest'){
     const hud=StoryGrounding.questHud(readFreshTexts());
     if(!hud||hud.meters<=5||hud.meters>300)throw Error('本地距离反馈寻路需要当前5–300m任务HUD');

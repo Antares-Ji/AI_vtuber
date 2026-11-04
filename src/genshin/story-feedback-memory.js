@@ -144,6 +144,7 @@ class StoryFeedbackMemory{
    commissionRouteStates[d.state.id]={...d.state,failures};
   }
   return {quest:this.quest,stage:this.stage,contextId:this.contextId,recentNativeSteps,
+   entryRecovery:{nativeUnstucks:steps.map(parseDetail).filter(d=>d?.kind==='bgi-native-unstuck'&&d.stopReason==='returned').length,nativeTrackingStalls:steps.map(parseDetail).filter(d=>d?.kind==='bgi-native-track'&&d.stopReason==='native_stalled_after_recovery').length,attempted:[...new Set(this.data.contexts.filter(c=>contextIds.has(c.id)).flatMap(c=>c.reentryAttempts||[]))]},
    mapPositionFailures:mapPositionFailures(steps),
    markerBearingFailures,
    nativeTrackingStalls:steps.map(parseDetail).filter(d=>d?.kind==='bgi-native-track'&&d.stopReason==='native_stalled_after_recovery').length,
@@ -158,6 +159,12 @@ class StoryFeedbackMemory{
     travelFailureReceipts:steps.filter(s=>s.action.kind==='travel_quest'&&grounding.travelFeedback([s]).failedTravels>0).length,
     unchangedInteractionReceipts:steps.filter(s=>{const d=parseDetail(s);return d?.kind==='interaction'&&d.sent===true&&d.outcome==='prompt_unchanged';}).length},
    verification:'native_receipts_not_game_success'};
+ }
+ markReentryAttempt(id){
+  if(typeof id!=='string'||!id||id.length>120)throw Error('Invalid entry recovery id');
+  this._load();const c=this._select(this.quest,this.stage);
+  if(this.snapshot().entryRecovery.attempted.includes(id))throw Error('Entry recovery already attempted');
+  c.reentryAttempts=[...(c.reentryAttempts||[]),id];this._save();
  }
  clear({quest=this.quest,stage=this.stage,allStages=false}={}){
   quest=validQuest(quest);stage=validStage(stage);this._load();
