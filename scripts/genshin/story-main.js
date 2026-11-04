@@ -1345,7 +1345,7 @@ else (async function(){
    const frame=captureGameRegion();let texts,nativeVision=null;
    try{texts=readTexts(frame);if(typeof getOwnedSceneObservation!=='undefined')nativeVision=JSON.parse(getOwnedSceneObservation(frame));file.writeImageSync('story-'+seq+'.png',frame.srcMat);}finally{frame.dispose();}
    const capturedAt=captureStartedAt,decisionDeadline=Math.min(capturedAt+120000,sessionDeadline);
-   const capabilities={nativeQuestUnstuck:typeof runOwnedQuestUnstuck!=='undefined',nativeQuestTrack:typeof runOwnedQuestTrack!=='undefined',minimapProjection:typeof getOwnedMinimapProjection!=='undefined',continuousNavigation:true,nativeScene:typeof getOwnedSceneObservation!=='undefined'};
+   const capabilities={nativeCameraZoom:typeof verticalScroll!=='undefined',nativeQuestUnstuck:typeof runOwnedQuestUnstuck!=='undefined',nativeQuestTrack:typeof runOwnedQuestTrack!=='undefined',minimapProjection:typeof getOwnedMinimapProjection!=='undefined',continuousNavigation:true,nativeScene:typeof getOwnedSceneObservation!=='undefined'};
    const request={id:command.id,seq,capturedAt,deadlineAt:decisionDeadline,image:'story-'+seq+'.png',texts,position,capabilities,nativeVision,lastStep:receipt.steps.slice(-1)[0]||null};
    file.writeTextSync('story-request.json',JSON.stringify(request));
    log.info('AI-VTuber剧情：等待模型决策，步骤 '+seq);
@@ -1462,7 +1462,12 @@ else (async function(){
    }
    else if(action.kind==='travel_quest'){detail=JSON.stringify(await travelQuest(seq,{recentNativeSteps:priorSteps}));}
    else if(action.kind==='follow_marker'){detail=StoryGrounding.navigationFeedback(priorSteps).blocked?JSON.stringify({kind:'marker-follow',movedMs:0,stopReason:'retry_limit',verified:false}):await followMarker(seq);}
-   else if(action.kind==='reset_camera'){guardedMiddleButtonClick();await sleep(600);detail='镜头复位输入已发送，等待下一帧核对';}
+   else if(action.kind==='reset_camera'){
+    const f=captureGameRegion();try{if(typeof getOwnedSceneObservation==='undefined'||JSON.parse(getOwnedSceneObservation(f)).ui!=='Main')throw Error('镜头调整前已离开主界面');}finally{f.dispose();}
+    if(action.zoomOut===true){if(typeof verticalScroll==='undefined')throw Error('BGI镜头缩放接口不存在');checkInput();verticalScroll(-6);await sleep(300);}
+    guardedMiddleButtonClick();await sleep(600);
+    detail=JSON.stringify({kind:'camera-reset',zoomOutSent:action.zoomOut===true,scrollClicks:action.zoomOut===true?-6:0,inputSent:true,verified:false});
+   }
    else if(action.kind==='advance_quest'){detail=JSON.stringify(await navigate({key:action.key,ms:8000}));}
    else if(action.kind==='navigate'){detail=JSON.stringify(await navigate(action));}
    else if(action.kind==='search_area'){detail=JSON.stringify(await searchArea(decision.areaSearchState));seekState=null;}

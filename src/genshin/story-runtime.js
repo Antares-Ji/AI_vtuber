@@ -143,6 +143,10 @@ function validateDecision(value,request,observation){
  if(['follow_marker','advance_quest','move','navigate'].includes(a.kind)&&grounding.movementStop(request.texts))throw Error('当前OCR出现交互、菜单或对话，先处理当前界面再移动');
  if(a.kind==='follow_marker'&&observation.questArea?.state==='search_area'&&observation.navigation?.marker==='not_visible')throw Error('当前已经到搜索区域，无精确标记时不能重复赶路模板；按当前地形探索移动或转镜寻找NPC/交互提示，区域搜索不要求数字距离');
  if(a.kind==='reset_camera'&&observation.scene!=='world')throw Error('镜头复位只能在大世界执行');
+ if(a.kind==='reset_camera'&&a.zoomOut!==undefined){
+  if(typeof a.zoomOut!=='boolean'||a.zoomOut&&!request.capabilities?.nativeCameraZoom)throw Error('镜头拉远需要BGI原生滚轮接口');
+  action.zoomOut=a.zoomOut;
+ }
  if(a.kind==='turn'){
   if(observation.scene!=='world'||!Number.isInteger(a.dx)||!Number.isInteger(a.dy)||Math.abs(a.dx)>600||Math.abs(a.dy)>250)throw Error('无效的有界镜头转动');
   if(observation.navigation?.marker==='not_visible'&&request.recentActions?.length>=3&&request.recentActions.slice(-3).every(a=>a.kind==='turn'))throw Error('已连续转镜头三次仍未找到标记，不能继续原地旋转；依据地形短时探索，或打开任务/地图重新确认指引');
@@ -260,6 +264,7 @@ async function runStory(goal,{root,env,signal,reportProgress=()=>{},runId,direct
     const localReceipts=[...history.map(e=>e.request.lastStep),request.lastStep].filter(Boolean);
     const blockedTarget=observation.interaction?.state==='unique'?observation.interaction.candidates[0].text:null;
     observation.movementFeedback=movementStallEvidence(history,request);
+    observation.cameraControls={zoomOutAvailable:request.capabilities?.nativeCameraZoom===true,source:'BetterGI.verticalScroll',rule:'主界面可以选择reset_camera,zoomOut:true，BGI拉远六格并中键复位；用于角色或贴脸物体遮挡视角。只改善取景，不宣称已离开障碍。'};
     observation.rotationFeedback=rotationLoopEvidence(history,request);
     observation.nativeRecovery={available:request.capabilities?.nativeQuestUnstuck===true&&nativeUnstuckAttempts<2&&observation.scene==='world'&&observation.nativeVision?.ui==='Main'&&Boolean(nearHud)&&(observation.interaction.repeatedIncidental||nativeRecoveryNeeded(localReceipts,blockedTarget)||observation.movementFeedback.stalled||!blockedTarget&&observation.rotationFeedback.repeated)&&!(blockedTarget&&grounding.collectionTarget(request.texts,blockedTarget)),attempts:nativeUnstuckAttempts,source:'BetterGI.TrapEscaper.RotateAndMove',target:blockedTarget,rule:'同阶段重复交互、原生追踪受阻、短移停滞或四次实际转镜无任务推进，可调用BGI原生脱困（有界后退/侧移/跳跃）；无进展不是障碍识别，脱困后需重新观察。'};
     if(request.capabilities?.minimapProjection===false)observation.travelQuest={...observation.travelQuest,ok:false,reason:'projection_api_unavailable'};

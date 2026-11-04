@@ -94,6 +94,28 @@ test('reacquired map coordinates must be fresh stable BGI samples and never just
  assert.equal(freshMapPosition(r),true);
  for(const p of [{...r.position,source:'model'},{...r.position,samples:[]},{...r.position,stable:false},{...r.position,samples:[r.position.samples[0],{x:200,y:300,at:19800}]},{...r.position,samples:r.position.samples.map(s=>({...s,at:10000}))},{...r.position,samples:r.position.samples.map(s=>({...s,at:21000}))}])assert.equal(freshMapPosition({...r,position:p}),false);
 });
+test('camera zoom is an explicit model choice and requires the BGI capability and world scene',()=>{
+ const request={texts:rows,capabilities:{nativeCameraZoom:true}},observation={scene:'world'};
+ assert.deepEqual(validateDecision({action:{kind:'reset_camera',zoomOut:true}},request,observation).action,{kind:'reset_camera',zoomOut:true});
+ for(const [r,o,a] of [[{texts:rows},observation,{kind:'reset_camera',zoomOut:true}],[request,{scene:'menu'},{kind:'reset_camera',zoomOut:true}],[request,observation,{kind:'reset_camera',zoomOut:-6}]])assert.throws(()=>validateDecision({action:a},r,o));
+ assert.deepEqual(validateDecision({action:{kind:'reset_camera'}},request,observation).action,{kind:'reset_camera'});
+});
+test('BGI zoom uses bounded native scroll only after fresh Main UI and releases input on refusal',async()=>{
+ const fs=require('node:fs'),vm=require('node:vm'),source=fs.readFileSync(require.resolve('../scripts/genshin/story-main.js'),'utf8');
+ for(const changed of [false,true]){
+  let ui='Main';const events=[],files=new Map([['command.json',JSON.stringify({id:'camera-test',timeoutMs:600000})]]);
+  const ctx={JSON,Date,Number,String,Math,Set,Error,
+   file:{readTextSync:n=>files.get(n),writeImageSync(){},writeTextSync(n,v){files.set(n,v);if(n==='story-request.json'){const r=JSON.parse(v);files.set('story-decision-'+r.seq+'.json',JSON.stringify({id:r.id,seq:r.seq,action:r.seq===1?{kind:'reset_camera',zoomOut:true}:{kind:'stop'}}));if(changed)ui='Talk';}}},
+   captureGameRegion:()=>({width:1920,height:1080,srcMat:{},dispose(){},findMulti:()=>({count:2,0:{text:rows[0].text,x:75,y:246,width:230,height:33},1:{text:'高处60m',x:80,y:280,width:120,height:25}})}),
+   RecognitionObject:{ocr:()=>({})},dispatcher:{clearAllTriggers(){}},log:{info(){}},sleep:async()=>{},keyUp:k=>events.push(['up',k]),
+   isGameActive:()=>true,ensureGameFocus:async()=>true,getOwnedSceneObservation:()=>JSON.stringify({source:'bettergi_native_cv',ui,motion:'Normal'}),verticalScroll:n=>events.push(['scroll',n]),middleButtonClick:()=>events.push(['middle'])};
+  await vm.runInNewContext(source,ctx);
+  assert.deepEqual(events.filter(e=>e[0]!=='up'),changed?[]:[['scroll',-6],['middle']]);
+  assert.ok(events.some(e=>e[0]==='up'&&e[1]==='VK_W'));
+  const receipt=JSON.parse(files.get('receipt.json'));assert.equal(receipt.state,changed?'error':'returned');
+  if(!changed)assert.equal(JSON.parse(receipt.steps[0].detail).zoomOutSent,true);
+ }
+});
 test('camera-loop recovery counts executed same-stage turns and resets on movement or mismatched receipts',()=>{
  const {rotationLoopEvidence}=require('../src/genshin/story-memory');
  const frame=n=>({id:'camera',seq:n,capturedAt:n*1000,texts:rows,nativeVision:{ui:'Main',motion:'Normal'},lastStep:{seq:n-1,action:{kind:'turn',dx:200,dy:0},finishedAt:n*1000-100}});
