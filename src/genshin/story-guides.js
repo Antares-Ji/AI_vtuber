@@ -4,7 +4,10 @@ const guides={
  '两次视线的交汇':{
   source:'https://wiki.biligame.com/ys/两次视线的交汇',checkedAt:'2026-11-03',kind:'external_walkthrough_not_live_evidence',
   relatedReference:'https://wiki.biligame.com/ys/轰鸣与暗涌',
-  notes:'本任务攻略的关键交互是「休息」，随后夜里住宿入梦；普通长椅「坐下」不是任务休息。已有BGI路线来自自动购买商品脚本，终点是酒馆商人入口参考，并非已验证的客房路线。另一任务《轰鸣与暗涌》的NPC明确提到酒会期间可从旗舰侧门返回房间，说明大厅入口不能直接当客房入口；这是建筑通路参考，不证明本次必须走该门或当前门已出现。依据当前星光、高处/低处和真实门/通道寻找客房，唯一F提示再交互。后续淘汰赛、休息与调查阶段均须当前BGI OCR核验，攻略不代表当前状态。'
+  videoReference:{url:'https://www.youtube.com/watch?v=Z3G7sMayl5U&t=335s',seconds:[335,343],interpretationProvider:'deepseek-flash',source:'external_walkthrough_frames_not_current_game',
+   landmarks:['335–337秒：酒馆吧台/长椅区（Paavo、Panu附近）通向带盆栽的敞开石门。','338–340秒：穿过石门进入内廊，沿地面金色轨迹经过右侧Pentti，左侧有盆栽及柜体。','341–343秒：廊道通向另一扇敞开石门；门内暖红灯光、木桌和画框，床边出现休息F提示。'],
+   limits:'这是DeepSeek对攻略片段的判读，有OCR和方向误差；左右以视频视角为准，不能直接当当前朝向。片段未见升降动作，不能仅凭高处读数认定必须绕到室外找升降机。必须用当前BGI图像找到对应地标并复核唯一F。'},
+  notes:'本任务攻略的关键交互是客房床边「休息」，随后HUD转为淘汰赛抽签；长椅「坐下」不是任务休息。优先参考同任务视频展示的酒馆大厅—石门内廊—客房路线。已有BGI商人路线只证明酒馆入口；另一任务酒会期间使用侧门的规则，不应覆盖本任务视频或强制绕到室外。当前地面星光与可见门廊负责实际方向，不从攻略编造当前坐标或直接执行固定按键。休息交互和后续阶段均须当前BGI OCR核验。'
  },
  '紧急修理':{
   source:'https://wiki.biligame.com/ys/紧急修理',
