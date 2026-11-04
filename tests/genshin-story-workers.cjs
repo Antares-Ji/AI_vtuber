@@ -8,6 +8,15 @@ function fixture(t){
  return {root,env:{GENSHIN_DEEPSEEK_API_KEY:'test-key'}};
 }
 const context={goal:'只做当前任务',observation:{scene:'world',uncertain:false,navigation:{terrain:'open'},interaction:{state:'none'},summary:'冗长解说'},texts:[],mapAreas:[],waypoints:[]};
+test('fresh completed zoom disallows an immediate repeat while retaining bounded camera and movement alternatives',()=>{
+ const c={...context,frameImage:{capturedAt:20000},observation:{...context.observation,nativeVision:{ui:'Main'}},lastNativeStep:{seq:2,action:{kind:'reset_camera',zoomOut:true},finishedAt:19500,detail:JSON.stringify({kind:'camera-reset',inputSent:true,zoomOutSent:true})}};
+ const p=JSON.parse(workers.prompt(c,{imageAssistance:true}).input);
+ assert.equal(p.availableIntents.includes('reset_camera'),false);assert.ok(p.availableIntents.includes('turn'));assert.ok(p.availableIntents.includes('move'));
+ assert.throws(()=>workers.validateRole({action:{kind:'reset_camera',zoomOut:true}},'movement',p.availableIntents),/当前仅可选择/);
+ assert.equal(p.cameraZoomFeedback.ageMs,500);
+ for(const edit of [{lastNativeStep:{...c.lastNativeStep,detail:'{"kind":"camera-reset","inputSent":false}'}},{lastNativeStep:{...c.lastNativeStep,action:{kind:'turn'}}},{frameImage:{capturedAt:19000}},{frameImage:{capturedAt:40000}}])assert.ok(JSON.parse(workers.prompt({...c,...edit},{imageAssistance:true}).input).availableIntents.includes('reset_camera'));
+ assert.ok(JSON.parse(workers.prompt(c).input).availableIntents.includes('reset_camera'));
+});
 test('image departure contract retains the exact current F label and names the direction parameter',()=>{
  const target='「甜甜花」的种子',texts=[{text:'返回「旗舰」休息',box:[80,240,220,35]},
   {source:'bettergi_native_f_label',text:target,count:1,anchor:[1103,523,32,32],box:[1218,523,285,32]}];

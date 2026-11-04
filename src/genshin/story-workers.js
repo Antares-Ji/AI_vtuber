@@ -51,6 +51,12 @@ function prompt(context,{role=workerFor(context.observation),rejected=[],handoff
   base.availableIntents=base.availableIntents.filter(k=>!['turn','reset_camera'].includes(k));
   base.cameraLoopRecovery={reason:'three_completed_camera_actions_without_stage_or_distance_progress',available:'native_unstuck',rule:'本轮已有三次实际转镜仍无推进，继续转镜不是新观察策略。可选择BGI原生native_unstuck退离近处遮挡，再跟随星光；也可选择当前可用的BGI寻路意图。恢复后才重新开放转镜。'};
  }
+ let lastCamera;try{lastCamera=JSON.parse(context.lastNativeStep?.detail);}catch{}
+ const cameraAge=Number.isFinite(context.frameImage?.capturedAt)&&Number.isFinite(context.lastNativeStep?.finishedAt)?context.frameImage.capturedAt-context.lastNativeStep.finishedAt:null;
+ if(imageAssistance&&o.scene==='world'&&o.nativeVision?.ui==='Main'&&context.lastNativeStep?.action?.kind==='reset_camera'&&lastCamera?.kind==='camera-reset'&&lastCamera.inputSent===true&&lastCamera.zoomOutSent===true&&cameraAge>0&&cameraAge<15000){
+  base.availableIntents=base.availableIntents.filter(k=>k!=='reset_camera');
+  base.cameraZoomFeedback={source:'just_completed_native_zoom_receipt',ageMs:cameraAge,rule:'BGI刚刚已经拉远并复位，本张是其后新图；若仍贴脸，重复拉远复位不会提供新的取景策略。可依据当前图选择有界turn调整俯仰（正dy向下）或方向，或move/native_unstuck退离遮挡；这些动作仍由你选择，输入返回不能当脱困成功。'};
+ }
  if(o.mapPosition?.available===false)base.availableIntents=base.availableIntents.filter(k=>!['travel_quest','navigate','advance_quest','seek_quest','search_area'].includes(k));
  if(target&&grounding.collectionTarget(context.texts,target)){
   base.availableIntents=base.availableIntents.filter(k=>k!=='leave_interaction');
