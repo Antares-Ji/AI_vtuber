@@ -121,7 +121,13 @@ class StoryFeedbackMemory{
   const order=new Map(this.data.sessions.map(s=>[s.id,s.order]));
   // Older versions created separate buckets for OCR quote variants. Read all
   // exact canonical aliases without deleting or rewriting the native ledger.
-  const contextIds=new Set(this.data.contexts.filter(c=>normal(c.quest)===normal(this.quest)&&stageKey(c.stage)===stageKey(this.stage)).map(c=>c.id));
+  const sameQuest=this.data.contexts.filter(c=>normal(c.quest)===normal(this.quest));
+  const aliases=sameQuest.filter(c=>stageKey(c.stage)===stageKey(this.stage)||compatibleStage(c.stage,this.stage));
+  // A historical HUD row can contain an NPC suffix, while a later row is
+  // clean. Share those compatible buckets only if they form one unambiguous
+  // prefix chain; two different full stages must not merge through a prefix.
+  const oneChain=aliases.every(a=>aliases.every(b=>stageKey(a.stage)===stageKey(b.stage)||compatibleStage(a.stage,b.stage)));
+  const contextIds=new Set((oneChain?aliases:sameQuest.filter(c=>stageKey(c.stage)===stageKey(this.stage))).map(c=>c.id));
   const events=this.data.events.filter(e=>contextIds.has(e.contextId)).sort((a,b)=>order.get(a.sessionId)-order.get(b.sessionId)||a.step.seq-b.step.seq);
   const steps=events.map(e=>e.step),recentNativeSteps=compactSteps(steps);
   const interactionVisits={};

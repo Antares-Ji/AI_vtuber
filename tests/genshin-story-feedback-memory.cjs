@@ -5,6 +5,22 @@ const step=(seq,kind,detail={},extra={})=>({seq,action:{kind,...extra},detail:ty
 const follow=seq=>step(seq,'follow_marker',{kind:'marker-follow',movedMs:0,stopReason:'marker_missing_or_ambiguous'});
 const f=(seq,target='骗子向导')=>step(seq,'key',{kind:'interaction',target,sent:true,outcome:'prompt_unchanged'},{key:'F',text:target});
 function fixture(t,options={}){const root=fs.mkdtempSync(path.join(os.tmpdir(),'genshin-feedback-'));t.after(()=>fs.rmSync(root,{recursive:true,force:true}));return {root,memory:new StoryFeedbackMemory({root,quest:'神秘岛的传说',stage:'跟随骗子向导',...options})};}
+test('a clean stage bucket cannot hide retry receipts held under its historical NPC-suffixed HUD',t=>{
+ const {root,memory}=fixture(t,{stage:'返回「旗舰」休息帕霍'});
+ memory.merge({sessionId:'suffix',steps:[step(1,'native_track',{kind:'bgi-native-track',stopReason:'native_stalled_after_recovery'}),step(2,'quest_route',{kind:'commission-route',state:{id:'flagship-official-entry',stage:'返回「旗舰」休息',attempts:1,cursor:5}})]});
+ memory.markReentryAttempt('flagship-official-entry');
+ const data=JSON.parse(fs.readFileSync(memory.file));data.contexts.push({id:'clean-stage',quest:memory.quest,stage:'返回『旗舰」休息',createdAt:1});fs.writeFileSync(memory.file,JSON.stringify(data));
+ const restored=new StoryFeedbackMemory({root,quest:memory.quest,stage:'返回「旗舰」休息'}),s=restored.snapshot();
+ assert.equal(s.nativeTrackingStalls,1);assert.equal(s.commissionRouteStates['flagship-official-entry'].cursor,5);
+ assert.deepEqual(s.entryRecovery.attempted,['flagship-official-entry']);assert.throws(()=>restored.markReentryAttempt('flagship-official-entry'));
+});
+test('ambiguous full stages are not merged merely because an OCR prefix matches both',t=>{
+ const {root,memory}=fixture(t,{stage:'前往指定地点引诱骗子逃跑'});
+ memory.merge({sessionId:'other-stage',steps:[follow(1)]});
+ const data=JSON.parse(fs.readFileSync(memory.file));
+ data.contexts.push({id:'full-other',quest:memory.quest,stage:'前往指定地点引诱骗子露面',createdAt:1},{id:'short',quest:memory.quest,stage:'前往指定地点引诱骗',createdAt:2});fs.writeFileSync(memory.file,JSON.stringify(data));
+ assert.equal(new StoryFeedbackMemory({root,quest:memory.quest,stage:'前往指定地点引诱骗'}).snapshot().stats.nativeReceipts,0);
+});
 test('entry recovery is reserved before input and survives a restart without a final native receipt',t=>{
  const {root,memory}=fixture(t,{stage:'返回「旗舰」休息'});
  memory.merge({sessionId:'recovery-native',steps:[step(1,'native_unstuck',{kind:'bgi-native-unstuck',stopReason:'returned'}),step(2,'native_unstuck',{kind:'bgi-native-unstuck',stopReason:'returned'}),step(3,'native_track',{kind:'bgi-native-track',stopReason:'native_stalled_after_recovery'})]});
