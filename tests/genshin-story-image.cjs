@@ -74,3 +74,25 @@ test('explicit system route is used before sending and failure is never replayed
  globalThis.fetch=async url=>{calls++;assert.equal(url,'https://api.deepseek.com/chat/completions');throw Error('network test');};
  await assert.rejects(provider.respond('test',{dataRoot:f.root,env:f.env}),/network test/);assert.equal(calls,1);
 });
+test('action comparison includes only a matched adjacent completed input and labels the current image',async t=>{
+ const f=fixture(t),now=Date.now(),action={kind:'turn',dx:300,dy:0};
+ const previous={request:{id:'native-1',seq:1,capturedAt:now-5000},observation:{scene:'world'},decision:{action},image:f.frame.path,sha256:f.frame.sha256};
+ const request={id:'native-1',seq:2,capturedAt:now,lastStep:{seq:1,action,finishedAt:now-500}};
+ const frame=image.previousActionFrame(previous,request,observation);
+ assert.equal(frame.seq,1);assert.deepEqual(frame.completedAction,action);
+ for(const changes of [{id:'other-run'},{seq:3},{capturedAt:now+40000},{lastStep:{...request.lastStep,action:{kind:'wait'}}},{lastStep:{...request.lastStep,finishedAt:now+1}}])
+  assert.equal(image.previousActionFrame(previous,{...request,...changes},observation),null);
+ assert.equal(image.previousActionFrame(previous,request,{scene:'menu'}),null);
+ let body;
+ const current={...f.frame,nativeId:request.id,seq:2,capturedAt:now};
+ const answer=await workers.call({observation,texts:[],frameImage:current,previousFrameImage:frame},{...f,fetchImpl:async(_,req)=>{body=JSON.parse(req.body);return {ok:true,json:async()=>({choices:[{finish_reason:'stop',message:{content:'{"action":{"kind":"wait"}}'}}]})};}});
+ assert.equal(body.messages[1].content.filter(v=>v.type==='image_url').length,2);
+ assert.match(body.messages[0].content,/上一动作执行前和执行后的当前BGI画面/);
+ assert.ok(!body.messages[0].content.includes('前两张是同一次V追踪'));
+ assert.equal(answer.imageInput.sequenceKind,'completed_action_pair');
+ assert.deepEqual(answer.imageInput.sequence.map(p=>p.seq),[1,2]);
+ assert.match(body.messages[1].content[0].text,/completedActionBetweenImages/);
+ assert.throws(()=>image.loadActionPair({...current,nativeId:'other'},frame,f.root),/相邻/);
+ assert.throws(()=>image.loadActionPair(current,{...frame,sha256:'changed'},f.root),/哈希/);
+ assert.equal(image.loadActionPair(current,null,f.root).length,1);
+});

@@ -45,4 +45,28 @@ function loadSequence(current,frames,root){
  if(pictures.reduce((n,p)=>n+p.evidence.bytes,0)>24*1024*1024)throw Error('截图序列总大小超限');
  return pictures;
 }
-module.exports={enabled,load,eligible,copyTrackingFrames,loadSequence};
+// Compare only the immediately preceding owned observation with its completed
+// action. This is visual feedback, never a substitute for the current frame.
+function previousActionFrame(previous,request,observation){
+ const last=request.lastStep;
+ if(!previous||previous.observation?.scene!=='world'||observation?.scene!=='world'||
+    previous.request?.id!==request.id||previous.request.seq!==request.seq-1||
+    last?.seq!==previous.request.seq||!Number.isFinite(last.finishedAt)||
+    last.finishedAt<previous.request.capturedAt||last.finishedAt>request.capturedAt||
+    request.capturedAt-previous.request.capturedAt>30000||
+    JSON.stringify(last.action)!==JSON.stringify(previous.decision?.action))return null;
+ return {path:previous.image,sha256:previous.sha256,source:'bettergi_owned_capture',
+  nativeId:request.id,seq:previous.request.seq,capturedAt:previous.request.capturedAt,
+  completedAction:last.action,finishedAt:last.finishedAt};
+}
+function loadActionPair(current,previous,root){
+ if(!previous)return loadSequence(current,[],root);
+ if(!current.nativeId||previous.nativeId!==current.nativeId||previous.seq!==current.seq-1||
+    previous.capturedAt>=current.capturedAt||current.capturedAt-previous.capturedAt>30000||
+    !Number.isFinite(previous.finishedAt)||previous.finishedAt<previous.capturedAt||previous.finishedAt>current.capturedAt)
+  throw Error('动作对照截图必须来自同一原生运行的相邻已完成动作');
+ const pictures=[load(previous,root),load(current,root)];
+ if(pictures.reduce((n,p)=>n+p.evidence.bytes,0)>24*1024*1024)throw Error('截图序列总大小超限');
+ return pictures;
+}
+module.exports={enabled,load,eligible,copyTrackingFrames,loadSequence,previousActionFrame,loadActionPair};

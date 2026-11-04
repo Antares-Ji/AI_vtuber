@@ -112,7 +112,9 @@ function validateRole(value,role,availableIntents){
   throw Error('move仅80–600ms微调；赶路请选择navigate连续行走或travel_quest原生CV寻路');
 }
 async function call(context,{root,env={},signal,role=workerFor(context.observation),rejected=[],handoff=null,forecast=null,fetchImpl}={}){
- const pictures=!forecast&&storyImage.eligible(context.observation)&&context.frameImage&&storyImage.enabled(root)?storyImage.loadSequence(context.frameImage,context.trackingFrames||[],root):[];
+ const trackingBurst=Boolean(context.trackingFrames?.length);
+ const pictures=!forecast&&storyImage.eligible(context.observation)&&context.frameImage&&storyImage.enabled(root)?
+  (trackingBurst?storyImage.loadSequence(context.frameImage,context.trackingFrames,root):storyImage.loadActionPair(context.frameImage,context.previousFrameImage,root)):[];
  const picture=pictures.at(-1)||null;
  const policy=picture?{...profile(role,env),model:'deepseek-flash',maxOutputTokens:640}:profile(role,env),built=prompt(context,{role,rejected,handoff,forecast,imageAssistance:Boolean(picture)});
  // Keep provider selection explicit. The fast dual-worker pipeline is DeepSeek-only.
@@ -127,10 +129,14 @@ async function call(context,{root,env={},signal,role=workerFor(context.observati
   built.instructions+='\n场景的固定灯带、发光地板接缝和装饰光不能仅凭发光就认定为任务星光；需要可见粒子轨迹等依据，证据不足就填groundTrailVisible:false。';
   if(pictures.length>1){
    built.input+='\ntrackingImageSequence='+JSON.stringify(pictures.map((p,i)=>({index:i+1,capturedAt:p.evidence.capturedAt,current:i===pictures.length-1,source:'bettergi_owned_capture'})));
-   built.instructions+='\n本次图片按时间顺序：前两张是同一次V追踪后约0.5秒、1.5秒的BGI采样，最后一张才是当前画面。利用序列区分短暂粒子与固定灯带；动作、交互、障碍必须以最后一张及当前BGI OCR为准。早期出现后消失的星光可描述在groundTrail中，但不可谎称当前仍可见。';
+   if(trackingBurst)built.instructions+='\n本次图片按时间顺序：前两张是同一次V追踪后约0.5秒、1.5秒的BGI采样，最后一张才是当前画面。利用序列区分短暂粒子与固定灯带；动作、交互、障碍必须以最后一张及当前BGI OCR为准。早期出现后消失的星光可描述在groundTrail中，但不可谎称当前仍可见。';
+   else{
+    built.input+='\ncompletedActionBetweenImages='+JSON.stringify({action:context.previousFrameImage.completedAction,finishedAt:context.previousFrameImage.finishedAt,source:'matched_bettergi_native_receipt'});
+    built.instructions+='\n两张图依次是上一动作执行前和执行后的当前BGI画面。对照completedActionBetweenImages判断实际转向/位移、星光相对方向和障碍变化；动作发送不证明移动成功。第一张只用于对照，交互和下一步动作必须以最后一张及当前BGI OCR为准。若重复走向墙面或远离星光，依据新图修正方向；不得把旧图通道当作当前可通行证据。';
+   }
   }
  }
  const answer=await respond(built.input,{dataRoot:root,env,signal,fetchImpl,instructions:built.instructions,schema,...policy,...(picture?{imageUrls:pictures.map(p=>p.url)}:{})});
- return {...answer,worker:role,latencyMs:Date.now()-startedAt,imageInput:picture?{...picture.evidence,...(pictures.length>1?{sequence:pictures.map(p=>p.evidence)}:{})}:null};
+ return {...answer,worker:role,latencyMs:Date.now()-startedAt,imageInput:picture?{...picture.evidence,...(pictures.length>1?{sequence:pictures.map(p=>p.evidence),sequenceKind:trackingBurst?'tracking_burst':'completed_action_pair'}:{})}:null};
 }
 module.exports={workerFor,profile,prompt,normalize,validateRole,call,MOVEMENT,INTERACTION};

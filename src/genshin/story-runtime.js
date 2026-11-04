@@ -286,7 +286,7 @@ async function runStory(goal,{root,env,signal,reportProgress=()=>{},runId,direct
     const imageAssistance=fast&&storyImage.eligible(observation)&&storyImage.enabled(root);
     const trackingFrames=imageAssistance?storyImage.copyTrackingFrames(request,source,root):[];
     const context={goal,questMemory,navigationMemory:request.navigationMemory,
-     ...(imageAssistance?{frameImage:{path:image,sha256:hash,capturedAt:request.capturedAt,seq:request.seq,source:'bettergi_owned_capture'},trackingFrames}:{}),
+     ...(imageAssistance?{frameImage:{path:image,sha256:hash,capturedAt:request.capturedAt,seq:request.seq,nativeId:request.id,source:'bettergi_owned_capture'},trackingFrames,previousFrameImage:storyImage.previousActionFrame(history.at(-1),request,observation)}:{}),
      observation,distanceEvidence,texts:request.texts,mapAreas:request.mapAreas,
      observedAreas:request.observedAreas,selectedArea,waypoints:request.waypoints,nativeId:request.id,
      previousSteps:history.slice(-3).map(e=>({nativeId:e.request.id,seq:e.request.seq,
