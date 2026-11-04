@@ -110,6 +110,13 @@ test('movement delegates continuous navigation and keeps fine adjustment bounded
  assert.ok(workers.prompt(context).instructions.includes('连续走最多180m'));
  assert.doesNotThrow(()=>workers.validateRole({action:{kind:'advance_quest',key:'W'}},'movement'));
 });
+test('camera loop replaces more rotation with available BGI recovery, never removes the only alternative',()=>{
+ const observation={...context.observation,rotationFeedback:{repeated:true},nativeRecovery:{available:true}};
+ const data=JSON.parse(workers.prompt({...context,observation},{imageAssistance:true}).input);
+ assert.ok(data.availableIntents.includes('native_unstuck'));assert.ok(!data.availableIntents.includes('turn'));assert.ok(!data.availableIntents.includes('reset_camera'));
+ const unavailable=JSON.parse(workers.prompt({...context,observation:{...observation,nativeRecovery:{available:false}}},{imageAssistance:true}).input);
+ assert.ok(unavailable.availableIntents.includes('turn'));
+});
 test('worker requests omit narration, keep user goal, and use short structured cross-worker messages',()=>{
  const p=workers.prompt(context,{handoff:{from:'interaction',action:{kind:'teleport',id:'61'}}}),data=JSON.parse(p.input);
  assert.equal(data.goal,context.goal);assert.equal(data.observation.summary,undefined);assert.equal(data.handoff.from,'interaction');

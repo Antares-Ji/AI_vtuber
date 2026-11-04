@@ -40,6 +40,10 @@ function prompt(context,{role=workerFor(context.observation),rejected=[],handoff
  if(!o.nativeTracking?.available)base.availableIntents=base.availableIntents.filter(k=>k!=='native_track');
  if(!o.nativeRecovery?.available)base.availableIntents=base.availableIntents.filter(k=>k!=='native_unstuck');
  else base.availableIntents=base.availableIntents.filter(k=>k!=='leave_interaction');
+ if(o.rotationFeedback?.repeated&&o.nativeRecovery?.available){
+  base.availableIntents=base.availableIntents.filter(k=>!['turn','reset_camera'].includes(k));
+  base.cameraLoopRecovery={reason:'four_completed_camera_actions_without_stage_or_distance_progress',available:'native_unstuck',rule:'本轮已有四次实际转镜仍无推进，继续转镜不是新观察策略。可选择BGI原生native_unstuck退离近处遮挡，再跟随星光；也可选择当前可用的BGI寻路意图。恢复后才重新开放转镜。'};
+ }
  if(o.mapPosition?.available===false)base.availableIntents=base.availableIntents.filter(k=>!['travel_quest','navigate','advance_quest','seek_quest','search_area'].includes(k));
  if(target&&grounding.collectionTarget(context.texts,target)){
   base.availableIntents=base.availableIntents.filter(k=>k!=='leave_interaction');

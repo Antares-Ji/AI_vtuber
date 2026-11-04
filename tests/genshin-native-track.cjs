@@ -94,6 +94,14 @@ test('reacquired map coordinates must be fresh stable BGI samples and never just
  assert.equal(freshMapPosition(r),true);
  for(const p of [{...r.position,source:'model'},{...r.position,samples:[]},{...r.position,stable:false},{...r.position,samples:[r.position.samples[0],{x:200,y:300,at:19800}]},{...r.position,samples:r.position.samples.map(s=>({...s,at:10000}))},{...r.position,samples:r.position.samples.map(s=>({...s,at:21000}))}])assert.equal(freshMapPosition({...r,position:p}),false);
 });
+test('camera-loop recovery counts executed same-stage turns and resets on movement or mismatched receipts',()=>{
+ const {rotationLoopEvidence}=require('../src/genshin/story-memory');
+ const frame=n=>({id:'camera',seq:n,capturedAt:n*1000,texts:rows,nativeVision:{ui:'Main',motion:'Normal'},lastStep:{seq:n-1,action:{kind:'turn',dx:200,dy:0},finishedAt:n*1000-100}});
+ const history=[1,2,3,4].map(n=>({request:frame(n)})),current=frame(5);
+ assert.equal(rotationLoopEvidence(history,current).repeated,true);
+ for(const edit of [{id:'other'},{capturedAt:200000},{nativeVision:{ui:'Talk',motion:'Normal'}},{lastStep:{...current.lastStep,seq:1}},{lastStep:{...current.lastStep,action:{kind:'move'}}}])assert.equal(rotationLoopEvidence(history,{...current,...edit}).repeated,false);
+ assert.equal(rotationLoopEvidence(history.slice(1),current).repeated,false);
+});
 test('repeated invalid map coordinates block dependent navigation while native tracking remains eligible',()=>{
  const {mapPositionFailures}=require('../src/genshin/story-feedback-memory');
  const receipt=d=>({detail:JSON.stringify(d)});

@@ -92,6 +92,21 @@ function freshMapPosition(request){
  const p=request.position,s=p?.samples;
  return p?.source==='bettergi_minimap_cv'&&p.stable===true&&Array.isArray(s)&&s.length===2&&s.every(v=>Number.isFinite(v.x)&&Number.isFinite(v.y)&&Number.isFinite(v.at)&&request.capturedAt>=v.at&&request.capturedAt-v.at<=5000)&&s[0].at<=s[1].at&&Math.hypot(s[0].x-s[1].x,s[0].y-s[1].y)<=10;
 }
+function rotationLoopEvidence(history,current){
+ const frames=[...(history||[]).slice(-8).map(e=>e.request),current].filter(Boolean);
+ const g=require('../../scripts/genshin/story-main');let turns=0;
+ for(let i=1;i<frames.length;i++){
+  const before=frames[i-1],after=frames[i],step=after.lastStep;
+  if(step?.action?.kind==='key'&&step.action.key==='V')continue;
+  if(!['turn','reset_camera'].includes(step?.action?.kind)){turns=0;continue;}
+  const a=g.questHud(before.texts),b=g.questHud(after.texts);
+  const matched=before.id===after.id&&before.seq===step.seq&&Number.isFinite(step.finishedAt)&&after.capturedAt>step.finishedAt&&current.capturedAt-before.capturedAt<90000;
+  const main=[before,after].every(r=>r.nativeVision?.ui==='Main'&&r.nativeVision?.motion==='Normal');
+  if(!matched||!main||!a||!b||!compatibleStage(a.stage,b.stage)||Math.abs(a.meters-b.meters)>1){turns=0;continue;}
+  turns++;
+ }
+ return {source:'native_camera_receipts_and_independent_bgi_hud',repeated:turns>=4,turns,rule:'连续转镜未产生任务推进，仅证明观察循环，不证明存在障碍；可让BGI原生脱困或寻路，返回后重新观察。'};
+}
 function navigationFromEvidence(rows,quest){
  const matching=rows.filter(({e})=>e.decision?.quest===quest);
  const stage=matching.map(({e})=>questStage(e.request?.texts)).find(Boolean)||null;
@@ -108,4 +123,4 @@ function navigationFromEvidence(rows,quest){
  return {stage,teleportAttempts:[...attempted],routeAttemptKeys:[...pending],verification:'historical_attempts_not_arrival',previousSteps:matching.slice(0,5).reverse().map(({e})=>({observation:e.observation,decision:e.decision,lastStep:e.request.lastStep}))};
 }
 function readNavigationMemory(root,quest){return navigationFromEvidence(recentEvidence(root),quest);}
-module.exports={readQuestMemory,questFromEvidence,questStage,readNavigationMemory,navigationFromEvidence,compatibleStage,updateNavigationStage,routePreflightRejected,reconcileRouteAttempt,nativeTrackingProgress,nativeRecoveryNeeded,movementStallEvidence,freshMapPosition};
+module.exports={readQuestMemory,questFromEvidence,questStage,readNavigationMemory,navigationFromEvidence,compatibleStage,updateNavigationStage,routePreflightRejected,reconcileRouteAttempt,nativeTrackingProgress,nativeRecoveryNeeded,movementStallEvidence,freshMapPosition,rotationLoopEvidence};

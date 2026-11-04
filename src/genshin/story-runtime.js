@@ -4,7 +4,7 @@ const bridge=require('./bridge'),{respond}=require('./model-provider');
 const waypointCatalog=require('./story-waypoints'),{installation}=require('./installation');
 const {corroborateDistances,trackingEvidence}=require('./story-observation');
 const StoryTravel=require('../../scripts/genshin/story/macros/travel-quest');
-const {readQuestMemory,questFromEvidence,questStage,readNavigationMemory,updateNavigationStage,reconcileRouteAttempt,nativeTrackingProgress,nativeRecoveryNeeded,movementStallEvidence,freshMapPosition}=require('./story-memory');
+const {readQuestMemory,questFromEvidence,questStage,readNavigationMemory,updateNavigationStage,reconcileRouteAttempt,nativeTrackingProgress,nativeRecoveryNeeded,movementStallEvidence,freshMapPosition,rotationLoopEvidence}=require('./story-memory');
 const {questGuide}=require('./story-guides');
 const grounding=require('../../scripts/genshin/story-main');
 const {frameBudget}=require('./story-deadline');
@@ -260,7 +260,8 @@ async function runStory(goal,{root,env,signal,reportProgress=()=>{},runId,direct
     const localReceipts=[...history.map(e=>e.request.lastStep),request.lastStep].filter(Boolean);
     const blockedTarget=observation.interaction?.state==='unique'?observation.interaction.candidates[0].text:null;
     observation.movementFeedback=movementStallEvidence(history,request);
-    observation.nativeRecovery={available:request.capabilities?.nativeQuestUnstuck===true&&nativeUnstuckAttempts<2&&observation.scene==='world'&&observation.nativeVision?.ui==='Main'&&Boolean(nearHud)&&(observation.interaction.repeatedIncidental||nativeRecoveryNeeded(localReceipts,blockedTarget)||observation.movementFeedback.stalled)&&!(blockedTarget&&grounding.collectionTarget(request.texts,blockedTarget)),attempts:nativeUnstuckAttempts,source:'BetterGI.TrapEscaper.RotateAndMove',target:blockedTarget,rule:'同阶段重复交互、原生追踪受阻或三次实际短移后独立HUD无可测进展，可调用BGI原生脱困（有界后退/侧移/跳跃）；无进展不是障碍识别，脱困后需重新观察。'};
+    observation.rotationFeedback=rotationLoopEvidence(history,request);
+    observation.nativeRecovery={available:request.capabilities?.nativeQuestUnstuck===true&&nativeUnstuckAttempts<2&&observation.scene==='world'&&observation.nativeVision?.ui==='Main'&&Boolean(nearHud)&&(observation.interaction.repeatedIncidental||nativeRecoveryNeeded(localReceipts,blockedTarget)||observation.movementFeedback.stalled||!blockedTarget&&observation.rotationFeedback.repeated)&&!(blockedTarget&&grounding.collectionTarget(request.texts,blockedTarget)),attempts:nativeUnstuckAttempts,source:'BetterGI.TrapEscaper.RotateAndMove',target:blockedTarget,rule:'同阶段重复交互、原生追踪受阻、短移停滞或四次实际转镜无任务推进，可调用BGI原生脱困（有界后退/侧移/跳跃）；无进展不是障碍识别，脱困后需重新观察。'};
     if(request.capabilities?.minimapProjection===false)observation.travelQuest={...observation.travelQuest,ok:false,reason:'projection_api_unavailable'};
     observation.navigationFeedback.rule='blocked=true时不能继续follow_marker；必须依据当前地形选择有界恢复或停止。转向不变、距离不降均会提前返回，不把动作次数当作进展。';
     observation.frameEvidence={seq:request.seq,capturedAt:request.capturedAt,ageMs:Date.now()-request.capturedAt,previousActionFinishedAt:request.lastStep?.finishedAt||null,rule:'这是上一动作完成后新采集的画面，已完成本地识别；不是等待中的观察。不要仅为等待新画面反复wait。'};
