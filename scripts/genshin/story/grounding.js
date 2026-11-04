@@ -97,8 +97,9 @@ const StoryGrounding=(()=>{
   // A changed stage has its own persistent bucket. Collection points and
   // explicitly named objectives may legitimately require several interactions.
   return Boolean(stage&&name&&(visits?.[name]||0)>=1&&!stage.includes(name)
-   &&!collectionTarget(texts,target)&&!/^进入|^离开|^返回/.test(name));
+   &&!collectionTarget(texts,target)&&!traversalTarget(name)&&!/^进入|^离开|^返回/.test(name));
  }
+ function traversalTarget(target){return /^(呼叫|上行|下行|开门|启动升降机|启动升降梯|乘坐升降机|乘坐升降梯)$/.test(normal(target));}
  function movementStop(texts){return sceneCue(texts)||(['unique','ambiguous'].includes(interaction(texts).state)?'interaction_prompt':null);}
  function detail(step){try{return JSON.parse(step?.detail);}catch{return null;}}
  function navigationFeedback(steps){
@@ -194,7 +195,7 @@ const StoryGrounding=(()=>{
       direction: label.box[0] + label.box[2] / 2 < 880 ? 'left' : label.box[0] + label.box[2] / 2 > 1040 ? 'right' : 'center', verified: false };
   }
 
- return {interaction,collectionTarget,repeatedIncidentalInteraction,sameQuestInstruction,movementStop,sceneCue,navigationFeedback,travelFeedback,seekFeedback,interactionBlocked,questMenu,recoveryPrompt,loginPrompt,questInstruction,mapMenu,questHud,travelEligibility,questDistanceLabel};
+ return {interaction,collectionTarget,traversalTarget,repeatedIncidentalInteraction,sameQuestInstruction,movementStop,sceneCue,navigationFeedback,travelFeedback,seekFeedback,interactionBlocked,questMenu,recoveryPrompt,loginPrompt,questInstruction,mapMenu,questHud,travelEligibility,questDistanceLabel};
 })();
 
 if(typeof module!=='undefined'&&module.exports)module.exports=StoryGrounding;

@@ -202,7 +202,9 @@ else (async function(){
   if(/购买|兑换|创世结晶|原石|解锁|祈愿|充值/.test(action.text))return JSON.stringify({...result,outcome:'unsupported_target'});
   if(StoryGrounding.interactionBlocked(priorSteps,action.text))return JSON.stringify({...result,outcome:'retry_limit'});
   guardedKeyDown('VK_F');try{await sleep(80);result.sent=true;}finally{keyUp('VK_F');}
-  await sleep(700);
+  // Give the elevator/call animation time to move before another world action.
+  // This is only a settling interval, never evidence of arrival.
+  await sleep(StoryGrounding.traversalTarget(action.text)?4000:700);
   const afterTexts=read(),after=StoryGrounding.interaction(afterTexts),scene=StoryGrounding.sceneCue(afterTexts);
   result.outcome=scene?'scene_changed':after.state==='unique'&&normalize(after.candidates[0].text)===normalize(action.text)?'prompt_unchanged':'prompt_changed_or_missing';
   result.observedScene=scene;return JSON.stringify(result);

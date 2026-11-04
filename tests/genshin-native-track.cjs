@@ -27,6 +27,12 @@ test('repeated incidental F gets a departure alternative while named quest and c
  assert.equal(g.repeatedIncidentalInteraction([{text:'和克鲁切对话',box:rows[0].box}],'克鲁切',request.interactionVisits),false);
  assert.equal(g.repeatedIncidentalInteraction([{text:'收集木材',box:rows[0].box}],'调查',{'调查':2}),false);
  assert.equal(g.repeatedIncidentalInteraction(rows,'休息',{'休息':1}),false);
+ for(const target of ['呼叫','上行','下行','开门']){
+  assert.equal(g.repeatedIncidentalInteraction(rows,target,{[target]:2}),false);
+  const prompt=[rows[0],{source:'bettergi_native_f_label',text:target,count:1,anchor:[1100,500,30,30],box:[1150,500,200,30]}];
+  assert.doesNotThrow(()=>validateDecision({action:{kind:'key',key:'F',text:target}},{texts:prompt,interactionVisits:{[target]:2}},{scene:'world',uncertain:false}));
+ }
+ assert.equal(g.traversalTarget('呼叫某商人'),false);
 });
 test('native AutoPick resolves an OCR-missed F while ambiguous native prompts remain blocked',()=>{
  const p={source:'bettergi_native_f_label',text:'坐下',count:1,box:[1300,500,100,30],anchor:[1180,500,30,30]};
