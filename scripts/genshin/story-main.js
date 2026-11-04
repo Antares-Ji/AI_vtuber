@@ -1352,7 +1352,8 @@ else (async function(){
     if(action.key==='F')detail=await interact(action,priorSteps);
     else if(action.key==='SPACE'&&StoryGrounding.sceneCue(readFreshTexts())==='dialogue')detail=JSON.stringify(await StoryContinuousNavigation.advanceDialogue({grounding:StoryGrounding,read:readFreshTexts,checkInput,keyDown:guardedKeyDown,keyUp:key=>keyUp(key),sleep}));
     else {const key=action.key==='ESCAPE'?'VK_ESCAPE':action.key==='SPACE'?'VK_SPACE':'VK_'+action.key;
-    guardedKeyDown(key);try{await sleep(80);}finally{keyUp(key);}await sleep(700);}
+    guardedKeyDown(key);try{await sleep(80);}finally{keyUp(key);}await sleep(action.key==='V'?3000:700);
+    if(action.key==='V')detail=JSON.stringify({kind:'quest_tracking_refresh',inputSent:true,settledMs:3000,source:'BetterGI.AutoTrackTask.StartTrackPoint timing',verified:false});}
    }else if(action.kind==='click_text'){
     if(typeof action.text!=='string'||action.text.length<2||action.text.length>150||!texts.some(t=>normalize(t.text)===normalize(action.text)))throw Error('文本不在本轮OCR中');
     const fresh=captureGameRegion();

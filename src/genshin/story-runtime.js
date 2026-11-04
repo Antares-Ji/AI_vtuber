@@ -170,7 +170,7 @@ async function decideWithRepair(call,request,observation,signal,budget=null,vali
   const answer=await call(rejected);signal.throwIfAborted();
   calls.push({provider:answer.provider,model:answer.model,usage:answer.usage||null,worker:answer.worker,requestPolicy:answer.requestPolicy,latencyMs:answer.latencyMs,reasoningTokens:answer.reasoningTokens,imageInput:answer.imageInput||null});
   budget?.check();
-  try{const value=JSON.parse(answer.text);return {decision:validator(value,request,observation),prediction:value.prediction,answer,rejected,calls};}
+  try{const value=JSON.parse(answer.text);return {decision:validator(value,request,observation),prediction:value.prediction,imageAssessment:answer.imageInput&&value.imageAssessment?value.imageAssessment:null,answer,rejected,calls};}
   catch(error){rejected.push({text:answer.text,error:error.message,provider:answer.provider,model:answer.model,usage:answer.usage||null,imageInput:answer.imageInput||null,requestPolicy:answer.requestPolicy});}
  }
  return {decision:{action:{kind:'wait'},reason:'决策未通过校验或剩余预算不足，重新采集画面：'+rejected.at(-1).error,commentary:'这个操作目标还没核对上，我重新看一下当前界面。',quest:''},answer:rejected.at(-1),rejected,calls};
@@ -298,6 +298,7 @@ async function runStory(goal,{root,env,signal,reportProgress=()=>{},runId,direct
     const evidence={trainingSessionId:checkpoint?.sessionId||null,request,observation,rawObservation,observationError,visionRecord:vision.record,imageAssistance:answer.imageInput||null,distanceEvidence,decision,rejected,provider:answer.provider,model:answer.model,usage:answer.usage||null,modelCalls:repaired.calls,
      pipeline:fast?{role,thinking:'disabled',maxOutputTokens:answer.requestPolicy?.maxOutputTokens||workers.profile(role,env).maxOutputTokens,observationProvider:answer.imageInput?'bettergi_cv_ocr_and_deepseek_image':'bettergi_cv_ocr',lookahead:imageAssistance?'disabled_current_image_required':repaired.lookahead||lookahead.lastCheck}:null,
      image,sha256:hash,at:Date.now(),verified:false};
+    evidence.cloudImageAssessment=repaired.imageAssessment||null;
     fs.writeFileSync(path.join(folder,`step-${request.seq}.json`),JSON.stringify(evidence,null,2));
     if(decision.action.kind==='complete_quest'){
      const completed=focus.acknowledgeCompletion({id:request.id,seq:request.seq,texts:request.texts});

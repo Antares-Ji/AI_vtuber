@@ -23,10 +23,11 @@ test('live image uses DeepSeek Flash and reports hash without retaining image by
  const answer=await workers.call(context,{...f,fetchImpl:async(url,request)=>{
   body=JSON.parse(request.body);return {ok:true,json:async()=>({model:'deepseek-flash',choices:[{finish_reason:'stop',message:{content:'{"action":{"kind":"move","key":"A","ms":600},"reason":"右侧障碍，向左侧通道移"}'}}]})};
  }});
- assert.equal(body.model,'deepseek-flash');assert.equal(body.max_tokens,384);assert.equal(body.thinking.type,'disabled');
+ assert.equal(body.model,'deepseek-flash');assert.equal(body.max_tokens,640);assert.equal(body.thinking.type,'disabled');
  assert.equal(body.messages[1].content[1].type,'image_url');assert.equal(body.messages[1].content[1].image_url.detail,'original');
  assert.match(body.messages[0].content,/当前BGI截图/);assert.ok(!body.messages[0].content.includes('新的BGI原生脱困能力可用，优先'));
  assert.match(body.messages[0].content,/地面.*星光/);assert.match(body.messages[0].content,/一次key:V/);
+ assert.match(body.messages[0].content,/先输出imageAssessment再输出action/);
  assert.equal(answer.imageInput.sha256,f.frame.sha256);assert.ok(!JSON.stringify(answer).includes('base64'));
 });
 test('forecast, dialogue and opt-out calls remain text-only',async t=>{

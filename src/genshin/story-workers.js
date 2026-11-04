@@ -92,12 +92,17 @@ function validateRole(value,role,availableIntents){
 }
 async function call(context,{root,env={},signal,role=workerFor(context.observation),rejected=[],handoff=null,forecast=null,fetchImpl}={}){
  const picture=!forecast&&storyImage.eligible(context.observation)&&context.frameImage&&storyImage.enabled(root)?storyImage.load(context.frameImage,root):null;
- const policy=picture?{...profile(role,env),model:'deepseek-flash',maxOutputTokens:384}:profile(role,env),built=prompt(context,{role,rejected,handoff,forecast,imageAssistance:Boolean(picture)});
+ const policy=picture?{...profile(role,env),model:'deepseek-flash',maxOutputTokens:640}:profile(role,env),built=prompt(context,{role,rejected,handoff,forecast,imageAssistance:Boolean(picture)});
  // Keep provider selection explicit. The fast dual-worker pipeline is DeepSeek-only.
  if(settings({dataRoot:root,env}).provider!=='deepseek')throw Error('低延迟双worker需要手动选择DeepSeek；未切换供应商');
  const startedAt=Date.now();
  const availableIntents=JSON.parse(built.input).availableIntents;
  const schema={...SCHEMA,properties:{...SCHEMA.properties,action:{type:'object',required:['kind'],properties:{kind:{type:'string',enum:availableIntents}}}}};
+ if(picture){
+  schema.required=['imageAssessment','action'];
+  schema.properties.imageAssessment={type:'object',required:['groundTrailVisible','groundTrail','nearObstacle','openPassage'],properties:{groundTrailVisible:{type:'boolean'},groundTrail:{type:'string'},nearObstacle:{type:'string'},openPassage:{type:'string'}}};
+  built.instructions+='\n本次先输出imageAssessment再输出action。用当前截图逐项确认：groundTrailVisible是否真看见地面连续星光（不能把任务菱形/小地图当星光）；groundTrail用简短文字描述路线从脚下往哪里延伸与转弯，看不到就写未见；nearObstacle描述贴近角色的障碍；openPassage描述当前看得到的可走方向、门或台阶。不要编造遮挡后的路线。根据这些事实再选动作；看不见星光也可从可见通道探索，不能反复V或一直向已确认障碍走。';
+ }
  const answer=await respond(built.input,{dataRoot:root,env,signal,fetchImpl,instructions:built.instructions,schema,...policy,...(picture?{imageUrl:picture.url}:{})});
  return {...answer,worker:role,latencyMs:Date.now()-startedAt,imageInput:picture?.evidence||null};
 }
