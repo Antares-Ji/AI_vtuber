@@ -8,6 +8,16 @@ function fixture(t){
  return {root,env:{GENSHIN_DEEPSEEK_API_KEY:'test-key'}};
 }
 const context={goal:'只做当前任务',observation:{scene:'world',uncertain:false,navigation:{terrain:'open'},interaction:{state:'none'},summary:'冗长解说'},texts:[],mapAreas:[],waypoints:[]};
+test('semantic camera directions convert down to positive native dy without trusting sign prose',()=>{
+ const request={focusQuest:'任务',texts:[]},normalize=action=>workers.normalize({action},request).action;
+ assert.deepEqual(normalize({kind:'turn',vertical:'down'}),{kind:'turn',dx:0,dy:200});
+ assert.deepEqual(normalize({kind:'turn',horizontal:'left',vertical:'up'}),{kind:'turn',dx:-300,dy:-200});
+ assert.deepEqual(normalize({kind:'turn',horizontal:'right',vertical:'none'}),{kind:'turn',dx:300,dy:0});
+ assert.deepEqual(normalize({kind:'turn',dx:200,dy:0}),{kind:'turn',dx:200,dy:0});
+ for(const action of [{kind:'turn',vertical:'down',dy:-200},{kind:'turn',horizontal:'none'},{kind:'turn',vertical:'left'}])assert.throws(()=>normalize(action),/语义turn/);
+ const {validateDecision}=require('../src/genshin/story-runtime');
+ assert.equal(validateDecision({action:normalize({kind:'turn',vertical:'down'})},request,context.observation).action.dy,200);
+});
 test('fresh completed zoom disallows an immediate repeat while retaining bounded camera and movement alternatives',()=>{
  const c={...context,frameImage:{capturedAt:20000},observation:{...context.observation,nativeVision:{ui:'Main'}},lastNativeStep:{seq:2,action:{kind:'reset_camera',zoomOut:true},finishedAt:19500,detail:JSON.stringify({kind:'camera-reset',inputSent:true,zoomOutSent:true})}};
  const p=JSON.parse(workers.prompt(c,{imageAssistance:true}).input);
