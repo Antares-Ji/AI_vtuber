@@ -601,13 +601,31 @@ async function run(bot) {
       const lowAir = typeof bot.oxygenLevel === 'number' && bot.oxygenLevel >= 0 && bot.oxygenLevel <= 8;
       if (bot._wet && !inWater && !lowAir) {
         bot._wet = false;
+        bot._wetLoopFails = 0;
         log.skill(`wet flag set but standing dry at y=${Math.round(bot.entity.position.y)} (air=${bot.oxygenLevel}) - not aborting the dive`);
       } else if (bot._wet) {
         log.skill('wet - escaping the water before any milestone');
         await runHelper(bot, 20000, 'dry_escape', () => reg.get('dry_escape').run(bot, { max: 6 }));
         if (bot._wet) { await runHelper(bot, 90000, 'wet recover_surface', () => reg.get('recover_surface').run(bot, {})); }
-        await sleep(1200);
-        continue;
+        // Refresh live heartbeat even while wet so monitoring/HUD never go stale during water recovery.
+        try { if (typeof bot._liveBuild === 'function') fs.writeFileSync(path.join(cfg.paths.runs, 'live.json'), JSON.stringify(bot._liveBuild())); } catch {}
+        if (!bot._wet) {
+          bot._wetLoopFails = 0;
+          await sleep(800);
+          continue;
+        }
+        bot._wetLoopFails = (bot._wetLoopFails || 0) + 1;
+        // If standing in shallow ankle-deep water with full air (NOT drowning) and dry_escape failed twice,
+        // yield to the milestone/roam instead of spinning forever in dry_escape -> climbOut.
+        if (bot._wetLoopFails >= 2 && !lowAir && (typeof bot.oxygenLevel !== 'number' || bot.oxygenLevel >= 16)) {
+          log.warn(`wet escape failed ${bot._wetLoopFails}x in shallow water (air=${bot.oxygenLevel}) - yielding to ladder so movement can walk out`);
+          bot._wetLoopFails = 0;
+        } else {
+          await sleep(1200);
+          continue;
+        }
+      } else {
+        bot._wetLoopFails = 0;
       }
       ph('survive'); if (await runHelper(bot, 90000, 'survive', () => survive(bot, state))) { await sleep(2000); continue; }
       await cap(P.dropJunk(bot), 25000, 'dropJunk');

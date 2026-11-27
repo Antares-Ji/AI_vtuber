@@ -494,8 +494,37 @@ function makeBot(overrides = {}) {
     assert.equal(mov.liquidCost, 85, 'submerged near dry land raises mov.liquidCost=85 to exit water');
   }
 
+  // 13. dry_escape under MC_ASSIST=0: walks/swims onto nearby dry standable ledge instead of looping placeBlock/climbOut
+  {
+    let placeBlockCalls = 0, gotoDryCalls = 0;
+    const botWet = makeBot({
+      entity: { position: new Vec3(0, 16, 0), yaw: 0, pitch: 0 },
+      _wet: true,
+      inventory: { slots: new Array(46).fill(null), items: () => [{ name: 'cobblestone', count: 32 }] },
+      placeBlock: async () => { placeBlockCalls++; throw new Error('the block is still water'); },
+      blockAt: (p) => {
+        if (!p) return { name: 'air', boundingBox: 'empty' };
+        const x = Math.floor(p.x), y = Math.floor(p.y), z = Math.floor(p.z);
+        if (y <= 15) return { name: 'stone', boundingBox: 'block' };
+        if (x === 0 && z === 0 && y === 16) return { name: 'water', boundingBox: 'empty' };
+        if (x === 2 && z === 0 && (y === 16 || y === 17)) return { name: 'air', boundingBox: 'empty' };
+        return { name: 'water', boundingBox: 'empty' };
+      },
+      pathfinder: {
+        goto: async (goal) => {
+          gotoDryCalls++;
+          if (goal && goal.x === 2 && goal.z === 0) botWet.entity.position = new Vec3(2, 16, 0);
+        },
+      },
+    });
+    const r = await reg.get('dry_escape').run(botWet, { max: 4 });
+    assert.equal(r.ok, true, 'dry_escape must escape onto adjacent dry cell without OP /tp');
+    assert.equal(gotoDryCalls, 1, 'dry_escape must walk to nearby dry standable cell first');
+    assert.equal(placeBlockCalls, 0, 'dry_escape must NOT spam refused placeBlock into own feet when a dry ledge is right next to it');
+  }
+
   fs.rmSync(tmp, { recursive: true, force: true });
-  console.log('PASS minecraft-autonomous: all 12 regression groups passed');
+  console.log('PASS minecraft-autonomous: all 13 regression groups passed');
 })().catch(e => {
   console.error(e);
   process.exitCode = 1;

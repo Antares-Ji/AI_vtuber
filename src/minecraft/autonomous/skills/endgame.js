@@ -1616,6 +1616,62 @@ reg.define('dry_escape', {
     const isWet = bot.blockAt(bot.entity.position.floored());
     if (!(wetAt(bot.entity.position.floored()) || wetAt(bot.entity.position.floored().offset(0, 1, 0))))
       return { ok: true, observation: `not in water (standing on ${isWet ? isWet.name : 'unknown'}) - nothing to escape` };
+    // Legit player-first escape (works identically under MC_ASSIST=0): before trying to place a
+    // block into our own water cell (which Paper refuses) or jump-pillaring underwater (which stalls
+    // at y=.75), walk or swim straight onto the nearest dry standable ledge within 12 blocks!
+    try {
+      const f0 = bot.entity.position.floored();
+      const scanNear = findStandable(bot, f0, 12, 5);
+      const cand = scanNear && scanNear.cell;
+      if (cand && cand.p) {
+        const tgt = cand.p;
+        log.skill(`dry_escape: dry ledge ${cand.d}m away at ${tgt.x},${tgt.y},${tgt.z} - walking/swimming out first`);
+        try {
+          await capped(bot.pathfinder.goto(new (GN())(tgt.x, tgt.y, tgt.z, 0)), 7000, 'dry_escape goto dry');
+        } catch {}
+        let nowF = bot.entity.position.floored();
+        if (wetAt(nowF) || wetAt(nowF.offset(0, 1, 0))) {
+          // Pathfinder can stall against a 1-block stream lip; swim/hop directly onto the dry block.
+          try {
+            await bot.lookAt(new Vec3(tgt.x + 0.5, tgt.y + 1.0, tgt.z + 0.5), true);
+            bot.setControlState('forward', true);
+            bot.setControlState('jump', true);
+            await sleep(2200);
+          } catch {} finally {
+            try { bot.setControlState('forward', false); bot.setControlState('jump', false); } catch {}
+          }
+          nowF = bot.entity.position.floored();
+        }
+        if (!wetAt(nowF) && !wetAt(nowF.offset(0, 1, 0))) {
+          bot._wetStrikes = null;
+          bot._wetClimbs = {};
+          bot._wet = false;
+          return { ok: true, observation: `walked/swam out of water onto dry cell ${nowF.x},${nowF.y},${nowF.z} (was ${f0.x},${f0.y},${f0.z})` };
+        }
+      }
+      // If no close ledge succeeded (or in a deeper cavern pool), swim upward toward open air/wider shore.
+      const scanWide = cand ? scanNear : findStandable(bot, f0, 20, 8);
+      const wideDry = scanWide && scanWide.cell && scanWide.cell.p;
+      if (wideDry) {
+        try {
+          await bot.lookAt(new Vec3(wideDry.x + 0.5, wideDry.y + 1.2, wideDry.z + 0.5), true);
+          bot.setControlState('forward', true);
+          bot.setControlState('jump', true);
+          await sleep(2000);
+        } catch {} finally {
+          try { bot.setControlState('forward', false); bot.setControlState('jump', false); } catch {}
+        }
+        const nowF = bot.entity.position.floored();
+        if (!wetAt(nowF) && !wetAt(nowF.offset(0, 1, 0))) {
+          bot._wetStrikes = null;
+          bot._wetClimbs = {};
+          bot._wet = false;
+          return { ok: true, observation: `swam out of water onto dry cell ${nowF.x},${nowF.y},${nowF.z}` };
+        }
+      }
+    } catch (e) {
+      log.warn('dry_escape dry-ledge walk threw:', String(e && e.message || e).slice(0, 80));
+    }
     let placed = 0, noRef = 0, fail = 0, handedOff = false;
     for (let i = 0; i < max; i++) {
       const f = bot.entity.position.floored();
