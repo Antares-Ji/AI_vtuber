@@ -161,17 +161,23 @@ test('blue-only tracking works, overlapping templates merge and distinct targets
   if(mode==='blue')assert.deepEqual(trace[0].marker.templates,['quest-marker-blue.png']);
  }
 });
-test('local quest advance stops on increasing, stalled, missing or discontinuous distance and releases input',async()=>{
+test('local quest advance holds once, stops on HUD feedback and releases input',async()=>{
  const source=fs.readFileSync(require.resolve('../scripts/genshin/story-main.js'),'utf8');
- for(const [distances,expected] of [[[30,28,26,24,22,20,18,16,14],8],[[30,30,30],2],[[30,31],1],[[30,null],1],[[30,6],1]]){
+ for(const [distance,reason,elapsed] of [[n=>100-n,'duration_budget',8000],[()=>30,'distance_stalled',2000],[n=>n?33:30,'distance_increased',200],[n=>n?null:30,'stage_missing',400],[n=>n?5:30,'near_distance',200]]){
   const files=new Map([['command.json',JSON.stringify({id:'advance',timeoutMs:600000})]]);let moves=0,held=false;
-  const ctx={JSON,Date,Number,String,Math,Set,Error,
+  let now=Date.now(),samples=0;
+  const ctx={JSON,Date:class extends Date{static now(){return now;}},Number,String,Math,Set,Error,
+   genshin:{getPositionFromMap:()=>({x:samples,y:0})},
+   getOwnedSceneObservation:()=>JSON.stringify({ui:'Main',motion:'Normal'}),
    file:{readTextSync:n=>files.get(n),writeImageSync:()=>{},writeTextSync:(n,v)=>{files.set(n,v);if(n==='story-request.json'){const r=JSON.parse(v);files.set(`story-decision-${r.seq}.json`,JSON.stringify({id:r.id,seq:r.seq,action:r.seq===1?{kind:'advance_quest',key:'W'}:{kind:'stop'}}));}}},
-   captureGameRegion:()=>({width:1920,height:1080,srcMat:{},dispose:()=>{},findMulti:()=>{const d=distances[Math.min(moves,distances.length-1)];return d===null?{count:0}:{count:2,0:{text:'前往目标地点',x:80,y:250,width:280,height:30},1:{text:d+'m',x:86,y:286,width:40,height:20}};}}),
+   captureGameRegion:()=>({width:1920,height:1080,srcMat:{},dispose:()=>{},findMulti:()=>{const d=distance(samples);return d===null?{count:0}:{count:2,0:{text:'前往目标地点',x:80,y:250,width:280,height:30},1:{text:d+'m',x:86,y:286,width:40,height:20}};}}),
    RecognitionObject:{ocr:()=>({})},dispatcher:{clearAllTriggers:()=>{}},log:{info:()=>{}},
-   sleep:async ms=>{if(held&&ms===400)moves++;},keyDown:()=>{held=true;},keyUp:()=>{held=false;}};
+   sleep:async ms=>{now+=Number(ms)||0;if(held)samples++;},keyDown:()=>{held=true;moves++;},keyUp:()=>{held=false;}};
   await vm.runInNewContext(source,Object.assign({ensureGameFocus:async()=>true,isGameActive:()=>true},ctx));
-  assert.equal(moves,expected);assert.equal(held,false);assert.equal(JSON.parse(files.get('receipt.json')).state,'returned');
+  const receipt=JSON.parse(files.get('receipt.json'));
+  const result=JSON.parse(receipt.steps[0].detail);
+  assert.equal(receipt.state,'returned');assert.equal(moves,1);assert.equal(held,false);
+  assert.equal(result.stopReason,reason);assert.equal(result.movementMsSent,elapsed);
  }
  const good={...scene,navigation:{terrain:'open'}};
  assert.equal(validateDecision({action:{kind:'advance_quest',key:'W'}},{texts:[],distanceEvidence:{meters:[60]}},good).action.kind,'advance_quest');

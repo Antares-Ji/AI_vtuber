@@ -10,7 +10,10 @@ const step=(kind,detail,extra={})=>({action:{kind,...extra},detail:JSON.stringif
 async function native(actions,read,{marker=null,distance=null,cancelF=false}={}){
  const files=new Map([['command.json',JSON.stringify({id:'feedback',timeoutMs:600000})]]);
  const state={seq:0,reads:0,moves:0,turns:0,f:0,resets:0,held:new Set(),inputs:[]};
- const ctx={JSON,Date,Number,String,Math,Set,Error,
+ let now=Date.now();
+ const ctx={JSON,Date:class extends Date{static now(){return now;}},Number,String,Math,Set,Error,
+  genshin:{getPositionFromMap:()=>({x:now/200,y:0})},
+  getOwnedSceneObservation:()=>JSON.stringify({ui:'Main',motion:'Normal'}),
   file:{readTextSync:n=>files.get(n),readImageMatSync:()=>({dispose(){}}),writeImageSync(){},writeTextSync(n,v){
    files.set(n,v);if(n==='story-request.json'){const r=JSON.parse(v);state.seq=r.seq;files.set(`story-decision-${r.seq}.json`,JSON.stringify({id:r.id,seq:r.seq,action:actions[r.seq-1]||{kind:'stop'}}));}
   }},
@@ -21,7 +24,7 @@ async function native(actions,read,{marker=null,distance=null,cancelF=false}={})
    if(!crop)state.reads++;return {count:rows.length,...rows};
   }}),
   RecognitionObject:{ocr:(x,y,w,h)=>({kind:'ocr',w,h}),templateMatch:()=>({kind:'template'})},dispatcher:{clearAllTriggers(){}},log:{info(){}},
-  sleep:async()=>{if(cancelF&&state.held.has('VK_F'))throw Error('cancelled');},
+  sleep:async ms=>{if(cancelF&&state.held.has('VK_F'))throw Error('cancelled');now+=Number(ms)||0;},
   keyDown(k){state.held.add(k);state.inputs.push(k);if(k==='VK_W')state.moves++;if(k==='VK_F')state.f++;},keyUp:k=>state.held.delete(k),moveMouseBy(x,y){if(y===0)state.turns++;},middleButtonClick(){state.resets++;}
  };
  await vm.runInNewContext(source,Object.assign({ensureGameFocus:async()=>true,isGameActive:()=>true},ctx));
@@ -93,6 +96,6 @@ test('OCR stage truncation preserves waypoint attempts; a new stage needs two fr
  s=updateNavigationStage(s,'跟随骗子向导');assert.equal(s.changed,false);
  s=updateNavigationStage(s,'跟随骗子向导');assert.equal(s.changed,true);
  const row=(stage,id)=>({e:{decision:{quest:'任务',action:{kind:'teleport',id}},request:{texts:[{text:stage,box:[80,250,280,30]}]}}});
- const memory=navigationFromEvidence([row('前往指定地点引诱骗','1'),row('前往指定地点引诱骗子露面','2')],'任务');
+ const memory=navigationFromEvidence([row('前往指定地点引诱骗子露面','2'),row('前往指定地点引诱骗','1')],'任务');
  assert.deepEqual(memory.teleportAttempts,['1','2']);
 });

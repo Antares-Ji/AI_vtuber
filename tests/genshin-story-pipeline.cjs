@@ -15,8 +15,8 @@ test('runtime overlaps a speculative call, consumes a match without another fore
  const reply=(value,role)=>({text:JSON.stringify(value),provider:'deepseek',model:'mock-flash',worker:role,usage:{total_tokens:100},requestPolicy:{thinking:'disabled',maxOutputTokens:256}});
  workers.call=async(c,o)=>{
   calls.push({role:o.role,speculative:Boolean(o.forecast)});
-  if(o.forecast){prefetchStarted++;assert.equal(o.forecast.basis,'hypothetical_post_action');assert.equal(c.texts.length,0);return reply({action:{kind:'move',key:'W',ms:400},prediction:{distance:96,tolerance:1}},o.role);}
-  return reply(o.role==='movement'?{action:{kind:'move',key:'W',ms:400},prediction:{distance:98,tolerance:1},commentary:'应被静音'}:{action:{kind:'stop'},reason:'菜单状态变化'},o.role);
+  if(o.forecast){prefetchStarted++;assert.equal(o.forecast.basis,'hypothetical_post_action');assert.equal(c.texts.length,0);return reply({action:{kind:'travel_quest'},prediction:{distance:96,tolerance:1}},o.role);}
+  return reply(o.role==='movement'?{action:{kind:'travel_quest'},prediction:{distance:98,tolerance:1},commentary:'应被静音'}:{action:{kind:'stop'},reason:'菜单状态变化'},o.role);
  };
  global.fetch=async()=>{throw Error('Story must not call Qwen or another visual model');};
  bridge.execute=async(command,{onStoryFrame})=>{
@@ -29,7 +29,7 @@ test('runtime overlaps a speculative call, consumes a match without another fore
    const decision=await onStoryFrame(request,source);actions.push(decision.action.kind);assert.equal(decision.commentary,'');
    assert.equal(decision.nextObservationDelayMs,seq<3?100:400);
    if(seq===1)assert.equal(prefetchStarted,1,'next planning has started before current native action finishes');
-   lastStep={seq,action:decision.action,finishedAt:Date.now(),detail:JSON.stringify({movedMs:400,stopReason:'duration_complete'}),focus:{after:true}};
+   lastStep={seq,action:decision.action,finishedAt:Date.now(),detail:JSON.stringify({movedMs:400,stopReason:'progress_confirmed'}),focus:{after:true}};
    // Represents the current native action running while the HTTP planner completes.
    await new Promise(resolve=>setImmediate(resolve));
   }
@@ -38,7 +38,7 @@ test('runtime overlaps a speculative call, consumes a match without another fore
  delete require.cache[require.resolve('../src/genshin/story-runtime')];
  const runtime=require('../src/genshin/story-runtime');
  const result=await runtime.runStory('继续当前任务',{root,env:{},signal:new AbortController().signal,runId:'simulation-run'});
- assert.deepEqual(actions,['move','move','stop']);
+ assert.deepEqual(actions,['travel_quest','travel_quest','stop']);
  assert.deepEqual(calls.filter(c=>!c.speculative).map(c=>c.role),['movement','interaction']);
  assert.equal(result.history[1].pipeline.lookahead.ok,true);assert.equal(result.history[2].pipeline.lookahead.reason,'scene_or_interaction_changed');
  assert.equal(result.history[0].modelCalls.filter(c=>c.phase==='lookahead').length,1);
