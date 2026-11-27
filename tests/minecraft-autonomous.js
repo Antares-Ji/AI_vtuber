@@ -835,8 +835,28 @@ function makeBot(overrides = {}) {
     assert.equal(bowActivated, 0, 'hunt must NOT waste scarce arrows (<12) shooting at a rabbit 24m away');
   }
 
+  // 20. tidy keeps rotten_flesh emergency rations (up to 8)
+  {
+    const P = require('../src/minecraft/autonomous/skills/primitives');
+    const tossed = [];
+    const botTidy = makeBot({
+      entity: { position: new Vec3(0, 64, 0), yaw: 0, pitch: 0 },
+      inventory: {
+        slots: new Array(46).fill(null),
+        items: () => [
+          { name: 'rotten_flesh', count: 4, slot: 10 },
+          { name: 'cobblestone', count: 10, slot: 11 },
+        ],
+      },
+      toss: async (id, meta, cnt) => tossed.push({ id, cnt }),
+      tossStack: async (it) => tossed.push({ name: it.name, cnt: it.count }),
+    });
+    await P.dropJunk(botTidy, 4);
+    assert.equal(tossed.length, 0, 'tidy must NOT throw away emergency rotten_flesh rations (cap=8)');
+  }
+
   fs.rmSync(tmp, { recursive: true, force: true });
-  console.log('PASS minecraft-autonomous: all 19 regression groups passed');
+  console.log('PASS minecraft-autonomous: all 20 regression groups passed');
 })().catch(e => {
   console.error(e);
   process.exitCode = 1;

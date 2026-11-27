@@ -1201,6 +1201,16 @@ reg.define('find_diamonds', {
           // bot climbing caves for 180s to mine 4 more iron ore instead of smelting 1 raw_iron.
           const shortIron = 3 - countItem(bot, 'iron_ingot');
           if (countItem(bot, 'raw_iron') < shortIron) {
+            // Ensure at least one healthy stone/iron pickaxe before tunneling to iron_ore, otherwise
+            // mov.canDig stays false when all picks have <8 uses left (live 09:31:56 stuck 9.9m from iron).
+            const hasMiningPick = bot.inventory.items().some(i => /^(stone|iron|diamond|netherite)_pickaxe$/.test(i.name)
+              && ((i.maxDurability || 999) - (i.durabilityUsed || 0)) >= 12);
+            if (!hasMiningPick && countItem(bot, 'cobblestone') + countItem(bot, 'cobbled_deepslate') >= 3 && countItem(bot, 'stick') >= 2) {
+              try {
+                const sp = await P.craft(bot, 'stone_pickaxe', 1);
+                log.info(`fd: crafted fresh stone_pickaxe before mining iron (${String(sp && sp.observation || '').slice(0, 80)})`);
+              } catch {}
+            }
             const needOre = Math.max(2, shortIron - countItem(bot, 'raw_iron') + 1);
             const om = await reg.get('mine').run(bot, { names: ['iron_ore', 'deepslate_iron_ore'], count: needOre });
             log.info(`fd: mining iron for a pick (need ${needOre}) -> (${String(om.observation).slice(0, 120)})`);

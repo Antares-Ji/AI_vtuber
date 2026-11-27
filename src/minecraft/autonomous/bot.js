@@ -533,26 +533,47 @@ function createBot() {
         let guard = null;
         if (name === 'goto') {
           const STALL_MS = Number(process.env.PATH_STALL_MS || 28000);
-          const t0 = Date.now();
-          let anchor = { x: 0, y: 0, z: 0 };
-          try { const p0 = bot.entity.position; anchor = { x: p0.x, y: p0.y, z: p0.z }; } catch {}
-          let lastMove = Date.now();
-          guard = setInterval(() => {
-            try {
-              const p = bot.entity.position;
-              if (hasPathMoved(anchor, p)) {
-                anchor = { x: p.x, y: p.y, z: p.z };
-                lastMove = Date.now();
+          return new Promise((resolve, reject) => {
+            let settled = false;
+            const t0 = Date.now();
+            let anchor = { x: 0, y: 0, z: 0 };
+            try { const p0 = bot.entity.position; anchor = { x: p0.x, y: p0.y, z: p0.z }; } catch {}
+            let lastMove = Date.now();
+            const finish = (err, val) => {
+              if (settled) return;
+              settled = true;
+              if (guard) { clearInterval(guard); guard = null; }
+              if (err) {
+                const key = name + ':' + (err && err.message ? err.message.slice(0, 60) : String(err));
+                seen[key] = (seen[key] || 0) + 1;
+                if (seen[key] <= 3) log.warn(`silent-failure guard ${key} (x${seen[key]})`);
+                reject(err);
+              } else {
+                resolve(val);
               }
-              if (Date.now() - lastMove > STALL_MS) {
-                log.warn(`path guard: goto outstanding ${Math.round((Date.now() - t0) / 1000)}s with no movement for ${Math.round((Date.now() - lastMove) / 1000)}s - cancelling the path so the step can hand back`);
-                try { bot.setControlState('jump', false); } catch {}
-                obj.stop('no-progress path guard');
-                clearInterval(guard);
-                guard = null;
-              }
-            } catch { if (guard) clearInterval(guard); guard = null; }
-          }, 2000);
+            };
+            guard = setInterval(() => {
+              try {
+                const p = bot.entity.position;
+                if (hasPathMoved(anchor, p)) {
+                  anchor = { x: p.x, y: p.y, z: p.z };
+                  lastMove = Date.now();
+                }
+                if (Date.now() - lastMove > STALL_MS) {
+                  const elapsedS = Math.round((Date.now() - t0) / 1000);
+                  const stillS = Math.round((Date.now() - lastMove) / 1000);
+                  log.warn(`path guard: goto outstanding ${elapsedS}s with no movement for ${stillS}s - cancelling the path so the step can hand back`);
+                  try { bot.setControlState('jump', false); } catch {}
+                  try { obj.stop('no-progress path guard'); } catch {}
+                  // mineflayer-pathfinder's stop() does not always reject a hung goto() promise (measured
+                  // 09:33:28 -> 09:36:29: 181s silent hang after stop()). Reject explicitly so the step hands back immediately.
+                  finish(new Error(`path guard: goto stalled with no progress for ${stillS}s`));
+                }
+              } catch { if (guard) { clearInterval(guard); guard = null; } }
+            }, 2000);
+            const rawP = Promise.resolve().then(() => orig(...args));
+            rawP.then(v => finish(null, v), e => finish(e));
+          });
         }
         const dropGuard = () => { if (guard) { clearInterval(guard); guard = null; } };
         return Promise.resolve(orig(...args)).then(v => { dropGuard(); return v; }, e => {

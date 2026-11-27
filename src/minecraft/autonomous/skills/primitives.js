@@ -2364,7 +2364,7 @@ async function dropJunk(bot, force, minFree = 6) {
   // 4 free (enough to craft and pick up), never touches food/tools/kit, and logs the tier by name so a
   // later read knows the pack was emptied by necessity rather than by a cap.
   if (freeSlots(bot) < Math.min(minFree, 4)) {
-    const OFF_CHAIN = /^(?:(?:oak|birch|spruce|jungle|acacia|dark_oak|cherry|mangrove)_sapling|wheat_seeds|cobweb|bone|rotten_flesh|spider_eye|snowball|moss_carpet|short_grass|fern|clay_ball|ink_sac)$/;
+    const OFF_CHAIN = /^(?:(?:oak|birch|spruce|jungle|acacia|dark_oak|cherry|mangrove)_sapling|wheat_seeds|cobweb|bone|spider_eye|snowball|moss_carpet|short_grass|fern|clay_ball|ink_sac)$/;
     let guard4 = 0;
     while (freeSlots(bot) < Math.min(minFree, 4) && guard4++ < 8) {
       const cand = bot.inventory.items()
@@ -2408,7 +2408,7 @@ const JUNK_CAP = {
   amethyst_block: 0, dripstone_block: 0, pointed_dripstone: 0, rooted_dirt: 0, moss_block: 0,
   stone_bricks: 8, mossy_stone_bricks: 0, cracked_stone_bricks: 0, chiseled_stone_bricks: 0,
   gravel: 8, sand: 0, redstone: 0, raw_copper: 0, raw_gold: 0, clay: 0, snow_block: 0,
-  stick: 8, string: 8, gunpowder: 8, flint: 8, bone: 0, spider_eye: 0, rotten_flesh: 0,
+  stick: 8, string: 8, gunpowder: 8, flint: 8, bone: 0, spider_eye: 0, rotten_flesh: 8,
   feather: 4, leather: 4, egg: 0, cobweb: 0, vine: 0, oak_planks: 8, spruce_planks: 8,
   birch_planks: 8, jungle_planks: 8, acacia_planks: 8, dark_oak_planks: 8, cherry_planks: 8,
   // The endgame kit is worth keeping, but a whole stack each of 64 eyes / 32 pearls / 36 obsidian /
