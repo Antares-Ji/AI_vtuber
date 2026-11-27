@@ -1,0 +1,390 @@
+diff --git a/BetterGenshinImpact/GameTask/AutoFight/AutoFightConfig.cs b/BetterGenshinImpact/GameTask/AutoFight/AutoFightConfig.cs
+index ed3025d..d3ab679 100644
+--- a/BetterGenshinImpact/GameTask/AutoFight/AutoFightConfig.cs
++++ b/BetterGenshinImpact/GameTask/AutoFight/AutoFightConfig.cs
+@@ -13,6 +13,8 @@ namespace BetterGenshinImpact.GameTask.AutoFight;
+ [Serializable]
+ public partial class AutoFightConfig : ObservableObject
+ {
++    // Opt-in: currently implemented by the JSON combat executor.
++    [ObservableProperty] private bool _recoverOnlyOnPartyWipe = false;
+     [ObservableProperty] private string _strategyName = "根据队伍自动选择";
+ 
+     /// <summary>
+diff --git a/BetterGenshinImpact/GameTask/AutoFight/AutoFightJsonTask.cs b/BetterGenshinImpact/GameTask/AutoFight/AutoFightJsonTask.cs
+index 4014556..ee3136c 100644
+--- a/BetterGenshinImpact/GameTask/AutoFight/AutoFightJsonTask.cs
++++ b/BetterGenshinImpact/GameTask/AutoFight/AutoFightJsonTask.cs
+@@ -100,6 +100,7 @@ public class AutoFightJsonTask : ISoloTask
+     /// <param name="ct">取消令牌</param>
+     public async Task Start(CancellationToken ct)
+     {
++        using var recovery = new PartyRecoveryScope(_taskParam.RecoverOnlyOnPartyWipe);
+         _ct = ct;
+         AvatarRecognition.SetCurrentAutoFightParam(_taskParam);
+         AvatarRecognition.ClearLegendaryBarTracker();
+@@ -215,6 +216,7 @@ public class AutoFightJsonTask : ISoloTask
+             {
+                 try
+                 {
++                    var nextWipeCheck = DateTime.MinValue;
+                     JsonAction? lastExecutedAction = null;
+                     // 战斗开始时重置最近一次检查时间，供更快触发战斗结束检查判断间隔使用
+                     AutoFightTask.LastFightFinishCheckTime = DateTime.Now;
+@@ -277,6 +279,21 @@ public class AutoFightJsonTask : ISoloTask
+                         using var capture = CaptureToRectArea();
+                         evaluator.SetCachedCapture(capture);
+ 
++                        // Do not infer a wipe from a dead-slot count or a switch timeout.
++                        // Only the existing native full-party revive UI detector may revive.
++                        if (recovery.Enabled && DateTime.UtcNow >= nextWipeCheck)
++                        {
++                            nextWipeCheck = DateTime.UtcNow.AddMilliseconds(750);
++                            if (!BetterGenshinImpact.GameTask.Common.BgiVision.Bv.IsInRevivePrompt(capture)
++                                && BetterGenshinImpact.GameTask.Common.BgiVision.Bv.ClickIfInReviveModal(capture))
++                            {
++                                Simulation.ReleaseAllKey();
++                                Logger.LogWarning("AI-VTuber：检测到全队复苏按钮，已点击复苏；本轮不拾取，交回路线恢复");
++                                await BetterGenshinImpact.GameTask.Common.BgiVision.Bv.WaitForMainUi(_ct);
++                                throw new RetryException("全队复苏后重新执行路线");
++                            }
++                        }
++
+                         var anyExecuted = false;
+ 
+                         // 记录本轮循环开始时的角色，用于检测是否发生换人
+@@ -287,6 +304,10 @@ public class AutoFightJsonTask : ISoloTask
+                                 if (cts2.Token.IsCancellationRequested) break;
+     
+                                 var action = prioritizedAction.Action;
++                                var candidateAvatar = combatScenes.SelectAvatar(action.Character ?? "");
++                                if (candidateAvatar != null && recovery.IsDefeated(candidateAvatar.Index)) continue;
++                                try
++                                {
+     
+                                 // 求值条件表达式：当前动作序号（用于 since/last-exec/count 缺省指代本动作）传动作真实 Index，
+                                 // 不能传排序用的 Priority（MorePriority 条目的 Priority 与该动作 Index 不同，会导致缺省查询查不到记录）
+@@ -345,10 +366,16 @@ public class AutoFightJsonTask : ISoloTask
+                                     var avatar = combatScenes.SelectAvatar(characterName);
+                                     if (avatar != null)
+                                     {
++                                        // Input and capture lag behind the command. Capturing before
++                                        // the settling delay can repeatedly classify the old ready icon.
++                                        if (recovery.Enabled) await Delay(120, _ct);
+                                         var imageAfterAction = CaptureToRectArea();
+                                         try
+                                         {
+-                                            var retry = 5;
++                                            // Bound verification retries so an uncertain icon cannot
++                                            // monopolize the model's rotation. The normal since limit
++                                            // below applies even when verification remains uncertain.
++                                            var retry = recovery.Enabled ? 2 : 5;
+                                             while (!(await AutoFightSkill.AvatarSkillAsync(Logger, avatar, false, 1, _ct, imageAfterAction)) && retry > 0)
+                                             {
+                                                 Logger.LogWarning("{Name} 未检测到技能冷却，重新执行", action.Name);
+@@ -359,6 +386,7 @@ public class AutoFightJsonTask : ISoloTask
+                                                 await Delay(200, _ct);
+                                                 // 重新执行整个动作
+                                                 await ExecuteAction(combatScenes, action);
++                                                if (recovery.Enabled) await Delay(120, _ct);
+                                                 var previousImage = imageAfterAction;
+                                                 imageAfterAction = CaptureToRectArea();
+                                                 previousImage.Dispose();
+@@ -382,6 +410,13 @@ public class AutoFightJsonTask : ISoloTask
+ 
+                                 // 执行完第一个满足条件的动作后重新判断
+                                 break;
++                                }
++                                catch (DefeatedAvatarException defeated)
++                                {
++                                    Simulation.ReleaseAllKey();
++                                    Logger.LogWarning("AI-VTuber：跳过阵亡角色槽位 {Index}，继续存活队友，不回神像", defeated.AvatarIndex);
++                                    await Delay(100, _ct);
++                                }
+                             }
+     
+                         if (fightEndFlag || _fightEndFlag) break;
+@@ -444,6 +479,12 @@ public class AutoFightJsonTask : ISoloTask
+                 AutoFightTask.FightStatusFlag = false;
+             }
+     
++            // A time budget is not a battle-end observation. Never start looting on timeout.
++            if (timeOutFlag)
++            {
++                Logger.LogWarning("AI-VTuber：战斗超时而非确认清场，跳过战利品拾取");
++                return;
++            }
+             try
+             {
+                 // 基于经验值检测结果的拾取判断
+@@ -527,10 +568,17 @@ public class AutoFightJsonTask : ISoloTask
+             LogActionOnce(action.Name);
+ 
+             CombatCommand? lastSubCmd = null;
++            BurstReadyState? burstBefore = null;
+             foreach (var cmd in commands)
+             {
+                 if (_ct.IsCancellationRequested) break;
+ 
++                if (_taskParam.RecoverOnlyOnPartyWipe && cmd.Method == Method.KeyPress
++                    && cmd.Args?.Count == 1 && cmd.Args[0] == "VK_Q")
++                {
++                    burstBefore = ObserveBurstState(combatScenes, character);
++                }
++
+                 cmd.Execute(combatScenes, lastSubCmd);
+                 lastSubCmd = cmd;
+ 
+@@ -551,7 +599,15 @@ public class AutoFightJsonTask : ISoloTask
+ 
+             // 更新当前角色名，供后续无指定角色动作使用
+             _currentAvatarName = character;
++            if (burstBefore.HasValue && !_ct.IsCancellationRequested)
++            {
++                var after = ObserveBurstState(combatScenes, character);
++                Logger.LogInformation("AI-VTuber Q观察 {Character}: before={Before}, after={After}, cooldownTransition={Transition}; 来源=本地ONNX，非伤害核验",
++                    character, burstBefore.Value, after,
++                    burstBefore.Value == BurstReadyState.Ready && after == BurstReadyState.Cooldown);
++            }
+         }
++        catch (DefeatedAvatarException) { throw; }
+         catch (RetryException)
+         {
+             // 复活/恢复信号必须传递给 PathExecutor，以便重跑当前路径段。
+@@ -567,6 +623,24 @@ public class AutoFightJsonTask : ISoloTask
+         }
+     }
+ 
++    private static BurstReadyState ObserveBurstState(CombatScenes scenes, string character)
++    {
++        try
++        {
++            using var frame = CaptureToRectArea();
++            var expected = scenes.SelectAvatar(character);
++            if (expected == null || scenes.GetActiveAvatarIndex(frame, new AvatarActiveCheckContext()) != expected.Index)
++                return BurstReadyState.Unknown;
++            return Avatar.IsBurstReadyByClassify(frame);
++        }
++        catch (OperationCanceledException) { throw; }
++        catch (Exception error)
++        {
++            Logger.LogDebug(error, "Q释放观察失败，不宣称技能成功");
++            return BurstReadyState.Unknown;
++        }
++    }
++
+     /// <summary>日志防刷：同一动作名在1秒内至多输出一次日志</summary>
+     private void LogActionOnce(string actionName)
+     {
+diff --git a/BetterGenshinImpact/GameTask/AutoFight/AutoFightParam.cs b/BetterGenshinImpact/GameTask/AutoFight/AutoFightParam.cs
+index 25b742a..5b2c15a 100644
+--- a/BetterGenshinImpact/GameTask/AutoFight/AutoFightParam.cs
++++ b/BetterGenshinImpact/GameTask/AutoFight/AutoFightParam.cs
+@@ -41,6 +41,7 @@ public class AutoFightParam : BaseTaskParam<AutoFightTask>
+     public string CombatStrategyPath { get; set; }
+ 
+     public bool FightFinishDetectEnabled { get; set; } = false;
++    public bool RecoverOnlyOnPartyWipe { get; set; } = false;
+     public bool PickDropsAfterFightEnabled { get; set; } = true;
+     public int PickDropsAfterFightSeconds { get; set; } = 15;
+     public int BattleThresholdForLoot { get; set; } = -1;
+@@ -146,6 +147,7 @@ public class AutoFightParam : BaseTaskParam<AutoFightTask>
+         Timeout = autoFightConfig.Timeout;
+         FightFinishDetectEnabled = autoFightConfig.FightFinishDetectEnabled;
+         PickDropsAfterFightEnabled = autoFightConfig.PickDropsAfterFightEnabled;
++        RecoverOnlyOnPartyWipe = autoFightConfig.RecoverOnlyOnPartyWipe;
+         PickDropsAfterFightSeconds = autoFightConfig.PickDropsAfterFightSeconds;
+         KazuhaPickupEnabled = autoFightConfig.KazuhaPickupEnabled;
+         ActionSchedulerByCd = autoFightConfig.ActionSchedulerByCd;
+diff --git a/BetterGenshinImpact/GameTask/AutoFight/Model/Avatar.cs b/BetterGenshinImpact/GameTask/AutoFight/Model/Avatar.cs
+index c3167d0..43b9c1b 100644
+--- a/BetterGenshinImpact/GameTask/AutoFight/Model/Avatar.cs
++++ b/BetterGenshinImpact/GameTask/AutoFight/Model/Avatar.cs
+@@ -133,6 +133,14 @@ public class Avatar
+     {
+         if (Bv.IsInRevivePrompt(region))
+         {
++            if (PartyRecoveryScope.Current is { Enabled: true } recovery)
++            {
++                var defeatedIndex = recovery.RecordRevivePrompt(Environment.TickCount64);
++                Simulation.ReleaseAllKey();
++                Simulation.SendInput.Keyboard.KeyPress(User32.VK.VK_ESCAPE);
++                Sleep(300, ct);
++                throw new DefeatedAvatarException(defeatedIndex);
++            }
+             Logger.LogWarning("检测到复苏界面，存在角色被击败，前往七天神像复活");
+             // 先打开地图
+             Simulation.SendInput.Keyboard.KeyPress(User32.VK.VK_ESCAPE); // NOTE: 此处按下Esc是为了关闭复苏界面，无需改键
+@@ -270,6 +278,7 @@ public class Avatar
+     /// </summary>
+     public void Switch()
+     {
++        if (PartyRecoveryScope.Current?.IsDefeated(Index) == true) throw new DefeatedAvatarException(Index);
+         var context = new AvatarActiveCheckContext();
+         for (var i = 0; i < 30; i++)
+         {
+@@ -284,6 +293,7 @@ public class Avatar
+             // 切换成功
+             if (CombatScenes.GetActiveAvatarIndex(region, context) == Index)
+             {
++                PartyRecoveryScope.Current?.ConfirmSwitch();
+                 return;
+             }
+ 
+@@ -309,6 +319,7 @@ public class Avatar
+     /// <returns></returns>
+     public bool TrySwitch(int tryTimes = 4)
+     {
++        if (PartyRecoveryScope.Current?.IsDefeated(Index) == true) return false;
+         var context = new AvatarActiveCheckContext();
+         var shouldResendSwitchAction = CombatScenes.UpdateTrySwitchTarget(Index);
+         for (var i = 0; i < tryTimes; i++)
+@@ -328,6 +339,7 @@ public class Avatar
+                 {
+                     SimulateSwitchAction(Index);
+                 }
++                PartyRecoveryScope.Current?.ConfirmSwitch();
+                 return true;
+             }
+             else
+@@ -359,6 +371,7 @@ public class Avatar
+ 
+     private void SimulateSwitchAction(int index)
+     {
++        PartyRecoveryScope.Current?.RecordSwitch(index, Environment.TickCount64);
+         Simulation.SendInput.SimulateAction(GIActions.Drop); //反正会重试就不等落地了
+         switch (index)
+         {
+@@ -405,6 +418,7 @@ public class Avatar
+     /// </summary>
+     public void SwitchWithoutCts()
+     {
++        if (PartyRecoveryScope.Current?.IsDefeated(Index) == true) throw new DefeatedAvatarException(Index);
+         var context = new AvatarActiveCheckContext();
+         for (var i = 0; i < 10; i++)
+         {
+@@ -413,6 +427,7 @@ public class Avatar
+ 
+             if (CombatScenes.GetActiveAvatarIndex(region, context) == Index)
+             {
++                PartyRecoveryScope.Current?.ConfirmSwitch();
+                 return;
+             }
+ 
+@@ -1267,6 +1282,17 @@ public class Avatar
+     public void KeyPress(string key)
+     {
+         var vk = KeyBindingsSettingsPageViewModel.MappingKey(User32Helper.ToVk(key));
++        if (key == "VK_Q" && PartyRecoveryScope.Current is { Enabled: true })
++        {
++            // A down/up in one SendInput batch may fall between game frames.
++            // Keep this tap bounded even on cancellation/focus loss.
++            Ct.ThrowIfCancellationRequested();
++            Simulation.SendInput.Keyboard.KeyDown(vk);
++            try { Ct.WaitHandle.WaitOne(80); }
++            finally { Simulation.SendInput.Keyboard.KeyUp(vk); }
++            Ct.ThrowIfCancellationRequested();
++            return;
++        }
+         switch (key)
+         {
+             case "VK_LBUTTON":
+diff --git a/BetterGenshinImpact/GameTask/AutoFight/Model/PartyRecoveryScope.cs b/BetterGenshinImpact/GameTask/AutoFight/Model/PartyRecoveryScope.cs
+new file mode 100644
+index 0000000..ea1a317
+--- /dev/null
++++ b/BetterGenshinImpact/GameTask/AutoFight/Model/PartyRecoveryScope.cs
+@@ -0,0 +1,35 @@
++using System;
++using System.Collections.Generic;
++using System.Threading;
++
++namespace BetterGenshinImpact.GameTask.AutoFight.Model;
++
++// Scoped to the JSON fight task. Other tasks retain upstream recovery behavior.
++public sealed class PartyRecoveryScope : IDisposable
++{
++    private static readonly AsyncLocal<PartyRecoveryScope?> Slot = new();
++    public static PartyRecoveryScope? Current => Slot.Value;
++    private readonly PartyRecoveryScope? _previous;
++    private readonly HashSet<int> _defeated = new();
++    private int _pendingIndex;
++    private long _pendingAt;
++    public bool Enabled { get; }
++    public PartyRecoveryScope(bool enabled) { _previous=Slot.Value; Enabled=enabled; Slot.Value=this; }
++    public bool IsDefeated(int index) => Enabled && _defeated.Contains(index);
++    public void RecordSwitch(int index, long now) { _pendingIndex=index; _pendingAt=now; }
++    public void ConfirmSwitch() { _pendingIndex=0; }
++    public int RecordRevivePrompt(long now)
++    {
++        // A prompt without a recent switch is not evidence about the next action's avatar.
++        var index = now>=_pendingAt && now-_pendingAt<=3000 ? _pendingIndex : 0;
++        if (Enabled && index is >=1 and <=4) _defeated.Add(index);
++        _pendingIndex=0;
++        return index;
++    }
++    public void Dispose() { Slot.Value=_previous; }
++}
++
++public sealed class DefeatedAvatarException(int index) : Exception("单人复苏提示，跳过已确认阵亡角色")
++{
++    public int AvatarIndex { get; } = index;
++}
+diff --git a/BetterGenshinImpact/GameTask/AutoPathing/PathExecutor.cs b/BetterGenshinImpact/GameTask/AutoPathing/PathExecutor.cs
+index b1a5da0..fbd467d 100644
+--- a/BetterGenshinImpact/GameTask/AutoPathing/PathExecutor.cs
++++ b/BetterGenshinImpact/GameTask/AutoPathing/PathExecutor.cs
+@@ -642,7 +642,8 @@ public partial class PathExecutor
+         }
+ 
+         using var region = CaptureToRectArea();
+-        if (Bv.CurrentAvatarIsLowHp(region) && !(await TryPartyHealing() && Bv.CurrentAvatarIsLowHp(region)))
++        if (!TaskContext.Instance().Config.AutoFightConfig.RecoverOnlyOnPartyWipe
++            && Bv.CurrentAvatarIsLowHp(region) && !(await TryPartyHealing() && Bv.CurrentAvatarIsLowHp(region)))
+         {
+             Logger.LogInformation("当前角色血量过低，去七天神像恢复");
+             await TpStatueOfTheSeven();
+diff --git a/BetterGenshinImpact/Service/ScriptService.cs b/BetterGenshinImpact/Service/ScriptService.cs
+index a26e550..f8cb914 100644
+--- a/BetterGenshinImpact/Service/ScriptService.cs
++++ b/BetterGenshinImpact/Service/ScriptService.cs
+@@ -143,7 +143,9 @@ public partial class ScriptService : IScriptService
+         // }
+ 
+         // 没启动时候，启动截图器
+-        await StartGameTask();
++        // The owned story bridge observes first and delegates menu/dialog actions
++        // to its model. Waiting for the world HUD here would prevent that recovery.
++        await StartGameTask(waitForMainUi: !IsOwnedStoryBridge(list, groupName));
+         if (CancellationContext.Instance.IsCancellationRequested)
+         {
+             _logger.LogInformation("配置组 {Name} 在启动阶段被取消", groupName);
+@@ -602,6 +604,28 @@ public partial class ScriptService : IScriptService
+     private static partial Regex DispatcherAddTimerRegex();
+ 
+ 
++    private static bool IsOwnedStoryBridge(List<ScriptGroupProject> projects, string groupName)
++    {
++        const string prefix = "AI-VTuber-Bridge-";
++        if (!groupName.StartsWith(prefix, StringComparison.Ordinal)
++            || !Guid.TryParseExact(groupName[prefix.Length..], "D", out var id)
++            || projects.Count != 1 || projects[0].Type != "Javascript"
++            || projects[0].FolderName != groupName)
++            return false;
++        try
++        {
++            var file = Global.Absolute(Path.Combine("User", "JsScript", groupName, "command.json"));
++            if (!File.Exists(file) || new FileInfo(file).Length > 8192) return false;
++            var command = Newtonsoft.Json.Linq.JObject.Parse(File.ReadAllText(file));
++            return command.Value<string>("operation") == "story"
++                && command.Value<string>("id") == id.ToString("D");
++        }
++        catch (Exception)
++        {
++            return false;
++        }
++    }
++
+     public static async Task StartGameTask(bool waitForMainUi = true)
+     {
+         // 没启动时候，启动截图器

@@ -24,6 +24,8 @@ function harness(stream) {
   const item = { id: "one", text: "hello", type: "chat", delivery: "stream" };
   const context = {
     URL, Date, JSON, responseAbortController,
+    skillRoutes: async () => false, genshinConsole: { handle: async () => false },
+    gameInputRoutes: async () => false, activeGame: null,
     nextInFlight: false, cloudReplyInFlight: null,
     handleStudioApi: async () => false,
     liveRuntime: {}, parseBody: async () => ({}), parseBinaryBody: async () => Buffer.from("audio"),

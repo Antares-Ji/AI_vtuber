@@ -38,29 +38,30 @@ test('LLM output is validated and malformed plans never execute', async () => {
   await assert.rejects(planGoal('观察', { mode: 'llm', env: {} }), /需要配置/);
 });
 
-test('API planner uses saved DeepSeek game credentials and actual model planning', async t => {
+test('API planner uses dedicated OpenAI credentials without DeepSeek fallback', async t => {
   const { planWithApi } = require('../src/genshin/api-planner');
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'genshin-api-test-'));
   t.after(() => fs.rmSync(dir, { recursive: true, force: true }));
   fs.mkdirSync(path.join(dir, 'data'));
   fs.writeFileSync(path.join(dir, 'data/minecraft-engine.local.json'), JSON.stringify({ deepseekApiKey: 'test-saved-key' }));
+  await assert.rejects(planWithApi('观察',{dataRoot:dir,env:{}}),/未配置 OpenAI/);
+  fs.writeFileSync(path.join(dir,'.env.openai.local'),'OPENAI_API_KEY=test-openai-key\nOPENAI_MODEL=gpt-6-astra\n');
   let calls=0;
   const fetchImpl=async (url,options) => {
     calls++;
-    assert.equal(url,'https://api.deepseek.com/chat/completions');
-    assert.equal(options.headers.authorization,'Bearer test-saved-key');
+    assert.equal(url,'https://api.openai.com/v1/responses');
+    assert.equal(options.headers.authorization,'Bearer test-openai-key');
     assert.equal(options.redirect,'error');
     const body=JSON.parse(options.body);
-    assert.equal(body.thinking.type,'enabled');assert.equal(body.reasoning_effort,'high');
-    assert.equal(body.model,'deepseek-flash');assert.equal(body.max_tokens,4096);
-    return {ok:true,json:async()=>({model:'deepseek-flash',usage:{total_tokens:10},choices:[{finish_reason:'stop',message:{content:JSON.stringify(plan([{skill:'observe'}])),reasoning_content:'not persisted'}}]})};
+    assert.equal(body.text.format.type,'json_schema');assert.equal(body.store,false);
+    assert.equal(body.model,'gpt-6-astra');
+    return {ok:true,json:async()=>({status:'completed',model:'gpt-6-astra',usage:{total_tokens:10},output:[{type:'message',content:[{type:'output_text',text:JSON.stringify(plan([{skill:'observe'}]))}]}]})};
   };
   const result=await planWithApi('观察当前场景',{dataRoot:dir,env:{GENSHIN_PLANNER:'rules'},fetchImpl});
-  assert.equal(calls,1);assert.equal(result.planner,'llm');assert.equal(result.planning.reasoningReturned,true);
+  assert.equal(calls,1);assert.equal(result.planner,'llm');assert.equal(result.provider,'openai');
   assert.equal(JSON.stringify(result).includes('not persisted'),false);
   assert.equal(JSON.stringify(result).includes('test-saved-key'),false);
-  for(const base of ['https://example.invalid','https://api.deepseek.com.evil.invalid','https://api.deepseek.com/?x=1'])
-    await assert.rejects(planWithApi('观察',{dataRoot:dir,env:{GENSHIN_LLM_BASE_URL:base},fetchImpl}),/官方/);
+  assert.equal(JSON.stringify(result).includes('test-openai-key'),false);
   assert.equal(calls,1);
 });
 

@@ -1,0 +1,9 @@
+{
+  "repository": "https://github.com/kaedelcb/better-genshin-impact",
+  "branch": "main-OldTeaBag-B186",
+  "baseCommit": "e153ea23ff508ebc0d298615af27b4960c0d6017",
+  "integrationCommit": "ee1f7171900b438b35f803afe987b3920d413171",
+  "patchSha256": "cc3f0b3f20dfa525b827fe072a2dadfb63d1e267165e0b6658dfc33d6bb0e967",
+  "version": "0.66.3-alpha.1",
+  "localBranch": "codex/chabao-b186-20261101"
+}

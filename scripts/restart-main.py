@@ -29,6 +29,9 @@ for pid in owners:
     p.wait(timeout=10)
 instance = str(uuid.uuid4())
 env = dict(os.environ, AI_VTUBER_INSTANCE_ID=instance)
+if any(env.get(key) for key in ('HTTPS_PROXY', 'https_proxy', 'HTTP_PROXY', 'http_proxy')):
+    env['NODE_USE_ENV_PROXY'] = '1'
+    env['NO_PROXY'] = ','.join(filter(None, [env.get('NO_PROXY') or env.get('no_proxy'), 'localhost', '127.0.0.1', '::1']))
 (root / 'logs').mkdir(exist_ok=True)
 with (root/'logs/server.out.log').open('ab') as out, (root/'logs/server.err.log').open('ab') as err:
     process = subprocess.Popen([node, str(script)], cwd=root, env=env,

@@ -48,7 +48,13 @@ async function postLocal(url, timeoutMs) {
 
 function recentTransitions() {
   const directory = path.join(ROOT, 'logs/sts2');
-  const file = fs.readdirSync(directory).filter(n => n.endsWith('.jsonl')).map(n => ({ file: path.join(directory, n), at: fs.statSync(path.join(directory, n)).mtimeMs })).sort((a, b) => b.at - a.at)[0]?.file;
+  let entries;
+  try { entries = fs.readdirSync(directory); }
+  catch (error) {
+    if (error.code === 'ENOENT') return [];
+    throw error;
+  }
+  const file = entries.filter(n => n.endsWith('.jsonl')).map(n => ({ file: path.join(directory, n), at: fs.statSync(path.join(directory, n)).mtimeMs })).sort((a, b) => b.at - a.at)[0]?.file;
   if (!file) return [];
   const fd = fs.openSync(file, 'r');
   try {

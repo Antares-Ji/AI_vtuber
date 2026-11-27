@@ -20,9 +20,17 @@ class ObserveTests(unittest.TestCase):
         self.assertEqual(observation(good), good)
         for value in [None, {**good, 'action': 'click'}, {**good, 'scene': 'unknown'},
                       {**good, 'uncertain': 1}, {**good, 'visible_text': ['x'*161]},
-                      {**good, 'visible_text': ['x']*13}]:
+                      {**good, 'visible_text': ['x']*65}]:
             with self.assertRaises(ValueError):
                 observation(value)
+
+    def test_extra_visible_text_is_bounded_without_changing_scene(self):
+        value=dict(scene='menu',summary='菜单',visible_text=[str(i) for i in range(16)],uncertain=False)
+        result=observation(value)
+        self.assertEqual(result, {**value,'visible_text':value['visible_text'][:12]})
+        self.assertEqual(len(value['visible_text']),16)
+        with self.assertRaises(ValueError):
+            observation({**value,'visible_text':value['visible_text']+[{'action':'click'}]})
 
     def test_evidence_scope(self):
         with tempfile.TemporaryDirectory() as tmp:

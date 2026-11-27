@@ -51,6 +51,7 @@ const VENDOR_FILES = {
 const SAMPLE_DANMAKU = path.join(__dirname, "..", "data", "sample-danmaku.json");
 const RUNTIME_SETTINGS_PATH = path.join(__dirname, "..", "data", "runtime-settings.json");
 const brain = new StreamerBrain({ dualPersonas: process.env.DUAL_PERSONAS !== "false" });
+const genshinConsole = require('./genshin/console-routes').createGenshinConsole({ host: skillRoutes.host, brain, parseBody, send });
 const queueStore = new QueueStore();
 const queue = queueStore.items;
 const seenDanmaku = new Map();
@@ -139,20 +140,21 @@ const minecraftLoop = new AutonomyLoop({ engine: minecraftEngine, request: minec
 let liveGameCache = null;
 let liveGameRefreshBusy = false;
 const { liveGameContext } = require('./minecraft/live-context');
-let activeGame = ['minecraft', 'sts2'].includes(runtimeSettings.activeGame) ? runtimeSettings.activeGame : null;
+let activeGame = ['minecraft', 'sts2', 'genshin'].includes(runtimeSettings.activeGame) ? runtimeSettings.activeGame : null;
 function minecraftLiveContext() {
   const context = (liveGameCache || minecraftEngine.config.provider === 'astra') ? liveGameContext(liveGameCache?.state, minecraftLoop.snapshot(), liveGameCache?.at || null) : null;
   if (context) context.pendingAudienceSuggestions = audienceSuggestions.list().filter(item => ['summarizing', 'ready'].includes(item.status)).map(item => ({ text: item.summary || item.original, status: 'awaiting-console-confirmation' }));
   return context;
 }
 brain.liveGameContextProvider = () => {
+  if (activeGame === 'genshin') return genshinConsole.context();
   if (activeGame === 'minecraft') return minecraftLiveContext();
   const spire = sts2Routes.context();
   if (activeGame === 'sts2' || spire) return spire;
   return minecraftLiveContext();
 };
 brain.onLiveHumanTurn = () => {
-  if (activeGame === 'sts2') return () => {};
+  if (activeGame === 'sts2' || activeGame === 'genshin') return () => {};
   preemptMinecraftCommentary();
   // Cloud dialogue does not compete for the local vision/planning GPU slot.
   if (['astra', 'deepseek'].includes(minecraftEngine.config.provider) || process.env.MINECRAFT_CHAT_PROVIDER === 'cloud') return () => {};
@@ -312,6 +314,9 @@ function safeFilePath(root, relative) {
 async function handleApi(req, res) {
   const url = new URL(req.url, `http://${req.headers.host}`);
   if (await skillRoutes(req, res, url)) return;
+  if (await genshinConsole.handle(req, res, url)) return;
+  if (activeGame === 'genshin' && ['/api/next', '/api/next-stream'].includes(url.pathname))
+    return send(res, 409, { error: '原神主播使用 /api/genshin/commentary/next；旧聊天模型未调用。' });
   if (await gameInputRoutes(req, res, url)) return;
   if (url.pathname.startsWith('/api/sts2/') && await sts2Routes.handle(req, res, url)) return;
   if (url.pathname === '/api/games/active') {
@@ -320,7 +325,7 @@ async function handleApi(req, res) {
     const host = new URL(`http://${req.headers.host}`);
     if (!['127.0.0.1', '::1', '::ffff:127.0.0.1'].includes(req.socket.remoteAddress) || !['127.0.0.1', 'localhost', '[::1]'].includes(host.hostname) || (req.headers.origin && req.headers.origin !== host.origin)) return send(res, 403, { error: 'Local console only' });
     const body = await parseBody(req);
-    if (!['minecraft', 'sts2'].includes(body.game)) return send(res, 400, { error: 'Unknown game' });
+    if (!['minecraft', 'sts2', 'genshin'].includes(body.game)) return send(res, 400, { error: 'Unknown game' });
     activeGame = body.game;
     runtimeSettings.activeGame = activeGame; saveRuntimeSettings();
     return send(res, 200, { game: activeGame });

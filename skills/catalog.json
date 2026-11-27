@@ -150,11 +150,102 @@
       }
     },
     {
+      "id": "genshin:direct-story",
+      "version": "1",
+      "game": "genshin",
+      "mode": "live",
+      "description": "用户明确授权的导演直接控制；本地观察、逐帧意图校验、原生执行，不调用决策模型或主播。",
+      "resources": [
+        "desktop",
+        "genshin"
+      ],
+      "enabled": true,
+      "arguments": {}
+    },
+    {
+      "id": "genshin:window-restore",
+      "version": "1",
+      "game": "genshin",
+      "mode": "live",
+      "description": "显式恢复原神窗口；原生互斥及实际权限检查，无游戏按键，不改变观察接口。",
+      "resources": [
+        "desktop",
+        "genshin"
+      ],
+      "enabled": true,
+      "arguments": {}
+    },
+    {
+      "id": "genshin:story",
+      "version": "1",
+      "game": "genshin",
+      "mode": "live",
+      "description": "BetterGI持续剧情会话：本地OCR与视觉观察，DeepSeek逐步选择任务、对话与追踪，并生成主播解说。",
+      "resources": [
+        "desktop",
+        "genshin"
+      ],
+      "enabled": true,
+      "arguments": {}
+    },
+    {
+      "id": "genshin:run-goal",
+      "version": "1",
+      "game": "genshin",
+      "mode": "live",
+      "description": "BetterGI截图→本地视觉API→所选模型决定一项路线/自动任务→BetterGI执行；不循环，无法确认场景则停止。",
+      "resources": [
+        "desktop",
+        "genshin"
+      ],
+      "enabled": true,
+      "arguments": {}
+    },
+    {
+      "id": "genshin:bridge-observe",
+      "version": "1",
+      "game": "genshin",
+      "mode": "live",
+      "description": "通过 BetterGI 截图并调用本地视觉模型解释；不启用云端视觉，不生成游戏按键。BetterGI 启动可能激活游戏窗口。",
+      "resources": [
+        "desktop",
+        "genshin"
+      ],
+      "enabled": true,
+      "arguments": {}
+    },
+    {
+      "id": "genshin:bridge-start",
+      "version": "1",
+      "game": "genshin",
+      "mode": "live",
+      "description": "连接固定 BetterGI 管理进程；reuseSession仅复用现有授权，不新建提权进程。",
+      "resources": [
+        "desktop",
+        "genshin"
+      ],
+      "enabled": true,
+      "arguments": {}
+    },
+    {
+      "id": "genshin:bridge-command",
+      "version": "1",
+      "game": "genshin",
+      "mode": "live",
+      "description": "BetterGI 官方脚本桥：截图、已安装路线、9类独立任务；支持停止、超时和原生按键释放。接口返回不代表游戏成功。",
+      "resources": [
+        "desktop",
+        "genshin"
+      ],
+      "enabled": true,
+      "arguments": {}
+    },
+    {
       "id": "genshin:launch",
       "version": "1",
       "game": "genshin",
       "mode": "live",
-      "description": "启动本地配置的原神程序；不登录、不发送键鼠，不重复启动已有进程。",
+      "description": "启动原神；systemPrompt=true 时允许 Windows 显示正常权限确认。",
       "resources": [
         "desktop",
         "genshin"
@@ -182,7 +273,7 @@
       "version": "1",
       "game": "genshin",
       "mode": "read",
-      "description": "通过 DeepSeek API 规划原神有限技能；生成计划不发送游戏输入。",
+      "description": "通过手动选定的 OpenAI / DeepSeek 规划原神有限技能；不自动切换供应商，生成计划不发送游戏输入。",
       "resources": [],
       "enabled": true,
       "arguments": {

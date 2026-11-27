@@ -1,0 +1,29 @@
+{
+  "repository": "https://github.com/kinqsradio/academic-research-skills",
+  "commit": "37d8d409c0c62adf8fcb81c83935ea19c1e455c3",
+  "license": "MIT",
+  "support_bundle": "/mnt/c/Users/Antares.Ji/.codex/skill-resources/academic-research-skills",
+  "skills": [
+    {
+      "name": "research-design",
+      "path": "/mnt/c/Users/Antares.Ji/.codex/skills/research-design",
+      "skill_sha256": "346f879cd2eb997e5792e538cedddf8601d0cdf834b2f7069a5a843b7304c529"
+    },
+    {
+      "name": "deep-research",
+      "path": "/mnt/c/Users/Antares.Ji/.codex/skills/deep-research",
+      "skill_sha256": "13d600aa4560c49d6981b822ed614195dd466b93a96e410dbfd56775edee3a65"
+    },
+    {
+      "name": "academic-paper",
+      "path": "/mnt/c/Users/Antares.Ji/.codex/skills/academic-paper",
+      "skill_sha256": "5d4aedffef178f650c51a600189d83d109892d3460dd0877c67296256f7b97fc"
+    },
+    {
+      "name": "research-presentations",
+      "path": "/mnt/c/Users/Antares.Ji/.codex/skills/research-presentations",
+      "skill_sha256": "930c6abca0b5dc6912a1b41c9a58b0f011bbccb0c37e780adf223360da141dc9"
+    }
+  ],
+  "adaptation": "Only cross-directory Markdown links redirected to persistent upstream support bundle. No external scripts executed."
+}

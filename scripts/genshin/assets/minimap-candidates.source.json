@@ -1,0 +1,36 @@
+{
+  "version": 2,
+  "sourceRepository": "https://github.com/kaedelcb/better-genshin-impact",
+  "sourceCommit": "e153ea23ff508ebc0d298615af27b4960c0d6017",
+  "purpose": "Separate minimap candidates, including a scaled commission icon. Does not establish support for every quest type. Sources may differ per template.",
+  "matchChannels": 3,
+  "productionThreshold": 0.8,
+  "diagnosticThreshold": -1,
+  "diagnosticPeaksAuthorizeMovement": false,
+  "minimapNorthUpAssumed": false,
+  "minimapRoiAt1920": [62, 19, 212, 212],
+  "coordinateRule": "Use a quality-checked same-frame homography; normalized game direction is the negative projected map-image vector.",
+  "templates": [
+    {
+      "file": "quest-marker.png",
+      "sourcePath": "BetterGenshinImpact/GameTask/Common/Element/Assets/1920x1080/yellow_track_point_28x.png",
+      "sha256": "efcdac15a695267c573d3dfda3682c3889375ed2ca870bcb846b440041a9b384",
+      "size": [28, 28]
+    },
+    {
+      "file": "quest-marker-blue.png",
+      "sourcePath": "BetterGenshinImpact/GameTask/Common/Element/Assets/1920x1080/blue_track_point_28x.png",
+      "sha256": "8288e4d1ca65803bed10ce45e3ccfe31b5ae29dcbea79a6c8b2b86c04a5c8509",
+      "size": [28, 28]
+    },
+    {
+      "file": "minimap-commission.png",
+      "sourceRepository": "https://github.com/babalae/bettergi-scripts-list",
+      "sourceCommit": "00c1149682c37233cbc02ba281e3732ef1791f95",
+      "sourcePath": "repo/js/AutoCommissionNova/Data/RecognitionObject/IconBaseCommission.png",
+      "sourceManifest": "minimap-commission.source.json",
+      "sha256": "48117771e84340ad7c8653ac02006f7f095ba67af1426b5a58f3f2e4131c4a2f",
+      "size": [11, 12]
+    }
+  ]
+}

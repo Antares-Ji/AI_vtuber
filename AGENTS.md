@@ -37,3 +37,16 @@ Keep simulated tests, input receipts and independently verified game outcomes
 distinct. Before changing the live runtime or switching games, stop the task and
 confirm input release and idle vision. Preserve pending user choices of MC save
 and normal Windows permission handling for Genshin.
+
+## Genshin provider and BetterGI update (2026-11-01)
+
+The user explicitly chose the existing DeepSeek API because OpenAI API billing
+is unavailable. Keep manual OpenAI/DeepSeek switching in the Genshin console;
+never silently fall back between providers. This supersedes earlier OpenAI-only
+Genshin instructions. OpenAI credentials remain separate in `.env.openai.local`.
+Use `/api/genshin` and the `genshin:bridge-*` / `genshin:run-goal` director skills.
+BetterGI screenshots may activate the game and invoke its startup logic; do not
+describe them as input-free native captures. The owned bridge uses official JS
+groups, bounded runtimes, parent heartbeat and native input cleanup. A route
+return does not prove arrival: upstream pathing catches some exceptions.
+See `docs/genshin-console-20261101.md` for capabilities and actual validation.

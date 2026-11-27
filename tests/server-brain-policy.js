@@ -24,6 +24,8 @@ function routeHarness(brain, stream, item, onFirstUpstream = null) {
   const runtimeMetrics = { recordLatency() {}, replies: 0, lastReplyAt: null };
   const context = {
     URL, Date, JSON, responseAbortController, brain, PERSONA, runtimeMetrics,
+    skillRoutes: async () => false, genshinConsole: { handle: async () => false },
+    gameInputRoutes: async () => false, activeGame: null,
     nextInFlight: false, cloudReplyInFlight: null, queue: [item],
     queueStore: { remove(candidate) { context.queue = context.queue.filter(value => value !== candidate); } },
     handleStudioApi: async () => false, liveRuntime: {}, parseBody: async () => ({}), parseBinaryBody: async () => Buffer.from("audio"),

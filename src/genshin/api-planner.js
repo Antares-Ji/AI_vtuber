@@ -1,20 +1,20 @@
 'use strict';
-const fs = require('node:fs');
-const path = require('node:path');
-const { config } = require('../minecraft/deepseek-planner');
-const { planGoal } = require('./planner');
+const { respond } = require('./model-provider');
+const { SKILLS, validatePlan } = require('./planner');
 
-async function planWithApi(goal, { dataRoot = path.resolve(__dirname, '../..'), env = process.env, signal, fetchImpl } = {}) {
-  signal?.throwIfAborted();
-  const dedicated = env.GENSHIN_LLM_API_KEY || env.DEEPSEEK_API_KEY;
-  const file = path.join(dataRoot, 'data/minecraft-engine.local.json');
-  const saved = !dedicated && fs.existsSync(file) ? JSON.parse(fs.readFileSync(file, 'utf8')).deepseekApiKey : '';
-  // Reuse the saved game credential only at the original provider's origin.
-  const settings = config({ ...env, DEEPSEEK_API_KEY: dedicated,
-    DEEPSEEK_BASE_URL: env.GENSHIN_LLM_BASE_URL || env.DEEPSEEK_BASE_URL,
-    DEEPSEEK_MODEL: env.GENSHIN_LLM_MODEL || env.DEEPSEEK_MODEL }, saved);
-  return planGoal(goal, { mode: 'llm', signal, fetchImpl, env: { ...env,
-    GENSHIN_LLM_API_KEY: settings.key, GENSHIN_LLM_MODEL: settings.model,
-    GENSHIN_LLM_BASE_URL: settings.url.replace(/\/chat\/completions$/, '') } });
+async function planWithApi(goal, options = {}) {
+  if (typeof goal !== 'string' || !goal.trim() || goal.length > 1000) throw Error('目标需要 1–1000 字符');
+  const answer = await respond(goal, { ...options,
+    instructions: `你是原神主播的任务规划器。仅可用技能：${JSON.stringify(SKILLS)}。必须先 observe。当前没有游戏画面，不能假定已经就位或完成任务。最多6步。不得执行代码，不把计划说成结果。`,
+    schema: { type: 'object', additionalProperties: false, required: ['goal', 'steps'], properties: {
+      goal: { type: 'string' }, steps: { type: 'array', minItems: 1, maxItems: 6, items: {
+        type: 'object', additionalProperties: false, required: ['skill', 'timeoutMs'], properties: {
+          skill: { type: 'string', enum: Object.keys(SKILLS) }, timeoutMs: { type: 'integer', minimum: 100, maximum: 120000 }
+        } } }
+    } } });
+  let value; try { value = JSON.parse(answer.text); } catch { throw Error('模型未返回有效计划 JSON'); }
+  const plan = validatePlan({ ...value, goal });
+  if (plan.steps[0].skill !== 'observe') throw Error('模型计划必须先观察当前场景');
+  return { ...plan, planner: 'llm', provider: answer.provider, model: answer.model, usage: answer.usage };
 }
 module.exports = { planWithApi };

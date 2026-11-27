@@ -1,0 +1,1983 @@
+{
+  "source": "docs/research/sts2-20261101/replay-20261101T141827Z/results.json",
+  "complete": true,
+  "n_unique_cases": 6,
+  "repeats": 3,
+  "warmups_excluded": true,
+  "conditions": [
+    {
+      "label": "4B-NF4",
+      "n": 18,
+      "total_s": 106.20299999999952,
+      "mean_s": 5.90016666666664,
+      "median_s": 5.296999999999912,
+      "p95_s": 12.596249999999838,
+      "load_s": 36.10900000000015,
+      "warmup_s": 10.562999999999874,
+      "http_completed": 18,
+      "raw_json_valid": 18,
+      "json_valid_after_fence_removal": 18,
+      "normalized_not_null": 18,
+      "cache_hits": 0,
+      "generated_tokens": 2235,
+      "gpu_loaded_after": "8412, 39, 134.86",
+      "observed_gpu_mib_max": 8490.0
+    },
+    {
+      "label": "8B-NF4",
+      "n": 18,
+      "total_s": 94.21899999999937,
+      "mean_s": 5.234388888888854,
+      "median_s": 4.140999999999963,
+      "p95_s": 12.5192500000001,
+      "load_s": 21.1099999999999,
+      "warmup_s": 5.968000000000075,
+      "http_completed": 18,
+      "raw_json_valid": 6,
+      "json_valid_after_fence_removal": 18,
+      "normalized_not_null": 12,
+      "cache_hits": 0,
+      "generated_tokens": 2004,
+      "gpu_loaded_after": "11749, 46, 149.97",
+      "observed_gpu_mib_max": 11959.0
+    },
+    {
+      "label": "DeepSeek-Flash",
+      "n": 18,
+      "total_s": 56.23399999999947,
+      "mean_s": 3.1241111111110818,
+      "median_s": 3.116999999999962,
+      "p95_s": 3.8363999999998666,
+      "load_s": 0.515999999999849,
+      "warmup_s": 4.859000000000151,
+      "http_completed": 18,
+      "raw_json_valid": 18,
+      "json_valid_after_fence_removal": 18,
+      "normalized_not_null": 18,
+      "cache_hits": 0,
+      "generated_tokens": 1565,
+      "gpu_loaded_after": "4110, 11, 69.47",
+      "observed_gpu_mib_max": 4178.0
+    }
+  ],
+  "cases": [
+    {
+      "condition": "4B-NF4",
+      "case": "card-type-conflict",
+      "n": 3,
+      "mean_s": 2.6873333333332994,
+      "min_s": 2.5939999999998236,
+      "max_s": 2.75,
+      "parsed": [
+        {
+          "cards": [
+            {
+              "name": "防御",
+              "cost": 1,
+              "type": "技能",
+              "description": "获得5点格挡。"
+            }
+          ],
+          "uncertain": false,
+          "ocr_check": {
+            "status": "corroborated",
+            "reason": "same_frame_title_type_and_complete_rules",
+            "fields": [
+              "name",
+              "type",
+              "description"
+            ],
+            "record": "E:\\Github\\AI_vtuber\\runtime\\game-input\\learning\\ocr-1793542762167736700.json",
+            "model": "RapidOCR PP-OCRv6 small CPU"
+          }
+        },
+        {
+          "cards": [
+            {
+              "name": "防御",
+              "cost": 1,
+              "type": "技能",
+              "description": "获得5点格挡。"
+            }
+          ],
+          "uncertain": false,
+          "ocr_check": {
+            "status": "corroborated",
+            "reason": "same_frame_title_type_and_complete_rules",
+            "fields": [
+              "name",
+              "type",
+              "description"
+            ],
+            "record": "E:\\Github\\AI_vtuber\\runtime\\game-input\\learning\\ocr-1793542818660497000.json",
+            "model": "RapidOCR PP-OCRv6 small CPU"
+          }
+        },
+        {
+          "cards": [
+            {
+              "name": "防御",
+              "cost": 1,
+              "type": "技能",
+              "description": "获得5点格挡。"
+            }
+          ],
+          "uncertain": false,
+          "ocr_check": {
+            "status": "corroborated",
+            "reason": "same_frame_title_type_and_complete_rules",
+            "fields": [
+              "name",
+              "type",
+              "description"
+            ],
+            "record": "E:\\Github\\AI_vtuber\\runtime\\game-input\\learning\\ocr-1793542866712369100.json",
+            "model": "RapidOCR PP-OCRv6 small CPU"
+          }
+        }
+      ],
+      "normalization_errors": [
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "condition": "4B-NF4",
+      "case": "draw-pile-view",
+      "n": 3,
+      "mean_s": 12.56266666666655,
+      "min_s": 12.4849999999999,
+      "max_s": 12.608999999999924,
+      "parsed": [
+        {
+          "scene": "selection",
+          "summary": "正在查看抽牌堆，不是奖励选牌；卡牌列表不能打出或领取。",
+          "targets": [],
+          "card_pile_view": "draw",
+          "ocr_check": {
+            "status": "corroborated",
+            "scope": "draw_pile_view",
+            "record": "E:\\Github\\AI_vtuber\\runtime\\game-input\\learning\\ocr-1793542777236544900.json",
+            "model": "RapidOCR PP-OCRv6 small CPU"
+          }
+        },
+        {
+          "scene": "selection",
+          "summary": "正在查看抽牌堆，不是奖励选牌；卡牌列表不能打出或领取。",
+          "targets": [],
+          "card_pile_view": "draw",
+          "ocr_check": {
+            "status": "corroborated",
+            "scope": "draw_pile_view",
+            "record": "E:\\Github\\AI_vtuber\\runtime\\game-input\\learning\\ocr-1793542818425376400.json",
+            "model": "RapidOCR PP-OCRv6 small CPU"
+          }
+        },
+        {
+          "scene": "selection",
+          "summary": "正在查看抽牌堆，不是奖励选牌；卡牌列表不能打出或领取。",
+          "targets": [],
+          "card_pile_view": "draw",
+          "ocr_check": {
+            "status": "corroborated",
+            "scope": "draw_pile_view",
+            "record": "E:\\Github\\AI_vtuber\\runtime\\game-input\\learning\\ocr-1793542847460438100.json",
+            "model": "RapidOCR PP-OCRv6 small CPU"
+          }
+        }
+      ],
+      "normalization_errors": [
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "condition": "4B-NF4",
+      "case": "tall-enemy",
+      "n": 3,
+      "mean_s": 8.072666666666768,
+      "min_s": 8.0150000000001,
+      "max_s": 8.141000000000076,
+      "parsed": [
+        {
+          "scene": "battle",
+          "summary": "1个敌人",
+          "targets": [
+            {
+              "id": "enemy_0",
+              "kind": "enemy",
+              "label": "敌人 enemy_0；当前生命69/84；外观和其他数字见视觉描述",
+              "point": [
+                725.0000000000001,
+                427.0
+              ],
+              "enabled": true,
+              "visual_description": "绿色鸟形敌人 69/84",
+              "enemy": {
+                "hp": 69,
+                "max_hp": 84,
+                "health_source": "local_ocr",
+                "health_status": "corroborated",
+                "health_match": "extended_visual_ocr_agreement"
+              }
+            },
+            {
+              "id": "ground_empty",
+              "kind": "ground",
+              "label": "战场中央空地",
+              "point": [
+                725.0000000000001,
+                500.0
+              ],
+              "enabled": true
+            },
+            {
+              "id": "end-turn",
+              "kind": "button",
+              "label": "结束第1回合",
+              "point": [
+                885.62,
+                824.4449999999999
+              ],
+              "enabled": true,
+              "end_turn_ocr_checked": true
+            }
+          ],
+          "coordinate_space": "original_image_0_1000",
+          "rejected_low_ground_targets": 0,
+          "ocr_check": {
+            "status": "grounded",
+            "matched_enemy_health": 1,
+            "reason": "unique_fraction_below_observed_enemy",
+            "extended_matches": 1,
+            "record": "E:\\Github\\AI_vtuber\\runtime\\game-input\\learning\\ocr-1793542785333515100.json",
+            "model": "RapidOCR PP-OCRv6 small CPU"
+          }
+        },
+        {
+          "scene": "battle",
+          "summary": "1个敌人",
+          "targets": [
+            {
+              "id": "enemy_0",
+              "kind": "enemy",
+              "label": "敌人 enemy_0；当前生命69/84；外观和其他数字见视觉描述",
+              "point": [
+                725.0000000000001,
+                427.0
+              ],
+              "enabled": true,
+              "visual_description": "绿色鸟形敌人 69/84",
+              "enemy": {
+                "hp": 69,
+                "max_hp": 84,
+                "health_source": "local_ocr",
+                "health_status": "corroborated",
+                "health_match": "extended_visual_ocr_agreement"
+              }
+            },
+            {
+              "id": "ground_empty",
+              "kind": "ground",
+              "label": "战场中央空地",
+              "point": [
+                725.0000000000001,
+                500.0
+              ],
+              "enabled": true
+            },
+            {
+              "id": "end-turn",
+              "kind": "button",
+              "label": "结束第1回合",
+              "point": [
+                885.62,
+                824.4449999999999
+              ],
+              "enabled": true,
+              "end_turn_ocr_checked": true
+            }
+          ],
+          "coordinate_space": "original_image_0_1000",
+          "rejected_low_ground_targets": 0,
+          "ocr_check": {
+            "status": "grounded",
+            "matched_enemy_health": 1,
+            "reason": "unique_fraction_below_observed_enemy",
+            "extended_matches": 1,
+            "record": "E:\\Github\\AI_vtuber\\runtime\\game-input\\learning\\ocr-1793542805740852000.json",
+            "model": "RapidOCR PP-OCRv6 small CPU"
+          }
+        },
+        {
+          "scene": "battle",
+          "summary": "1个敌人",
+          "targets": [
+            {
+              "id": "enemy_0",
+              "kind": "enemy",
+              "label": "敌人 enemy_0；当前生命69/84；外观和其他数字见视觉描述",
+              "point": [
+                725.0000000000001,
+                427.0
+              ],
+              "enabled": true,
+              "visual_description": "绿色鸟形敌人 69/84",
+              "enemy": {
+                "hp": 69,
+                "max_hp": 84,
+                "health_source": "local_ocr",
+                "health_status": "corroborated",
+                "health_match": "extended_visual_ocr_agreement"
+              }
+            },
+            {
+              "id": "ground_empty",
+              "kind": "ground",
+              "label": "战场中央空地",
+              "point": [
+                725.0000000000001,
+                500.0
+              ],
+              "enabled": true
+            },
+            {
+              "id": "end-turn",
+              "kind": "button",
+              "label": "结束第1回合",
+              "point": [
+                885.62,
+                824.4449999999999
+              ],
+              "enabled": true,
+              "end_turn_ocr_checked": true
+            }
+          ],
+          "coordinate_space": "original_image_0_1000",
+          "rejected_low_ground_targets": 0,
+          "ocr_check": {
+            "status": "grounded",
+            "matched_enemy_health": 1,
+            "reason": "unique_fraction_below_observed_enemy",
+            "extended_matches": 1,
+            "record": "E:\\Github\\AI_vtuber\\runtime\\game-input\\learning\\ocr-1793542861785171600.json",
+            "model": "RapidOCR PP-OCRv6 small CPU"
+          }
+        }
+      ],
+      "normalization_errors": [
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "condition": "4B-NF4",
+      "case": "occluded-player",
+      "n": 3,
+      "mean_s": 1.5576666666666672,
+      "min_s": 1.469000000000051,
+      "max_s": 1.6720000000000255,
+      "parsed": [
+        {
+          "player": {
+            "hp": null,
+            "max_hp": null,
+            "block": null
+          },
+          "ocr_check": {
+            "status": "unknown",
+            "reason": "ambiguous_or_missing_health_text",
+            "record": "E:\\Github\\AI_vtuber\\runtime\\game-input\\learning\\ocr-1793542787065544700.json",
+            "model": "RapidOCR PP-OCRv6 small CPU"
+          }
+        },
+        {
+          "player": {
+            "hp": null,
+            "max_hp": null,
+            "block": null
+          },
+          "ocr_check": {
+            "status": "unknown",
+            "reason": "ambiguous_or_missing_health_text",
+            "record": "E:\\Github\\AI_vtuber\\runtime\\game-input\\learning\\ocr-1793542822619862300.json",
+            "model": "RapidOCR PP-OCRv6 small CPU"
+          }
+        },
+        {
+          "player": {
+            "hp": null,
+            "max_hp": null,
+            "block": null
+          },
+          "ocr_check": {
+            "status": "unknown",
+            "reason": "ambiguous_or_missing_health_text",
+            "record": "E:\\Github\\AI_vtuber\\runtime\\game-input\\learning\\ocr-1793542834804903400.json",
+            "model": "RapidOCR PP-OCRv6 small CPU"
+          }
+        }
+      ],
+      "normalization_errors": [
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "condition": "4B-NF4",
+      "case": "hand-cost-conflict",
+      "n": 3,
+      "mean_s": 6.030999999999949,
+      "min_s": 5.968999999999824,
+      "max_s": 6.1400000000001,
+      "parsed": [
+        {
+          "scene": "battle",
+          "targets": [
+            {
+              "id": "hand-1",
+              "kind": "card",
+              "label": "打击",
+              "point": [
+                415.79999999999995,
+                641.48
+              ],
+              "enabled": true,
+              "card": {
+                "name": "打击",
+                "cost": 1,
+                "type": null,
+                "description": null
+              },
+              "cost_source": "local_vlm_ocr",
+              "name_source": "local_ocr"
+            },
+            {
+              "id": "hand-2",
+              "kind": "card",
+              "label": "撕裂",
+              "point": [
+                535.02,
+                812.595
+              ],
+              "enabled": true,
+              "card": {
+                "name": "撕裂",
+                "cost": null,
+                "type": null,
+                "description": null
+              },
+              "cost_source": "unknown",
+              "name_source": "local_ocr"
+            },
+            {
+              "id": "hand-3",
+              "kind": "card",
+              "label": "彼岸咆哮",
+              "point": [
+                610.655,
+                820.74
+              ],
+              "enabled": true,
+              "card": {
+                "name": "彼岸咆哮",
+                "cost": null,
+                "type": null,
+                "description": null
+              },
+              "cost_source": "unknown",
+              "name_source": "local_ocr"
+            }
+          ],
+          "coordinate_space": "original_image_0_1000",
+          "ocr_check": {
+            "status": "partial_or_unknown",
+            "matched_titles": 3,
+            "matched_costs": 1,
+            "rejected_status_targets": 0,
+            "reason": "current_frame_title_and_cost_association",
+            "record": "E:\\Github\\AI_vtuber\\runtime\\game-input\\learning\\ocr-1793542793086104300.json",
+            "model": "RapidOCR PP-OCRv6 small CPU"
+          }
+        },
+        {
+          "scene": "battle",
+          "targets": [
+            {
+              "id": "hand-1",
+              "kind": "card",
+              "label": "打击",
+              "point": [
+                415.79999999999995,
+                641.48
+              ],
+              "enabled": true,
+              "card": {
+                "name": "打击",
+                "cost": 1,
+                "type": null,
+                "description": null
+              },
+              "cost_source": "local_vlm_ocr",
+              "name_source": "local_ocr"
+            },
+            {
+              "id": "hand-2",
+              "kind": "card",
+              "label": "撕裂",
+              "point": [
+                535.02,
+                812.595
+              ],
+              "enabled": true,
+              "card": {
+                "name": "撕裂",
+                "cost": null,
+                "type": null,
+                "description": null
+              },
+              "cost_source": "unknown",
+              "name_source": "local_ocr"
+            },
+            {
+              "id": "hand-3",
+              "kind": "card",
+              "label": "彼岸咆哮",
+              "point": [
+                610.655,
+                820.74
+              ],
+              "enabled": true,
+              "card": {
+                "name": "彼岸咆哮",
+                "cost": null,
+                "type": null,
+                "description": null
+              },
+              "cost_source": "unknown",
+              "name_source": "local_ocr"
+            }
+          ],
+          "coordinate_space": "original_image_0_1000",
+          "ocr_check": {
+            "status": "partial_or_unknown",
+            "matched_titles": 3,
+            "matched_costs": 1,
+            "rejected_status_targets": 0,
+            "reason": "current_frame_title_and_cost_association",
+            "record": "E:\\Github\\AI_vtuber\\runtime\\game-input\\learning\\ocr-1793542828675204800.json",
+            "model": "RapidOCR PP-OCRv6 small CPU"
+          }
+        },
+        {
+          "scene": "battle",
+          "targets": [
+            {
+              "id": "hand-1",
+              "kind": "card",
+              "label": "打击",
+              "point": [
+                415.79999999999995,
+                641.48
+              ],
+              "enabled": true,
+              "card": {
+                "name": "打击",
+                "cost": 1,
+                "type": null,
+                "description": null
+              },
+              "cost_source": "local_vlm_ocr",
+              "name_source": "local_ocr"
+            },
+            {
+              "id": "hand-2",
+              "kind": "card",
+              "label": "撕裂",
+              "point": [
+                535.02,
+                812.595
+              ],
+              "enabled": true,
+              "card": {
+                "name": "撕裂",
+                "cost": null,
+                "type": null,
+                "description": null
+              },
+              "cost_source": "unknown",
+              "name_source": "local_ocr"
+            },
+            {
+              "id": "hand-3",
+              "kind": "card",
+              "label": "彼岸咆哮",
+              "point": [
+                610.655,
+                820.74
+              ],
+              "enabled": true,
+              "card": {
+                "name": "彼岸咆哮",
+                "cost": null,
+                "type": null,
+                "description": null
+              },
+              "cost_source": "unknown",
+              "name_source": "local_ocr"
+            }
+          ],
+          "coordinate_space": "original_image_0_1000",
+          "ocr_check": {
+            "status": "partial_or_unknown",
+            "matched_titles": 3,
+            "matched_costs": 1,
+            "rejected_status_targets": 0,
+            "reason": "current_frame_title_and_cost_association",
+            "record": "E:\\Github\\AI_vtuber\\runtime\\game-input\\learning\\ocr-1793542853648974200.json",
+            "model": "RapidOCR PP-OCRv6 small CPU"
+          }
+        }
+      ],
+      "normalization_errors": [
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "condition": "4B-NF4",
+      "case": "expanded-roar-hand",
+      "n": 3,
+      "mean_s": 4.489666666666608,
+      "min_s": 4.375,
+      "max_s": 4.625,
+      "parsed": [
+        {
+          "scene": "battle",
+          "targets": [
+            {
+              "id": "hand-1",
+              "kind": "card",
+              "label": "撕裂",
+              "point": [
+                415.795,
+                820.74
+              ],
+              "enabled": true,
+              "card": {
+                "name": "撕裂",
+                "cost": null,
+                "type": null,
+                "description": null
+              },
+              "cost_source": "unknown",
+              "name_source": "local_ocr"
+            },
+            {
+              "id": "hand-2",
+              "kind": "card",
+              "label": "彼岸咆哮",
+              "point": [
+                546.2,
+                640.0
+              ],
+              "enabled": true,
+              "card": {
+                "name": "彼岸咆哮",
+                "cost": 3,
+                "type": null,
+                "description": null
+              },
+              "cost_source": "local_vlm_ocr",
+              "name_source": "local_ocr"
+            }
+          ],
+          "coordinate_space": "original_image_0_1000",
+          "ocr_check": {
+            "status": "partial_or_unknown",
+            "matched_titles": 2,
+            "matched_costs": 1,
+            "rejected_status_targets": 0,
+            "reason": "current_frame_title_and_cost_association",
+            "record": "E:\\Github\\AI_vtuber\\runtime\\game-input\\learning\\ocr-1793542797538465900.json",
+            "model": "RapidOCR PP-OCRv6 small CPU"
+          }
+        },
+        {
+          "scene": "battle",
+          "targets": [
+            {
+              "id": "hand-1",
+              "kind": "card",
+              "label": "撕裂",
+              "point": [
+                415.795,
+                820.74
+              ],
+              "enabled": true,
+              "card": {
+                "name": "撕裂",
+                "cost": null,
+                "type": null,
+                "description": null
+              },
+              "cost_source": "unknown",
+              "name_source": "local_ocr"
+            },
+            {
+              "id": "hand-2",
+              "kind": "card",
+              "label": "彼岸咆哮",
+              "point": [
+                546.2,
+                640.0
+              ],
+              "enabled": true,
+              "card": {
+                "name": "彼岸咆哮",
+                "cost": 3,
+                "type": null,
+                "description": null
+              },
+              "cost_source": "local_vlm_ocr",
+              "name_source": "local_ocr"
+            }
+          ],
+          "coordinate_space": "original_image_0_1000",
+          "ocr_check": {
+            "status": "partial_or_unknown",
+            "matched_titles": 2,
+            "matched_costs": 1,
+            "rejected_status_targets": 0,
+            "reason": "current_frame_title_and_cost_association",
+            "record": "E:\\Github\\AI_vtuber\\runtime\\game-input\\learning\\ocr-1793542833221772200.json",
+            "model": "RapidOCR PP-OCRv6 small CPU"
+          }
+        },
+        {
+          "scene": "battle",
+          "targets": [
+            {
+              "id": "hand-1",
+              "kind": "card",
+              "label": "撕裂",
+              "point": [
+                415.795,
+                820.74
+              ],
+              "enabled": true,
+              "card": {
+                "name": "撕裂",
+                "cost": null,
+                "type": null,
+                "description": null
+              },
+              "cost_source": "unknown",
+              "name_source": "local_ocr"
+            },
+            {
+              "id": "hand-2",
+              "kind": "card",
+              "label": "彼岸咆哮",
+              "point": [
+                546.2,
+                640.0
+              ],
+              "enabled": true,
+              "card": {
+                "name": "彼岸咆哮",
+                "cost": 3,
+                "type": null,
+                "description": null
+              },
+              "cost_source": "local_vlm_ocr",
+              "name_source": "local_ocr"
+            }
+          ],
+          "coordinate_space": "original_image_0_1000",
+          "ocr_check": {
+            "status": "partial_or_unknown",
+            "matched_titles": 2,
+            "matched_costs": 1,
+            "rejected_status_targets": 0,
+            "reason": "current_frame_title_and_cost_association",
+            "record": "E:\\Github\\AI_vtuber\\runtime\\game-input\\learning\\ocr-1793542866464828500.json",
+            "model": "RapidOCR PP-OCRv6 small CPU"
+          }
+        }
+      ],
+      "normalization_errors": [
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "condition": "8B-NF4",
+      "case": "card-type-conflict",
+      "n": 3,
+      "mean_s": 2.9533333333333,
+      "min_s": 2.811999999999898,
+      "max_s": 3.188000000000102,
+      "parsed": [
+        {
+          "cards": [],
+          "uncertain": true,
+          "ocr_check": {
+            "status": "unknown",
+            "reason": "incomplete_visual_card",
+            "record": "E:\\Github\\AI_vtuber\\runtime\\game-input\\learning\\ocr-1793542896726325900.json",
+            "model": "RapidOCR PP-OCRv6 small CPU"
+          }
+        },
+        {
+          "cards": [],
+          "uncertain": true,
+          "ocr_check": {
+            "status": "unknown",
+            "reason": "incomplete_visual_card",
+            "record": "E:\\Github\\AI_vtuber\\runtime\\game-input\\learning\\ocr-1793542947260195900.json",
+            "model": "RapidOCR PP-OCRv6 small CPU"
+          }
+        },
+        {
+          "cards": [],
+          "uncertain": true,
+          "ocr_check": {
+            "status": "unknown",
+            "reason": "incomplete_visual_card",
+            "record": "E:\\Github\\AI_vtuber\\runtime\\game-input\\learning\\ocr-1793542989277498400.json",
+            "model": "RapidOCR PP-OCRv6 small CPU"
+          }
+        }
+      ],
+      "normalization_errors": [
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "condition": "8B-NF4",
+      "case": "draw-pile-view",
+      "n": 3,
+      "mean_s": 12.515666666666599,
+      "min_s": 12.343999999999824,
+      "max_s": 12.718999999999824,
+      "parsed": [
+        {
+          "scene": "selection",
+          "summary": "正在查看抽牌堆，不是奖励选牌；卡牌列表不能打出或领取。",
+          "targets": [],
+          "card_pile_view": "draw",
+          "ocr_check": {
+            "status": "corroborated",
+            "scope": "draw_pile_view",
+            "record": "E:\\Github\\AI_vtuber\\runtime\\game-input\\learning\\ocr-1793542912277922700.json",
+            "model": "RapidOCR PP-OCRv6 small CPU"
+          }
+        },
+        {
+          "scene": "selection",
+          "summary": "正在查看抽牌堆，不是奖励选牌；卡牌列表不能打出或领取。",
+          "targets": [],
+          "card_pile_view": "draw",
+          "ocr_check": {
+            "status": "corroborated",
+            "scope": "draw_pile_view",
+            "record": "E:\\Github\\AI_vtuber\\runtime\\game-input\\learning\\ocr-1793542947050341800.json",
+            "model": "RapidOCR PP-OCRv6 small CPU"
+          }
+        },
+        {
+          "scene": "selection",
+          "summary": "正在查看抽牌堆，不是奖励选牌；卡牌列表不能打出或领取。",
+          "targets": [],
+          "card_pile_view": "draw",
+          "ocr_check": {
+            "status": "corroborated",
+            "scope": "draw_pile_view",
+            "record": "E:\\Github\\AI_vtuber\\runtime\\game-input\\learning\\ocr-1793542974345410900.json",
+            "model": "RapidOCR PP-OCRv6 small CPU"
+          }
+        }
+      ],
+      "normalization_errors": [
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "condition": "8B-NF4",
+      "case": "tall-enemy",
+      "n": 3,
+      "mean_s": 6.145666666666632,
+      "min_s": 6.030999999999949,
+      "max_s": 6.280999999999949,
+      "parsed": [
+        {
+          "scene": "battle",
+          "summary": "1个敌人",
+          "targets": [
+            {
+              "id": 1,
+              "kind": "enemy",
+              "label": "敌人 1；当前生命69/84；外观和其他数字见视觉描述",
+              "point": [
+                737.65,
+                470.0
+              ],
+              "enabled": true,
+              "visual_description": "彼岸鸣喙 69/84",
+              "enemy": {
+                "hp": 69,
+                "max_hp": 84,
+                "health_source": "local_ocr",
+                "health_status": "corroborated",
+                "health_match": "extended_visual_ocr_agreement"
+              }
+            },
+            {
+              "id": "end-turn",
+              "kind": "button",
+              "label": "结束第1回合",
+              "point": [
+                885.62,
+                824.4449999999999
+              ],
+              "enabled": true,
+              "end_turn_ocr_checked": true
+            }
+          ],
+          "coordinate_space": "original_image_0_1000",
+          "rejected_low_ground_targets": 0,
+          "ocr_check": {
+            "status": "grounded",
+            "matched_enemy_health": 1,
+            "reason": "unique_fraction_below_observed_enemy",
+            "extended_matches": 1,
+            "record": "E:\\Github\\AI_vtuber\\runtime\\game-input\\learning\\ocr-1793542918407705600.json",
+            "model": "RapidOCR PP-OCRv6 small CPU"
+          }
+        },
+        {
+          "scene": "battle",
+          "summary": "1个敌人",
+          "targets": [
+            {
+              "id": 1,
+              "kind": "enemy",
+              "label": "敌人 1；当前生命69/84；外观和其他数字见视觉描述",
+              "point": [
+                737.65,
+                470.0
+              ],
+              "enabled": true,
+              "visual_description": "彼岸鸣喙 69/84",
+              "enemy": {
+                "hp": 69,
+                "max_hp": 84,
+                "health_source": "local_ocr",
+                "health_status": "corroborated",
+                "health_match": "extended_visual_ocr_agreement"
+              }
+            },
+            {
+              "id": "end-turn",
+              "kind": "button",
+              "label": "结束第1回合",
+              "point": [
+                885.62,
+                824.4449999999999
+              ],
+              "enabled": true,
+              "end_turn_ocr_checked": true
+            }
+          ],
+          "coordinate_space": "original_image_0_1000",
+          "rejected_low_ground_targets": 0,
+          "ocr_check": {
+            "status": "grounded",
+            "matched_enemy_health": 1,
+            "reason": "unique_fraction_below_observed_enemy",
+            "extended_matches": 1,
+            "record": "E:\\Github\\AI_vtuber\\runtime\\game-input\\learning\\ocr-1793542934629201200.json",
+            "model": "RapidOCR PP-OCRv6 small CPU"
+          }
+        },
+        {
+          "scene": "battle",
+          "summary": "1个敌人",
+          "targets": [
+            {
+              "id": 1,
+              "kind": "enemy",
+              "label": "敌人 1；当前生命69/84；外观和其他数字见视觉描述",
+              "point": [
+                737.65,
+                470.0
+              ],
+              "enabled": true,
+              "visual_description": "彼岸鸣喙 69/84",
+              "enemy": {
+                "hp": 69,
+                "max_hp": 84,
+                "health_source": "local_ocr",
+                "health_status": "corroborated",
+                "health_match": "extended_visual_ocr_agreement"
+              }
+            },
+            {
+              "id": "end-turn",
+              "kind": "button",
+              "label": "结束第1回合",
+              "point": [
+                885.62,
+                824.4449999999999
+              ],
+              "enabled": true,
+              "end_turn_ocr_checked": true
+            }
+          ],
+          "coordinate_space": "original_image_0_1000",
+          "rejected_low_ground_targets": 0,
+          "ocr_check": {
+            "status": "grounded",
+            "matched_enemy_health": 1,
+            "reason": "unique_fraction_below_observed_enemy",
+            "extended_matches": 1,
+            "record": "E:\\Github\\AI_vtuber\\runtime\\game-input\\learning\\ocr-1793542985507309400.json",
+            "model": "RapidOCR PP-OCRv6 small CPU"
+          }
+        }
+      ],
+      "normalization_errors": [
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "condition": "8B-NF4",
+      "case": "occluded-player",
+      "n": 3,
+      "mean_s": 1.4893333333333583,
+      "min_s": 1.4529999999999745,
+      "max_s": 1.5150000000001,
+      "parsed": [
+        {
+          "player": {
+            "hp": null,
+            "max_hp": null,
+            "block": null
+          },
+          "ocr_check": {
+            "status": "unknown",
+            "reason": "ambiguous_or_missing_health_text",
+            "record": "E:\\Github\\AI_vtuber\\runtime\\game-input\\learning\\ocr-1793542920001241200.json",
+            "model": "RapidOCR PP-OCRv6 small CPU"
+          }
+        },
+        {
+          "player": {
+            "hp": null,
+            "max_hp": null,
+            "block": null
+          },
+          "ocr_check": {
+            "status": "unknown",
+            "reason": "ambiguous_or_missing_health_text",
+            "record": "E:\\Github\\AI_vtuber\\runtime\\game-input\\learning\\ocr-1793542951454309000.json",
+            "model": "RapidOCR PP-OCRv6 small CPU"
+          }
+        },
+        {
+          "player": {
+            "hp": null,
+            "max_hp": null,
+            "block": null
+          },
+          "ocr_check": {
+            "status": "unknown",
+            "reason": "ambiguous_or_missing_health_text",
+            "record": "E:\\Github\\AI_vtuber\\runtime\\game-input\\learning\\ocr-1793542961544710100.json",
+            "model": "RapidOCR PP-OCRv6 small CPU"
+          }
+        }
+      ],
+      "normalization_errors": [
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "condition": "8B-NF4",
+      "case": "hand-cost-conflict",
+      "n": 3,
+      "mean_s": 4.838666666666692,
+      "min_s": 4.7970000000000255,
+      "max_s": 4.875,
+      "parsed": [
+        null,
+        null,
+        null
+      ],
+      "normalization_errors": [
+        "Missing bounded hand observations",
+        "Missing bounded hand observations",
+        "Missing bounded hand observations"
+      ]
+    },
+    {
+      "condition": "8B-NF4",
+      "case": "expanded-roar-hand",
+      "n": 3,
+      "mean_s": 3.4636666666665406,
+      "min_s": 3.436999999999898,
+      "max_s": 3.4849999999999,
+      "parsed": [
+        null,
+        null,
+        null
+      ],
+      "normalization_errors": [
+        "Missing bounded hand observations",
+        "Missing bounded hand observations",
+        "Missing bounded hand observations"
+      ]
+    },
+    {
+      "condition": "DeepSeek-Flash",
+      "case": "card-type-conflict",
+      "n": 3,
+      "mean_s": 2.7030000000000505,
+      "min_s": 2.625,
+      "max_s": 2.8279999999999745,
+      "parsed": [
+        {
+          "cards": [
+            {
+              "name": "防御",
+              "cost": 1,
+              "type": "技能",
+              "description": "获得5点格挡。"
+            }
+          ],
+          "uncertain": false,
+          "ocr_check": {
+            "status": "corroborated",
+            "reason": "same_frame_title_type_and_complete_rules",
+            "fields": [
+              "name",
+              "type",
+              "description"
+            ],
+            "record": "E:\\Github\\AI_vtuber\\runtime\\game-input\\learning\\ocr-1793542997705761500.json",
+            "model": "RapidOCR PP-OCRv6 small CPU"
+          }
+        },
+        {
+          "cards": [
+            {
+              "name": "防御",
+              "cost": 1,
+              "type": "技能",
+              "description": "获得5点格挡。"
+            }
+          ],
+          "uncertain": false,
+          "ocr_check": {
+            "status": "corroborated",
+            "reason": "same_frame_title_type_and_complete_rules",
+            "fields": [
+              "name",
+              "type",
+              "description"
+            ],
+            "record": "E:\\Github\\AI_vtuber\\runtime\\game-input\\learning\\ocr-1793543024003242000.json",
+            "model": "RapidOCR PP-OCRv6 small CPU"
+          }
+        },
+        {
+          "cards": [],
+          "uncertain": true,
+          "ocr_check": {
+            "status": "unknown",
+            "reason": "incomplete_visual_card",
+            "record": "E:\\Github\\AI_vtuber\\runtime\\game-input\\learning\\ocr-1793543052486450100.json",
+            "model": "RapidOCR PP-OCRv6 small CPU"
+          }
+        }
+      ],
+      "normalization_errors": [
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "condition": "DeepSeek-Flash",
+      "case": "draw-pile-view",
+      "n": 3,
+      "mean_s": 3.6926666666665824,
+      "min_s": 3.4680000000000746,
+      "max_s": 3.9689999999998236,
+      "parsed": [
+        {
+          "type": "json_object",
+          "scene": "menu",
+          "summary": "卡牌浏览界面，展示六张卡牌",
+          "targets": [
+            {
+              "id": "t1",
+              "label": "防御",
+              "point": [
+                159,
+                426
+              ],
+              "enabled": true
+            },
+            {
+              "id": "t2",
+              "label": "防御",
+              "point": [
+                283,
+                426
+              ],
+              "enabled": true
+            },
+            {
+              "id": "t3",
+              "label": "打击",
+              "point": [
+                419,
+                426
+              ],
+              "enabled": true
+            },
+            {
+              "id": "t4",
+              "label": "愤怒",
+              "point": [
+                544,
+                426
+              ],
+              "enabled": true
+            },
+            {
+              "id": "t5",
+              "label": "突破",
+              "point": [
+                679,
+                426
+              ],
+              "enabled": true
+            },
+            {
+              "id": "t6",
+              "label": "闪电霹雳",
+              "point": [
+                798,
+                426
+              ],
+              "enabled": true
+            },
+            {
+              "id": "t7",
+              "label": "返回",
+              "point": [
+                41,
+                682
+              ],
+              "enabled": false,
+              "button_ocr_checked": false
+            }
+          ],
+          "button_ocr_record": "E:\\Github\\AI_vtuber\\runtime\\game-input\\learning\\ocr-1793543004414142900.json"
+        },
+        {
+          "scene": "selection",
+          "summary": "正在查看抽牌堆，不是奖励选牌；卡牌列表不能打出或领取。",
+          "targets": [],
+          "card_pile_view": "draw",
+          "ocr_check": {
+            "status": "corroborated",
+            "scope": "draw_pile_view",
+            "record": "E:\\Github\\AI_vtuber\\runtime\\game-input\\learning\\ocr-1793543023789804000.json",
+            "model": "RapidOCR PP-OCRv6 small CPU"
+          }
+        },
+        {
+          "scene": "selection",
+          "summary": "正在查看抽牌堆，不是奖励选牌；卡牌列表不能打出或领取。",
+          "targets": [],
+          "card_pile_view": "draw",
+          "ocr_check": {
+            "status": "corroborated",
+            "scope": "draw_pile_view",
+            "record": "E:\\Github\\AI_vtuber\\runtime\\game-input\\learning\\ocr-1793543042029818200.json",
+            "model": "RapidOCR PP-OCRv6 small CPU"
+          }
+        }
+      ],
+      "normalization_errors": [
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "condition": "DeepSeek-Flash",
+      "case": "tall-enemy",
+      "n": 3,
+      "mean_s": 3.4633333333332907,
+      "min_s": 3.2970000000000255,
+      "max_s": 3.780999999999949,
+      "parsed": [
+        {
+          "type": "json_object",
+          "scene": "battle",
+          "summary": "1个敌人",
+          "targets": [
+            {
+              "id": "enemy_1",
+              "kind": "enemy",
+              "label": "敌人 enemy_1；当前生命69/84；外观和其他数字见视觉描述",
+              "point": [
+                714.0,
+                479.0
+              ],
+              "enabled": true,
+              "visual_description": "敌人 生命69/84 意图攻击17",
+              "enemy": {
+                "hp": 69,
+                "max_hp": 84,
+                "health_source": "local_ocr",
+                "health_status": "corroborated",
+                "health_match": "extended_visual_ocr_agreement"
+              }
+            },
+            {
+              "id": "ground_1",
+              "kind": "ground",
+              "label": "空地",
+              "point": [
+                919.6999999999999,
+                288.0
+              ],
+              "enabled": true
+            },
+            {
+              "id": "end-turn",
+              "kind": "button",
+              "label": "结束第1回合",
+              "point": [
+                885.62,
+                824.4449999999999
+              ],
+              "enabled": true,
+              "end_turn_ocr_checked": true
+            }
+          ],
+          "coordinate_space": "original_image_0_1000",
+          "rejected_low_ground_targets": 0,
+          "ocr_check": {
+            "status": "grounded",
+            "matched_enemy_health": 1,
+            "reason": "unique_fraction_below_observed_enemy",
+            "extended_matches": 1,
+            "record": "E:\\Github\\AI_vtuber\\runtime\\game-input\\learning\\ocr-1793543007793840100.json",
+            "model": "RapidOCR PP-OCRv6 small CPU"
+          }
+        },
+        {
+          "type": "json_object",
+          "scene": "battle",
+          "summary": "1个敌人",
+          "targets": [
+            {
+              "id": "enemy_1",
+              "kind": "enemy",
+              "label": "敌人 enemy_1；当前生命69/84；外观和其他数字见视觉描述",
+              "point": [
+                725.0000000000001,
+                449.0
+              ],
+              "enabled": true,
+              "visual_description": "敌人 生命69/84 意图攻击17",
+              "enemy": {
+                "hp": 69,
+                "max_hp": 84,
+                "health_source": "local_ocr",
+                "health_status": "corroborated",
+                "health_match": "extended_visual_ocr_agreement"
+              }
+            },
+            {
+              "id": "ground_1",
+              "kind": "ground",
+              "label": "战场上方空地",
+              "point": [
+                738.75,
+                268.0
+              ],
+              "enabled": true
+            },
+            {
+              "id": "end-turn",
+              "kind": "button",
+              "label": "结束第1回合",
+              "point": [
+                885.62,
+                824.4449999999999
+              ],
+              "enabled": true,
+              "end_turn_ocr_checked": true
+            }
+          ],
+          "coordinate_space": "original_image_0_1000",
+          "rejected_low_ground_targets": 0,
+          "ocr_check": {
+            "status": "grounded",
+            "matched_enemy_health": 1,
+            "reason": "unique_fraction_below_observed_enemy",
+            "extended_matches": 1,
+            "record": "E:\\Github\\AI_vtuber\\runtime\\game-input\\learning\\ocr-1793543020078054500.json",
+            "model": "RapidOCR PP-OCRv6 small CPU"
+          }
+        },
+        {
+          "type": "json_object",
+          "scene": "battle",
+          "summary": "敌人数量：1",
+          "targets": [
+            {
+              "id": "enemy_1",
+              "kind": "enemy",
+              "label": "敌人 enemy_1；当前生命69/84；外观和其他数字见视觉描述",
+              "point": [
+                736.0,
+                467.0
+              ],
+              "enabled": true,
+              "visual_description": "敌人 生命69/84 意图攻击17",
+              "enemy": {
+                "hp": 69,
+                "max_hp": 84,
+                "health_source": "local_ocr",
+                "health_status": "corroborated",
+                "health_match": "extended_visual_ocr_agreement"
+              }
+            },
+            {
+              "id": "ground_1",
+              "kind": "ground",
+              "label": "战场中央空地",
+              "point": [
+                667.25,
+                300.0
+              ],
+              "enabled": true
+            },
+            {
+              "id": "end-turn",
+              "kind": "button",
+              "label": "结束第1回合",
+              "point": [
+                885.62,
+                824.4449999999999
+              ],
+              "enabled": true,
+              "end_turn_ocr_checked": true
+            }
+          ],
+          "coordinate_space": "original_image_0_1000",
+          "rejected_low_ground_targets": 0,
+          "ocr_check": {
+            "status": "grounded",
+            "matched_enemy_health": 1,
+            "reason": "unique_fraction_below_observed_enemy",
+            "extended_matches": 1,
+            "record": "E:\\Github\\AI_vtuber\\runtime\\game-input\\learning\\ocr-1793543048966235200.json",
+            "model": "RapidOCR PP-OCRv6 small CPU"
+          }
+        }
+      ],
+      "normalization_errors": [
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "condition": "DeepSeek-Flash",
+      "case": "occluded-player",
+      "n": 3,
+      "mean_s": 2.510666666666642,
+      "min_s": 2.328999999999951,
+      "max_s": 2.780999999999949,
+      "parsed": [
+        {
+          "player": {
+            "hp": null,
+            "max_hp": null,
+            "block": null
+          },
+          "ocr_check": {
+            "status": "unknown",
+            "reason": "ambiguous_or_missing_health_text",
+            "record": "E:\\Github\\AI_vtuber\\runtime\\game-input\\learning\\ocr-1793543010633059800.json",
+            "model": "RapidOCR PP-OCRv6 small CPU"
+          }
+        },
+        {
+          "player": {
+            "hp": null,
+            "max_hp": null,
+            "block": null
+          },
+          "ocr_check": {
+            "status": "unknown",
+            "reason": "ambiguous_or_missing_health_text",
+            "record": "E:\\Github\\AI_vtuber\\runtime\\game-input\\learning\\ocr-1793543029002930200.json",
+            "model": "RapidOCR PP-OCRv6 small CPU"
+          }
+        },
+        {
+          "player": {
+            "hp": null,
+            "max_hp": null,
+            "block": null
+          },
+          "ocr_check": {
+            "status": "unknown",
+            "reason": "ambiguous_or_missing_health_text",
+            "record": "E:\\Github\\AI_vtuber\\runtime\\game-input\\learning\\ocr-1793543038484102400.json",
+            "model": "RapidOCR PP-OCRv6 small CPU"
+          }
+        }
+      ],
+      "normalization_errors": [
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "condition": "DeepSeek-Flash",
+      "case": "hand-cost-conflict",
+      "n": 3,
+      "mean_s": 3.3123333333332994,
+      "min_s": 3.0150000000001,
+      "max_s": 3.8129999999998745,
+      "parsed": [
+        {
+          "scene": "battle",
+          "targets": [
+            {
+              "id": "hand-1",
+              "kind": "card",
+              "label": "打击",
+              "point": [
+                415.79999999999995,
+                641.48
+              ],
+              "enabled": true,
+              "card": {
+                "name": "打击",
+                "cost": 1,
+                "type": null,
+                "description": null
+              },
+              "cost_source": "cloud_vlm_local_ocr",
+              "name_source": "local_ocr"
+            },
+            {
+              "id": "hand-2",
+              "kind": "card",
+              "label": "撕裂",
+              "point": [
+                535.02,
+                812.595
+              ],
+              "enabled": true,
+              "card": {
+                "name": "撕裂",
+                "cost": null,
+                "type": null,
+                "description": null
+              },
+              "cost_source": "unknown",
+              "name_source": "local_ocr"
+            },
+            {
+              "id": "hand-3",
+              "kind": "card",
+              "label": "彼岸咆哮",
+              "point": [
+                610.655,
+                820.74
+              ],
+              "enabled": true,
+              "card": {
+                "name": "彼岸咆哮",
+                "cost": null,
+                "type": null,
+                "description": null
+              },
+              "cost_source": "unknown",
+              "name_source": "local_ocr"
+            }
+          ],
+          "coordinate_space": "original_image_0_1000",
+          "ocr_check": {
+            "status": "partial_or_unknown",
+            "matched_titles": 3,
+            "matched_costs": 1,
+            "rejected_status_targets": 0,
+            "reason": "current_frame_title_and_cost_association",
+            "record": "E:\\Github\\AI_vtuber\\runtime\\game-input\\learning\\ocr-1793543013800992100.json",
+            "model": "RapidOCR PP-OCRv6 small CPU"
+          }
+        },
+        {
+          "scene": "battle",
+          "targets": [
+            {
+              "id": "hand-1",
+              "kind": "card",
+              "label": "打击",
+              "point": [
+                415.79999999999995,
+                641.48
+              ],
+              "enabled": true,
+              "card": {
+                "name": "打击",
+                "cost": 1,
+                "type": null,
+                "description": null
+              },
+              "cost_source": "cloud_vlm_local_ocr",
+              "name_source": "local_ocr"
+            },
+            {
+              "id": "hand-2",
+              "kind": "card",
+              "label": "撕裂",
+              "point": [
+                535.02,
+                812.595
+              ],
+              "enabled": true,
+              "card": {
+                "name": "撕裂",
+                "cost": null,
+                "type": null,
+                "description": null
+              },
+              "cost_source": "unknown",
+              "name_source": "local_ocr"
+            },
+            {
+              "id": "hand-3",
+              "kind": "card",
+              "label": "彼岸咆哮",
+              "point": [
+                610.655,
+                820.74
+              ],
+              "enabled": true,
+              "card": {
+                "name": "彼岸咆哮",
+                "cost": null,
+                "type": null,
+                "description": null
+              },
+              "cost_source": "unknown",
+              "name_source": "local_ocr"
+            }
+          ],
+          "coordinate_space": "original_image_0_1000",
+          "ocr_check": {
+            "status": "partial_or_unknown",
+            "matched_titles": 3,
+            "matched_costs": 1,
+            "rejected_status_targets": 0,
+            "reason": "current_frame_title_and_cost_association",
+            "record": "E:\\Github\\AI_vtuber\\runtime\\game-input\\learning\\ocr-1793543032889008200.json",
+            "model": "RapidOCR PP-OCRv6 small CPU"
+          }
+        },
+        {
+          "scene": "battle",
+          "targets": [
+            {
+              "id": "hand-1",
+              "kind": "card",
+              "label": "打击",
+              "point": [
+                415.79999999999995,
+                641.48
+              ],
+              "enabled": true,
+              "card": {
+                "name": "打击",
+                "cost": 1,
+                "type": null,
+                "description": null
+              },
+              "cost_source": "cloud_vlm_local_ocr",
+              "name_source": "local_ocr"
+            },
+            {
+              "id": "hand-2",
+              "kind": "card",
+              "label": "撕裂",
+              "point": [
+                535.02,
+                812.595
+              ],
+              "enabled": true,
+              "card": {
+                "name": "撕裂",
+                "cost": null,
+                "type": null,
+                "description": null
+              },
+              "cost_source": "unknown",
+              "name_source": "local_ocr"
+            },
+            {
+              "id": "hand-3",
+              "kind": "card",
+              "label": "彼岸咆哮",
+              "point": [
+                610.655,
+                820.74
+              ],
+              "enabled": true,
+              "card": {
+                "name": "彼岸咆哮",
+                "cost": null,
+                "type": null,
+                "description": null
+              },
+              "cost_source": "unknown",
+              "name_source": "local_ocr"
+            }
+          ],
+          "coordinate_space": "original_image_0_1000",
+          "ocr_check": {
+            "status": "partial_or_unknown",
+            "matched_titles": 3,
+            "matched_costs": 1,
+            "rejected_status_targets": 0,
+            "reason": "current_frame_title_and_cost_association",
+            "record": "E:\\Github\\AI_vtuber\\runtime\\game-input\\learning\\ocr-1793543045115639900.json",
+            "model": "RapidOCR PP-OCRv6 small CPU"
+          }
+        }
+      ],
+      "normalization_errors": [
+        null,
+        null,
+        null
+      ]
+    },
+    {
+      "condition": "DeepSeek-Flash",
+      "case": "expanded-roar-hand",
+      "n": 3,
+      "mean_s": 3.0626666666666247,
+      "min_s": 2.8439999999998236,
+      "max_s": 3.219000000000051,
+      "parsed": [
+        {
+          "scene": "battle",
+          "targets": [
+            {
+              "id": "hand-1",
+              "kind": "card",
+              "label": "撕裂",
+              "point": [
+                415.795,
+                820.74
+              ],
+              "enabled": true,
+              "card": {
+                "name": "撕裂",
+                "cost": null,
+                "type": null,
+                "description": null
+              },
+              "cost_source": "unknown",
+              "name_source": "local_ocr"
+            },
+            {
+              "id": "hand-2",
+              "kind": "card",
+              "label": "彼岸咆哮",
+              "point": [
+                546.2,
+                640.0
+              ],
+              "enabled": true,
+              "card": {
+                "name": "彼岸咆哮",
+                "cost": 3,
+                "type": null,
+                "description": null
+              },
+              "cost_source": "cloud_vlm_local_ocr",
+              "name_source": "local_ocr"
+            }
+          ],
+          "coordinate_space": "original_image_0_1000",
+          "ocr_check": {
+            "status": "partial_or_unknown",
+            "matched_titles": 2,
+            "matched_costs": 1,
+            "rejected_status_targets": 0,
+            "reason": "current_frame_title_and_cost_association",
+            "record": "E:\\Github\\AI_vtuber\\runtime\\game-input\\learning\\ocr-1793543016710894100.json",
+            "model": "RapidOCR PP-OCRv6 small CPU"
+          }
+        },
+        {
+          "scene": "battle",
+          "targets": [
+            {
+              "id": "hand-1",
+              "kind": "card",
+              "label": "撕裂",
+              "point": [
+                415.795,
+                820.74
+              ],
+              "enabled": true,
+              "card": {
+                "name": "撕裂",
+                "cost": null,
+                "type": null,
+                "description": null
+              },
+              "cost_source": "unknown",
+              "name_source": "local_ocr"
+            },
+            {
+              "id": "hand-2",
+              "kind": "card",
+              "label": "彼岸咆哮",
+              "point": [
+                546.2,
+                640.0
+              ],
+              "enabled": true,
+              "card": {
+                "name": "彼岸咆哮",
+                "cost": 3,
+                "type": null,
+                "description": null
+              },
+              "cost_source": "cloud_vlm_local_ocr",
+              "name_source": "local_ocr"
+            }
+          ],
+          "coordinate_space": "original_image_0_1000",
+          "ocr_check": {
+            "status": "partial_or_unknown",
+            "matched_titles": 2,
+            "matched_costs": 1,
+            "rejected_status_targets": 0,
+            "reason": "current_frame_title_and_cost_association",
+            "record": "E:\\Github\\AI_vtuber\\runtime\\game-input\\learning\\ocr-1793543036094812200.json",
+            "model": "RapidOCR PP-OCRv6 small CPU"
+          }
+        },
+        {
+          "scene": "battle",
+          "targets": [
+            {
+              "id": "hand-1",
+              "kind": "card",
+              "label": "撕裂",
+              "point": [
+                415.795,
+                820.74
+              ],
+              "enabled": true,
+              "card": {
+                "name": "撕裂",
+                "cost": null,
+                "type": null,
+                "description": null
+              },
+              "cost_source": "unknown",
+              "name_source": "local_ocr"
+            },
+            {
+              "id": "hand-2",
+              "kind": "card",
+              "label": "彼岸咆哮",
+              "point": [
+                546.2,
+                640.0
+              ],
+              "enabled": true,
+              "card": {
+                "name": "彼岸咆哮",
+                "cost": 3,
+                "type": null,
+                "description": null
+              },
+              "cost_source": "cloud_vlm_local_ocr",
+              "name_source": "local_ocr"
+            }
+          ],
+          "coordinate_space": "original_image_0_1000",
+          "ocr_check": {
+            "status": "partial_or_unknown",
+            "matched_titles": 2,
+            "matched_costs": 1,
+            "rejected_status_targets": 0,
+            "reason": "current_frame_title_and_cost_association",
+            "record": "E:\\Github\\AI_vtuber\\runtime\\game-input\\learning\\ocr-1793543052254630500.json",
+            "model": "RapidOCR PP-OCRv6 small CPU"
+          }
+        }
+      ],
+      "normalization_errors": [
+        null,
+        null,
+        null
+      ]
+    }
+  ],
+  "cleanup": {
+    "benchmark_port_free": true,
+    "ocr_port_free": true,
+    "director": {
+      "stopped": true,
+      "busy": false,
+      "autonomous": {
+        "running": false,
+        "stage": "idle",
+        "steps": 0,
+        "lastError": null,
+        "driver": "project_native_win32",
+        "planner": "existing-role-deepseek-api",
+        "vision": "vision-api",
+        "trainingPerformed": false
+      }
+    }
+  },
+  "limits": "Selected cases, technical repeats, no independent labels; fixed model order; latency not win rate."
+}

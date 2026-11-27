@@ -30,6 +30,41 @@ test('card hover rejects neighboring, ambiguous, missing and distant locator res
   assert.deepEqual(groundedCardHover(current,'left',{target_visible:true,target_center:[.359,.876]}),[.359,.876]);
   for(const result of [{target_visible:false,target_center:[.359,.876]},{target_visible:true,target_center:[.623,.875]},{target_visible:true,target_center:[.5,.95]},{target_visible:true,target_center:[.1,.5]},{target_visible:true,target_center:[NaN,.9]}])assert.throws(()=>groundedCardHover(current,'left',result),/手牌/);
 });
+test('completed click evidence is re-observed without another capture or fixed pause',async()=>{
+  const id='1793417849232871301';let captures=0,plans=0;const seen=[];
+  const receipt={id,status:'awaiting_visual_review',target:'SlayTheSpire2.exe',image:`/api/game-input/evidence/${id}/frame-0007.jpg`,held_keys:[],held_buttons:[],updatedAt:Date.now()};
+  const agent=new NativeAutonomy({pause:async()=>{throw Error('Unexpected fixed wait');},decide:async(v)=>++plans===1?{kind:'click',targetId:'next'}:{kind:'stop'},request:async(route,body)=>{
+    if(route==='vision-state')return {ready:true,sceneSupport:true};
+    if(route==='read-card'){seen.push(body.frameId);return {parsed:body.frameId===id?{scene:'terminal',targets:[]}:{scene:'event',targets:[{id:'next',label:'继续',point:[800,800]}]}};}
+    if(body.kind==='capture'){captures++;return {id:'initial',status:'captured_only'};}
+    return receipt;
+  }});
+  agent.start({maxSteps:2});await agent.task;
+  assert.equal(agent.state.stage,'finished');assert.equal(captures,1);assert.deepEqual(seen,['initial',id]);
+});
+test('fully read currently hovered card cannot be pointlessly hovered again',()=>{
+  const v={scene:'battle',frameId:'new',energy:1,targets:[{id:'c',kind:'card',label:'打击',point:[400,800],card:{name:'打击',cost:1,type:'攻击',description:'造成6点伤害。',observedFrameId:'new'}}]};
+  const history=[{before:v,decision:{kind:'hover',targetId:'c'},result:{status:'awaiting_visual_review'}}];
+  assert.throws(()=>actionFor({kind:'hover',targetId:'c'},v,history),/重复悬停/);
+  assert.deepEqual(actionFor({kind:'hover',targetId:'c'},v,[]),{kind:'hover',to:[.4,.8]});
+});
+test('corroborated current end-turn button needs no second visual locator at zero energy',async()=>{
+  let input;
+  const agent=new NativeAutonomy({decide:async()=>({kind:'click',targetId:'end-turn'}),request:async(route,body)=>{
+    if(route==='vision-state')return {ready:true,sceneSupport:true};
+    if(route==='read-card'){
+      assert.equal(body.target,undefined);
+      if(body.mode==='energy')return {parsed:{energy:0}};
+      const parsed=visionFor(body);
+      if(body.mode==='battle')return {parsed:{...parsed,targets:[...parsed.targets,{id:'end-turn',kind:'button',label:'结束第1回合',point:[890,715],end_turn_ocr_checked:true}]}};
+      return {parsed};
+    }
+    if(body.kind==='capture')return {id:'initial',status:'captured_only'};
+    input=body;return {id:'result',status:'awaiting_visual_review'};
+  }});
+  agent.start({maxSteps:1});await agent.task;
+  assert.equal(agent.state.stage,'step-limit');assert.deepEqual(input.to,[.89,.715]);
+});
 test('fanned title heights cannot assign an interior point to the adjacent card column',()=>{
   const current={scene:'battle',targets:[{id:'defend',kind:'card',point:[450.82,840]},{id:'bash',kind:'card',point:[523.47,820.745]},{id:'break',kind:'card',point:[595.38,839.255]}]};
   assert.deepEqual(groundedCardHover(current,'bash',{target_visible:true,target_center:[.50547,.869]}),[.50547,.869]);

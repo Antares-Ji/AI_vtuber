@@ -54,9 +54,10 @@ def main():
         evidence.thread.start()
         if not evidence.ready.wait(3) or evidence.error: raise RuntimeError(evidence.error or 'No screenshot')
         if args.execute:
-            c.wait(.6)
             result.update(c.run(actions))
-            c.wait(1.5)
+            # Gestures already include their own animation/hover settlement.
+            # Keep a short capture tail and save its final frame on shutdown.
+            c.wait(.2)
         else:
             c.guard()
         result['status'] = 'awaiting_visual_review' if args.execute else 'captured_only'

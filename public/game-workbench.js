@@ -1,9 +1,9 @@
 (() => {
   'use strict';
-  const el = id => document.getElementById(id), names = { minecraft: '我的世界', sts2: '杀戮尖塔 2' };
+  const el = id => document.getElementById(id), names = { minecraft: '我的世界', sts2: '杀戮尖塔 2', genshin: '原神' };
   let game = 'minecraft', refreshing = false, previewing = false, reconnecting = false, previewUrl, spireStatus;
   let selectionReady = Promise.resolve();
-  const goals = { minecraft: null, sts2: null };
+  const goals = { minecraft: null, sts2: null, genshin: null };
   // Keep setup and diagnostics below the persistent live interaction layout.
   for (const panel of document.querySelectorAll('.engine-panel')) el('technicalDetails').append(panel);
   for (const selector of ['.session-toolbar', '#demoProgress']) document.querySelector('.world-viewer-card').append(document.querySelector(selector));
@@ -17,11 +17,16 @@
     el('longTermGoal').textContent = goals[game]?.goal || '尚未提交';
     el('currentStageGoal').textContent = goals[game]?.plan || '等待模型规划';
   }
+  function updateGenshinGoal(value) {
+    goals.genshin=value;
+    if(game==='genshin')renderGoal();
+  }
   function selectGame(value) {
     game = Object.hasOwn(names, value) ? value : 'minecraft';
     for (const node of document.querySelectorAll('[data-game-only]')) node.hidden = node.dataset.gameOnly !== game;
     for (const tab of document.querySelectorAll('[role=tab][data-game]')) { tab.setAttribute('aria-selected', String(tab.dataset.game === game)); tab.tabIndex = tab.dataset.game === game ? 0 : -1; }
     renderGoal(); el('connectionText').textContent = `正在读取${names[game]}状态`;
+    el('sendButton').textContent=game==='genshin'?'观察并执行一轮':'发送指令';
     // Serialize server context changes; shared inputs and the voice iframe never remount.
     const selected = game;
     selectionReady = selectionReady.catch(() => {}).then(() => request('/api/games/active', { game: selected }));
@@ -32,6 +37,7 @@
     refresh(); if (game === 'minecraft') window.dispatchEvent(new Event('workbench-minecraft-refresh')); else preview();
   }
   async function refresh() {
+    if (game === 'genshin') { await window.genshinPanel.refresh(); return; }
     if (refreshing) return; refreshing = true;
     try {
       const results = await Promise.allSettled([request('/api/minecraft/loop'), request('/api/minecraft/status'), request('/api/sts2/status'), request('/api/sts2/context')]);
@@ -71,6 +77,7 @@
   }
   async function submitGoal(goal) {
     await selectionReady;
+    if(game==='genshin')return window.genshinPanel.submitGoal(goal);
     if (spireStatus?.running) throw Error('尖塔任务正在执行，请先停止当前任务再提交新目标。');
     const steps = Number(el('spireSteps').value);
     if (!Number.isInteger(steps) || steps < 1 || steps > 500) throw Error('本轮步数应为 1 到 500 的整数。');
@@ -83,13 +90,13 @@
     try { await request(`/api/${selected}/stop`, {}); el('workbenchFeedback').textContent = `已请求停止${names[selected]}任务。`; }
     catch (error) { el('workbenchFeedback').textContent = error.message; } await refresh();
   }
-  window.gameWorkbench = { get game() { return game; }, refresh, submitGoal, stop, ready: () => selectionReady };
+  window.gameWorkbench = { get game() { return game; }, refresh, submitGoal, stop, updateGenshinGoal, ready: () => selectionReady };
   el('streamStage').addEventListener('load', () => selectionReady.then(notifyStage).catch(() => {}));
   for (const tab of document.querySelectorAll('[role=tab][data-game]')) {
     tab.addEventListener('click', () => selectGame(tab.dataset.game));
     tab.addEventListener('keydown', event => {
       if (!['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) return;
-      event.preventDefault(); const next = event.key === 'Home' ? 'minecraft' : event.key === 'End' ? 'sts2' : game === 'minecraft' ? 'sts2' : 'minecraft'; selectGame(next); el(`tab-${next}`).focus();
+      event.preventDefault(); const keys=Object.keys(names),index=keys.indexOf(game);const next=event.key==='Home'?keys[0]:event.key==='End'?keys.at(-1):keys[(index+(event.key==='ArrowRight'?1:keys.length-1))%keys.length];selectGame(next);el(`tab-${next}`).focus();
     });
   }
   el('stopGame').addEventListener('click', stop);

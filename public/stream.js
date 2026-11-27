@@ -3,10 +3,14 @@ import { StreamingAsrClient } from "./asr-stream-client.js";
 import { VoiceCallController } from "./voice-call.js";
 const streamParameters = new URLSearchParams(location.search);
 let spireMode = (window.__workbenchGame || streamParameters.get('game')) === 'sts2';
+let genshinMode = (window.__workbenchGame || streamParameters.get('game')) === 'genshin';
+let genshinCommentaryAfter = Date.now() - 10000;
+const genshinCommentaryConsumer = streamParameters.get('overlay') === '1' ? 'obs' : 'console';
 window.addEventListener('message', event => {
   if (window.parent === window || event.source !== window.parent || event.origin !== location.origin || event.data?.type !== 'workbench-game') return;
-  if (!['minecraft', 'sts2'].includes(event.data.game)) return;
+  if (!['minecraft', 'sts2', 'genshin'].includes(event.data.game)) return;
   spireMode = event.data.game === 'sts2';
+  genshinMode = event.data.game === 'genshin';
 });
 
 const subtitle = document.querySelector("#subtitle");
@@ -504,6 +508,7 @@ async function releaseConversation() {
 function callHasPriority() { return Boolean(voiceCall && (voiceCall.ending || !voiceCall.controller?.isActive || voiceCall.speaking || voiceCall.pending || voiceCall.continuedText || activeReplyController)); }
 function commentaryReceipt(result, phase) {
   if (!result.commentaryId) return Promise.resolve();
+  if (result.commentaryGame === 'genshin') return api('/api/genshin/commentary/receipt', { method: 'POST', body: JSON.stringify({ id: result.commentaryId, phase, audioEnabled: audioOutputEnabled, consumer: genshinCommentaryConsumer }) }).catch(() => {});
   if (result.commentaryGame === 'sts2') return api('/api/sts2/commentary/receipt', { method: 'POST', body: JSON.stringify({ id: result.commentaryId, phase }) }).catch(() => {});
   if (phase === 'ended' || phase === 'failed') return api('/api/minecraft/commentary/playback-ended', { method: 'POST', body: JSON.stringify({ id: result.commentaryId }) }).catch(() => {});
   return Promise.resolve();
@@ -516,7 +521,8 @@ async function readNextOwned() {
   isReading = true;
   let spoke = false;
   try {
-    let result = await api(spireMode ? '/api/sts2/commentary/next' : voiceCall ? "/api/minecraft/commentary/next" : "/api/next", { method: "POST", body: JSON.stringify({ preferFresh: true }) });
+    let result = await api(genshinMode ? '/api/genshin/commentary/next' : spireMode ? '/api/sts2/commentary/next' : voiceCall ? "/api/minecraft/commentary/next" : "/api/next", { method: "POST", body: JSON.stringify({ preferFresh: true, ...(genshinMode ? { after: genshinCommentaryAfter } : {}) }) });
+    if (genshinMode && Number.isFinite(result.commentaryAt)) genshinCommentaryAfter = result.commentaryAt;
     if (spireMode && result.audienceWaiting && !voiceCall) result = await api('/api/next', { method: 'POST', body: JSON.stringify({ preferFresh: true }) });
     if (callHasPriority() || revision !== presentation.revision || presentation.changing) {
       void commentaryReceipt(result, 'failed');

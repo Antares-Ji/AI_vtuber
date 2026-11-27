@@ -1,6 +1,6 @@
 # genshin:launch
 
-启动本地配置的原神程序；不登录、不发送键鼠，不重复启动已有进程。
+启动原神；systemPrompt=true 时允许 Windows 显示正常权限确认。
 
 版本：1。模式：live。资源占用：desktop, genshin。
 

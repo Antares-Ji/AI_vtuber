@@ -5,6 +5,7 @@ const { randomUUID } = require('node:crypto');
 const { setTimeout: delay } = require('node:timers/promises');
 const { settings } = require('./settings');
 const { deepseekFetch } = require('./deepseek-fetch');
+const { BattleRuleMemory, reusableHoveredRules } = require('./battle-rule-memory');
 const ROOT = path.resolve(__dirname, '../..');
 const BASE = path.join(ROOT, 'runtime/game-input');
 const SCENES = new Set(['battle','map','room','event','reward','selection','shop','rest','treasure','menu','terminal','unknown']);
@@ -112,6 +113,13 @@ function actionFor(d, view, history=[]) {
     return { kind: d.kind, from: target(d.fromId), to: target(d.targetId) };
   }
   if (d.kind === 'click' && view.scene === 'battle' && view.targets.find(t => t.id === d.targetId)?.kind === 'card') throw Error('战斗出牌必须drag；读牌请hover');
+  if(d.kind==='hover'&&view.scene==='battle') {
+    const card=view.targets.find(t=>t.id===d.targetId)?.card,previous=history.at(-1);
+    if(card?.observedFrameId===view.frameId && card.rule_source!=='battle_memory' && Number.isInteger(card.cost) && ['name','type','description'].every(k=>typeof card[k]==='string'&&card[k].trim()) &&
+       previous?.decision?.kind==='hover' && previous.result?.status==='awaiting_visual_review' &&
+       previous.before?.targets?.some(t=>t.id===previous.decision.targetId&&t.card?.name===card.name))
+      throw Error('该牌当前已展开且规则读清，重复悬停不会增加信息；请选择其他合法动作');
+  }
   if (d.kind === 'scroll') {
     if (view.scene !== 'map' || !Number.isInteger(d.steps) || !d.steps || Math.abs(d.steps) > 3) throw Error('无效地图滚动');
     return { kind: d.kind, to: target(d.targetId), steps: d.steps };
@@ -276,6 +284,7 @@ class NativeAutonomy {
 如果敌人目标含enemy字段，生命只采用enemy.hp与enemy.max_hp；null表示未知。visual_description保存原始视觉文字，头顶的单独数字可能是意图或状态，不能把它当生命值，也不能仅凭数字推断攻击伤害。
 目标ID只在当前帧有效；同一个enemy1在前后帧可能指不同敌人，不能只凭编号判断伤害、击杀或新敌人出现。玩家格挡未知不代表0；敌人攻击数值未知就不能计算确定的存活结论。选择出牌前比较已知攻击、防御、费用和敌人意图；关键牌面不清楚时先通过hover获取信息。能量为0仍可能有零费牌，不要只因能量耗尽就结束回合；只能打本帧已读清的零费牌，未知牌仍需hover。只报告简短决策依据和待验证结果。
 inspectionContext是本段仅悬停期间已读清牌面的比较笔记，不是当前可执行牌表。可以用它比较此前读过的规则，避免在两张牌间反复悬停；选定后仅对当前帧完整核验的目标出牌。笔记不能证明牌仍在手中、当前费用或坐标。当前已经展开并核验的候选应完成选择，不要为重复比较已读规则再切回另一张。hoverBudgetRemaining耗尽时不能继续悬停，应根据当前合法动作行动或stop说明不确定性。
+card.rule_source为battle_memory时，本帧名称、升级后缀、费用和位置已经重新核对，类型与描述来自本场战斗之前实际展开读到的规则，不是本帧重新展开。description_is_historical=true表示其中伤害、格挡等数值可能受后来状态变化影响，不能宣称它们是当前精确效果。可用这些明确来源的规则记忆决定出牌，不要只为重复读取已知规则悬停；若升级、附魔、状态变化使效果关键且不确定，可主动hover重读。程序在离开战斗或发现同名同费规则冲突时撤销复用，绝不沿用旧位置或旧费用。
 历史只提供当时的视觉观测、实际动作种类和输入回执；输入回执不证明悬停展开或出牌成功。只能对比前后观测判断结果。没有完整描述时，不能用模型记忆、旧版卡牌数值或自己先前的台词宣称“前帧已读出伤害”或确定斩杀。
 历史 preparationOnly=true 表示你曾选择drag，但程序只把鼠标移动到了新起点，没有按下或出牌。移动可能改变展开的牌；重新核对本帧完整牌面和目标，再决定是否仍要drag。不要沿用旧牌名或把准备移动当作失败攻击。
 如果连续悬停不同手牌仍读不到完整牌面，不要只在牌之间来回移动。恢复候选是对本帧已定位的ground空地执行hover，将鼠标移出手牌区，下一帧重新观察后再决定是否悬停手牌；只移动，不click、不拖牌。这是可选诊断动作，不代表已确认遮挡或已恢复；没有可靠空地则不要猜落点。此恢复仍消耗同一个悬停预算，不能重置预算或跳过本帧完整读牌要求。
@@ -284,7 +293,7 @@ inspectionContext是本段仅悬停期间已读清牌面的比较笔记，不是
 只能引用本帧targets中的id，禁止编造坐标。战斗出牌必须使用drag，fromId是手牌，targetId是敌人或空地；不要click手牌来出牌。技能拖至画面空地目标，攻击拖到敌人。仅见放大的单张牌、暗色遮罩或查看升级时是卡牌详情，不是战斗，先关闭详情。选牌详情后还须点击确认勾号。卡牌看不清先hover展开；动画或未知画面wait。结局terminal默认必须stop。仅当view.retry_after_defeat为true时，用户已要求继续尝试且本帧OCR核对了败北；可选择本帧已核对的“继续”“解锁”或“返回主菜单”按钮处理结算并返回菜单，再由你开始新的单人冒险。这次授权仅用于当前败北的结算流程，最多点击三次核对过的结算按钮；进入新冒险即撤销，后续新局结算仍停止；胜利或不确定结局必须stop。菜单可进入单人游戏，禁止放弃/删除/多人/设置。注意魂缚、不可抽牌、能量、意图、确认按钮。连续无变化要改变方法，不盲目重复。计划不能说成已经成功。` },
       { role:'user', content:JSON.stringify({ currentActionOptions:actionOptions(view,history), view:plannerObservation(view), inspectionContext:inspectionContext(view,history),
         history:plannerHistory(history), experiences:experience,
-        actionContract:'只有card.observedFrameId等于view.frameId且包含本帧牌名、费用、类型和完整描述的牌才允许drag；其余手牌只能hover读牌。稳定战斗界面不会因wait自动展开牌面，读牌应hover；只有动画或加载才wait。历史牌面不能补当前未知字段。禁止从手牌编号猜名称、费用、伤害。先检查每个目标的card字段。' }) }];
+        actionContract:'只有card.observedFrameId等于view.frameId且包含已核对的名称、当前费用、类型与规则的牌才允许drag。rule_source=battle_memory的描述明确是历史规则，不是当前精确数值；当前名称、费用、位置仍来自本帧。其余手牌只能hover读牌。只在动画或加载时wait。禁止从编号猜名称、费用或伤害。优先检查currentActionOptions，已可出牌不必为相同规则反复悬停。' }) }];
     const r = await deepseekFetch(config.url, { method:'POST', headers:{'content-type':'application/json', authorization:`Bearer ${config.key}`}, signal:AbortSignal.any([signal,AbortSignal.timeout(60000)]), body:JSON.stringify({ model:config.model, messages, response_format:{type:'json_object'}, ...planningOptions }) });
     if (!r.ok) throw Error(`角色 API HTTP ${r.status}`);
     const body = await r.json();
@@ -306,7 +315,8 @@ inspectionContext是本段仅悬停期间已读清牌面的比较笔记，不是
     return this.snapshot();
   }
   async loop(signal) {
-    const history = []; let idle = 0, repeated = 0, previous = '', hoveredPoint = null, navigationObservations = 0, dragPreparations = 0, pendingHoverFrame = null, terminalSettleWaits = 0;
+    const ruleMemory=new BattleRuleMemory();
+    const history = []; let idle = 0, repeated = 0, previous = '', hoveredPoint = null, navigationObservations = 0, dragPreparations = 0, pendingHoverFrame = null, terminalSettleWaits = 0, turnTransitionFrames = 0;
     const log = data => fs.appendFileSync(this.state.logFile,JSON.stringify({at:new Date().toISOString(),...data})+'\n');
     const timed = async (phase, details, work) => {
       const started=performance.now();let ok=false;
@@ -333,7 +343,7 @@ inspectionContext是本段仅悬停期间已读清牌面的比较笔记，不是
       const personaId = this.persona().id;
       this.state.stage='capturing';
       let frame=postHoverFrame(pendingHoverFrame);pendingHoverFrame=null;
-      if(frame)log({event:'post_hover_frame_reused',frameId:frame.id});
+        if(frame)log({event:'post_hover_frame_reused',frameId:frame.id,allActionTypes:true});
       for (let attempt=0; !frame; attempt++) {
         try { frame = await call('action',{kind:'capture'}); break; }
         catch (e) {
@@ -359,6 +369,7 @@ inspectionContext是本段仅悬停期间已读清牌面的比较笔记，不是
         }
       }
       if(['battle','map','room','event','reward','shop','rest','treasure'].includes(view.scene))this.state.remainingDefeatContinuations=0;
+      if(view.scene!=='battle')ruleMemory.clear();
       if(view.scene==='terminal'&&this.state.remainingDefeatContinuations>0&&view.ocr_check?.status!=='corroborated'&&terminalSettleWaits<3) {
         terminalSettleWaits++;log({event:'terminal_settle_wait',frameId:frame.id,attempt:terminalSettleWaits});
         await this.pause(1500);continue;
@@ -407,9 +418,17 @@ inspectionContext是本段仅悬停期间已读清牌面的比较笔记，不是
           }
         };
         const {result:field,view:fieldView} = await readRegion({mode:'battle'});
+        if(health.endTurnOcrCheck===true && !fieldView.targets.some(t=>t.end_turn_ocr_checked===true) &&
+           history.at(-1)?.decision?.kind==='click' && history.at(-1)?.before?.targets?.some(t=>t.id===history.at(-1).decision.targetId&&t.end_turn_ocr_checked===true)) {
+          if(++turnTransitionFrames>6)throw Error('结束回合后连续六帧未恢复可见回合按钮，需检查动画或场景识别');
+          log({event:'turn_transition_observed',frameId:frame.id,record:field.record,attempt:turnTransitionFrames});
+          this.state.stage='waiting-for-turn';await this.pause(250);continue;
+        }
+        turnTransitionFrames=0;
         const {result:hand,view:handView} = await readRegion({mode:'hand',crop:[0,hoveredPoint ? .4 : .72,1,1]});
         if (fieldView.scene !== 'battle' || handView.scene !== 'battle') throw Error('战斗分区识别不一致');
         view = observation({...fieldView,frameId:frame.id,targets:[...fieldView.targets,...handView.targets]});
+        if(health.cardOcrCheck===true)view=ruleMemory.apply(view);
         log({event:'battle_read',frameId:frame.id,fieldRecord:field.record,handRecord:hand.record});
         if(health.playerSupport) {
           this.state.stage='player-reading';
@@ -425,7 +444,7 @@ inspectionContext是本段仅悬停期间已读清牌面的比较笔记，不是
           view=attachPlayerFacts(view,facts,history.at(-1));
           log({event:'player_read',frameId:frame.id,player:view.player,conflicts:view.player_conflicts,record:player.record,healthSource:facts?.health_source||'player_region'});
         }
-        if (hoveredPoint) {
+        if (hoveredPoint && !reusableHoveredRules(view,hoveredPoint,history.at(-1))) {
           this.state.stage='card-reading';
           let inspected = await call('read-card',{frameId:frame.id,mode:'card',crop:[Math.max(0,hoveredPoint[0]-.18),.3,Math.min(1,hoveredPoint[0]+.18),1]});
           signal.throwIfAborted();
@@ -451,13 +470,16 @@ inspectionContext是本段仅悬停期间已读清牌面的比较笔记，不是
           }
           log({event:'card_read',frameId:frame.id,record:inspected.record,identified:view.targets.filter(t=>t.card?.observedFrameId===frame.id).map(t=>t.id)});
         }
+        if(health.cardOcrCheck===true){ruleMemory.observe(view);view=ruleMemory.apply(view);}
+        const reusedRules=view.targets.filter(t=>t.card?.rule_source==='battle_memory');
+        if(reusedRules.length)log({event:'battle_rules_reused',frameId:frame.id,cards:reusedRules.map(t=>({id:t.id,name:t.card.name,sourceFrame:t.card.rules_observed_frame_id})),currentNumericalEffectsVerified:false});
         this.state.stage='energy-reading';
         const energy=await call('read-card',{frameId:frame.id,mode:'energy',crop:[0,.74,.15,.95]});
         const remaining=energy.parsed?.energy;
         log({event:'energy_read',frameId:frame.id,energy:remaining,record:energy.record});
         if (Number.isInteger(remaining) && remaining>=0 && remaining<=20) {
           view={...view,energy:remaining,summary:`当前剩余能量=${remaining}。${view.summary}`};
-          if (remaining===0) {
+          if (remaining===0 && !view.targets.some(t=>t.kind==='button'&&t.enabled!==false&&t.end_turn_ocr_checked===true)) {
             const end=await call('read-card',{frameId:frame.id,target:'右下方结束回合按钮的中心'});
             const p=end.parsed?.target_center;
             if (end.parsed?.target_visible!==true || !Array.isArray(p)||p.length!==2||p.some(n=>typeof n!=='number'||!Number.isFinite(n)||n<0||n>1)) throw Error('能量为0，但未能定位结束回合按钮');
@@ -497,7 +519,16 @@ inspectionContext是本段仅悬停期间已读清牌面的比较笔记，不是
           const target=decision.kind==='drag'
             ? `当前放大、牌名为${JSON.stringify(interactionCard.card.name)}的可拖拽牌面内部中心；排除牌名标题边缘、相邻卡牌和帮助浮窗。看不清实际牌面则返回不可见。`
             : `裁剪图中央附近、牌名为${JSON.stringify(interactionCard.card.name)}的手牌可见内部中心，避开牌名外缘、相邻卡牌和帮助浮窗。只定位这张牌实际露出的可悬停区域；有多张同名牌且无法确定则返回不可见。`;
-          const located=await call('read-card',{frameId:frame.id,crop,target});
+          let located;
+          if(decision.kind==='drag'&&hoveredPoint) {
+            const checked=await call('read-card',{frameId:frame.id,target:`核对当前鼠标点是否位于展开的${interactionCard.card.name}牌面内部`,anchor:{point:hoveredPoint,cardName:interactionCard.card.name}});
+            signal.throwIfAborted();
+            if(confirmedPointerAnchor(checked.parsed,hoveredPoint,interactionCard.card.name)) {
+              try {groundedCardHover(view,interactionCard.id,checked.parsed);located=checked;}catch{}
+            }
+            log({event:'drag_pointer_checked',frameId:frame.id,fromId:interactionCard.id,confirmed:Boolean(located),record:checked.record,checkedBeforeLocator:true});
+          }
+          if(!located)located=await call('read-card',{frameId:frame.id,crop,target});
           signal.throwIfAborted();
           if(this.persona().id!==personaId)throw Error('角色已切换，请重新启动以使用新角色');
           try { action={...action,[decision.kind==='drag'?'from':'to']:groundedCardHover(view,interactionCard.id,located.parsed)}; }
@@ -561,7 +592,7 @@ inspectionContext是本段仅悬停期间已读清牌面的比较笔记，不是
         pendingHoverFrame=postHoverFrame(result);
         this.state.lastExecution={kind:'hover',preparationOnly:true,requestedKind:'drag',resultId:result.id};
         log({event:'drag_source_prepared',frameId:frame.id,fromId:decision.fromId,point:action.from,resultId:result.id,buttonsPressed:false,verified:false});
-        this.state.stage='observing-next-frame';await this.pause(1000);continue;
+        this.state.stage='observing-next-frame';continue;
       }
       idle=0;
       const fingerprint=JSON.stringify({scene:view.scene,summary:view.summary,action});
@@ -578,9 +609,9 @@ inspectionContext是本段仅悬停期间已读清牌面的比较笔记，不是
       this.state.lastExecution={kind:action.kind,preparationOnly:false,resultId:result.id};
       if(!['hover','wait'].includes(action.kind))dragPreparations=0;
       hoveredPoint=decision.kind==='hover'&&view.targets.find(t=>t.id===decision.targetId)?.kind==='card'?action.to:null;
-      if(action.kind==='hover')pendingHoverFrame=postHoverFrame(result);
+      pendingHoverFrame=postHoverFrame(result);
       log({event:'input_completed',resultId:result.id,verified:false});
-      this.state.stage='observing-next-frame'; await this.pause(1000);
+      this.state.stage='observing-next-frame';
     }
     this.state.stage='step-limit';
   }

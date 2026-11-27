@@ -1,0 +1,132 @@
+'use strict';
+const fs=require('node:fs'),path=require('node:path');
+const {questMenu,questInstruction}=require('../../scripts/genshin/story-main');
+function questFromEvidence(e,source){
+ const texts=e?.request?.texts,quest=e?.decision?.quest;
+ if(!Array.isArray(texts)||typeof quest!=='string'||!quest||!questMenu(texts)&&!texts.some(t=>/任务专注模式/.test(t.text)))return null;
+ // The frame precedes the action. Selecting a different list entry cannot
+ // commit the old detail panel as the chosen task.
+ const action=e.decision.action;
+ if(action?.kind==='click_text'&&action.scope==='quest_list'&&action.text!==quest)return null;
+ // The right-hand detail panel distinguishes the selected quest from the list.
+ const details=texts.filter(t=>Array.isArray(t.box)&&t.box[0]>700&&t.box[1]<700).map(t=>t.text);
+ if(!details.some(t=>t===quest))return null;
+ return {quest,details:details.slice(0,20),source,at:e.at,verification:'historical_bettergi_ocr_recheck_current_step'};
+}
+function recentEvidence(root){
+ const base=path.join(root,'runtime/genshin/story');if(!fs.existsSync(base))return [];
+ const folders=fs.readdirSync(base,{withFileTypes:true}).filter(d=>d.isDirectory()).map(d=>path.join(base,d.name)).sort((a,b)=>fs.statSync(b).mtimeMs-fs.statSync(a).mtimeMs).slice(0,40);
+ const files=folders.flatMap(folder=>fs.readdirSync(folder).filter(n=>/^step-\d+\.json$/.test(n)).map(n=>path.join(folder,n))).sort((a,b)=>fs.statSync(b).mtimeMs-fs.statSync(a).mtimeMs).slice(0,800);
+ const rows=[];
+ for(const file of files){
+  try{const e=JSON.parse(fs.readFileSync(file,'utf8'));if(Date.now()-e.at>8*3600000)continue;rows.push({e,file});}catch{}
+ }
+ return rows;
+}
+function readQuestMemory(root){
+ for(const {e,file} of recentEvidence(root)){const memory=questFromEvidence(e,file);if(memory)return memory;}
+ return null;
+}
+function questStage(texts){
+ return questInstruction(texts)?.text||null;
+}
+function compatibleStage(a,b){
+ const normalize=s=>String(s||'').replace(/[\s「」『』“”‘’"']/g,'');a=normalize(a);b=normalize(b);
+ return Boolean(a&&b&&(a===b||Math.min(a.length,b.length)>=6&&(a.startsWith(b)||b.startsWith(a))));
+}
+// OCR suffix loss must not reset the attempted-waypoint ledger. A genuinely
+// different stage needs two consecutive usable reads before clearing it.
+function updateNavigationStage(state,reading){
+ if(!reading||reading.length<4)return {...state,pending:null,changed:false};
+ if(!state.stage)return {stage:reading,pending:null,changed:false};
+ if(compatibleStage(state.stage,reading))return {stage:reading.length>state.stage.length?reading:state.stage,pending:null,changed:false};
+ if(state.pending===reading)return {stage:reading,pending:null,changed:true};
+ return {...state,pending:reading,changed:false};
+}
+function routePreflightRejected(step){
+ let d;try{d=JSON.parse(step?.detail);}catch{return false;}
+ if(step?.action?.kind!=='quest_route'||d?.kind!=='commission-route'||d.id!==step.action.id)return false;
+ // Older native receipts omitted pathStarted. These three exits precede any
+ // path call; require their complete empty receipt shape for migration.
+ return ['stage_mismatch','position_unstable','wrong_variant_region'].includes(d.stopReason)&&
+  d.pathStarted!==true&&Array.isArray(d.points)&&d.points.length===0&&!d.state&&!d.from&&!d.durationMs;
+}
+function reconcileRouteAttempt(attempted,pending,sessionId,step){
+ if(!sessionId||!Number.isInteger(step?.seq)||!routePreflightRejected(step))return;
+ const id=step.action.id,key=JSON.stringify([sessionId,step.seq]);
+ if(pending.get(id)===key){attempted.delete(id);pending.delete(id);}
+}
+function nativeTrackingProgress(previous,current){
+ const step=current?.lastStep;
+ if(previous?.decision?.action?.kind!=='native_track'||step?.action?.kind!=='native_track'||previous.request?.id!==current.id||previous.request?.seq!==step.seq||!Number.isFinite(step.finishedAt)||current.capturedAt<=step.finishedAt||current.nativeVision?.source!=='bettergi_native_cv'||current.nativeVision.ui!=='Main')return false;
+ let d;try{d=JSON.parse(step.detail);}catch{return false;}
+ if(d?.kind!=='bgi-native-track')return false;
+ const g=require('../../scripts/genshin/story-main'),before=g.questHud(previous.request.texts),after=g.questHud(current.texts);
+ return Boolean(before&&after&&compatibleStage(before.stage,after.stage)&&after.meters<=before.meters-2);
+}
+function nativeRecoveryNeeded(steps,target){
+ const unique=[...new Map((steps||[]).filter(Boolean).map(s=>[s.seq,s])).values()].slice(-6);
+ return unique.filter(s=>{let d;try{d=JSON.parse(s.detail);}catch{return false;}
+  return target?s.action?.kind==='leave_interaction'&&d.kind==='leave_interaction'&&d.target===target&&d.movementMsSent>0:
+   s.action?.kind==='native_track'&&d.kind==='bgi-native-track'&&['cancelled_or_budget','returned','native_marker_missing'].includes(d.stopReason);
+ }).length>=2;
+}
+function movementStallEvidence(history,current){
+ const frames=[...(history||[]).slice(-10).map(e=>e.request),current].filter(Boolean);
+ const g=require('../../scripts/genshin/story-main');let attempts=0,movementMs=0,beforeDistance=null,afterDistance=null;
+ for(let i=1;i<frames.length;i++){
+  const before=frames[i-1],after=frames[i],step=after.lastStep;
+  if(step?.action?.kind==='native_unstuck'){attempts=0;movementMs=0;continue;}
+  if(step?.action?.kind!=='move')continue;
+  const a=g.questHud(before.texts),b=g.questHud(after.texts);let detail;try{detail=JSON.parse(step.detail);}catch{continue;}
+  if(before.id!==after.id||before.seq!==step.seq||!Number.isFinite(step.finishedAt)||after.capturedAt<=step.finishedAt||current.capturedAt-before.capturedAt>120000||!a||!b||!compatibleStage(a.stage,b.stage)||before.nativeVision?.ui!=='Main'||after.nativeVision?.ui!=='Main'||before.nativeVision?.motion!=='Normal'||after.nativeVision?.motion!=='Normal'||!(detail.movedMs>=200)){
+   attempts=0;movementMs=0;continue;
+  }
+  if(Math.abs(a.meters-b.meters)>1){attempts=0;movementMs=0;continue;}
+  if(!attempts)beforeDistance=a.meters;
+  afterDistance=b.meters;attempts++;movementMs+=detail.movedMs;
+ }
+ // Integer HUD readings commonly decrease only one metre per short move.
+ // Several such real gains must not be mistaken for a stationary character.
+ const cumulativeChange=beforeDistance===null||afterDistance===null?null:Math.abs(beforeDistance-afterDistance);
+ return {source:'independent_bettergi_hud_after_native_moves',stalled:attempts>=3&&movementMs>=1000&&cumulativeChange<=1,attempts,movementMs,beforeDistance,afterDistance,cumulativeChange,verified:false};
+}
+function freshMapPosition(request){
+ const p=request.position,s=p?.samples;
+ return p?.source==='bettergi_minimap_cv'&&p.stable===true&&Array.isArray(s)&&s.length===2&&s.every(v=>Number.isFinite(v.x)&&Number.isFinite(v.y)&&Number.isFinite(v.at)&&request.capturedAt>=v.at&&request.capturedAt-v.at<=5000)&&s[0].at<=s[1].at&&Math.hypot(s[0].x-s[1].x,s[0].y-s[1].y)<=10;
+}
+function rotationLoopEvidence(history,current){
+ const frames=[...(history||[]).slice(-8).map(e=>e.request),current].filter(Boolean);
+ const g=require('../../scripts/genshin/story-main');let turns=0;
+ for(let i=1;i<frames.length;i++){
+  const before=frames[i-1],after=frames[i],step=after.lastStep;
+  if(step?.action?.kind==='wait'||step?.action?.kind==='key'&&step.action.key==='V')continue;
+  if(!['turn','reset_camera'].includes(step?.action?.kind)){turns=0;continue;}
+  const a=g.questHud(before.texts),b=g.questHud(after.texts);
+  const matched=before.id===after.id&&before.seq===step.seq&&Number.isFinite(step.finishedAt)&&after.capturedAt>step.finishedAt&&current.capturedAt-before.capturedAt<90000;
+  const main=[before,after].every(r=>r.nativeVision?.ui==='Main'&&r.nativeVision?.motion==='Normal');
+  if(!matched||!main||!a||!b||!compatibleStage(a.stage,b.stage)||Math.abs(a.meters-b.meters)>1){turns=0;continue;}
+  turns++;
+ }
+ return {source:'native_camera_receipts_and_independent_bgi_hud',repeated:turns>=3,turns,rule:'连续转镜未产生任务推进，仅证明观察循环，不证明存在障碍；可让BGI原生脱困或寻路，返回后重新观察。'};
+}
+function navigationFromEvidence(rows,quest){
+ const matching=rows.filter(({e})=>e.decision?.quest===quest);
+ const stage=matching.map(({e})=>questStage(e.request?.texts)).find(Boolean)||null;
+ const attempted=new Set(),pending=new Map();
+ for(const {e} of [...matching].reverse()){
+  reconcileRouteAttempt(attempted,pending,e.request?.id,e.request?.lastStep);
+  if(!stage||!compatibleStage(questStage(e.request?.texts),stage))continue;
+  if(e.decision?.action?.kind==='teleport'||e.decision?.action?.kind==='quest_route'&&require('../../data/genshin-commission-routes.json').routes.find(r=>r.id===e.decision.action.id)?.positions.some(p=>p.type==='teleport')){
+   attempted.add(e.decision.action.id);
+   pending.set(e.decision.action.id,JSON.stringify([e.request?.id,e.request?.seq]));
+  }
+  if(e.request?.lastStep?.action?.kind==='teleport')attempted.add(e.request.lastStep.action.id);
+ }
+ return {stage,teleportAttempts:[...attempted],routeAttemptKeys:[...pending],verification:'historical_attempts_not_arrival',previousSteps:matching.slice(0,5).reverse().map(({e})=>({observation:e.observation,decision:e.decision,lastStep:e.request.lastStep}))};
+}
+function readNavigationMemory(root,quest,{sessionId}={}){
+ const rows=recentEvidence(root),memory=navigationFromEvidence(rows,quest),exploration=require('./story-exploration');
+ return {...memory,exploration:exploration.summarize(rows.map(({e})=>exploration.frame(e)),{quest,stage:memory.stage,sessionId})};
+}
+module.exports={readQuestMemory,questFromEvidence,questStage,readNavigationMemory,navigationFromEvidence,compatibleStage,updateNavigationStage,routePreflightRejected,reconcileRouteAttempt,nativeTrackingProgress,nativeRecoveryNeeded,movementStallEvidence,freshMapPosition,rotationLoopEvidence};

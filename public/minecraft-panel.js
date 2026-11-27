@@ -270,13 +270,13 @@ function shortText(value, maxLength) {
 }
 
 async function refresh() {
-  if (window.gameWorkbench?.game === 'sts2') return;
+  if (window.gameWorkbench && window.gameWorkbench.game !== 'minecraft') return;
   const results = await Promise.allSettled([
     api("/api/minecraft/status"),
     api("/api/minecraft/loop"),
     api("/api/minecraft/live-context")
   ]);
-  if (window.gameWorkbench?.game === 'sts2') return;
+  if (window.gameWorkbench && window.gameWorkbench.game !== 'minecraft') return;
   if (results[2].status === 'fulfilled') {
     const shared = results[2].value;
     renderSuggestions(shared.suggestions || []);
@@ -331,7 +331,7 @@ $("#loopToggle").addEventListener("change", event => void changeLoop(event.curre
 window.addEventListener('workbench-minecraft-refresh', () => void refresh());
 
 $("#stopButton").addEventListener("click", async () => {
-  if (window.gameWorkbench?.game === 'sts2') return window.gameWorkbench.stop();
+  if (window.gameWorkbench && window.gameWorkbench.game !== 'minecraft') return window.gameWorkbench.stop();
   const button = $("#stopButton");
   button.disabled = true;
   button.textContent = "正在发送停止请求…";
@@ -360,10 +360,10 @@ $("#commandForm").addEventListener("submit", async event => {
   setText("#commandFeedback", "正在提交长期目标…可随时点击立即停止。");
   setText("#resultText", "模型正在规划，随后由游戏代理执行并核验。");
   try {
-    if (commandGame === 'sts2') {
+    if (commandGame === 'sts2' || commandGame === 'genshin') {
       await window.gameWorkbench.submitGoal(text);
-      setText('#commandFeedback', '尖塔目标已接收，岁歌将按本轮步数继续游玩。');
-      if (input.value.trim() === text) input.value = '';
+      setText('#commandFeedback', commandGame === 'genshin' ? '原神执行任务已提交；当前模型计划会显示连接、观察、决策和执行结果。' : '尖塔目标已接收，岁歌将按本轮步数继续游玩。');
+      if (commandGame !== 'genshin' && input.value.trim() === text) input.value = '';
       return;
     }
     const completionItem = /铁镐/.test(text) ? 'iron_pickaxe' : /工作台/.test(text) ? 'crafting_table' : undefined;
@@ -577,7 +577,7 @@ window.addEventListener('message', event => {
   if (event.source !== $('#streamStage').contentWindow || event.origin !== location.origin || event.data?.type !== 'suige-voice-transcript' || typeof event.data.text !== 'string') return;
   const text = event.data.text.slice(0, 500);
   addAudienceMessage(text, 'user');
-  if (window.gameWorkbench?.game !== 'sts2' && $('#influenceGame').checked) void api('/api/minecraft/chat', { method: 'POST', body: JSON.stringify({ text, influence: true, suggestionOnly: true }) }).catch(error => addAudienceMessage(`游戏建议未送达：${error.message}`));
+  if ((!window.gameWorkbench || window.gameWorkbench.game === 'minecraft') && $('#influenceGame').checked) void api('/api/minecraft/chat', { method: 'POST', body: JSON.stringify({ text, influence: true, suggestionOnly: true }) }).catch(error => addAudienceMessage(`游戏建议未送达：${error.message}`));
 });
 mountSilentStage();
 $('#demoVoice').addEventListener('change', event => {
@@ -632,6 +632,11 @@ $('#audienceForm').addEventListener('submit', async event => {
   input.value = ''; addAudienceMessage(text, 'user');
   const chatGame = window.gameWorkbench?.game || 'minecraft';
   try {
+    if(chatGame==='genshin'){
+      await window.gameWorkbench.ready();
+      const receipt=await api('/api/genshin/chat',{method:'POST',body:JSON.stringify({text})});
+      addAudienceMessage(`消息已交给原神 ${receipt.provider==='deepseek'?'DeepSeek':'OpenAI'} 主播，回复会显示在主播舞台。`);return;
+    }
     if (chatGame === 'sts2') {
       await window.gameWorkbench.ready();
       await api('/api/sts2/chat', { method: 'POST', body: JSON.stringify({ text }) });
@@ -686,7 +691,7 @@ $('#recordDemo').addEventListener('click', async () => {
   }
 });
 setInterval(() => {
-  const loop = window.gameWorkbench?.game === 'sts2' ? null : state.loop;
+  const loop = window.gameWorkbench && window.gameWorkbench.game !== 'minecraft' ? null : state.loop;
   if (loop?.goalCompleted) setText('#demoProgress', '已核实目标物品出现在背包中 · 演示目标完成，主动任务停止');
   else if (loop?.enabled) setText('#demoProgress', `第 ${loop.step || 0} 步 · ${$('#gameActivity').textContent}`);
   const result = loop?.lastResult;

@@ -1,0 +1,323 @@
+[
+  {
+    "id": "user:AI-VTuber-Hunting/史莱姆速刷-短线01.json",
+    "category": "hunting",
+    "map": "Teyvat",
+    "sourceUrl": "https://github.com/babalae/bettergi-scripts-list/blob/main/repo/pathing/敌人与魔物/史莱姆/史莱姆速刷.json",
+    "sourceBlob": "35c47589f781381e0a6f479b06be31ce3b277ac7",
+    "sha256": "2bc5d76b6c0d1de86a13f64837d49947c882abd291c0c5426d5249fb62271259",
+    "firstFight": {
+      "x": -92.61,
+      "y": -98.57
+    },
+    "points": 7
+  },
+  {
+    "id": "user:AI-VTuber-Hunting/史莱姆速刷-短线02.json",
+    "category": "hunting",
+    "map": "Teyvat",
+    "sourceUrl": "https://github.com/babalae/bettergi-scripts-list/blob/main/repo/pathing/敌人与魔物/史莱姆/史莱姆速刷.json",
+    "sourceBlob": "35c47589f781381e0a6f479b06be31ce3b277ac7",
+    "sha256": "cef06d2931b6f0e1830d2a22aa16eb2a92d80a2d570fb9b54522a827920b6211",
+    "firstFight": {
+      "x": 694.99,
+      "y": -300.14
+    },
+    "points": 6
+  },
+  {
+    "id": "user:AI-VTuber-Hunting/史莱姆速刷-短线03.json",
+    "category": "hunting",
+    "map": "Teyvat",
+    "sourceUrl": "https://github.com/babalae/bettergi-scripts-list/blob/main/repo/pathing/敌人与魔物/史莱姆/史莱姆速刷.json",
+    "sourceBlob": "35c47589f781381e0a6f479b06be31ce3b277ac7",
+    "sha256": "8736536aae267af081b509b4a611e26905106836535c7890d1d0ec2abe9fcd34",
+    "firstFight": {
+      "x": 1149.21,
+      "y": 634.4
+    },
+    "points": 3
+  },
+  {
+    "id": "user:AI-VTuber-Hunting/史莱姆速刷-短线04.json",
+    "category": "hunting",
+    "map": "Teyvat",
+    "sourceUrl": "https://github.com/babalae/bettergi-scripts-list/blob/main/repo/pathing/敌人与魔物/史莱姆/史莱姆速刷.json",
+    "sourceBlob": "35c47589f781381e0a6f479b06be31ce3b277ac7",
+    "sha256": "69674c83ff91b9804fd9924e55326be76a3303685e6b1a27727017dfc287a95c",
+    "firstFight": {
+      "x": 1372.09,
+      "y": 596.41
+    },
+    "points": 5
+  },
+  {
+    "id": "user:AI-VTuber-Hunting/史莱姆速刷-短线05.json",
+    "category": "hunting",
+    "map": "Teyvat",
+    "sourceUrl": "https://github.com/babalae/bettergi-scripts-list/blob/main/repo/pathing/敌人与魔物/史莱姆/史莱姆速刷.json",
+    "sourceBlob": "35c47589f781381e0a6f479b06be31ce3b277ac7",
+    "sha256": "33bc2b8e1fae8e16723f562c068d3b011e74496711a70b4233d5c63400f60d2f",
+    "firstFight": {
+      "x": -26.83,
+      "y": 728.52
+    },
+    "points": 4
+  },
+  {
+    "id": "user:AI-VTuber-Hunting/史莱姆速刷-短线06.json",
+    "category": "hunting",
+    "map": "Teyvat",
+    "sourceUrl": "https://github.com/babalae/bettergi-scripts-list/blob/main/repo/pathing/敌人与魔物/史莱姆/史莱姆速刷.json",
+    "sourceBlob": "35c47589f781381e0a6f479b06be31ce3b277ac7",
+    "sha256": "8f01ae3bad92aaeabad28d0c1c49fb043f0882df211b063d591f67c73461adcd",
+    "firstFight": {
+      "x": -60.13,
+      "y": 147.88
+    },
+    "points": 3
+  },
+  {
+    "id": "user:AI-VTuber-Hunting/史莱姆速刷-短线07.json",
+    "category": "hunting",
+    "map": "Teyvat",
+    "sourceUrl": "https://github.com/babalae/bettergi-scripts-list/blob/main/repo/pathing/敌人与魔物/史莱姆/史莱姆速刷.json",
+    "sourceBlob": "35c47589f781381e0a6f479b06be31ce3b277ac7",
+    "sha256": "990fcb291d5e3216f3a63adcf8332df1e7245be5473c88b4e7d159e7d241bd54",
+    "firstFight": {
+      "x": 291.55,
+      "y": 577.35
+    },
+    "points": 3
+  },
+  {
+    "id": "user:AI-VTuber-Hunting/史莱姆速刷-短线08.json",
+    "category": "hunting",
+    "map": "Teyvat",
+    "sourceUrl": "https://github.com/babalae/bettergi-scripts-list/blob/main/repo/pathing/敌人与魔物/史莱姆/史莱姆速刷.json",
+    "sourceBlob": "35c47589f781381e0a6f479b06be31ce3b277ac7",
+    "sha256": "13e137c5409468e89c24cf1b8f6141572aa291ddf4cf31c57912960314ca67ad",
+    "firstFight": {
+      "x": -415.32,
+      "y": 2477.49
+    },
+    "points": 9
+  },
+  {
+    "id": "user:AI-VTuber-Hunting/史莱姆速刷-短线09.json",
+    "category": "hunting",
+    "map": "Teyvat",
+    "sourceUrl": "https://github.com/babalae/bettergi-scripts-list/blob/main/repo/pathing/敌人与魔物/史莱姆/史莱姆速刷.json",
+    "sourceBlob": "35c47589f781381e0a6f479b06be31ce3b277ac7",
+    "sha256": "cdd5174f48cecf59d7a0636c7998e01e089747e74365b2b9ebcb34632a72939f",
+    "firstFight": {
+      "x": -319.71,
+      "y": 2522.29
+    },
+    "points": 6
+  },
+  {
+    "id": "user:AI-VTuber-Hunting/史莱姆速刷-短线10.json",
+    "category": "hunting",
+    "map": "Teyvat",
+    "sourceUrl": "https://github.com/babalae/bettergi-scripts-list/blob/main/repo/pathing/敌人与魔物/史莱姆/史莱姆速刷.json",
+    "sourceBlob": "35c47589f781381e0a6f479b06be31ce3b277ac7",
+    "sha256": "cf05a344001ab43639fec128113e64be587c6b27b460e4770bc0a06c6f25a8e5",
+    "firstFight": {
+      "x": -1374.01,
+      "y": 1646.77
+    },
+    "points": 2
+  },
+  {
+    "id": "user:AI-VTuber-Hunting/史莱姆速刷-短线11.json",
+    "category": "hunting",
+    "map": "Teyvat",
+    "sourceUrl": "https://github.com/babalae/bettergi-scripts-list/blob/main/repo/pathing/敌人与魔物/史莱姆/史莱姆速刷.json",
+    "sourceBlob": "35c47589f781381e0a6f479b06be31ce3b277ac7",
+    "sha256": "970e9274316767917f8d296aac76f9556fd9a7c01d4f86daa7612e3b235953e1",
+    "firstFight": {
+      "x": -2083.87,
+      "y": 1468.65
+    },
+    "points": 4
+  },
+  {
+    "id": "user:AI-VTuber-Hunting/史莱姆速刷-短线12.json",
+    "category": "hunting",
+    "map": "Teyvat",
+    "sourceUrl": "https://github.com/babalae/bettergi-scripts-list/blob/main/repo/pathing/敌人与魔物/史莱姆/史莱姆速刷.json",
+    "sourceBlob": "35c47589f781381e0a6f479b06be31ce3b277ac7",
+    "sha256": "b21b6ddb9035819db1267978bb468a4f830897d70dd69145eedeec9cadee6b5a",
+    "firstFight": {
+      "x": -1647.58,
+      "y": 2908.77
+    },
+    "points": 4
+  },
+  {
+    "id": "user:AI-VTuber-Scout/史莱姆速刷-短线02.json",
+    "category": "hunting",
+    "map": "Teyvat",
+    "sourceUrl": "https://github.com/babalae/bettergi-scripts-list/blob/main/repo/pathing/敌人与魔物/史莱姆/史莱姆速刷.json",
+    "sourceBlob": "35c47589f781381e0a6f479b06be31ce3b277ac7",
+    "sha256": "908f957ead2229fe3db32f6e90cf5267dc7b73af2090775086fdf7cf51f2d7ca",
+    "firstFight": {
+      "x": 694.99,
+      "y": -300.14
+    },
+    "points": 6,
+    "originalRouteId": "user:AI-VTuber-Hunting/史莱姆速刷-短线02.json",
+    "combatMode": "observe-first"
+  },
+  {
+    "id": "user:AI-VTuber-Scout/史莱姆速刷-短线03.json",
+    "category": "hunting",
+    "map": "Teyvat",
+    "sourceUrl": "https://github.com/babalae/bettergi-scripts-list/blob/main/repo/pathing/敌人与魔物/史莱姆/史莱姆速刷.json",
+    "sourceBlob": "35c47589f781381e0a6f479b06be31ce3b277ac7",
+    "sha256": "3b580dd952f2d6c16e2756d8592c5518a966cc0b40f047251c7f0318e3fc1317",
+    "firstFight": {
+      "x": 1149.21,
+      "y": 634.4
+    },
+    "points": 3,
+    "originalRouteId": "user:AI-VTuber-Hunting/史莱姆速刷-短线03.json",
+    "combatMode": "observe-first"
+  },
+  {
+    "id": "user:AI-VTuber-Scout/史莱姆速刷-短线04.json",
+    "category": "hunting",
+    "map": "Teyvat",
+    "sourceUrl": "https://github.com/babalae/bettergi-scripts-list/blob/main/repo/pathing/敌人与魔物/史莱姆/史莱姆速刷.json",
+    "sourceBlob": "35c47589f781381e0a6f479b06be31ce3b277ac7",
+    "sha256": "cb74641d60cb22f6308afa9c54c4495bbbc982d7d485391bf8e786752232fd15",
+    "firstFight": {
+      "x": 1372.09,
+      "y": 596.41
+    },
+    "points": 5,
+    "originalRouteId": "user:AI-VTuber-Hunting/史莱姆速刷-短线04.json",
+    "combatMode": "observe-first"
+  },
+  {
+    "id": "user:AI-VTuber-Scout/史莱姆速刷-短线05.json",
+    "category": "hunting",
+    "map": "Teyvat",
+    "sourceUrl": "https://github.com/babalae/bettergi-scripts-list/blob/main/repo/pathing/敌人与魔物/史莱姆/史莱姆速刷.json",
+    "sourceBlob": "35c47589f781381e0a6f479b06be31ce3b277ac7",
+    "sha256": "22ca572d1118e8b0b27ee974d76f4c916ccbc8f43a52ebe908b42793400ce0ab",
+    "firstFight": {
+      "x": -26.83,
+      "y": 728.52
+    },
+    "points": 4,
+    "originalRouteId": "user:AI-VTuber-Hunting/史莱姆速刷-短线05.json",
+    "combatMode": "observe-first"
+  },
+  {
+    "id": "user:AI-VTuber-Scout/史莱姆速刷-短线06.json",
+    "category": "hunting",
+    "map": "Teyvat",
+    "sourceUrl": "https://github.com/babalae/bettergi-scripts-list/blob/main/repo/pathing/敌人与魔物/史莱姆/史莱姆速刷.json",
+    "sourceBlob": "35c47589f781381e0a6f479b06be31ce3b277ac7",
+    "sha256": "a790a5ac0c472b72c4719610ec2c6d0fee73a0f3a9f36bab612a25d0e27934ba",
+    "firstFight": {
+      "x": -60.13,
+      "y": 147.88
+    },
+    "points": 3,
+    "originalRouteId": "user:AI-VTuber-Hunting/史莱姆速刷-短线06.json",
+    "combatMode": "observe-first"
+  },
+  {
+    "id": "user:AI-VTuber-Scout/史莱姆速刷-短线07.json",
+    "category": "hunting",
+    "map": "Teyvat",
+    "sourceUrl": "https://github.com/babalae/bettergi-scripts-list/blob/main/repo/pathing/敌人与魔物/史莱姆/史莱姆速刷.json",
+    "sourceBlob": "35c47589f781381e0a6f479b06be31ce3b277ac7",
+    "sha256": "74e9ba87d754a7f4aae067fcf96b3debe42ee6a54e4fe98f74fc9a69edbf9e39",
+    "firstFight": {
+      "x": 291.55,
+      "y": 577.35
+    },
+    "points": 3,
+    "originalRouteId": "user:AI-VTuber-Hunting/史莱姆速刷-短线07.json",
+    "combatMode": "observe-first"
+  },
+  {
+    "id": "user:AI-VTuber-Scout/史莱姆速刷-短线08.json",
+    "category": "hunting",
+    "map": "Teyvat",
+    "sourceUrl": "https://github.com/babalae/bettergi-scripts-list/blob/main/repo/pathing/敌人与魔物/史莱姆/史莱姆速刷.json",
+    "sourceBlob": "35c47589f781381e0a6f479b06be31ce3b277ac7",
+    "sha256": "464ab5b576412876e05bed536b01ca6be6b6a412c3472fcfa4e94aefea626df7",
+    "firstFight": {
+      "x": -415.32,
+      "y": 2477.49
+    },
+    "points": 9,
+    "originalRouteId": "user:AI-VTuber-Hunting/史莱姆速刷-短线08.json",
+    "combatMode": "observe-first"
+  },
+  {
+    "id": "user:AI-VTuber-Scout/史莱姆速刷-短线09.json",
+    "category": "hunting",
+    "map": "Teyvat",
+    "sourceUrl": "https://github.com/babalae/bettergi-scripts-list/blob/main/repo/pathing/敌人与魔物/史莱姆/史莱姆速刷.json",
+    "sourceBlob": "35c47589f781381e0a6f479b06be31ce3b277ac7",
+    "sha256": "88073f698134d0f9bc771acbabfdfdfd533cae623896dd63d42e6789eefef45d",
+    "firstFight": {
+      "x": -319.71,
+      "y": 2522.29
+    },
+    "points": 6,
+    "originalRouteId": "user:AI-VTuber-Hunting/史莱姆速刷-短线09.json",
+    "combatMode": "observe-first"
+  },
+  {
+    "id": "user:AI-VTuber-Scout/史莱姆速刷-短线10.json",
+    "category": "hunting",
+    "map": "Teyvat",
+    "sourceUrl": "https://github.com/babalae/bettergi-scripts-list/blob/main/repo/pathing/敌人与魔物/史莱姆/史莱姆速刷.json",
+    "sourceBlob": "35c47589f781381e0a6f479b06be31ce3b277ac7",
+    "sha256": "d8685e16d107a52fda702a6bb347be486fead1f4f40ecbad37f14e7da6bba2e6",
+    "firstFight": {
+      "x": -1374.01,
+      "y": 1646.77
+    },
+    "points": 2,
+    "originalRouteId": "user:AI-VTuber-Hunting/史莱姆速刷-短线10.json",
+    "combatMode": "observe-first"
+  },
+  {
+    "id": "user:AI-VTuber-Scout/史莱姆速刷-短线11.json",
+    "category": "hunting",
+    "map": "Teyvat",
+    "sourceUrl": "https://github.com/babalae/bettergi-scripts-list/blob/main/repo/pathing/敌人与魔物/史莱姆/史莱姆速刷.json",
+    "sourceBlob": "35c47589f781381e0a6f479b06be31ce3b277ac7",
+    "sha256": "34d7a921aac74318791ba2a5cd6bf1a273b808c018807bbb3be53bb977a0115f",
+    "firstFight": {
+      "x": -2083.87,
+      "y": 1468.65
+    },
+    "points": 4,
+    "originalRouteId": "user:AI-VTuber-Hunting/史莱姆速刷-短线11.json",
+    "combatMode": "observe-first"
+  },
+  {
+    "id": "user:AI-VTuber-Scout/史莱姆速刷-短线12.json",
+    "category": "hunting",
+    "map": "Teyvat",
+    "sourceUrl": "https://github.com/babalae/bettergi-scripts-list/blob/main/repo/pathing/敌人与魔物/史莱姆/史莱姆速刷.json",
+    "sourceBlob": "35c47589f781381e0a6f479b06be31ce3b277ac7",
+    "sha256": "7a297c4f7f77571116adac5c6abc4fb3baeefa2031c8f53024b1539c20947818",
+    "firstFight": {
+      "x": -1647.58,
+      "y": 2908.77
+    },
+    "points": 4,
+    "originalRouteId": "user:AI-VTuber-Hunting/史莱姆速刷-短线12.json",
+    "combatMode": "observe-first"
+  }
+]

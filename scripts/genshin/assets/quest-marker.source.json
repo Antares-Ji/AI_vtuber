@@ -1,0 +1,7 @@
+{
+  "source": "https://github.com/babalae/better-genshin-impact/blob/0af68c28f6b0e714d5304625ce644736d508022e/BetterGenshinImpact/GameTask/Common/Element/Assets/1920x1080/yellow_track_point_28x.png",
+  "sha256": "efcdac15a695267c573d3dfda3682c3889375ed2ca870bcb846b440041a9b384",
+  "purpose": "Native BetterGI quest tracking marker; community commission template retained separately",
+  "offlineCheck": "Gray NCC 0.823 to 0.894 in last 12 world frames; live arrival not yet verified",
+  "threshold": 0.8
+}

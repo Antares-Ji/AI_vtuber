@@ -1,0 +1,23 @@
+{
+  "source": "https://raw.githubusercontent.com/babalae/bettergi-scripts-list/00c1149682c37233cbc02ba281e3732ef1791f95/repo/js/AutoCommissionNova/Data/RecognitionObject/IconBaseCommission.png",
+  "sourceRepository": "https://github.com/babalae/bettergi-scripts-list",
+  "sourceCommit": "00c1149682c37233cbc02ba281e3732ef1791f95",
+  "sourcePath": "repo/js/AutoCommissionNova/Data/RecognitionObject/IconBaseCommission.png",
+  "originalSha256": "7d034e2d62b556a7f9d37062950a4346348bdfe03adeb2fa476324c73706fc3c",
+  "sha256": "48117771e84340ad7c8653ac02006f7f095ba67af1426b5a58f3f2e4131c4a2f",
+  "file": "minimap-commission.png",
+  "size": [
+    11,
+    12
+  ],
+  "transform": {
+    "scale": 0.6,
+    "algorithm": "OpenCV INTER_LINEAR",
+    "originalSize": [
+      19,
+      20
+    ]
+  },
+  "calibrationSession": "7317260d-0dc5-4925-99f3-dfb8fa46f581",
+  "purpose": "Commission minimap candidate. Scale chosen on 11 archived calibration frames; validate on distinct sessions before use. Never identifies every quest type."
+}

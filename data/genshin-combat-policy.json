@@ -1,0 +1,8 @@
+{
+  "enabled": false,
+  "source": "user instruction 2026-11-01",
+  "allowedEnemies": ["pyro_slime", "hydro_slime"],
+  "requireNoOtherVisibleHostiles": true,
+  "blockedRoutes": ["user:AI-VTuber-Hunting/史莱姆速刷-短线01.json", "user:AI-VTuber-Hunting/史莱姆速刷-短线02.json"],
+  "reason": "用户随后明确要求取消敌人类型筛选，直接攻击眼前目标。旧筛选记录保留但不再启用。"
+}

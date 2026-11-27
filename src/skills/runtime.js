@@ -45,7 +45,11 @@ class SkillRuntime {
       try {
         this.event(job, 'started');
         controller.signal.throwIfAborted();
-        const result = await skill.execute(input, { signal: controller.signal, jobId: job.id });
+        const reportProgress = (stage, message) => {
+          if (controller.signal.aborted) return;
+          job.progress = { stage: String(stage).slice(0, 60), message: String(message).slice(0, 500), at: new Date().toISOString() };
+        };
+        const result = await skill.execute(input, { signal: controller.signal, jobId: job.id, reportProgress });
         if (this.clock() - handle.started >= timeoutMs) this.stop(job.id, 'BUDGET_EXHAUSTED');
         controller.signal.throwIfAborted();
         if (!result || typeof result !== 'object') throw Error('Missing skill receipt');

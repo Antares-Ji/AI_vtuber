@@ -2,6 +2,19 @@
 import re
 from native_player_ocr import ocr_lines
 
+def end_turn_button(parsed, ocr):
+    """Locate the unique visible end-turn text in the current right-side crop."""
+    matches=[]
+    for text,score,(x0,y0,x1,y1) in ocr_lines(ocr):
+        if score>=.9 and re.fullmatch(r'结束(?:第?[0-9一二三四五六七八九十]+)?回合',text) and x0>=750 and y0>=500:
+            matches.append((text,[(x0+x1)/2,(y0+y1)/2]))
+    targets=[t for t in parsed['targets'] if not(t.get('kind')=='button' and re.search(r'结束.*回合|end.?turn',t.get('label',''),re.I))]
+    if len(matches)==1:
+        label,point=matches[0]
+        targets=[t for t in targets if t['id']!='end-turn' and t['point']!=point]
+        targets.append({'id':'end-turn','kind':'button','label':label,'point':point,'enabled':True,'end_turn_ocr_checked':True})
+    return {**parsed,'targets':targets}
+
 def enemy_health(parsed, ocr):
     targets=parsed['targets'];fractions=[]
     for text,score,bounds in ocr_lines(ocr):

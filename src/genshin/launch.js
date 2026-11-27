@@ -19,11 +19,11 @@ function configuredExecutable({ dataRoot, env = process.env }) {
   return real;
 }
 
-async function launch({ root, dataRoot = root, env = process.env, signal, runProcess = processRun }) {
+async function launch({ root, dataRoot = root, env = process.env, signal, runProcess = processRun, systemPrompt = false }) {
   signal.throwIfAborted();
   const executable = configuredExecutable({ dataRoot, env }), nonce = randomUUID();
   const output = await runProcess(path.join(root, 'runtime/vlm-env/Scripts/python.exe'),
-    [path.join(root, 'scripts/genshin/launch.py'), '--exe', executable, '--nonce', nonce], { cwd: root, signal });
+    [path.join(root, 'scripts/genshin/launch.py'), '--exe', executable, '--nonce', nonce, ...(systemPrompt ? ['--system-prompt'] : [])], { cwd: root, signal });
   signal.throwIfAborted();
   const result = JSON.parse(output.trim());
   if (result.nonce !== nonce || result.target?.toLowerCase() !== path.basename(executable).toLowerCase() ||

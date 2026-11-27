@@ -1,4 +1,4 @@
-"""Launch only the configured game binary. No shell, elevation, login or input."""
+"""Launch the configured game. Optional normal Windows consent; never bypass UAC."""
 import argparse
 import json
 import os
@@ -11,6 +11,31 @@ import uuid
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT/'scripts/sts2'))
 TARGETS = {'yuanshen.exe', 'genshinimpact.exe'}
+
+
+def launch_with_consent(executable):
+    import ctypes
+    from ctypes import wintypes
+    class SHELLEXECUTEINFO(ctypes.Structure):
+        _fields_ = [('cbSize', wintypes.DWORD), ('fMask', wintypes.ULONG), ('hwnd', wintypes.HWND),
+                    ('lpVerb', wintypes.LPCWSTR), ('lpFile', wintypes.LPCWSTR), ('lpParameters', wintypes.LPCWSTR),
+                    ('lpDirectory', wintypes.LPCWSTR), ('nShow', ctypes.c_int), ('hInstApp', wintypes.HINSTANCE),
+                    ('lpIDList', ctypes.c_void_p), ('lpClass', wintypes.LPCWSTR), ('hkeyClass', wintypes.HKEY),
+                    ('dwHotKey', wintypes.DWORD), ('hIcon', wintypes.HANDLE), ('hProcess', wintypes.HANDLE)]
+    info = SHELLEXECUTEINFO(); info.cbSize = ctypes.sizeof(info); info.fMask = 0x40 | 0x100
+    info.lpVerb = 'runas'; info.lpFile = str(executable); info.lpDirectory = str(executable.parent); info.nShow = 1
+    shell = ctypes.WinDLL('shell32', use_last_error=True)
+    shell.ShellExecuteExW.argtypes = [ctypes.POINTER(SHELLEXECUTEINFO)]; shell.ShellExecuteExW.restype = wintypes.BOOL
+    if not shell.ShellExecuteExW(ctypes.byref(info)):
+        raise ctypes.WinError(ctypes.get_last_error())
+    kernel = ctypes.WinDLL('kernel32', use_last_error=True)
+    kernel.GetProcessId.argtypes = [wintypes.HANDLE]; kernel.GetProcessId.restype = wintypes.DWORD
+    kernel.CloseHandle.argtypes = [wintypes.HANDLE]
+    try:
+        pid = kernel.GetProcessId(info.hProcess)
+        if not pid: raise RuntimeError('Windows returned no game process receipt')
+        return pid
+    finally: kernel.CloseHandle(info.hProcess)
 
 
 def matching_process(executable, processes):
@@ -29,6 +54,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--exe', type=Path, required=True)
     parser.add_argument('--nonce', required=True)
+    parser.add_argument('--system-prompt', action='store_true')
     args = parser.parse_args()
     if os.name != 'nt':
         raise RuntimeError('Genshin launch requires Windows')
@@ -58,10 +84,14 @@ def main():
         process = matching_process(executable, psutil.process_iter(['pid', 'name']))
         started = process is None
         if started:
-            child = subprocess.Popen([str(executable)], cwd=executable.parent,
-                                     stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
-                                     creationflags=subprocess.CREATE_NO_WINDOW, close_fds=True)
-            process = psutil.Process(child.pid)
+            try:
+                child = subprocess.Popen([str(executable)], cwd=executable.parent,
+                                         stdin=subprocess.DEVNULL, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
+                                         creationflags=subprocess.CREATE_NO_WINDOW, close_fds=True)
+                process = psutil.Process(child.pid)
+            except OSError as error:
+                if getattr(error, 'winerror', None) != 740 or not args.system_prompt: raise
+                process = psutil.Process(launch_with_consent(executable))
         result = dict(nonce=args.nonce, target=executable.name, pid=process.pid, started=started,
                       inputSent=False, verified=False, windowFound=False, foreground=False)
         # A launch receipt is not a playable-scene receipt. Never press through

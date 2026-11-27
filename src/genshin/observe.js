@@ -25,15 +25,18 @@ function validateCapture(receipt, { root, nonce, target, startedAt, now = Date.n
 
 function validateObservation(result, image) {
   const observation = result?.parsed;
-  if (result?.source_image !== image || result?.mode !== 'genshin-scene' || result?.normalization_error ||
+  const story=result?.mode==='genshin-story';
+  const nav=observation?.navigation;
+  if(story&&(!nav||!['left','center','right','bottom','not_visible'].includes(nav.marker)||!['open','wall','water','drop','unknown'].includes(nav.terrain)||!['standing','climbing','swimming','unknown'].includes(nav.movement)||typeof nav.evidence!=='string'||nav.evidence.length>160))throw Error('无效的剧情导航观察');
+  if (result?.source_image !== image || !['genshin-scene','genshin-story'].includes(result?.mode) || result?.normalization_error ||
       result?.verification !== 'unverified_local_model_output' || typeof result?.model !== 'string' || !result.model ||
-      !observation || Object.keys(observation).sort().join(',') !== 'scene,summary,uncertain,visible_text' ||
+      !observation || Object.keys(observation).sort().join(',') !== (story?'navigation,scene,summary,uncertain,visible_text':'scene,summary,uncertain,visible_text') ||
       !['login', 'loading', 'world', 'menu', 'dialog', 'map', 'combat', 'unknown'].includes(observation.scene) ||
       typeof observation.uncertain !== 'boolean' || (observation.scene === 'unknown' && !observation.uncertain) ||
       typeof observation.summary !== 'string' || observation.summary.length > 240 ||
       !Array.isArray(observation.visible_text) || observation.visible_text.length > 12 ||
       observation.visible_text.some(s => typeof s !== 'string' || !s.trim() || s.length > 160)) {
-    throw Error('Local Genshin vision did not return a valid observation for this frame');
+    throw Error('本地原神视觉返回格式无效，已停止执行；详细识别记录保存在 runtime/genshin/learning');
   }
   return observation;
 }
