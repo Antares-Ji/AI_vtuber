@@ -435,17 +435,35 @@ const LADDER = [
               const rv = await reg.get('raid_village').run(b, { need: 3 });
               log.skill(`raid_village said: ${rv.observation}`);
               if (!rv.ok) {
-                await reg.get('roam').run(b, { look_for: 'cow,pig,sheep,chicken', distance: 300 });
+                await reg.get('roam').run(b, { look_for: 'cow,pig,sheep,chicken,rabbit', distance: 300 });
                 await reg.get('hunt').run(b, { count: 3 });
               }
             }
           } else {
-            await reg.get('roam').run(b, { look_for: 'cow,pig,sheep,chicken', distance: 300 });
+            await reg.get('roam').run(b, { look_for: 'cow,pig,sheep,chicken,rabbit', distance: 300 });
             await reg.get('hunt').run(b, { count: 3 });
           }
         }
       }
-      const raw = ['beef', 'porkchop', 'chicken', 'mutton', 'cod', 'salmon', 'kelp'].map(n => ({ n, c: countItem(b, n) })).filter(x => x.c > 0).sort((a, c) => c.c - a.c)[0];
+      if (have() < 3) {
+        // In barren snowy / frozen-ocean biomes where livestock, kelp, berries, and villages are all absent,
+        // zombies/husks/shore-drowned drop rotten_flesh (edible emergency rations) without needing grass.
+        const nearUndead = (() => {
+          try {
+            return !!b.nearestEntity(e => e && e.name && /zombie|husk|drowned/.test(e.name) && e.position
+              && !(e.name === 'drowned' && e.position.y < 60)
+              && b.entity.position.distanceTo(e.position) <= 44
+              && Math.abs(e.position.y - b.entity.position.y) <= 12);
+          } catch { return false; }
+        })();
+        const todF = b.time && typeof b.time.timeOfDay === 'number' ? (b.time.timeOfDay % 24000) : null;
+        const isNightF = todF !== null && todF >= 12300 && todF <= 23400;
+        if (nearUndead || isNightF || starvedFor() > 60000) {
+          const z = await reg.get('hunt_spider').run(b, { kind: 'zombie', count: 4, maxDistance: 48 });
+          log.skill(`food: barren-biome undead ration hunt -> ${z.ok ? 'ok' : 'failed'} (${String(z.observation).slice(0, 110)})`);
+        }
+      }
+      const raw = ['beef', 'porkchop', 'chicken', 'mutton', 'rabbit', 'cod', 'salmon', 'kelp'].map(n => ({ n, c: countItem(b, n) })).filter(x => x.c > 0).sort((a, c) => c.c - a.c)[0];
       // Log the outcome. This call was fire-and-forget, so `eat: short food 9 -> 9 ate=nothing` on
       // 08:35 was the only trace that cooking had failed - i.e. the bot walked 100+ blocks hunting again
       // with a furnace and 31 coal in the pack and no way to see why the porkchop stayed raw.
@@ -455,7 +473,8 @@ const LADDER = [
       }
       await reg.get('eat').run(b, {});
       const fed = b.food >= 14 && b.saturation >= 3;
-      return { ok: have() >= 3 || fed, observation: `edible=${have()} meter=${Math.round(b.food)}/20 (raw meat=${raw ? raw.n + 'x' + raw.c : 'none'}, fuel coal=${countItem(b, 'coal') + countItem(b, 'charcoal')} logs=${countItem(b, 'birch_log') + countItem(b, 'oak_log')}, hp=${Math.round(b.health)} at y=${Math.round(b.entity.position.y)} dim=${b.game.dimension})` };
+      const allLogs = b.inventory.items().filter(i => /_log$/.test(i.name)).reduce((s, i) => s + i.count, 0);
+      return { ok: have() >= 3 || fed, observation: `edible=${have()} meter=${Math.round(b.food)}/20 (raw meat=${raw ? raw.n + 'x' + raw.c : 'none'}, fuel coal=${countItem(b, 'coal') + countItem(b, 'charcoal')} logs=${allLogs}, hp=${Math.round(b.health)} at y=${Math.round(b.entity.position.y)} dim=${b.game.dimension})` };
     } },
   { id: 'coal', done: b => countItem(b, 'coal') >= 3 || countItem(b, 'charcoal') >= 3 || b.inventory.items().filter(i => /_planks$|_log$/.test(i.name)).reduce((s, i) => s + i.count, 0) >= 6,
     run: b => reg.get('mine').run(b, { names: ['coal_ore', 'deepslate_coal_ore'], count: 5 }) },

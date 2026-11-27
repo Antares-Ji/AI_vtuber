@@ -588,7 +588,7 @@ reg.define('hunt', {
   desc: 'Attack nearest mob for food, `count` kills. Passive livestock by default (cow/pig/sheep/chicken); kind=zombie or kind=husk hunts the undead instead - rotten flesh is on this run\'s edible list and, unlike livestock, they spawn in the dark corridors it is already standing in, with no grass, herd or water crossing needed. Walks to the target if it is far, and bails out honestly when none is loaded.',
   params: { count: 'int default 3', kind: 'cow|pig|sheep|chicken|zombie|husk (any livestock if omitted; chicken for arrow feathers, zombie/husk for food underground)' },
   async run(bot, a) {
-    const ALL_PASSIVE = ['cow', 'pig', 'sheep', 'chicken'];
+    const ALL_PASSIVE = ['cow', 'pig', 'sheep', 'chicken', 'rabbit'];
     // Hunting the undead is a deliberate ask, not a fallback: it costs sword hits and can pull a creeper
     // into the corridor, so the passive path keeps its own rules (grass surface, no water routing) and
     // only this kind drops them.
@@ -869,17 +869,18 @@ reg.define('hunt_spider', {
   params: { count: 'int default 4 - drop items to end up with (string, arrow when kind=skeleton, or rotten flesh when kind=zombie)', maxDistance: 'int default 40 - how far the mob has to be to count as reachable', kind: 'spider (default) | skeleton | stray | zombie | husk' },
   async run(bot, a) {
     // One loop, three payoffs: the drop name decides when to stop.
-    const undead = a.kind === 'zombie' || a.kind === 'husk';
+    const undead = a.kind === 'zombie' || a.kind === 'husk' || a.kind === 'drowned';
     const archer = a.kind === 'skeleton' || a.kind === 'stray';
     const dropItem = undead ? 'rotten_flesh' : (archer ? 'arrow' : 'string');
-    const findRe = undead ? /zombie|husk/ : (archer ? /skeleton|stray/ : /spider/);
-    const roamKinds = undead ? 'zombie,husk' : (archer ? 'skeleton,stray' : 'spider,cave_spider');
+    const findRe = undead ? /zombie|husk|drowned/ : (archer ? /skeleton|stray/ : /spider/);
+    const roamKinds = undead ? 'zombie,husk,drowned' : (archer ? 'skeleton,stray' : 'spider,cave_spider');
     const want = Math.max(1, Math.min(24, parseInt(a.count, 10) || 4));
     const md = Math.max(8, Math.min(80, a.maxDistance || 40));
     const GN = (require('mineflayer-pathfinder').goals || require('mineflayer-pathfinder').pathfinder.Goals).GoalNear;
     const find = () => {
       try {
         return bot.nearestEntity(e => e && e.name && findRe.test(e.name) && e.position
+          && !(e.name === 'drowned' && e.position.y < 60)
           && bot.entity.position.distanceTo(e.position) <= md
           && Math.abs(e.position.y - bot.entity.position.y) <= 16);
       } catch { return null; }
@@ -934,7 +935,15 @@ reg.define('hunt_spider', {
         .sort((x, y) => (ob.wear(bot, y) ?? 0) - (ob.wear(bot, x) ?? 0))[0];
       if (sword) { try { await bot.equip(sword, 'hand'); } catch {} }
       const at = live.position.clone();
-      try { await Promise.race([Promise.resolve(bot.pvp.attack(live)), sleep(20000)]); kills++; } catch (err) { log.skill(`hunt_spider attack threw ${String(err.message).slice(0, 70)}`); }
+      let atkTimer = null;
+      try {
+        await Promise.race([
+          Promise.resolve(bot.pvp.attack(live)),
+          new Promise(r => { atkTimer = setTimeout(r, 20000); }),
+        ]);
+        kills++;
+      } catch (err) { log.skill(`hunt_spider attack threw ${String(err.message).slice(0, 70)}`); }
+      finally { if (atkTimer) clearTimeout(atkTimer); }
       // The drop is on the floor where it died; the bot is not standing there and mineflayer has no
       // pickup sweep, so this is the difference between "killed 3, string 0" and string.
       try { await collectNear(bot, at, archer ? ['arrow', 'bow'] : [dropItem]); } catch {}

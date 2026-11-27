@@ -762,8 +762,53 @@ function makeBot(overrides = {}) {
     }
   }
 
+  // 19. food milestone in barren frozen_ocean/snowy biome: falls back to zombie/drowned rotten_flesh + reports spruce_log fuel accurately
+  {
+    const { LADDER } = require('../src/minecraft/autonomous/skills/progression');
+    const foodMs = LADDER.find(m => m.id === 'food');
+    let zombieHuntCalls = 0;
+    const origHunt = reg.get('hunt').run;
+    const origKelp = reg.get('harvest_kelp').run;
+    const origRoam = reg.get('roam').run;
+    const origHS = reg.get('hunt_spider').run;
+    const origEat = reg.get('eat').run;
+    try {
+      const items = [{ name: 'spruce_log', count: 6 }];
+      reg.get('hunt').run = async () => ({ ok: false, observation: 'no livestock' });
+      reg.get('harvest_kelp').run = async () => ({ ok: false, observation: 'no kelp' });
+      reg.get('roam').run = async () => ({ ok: false, observation: 'frozen ocean' });
+      reg.get('hunt_spider').run = async (b, a) => {
+        if (a && a.kind === 'zombie') {
+          zombieHuntCalls++;
+          items.push({ name: 'rotten_flesh', count: 4 });
+          return { ok: true, observation: 'killed 2 drowned' };
+        }
+        return { ok: false, observation: 'unexpected kind' };
+      };
+      reg.get('eat').run = async () => ({ ok: true, observation: 'ate' });
+      const botFrozen = makeBot({
+        food: 8,
+        saturation: 0,
+        time: { timeOfDay: 15000, age: 15000 },
+        entity: { position: new Vec3(0, 63, 0), yaw: 0, pitch: 0 },
+        inventory: { slots: new Array(46).fill(null), items: () => items },
+        findBlocks: () => [],
+      });
+      const r = await foodMs.run(botFrozen);
+      assert.equal(zombieHuntCalls, 1, 'food milestone must fall back to undead ration hunt in barren snowy/frozen biomes');
+      assert.equal(r.ok, true, 'food milestone must pass once undead hunt supplies rotten_flesh rations');
+      assert.ok(r.observation.includes('logs=6'), `food milestone must count spruce_log in fuel report, got: ${r.observation}`);
+    } finally {
+      reg.get('hunt').run = origHunt;
+      reg.get('harvest_kelp').run = origKelp;
+      reg.get('roam').run = origRoam;
+      reg.get('hunt_spider').run = origHS;
+      reg.get('eat').run = origEat;
+    }
+  }
+
   fs.rmSync(tmp, { recursive: true, force: true });
-  console.log('PASS minecraft-autonomous: all 18 regression groups passed');
+  console.log('PASS minecraft-autonomous: all 19 regression groups passed');
 })().catch(e => {
   console.error(e);
   process.exitCode = 1;
