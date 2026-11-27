@@ -72,6 +72,8 @@ const RECIPES = {
   // string cells, and the bow could not be made at all (19:45:47 `craft bow threw Error: missing
   // ingredient`, 19:50:04 `gridcraft bow x1: made=0`, then a dive without a bow and a fight death).
   bow: { out: 1, shape: [' #s', '# s', ' #s'], key: { '#': 'stick', s: 'string' } },
+  fishing_rod: { out: 1, shape: ['..s', '.st', 's.t'], key: { s: 'stick', t: 'string' } },
+  bread: { out: 1, shape: ['www'], key: { w: 'wheat' } },
   arrow: { out: 4, shape: ['f', 's', 'e'], key: { f: 'flint', s: 'stick', e: 'feather' } },
   flint_and_steel: { out: 1, shape: ['i', 'f'], key: { i: 'iron_ingot', f: 'flint' } },
   ender_eye: { out: 1, shape: ['p', 'c'], key: { p: 'ender_pearl', c: 'blaze_powder' } },

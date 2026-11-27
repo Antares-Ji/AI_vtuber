@@ -239,7 +239,7 @@ function hasGear (b, name) {
   if (slot) { const it = b.inventory.slots[slot]; return !!it && it.name === name; }
   return false;
 }
-const EDIBLE = ['cooked_beef', 'beef', 'apple', 'bread', 'porkchop', 'cooked_porkchop', 'chicken', 'cooked_chicken', 'mutton', 'cooked_mutton', 'carrot', 'potato', 'baked_potato', 'cod', 'cooked_cod', 'salmon', 'cooked_salmon', 'rabbit', 'cooked_rabbit',
+const EDIBLE = ['cooked_beef', 'beef', 'apple', 'bread', 'porkchop', 'cooked_porkchop', 'chicken', 'cooked_chicken', 'mutton', 'cooked_mutton', 'carrot', 'potato', 'baked_potato', 'cod', 'cooked_cod', 'salmon', 'cooked_salmon', 'rabbit', 'cooked_rabbit', 'sweet_berries', 'glow_berries',
   // Emergency rations, counted as food security: every shaft fight drops it, and the `food`
   // milestone was failing on a hill with no animals while a stack of flesh went unused. auto-eat is
   // configured to eat this only when nothing else exists (fallbackFood), so it never displaces meat.
@@ -384,22 +384,60 @@ const LADDER = [
       const starvedFor = () => (b._hungrySince ? Date.now() - b._hungrySince : 0);
       const VILLAGE_AFTER_MS = Number(process.env.MC_VILLAGE_AFTER_MS || 180000);
       if (have() < 3) {
+        // In taiga / snowy taiga biomes (zero cows/kelp), sweet berry bushes grow everywhere and
+        // yield instant edible berries with zero combat and zero cooking.
+        try {
+          const berryIds = blockIds(b, ['sweet_berry_bush']);
+          if (berryIds.length) {
+            const bushes = b.findBlocks({ matching: berryIds, maxDistance: 48, count: 6 }) || [];
+            if (bushes.length) {
+              const GN = g();
+              let picked = 0;
+              for (const bp of bushes) {
+                if (have() >= 6) break;
+                const blk = b.blockAt(bp);
+                if (!blk || blk.name !== 'sweet_berry_bush') continue;
+                try {
+                  await b.pathfinder.goto(new GN(bp.x, bp.y, bp.z, 2));
+                  try { await b.activateBlock(blk); } catch {}
+                  await P.collectNear(b, bp, ['sweet_berries']);
+                  picked++;
+                } catch {}
+              }
+              if (picked > 0) log.skill(`food: harvested ${picked} sweet_berry_bush(es) -> sweet_berries=${countItem(b, 'sweet_berries')}`);
+            }
+          }
+        } catch {}
+      }
+      if (have() < 3) {
         const h = await reg.get('hunt').run(b, { count: 3 });
         if (!h.ok) {
           log.skill(`hunt said: ${h.observation}`);
-          // A kelp forest IS a pantry: no animal, no wood, no fishing rod required. The ocean shard
-          // starved the bot from 08:23 to 08:45 on 2026-10-30 because every branch of this step assumed
-          // livestock - hunt found nothing, roam reported "pinned at 46,62,-88", smelt reported
-          // "no beef in inventory" - while the pack held coal=32 and a furnace next to a kelp bed.
           const kk = await reg.get('harvest_kelp').run(b, { count: 12 });
           if (kk.ok) log.skill(`harvest_kelp said: ${kk.observation}`);
           else if (starvedFor() > VILLAGE_AFTER_MS) {
-            log.skill(`nothing edible for ${Math.round(starvedFor() / 60000)} min (kelp: ${String(kk.observation).slice(0, 80)}) - raiding a village for hay instead of roaming for a cow`);
-            const rv = await reg.get('raid_village').run(b, { need: 3 });
-            log.skill(`raid_village said: ${rv.observation}`);
-            if (!rv.ok) {
-              await reg.get('roam').run(b, { look_for: 'cow,pig,sheep,chicken', distance: 300 });
-              await reg.get('hunt').run(b, { count: 3 });
+            // If standing beside open water with a rod (or string+sticks to make one), fish right from shore!
+            const canFish = countItem(b, 'fishing_rod') >= 1 || (countItem(b, 'string') >= 2 && countItem(b, 'stick') >= 3);
+            let fishedOk = false;
+            if (canFish) {
+              try {
+                const waterNear = b.findBlock({ matching: blockIds(b, ['water']), maxDistance: 12 });
+                if (waterNear) {
+                  await b.pathfinder.goto(new (g())(waterNear.position.x, b.entity.position.y, waterNear.position.z, 2)).catch(() => {});
+                  const fr = await reg.get('fish').run(b, { count: 3, timeoutSec: 45 });
+                  log.skill(`food: shore fishing said (${String(fr.observation).slice(0, 120)})`);
+                  fishedOk = fr.ok || have() >= 3;
+                }
+              } catch {}
+            }
+            if (!fishedOk && have() < 3) {
+              log.skill(`nothing edible for ${Math.round(starvedFor() / 60000)} min (kelp: ${String(kk.observation).slice(0, 80)}) - raiding a village for hay instead of roaming for a cow`);
+              const rv = await reg.get('raid_village').run(b, { need: 3 });
+              log.skill(`raid_village said: ${rv.observation}`);
+              if (!rv.ok) {
+                await reg.get('roam').run(b, { look_for: 'cow,pig,sheep,chicken', distance: 300 });
+                await reg.get('hunt').run(b, { count: 3 });
+              }
             }
           } else {
             await reg.get('roam').run(b, { look_for: 'cow,pig,sheep,chicken', distance: 300 });

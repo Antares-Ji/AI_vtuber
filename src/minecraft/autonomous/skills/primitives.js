@@ -499,9 +499,9 @@ reg.define('equip', {
 // always wins.
 const EATABLE = [
   ['cooked_beef', 10], ['cooked_mutton', 10], ['cooked_porkchop', 10], ['cooked_salmon', 6],
-  ['cooked_cod', 5], ['bread', 5], ['baked_potato', 5], ['cooked_chicken', 6], ['dried_kelp', 1],
-  ['melon_slice', 2], ['carrot', 3], ['apple', 4], ['beef', 3], ['porkchop', 3], ['mutton', 2],
-  ['chicken', 1], ['cod', 2], ['salmon', 2], ['rotten_flesh', 4],
+  ['cooked_cod', 5], ['cooked_rabbit', 5], ['bread', 5], ['baked_potato', 5], ['cooked_chicken', 6], ['dried_kelp', 1],
+  ['melon_slice', 2], ['carrot', 3], ['apple', 4], ['sweet_berries', 2], ['glow_berries', 2], ['beef', 3], ['porkchop', 3], ['mutton', 2],
+  ['chicken', 1], ['cod', 2], ['salmon', 2], ['rabbit', 2], ['rotten_flesh', 4],
 ];
 reg.define('eat', {
   desc: 'Eat the best food in the pack until the hunger meter reaches `target`, and only report success if the meter actually rose. (The auto-eat plugin stops at its own low threshold, so it never tops a wounded bot up - it is left enabled but is not the answer.)',

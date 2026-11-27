@@ -578,8 +578,47 @@ function makeBot(overrides = {}) {
     assert.equal(hasPathMoved(anchor, { x: -48.0, y: 71.1, z: -256.0 }), true, 'sustained vertical climb (>=2m) counts as progress');
   }
 
+  // 16. gridcraft fishing_rod & bread recipes + food milestone sweet_berry_bush harvesting in taiga
+  {
+    assert.ok(gridcraft.RECIPES.fishing_rod, 'gridcraft must define fishing_rod recipe');
+    assert.ok(gridcraft.RECIPES.bread, 'gridcraft must define bread recipe');
+    const { LADDER } = require('../src/minecraft/autonomous/skills/progression');
+    const foodMs = LADDER.find(m => m.id === 'food');
+    let berryPicked = 0, huntCalled = 0;
+    const origHunt = reg.get('hunt').run;
+    const origEat = reg.get('eat').run;
+    try {
+      reg.get('hunt').run = async () => { huntCalled++; return { ok: false, observation: 'no animals' }; };
+      reg.get('eat').run = async () => ({ ok: true, observation: 'ate' });
+      const items = [];
+      const botBerry = makeBot({
+        food: 16,
+        saturation: 4,
+        entity: { position: new Vec3(0, 64, 0), yaw: 0, pitch: 0 },
+        inventory: { slots: new Array(46).fill(null), items: () => items },
+        blockAt: (p) => {
+          if (p && p.x === 2 && p.y === 64 && p.z === 0) return { name: 'sweet_berry_bush', position: new Vec3(2, 64, 0) };
+          return { name: 'air', boundingBox: 'empty' };
+        },
+        findBlocks: () => [new Vec3(2, 64, 0)],
+        pathfinder: { goto: async () => {} },
+        activateBlock: async () => {
+          berryPicked++;
+          items.push({ name: 'sweet_berries', count: 6 });
+        },
+      });
+      const r = await foodMs.run(botBerry);
+      assert.equal(berryPicked, 1, 'food milestone must harvest nearby sweet_berry_bush');
+      assert.equal(huntCalled, 0, 'once sweet berries satisfy rations, no need to wander empty tundra hunting');
+      assert.equal(r.ok, true);
+    } finally {
+      reg.get('hunt').run = origHunt;
+      reg.get('eat').run = origEat;
+    }
+  }
+
   fs.rmSync(tmp, { recursive: true, force: true });
-  console.log('PASS minecraft-autonomous: all 15 regression groups passed');
+  console.log('PASS minecraft-autonomous: all 16 regression groups passed');
 })().catch(e => {
   console.error(e);
   process.exitCode = 1;
