@@ -3493,44 +3493,48 @@ reg.define('make_obsidian', {
             continue;
           }
         }
-        // Aim INTO the lava cell, exactly like the water fill that works (offset 0.5,0.5,0.5).
-        // The old target was a point one full block above the cell - i.e. on/over the top face -
-        // which is a grazing raycast: every pour in this window read `left lava` (17:33:37-41, six
-        // in-reach cells in a row) while the analogous water interaction from the same hand worked.
+        // Aim at a SOLID rim block face orthogonally touching the lava pool (water_bucket raycasts ignore
+        // fluids and place water against solid faces; aiming directly into lava dumped water at the bot's
+        // own feet diagonally at 12:05:08 without touching the lava cell). Fall back to p if no solid rim.
         const beforeWater = countItem(bot, 'water_bucket');
-        try { await bot.lookAt(p.offset(0.5, 0.5, 0.5), true); } catch {}
+        const obsIds = blockIds(bot, ['obsidian']);
+        const obsBefore = (bot.findBlocks({ matching: obsIds, maxDistance: 10, count: 32 }) || []).length;
+        let aimPt = p.offset(0.5, 0.5, 0.5);
+        for (const [rx, rz] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+          const rimFloor = bot.blockAt(p.offset(rx, 0, rz));
+          const rimAir = bot.blockAt(p.offset(rx, 1, rz));
+          if (rimFloor && rimFloor.boundingBox === 'block' && !/lava|water/.test(rimFloor.name)
+            && (!rimAir || isAir(rimAir.name))
+            && bot.entity.position.distanceTo(rimFloor.position) <= 4.3) {
+            aimPt = rimFloor.position.offset(0.5, 0.95, 0.5);
+            break;
+          }
+        }
+        try { await bot.lookAt(aimPt, true); } catch {}
         try { await bot.activateItem(); } catch (e) { log.warn(`make_obsidian: activateItem threw ${e.message}`); }
-        await sleep(800);
+        await sleep(1100);
         const afterWater = countItem(bot, 'water_bucket');
         let after = bot.blockAt(p);
-        if (!after || after.name === 'lava') {
-          // Two very different failures look identical from here, and the fix depends on which it is:
-          // bucket 1 -> 0 means the server took the water and put it somewhere else (aim/target
-          // problem); bucket 1 -> 1 means the interaction never landed at all (packet/reach problem).
+        const obsAfter = (bot.findBlocks({ matching: obsIds, maxDistance: 10, count: 32 }) || []).length;
+        const madeObsNearby = obsAfter > obsBefore;
+        if (!madeObsNearby && (!after || after.name === 'lava')) {
           log.warn(`make_obsidian: pour at ${p.x},${p.y},${p.z} left ${after ? after.name : 'NULL'} with water_bucket ${beforeWater} -> ${afterWater} (level=${((after && after.getProperties && after.getProperties().level) || '?')})`);
         }
-        if (!after || after.name === 'lava') {
-          // Second packet path, kept as a long shot: interact on the block beneath, pointing up into
-          // the lava cell. NOT the proven route - `placeBlock` with a bucket in hand has been refused
-          // every time it was tried here (15:34 x5, 16:32 x5) - so it runs only after the real
-          // attempt (activateItem on the cell) has already failed.
+        if (!madeObsNearby && afterWater === beforeWater && (!after || after.name === 'lava')) {
           const ref = bot.blockAt(p.offset(0, -1, 0));
           if (ref && !isAir(ref.name) && ref.name !== 'lava') {
             try { await bot.lookAt(p.offset(0.5, 0.5, 0.5), true); } catch {}
             try { await bot.placeBlock(ref, new Vec3(0, 1, 0)); } catch (e) { log.warn(`make_obsidian: placeBlock pour threw ${e.message}`); }
-            await sleep(800);
+            await sleep(900);
             after = bot.blockAt(p);
           }
         }
-        if (after && (after.name === 'obsidian' || after.name === 'cobblestone' || after.name === 'stone')) {
-          poured++; made = true;
-          log.skill(`make_obsidian: poured on lava at ${p.x},${p.y},${p.z} -> ${after.name}${after.name === 'obsidian' ? '' : ' (flowing lava makes cobble, not obsidian - aim a SOURCE next time)'}`);
-          // Let water spread across adjacent lava sources for 1.1s, then scoop the water source back
-          // into our bucket so we can keep pouring without trekking back to the surface for water!
-          await sleep(1100);
+        // ALWAYS scoop our placed water source back into the empty bucket whenever a pour emptied it,
+        // even if the target cell itself stayed lava (live 12:05:08 abandoned the water 1 block away!).
+        if (beforeWater > 0 && countItem(bot, 'water_bucket') < beforeWater) {
           try {
             const eb = bot.inventory.items().find(i => i.name === 'bucket');
-            if (eb && !bot.inventory.items().some(i => i.name === 'water_bucket')) {
+            if (eb) {
               const wIds = blockIds(bot, ['water']);
               const wPts = bot.findBlocks({ matching: wIds, maxDistance: 5, count: 8 }) || [];
               const wSrc = wPts.map(pt => bot.blockAt(pt)).find(bl => bl && bl.name === 'water' && isFluidSource(bl));
@@ -3543,6 +3547,10 @@ reg.define('make_obsidian', {
               }
             }
           } catch {}
+        }
+        if (madeObsNearby || (after && (after.name === 'obsidian' || after.name === 'cobblestone' || after.name === 'stone'))) {
+          poured++; made = true;
+          log.skill(`make_obsidian: poured on lava at ${p.x},${p.y},${p.z} -> ${madeObsNearby ? `+${obsAfter - obsBefore} obsidian nearby` : after.name}`);
           break;
         }
         log.skill(`make_obsidian: pour at ${p.x},${p.y},${p.z} left ${after ? after.name : 'NULL'} - trying the next lava cell`);

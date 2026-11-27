@@ -1020,8 +1020,59 @@ function makeBot(overrides = {}) {
     }
   }
 
+  // 24. make_obsidian aims at solid rim face beside source lava, detects nearby obsidian, and scoops water back
+  {
+    const P3 = require('../src/minecraft/autonomous/skills/primitives');
+    const lavaId = P3.blockIds(makeBot(), ['lava'])[0];
+    const waterId = P3.blockIds(makeBot(), ['water'])[0];
+    const obsId = P3.blockIds(makeBot(), ['obsidian'])[0];
+    const items = [
+      { name: 'diamond_pickaxe', count: 1, maxDurability: 1561, durabilityUsed: 0 },
+      { name: 'water_bucket', count: 1 },
+    ];
+    let waterPlaced = false, scoopedBack = false, aimedRim = false;
+    const botRim = makeBot({
+      entity: { position: new Vec3(0, -53, 0), yaw: 0, pitch: 0 },
+      inventory: { slots: new Array(46).fill(null), items: () => items },
+      equip: async (it) => { botRim.heldItem = it; },
+      pathfinder: { goto: async () => {} },
+      lookAt: async (pt) => { if (pt && Math.floor(pt.x) === 1 && pt.y > -53.5) aimedRim = true; },
+      findBlocks: ({ matching }) => {
+        const m = Array.isArray(matching) ? matching : [matching];
+        if (m.includes(lavaId)) return [new Vec3(2, -54, 0)];
+        if (m.includes(waterId)) return waterPlaced ? [new Vec3(1, -53, 0)] : [];
+        if (m.includes(obsId)) return waterPlaced ? [new Vec3(3, -54, 0)] : [];
+        return [];
+      },
+      blockAt: (p) => {
+        if (!p) return { name: 'air', boundingBox: 'none' };
+        const x = Math.floor(p.x), y = Math.floor(p.y), z = Math.floor(p.z);
+        if (x === 2 && y === -54 && z === 0) return { name: 'lava', position: new Vec3(2, -54, 0), getProperties: () => ({ level: 0 }) };
+        if (x === 1 && y === -54 && z === 0) return { name: 'deepslate', position: new Vec3(1, -54, 0), boundingBox: 'block' };
+        if (x === 1 && y === -53 && z === 0) return waterPlaced ? { name: 'water', position: new Vec3(1, -53, 0), getProperties: () => ({ level: 0 }) } : { name: 'air', boundingBox: 'none' };
+        if (x === 3 && y === -54 && z === 0) return waterPlaced ? { name: 'obsidian', position: new Vec3(3, -54, 0), boundingBox: 'block' } : { name: 'air', boundingBox: 'none' };
+        return { name: 'air', boundingBox: 'none' };
+      },
+      activateItem: async () => {
+        if (botRim.heldItem && botRim.heldItem.name === 'water_bucket') {
+          waterPlaced = true;
+          items.splice(items.findIndex(i => i.name === 'water_bucket'), 1, { name: 'bucket', count: 1 });
+        } else if (botRim.heldItem && botRim.heldItem.name === 'bucket' && waterPlaced) {
+          scoopedBack = true;
+          waterPlaced = false;
+          items.splice(items.findIndex(i => i.name === 'bucket'), 1, { name: 'water_bucket', count: 1 });
+          botRim._stepDeadline = 1; // exit pour loop cleanly after verifying 1 full cycle
+        }
+      },
+      dig: async () => {},
+    });
+    await reg.get('make_obsidian').run(botRim, { count: 1 });
+    assert.equal(aimedRim, true, 'make_obsidian must aim at solid rim block beside lava so water lands cleanly');
+    assert.equal(scoopedBack, true, 'make_obsidian must scoop water back into bucket after pouring');
+  }
+
   fs.rmSync(tmp, { recursive: true, force: true });
-  console.log('PASS minecraft-autonomous: all 23 regression groups passed');
+  console.log('PASS minecraft-autonomous: all 24 regression groups passed');
 })().catch(e => {
   console.error(e);
   process.exitCode = 1;
