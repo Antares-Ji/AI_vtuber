@@ -460,19 +460,62 @@ const LADDER = [
           const kk = await reg.get('harvest_kelp').run(b, { count: 24 });
           if (kk.ok) log.skill(`harvest_kelp said: ${kk.observation}`);
           else {
-            // If we already have a fishing rod (or string+sticks after 3 min) and open water is nearby,
+            // On barren frozen coasts/oceans with no livestock or kelp, cod & salmon swim right at y=59..62
+            // and 1-shot to a sword without needing a fishing rod or grass!
+            if (!stocked()) {
+              try {
+                const sw = b.inventory.items().find(i => /_sword$/.test(i.name));
+                const fishBudgetEnd = Math.min(Date.now() + 45000, (b._stepDeadline || Infinity) - 25000);
+                const GN2 = g();
+                let fishKills = 0;
+                for (let tries = 0; tries < 10 && !stocked() && Date.now() < fishBudgetEnd; tries++) {
+                  if (b.health <= 10 || (typeof b.oxygenLevel === 'number' && b.oxygenLevel >= 0 && b.oxygenLevel <= 10)) break;
+                  const prey = b.nearestEntity(e => e && (e.name === 'cod' || e.name === 'salmon') && e.position
+                    && e.position.y >= 58 && b.entity.position.distanceTo(e.position) <= 36);
+                  if (!prey) break;
+                  if (sw && (!b.heldItem || b.heldItem.slot !== sw.slot)) { try { await b.equip(sw, 'hand'); } catch {} }
+                  if (b.entity.position.distanceTo(prey.position) > 3.2) {
+                    let ft = null;
+                    try {
+                      await Promise.race([
+                        b.pathfinder.goto(new GN2(prey.position.x, Math.max(60, prey.position.y), prey.position.z, 2)),
+                        new Promise((_, rej) => { ft = setTimeout(() => rej(new Error('fish chase timeout')), 8000); }),
+                      ]);
+                    } catch {} finally { if (ft) clearTimeout(ft); }
+                  }
+                  if (prey.isValid !== false && b.entity.position.distanceTo(prey.position) <= 4.2) {
+                    const pPos = prey.position.clone();
+                    try { await b.attack(prey); } catch {}
+                    await sleep(450);
+                    try { await P.collectNear(b, pPos, ['cod', 'salmon']); } catch {}
+                    fishKills++;
+                  } else {
+                    break;
+                  }
+                }
+                if (fishKills > 0) log.skill(`food: shallow-water fish hunt -> ${fishKills} hit(s), cod=${countItem(b, 'cod')} salmon=${countItem(b, 'salmon')}`);
+              } catch {}
+            }
+            // If we already have a fishing rod (or string+sticks after 3 min, or can grab string from nearby spiders),
             // walk to shore and fish a real batch (6 fish) in one sitting instead of roaming into ocean.
+            const waterNear = (() => { try { return b.findBlock({ matching: blockIds(b, ['water']), maxDistance: 36 }); } catch { return null; } })();
+            if (!stocked() && waterNear && countItem(b, 'fishing_rod') < 1 && countItem(b, 'string') < 2 && starvedFor() > VILLAGE_AFTER_MS) {
+              const nearSpider = (() => {
+                try { return !!b.nearestEntity(e => e && /spider/.test(e.name || '') && e.position && b.entity.position.distanceTo(e.position) <= 48); } catch { return false; }
+              })();
+              if (nearSpider) {
+                const sp = await reg.get('hunt_spider').run(b, { count: 2, maxDistance: 48 }).catch(() => ({ ok: false, observation: 'failed' }));
+                log.skill(`food: spider hunt for fishing-rod string -> ${sp.ok ? 'ok' : 'failed'} (string=${countItem(b, 'string')})`);
+              }
+            }
             const hasRod = countItem(b, 'fishing_rod') >= 1;
             const canFish = hasRod || (starvedFor() > VILLAGE_AFTER_MS && countItem(b, 'string') >= 2 && countItem(b, 'stick') >= 3);
             let fishedOk = false;
-            if (canFish) {
+            if (!stocked() && canFish && waterNear) {
               try {
-                const waterNear = b.findBlock({ matching: blockIds(b, ['water']), maxDistance: 36 });
-                if (waterNear) {
-                  const fr = await reg.get('fish').run(b, { count: 6, timeoutSec: 120 });
-                  log.skill(`food: shore fishing said (${String(fr.observation).slice(0, 120)})`);
-                  fishedOk = fr.ok || stocked();
-                }
+                const fr = await reg.get('fish').run(b, { count: 6, timeoutSec: 120 });
+                log.skill(`food: shore fishing said (${String(fr.observation).slice(0, 120)})`);
+                fishedOk = fr.ok || stocked();
               } catch {}
             }
             if (!fishedOk && !stocked() && starvedFor() > VILLAGE_AFTER_MS) {

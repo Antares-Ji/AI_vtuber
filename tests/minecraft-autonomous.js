@@ -2238,8 +2238,77 @@ function makeBot(overrides = {}) {
     }
   }
 
+  // 44. food milestone hunts shallow-water cod/salmon entities on barren frozen coasts (no cows, no kelp, no rod)
+  //     and cooks all caught salmon into cooked_salmon
+  {
+    const { LADDER } = require('../src/minecraft/autonomous/skills/progression');
+    const foodMs44 = LADDER.find(m => m.id === 'food');
+    const origHunt44 = reg.get('hunt').run;
+    const origKelp44 = reg.get('harvest_kelp').run;
+    const origRoam44 = reg.get('roam').run;
+    const origSmelt44 = reg.get('smelt').run;
+    const origEat44 = reg.get('eat').run;
+    let fishAttacked = 0;
+    let salmonCooked = 0;
+    try {
+      const fInv44 = [
+        { name: 'iron_sword', count: 1, slot: 36 },
+        { name: 'coal', count: 12, slot: 37 },
+      ];
+      reg.get('hunt').run = async () => ({ ok: false, observation: 'no livestock' });
+      reg.get('harvest_kelp').run = async () => ({ ok: false, observation: 'no kelp' });
+      reg.get('roam').run = async () => ({ ok: false, observation: 'frozen ocean' });
+      reg.get('smelt').run = async (b, a) => {
+        if (a && a.item === 'salmon') {
+          salmonCooked += a.count;
+          const si = fInv44.find(i => i.name === 'salmon');
+          if (si) si.count = Math.max(0, si.count - a.count);
+          fInv44.push({ name: 'cooked_salmon', count: a.count, slot: 39 });
+        }
+        return { ok: true, observation: 'cooked salmon' };
+      };
+      reg.get('eat').run = async (b) => { b.food = 20; return { ok: true, observation: 'ate' }; };
+      let liveSalmon = 8;
+      const botFishCoast = makeBot({
+        food: 10,
+        health: 18,
+        oxygenLevel: 20,
+        entity: { position: new Vec3(0, 63, 0), yaw: 0, pitch: 0 },
+        heldItem: fInv44[0],
+        inventory: { slots: new Array(46).fill(null), items: () => fInv44 },
+        equip: async (it) => { botFishCoast.heldItem = it; },
+        pathfinder: { stop: () => {}, goto: async () => {} },
+        findBlocks: () => [],
+        findBlock: () => null,
+        nearestEntity: (fn) => {
+          if (liveSalmon <= 0) return null;
+          const e = { id: 900 + liveSalmon, name: 'salmon', position: new Vec3(2, 61, 0), isValid: true };
+          return fn(e) ? e : null;
+        },
+        attack: async () => {
+          fishAttacked++;
+          liveSalmon--;
+          const si = fInv44.find(i => i.name === 'salmon');
+          if (si) si.count += 1;
+          else fInv44.push({ name: 'salmon', count: 1, slot: 38 });
+        },
+      });
+      const r44 = await foodMs44.run(botFishCoast);
+      assert.ok(fishAttacked >= 8, `food milestone must hunt shallow-water salmon on barren coasts (hits=${fishAttacked})`);
+      assert.equal(salmonCooked, 8, `food milestone must cook all 8 caught salmon (cooked=${salmonCooked})`);
+      assert.equal(r44.ok, true, 'food milestone must pass after catching & cooking coastal salmon');
+      assert.equal(foodMs44.done(botFishCoast), true, 'food.done must pass with 8 cooked_salmon (48 hunger points)');
+    } finally {
+      reg.get('hunt').run = origHunt44;
+      reg.get('harvest_kelp').run = origKelp44;
+      reg.get('roam').run = origRoam44;
+      reg.get('smelt').run = origSmelt44;
+      reg.get('eat').run = origEat44;
+    }
+  }
+
   fs.rmSync(tmp, { recursive: true, force: true });
-  console.log('PASS minecraft-autonomous: all 43 regression groups passed');
+  console.log('PASS minecraft-autonomous: all 44 regression groups passed');
 })().catch(e => {
   console.error(e);
   process.exitCode = 1;
