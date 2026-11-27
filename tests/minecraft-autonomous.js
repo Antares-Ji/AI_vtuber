@@ -54,6 +54,8 @@ function makeBot(overrides = {}) {
   bot.chatLog = [];
   bot.chat = (msg) => { bot.chatLog.push(msg); };
   bot.blockAt = () => ({ name: 'air', boundingBox: 'empty' });
+  bot.findBlock = () => null;
+  bot.recipesFor = () => [];
   return Object.assign(bot, overrides);
 }
 
@@ -288,13 +290,15 @@ function makeBot(overrides = {}) {
         inventory: {
           slots: new Array(46).fill(null),
           items: () => [
-            { name: 'stone_pickaxe', count: 1, maxDurability: 131, durabilityUsed: 5 },
+            { name: 'stone_pickaxe', count: 1, slot: 36, maxDurability: 131, durabilityUsed: 5 },
             { name: 'iron_ingot', count: 2 },
             { name: 'raw_iron', count: 2 },
             { name: 'diamond', count: 2 },
           ],
         },
-        equip: async () => {},
+        equip: async (it) => { bot.heldItem = it; },
+        findBlock: () => ({ name: 'crafting_table', position: new Vec3(-45, 20, -261) }),
+        activateBlock: async () => { throw new Error('stub-table-stop'); },
       });
       await reg.get('find_diamonds').run(bot, { count: 3 });
       assert.equal(mineIronCalled, 0, 'must NOT mine iron_ore when iron_ingot(2)+raw_iron(2) >= 3');

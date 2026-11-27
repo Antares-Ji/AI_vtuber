@@ -1164,6 +1164,12 @@ reg.define('find_diamonds', {
     const need = a.count ?? 4; const len = a.length ?? 22;
     log.info(`fd enter y=${Math.round(bot.entity.position.y)} haveDiamond=${countItem(bot, 'diamond')}`);
     if (!(await equipPick(bot))) {
+      // Self-heal a missing pick deterministically before burning an LLM reflect cycle.
+      if (reg.get('ensure_tools')) {
+        try { await reg.get('ensure_tools').run(bot, {}); } catch {}
+      }
+    }
+    if (!(await equipPick(bot))) {
       // A four-word dead end is unroutable: 07:45:34 `need pickaxe` in 2 ms told the stage lock
       // nothing, and its `vein` route then called this same function and got the same 2 ms answer -
       // a route that can never succeed. Name the pack state so both the dossier and the route choice
@@ -1385,6 +1391,12 @@ reg.define('branch_mine', {
     const need = a.count || 8; const len = a.length || 22;
     const results = [...new Set(names.map(oreDrop))];
     const countHave = () => results.reduce((s, n) => s + countItem(bot, n), 0);
+    if (!(await equipPick(bot))) {
+      // Self-heal a missing pick deterministically before burning an LLM reflect cycle.
+      if (reg.get('ensure_tools')) {
+        try { await reg.get('ensure_tools').run(bot, {}); } catch {}
+      }
+    }
     if (!(await equipPick(bot))) {
       // A four-word dead end is unroutable: 07:45:34 `need pickaxe` in 2 ms told the stage lock
       // nothing, and its `vein` route then called this same function and got the same 2 ms answer -
