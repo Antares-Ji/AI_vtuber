@@ -472,7 +472,7 @@ const LADDER = [
                   // On Easy difficulty starvation caps HP at 9.5-10; cod/salmon deal 0 damage, so allow hunting down to hp>4.
                   if (b.health <= 4 || (typeof b.oxygenLevel === 'number' && b.oxygenLevel >= 0 && b.oxygenLevel <= 10)) break;
                   const prey = b.nearestEntity(e => e && (e.name === 'cod' || e.name === 'salmon') && e.position
-                    && e.position.y >= 58 && b.entity.position.distanceTo(e.position) <= 44);
+                    && e.position.y >= 55 && b.entity.position.distanceTo(e.position) <= 44);
                   if (!prey) break;
                   if (sw && (!b.heldItem || b.heldItem.slot !== sw.slot)) { try { await b.equip(sw, 'hand'); } catch {} }
                   if (b.entity.position.distanceTo(prey.position) > 3.2) {
@@ -497,10 +497,10 @@ const LADDER = [
                 if (fishKills > 0) log.skill(`food: shallow-water fish hunt -> ${fishKills} hit(s), cod=${countItem(b, 'cod')} salmon=${countItem(b, 'salmon')}`);
               } catch {}
             }
-            // If we already have a fishing rod (or string+sticks after 3 min, or can grab string from nearby spiders),
-            // walk to shore and fish a real batch (6 fish) in one sitting instead of roaming into ocean.
+            // Once hunt + kelp + shallow fish hunt all came up empty beside water, immediately craft/use a
+            // fishing_rod (or hunt a nearby spider for 2 string -> rod) without waiting 3 minutes!
             const waterNear = (() => { try { return b.findBlock({ matching: blockIds(b, ['water']), maxDistance: 36 }); } catch { return null; } })();
-            if (!stocked() && waterNear && countItem(b, 'fishing_rod') < 1 && countItem(b, 'string') < 2 && starvedFor() > VILLAGE_AFTER_MS) {
+            if (!stocked() && waterNear && countItem(b, 'fishing_rod') < 1 && countItem(b, 'string') < 2) {
               const nearSpider = (() => {
                 try { return !!b.nearestEntity(e => e && /spider/.test(e.name || '') && e.position && b.entity.position.distanceTo(e.position) <= 48); } catch { return false; }
               })();
@@ -510,7 +510,7 @@ const LADDER = [
               }
             }
             const hasRod = countItem(b, 'fishing_rod') >= 1;
-            const canFish = hasRod || (starvedFor() > VILLAGE_AFTER_MS && countItem(b, 'string') >= 2 && countItem(b, 'stick') >= 3);
+            const canFish = hasRod || (countItem(b, 'string') >= 2 && countItem(b, 'stick') >= 3);
             let fishedOk = false;
             if (!stocked() && canFish && waterNear) {
               try {

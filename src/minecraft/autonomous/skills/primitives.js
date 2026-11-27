@@ -1028,15 +1028,18 @@ reg.define('hunt_spider', {
 // the shoreline sat 90 blocks out, so every roam heading failed the dry-route guard AND the bail message
 // told the ladder to "walk onto that headland" - one it had never scanned. Coarse stride keeps the cost
 // down when the caller only wants a distant bearing.
-function nearestHeadland (bot, radius, stride) {
+function nearestHeadland (bot, radius, stride, minDist) {
   const r = Math.max(8, Math.min(64, radius || 24));
   const step = Math.max(2, stride || (r > 32 ? 4 : 2));
+  const minD = Math.max(0, minDist || 0);
   const f = bot.entity.position.floored();
   const dry = (p) => { const b = bot.blockAt(p); return !b || (b.boundingBox === 'empty' && !/water|lava/.test(b.name)); };
   const rock = (b) => !!b && b.boundingBox === 'block' && !/water|lava|kelp|seagrass/.test(b.name);
   let best = null;
   for (let dx = -r; dx <= r; dx += step) {
     for (let dz = -r; dz <= r; dz += step) {
+      const d = Math.round(Math.hypot(dx, dz));
+      if (minD && d < minD) continue;
       // y=68 as well as 62-66: a beach or a rock shelf at y=67 is a landing a swimming bot can use, and
       // the old 66 ceiling made the wide scan report "no headland" for shores it could have climbed.
       for (let y = 68; y >= 62; y--) {
@@ -1045,7 +1048,6 @@ function nearestHeadland (bot, radius, stride) {
         try { b = bot.blockAt(p); } catch { b = null; }
         if (!rock(b)) continue;
         if (!dry(p.offset(0, 1, 0)) || !dry(p.offset(0, 2, 0))) continue;
-        const d = Math.round(Math.hypot(dx, dz));
         if (!best || d < best.d) best = { x: p.x, y: y + 1, z: p.z, d };
         break;
       }
@@ -1064,6 +1066,7 @@ function nearestLandPatch (bot, opts) {
   const o = opts || {};
   const reach = Math.max(32, Math.min(280, o.reach || 200));
   const stride = Math.max(6, o.stride || 10);
+  const minDist = Math.max(stride, o.minDist || 0);
   const f = bot.entity.position.floored();
   const solid = (b) => !!b && b.boundingBox === 'block' && !/lava|water|kelp|seagrass/.test(b.name);
   const air = (b) => !b || (b.boundingBox === 'empty' && !/water|lava/.test(b.name));
@@ -1071,7 +1074,7 @@ function nearestLandPatch (bot, opts) {
   for (let dx = -reach; dx <= reach; dx += stride) {
     for (let dz = -reach; dz <= reach; dz += stride) {
       const d = Math.round(Math.hypot(dx, dz));
-      if (d > reach || d < stride) continue;
+      if (d > reach || d < minDist) continue;
       const x = f.x + dx, z = f.z + dz;
       // Cheap reject for the common case, which is the open ocean column: air at the sea surface line and
       // water one below it is a swimming lane, not a landing, and it saves 17 block reads on almost every
@@ -1206,7 +1209,12 @@ reg.define('roam', {
       return /water|kelp_plant|seagrass/.test(a) || /water/.test(h);
     };
     const swimToShore = async (why) => {
-      const land = nearestHeadland(bot, 48, 4) || nearestLandPatch(bot, { reach: 200 });
+      // When leaving a tiny dry island/iceberg/peninsula (!wetFeetNow), nearestHeadland(bot, 48, 4) returns
+      // the bot's OWN standing cell (0 blocks away) and loops 3x without moving! Require >=14-18 blocks away.
+      const leavingIsland = !wetFeetNow();
+      const land = leavingIsland
+        ? (nearestLandPatch(bot, { reach: 200, minDist: 18 }) || nearestHeadland(bot, 64, 4, 14))
+        : (nearestHeadland(bot, 48, 4) || nearestLandPatch(bot, { reach: 200 }));
       if (!land) {
         const f2 = bot.entity.position.floored();
         return { moved: 0, dead: `no dry standing ground within 48 blocks and no land biome within 200 of ${f2.x},${f2.y},${f2.z} - this is open ocean: the meal has to come from a kelp bed (harvest_kelp), a village (raid_village) or a boat, not from another roam` };
@@ -1356,11 +1364,11 @@ reg.define('roam', {
             continue;
           }
           if (++waterTurns >= 4) {
-            const f2 = bot.entity.position.floored();
-            const land = nearestHeadland(bot, 48, 4);
-            return { ok: false, observation: land
-              ? `all ${waterTurns} headings from ${f2.x},${f2.y},${f2.z} cross open water, but dry standing rock is at ${land.x},${land.y},${land.z} (${land.d} blocks) - walk onto that (walk_to / goto), do not roam and do not try to build a causeway: this server will not let a block replace a submerged cell`
-              : `all ${waterTurns} headings from ${f2.x},${f2.y},${f2.z} cross open water and no rock with its top above y=62 within 24 blocks - this tile cannot be roamed out of; it needs a swim or recover_surface toward the mainland` };
+            waterTurns = 0;
+            const s = await swimToShore(`all 4 headings from ${bot.entity.position.floored().x},${bot.entity.position.floored().z} cross open water on a small island/peninsula`);
+            walked += s.moved;
+            if (s.dead) return { ok: false, observation: s.dead };
+            continue;
           }
           [dx, dz] = [dz, -dx];
           turned++;
@@ -3156,6 +3164,7 @@ async function digWorkshop(bot) {
     return !!(bot.heldItem && bot.heldItem.name === 'crafting_table');
   };
   for (const [dx, dz] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+    if (lease.stale()) return null;
     const cell = bot.blockAt(feet.offset(dx, 0, dz));
     const head = bot.blockAt(feet.offset(dx, 1, dz));
     const floor = bot.blockAt(feet.offset(dx, -1, dz));
@@ -3163,10 +3172,15 @@ async function digWorkshop(bot) {
     if (cell.name.includes('bedrock') || cell.name.includes('lava')) continue;
     if (pick) { try { await bot.equip(pick, 'hand'); } catch {} }
     for (const b of [cell, head]) {
+      if (lease.stale()) return null;
       if (!b || isAir(b.name)) continue;
       for (let attempt = 0; attempt < 3; attempt++) {
+        if (lease.stale()) return null;
         try { if (bot.pathfinder.isMoving()) bot.pathfinder.stop(); } catch {}
-        try { await bot.dig(b); } catch (e) { log.skill(`workshop: dig ${b.name} threw ${e.message}`); }
+        try { await bot.dig(b); } catch (e) {
+          log.skill(`workshop: dig ${b.name} threw ${e.message}`);
+          if (/orphan step|lease/i.test(String(e.message))) return null;
+        }
         await sleep(250);
         const now = bot.blockAt(b.position);
         if (now && isAir(now.name)) break;

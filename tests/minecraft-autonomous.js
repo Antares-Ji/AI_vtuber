@@ -2334,8 +2334,98 @@ function makeBot(overrides = {}) {
     assert.ok(snowGotoCalls >= 1, `roam must walk across snow-covered dry ground instead of spinning 48x (gotoCalls=${snowGotoCalls})`);
   }
 
+  // 46. roam leaving a tiny dry island/peninsula swims to distant land (>=14m) instead of its own (0 blocks) feet,
+  //     and barren-coast food immediately hunts a nearby spider -> crafts/uses fishing_rod without 3-min wait
+  {
+    const swimTargets = [];
+    const botIsland = makeBot({
+      entity: { position: new Vec3(0, 64, 0), yaw: 0, pitch: 0 },
+      game: { dimension: 'overworld' },
+      nearestEntity: () => null,
+      pathfinder: {
+        stop: () => {},
+        goto: async (goal) => {
+          swimTargets.push({ x: goal.x, y: goal.y, z: goal.z, d: Math.round(Math.hypot(goal.x, goal.z)) });
+          botIsland.entity.position = new Vec3(goal.x, goal.y, goal.z);
+          botIsland._stepDeadline = 1;
+        },
+      },
+      blockAt: (p) => {
+        if (!p) return { name: 'air', boundingBox: 'none' };
+        const x = Math.floor(p.x), y = Math.floor(p.y), z = Math.floor(p.z);
+        // Tiny 3x3 island at (0, 63, 0) + real mainland starting at x >= 24; ocean everywhere between
+        const onTinyIsland = Math.abs(x) <= 1 && Math.abs(z) <= 1;
+        const onMainland = x >= 24 && x <= 44 && Math.abs(z) <= 20;
+        if (y === 63) {
+          if (onTinyIsland || onMainland) return { name: 'grass_block', position: p, boundingBox: 'block', biome: { name: 'plains' } };
+          return { name: 'water', position: p, boundingBox: 'empty' };
+        }
+        if (y < 63) return { name: 'stone', position: p, boundingBox: 'block' };
+        return { name: 'air', position: p, boundingBox: 'none' };
+      },
+    });
+    await reg.get('roam').run(botIsland, { look_for: 'cow', distance: 60, dir: 'N' });
+    assert.ok(swimTargets.length >= 1, 'roam on a tiny island must swim to a distant landmass');
+    assert.ok(swimTargets[0].d >= 14, `island escape must target distant land (>=14m), not own 0-block feet (got d=${swimTargets[0].d})`);
+
+    // Second half: barren coast food immediately hunts nearby spider -> fishes without 3-min delay
+    const { LADDER } = require('../src/minecraft/autonomous/skills/progression');
+    const foodMs46 = LADDER.find(m => m.id === 'food');
+    const origHunt46 = reg.get('hunt').run;
+    const origKelp46 = reg.get('harvest_kelp').run;
+    const origSp46 = reg.get('hunt_spider').run;
+    const origFish46 = reg.get('fish').run;
+    const origSmelt46 = reg.get('smelt').run;
+    const origEat46 = reg.get('eat').run;
+    let spiderHunted46 = false;
+    let fished46 = false;
+    try {
+      const inv46 = [
+        { name: 'iron_sword', count: 1, slot: 36 },
+        { name: 'stick', count: 4, slot: 37 },
+        { name: 'coal', count: 10, slot: 38 },
+      ];
+      reg.get('hunt').run = async () => ({ ok: false, observation: 'no cows' });
+      reg.get('harvest_kelp').run = async () => ({ ok: false, observation: 'no kelp' });
+      reg.get('hunt_spider').run = async () => {
+        spiderHunted46 = true;
+        inv46.push({ name: 'string', count: 2, slot: 39 });
+        return { ok: true, observation: 'got 2 string' };
+      };
+      reg.get('fish').run = async () => {
+        fished46 = true;
+        inv46.push({ name: 'cooked_salmon', count: 8, slot: 40 });
+        return { ok: true, observation: 'caught 8' };
+      };
+      reg.get('smelt').run = async () => ({ ok: true, observation: 'smelted' });
+      reg.get('eat').run = async (b) => { b.food = 20; return { ok: true, observation: 'ate' }; };
+      const botRod46 = makeBot({
+        food: 16,
+        health: 18,
+        entity: { position: new Vec3(0, 64, 0), yaw: 0, pitch: 0 },
+        inventory: { slots: new Array(46).fill(null), items: () => inv46 },
+        findBlocks: () => [],
+        findBlock: () => ({ name: 'water', position: new Vec3(3, 62, 0) }),
+        nearestEntity: (fn) => {
+          const sp = { id: 777, name: 'spider', position: new Vec3(10, 64, 0), isValid: true };
+          return fn(sp) ? sp : null;
+        },
+      });
+      await foodMs46.run(botRod46);
+      assert.equal(spiderHunted46, true, 'barren-coast food must hunt nearby spider for fishing-rod string without 3-min wait');
+      assert.equal(fished46, true, 'barren-coast food must fish immediately once 2 string + 3 sticks are held');
+    } finally {
+      reg.get('hunt').run = origHunt46;
+      reg.get('harvest_kelp').run = origKelp46;
+      reg.get('hunt_spider').run = origSp46;
+      reg.get('fish').run = origFish46;
+      reg.get('smelt').run = origSmelt46;
+      reg.get('eat').run = origEat46;
+    }
+  }
+
   fs.rmSync(tmp, { recursive: true, force: true });
-  console.log('PASS minecraft-autonomous: all 45 regression groups passed');
+  console.log('PASS minecraft-autonomous: all 46 regression groups passed');
 })().catch(e => {
   console.error(e);
   process.exitCode = 1;
