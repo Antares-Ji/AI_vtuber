@@ -1203,23 +1203,34 @@ reg.define('roam', {
     // down the pillar back to ground level BEFORE spinning on gy===null or pathing in mid-air!
     const tryDescendSkyPillar = async () => {
       const u1 = bot.entity.position.floored();
-      const isSolidAt = (dx, dy, dz) => {
-        const b = bot.blockAt(u1.offset(dx, dy, dz));
+      const isSolidAt = (base, dx, dy, dz) => {
+        const b = bot.blockAt(base.offset(dx, dy, dz));
         return !!(b && !isAir(b.name) && !/water|lava/.test(b.name));
       };
-      const perched = isSolidAt(0, -1, 0)
-        && [[1, 0], [-1, 0], [0, 1], [0, -1]].every(([dx, dz]) =>
-          [0, -1, -2, -3].every(dy => !isSolidAt(dx, dy, dz)));
-      if (!perched) return 0;
+      // Check radius-2 ring (5x5 perimeter) across dy=0..-4: catches both pure 1x1 pillars AND
+      // pillars with 1-block horizontal bridge_to nubs sticking off the top!
+      let ringClear = isSolidAt(u1, 0, -1, 0);
+      for (let dx = -2; dx <= 2 && ringClear; dx++) {
+        for (let dz = -2; dz <= 2 && ringClear; dz++) {
+          if (Math.abs(dx) !== 2 && Math.abs(dz) !== 2) continue;
+          for (const dy of [0, -1, -2, -3, -4]) {
+            if (isSolidAt(u1, dx, dy, dz)) { ringClear = false; break; }
+          }
+        }
+      }
+      if (!ringClear) return 0;
       let descended = 0;
-      log.warn(`roam: perched atop isolated 1x1 pillar at ${u1.x},${u1.y},${u1.z} - digging straight down pillar safely instead of pillaring higher`);
-      for (let step = 0; step < 90 && Date.now() < (bot._stepDeadline || Infinity) && !lease.stale(); step++) {
+      log.warn(`roam: perched atop isolated sky pillar at ${u1.x},${u1.y},${u1.z} - digging straight down pillar safely instead of pillaring higher`);
+      for (let step = 0; step < 95 && Date.now() < (bot._stepDeadline || Infinity) && !lease.stale(); step++) {
         const pf = bot.entity.position.floored();
+        // Only treat an adjacent block as ground rim if it has >=2 solid blocks beneath it (ignore floating 1-block bridge nubs!)
         const hasRim = [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dz]) =>
           [-1, 0, -2].some(dy => {
             const nb = bot.blockAt(pf.offset(dx, dy, dz));
             const na = bot.blockAt(pf.offset(dx, dy + 1, dz));
-            return nb && !isAir(nb.name) && !/water|lava/.test(nb.name) && (!na || isAir(na.name));
+            return nb && !isAir(nb.name) && !/water|lava/.test(nb.name)
+              && (!na || isAir(na.name))
+              && isSolidAt(pf, dx, dy - 1, dz) && isSolidAt(pf, dx, dy - 2, dz);
           }));
         if (hasRim && descended > 0) break;
         const under = bot.blockAt(pf.offset(0, -1, 0));
@@ -1236,7 +1247,7 @@ reg.define('roam', {
       if (descended > 0) {
         const afterD = bot.entity.position.floored();
         start.x = afterD.x; start.y = afterD.y; start.z = afterD.z;
-        log.warn(`roam: descended ${descended} block(s) off 1x1 pillar -> now ${afterD.x},${afterD.y},${afterD.z}`);
+        log.warn(`roam: descended ${descended} block(s) off sky pillar -> now ${afterD.x},${afterD.y},${afterD.z}`);
       }
       return descended;
     };

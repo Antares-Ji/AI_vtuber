@@ -3344,7 +3344,8 @@ function makeBot(overrides = {}) {
           const x = Math.floor(p.x), y = Math.floor(p.y), z = Math.floor(p.z);
           // Flat ground at y<=63 everywhere
           if (y <= 63) return { name: 'grass_block', position: new Vec3(x, y, z), boundingBox: 'block' };
-          // Isolated 1x1 pillar at (129, 64..109, -518)
+          // Isolated 1x1 pillar at (129, 64..109, -518) PLUS a 1-block floating bridge_to nub at (130, 109, -518)!
+          if (x === 130 && z === -518 && y === 109) return { name: 'cobblestone', position: new Vec3(x, y, z), boundingBox: 'block' };
           if (x === 129 && z === -518 && y >= 64 && y < Math.floor(botSky62.entity.position.y)) {
             return { name: 'cobblestone', position: new Vec3(x, y, z), boundingBox: 'block' };
           }
