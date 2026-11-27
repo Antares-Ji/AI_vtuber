@@ -3302,13 +3302,22 @@ reg.define('make_obsidian', {
       return { ok: false, observation: `obsidian needs a diamond pickaxe (iron drops nothing); diamonds=${countItem(bot, 'diamond')} - craft diamond_pickaxe first, then make_obsidian` };
     }
     const lavaIds = blockIds(bot, ['lava', 'lava_cauldron']);
+    const badLava = (bot._badLavaKeys = bot._badLavaKeys || new Set());
+    const lavaKey = (p) => `${Math.floor(p.x)},${Math.floor(p.y)},${Math.floor(p.z)}`;
     const findSourceLava = (maxDist) => {
       try {
         const pts = bot.findBlocks({ matching: lavaIds, maxDistance: maxDist, count: 64 }) || [];
+        let fallback = null;
         for (const pt of pts) {
+          if (badLava.has(lavaKey(pt))) continue;
           const bl = bot.blockAt(pt);
-          if (bl && (bl.name === 'lava_cauldron' || (bl.name === 'lava' && isFluidSource(bl)))) return bl;
+          if (!bl || !(bl.name === 'lava_cauldron' || (bl.name === 'lava' && isFluidSource(bl)))) continue;
+          const ab = bot.blockAt(bl.position.offset(0, 1, 0));
+          // Strongly prefer open-top level-0 lava sources (real lava lakes) over roofed single pockets.
+          if (!ab || isAir(ab.name)) return bl;
+          if (!fallback) fallback = bl;
         }
+        return fallback;
       } catch {}
       return null;
     };
@@ -3317,15 +3326,19 @@ reg.define('make_obsidian', {
       // A pool the bot has ALREADY seen is worth more than a blind new column: every descend loop
       // below digs where it happens to be standing, and the pools live in caves. Hop toward the
       // remembered coordinate first (same ore-cache pattern that made `mine` stop re-diging dirt).
-      const known = oreCache.nearest(['lava', 'deepslate_lava'], bot.entity.position);
+      let known = oreCache.nearest(['lava', 'deepslate_lava'], bot.entity.position);
+      while (known && badLava.has(lavaKey(known))) {
+        oreCache.forget(known.x, known.y, known.z);
+        known = oreCache.nearest(['lava', 'deepslate_lava'], bot.entity.position);
+      }
       if (known && known.dist <= 400) {
         log.skill(`make_obsidian: no source lava in sight - walking toward remembered lava at ${known.x},${known.y},${known.z} (${Math.round(known.dist)} blocks)`);
         const w = await reg.get('walk_to').run(bot, { x: known.x, y: known.y, z: known.z, tolerance: 10 });
         log.skill(`make_obsidian: ${w.observation}`);
         await sleep(900);
         lavaTarget = findSourceLava(40);
-        // If we are right at the remembered spot's depth and there is still NO level-0 source lava
-        // (e.g. only a flowing lava waterfall), forget it so we descend to real y=-54 lava lakes instead.
+        // If we are right at the remembered spot's depth and there is still NO usable level-0 source lava
+        // (e.g. only a flowing waterfall or previously failed pocket), forget it so we descend to y=-54 lakes.
         if (!lavaTarget && Math.abs(known.y - bot.entity.position.y) <= 10) oreCache.forget(known.x, known.y, known.z);
       }
     }
@@ -3506,21 +3519,63 @@ reg.define('make_obsidian', {
             continue;
           }
         }
-        // Aim at a SOLID rim block face orthogonally touching the lava pool (water_bucket raycasts ignore
-        // fluids and place water against solid faces; aiming directly into lava dumped water at the bot's
-        // own feet diagonally at 12:05:08 without touching the lava cell). Fall back to p if no solid rim.
+        // Ensure the cell directly above the lava source is open so poured water can reach it:
+        // a roofed single-block lava pocket (e.g. stone at p+(0,1,0)) otherwise drops water onto a
+        // rim without ever touching the lava.
+        try {
+          const aboveLava = bot.blockAt(p.offset(0, 1, 0));
+          if (aboveLava && aboveLava.boundingBox === 'block' && !/lava|water|bedrock|obsidian/.test(aboveLava.name)
+            && bot.entity.position.distanceTo(aboveLava.position) <= 4.5) {
+            try { await equipBulkPick(bot, false); await bot.dig(aboveLava); await sleep(200); } catch {}
+            const wbBack = bot.inventory.items().find(i => i.name === 'water_bucket');
+            if (wbBack) { try { await bot.equip(wbBack, 'hand'); } catch {} }
+          }
+        } catch {}
+        // Choose the best solid-face aim point so water guaranteed contacts lava source `p`:
+        // 1) Inner side face of a wall orthogonally touching p+(0,1,0) -> places water directly ON TOP of p!
+        // 2) Top face of a solid floor under an air cell p+(rx,0,rz) -> places water level with & touching p!
+        // 3) Top face of a solid rim p+(rx,0,rz) when p+(0,1,0) is open air -> water flows over rim onto p.
         const beforeWater = countItem(bot, 'water_bucket');
         const obsIds = blockIds(bot, ['obsidian']);
         const obsBefore = (bot.findBlocks({ matching: obsIds, maxDistance: 10, count: 32 }) || []).length;
+        const aboveNow = bot.blockAt(p.offset(0, 1, 0));
+        const aboveOpen = !aboveNow || isAir(aboveNow.name);
         let aimPt = p.offset(0.5, 0.5, 0.5);
-        for (const [rx, rz] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
-          const rimFloor = bot.blockAt(p.offset(rx, 0, rz));
-          const rimAir = bot.blockAt(p.offset(rx, 1, rz));
-          if (rimFloor && rimFloor.boundingBox === 'block' && !/lava|water/.test(rimFloor.name)
-            && (!rimAir || isAir(rimAir.name))
-            && bot.entity.position.distanceTo(rimFloor.position) <= 4.3) {
-            aimPt = rimFloor.position.offset(0.5, 0.95, 0.5);
-            break;
+        let pickedAim = false;
+        if (aboveOpen) {
+          for (const [rx, rz] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+            const wall = bot.blockAt(p.offset(rx, 1, rz));
+            if (wall && wall.boundingBox === 'block' && !/lava|water/.test(wall.name)
+              && bot.entity.position.distanceTo(wall.position) <= 4.3) {
+              aimPt = p.offset(0.5 + rx * 0.45, 1.5, 0.5 + rz * 0.45);
+              pickedAim = true;
+              break;
+            }
+          }
+        }
+        if (!pickedAim) {
+          for (const [rx, rz] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+            const adj = bot.blockAt(p.offset(rx, 0, rz));
+            const adjFloor = bot.blockAt(p.offset(rx, -1, rz));
+            if ((!adj || isAir(adj.name)) && adjFloor && adjFloor.boundingBox === 'block' && !/lava|water/.test(adjFloor.name)
+              && bot.entity.position.distanceTo(adjFloor.position) <= 4.3) {
+              aimPt = adjFloor.position.offset(0.5, 0.95, 0.5);
+              pickedAim = true;
+              break;
+            }
+          }
+        }
+        if (!pickedAim && aboveOpen) {
+          for (const [rx, rz] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+            const rimFloor = bot.blockAt(p.offset(rx, 0, rz));
+            const rimAir = bot.blockAt(p.offset(rx, 1, rz));
+            if (rimFloor && rimFloor.boundingBox === 'block' && !/lava|water/.test(rimFloor.name)
+              && (!rimAir || isAir(rimAir.name))
+              && bot.entity.position.distanceTo(rimFloor.position) <= 4.3) {
+              aimPt = rimFloor.position.offset(0.5, 0.95, 0.5);
+              pickedAim = true;
+              break;
+            }
           }
         }
         try { await bot.lookAt(aimPt, true); } catch {}
@@ -3565,6 +3620,17 @@ reg.define('make_obsidian', {
           poured++; made = true;
           log.skill(`make_obsidian: poured on lava at ${p.x},${p.y},${p.z} -> ${madeObsNearby ? `+${obsAfter - obsBefore} obsidian nearby` : after.name}`);
           break;
+        }
+        // Water bucket emptied onto this lava cell yet yielded ZERO obsidian -> unpourable/sealed trap;
+        // forget it from oreCache and blacklist it so we move on to real y=-54 lava lakes instead of looping.
+        if (beforeWater > 0 && afterWater < beforeWater) {
+          badLava.add(lavaKey(p));
+          try { oreCache.forget(p.x, p.y, p.z); } catch {}
+          if (lavaTarget && lavaTarget.position) {
+            badLava.add(lavaKey(lavaTarget.position));
+            try { oreCache.forget(lavaTarget.position.x, lavaTarget.position.y, lavaTarget.position.z); } catch {}
+          }
+          log.warn(`make_obsidian: pour emptied water_bucket at ${p.x},${p.y},${p.z} with 0 obsidian - forgetting this lava pocket so next search descends to an open lake`);
         }
         log.skill(`make_obsidian: pour at ${p.x},${p.y},${p.z} left ${after ? after.name : 'NULL'} - trying the next lava cell`);
       }

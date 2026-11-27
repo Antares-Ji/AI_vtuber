@@ -1212,8 +1212,55 @@ function makeBot(overrides = {}) {
     }
   }
 
+  // 28. make_obsidian digs solid roof above a lava pocket before pouring AND forgets unpourable 0-obsidian lava pockets
+  {
+    const P7 = require('../src/minecraft/autonomous/skills/primitives');
+    const lavaId = P7.blockIds(makeBot(), ['lava'])[0];
+    const items = [
+      { name: 'diamond_pickaxe', count: 1, slot: 36, maxDurability: 1561, durabilityUsed: 0 },
+      { name: 'stone_pickaxe', count: 1, slot: 37, maxDurability: 131, durabilityUsed: 0 },
+      { name: 'water_bucket', count: 1, slot: 38 },
+    ];
+    let roofDug = false;
+    const botRoof = makeBot({
+      entity: { position: new Vec3(0, 30, 0), yaw: 0, pitch: 0 },
+      inventory: { slots: new Array(46).fill(null), items: () => items },
+      equip: async (it) => { botRoof.heldItem = it; },
+      lookAt: async () => {},
+      pathfinder: { stop: () => {}, goto: async () => {} },
+      findBlocks: ({ matching }) => {
+        const m = Array.isArray(matching) ? matching : [matching];
+        if (m.includes(lavaId)) return [new Vec3(2, 30, 0)];
+        return [];
+      },
+      blockAt: (p) => {
+        if (!p) return { name: 'air', boundingBox: 'none' };
+        const x = Math.floor(p.x), y = Math.floor(p.y), z = Math.floor(p.z);
+        if (x === 2 && y === 30 && z === 0) return { name: 'lava', position: new Vec3(2, 30, 0), getProperties: () => ({ level: 0 }) };
+        if (x === 2 && y === 31 && z === 0) {
+          return roofDug
+            ? { name: 'air', position: new Vec3(2, 31, 0), boundingBox: 'none' }
+            : { name: 'stone', position: new Vec3(2, 31, 0), boundingBox: 'block' };
+        }
+        return { name: 'air', boundingBox: 'none' };
+      },
+      dig: async (blk) => {
+        if (blk && blk.name === 'stone' && blk.position.x === 2 && blk.position.y === 31) roofDug = true;
+      },
+      activateItem: async () => {
+        if (botRoof.heldItem && botRoof.heldItem.name === 'water_bucket') {
+          // Simulate water emptied with 0 obsidian created -> must blacklist/forget lava cell
+          items.splice(items.findIndex(i => i.name === 'water_bucket'), 1, { name: 'bucket', count: 1 });
+        }
+      },
+    });
+    await reg.get('make_obsidian').run(botRoof, { count: 1 });
+    assert.equal(roofDug, true, 'make_obsidian must dig solid roof directly above lava source before pouring');
+    assert.equal(botRoof._badLavaKeys && botRoof._badLavaKeys.has('2,30,0'), true, 'make_obsidian must blacklist lava cell that emptied water_bucket with 0 obsidian');
+  }
+
   fs.rmSync(tmp, { recursive: true, force: true });
-  console.log('PASS minecraft-autonomous: all 27 regression groups passed');
+  console.log('PASS minecraft-autonomous: all 28 regression groups passed');
 })().catch(e => {
   console.error(e);
   process.exitCode = 1;
