@@ -23,10 +23,22 @@ let gen = 0;
 const seen = {};
 
 // Start a lease and run `fn` inside it. Returns whatever fn returns (await it).
+// Revokes the lease as soon as `fn` settles (including when `withTimeout` abandons a slow inner
+// skill), so an orphaned worker becomes `stale()` immediately instead of staying live during the
+// gap before the next step starts (live 08:50:35: timed-out ensure_tools still placed a bench and
+// opened a crafting window 10s after timeout, losing 3 iron_ingot when the next step walked away).
 function run(fn) {
-  gen += 1;
-  return als.run({ gen }, fn);
+  const myGen = ++gen;
+  return als.run({ gen: myGen }, () => {
+    const p = Promise.resolve().then(fn);
+    const done = () => { if (gen === myGen) gen += 1; };
+    return p.then(v => { done(); return v; }, e => { done(); throw e; });
+  });
 }
+
+function revoke() { gen += 1; return gen; }
+
+function active() { return !!als.getStore(); }
 
 function generation() { return gen; }
 
@@ -81,4 +93,4 @@ function refuse(name) {
   return p;
 }
 
-module.exports = { run, stale, note, refuse, generation, bindDeadline };
+module.exports = { run, revoke, active, stale, note, refuse, generation, bindDeadline };

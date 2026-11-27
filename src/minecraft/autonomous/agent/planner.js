@@ -73,8 +73,10 @@ async function runHelper(bot, ms, label, fn) {
     bot._stepDeadline = Date.now() + freshBudget;
   }
   try {
-    return await cap(fn(), ms, label);
+    const exec = () => cap(fn(), ms, label);
+    return await (lease.active() ? exec() : lease.run(exec));
   } finally {
+    try { if (bot.currentWindow) bot.closeWindow(bot.currentWindow); } catch {}
     if (typeof prev === 'number' && prev > Date.now()) bot._stepDeadline = prev;
     else expireStepDeadline(bot);
   }
@@ -743,7 +745,7 @@ async function run(bot) {
       armDeadline(bot, Math.max(30000, stepMs - 25000));
       const stageCtx = { at: Date.now(), before: stageLock.snap(bot, m.id) };
       const stopMilestoneBeat = startLiveBeat(bot);
-      let res; try { res = await lease.run(() => withTimeout(m.run(bot), stepMs, bot)); } finally { stopMilestoneBeat(); bot._stepBusy = false; bot._stepBudgetMs = 0; expireStepDeadline(bot); }
+      let res; try { res = await lease.run(() => withTimeout(m.run(bot), stepMs, bot)); } finally { stopMilestoneBeat(); bot._stepBusy = false; bot._stepBudgetMs = 0; expireStepDeadline(bot); try { if (bot.currentWindow) bot.closeWindow(bot.currentWindow); } catch {} }
       let nowDone = false; try { nowDone = m.done(bot); } catch {}
       if (nowDone) {
         state.done[m.id] = true; notes.saveState(state);
@@ -914,7 +916,7 @@ async function decide(bot, state, o) {
       const hardMs = bot._planDeadline ? Math.max(20000, bot._planDeadline - Date.now()) : skMs;
       armDeadline(bot, Math.max(15000, hardMs - 20000));
       const stopPlanBeat = startLiveBeat(bot);
-      let r; try { r = await lease.run(() => withTimeout(sk.run(bot, st.args || {}, { bot, state }), hardMs, bot)); } finally { stopPlanBeat(); bot._stepBusy = false; expireStepDeadline(bot); }
+      let r; try { r = await lease.run(() => withTimeout(sk.run(bot, st.args || {}, { bot, state }), hardMs, bot)); } finally { stopPlanBeat(); bot._stepBusy = false; expireStepDeadline(bot); try { if (bot.currentWindow) bot.closeWindow(bot.currentWindow); } catch {} }
       log.info(`${st.skill} ${r.ok ? 'ok' : 'failed'}: ${String(r.observation).slice(0, 1200)}`);
       if (bridge) bridge.publishEvent({ kind: r.ok ? 'skill_done' : 'skill_failed', skill: st.skill, skillCn: cn(st.skill), verified: false, summary: r.observation });
       if (!r.ok) break;

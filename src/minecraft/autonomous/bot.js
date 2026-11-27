@@ -570,6 +570,13 @@ function createBot() {
     instrument(bot, 'placeBlock');
     instrument(bot, 'equip');
     instrument(bot, 'craft');
+    instrument(bot, 'activateBlock');
+    instrument(bot, 'clickWindow');
+    instrument(bot, 'toss');
+    instrument(bot, 'tossStack');
+    instrument(bot, 'openBlock');
+    instrument(bot, 'openContainer');
+    instrument(bot, 'openFurnace');
     // A non-finite number that reaches the engine is not a bad read, it is a dead client. Live 21:41:38 the
     // bot logged in clean at (-286,56,1404); by 21:43:28 `status` printed `pos=NaN,50,NaN` AND every nearby
     // animal read `salmon@NaN` - so the shared coordinate space had gone, not one entity - and at 21:45:25

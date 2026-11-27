@@ -871,25 +871,47 @@ const LADDER = [
         }
       };
       await craftArrowsNow();
+      if (countItem(b, 'arrow') < 8) {
+        // In snowy/taiga/ocean seeds chickens are scarce, while skeletons & strays spawn every night
+        // (and in caves) and drop arrows directly! Hunt them whenever one is nearby or it is night.
+        const nearArcher = (() => {
+          try {
+            return !!b.nearestEntity(e => e && e.name && /skeleton|stray/.test(e.name) && e.position
+              && b.entity.position.distanceTo(e.position) <= 44
+              && Math.abs(e.position.y - b.entity.position.y) <= 12);
+          } catch { return false; }
+        })();
+        const todA = b.time && typeof b.time.timeOfDay === 'number' ? (b.time.timeOfDay % 24000) : null;
+        const isNightNow = todA !== null && todA >= 12300 && todA <= 23400;
+        if (nearArcher || isNightNow) {
+          const sk = await reg.get('hunt_spider').run(b, { kind: 'skeleton', count: 8, maxDistance: 48 });
+          log.skill(`bow step skeleton/stray arrow hunt: ${sk.ok ? 'ok' : 'failed'} (${String(sk.observation).slice(0, 110)})`);
+        }
+      }
       if (countItem(b, 'feather') < 1 && countItem(b, 'arrow') < 8) {
         // Chickens only live on grass at the surface; roaming for them inside a cave sends the bot
-        // straight off a ravine ledge. Surface first when underground.
+        // straight off a ravine ledge. Surface first when underground, and search specifically for
+        // chickens (previously 'chicken,cow,sheep,pig' stopped on the first pig!).
         if (b.entity && b.entity.position && b.entity.position.y < 55) {
           try { await reg.get('recover_surface').run(b, {}); } catch {}
         }
-        const roam = await reg.get('roam').run(b, { look_for: 'chicken,cow,sheep,pig', distance: 320 });
+        const roam = await reg.get('roam').run(b, { look_for: 'chicken', distance: 260 });
         log.skill(`bow step roaming for chickens: ${roam.observation}`);
         await reg.get('hunt').run(b, { count: 4, kind: 'chicken' });
       }
       if (countItem(b, 'arrow') < 8) {
-        // Dig gravel only when flint is genuinely short. This ran unconditionally and tunnelled after
-        // gravel for the whole step budget while the pack already held 5 flint - enough for 20 arrows.
-        if (countItem(b, 'flint') < 3) {
-          await reg.get('mine').run(b, { names: ['gravel'], count: 6 });
-          await craft(b, 'flint', 2);
+        // Dig gravel only when flint is genuinely short and we actually have feathers to turn it into arrows.
+        // Note: flint has NO crafting recipe in vanilla Minecraft (mining gravel is the only source).
+        if (countItem(b, 'feather') >= 1 && countItem(b, 'flint') < 3) {
+          await reg.get('mine').run(b, { names: ['gravel'], count: 16 });
         }
-        if (countItem(b, 'stick') < 4) await craft(b, 'stick', 4);
+        if (countItem(b, 'feather') >= 1 && countItem(b, 'stick') < 4) await craft(b, 'stick', 4);
         await craftArrowsNow();
+        // If daytime chicken roam still yielded zero feathers, check skeletons/strays as fallback.
+        if (countItem(b, 'arrow') < 8 && countItem(b, 'feather') < 1) {
+          const sk2 = await reg.get('hunt_spider').run(b, { kind: 'skeleton', count: 8, maxDistance: 48 });
+          log.skill(`bow step fallback skeleton/stray hunt: ${sk2.ok ? 'ok' : 'failed'} (${String(sk2.observation).slice(0, 110)})`);
+        }
       }
       return { ok: countItem(b, 'bow') >= 1 && countItem(b, 'arrow') >= 8, observation: `bow=${countItem(b, 'bow')} arrows=${countItem(b, 'arrow')} string=${countItem(b, 'string')} feathers=${countItem(b, 'feather')} flint=${countItem(b, 'flint')} stick=${countItem(b, 'stick')}` }; } },
   // 420 s was cut in the middle of the productive part: measured 12:42-12:49, one round spent 6 min on

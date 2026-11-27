@@ -309,12 +309,14 @@ function makeBot(overrides = {}) {
     }
   }
 
-  // 9. bow milestone: self-heals missing pickaxes via ensure_tools, hunts spiders when string<3, and surfaces before chicken roam
+  // 9. bow milestone: self-heals missing pickaxes via ensure_tools, hunts spiders at night when string<3,
+  //    roams specifically for chickens (not pigs), and hunts skeletons/strays for arrows in chicken-scarce biomes
   {
     const { LADDER } = require('../src/minecraft/autonomous/skills/progression');
     const bowMs = LADDER.find(m => m.id === 'bow');
     assert.ok(bowMs, 'bow milestone defined');
-    let ensureToolsCalls = 0, spiderCalls = 0, surfaceCalls = 0;
+    let ensureToolsCalls = 0, spiderCalls = 0, skeletonCalls = 0, surfaceCalls = 0;
+    const roamLookFors = [];
     const origET = reg.get('ensure_tools').run;
     const origHS = reg.get('hunt_spider').run;
     const origRS = reg.get('recover_surface').run;
@@ -323,12 +325,16 @@ function makeBot(overrides = {}) {
     const origMine = reg.get('mine').run;
     try {
       reg.get('ensure_tools').run = async () => { ensureToolsCalls++; return { ok: true, observation: 'stub-tools' }; };
-      reg.get('hunt_spider').run = async () => { spiderCalls++; return { ok: false, observation: 'stub-no-spider' }; };
+      reg.get('hunt_spider').run = async (b, a) => {
+        if (a && (a.kind === 'skeleton' || a.kind === 'stray')) skeletonCalls++;
+        else spiderCalls++;
+        return { ok: false, observation: 'stub-no-mob' };
+      };
       reg.get('recover_surface').run = async (b) => { surfaceCalls++; b.entity.position = new Vec3(0, 64, 0); return { ok: true, observation: 'surfaced' }; };
-      reg.get('roam').run = async () => ({ ok: false, observation: 'stub-roam' });
+      reg.get('roam').run = async (b, a) => { if (a && a.look_for) roamLookFors.push(a.look_for); return { ok: false, observation: 'stub-roam' }; };
       reg.get('hunt').run = async () => ({ ok: false, observation: 'stub-hunt' });
       reg.get('mine').run = async () => ({ ok: false, observation: 'stub-mine' });
-      // Daytime (tod=1000) with no spider nearby: gathers arrows/chickens first and surfaces without cave-diving
+      // Daytime (tod=1000) with no spider/skeleton nearby: surfaces, roams specifically for chickens, then falls back to skeletons
       const botDay = makeBot({
         time: { timeOfDay: 1000, age: 1000 },
         entity: { position: new Vec3(0, 40, 0), yaw: 0, pitch: 0 },
@@ -342,8 +348,11 @@ function makeBot(overrides = {}) {
       assert.equal(ensureToolsCalls, 1, 'bow milestone must call ensure_tools when carrying zero pickaxes');
       assert.equal(spiderCalls, 0, 'bow milestone must NOT dive into caves chasing spiders during daytime while arrows<8');
       assert.equal(surfaceCalls, 1, 'bow milestone must surface when underground at y<55');
+      assert.ok(roamLookFors.includes('chicken'), `bow milestone must roam specifically for chicken, got ${JSON.stringify(roamLookFors)}`);
+      assert.ok(skeletonCalls >= 1, 'bow milestone must fall back to hunting skeletons/strays when chickens are absent');
 
-      // Nighttime (tod=16000): actively runs hunt_spider on the surface when bow=0 and string<3
+      // Nighttime (tod=16000): actively runs hunt_spider for spiders AND skeletons on the surface
+      const skBeforeNight = skeletonCalls;
       const botNight = makeBot({
         time: { timeOfDay: 16000, age: 16000 },
         entity: { position: new Vec3(0, 64, 0), yaw: 0, pitch: 0 },
@@ -355,6 +364,7 @@ function makeBot(overrides = {}) {
       });
       await bowMs.run(botNight);
       assert.equal(spiderCalls, 1, 'bow milestone must actively run hunt_spider at night when bow=0 and string<3');
+      assert.ok(skeletonCalls > skBeforeNight, 'bow milestone must hunt skeletons/strays at night for arrows');
     } finally {
       reg.get('ensure_tools').run = origET;
       reg.get('hunt_spider').run = origHS;
@@ -617,8 +627,48 @@ function makeBot(overrides = {}) {
     }
   }
 
+  // 17. hunt_spider(kind=skeleton) hunts strays/skeletons for arrows + stepLease revokes immediately on timeout
+  {
+    const lease = require('../src/minecraft/autonomous/stepLease');
+    let orphanStaleAfterTimeout = false;
+    let orphanPromise;
+    await lease.run(() => new Promise(resolve => {
+      orphanPromise = (async () => {
+        await new Promise(r => setTimeout(r, 45));
+        orphanStaleAfterTimeout = lease.stale();
+      })();
+      setTimeout(() => resolve({ ok: false, observation: 'timeout' }), 15);
+    }));
+    // Immediately after lease.run settles (BEFORE any next lease.run starts), orphan must already be stale
+    await orphanPromise;
+    assert.equal(orphanStaleAfterTimeout, true, 'timed-out worker must become lease.stale() immediately when lease.run settles');
+
+    // Verify hunt_spider kind=skeleton targets stray (snowy taiga archer) and collects arrows
+    const attacked = [];
+    const items = [];
+    const stray = { id: 91, name: 'stray', position: new Vec3(4, 64, 0), isValid: true };
+    const spider = { id: 92, name: 'spider', position: new Vec3(2, 64, 0), isValid: true };
+    const botArch = makeBot({
+      entity: { position: new Vec3(0, 64, 0), yaw: 0, pitch: 0 },
+      entities: { 91: stray, 92: spider },
+      nearestEntity: (pred) => [spider, stray].find(e => e.isValid && pred(e)) || null,
+      inventory: { slots: new Array(46).fill(null), items: () => items },
+      pathfinder: { goto: async () => {} },
+      pvp: {
+        attack: async (e) => {
+          attacked.push(e.name);
+          e.isValid = false;
+          items.push({ name: 'arrow', count: 8 });
+        },
+      },
+    });
+    const rArch = await reg.get('hunt_spider').run(botArch, { kind: 'skeleton', count: 8, maxDistance: 40 });
+    assert.deepEqual(attacked, ['stray'], 'hunt_spider(kind=skeleton) must target strays/skeletons and ignore spiders');
+    assert.equal(rArch.ok, true, 'hunt_spider(kind=skeleton) must succeed once arrows reach target');
+  }
+
   fs.rmSync(tmp, { recursive: true, force: true });
-  console.log('PASS minecraft-autonomous: all 16 regression groups passed');
+  console.log('PASS minecraft-autonomous: all 17 regression groups passed');
 })().catch(e => {
   console.error(e);
   process.exitCode = 1;
