@@ -1,5 +1,12 @@
 /**
- * Open Rig2D Skeletal Mesh + 2.5D Parallax + 2nd-Order Spring Physics Engine for PixiJS 8.
+ * Open Rig2D Skeletal Mesh + 2.5D Perspective Head + Multi-Segment Cascaded Physics Engine for PixiJS 8.
+ *
+ * Clean-room Live2D-grade techniques integrated:
+ *   1. 3-segment cascaded pendulum physics (S-curve wave lag on hair, outer skirt hem, and wide sleeve drapes).
+ *   2. 9-axis coordinated head-to-body follow-through springs + 2.5D cylindrical/spherical head foreshortening (chin-pinned).
+ *   3. Blink jelly eye-bounce oscillator + interior pupil gaze tracking + smile-eye crescent & mouth-corner micro-warp.
+ *   4. Inertial arm/wrist follow-through lag + subtle volume-preserving ribcage breathing expansion.
+ *   5. Natural double-blink & organic multi-frequency idle life + smooth 450ms Sui/Ge crossfade.
  *
  * Exports:
  *   - Rig2DController: pure headless kinematics, physics, 22-emotion, continuous RMS lip-sync,
@@ -17,8 +24,28 @@ function lerp(a, b, t) {
   return a + (b - a) * clamp(t, 0, 1);
 }
 
+function smoothstep(edge0, edge1, x) {
+  if (Math.abs(edge1 - edge0) < 1e-6) return x >= edge1 ? 1 : 0;
+  const t = clamp((x - edge0) / (edge1 - edge0), 0, 1);
+  return t * t * (3 - 2 * t);
+}
+
 function expApproach(current, target, rate, dt) {
   return current + (target - current) * (1 - Math.exp(-rate * dt));
+}
+
+function stepOscillator(state, target, stiffness, damping, impulse, maxAbs, dt) {
+  const acc = -stiffness * (state.pos - target) - damping * state.vel + impulse;
+  state.vel += acc * dt;
+  state.pos += state.vel * dt;
+  if (state.pos > maxAbs) {
+    state.pos = maxAbs;
+    state.vel *= -0.25;
+  } else if (state.pos < -maxAbs) {
+    state.pos = -maxAbs;
+    state.vel *= -0.25;
+  }
+  return state.pos;
 }
 
 export class Rig2DController {
@@ -40,11 +67,74 @@ export class Rig2DController {
     this.motions = modelData.motions || {};
     this.variants = modelData.variants || {};
 
-    // Per-layer cached center for local facial transforms (eyes/brows/mouth)
+    // Per-layer cached geometry metrics for local facial warps, 2.5D head perspective, and S-curve waves
     this.layerCenters = this.layers.map(layer => {
       const [x0, y0, x1, y1] = layer.bbox || [0, 0, 0, 0];
-      return { cx: (x0 + x1) * 0.5, cy: (y0 + y1) * 0.5, w: Math.max(1, x1 - x0), h: Math.max(1, y1 - y0) };
+      return {
+        x0, y0, x1, y1,
+        cx: (x0 + x1) * 0.5,
+        cy: (y0 + y1) * 0.5,
+        w: Math.max(1, x1 - x0),
+        h: Math.max(1, y1 - y0)
+      };
     });
+
+    // Detect if model has dedicated iris layers or crisp merged open-eye layers
+    this.hasSeparateIris = this.layers.some(l => l.role === "eye_iris");
+
+    // Precompute head metrics for chin-pinned 2.5D cylindrical/spherical head foreshortening
+    const headLayerIdx = this.layers.findIndex(l => l.id === "head_base");
+    const headBone = this.bones[this.boneIndexById.get("head") ?? -1];
+    if (headLayerIdx >= 0) {
+      const hc = this.layerCenters[headLayerIdx];
+      this.headMetrics = {
+        cx: headBone ? headBone.x : hc.cx,
+        cy: hc.y0 + hc.h * 0.56,
+        halfW: Math.max(40, hc.w * 0.44),
+        halfH: Math.max(45, hc.h * 0.46),
+        chinY: headBone ? Math.min(hc.y1, headBone.y + 4) : hc.y1
+      };
+    } else {
+      this.headMetrics = {
+        cx: headBone ? headBone.x : this.canvas.width * 0.5,
+        cy: headBone ? headBone.y - 60 : this.canvas.height * 0.2,
+        halfW: 80,
+        halfH: 90,
+        chinY: headBone ? headBone.y : this.canvas.height * 0.25
+      };
+    }
+
+    // Precompute arm axes for sleeve drape secondary wave (strictly below shoulder cuff!)
+    this.armAxes = {};
+    for (const side of ["left", "right"]) {
+      const upId = side === "left" ? "arm_l_upper" : "arm_r_upper";
+      const loId = side === "left" ? "arm_l_lower" : "arm_r_lower";
+      const bUp = this.bones[this.boneIndexById.get(upId) ?? -1];
+      const bLo = this.bones[this.boneIndexById.get(loId) ?? -1];
+      if (bUp && bLo) {
+        const ax = bLo.x - bUp.x;
+        const ay = bLo.y - bUp.y;
+        const lenSq = Math.max(16, ax * ax + ay * ay);
+        this.armAxes[side] = { x: bUp.x, y: bUp.y, ax, ay, lenSq, len: Math.sqrt(lenSq) };
+      }
+    }
+
+    // Precompute unified torso ribcage & skirt-hem vertical bounds
+    const bChest = this.bones[this.boneIndexById.get("chest") ?? -1];
+    const bSpine = this.bones[this.boneIndexById.get("spine") ?? -1];
+    const bHips = this.bones[this.boneIndexById.get("hips") ?? -1];
+    const bSkL = this.bones[this.boneIndexById.get("skirt_l") ?? -1];
+    const bSkC = this.bones[this.boneIndexById.get("skirt_c") ?? -1];
+    const bSkR = this.bones[this.boneIndexById.get("skirt_r") ?? -1];
+    this.torsoMetrics = {
+      cx: bHips ? bHips.x : this.canvas.width * 0.5,
+      chestY: bChest ? bChest.y : this.canvas.height * 0.28,
+      spineY: bSpine ? bSpine.y : this.canvas.height * 0.34,
+      hipsY: bHips ? bHips.y : this.canvas.height * 0.40,
+      skirtBotY: (bSkL || bSkC || bSkR)
+        ? Math.max(bSkL?.tipY || 0, bSkC?.tipY || 0, bSkR?.tipY || 0) + 36
+        : this.canvas.height * 0.72
+    };
 
     // Runtime state
     this.time = 0;
@@ -57,10 +147,18 @@ export class Rig2DController {
     this.mouseFollow = false;
     this.pointer = { x: 0, y: 0 };
 
-    // Procedural blink & gaze
-    this.blinkTimer = 2.6;
+    // Optional manual 9-axis override (for workbench testing) & wind gust impulse
+    this.headOverride = null; // { yaw, pitch, tilt } in [-1..1]
+    this.windGust = 0.0;
+
+    // Procedural blink (with natural occasional double-blink) & gaze
+    this.blinkTimer = 2.4;
     this.blinkPhase = -1;
     this.blinkValue = 0.0; // 0 = open, 1 = closed
+    this.pendingDoubleBlink = false;
+    this.prevEyeOpen = 1.0;
+    this.eyeBounce = { pos: 0, vel: 0 }; // Jelly eye rebound physics (inspired by Live2D eye/pupil physics)
+
     this.gazeTimer = 1.8;
     this.gazeTarget = { x: 0, y: 0 };
     this.gazeCurrent = { x: 0, y: 0 };
@@ -73,11 +171,29 @@ export class Rig2DController {
     };
     this.headYaw = 0;
     this.headPitch = 0;
+    this.headTiltNorm = 0;
+    this.prevHeadYaw = 0;
+    this.prevHeadPitch = 0;
+
+    // 9-axis head-to-body follow-through oscillators (inspired by X1/Y1/Z1 coupled inertia)
+    this.bodyFollowX = { pos: 0, vel: 0 };
+    this.bodyFollowY = { pos: 0, vel: 0 };
+    this.bodyFollowZ = { pos: 0, vel: 0 };
+
+    // Inertial arm follow-through (inspired by hand/arm delayed lag chains)
+    this.armInertia = { upper: { pos: 0, vel: 0 }, lower: { pos: 0, vel: 0 } };
+    this.prevSway = 0;
+
+    // Wide hanging sleeve drape 3-segment pendulums (left & right)
+    this.sleeveChains = {
+      left: { segs: [{ pos: 0, vel: 0 }, { pos: 0, vel: 0 }, { pos: 0, vel: 0 }], prevRot: 0 },
+      right: { segs: [{ pos: 0, vel: 0 }, { pos: 0, vel: 0 }, { pos: 0, vel: 0 }], prevRot: 0 }
+    };
 
     // Active one-shot motion
     this.activeMotion = null; // { name, elapsed, duration }
 
-    // 2nd-order damped spring state for hair & skirt chains
+    // 3-segment cascaded pendulum physics chains for hair & skirt
     this.springs = (modelData.physics || [])
       .filter(p => this.boneIndexById.has(p.bone))
       .map(p => {
@@ -88,6 +204,11 @@ export class Rig2DController {
           boneIndex: bIdx,
           angle: 0,
           vel: 0,
+          segs: [
+            { pos: 0, vel: 0 },
+            { pos: 0, vel: 0 },
+            { pos: 0, vel: 0 }
+          ],
           prevWorldX: bone.x,
           prevWorldY: bone.y,
           prevParentRot: 0,
@@ -95,6 +216,7 @@ export class Rig2DController {
         };
       });
     this.springByBoneIndex = new Map(this.springs.map(s => [s.boneIndex, s]));
+    this.springByBoneId = new Map(this.springs.map(s => [s.bone, s]));
 
     // World transforms per bone (reused every frame)
     this.worldBones = this.bones.map(b => ({ x: b.x, y: b.y, rot: 0, cos: 1, sin: 0 }));
@@ -150,6 +272,22 @@ export class Rig2DController {
     this.mouseFollow = Boolean(enabled);
   }
 
+  setHeadOverride(yaw = 0, pitch = 0, tilt = 0) {
+    this.headOverride = {
+      yaw: clamp(Number(yaw) || 0, -1, 1),
+      pitch: clamp(Number(pitch) || 0, -1, 1),
+      tilt: clamp(Number(tilt) || 0, -1, 1)
+    };
+  }
+
+  clearHeadOverride() {
+    this.headOverride = null;
+  }
+
+  triggerWindGust(strength = 1.0) {
+    this.windGust = clamp(this.windGust + strength, -2.0, 2.5);
+  }
+
   _personaProfile() {
     const sui = this.variants.sui?.profile || {
       browYOffset: 0.08, browAngleOffset: 0.06, eyeOpenScale: 1.02,
@@ -175,6 +313,7 @@ export class Rig2DController {
   step(rawDt) {
     const dt = clamp(Number.isFinite(rawDt) ? rawDt : 0.016, 0.001, 0.05);
     this.time += dt;
+    this.windGust = expApproach(this.windGust, 0, 2.2, dt);
 
     // 1. Persona transition (450ms smooth crossfade)
     const targetGe = this.personaId === "ge" ? 1.0 : 0.0;
@@ -205,16 +344,25 @@ export class Rig2DController {
       this.expr[field] = expApproach(this.expr[field], targets[field], 8.5, dt);
     }
 
-    // 4. Auto-blink state machine
+    // 4. Auto-blink state machine (with organic ~18% double-blink + jelly eyelid/pupil rebound)
     if (this.blinkPhase < 0) {
       this.blinkTimer -= dt;
       if (this.blinkTimer <= 0) {
         this.blinkPhase = 0;
-        this.blinkTimer = 2.4 + Math.abs(Math.sin(this.time * 13.7)) * 3.2;
+        if (this.pendingDoubleBlink) {
+          this.pendingDoubleBlink = false;
+          this.blinkTimer = 2.6 + Math.abs(Math.sin(this.time * 11.3)) * 3.0;
+        } else {
+          const triggerDouble = Math.abs(Math.sin(this.time * 7.91)) > 0.82;
+          this.pendingDoubleBlink = triggerDouble;
+          this.blinkTimer = triggerDouble ? 0.14 : (2.3 + Math.abs(Math.sin(this.time * 13.7)) * 3.1);
+        }
       }
       this.blinkValue = 0;
     } else {
-      this.blinkPhase += dt / 0.16;
+      // Slightly faster close, softer cushioned open (like natural human blink)
+      const dur = this.blinkPhase < 0.45 ? 0.12 : 0.18;
+      this.blinkPhase += dt / dur;
       if (this.blinkPhase >= 1) {
         this.blinkPhase = -1;
         this.blinkValue = 0;
@@ -224,20 +372,23 @@ export class Rig2DController {
     }
 
     // 5. Gaze saccades / mouse follow
-    if (this.mouseFollow) {
+    if (this.headOverride) {
+      this.gazeTarget.x = this.headOverride.yaw * 0.9;
+      this.gazeTarget.y = this.headOverride.pitch * 0.7;
+    } else if (this.mouseFollow) {
       this.gazeTarget.x = this.pointer.x;
       this.gazeTarget.y = this.pointer.y;
     } else {
       this.gazeTimer -= dt;
       if (this.gazeTimer <= 0) {
-        this.gazeTimer = 1.6 + Math.abs(Math.cos(this.time * 5.3)) * 2.4;
-        const s = 0.52 / persona.gazeSharpness;
+        this.gazeTimer = 1.5 + Math.abs(Math.cos(this.time * 5.3)) * 2.3;
+        const s = 0.56 / persona.gazeSharpness;
         this.gazeTarget.x = Math.sin(this.time * 2.13) * s;
         this.gazeTarget.y = Math.cos(this.time * 1.47) * (s * 0.45);
       }
     }
-    this.gazeCurrent.x = expApproach(this.gazeCurrent.x, this.gazeTarget.x, 7.0, dt);
-    this.gazeCurrent.y = expApproach(this.gazeCurrent.y, this.gazeTarget.y, 7.0, dt);
+    this.gazeCurrent.x = expApproach(this.gazeCurrent.x, this.gazeTarget.x, 8.5, dt);
+    this.gazeCurrent.y = expApproach(this.gazeCurrent.y, this.gazeTarget.y, 8.5, dt);
 
     // 6. Active one-shot motion envelope
     let motionName = null;
@@ -254,10 +405,53 @@ export class Rig2DController {
       }
     }
 
-    // 7. Compute per-bone target local delta angles (radians) & root/torso translation
+    // 7. Organic idle drift + 9-axis head drivers + damped body follow-through springs
     const breath = Math.sin(this.time * Math.PI * 2 * persona.breathRate);
-    const sway = Math.sin(this.time * 0.92) * persona.bodySwayScale;
+    const sway = (Math.sin(this.time * 0.88) * 0.75 + Math.sin(this.time * 0.41 + 1.1) * 0.25) * persona.bodySwayScale;
     const talkCadence = speaking ? Math.sin(this.time * 10.5) * this.mouthLevel * persona.gestureEnergy : 0;
+    const idleYawDrift = Math.sin(this.time * 0.47) * 0.22 + Math.sin(this.time * 0.19 + 0.8) * 0.12;
+    const idlePitchDrift = Math.cos(this.time * 0.37) * 0.14;
+
+    const bowLean = motionName === "bow" ? 6.5 * motionEnv : 0;
+    const leanIn = motionName === "lean_in" ? 3.5 * motionEnv : 0;
+    const thinkTilt = motionName === "think" ? 7.0 * motionEnv : 0;
+
+    const targetYaw = this.headOverride
+      ? this.headOverride.yaw
+      : clamp(
+          this.gazeCurrent.x * 0.55 + idleYawDrift + sway * 0.16 + (this.mouseFollow ? this.pointer.x * 0.52 : 0),
+          -1, 1
+        );
+    const targetPitch = this.headOverride
+      ? this.headOverride.pitch
+      : clamp(
+          this.expr.headPitch * 0.65 + this.gazeCurrent.y * 0.35 + idlePitchDrift +
+          talkCadence * 0.22 + (bowLean > 0 ? -bowLean * 0.08 : 0) + (this.mouseFollow ? this.pointer.y * 0.42 : 0),
+          -1, 1
+        );
+    const targetTiltNorm = this.headOverride
+      ? this.headOverride.tilt
+      : clamp((this.mouseFollow ? this.pointer.x * 0.36 : 0) + sway * 0.12, -1, 1);
+
+    this.prevHeadYaw = this.headYaw;
+    this.prevHeadPitch = this.headPitch;
+    this.headYaw = expApproach(this.headYaw, targetYaw, 9.5, dt);
+    this.headPitch = expApproach(this.headPitch, targetPitch, 9.5, dt);
+    this.headTiltNorm = expApproach(this.headTiltNorm, targetTiltNorm, 8.5, dt);
+
+    const headYawVel = (this.headYaw - this.prevHeadYaw) / dt;
+    const headPitchVel = (this.headPitch - this.prevHeadPitch) / dt;
+
+    // 9-axis head -> body lag springs (shoulders & spine softly follow head turn ~120ms behind!)
+    stepOscillator(this.bodyFollowX, this.headYaw, 28.0, 7.6, 0, 1.25, dt);
+    stepOscillator(this.bodyFollowY, this.headPitch, 26.0, 7.4, 0, 1.25, dt);
+    stepOscillator(this.bodyFollowZ, this.headTiltNorm + this.headYaw * 0.32, 24.0, 7.2, 0, 1.25, dt);
+
+    // Inertial arm lag driven by body sway acceleration
+    const swayVel = (sway - this.prevSway) / dt;
+    this.prevSway = sway;
+    stepOscillator(this.armInertia.upper, -this.bodyFollowZ.pos * 1.4, 34.0, 7.2, -swayVel * 3.8, 4.0, dt);
+    stepOscillator(this.armInertia.lower, this.armInertia.upper.pos * 1.15, 22.0, 5.8, -this.armInertia.upper.vel * 0.9, 6.5, dt);
 
     const deltaAngles = new Float32Array(this.bones.length);
     const extraOffsetX = new Float32Array(this.bones.length);
@@ -275,47 +469,40 @@ export class Rig2DController {
       }
     };
 
-    // Core body breathing, sway, and emotion lean — pure cohesive FK rotation (no disconnected joint shifts!)
+    // Core body breathing, 9-axis follow-through, and emotion lean — pure cohesive FK rotation
     const bounceY = motionName === "happy_bounce" ? -Math.abs(Math.sin(motionPhase * Math.PI * 3)) * 14 * motionEnv : 0;
-    const bowLean = motionName === "bow" ? 6.5 * motionEnv : 0;
-    const leanIn = motionName === "lean_in" ? 3.5 * motionEnv : 0;
 
-    setBoneShift("hips", sway * 2.2, breath * -1.5 + bounceY);
-    setBoneRot("hips", sway * 0.9);
-    setBoneRot("spine", sway * 1.1 + this.expr.bodyLean * 2.2 + bowLean * 0.55 + leanIn * 0.5);
-    setBoneRot("chest", -sway * 0.4 + this.expr.bodyLean * 1.6 + bowLean * 0.45 + talkCadence * 0.9);
-    setBoneRot("neck", this.expr.headTilt * 2.5 + persona.headTiltBiasDeg * 0.35 + bowLean * 0.35);
+    setBoneShift("hips", sway * 2.2 + this.bodyFollowX.pos * 3.2, breath * -1.4 + this.bodyFollowY.pos * 1.6 + bounceY);
+    setBoneRot("hips", sway * 0.85 - this.bodyFollowZ.pos * 0.9);
+    setBoneRot("spine", sway * 1.05 + this.expr.bodyLean * 2.1 + this.bodyFollowZ.pos * 1.8 + bowLean * 0.55 + leanIn * 0.5);
+    setBoneRot("chest", -sway * 0.35 + this.expr.bodyLean * 1.5 + this.bodyFollowZ.pos * 1.6 + bowLean * 0.45 + talkCadence * 0.9);
+    setBoneRot("neck", this.expr.headTilt * 2.4 + persona.headTiltBiasDeg * 0.35 + this.headTiltNorm * 3.0 + bowLean * 0.35);
 
-    const thinkTilt = motionName === "think" ? 7.0 * motionEnv : 0;
     const headTiltDeg =
-      this.expr.headTilt * 5.2 +
+      this.expr.headTilt * 5.0 +
       persona.headTiltBiasDeg +
-      sway * 1.2 +
+      sway * 1.1 +
       talkCadence * 2.0 +
       thinkTilt +
-      (this.mouseFollow ? this.pointer.x * 4.5 : 0);
+      this.headTiltNorm * 6.8 +
+      this.headYaw * 1.8;
     setBoneRot("head", headTiltDeg);
 
-    // 2.5D head yaw/pitch drivers for subtle facial-feature parallax only (never slides head off neck!)
-    this.headYaw = clamp(
-      this.gazeCurrent.x * 0.65 + sway * 0.18 + (this.mouseFollow ? this.pointer.x * 0.40 : 0),
-      -1, 1
-    );
-    this.headPitch = clamp(
-      this.expr.headPitch * 0.7 + this.gazeCurrent.y * 0.40 + talkCadence * 0.20 + (bowLean > 0 ? -bowLean * 0.06 : 0),
-      -1, 1
-    );
-
-    // Graceful anatomically seated 2D arm poses (shoulders stay 100% locked inside shoulder sockets!)
+    // Graceful anatomically seated 2D arm poses + subtle inertial follow-through
     const armPose = motionName || basePreset.armPose || "idle";
-    const armBreath = breath * 1.6;
-    let lUpper = -armBreath, lLower = -armBreath * 0.6, rUpper = armBreath, rLower = armBreath * 0.6;
+    const armBreath = breath * 1.55;
+    const armLagUp = this.armInertia.upper.pos;
+    const armLagLo = this.armInertia.lower.pos;
+    let lUpper = -armBreath + armLagUp * 0.55;
+    let lLower = -armBreath * 0.6 + armLagLo * 0.65;
+    let rUpper = armBreath + armLagUp * 0.55;
+    let rLower = armBreath * 0.6 + armLagLo * 0.65;
 
     if (armPose === "wave" || (motionName === "wave")) {
       const env = motionName === "wave" ? motionEnv : 0.72;
-      rUpper = -26 * env;
+      rUpper = -26 * env + armLagUp * 0.25;
       rLower = (-22 + Math.sin(this.time * 10.5) * 14) * env;
-      lUpper = -4 * env;
+      lUpper = -4 * env + armLagUp * 0.4;
     } else if (armPose === "cheer" || motionName === "happy_bounce") {
       const env = motionName ? motionEnv : 0.70;
       lUpper = 16 * env;
@@ -363,7 +550,24 @@ export class Rig2DController {
     setBoneRot("leg_r_upper", -sway * 1.1);
     setBoneRot("leg_r_lower", sway * 0.7);
 
-    // 8. Forward kinematics pass 1 (non-spring structural bones) + spring physics integration
+    // Update 3-segment cascaded sleeve drape pendulums (driven by arm rotation + head/body sway + wind)
+    for (const [side, rotDeg] of [["left", lUpper + lLower * 0.7], ["right", rUpper + rLower * 0.7]]) {
+      const chain = this.sleeveChains[side];
+      const rotRad = rotDeg * DEG2RAD;
+      const armAngVel = (rotRad - chain.prevRot) / dt;
+      chain.prevRot = rotRad;
+      const breeze = (Math.sin(this.time * 1.4 + (side === "left" ? 0.5 : 2.1)) * 0.04 + this.windGust * 0.14);
+      const drive0 = (-armAngVel * 0.22 - swayVel * 0.14 - headYawVel * 0.05) + breeze;
+      const prev0 = chain.segs[0].vel;
+      stepOscillator(chain.segs[0], breeze * 0.5, 52.0, 8.2, drive0 * 28.0, 0.24, dt);
+      const acc0 = (chain.segs[0].vel - prev0) / dt;
+      const prev1 = chain.segs[1].vel;
+      stepOscillator(chain.segs[1], chain.segs[0].pos * 0.85, 38.0, 6.8, -acc0 * 0.35 + breeze * 8.0, 0.30, dt);
+      const acc1 = (chain.segs[1].vel - prev1) / dt;
+      stepOscillator(chain.segs[2], chain.segs[1].pos * 0.9, 28.0, 5.8, -acc1 * 0.32 + breeze * 6.0, 0.36, dt);
+    }
+
+    // 8. Forward kinematics pass + 3-segment cascaded spring physics integration
     for (let i = 0; i < this.bones.length; i += 1) {
       const { dx, dy, parentIndex } = this.boneLocalOffsets[i];
       const wb = this.worldBones[i];
@@ -393,20 +597,31 @@ export class Rig2DController {
           spring.prevWorldY = wb.y;
           spring.prevParentRot = pb.rot;
 
-          const breeze = Math.sin(this.time * 1.55 + (spring.windPhase || 0)) * 0.045 * spring.gravityScale;
-          const externalDrive = (-linVelX * 0.0022 - angVelParent * 0.32) * spring.inertia + breeze;
+          const phase = spring.windPhase || 0;
+          const breeze = (Math.sin(this.time * 1.55 + phase) * 0.042 + Math.sin(this.time * 2.9 + phase * 1.7) * 0.015) * spring.gravityScale
+            + this.windGust * 0.15 * spring.gravityScale;
+          const yawKick = spring.bone.startsWith("hair") ? -headYawVel * 0.055 * spring.inertia : -headYawVel * 0.025 * spring.inertia;
+          const externalDrive = (-linVelX * 0.0022 - angVelParent * 0.34) * spring.inertia + yawKick + breeze;
           const gravityRestoring = -pb.rot * 0.45 * spring.gravityScale;
-          const acc = -spring.stiffness * (spring.angle - gravityRestoring) - spring.damping * spring.vel + externalDrive * spring.stiffness;
-          spring.vel += acc * dt;
-          spring.angle += spring.vel * dt;
-          const maxRad = (spring.maxAngleDeg || 15) * DEG2RAD;
-          if (spring.angle > maxRad) {
-            spring.angle = maxRad;
-            spring.vel *= -0.25;
-          } else if (spring.angle < -maxRad) {
-            spring.angle = -maxRad;
-            spring.vel *= -0.25;
-          }
+          const maxRad = (spring.maxAngleDeg || 8.5) * DEG2RAD;
+
+          // Segment 0 (root pendulum)
+          const k0 = spring.stiffness || 70;
+          const d0 = spring.damping || 9.0;
+          const prevV0 = spring.segs[0].vel;
+          stepOscillator(spring.segs[0], gravityRestoring, k0, d0, externalDrive * k0, maxRad, dt);
+          const acc0 = (spring.segs[0].vel - prevV0) / dt;
+
+          // Segment 1 (mid cascaded wave with phase delay)
+          const prevV1 = spring.segs[1].vel;
+          stepOscillator(spring.segs[1], spring.segs[0].pos * 0.85, k0 * 0.76, d0 * 0.82, -acc0 * 0.34 + breeze * k0 * 0.25, maxRad * 1.25, dt);
+          const acc1 = (spring.segs[1].vel - prevV1) / dt;
+
+          // Segment 2 (tip whip wave with silky S-curve lag)
+          stepOscillator(spring.segs[2], spring.segs[1].pos * 0.9, k0 * 0.58, d0 * 0.74, -acc1 * 0.30 + breeze * k0 * 0.20, maxRad * 1.45, dt);
+
+          spring.angle = spring.segs[0].pos;
+          spring.vel = spring.segs[0].vel;
           wb.rot = pb.rot + deltaAngles[i] + spring.angle;
         } else {
           wb.rot = pb.rot + deltaAngles[i];
@@ -416,10 +631,16 @@ export class Rig2DController {
       wb.sin = Math.sin(wb.rot);
     }
 
-    // 9. Skin every layer mesh with LBS + 2.5D parallax + facial micro-transforms
-    const effectiveEyeOpen = clamp(this.expr.eyeOpen * (1.0 - this.blinkValue), 0.0, 1.2);
-    const closedAlpha = effectiveEyeOpen < 0.28 ? clamp((0.28 - effectiveEyeOpen) / 0.20, 0, 1) : 0;
-    const openEyeScaleY = clamp(effectiveEyeOpen, 0.08, 1.15);
+    // 9. Jelly eye bounce spring driven by eye-open rate of change (inspired by Live2D eye/pupil physics)
+    const rawEyeOpen = clamp(this.expr.eyeOpen * (1.0 - this.blinkValue), 0.0, 1.2);
+    const eyeOpenVel = (rawEyeOpen - this.prevEyeOpen) / dt;
+    this.prevEyeOpen = rawEyeOpen;
+    // Only kick jelly bounce on opening / widening (positive dEyeOpen/dt) so closed blink stays crisp
+    const eyeImpulse = eyeOpenVel > 0.2 ? clamp(eyeOpenVel * 3.8, 0, 22.0) : 0;
+    stepOscillator(this.eyeBounce, 0, 210.0, 15.5, eyeImpulse, 0.14, dt);
+
+    const closedAlpha = rawEyeOpen < 0.28 ? clamp((0.28 - rawEyeOpen) / 0.20, 0, 1) : 0;
+    const openEyeScaleY = clamp(rawEyeOpen + (1 - closedAlpha) * this.eyeBounce.pos * 0.45, 0.08, 1.18);
 
     // Continuous 4-state mouth blending weights
     const m = this.mouthLevel;
@@ -433,6 +654,12 @@ export class Rig2DController {
     const totalMouth = mouthAlphas.mouth_closed + mouthAlphas.mouth_smile + mouthAlphas.mouth_half + mouthAlphas.mouth_open;
     if (totalMouth < 0.05) mouthAlphas.mouth_closed = 1;
 
+    // 10. Skin every layer mesh with LBS + 2.5D head perspective + 3-segment wave lag + micro-expressions
+    const hm = this.headMetrics;
+    const tm = this.torsoMetrics;
+    const skL = this.springByBoneId.get("skirt_l");
+    const skR = this.springByBoneId.get("skirt_r");
+
     for (let li = 0; li < this.layers.length; li += 1) {
       const layer = this.layers[li];
       const state = this.layerStates[li];
@@ -442,33 +669,48 @@ export class Rig2DController {
       const center = this.layerCenters[li];
       const vCount = weights.length;
 
-      const pxShift = this.headYaw * (layer.parallaxX || 0) * 14.0;
-      const pyShift = this.headPitch * (layer.parallaxY || 0) * 10.0;
+      const pxShift = this.headYaw * (layer.parallaxX || 0) * 14.5;
+      const pyShift = this.headPitch * (layer.parallaxY || 0) * 10.5;
 
       // Determine layer alpha & local facial rest-space adjustments
       let alpha = 1.0;
+      let localScaleX = 1.0;
       let localScaleY = 1.0;
       let localShiftX = 0.0;
       let localShiftY = 0.0;
       let localRot = 0.0;
 
+      const isHeadBase = layer.id === "head_base";
+      const isOpenEye = layer.role === "eye_open" || layer.role === "eye_sclera";
+      const isEyeIris = layer.role === "eye_iris";
+      const isMouth = layer.role === "mouth";
+      const isHair = layer.role === "hair";
+      const isUnifiedBody = layer.role === "unified_body";
+      const isArmFull = layer.role === "arm_full";
+      const sideSign = layer.side === "left" ? -1 : layer.side === "right" ? 1 : 0;
+
       if (layer.role === "eye_closed") {
         alpha = closedAlpha;
-      } else if (layer.role === "eye_open" || layer.role === "eye_sclera" || layer.role === "eye_iris") {
+        localScaleX = 1.0 - sideSign * this.headYaw * 0.06;
+      } else if (isOpenEye || isEyeIris) {
         alpha = 1.0 - closedAlpha * 0.95;
         localScaleY = openEyeScaleY;
-        if (layer.role === "eye_iris") {
+        // 2.5D perspective foreshortening: far eye subtly narrows as head turns!
+        localScaleX = 1.0 - sideSign * this.headYaw * 0.075;
+        if (isEyeIris) {
           localShiftX = this.gazeCurrent.x * 7.5;
-          localShiftY = this.gazeCurrent.y * 4.5;
+          localShiftY = this.gazeCurrent.y * 4.5 - this.eyeBounce.pos * 12.0;
         }
       } else if (layer.role === "brow") {
-        localShiftY = -this.expr.browY * 9.5;
-        const sideSign = layer.side === "left" ? 1 : -1;
-        localRot = this.expr.browAngle * 0.24 * sideSign;
-      } else if (layer.role === "mouth") {
+        localShiftY = -this.expr.browY * 9.5 - this.eyeBounce.pos * 6.0;
+        localScaleX = 1.0 - sideSign * this.headYaw * 0.06;
+        const browSign = layer.side === "left" ? 1 : -1;
+        localRot = this.expr.browAngle * 0.24 * browSign;
+      } else if (isMouth) {
         alpha = mouthAlphas[layer.id] ?? 0;
+        localScaleX = 1.0 - Math.abs(this.headYaw) * 0.04;
         if (layer.id === "mouth_open") {
-          localScaleY = 0.85 + m * 0.32;
+          localScaleY = 0.85 + m * 0.34;
         }
       } else if (layer.id === "fx_blush") {
         alpha = this.expr.blush;
@@ -482,14 +724,56 @@ export class Rig2DController {
       const lCos = hasLocalRot ? Math.cos(localRot) : 1;
       const lSin = hasLocalRot ? Math.sin(localRot) : 0;
 
+      // Pre-resolve hair spring chain if this is a hair layer
+      const hairSpring = isHair ? this.springByBoneId.get(layer.parentBone) : null;
+      const hairBone = isHair ? this.bones[this.boneIndexById.get(layer.parentBone) ?? -1] : null;
+      const armAxis = isArmFull ? this.armAxes[layer.side] : null;
+      const sleeveChain = isArmFull ? this.sleeveChains[layer.side] : null;
+
       for (let v = 0; v < vCount; v += 1) {
         let vx = restPos[v * 2];
         let vy = restPos[v * 2 + 1];
 
-        // Apply facial local deform around feature center BEFORE bone skinning
-        if (localScaleY !== 1.0 || localShiftX !== 0.0 || localShiftY !== 0.0 || hasLocalRot) {
+        // A. Chin-pinned 2.5D spherical/cylindrical head-turn foreshortening on head_base
+        if (isHeadBase) {
+          const jawPin = smoothstep(hm.chinY - 2, hm.chinY - hm.halfH * 0.55, vy);
+          if (jawPin > 1e-4) {
+            const nx = clamp((vx - hm.cx) / hm.halfW, -1.25, 1.25);
+            const ny = clamp((vy - hm.cy) / hm.halfH, -1.25, 1.25);
+            vx += (this.headYaw * (1.0 - 0.38 * nx * nx) * 5.2 - this.headYaw * nx * nx * 2.2) * jawPin;
+            vy += (-this.headYaw * nx * 1.8 + this.headPitch * (1.0 - 0.28 * ny * ny) * 4.4) * jawPin;
+          }
+        }
+
+        // B. Local facial expression + jelly pupil tracking + smile-eye crescent + mouth-corner curve
+        if (localScaleX !== 1.0 || localScaleY !== 1.0 || localShiftX !== 0.0 || localShiftY !== 0.0 || hasLocalRot || isOpenEye || isMouth) {
           let fx = vx - center.cx;
-          let fy = (vy - center.cy) * localScaleY;
+          let fy = vy - center.cy;
+          const nfx = fx / Math.max(1, center.w * 0.5);
+          const nfy = fy / Math.max(1, center.h * 0.5);
+
+          // Interior pupil gaze tracking & jelly eye-bounce on merged open eyes (outer rim pinned!)
+          if (isOpenEye && !this.hasSeparateIris) {
+            const radial = Math.hypot(nfx, nfy);
+            const innerW = 1.0 - smoothstep(0.28, 0.92, radial);
+            fx += this.gazeCurrent.x * 3.8 * innerW;
+            fy += (this.gazeCurrent.y * 2.4 - this.eyeBounce.pos * 10.0) * innerW;
+          }
+
+          // Smile-eye crescent lift on lower half of open eye (inspired by EyeSquint / EyeSmile)
+          if (isOpenEye && this.expr.eyeSquint > 0.02 && nfy > 0.05) {
+            const lowerW = smoothstep(0.05, 0.95, nfy) * (1.0 - 0.42 * nfx * nfx);
+            fy -= this.expr.eyeSquint * 4.8 * lowerW;
+          }
+
+          // Mouth corner smile / frown curvature (inspired by ParamMouthForm)
+          if (isMouth && Math.abs(this.expr.mouthSmile) > 0.04) {
+            const cornerW = smoothstep(0.25, 1.0, Math.abs(nfx));
+            fy -= this.expr.mouthSmile * 3.0 * cornerW;
+          }
+
+          fx *= localScaleX;
+          fy *= localScaleY;
           if (hasLocalRot) {
             const rfx = fx * lCos - fy * lSin;
             const rfy = fx * lSin + fy * lCos;
@@ -500,7 +784,65 @@ export class Rig2DController {
           vy = center.cy + fy + localShiftY;
         }
 
-        // Linear Blend Skinning across weighted bones
+        // C. 3-segment cascaded S-curve wave on hair (root pinned 100%, mid & tips ripple smoothly!)
+        if (isHair && hairSpring && hairBone) {
+          const spanY = Math.max(40, center.y1 - hairBone.y);
+          const tHair = clamp((vy - hairBone.y) / spanY, 0, 1);
+          if (tHair > 0.08) {
+            const waveX = (
+              (hairSpring.segs[1].pos - hairSpring.segs[0].pos) * (tHair * tHair) * 105.0 +
+              (hairSpring.segs[2].pos - hairSpring.segs[1].pos) * (tHair * tHair * tHair) * 145.0
+            );
+            const waveY = Math.abs(hairSpring.segs[2].pos) * (tHair * tHair) * 14.0;
+            vx += waveX;
+            vy -= waveY;
+          }
+        }
+
+        // D. Unified body: gentle volume-preserving ribcage breath + 3-segment outer skirt hem wave
+        if (isUnifiedBody) {
+          // Subtle ribcage breath (zero at shoulders & waist so joints stay 100% locked!)
+          const ribEnv = smoothstep(tm.chestY - 12, tm.chestY + 26, vy) * (1.0 - smoothstep(tm.spineY - 10, tm.hipsY - 18, vy));
+          if (ribEnv > 1e-3) {
+            const dxRib = vx - tm.cx;
+            vx += dxRib * (breath * 0.012 * ribEnv);
+            vy += breath * -1.2 * ribEnv;
+          }
+          // Cascaded outer flared skirt-hem wave (strictly outside inner leg column!)
+          if (skL && skR && vy > tm.hipsY + 24 && vy < tm.skirtBotY) {
+            const distX = Math.abs(vx - tm.cx);
+            const flareW = smoothstep(58, 150, distX);
+            const vT = clamp((vy - (tm.hipsY + 24)) / Math.max(80, tm.skirtBotY - tm.hipsY - 24), 0, 1);
+            const vOut = 1.0 - smoothstep(0.84, 1.0, vT);
+            const sk = vx < tm.cx ? skL : skR;
+            const hemWave = flareW * vOut * (
+              (sk.segs[1].pos - sk.segs[0].pos) * (vT * vT) * 70.0 +
+              (sk.segs[2].pos - sk.segs[1].pos) * (vT * vT * vT) * 105.0
+            );
+            vx += hemWave;
+          }
+        }
+
+        // E. Wide hanging sleeve drape S-curve wave (strictly below upper sleeve t > 0.55 so shoulder is 100% locked!)
+        if (isArmFull && armAxis && sleeveChain) {
+          const rxA = vx - armAxis.x;
+          const ryA = vy - armAxis.y;
+          const tArm = (rxA * armAxis.ax + ryA * armAxis.ay) / armAxis.lenSq;
+          if (tArm > 0.52) {
+            const lowerW = smoothstep(0.52, 1.45, tArm);
+            // Hanging drape distance below arm centerline gets extra silk sway
+            const cross = (rxA * armAxis.ay - ryA * armAxis.ax) / armAxis.len;
+            const drapeBoost = 0.45 + 0.55 * smoothstep(10, 95, Math.abs(cross));
+            const sWave = lowerW * drapeBoost * (
+              sleeveChain.segs[1].pos * 24.0 +
+              sleeveChain.segs[2].pos * 34.0
+            );
+            vx += sWave;
+            vy += Math.abs(sleeveChain.segs[2].pos) * lowerW * 4.0;
+          }
+        }
+
+        // F. Linear Blend Skinning across weighted bones
         const vw = weights[v];
         let sx = 0;
         let sy = 0;
@@ -530,6 +872,9 @@ export class Rig2DController {
       emotion: this.emotionName,
       mouthLevel: Number(this.mouthLevel.toFixed(3)),
       activeMotion: this.activeMotion?.name || "idle",
+      headYaw: Number(this.headYaw.toFixed(3)),
+      headPitch: Number(this.headPitch.toFixed(3)),
+      eyeBounce: Number(this.eyeBounce.pos.toFixed(4)),
       boneCount: this.bones.length,
       layerCount: this.layers.length,
       bones: this.worldBones.map((wb, i) => ({ id: this.bones[i].id, x: wb.x, y: wb.y, rot: wb.rot }))

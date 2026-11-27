@@ -307,6 +307,27 @@ $("#emotionIntensity").oninput = () => {
 $("#mouseFollowToggle").onchange = () => {
   state.stage?.controller.setMouseFollow($("#mouseFollowToggle").checked);
 };
+
+function applyManualHeadAxis() {
+  state.stage?.controller.setHeadOverride(
+    Number($("#headYawSlider").value),
+    Number($("#headPitchSlider").value),
+    Number($("#headTiltSlider").value)
+  );
+}
+$("#headYawSlider").oninput = applyManualHeadAxis;
+$("#headPitchSlider").oninput = applyManualHeadAxis;
+$("#headTiltSlider").oninput = applyManualHeadAxis;
+$("#headResetBtn").onclick = () => {
+  $("#headYawSlider").value = "0";
+  $("#headPitchSlider").value = "0";
+  $("#headTiltSlider").value = "0";
+  state.stage?.controller.clearHeadOverride();
+};
+$("#windGustBtn").onclick = () => {
+  state.stage?.controller.triggerWindGust(1.4);
+};
+
 $("#refreshJobsBtn").onclick = () => void refreshJobs(false);
 
 async function boot() {

@@ -93,16 +93,22 @@ async function testRig2DControllerMath() {
   for (let i = 0; i < 45; i += 1) ctrl.step(0.016);
   assert(ctrl.geBlend > 0.9, `expected geBlend > 0.9 after transition, got ${ctrl.geBlend}`);
 
-  // 3. Emotion + Motion + Physics produce finite non-NaN mesh vertices
+  // 3. Emotion + Motion + 3-segment cascaded physics + 9-axis head override + wind gust produce finite non-NaN mesh vertices
   ctrl.setEmotion("happy", 1.0);
   ctrl.triggerMotion("wave");
+  ctrl.setHeadOverride(0.85, -0.45, 0.5);
+  ctrl.triggerWindGust(1.5);
   for (let i = 0; i < 40; i += 1) ctrl.step(0.016);
   for (const ls of ctrl.layerStates) {
     for (let i = 0; i < ls.positions.length; i += 1) {
       assert(Number.isFinite(ls.positions[i]), `NaN vertex detected in layer ${ls.id}`);
     }
   }
-  assert.equal(ctrl.snapshot().emotion, "happy");
+  const snap = ctrl.snapshot();
+  assert.equal(snap.emotion, "happy");
+  assert(snap.headYaw > 0.5, `expected manual headYaw override > 0.5, got ${snap.headYaw}`);
+  assert(ctrl.springs.every(s => Array.isArray(s.segs) && s.segs.length === 3), "expected 3-segment cascaded spring chains");
+  ctrl.clearHeadOverride();
 }
 
 function testAvatarRegistrySafety() {

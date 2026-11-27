@@ -64,8 +64,8 @@
       <div class="stage-toolbar">
         <span id="currentModelLabel">未加载模型</span>
         <div class="toolbar-buttons">
-          <label class="inline-check"><input type="checkbox" id="showBonesToggle" checked /> 显示可拖拽骨骼关节点</label>
-          <label class="inline-check"><input type="checkbox" id="mouseFollowToggle" /> 鼠标视线跟随</label>
+          <label class="inline-check"><input type="checkbox" id="showBonesToggle" /> 显示可拖拽骨骼关节点</label>
+          <label class="inline-check"><input type="checkbox" id="mouseFollowToggle" checked /> 鼠标视线跟随</label>
           <button id="saveJointsBtn" type="button" class="accent" disabled>保存关节点并秒级重绑</button>
           <button id="publishBtn" type="button" disabled>一键发布到 AI_vtuber</button>
         </div>
@@ -109,6 +109,17 @@
         <h2>22 种 AI 主播情绪测试</h2>
         <select id="emotionSelect"></select>
         <label>情绪强度 <input type="range" id="emotionIntensity" min="0.2" max="1.2" step="0.05" value="1" /></label>
+      </section>
+
+      <section>
+        <h2>九轴伪 3D &amp; 多节物理测试</h2>
+        <label>转头 X（Yaw）<input type="range" id="headYawSlider" min="-1" max="1" step="0.02" value="0" /></label>
+        <label>抬头/低头 Y（Pitch）<input type="range" id="headPitchSlider" min="-1" max="1" step="0.02" value="0" /></label>
+        <label>歪头 Z（Tilt）<input type="range" id="headTiltSlider" min="-1" max="1" step="0.02" value="0" /></label>
+        <div class="row-2">
+          <button type="button" id="headResetBtn" class="secondary small">恢复自动微动</button>
+          <button type="button" id="windGustBtn" class="secondary small">阵风发丝/袖摆测试</button>
+        </div>
       </section>
 
       <section>
