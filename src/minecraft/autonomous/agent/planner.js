@@ -332,10 +332,10 @@ async function survive(bot, state) {
   // the exact treadmill the operator asked to switch off. Health still gates.
   const permaFed = process.env.MC_PERMA_FED === '1' && process.env.MC_ASSIST !== '0';
   const starving = permaFed ? false : bot.food < 8;
-  // Vanilla regeneration needs FOOD > 18, not merely "not starving". At food 17 / health 8.5 the
-  // old test passed both thresholds and the bot sat wounded forever while mobs kept hitting it, so
-  // a hurt bot now has to top the meter up before anything else.
-  const minFood = bot.health < 20 ? 19 : 12;
+  // Vanilla regeneration needs FOOD >= 18 when actually hurt (<16 HP). Previously `< 20` triggered
+  // on a 1-HP scratch (18.67 HP / 16 food at y=-14 beside a lava pool) and dragged the bot out of
+  // caves to re-open `food`!
+  const minFood = bot.health < 16 ? 19 : 10;
   if (bot.health >= 12 && (bot.food >= minFood || permaFed)) return false;
   if (permaFed && bot.food < minFood) {
     // Infinite saturation HOLDS the hunger bar but cannot RAISE it, and vanilla regen needs food >= 18 - so

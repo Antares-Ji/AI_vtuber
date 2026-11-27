@@ -98,6 +98,11 @@ function makeBot(overrides = {}) {
     try {
       const bot = makeBot({ health: 4.8, food: 16, entity: { position: new Vec3(-98, 60, 8) } });
       const state = { done: { food: true } };
+      // A tiny scratch (hp=18.7, food=16) must NOT trigger survive gate or re-open food mid-expedition
+      const botHealthy = makeBot({ health: 18.7, food: 16, entity: { position: new Vec3(-26, -14, -268) } });
+      const stateKeep = { done: { food: true } };
+      assert.equal(await planner.survive(botHealthy, stateKeep), false);
+      assert.equal(stateKeep.done.food, true, 'survive must NOT re-open food on a tiny 1-HP scratch at food=16');
       const r1 = await planner.survive(bot, state);
       assert.equal(r1, false, 'survive must yield to ladder when food cannot be raised');
       assert.equal(state.done.food, undefined, 'survive must re-open food milestone');

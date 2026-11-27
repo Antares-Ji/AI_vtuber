@@ -335,7 +335,7 @@ const LADDER = [
   { id: 'food', budgetMs: 420000, done: b => {
       if (permaFed()) return true;
       const ed = EDIBLE.reduce((s, n) => s + countItem(b, n), 0);
-      if (ed >= 3 || b.food >= 19) return true;
+      if (ed >= 3 || b.food >= 18) return true;
       try {
         const rec = require('../portalRecord').current();
         if (!rec || !rec.ringComplete || !Number.isFinite(rec.x)) return false;
