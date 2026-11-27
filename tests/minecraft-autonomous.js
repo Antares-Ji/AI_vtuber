@@ -2985,8 +2985,94 @@ function makeBot(overrides = {}) {
     }
   }
 
+  // 56. patchBrokenPickaxeMaterials fixes the 1.21.1 minecraft-data incorrect_for_wooden_tool bug
+  //     (obsidian + diamond_pickaxe drops from 75,000ms -> 9,400ms; diamond_ore + iron_pickaxe 4,550ms -> 750ms)
+  //     and installSafeDig adds +150ms Paper RTT margin on long (>=5s) digs
+  {
+    const { patchBrokenPickaxeMaterials, installSafeDig } = require('../src/minecraft/autonomous/bot');
+    const mcData56 = require('minecraft-data')('1.21.1');
+    const Block56 = require('prismarine-block')('1.21.1');
+    const dpick56 = mcData56.itemsByName.diamond_pickaxe.id;
+    const ipick56 = mcData56.itemsByName.iron_pickaxe.id;
+    const spick56 = mcData56.itemsByName.stone_pickaxe.id;
+    const obs56 = new Block56(mcData56.blocksByName.obsidian.id, 0, 0);
+    const dia56 = new Block56(mcData56.blocksByName.diamond_ore.id, 0, 0);
+    // Patch a fresh clone/registry (and the shared 1.21.1 registry)
+    assert.equal(patchBrokenPickaxeMaterials(mcData56), true, 'patchBrokenPickaxeMaterials must patch incorrect_for_* tables');
+    const obsTimeD = obs56.digTime(dpick56, false, false, false);
+    const obsTimeS = obs56.digTime(spick56, false, false, false);
+    const diaTimeI = dia56.digTime(ipick56, false, false, false);
+    assert.ok(obsTimeD >= 9000 && obsTimeD <= 10000, `obsidian with diamond_pickaxe must be ~9,400ms, not 75,000ms (got ${obsTimeD})`);
+    assert.ok(obsTimeS >= 60000, `obsidian with stone_pickaxe must remain unharvestably slow >=60s (got ${obsTimeS})`);
+    assert.ok(diaTimeI >= 600 && diaTimeI <= 900, `diamond_ore with iron_pickaxe must be ~750ms, not 4,550ms (got ${diaTimeI})`);
+    const bot56 = {
+      registry: mcData56,
+      dig: async () => {},
+      digTime: () => 9400,
+      blockAt: () => ({ name: 'air' }),
+    };
+    installSafeDig(bot56);
+    assert.equal(bot56.digTime(obs56), 9550, 'installSafeDig must add +150ms Paper RTT margin on >=5s digs');
+  }
+
+  // 57. deep_shaft refuses to dig straight down through a 1-block cave crust over a 67-block chasm
+  //     AND treats >40-block open air drops (dropToSolid===null, probedAir>=4) as lethal instead of jumping off
+  {
+    let dugCrust57 = false;
+    let jumpedChasm57 = false;
+    const inv57 = [{ name: 'stone_pickaxe', count: 1, slot: 36, maxDurability: 131, durabilityUsed: 5 }];
+    // 57a: 1-block solid crust at y=34 directly over air chasm y=33..-32
+    const botCrust57 = makeBot({
+      entity: { position: new Vec3(-90, 35, -259), yaw: 0, pitch: 0 },
+      health: 20, food: 20,
+      entities: {},
+      nearestEntity: () => null,
+      inventory: { slots: new Array(46).fill(null), items: () => inv57 },
+      heldItem: inv57[0],
+      equip: async (it) => { botCrust57.heldItem = it; },
+      dig: async (b) => {
+        if (b && b.position && b.position.x === -90 && b.position.y === 34 && b.position.z === -259) dugCrust57 = true;
+      },
+      setControlState: () => {},
+      look: async () => {},
+      blockAt: (p) => {
+        if (!p) return { name: 'air', boundingBox: 'none' };
+        const x = Math.floor(p.x), y = Math.floor(p.y), z = Math.floor(p.z);
+        if (x === -90 && z === -259 && y === 34) return { name: 'stone', position: new Vec3(x, y, z), boundingBox: 'block' };
+        // Chasm everywhere below y=34 down to y=-32
+        if (y <= 33 && y >= -32) return { name: 'air', position: new Vec3(x, y, z), boundingBox: 'none' };
+        return { name: 'air', position: new Vec3(x, y, z), boundingBox: 'none' };
+      },
+    });
+    const res57a = await reg.get('deep_shaft').run(botCrust57, { toY: -50, max: 10 });
+    assert.equal(dugCrust57, false, 'deep_shaft must NOT break 1-block crust straight into a >=5-block air chasm');
+    assert.equal(res57a.ok, false, 'deep_shaft must bail out cleanly when surrounded by chasm');
+
+    // 57b: standing over an ALREADY open 67-block air chasm (>40 blocks so dropToSolid is null)
+    const botOpen57 = makeBot({
+      entity: { position: new Vec3(-90, 35, -259), yaw: 0, pitch: 0 },
+      health: 20, food: 20,
+      entities: {},
+      nearestEntity: () => null,
+      inventory: { slots: new Array(46).fill(null), items: () => inv57 },
+      heldItem: inv57[0],
+      equip: async (it) => { botOpen57.heldItem = it; },
+      dig: async () => {},
+      setControlState: (k, v) => { if (k === 'jump' && v) jumpedChasm57 = true; },
+      look: async () => {},
+      blockAt: (p) => {
+        if (!p) return { name: 'air', boundingBox: 'none' };
+        const y = Math.floor(p.y);
+        if (y >= -32 && y <= 35) return { name: 'air', position: new Vec3(Math.floor(p.x), y, Math.floor(p.z)), boundingBox: 'none' };
+        return { name: 'deepslate', position: new Vec3(Math.floor(p.x), y, Math.floor(p.z)), boundingBox: 'block' };
+      },
+    });
+    await reg.get('deep_shaft').run(botOpen57, { toY: -50, max: 3 });
+    assert.equal(jumpedChasm57, false, 'deep_shaft must NOT jump off a >40-block open chasm when dropToSolid is null');
+  }
+
   fs.rmSync(tmp, { recursive: true, force: true });
-  console.log('PASS minecraft-autonomous: all 55 regression groups passed');
+  console.log('PASS minecraft-autonomous: all 57 regression groups passed');
 })().catch(e => {
   console.error(e);
   process.exitCode = 1;

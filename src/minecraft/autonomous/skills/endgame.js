@@ -519,7 +519,7 @@ reg.define('deep_shaft', {
     if (!(await equipBulkPick(bot)) && !(await equipPick(bot))) return { ok: false, observation: 'need a pickaxe to dig deep' };
     if (!bot._stair) bot._stair = Math.random() < 0.5 ? { x: 1, z: 0 } : { x: 0, z: 1 };
     let lastEffect = 0, lastClear = 0;
-    while (bot.entity.position.y > toY && dug < max && stuck < 25 && Date.now() < (bot._stepDeadline || Infinity)) {
+    while (bot.entity.position.y > toY && dug < max && stuck < 25 && Date.now() < (bot._stepDeadline || Infinity) && !lease.stale() && !(typeof bot.health === 'number' && bot.health <= 0)) {
       const y0 = bot.entity.position.y;
       const feet = bot.entity.position.floored();
       // In water, every second spent here is air spent: record the flooded column and let the caller escape+relocate.
@@ -665,12 +665,15 @@ reg.define('deep_shaft', {
         // 07:23:54 `DIED ... Numen fell from a high place` at y=40 was a 24-block step off the lip of the
         // shaft this same routine had dug. So: measure the fall, and if it is a fall, cut a staircase.
         let dropToSolid = null;
+        let probedAir = 0;
         for (let d = 1; d <= 40; d++) {
           const p = bot.blockAt(feet.offset(0, -d, 0));
           if (!p) break;
           if (!isAir(p.name)) { dropToSolid = d - 1; break; }
+          probedAir++;
         }
-        if (dropToSolid !== null && dropToSolid > 3) {
+        // Catch BOTH measurable drops (>3) AND >40-block bottomless chasms where dropToSolid stayed null!
+        if ((dropToSolid !== null && dropToSolid > 3) || (dropToSolid === null && probedAir >= 4)) {
           const s = bot._stair || (bot._stair = { x: 1, z: 0 });
           const beside = feet.offset(s.x, 0, s.z);
           const step = feet.offset(s.x, -1, s.z);
@@ -679,8 +682,12 @@ reg.define('deep_shaft', {
           if (diggable(bBlk)) { try { await bot.dig(bBlk); } catch {} dug++; }
           if (diggable(sBlk)) { try { await bot.dig(sBlk); } catch {} dug++; }
           const st = await P.stepOnto(bot, { x: beside.x, y: beside.y, z: beside.z });
-          log.warn(`deep_shaft: ${dropToSolid}-block free fall at ${feet.x},${feet.y},${feet.z} - not jumping down my own shaft, cutting the staircase via ${beside.x},${beside.y},${beside.z} (stepped ${st.moved})`);
-          if (st.moved < 1) bot._stair = { x: s.z || -s.x, z: s.x ? 0 : 1 };   // flip to the other hand
+          const dropDesc = dropToSolid !== null ? `${dropToSolid}` : `${probedAir}+`;
+          log.warn(`deep_shaft: ${dropDesc}-block free fall at ${feet.x},${feet.y},${feet.z} - not jumping down my own shaft, cutting the staircase via ${beside.x},${beside.y},${beside.z} (stepped ${st.moved})`);
+          if (st.moved < 1) {
+            bot._stair = { x: s.z || -s.x, z: s.x ? 0 : 1 };   // flip to the other hand
+            stuck++;
+          }
           await sleep(250);
           continue;
         }
@@ -711,6 +718,50 @@ reg.define('deep_shaft', {
         }
         if (before - bot.entity.position.y >= 0.5) moved++; else stuck++;
         continue;
+      }
+      // Never break a 1-block cave crust straight into an aquifer, lava lake, or >4-block abyss!
+      // Live 04:21: `ds y=35 dug=1` broke 1 stone block at (-90,34,-259) over a 67-block chasm -> instant fall to y=-32.
+      {
+        const underCrust = bot.blockAt(feet.offset(0, -2, 0));
+        if (underCrust && underCrust.name.includes('water')) {
+          noteFlood(bot, feet.x, feet.z, feet.y - 2);
+          return { ok: false, observation: `WATER directly beneath floor crust at Y=${feet.y - 2} - refusing to break into aquifer` };
+        }
+        if (underCrust && underCrust.name.includes('lava')) {
+          const s = bot._stair || (bot._stair = { x: 1, z: 0 });
+          const side = bot.blockAt(feet.offset(s.x, 0, s.z));
+          if (side && !isAir(side.name) && !/lava|water|bedrock/.test(side.name)) { try { await bot.dig(side); dug++; } catch { stuck++; } }
+          try { await bot.pathfinder.goto(new (GN())(feet.x + s.x, feet.y, feet.z + s.z, 0)); } catch {}
+          await sleep(250);
+          continue;
+        }
+        let crustDrop = 0;
+        for (let d = 2; d <= 6; d++) {
+          const p = bot.blockAt(feet.offset(0, -d, 0));
+          if (!p || !isAir(p.name)) break;
+          crustDrop++;
+        }
+        if (crustDrop >= 4) {
+          const s = bot._stair || (bot._stair = { x: 1, z: 0 });
+          const beside = feet.offset(s.x, 0, s.z);
+          const headSide = feet.offset(s.x, 1, s.z);
+          const bBlk = bot.blockAt(beside), hBlk = bot.blockAt(headSide);
+          const floorSide = bot.blockAt(feet.offset(s.x, -1, s.z));
+          const diggable = (b) => b && !isAir(b.name) && !/lava|water|bedrock/.test(b.name);
+          log.warn(`deep_shaft: ${crustDrop + 1}+ block chasm directly beneath floor crust at ${feet.x},${feet.y - 1},${feet.z} - refusing to dig straight down, stepping sideways to ${beside.x},${beside.y},${beside.z}`);
+          if (floorSide && !isAir(floorSide.name) && !/lava|water/.test(floorSide.name)) {
+            if (diggable(bBlk)) { try { await bot.dig(bBlk); dug++; } catch {} }
+            if (diggable(hBlk)) { try { await bot.dig(hBlk); dug++; } catch {} }
+            const st = await P.stepOnto(bot, { x: beside.x, y: beside.y, z: beside.z });
+            if (st.moved < 1) { bot._stair = { x: s.z || -s.x, z: s.x ? 0 : 1 }; stuck++; }
+          } else {
+            bot._stair = { x: s.z || -s.x, z: s.x ? 0 : 1 };
+            stuck++;
+          }
+          if (stuck >= 4) return { ok: false, observation: `CHASM (${crustDrop + 1}+ blocks) beneath crust at ${feet.x},${feet.y},${feet.z} - pick another shaft column` };
+          await sleep(200);
+          continue;
+        }
       }
       const tDig = Date.now();
       try { await equipBulkPick(bot, true); await bot.dig(below); dug++; stuck = 0; }
@@ -4495,6 +4546,10 @@ reg.define('build_nether_portal', {
         // When far horizontally AND on a different Y level (e.g. y=64 above a y=40 frame), passing y=40
         // straight to pathfinder stalls 28s searching underwater caves! First approach horizontally at our
         // current Y (if >28m away), then align Y vertically via deep_shaft/climbOut, then close horizontally at site.y.
+        if (wetCell(bot) && !lease.stale()) {
+          log.info(`build_nether_portal: standing in water at y=${Math.round(bot.entity.position.y)} before frame approach - climbing dry first`);
+          try { await climbOut(bot, Math.max(site.y, Math.round(bot.entity.position.y) + 4)); } catch {}
+        }
         let w = { ok: true, observation: 'already horizontally close' };
         if (off > 28) {
           w = await reg.get('walk_to').run(bot, { x: site.x + 1, y: Math.round(bot.entity.position.y), z: site.z - 2, tolerance: 12 });
@@ -4520,6 +4575,10 @@ reg.define('build_nether_portal', {
             }
           }
           try { await reg.get('deep_shaft').run(bot, { toY: site.y, max: Math.min(35, Math.round(dyNow) + 6) }); } catch {}
+          if (bot.entity.position.y < site.y - 3 && !lease.stale()) {
+            log.info(`build_nether_portal: overshot below frame y=${site.y} (now y=${Math.round(bot.entity.position.y)}) - climbing back up to frame level`);
+            try { await climbOut(bot, site.y); } catch {}
+          }
           w = await reg.get('walk_to').run(bot, { x: site.x + 1, y: site.y, z: site.z - 2, tolerance: 3 }).catch(() => w);
         }
         const before = need;
@@ -4613,6 +4672,29 @@ reg.define('build_nether_portal', {
       return put;
     };
     if (site) await placeBottomCorners(site);
+    const ensurePortalHand = async (item, label) => {
+      if (!item) return false;
+      if (bot.heldItem && bot.heldItem.name === item.name) return true;
+      await capped(bot.equip(item, 'hand'), 4000, label || `equip ${item.name}`);
+      if (bot.heldItem && bot.heldItem.name === item.name) return true;
+      // 1.21.1 mineflayer#3906: non-hotbar items frequently stay unequipped after bot.equip; click onto hotbar explicitly
+      try {
+        if (item.slot >= 36 && item.slot <= 44 && typeof bot.setQuickBarSlot === 'function') {
+          await bot.setQuickBarSlot(item.slot - 36);
+        } else if (typeof bot.clickWindow === 'function' && typeof bot.setQuickBarSlot === 'function') {
+          const hb = [36, 37, 38, 39, 40, 41, 42, 43, 44].find(s => !bot.inventory.slots[s]) ?? 36;
+          await capped(bot.clickWindow(item.slot, 0, 0), 2500, `pick ${item.name}`);
+          await capped(bot.clickWindow(hb, 0, 0), 2500, `${item.name} to hotbar`);
+          if (bot.inventory.cursor) await capped(bot.clickWindow(item.slot, 0, 0), 2500, 'swap back');
+          await bot.setQuickBarSlot(hb - 36);
+        }
+        await sleep(200);
+        if (!bot.heldItem || bot.heldItem.name !== item.name) {
+          await capped(bot.equip(item, 'hand'), 4000, `re-equip ${item.name}`);
+        }
+      } catch {}
+      return !!(bot.heldItem && bot.heldItem.name === item.name);
+    };
     if (countItem(bot, 'obsidian') < need && site) {
       // Reclaim unneeded obsidian from optional portal corners (bottom corners first so top corners
       // remain as reference faces for the top bar): a 4x5 portal only requires the 10 essential cells,
@@ -4640,38 +4722,25 @@ reg.define('build_nether_portal', {
             }
             if (bot.entity.position.distanceTo(p) > 4.6) continue;
             try { if (bot.pathfinder && typeof bot.pathfinder.stop === 'function') bot.pathfinder.stop(); } catch {}
-            await capped(bot.equip(dPick, 'hand'), 4000, 'equip diamond pick for corner');
-            if (!bot.heldItem || bot.heldItem.name !== dPick.name) {
-              // 1.21.1 mineflayer#3906: bot.equip often leaves a non-hotbar pick unequipped; click onto hotbar explicitly
-              try {
-                if (dPick.slot >= 36 && dPick.slot <= 44 && typeof bot.setQuickBarSlot === 'function') {
-                  await bot.setQuickBarSlot(dPick.slot - 36);
-                } else if (typeof bot.clickWindow === 'function' && typeof bot.setQuickBarSlot === 'function') {
-                  const hb = [36, 37, 38, 39, 40, 41, 42, 43, 44].find(s => !bot.inventory.slots[s]) ?? 36;
-                  await capped(bot.clickWindow(dPick.slot, 0, 0), 2500, 'pick dpick');
-                  await capped(bot.clickWindow(hb, 0, 0), 2500, 'dpick to hotbar');
-                  if (bot.inventory.cursor) await capped(bot.clickWindow(dPick.slot, 0, 0), 2500, 'swap back');
-                  await bot.setQuickBarSlot(hb - 36);
-                }
-                await sleep(200);
-                if (!bot.heldItem || bot.heldItem.name !== dPick.name) {
-                  await capped(bot.equip(dPick, 'hand'), 4000, 're-equip diamond pick');
-                }
-              } catch {}
-            }
-            if (!bot.heldItem || bot.heldItem.name !== dPick.name) {
+            // Settle onto solid ground before digging obsidian so we never eat a 5x airborne digTime penalty
+            for (let gWait = 0; gWait < 4 && bot.entity && bot.entity.onGround === false; gWait++) await sleep(180);
+            if (!(await ensurePortalHand(dPick, 'equip diamond pick for corner'))) {
               log.warn(`build_nether_portal: could not hold ${dPick.name} for corner ${p.x},${p.y},${p.z} (held=${bot.heldItem ? bot.heldItem.name : 'none'}) - skipping`);
               continue;
             }
+            const heldBefore = bot.heldItem ? bot.heldItem.name : '-';
             try { await bot.lookAt(p.offset(0.5, 0.5, 0.5), true); } catch {}
-            const estMs = (typeof bot.digTime === 'function' && Number.isFinite(bot.digTime(cur))) ? bot.digTime(cur) : 12000;
-            const digCap = Math.min(60000, Math.max(25000, Math.round(estMs * 2.2)));
+            const estMs = (typeof bot.digTime === 'function' && Number.isFinite(bot.digTime(cur))) ? bot.digTime(cur) : 10000;
+            const digCap = Math.min(35000, Math.max(18000, Math.round(estMs * 2.2)));
             const beforeObs = countItem(bot, 'obsidian');
             await capped(bot.dig(cur), digCap, 'reclaim corner obsidian', () => { try { if (typeof bot.stopDigging === 'function') bot.stopDigging(); } catch {} });
-            await sleep(350);
+            await sleep(400);
             try { await capped(bot.pathfinder.goto(new (GN())(p.x, p.y, p.z, 1)), 4000, 'step to corner drop'); } catch {}
-            try { await P.collectNear(bot, p, ['obsidian'], 6000); } catch {}
-            log.info(`build_nether_portal: reclaimed optional corner obsidian at ${p.x},${p.y},${p.z} (${beforeObs} -> ${countItem(bot, 'obsidian')}/${need}, held=${bot.heldItem ? bot.heldItem.name : '-'}, est=${estMs}ms, now=${(bot.blockAt(p) || {}).name || '?'})`);
+            if (countItem(bot, 'obsidian') <= beforeObs) {
+              try { await P.stepOnto(bot, { x: p.x, y: p.y, z: p.z }); } catch {}
+              try { await P.collectNear(bot, p, ['obsidian'], 6000); } catch {}
+            }
+            log.info(`build_nether_portal: reclaimed optional corner obsidian at ${p.x},${p.y},${p.z} (${beforeObs} -> ${countItem(bot, 'obsidian')}/${need}, held=${heldBefore}, est=${estMs}ms, now=${(bot.blockAt(p) || {}).name || '?'})`);
           } catch (e) {
             log.warn(`build_nether_portal: reclaim corner ${p.x},${p.y},${p.z} threw ${String(e.message).slice(0, 70)}`);
           }
@@ -4861,7 +4930,7 @@ reg.define('build_nether_portal', {
         ? (P.cheapFill(bot, 1) || bot.inventory.items().find(i => i.name === 'obsidian'))
         : bot.inventory.items().find(i => i.name === 'obsidian');
       if (!mat) { log.warn(`portal: no ${useCheapCorner ? 'corner scaffold or ' : ''}obsidian item left (target ${p.x},${p.y},${p.z}) inv=${require('../observe').invSummary(bot).slots}`); return false; }
-      await capped(bot.equip(mat, 'hand'), 4000, `equip ${mat.name}`);
+      await ensurePortalHand(mat, `equip ${mat.name}`);
       const refs = [[0, -1, 0, 0, 1, 0], [-1, 0, 0, 1, 0, 0], [1, 0, 0, -1, 0, 0], [0, 0, -1, 0, 0, 1]]
         .map(([rx, ry, rz, vx, vy, vz]) => ({ b: bot.blockAt(p.offset(rx, ry, rz)), v: new Vec3(vx, vy, vz) }))
         // A reference must be a PHYSICAL block. prismarine-block has no isSolid(); the field
@@ -4918,11 +4987,18 @@ reg.define('build_nether_portal', {
       const fill = bot.inventory.items().find(i => /(cobblestone|cobbled_deepslate|dirt|stone|andesite|diorite|granite|tuff|blackstone)$/.test(i.name));
       if (!fill) return false;
       const spot = new Vec3(ox + 1, bottomY, oz - 2);
+      // Clear 2-high headroom above the stool (crucial inside underground caves!)
+      for (const hdy of [1, 2]) {
+        const hb = bot.blockAt(spot.offset(0, hdy, 0));
+        if (hb && !isAir(hb.name) && !/water|lava|bedrock|obsidian/.test(hb.name)) {
+          try { if (!(await equipBulkPick(bot, false))) await equipPick(bot); await bot.dig(hb); } catch {}
+        }
+      }
       const cur = bot.blockAt(spot);
       if (!cur || isAir(cur.name)) {
         const ref = bot.blockAt(new Vec3(ox + 1, bottomY - 1, oz - 2));
         if (!ref || isAir(ref.name)) return false;
-        try { await bot.equip(fill, 'hand'); } catch {}
+        try { await ensurePortalHand(fill, 'equip stool'); } catch {}
         await capped(bot.placeBlock(ref, new Vec3(0, 1, 0)), 4000, 'place stool');
       }
       await capped(bot.pathfinder.goto(new (GN())(ox + 1, bottomY + 1, oz - 2, 0)), 12000, 'climb stool');
@@ -4993,7 +5069,7 @@ reg.define('build_nether_portal', {
       if (!ref || ref.name !== 'obsidian') { lastErr = `no obsidian at ${pos.x},${pos.y},${pos.z} (${ref ? ref.name : 'NULL'})`; continue; }
       const still = bot.inventory.items().find(i => i.name === 'flint_and_steel');
       if (!still) { lastErr = 'flint_and_steel disappeared'; break; }
-      await capped(bot.equip(still, 'hand'), 4000, 'equip flint_and_steel');
+      await ensurePortalHand(still, 'equip flint_and_steel');
       await capped(bot.lookAt(pos.plus(new Vec3(0.5, 0.5, 0.5).plus(face.scale(0.5)))), 3000, 'look at frame face');
       const res = await capped(bot.placeBlock(ref, face), 6000, 'strike flint_and_steel');
       lastErr = res === null ? 'placement call timed out' : lastErr;

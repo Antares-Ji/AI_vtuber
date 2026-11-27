@@ -109,17 +109,54 @@ function syncPathfinderPolicy(bot, mov, opts = {}) {
   mov.allow1by1towers = false;
 }
 
+// Upstream minecraft-data 1.21.1 bug: 101 pickaxe blocks (obsidian, crying_obsidian, diamond_ore,
+// deepslate_diamond_ore, iron_ore, gold_ore, copper_ore, ancient_debris, etc.) carry
+// material='incorrect_for_wooden_tool', whose multiplier table only lists wooden tools (speed 2).
+// Because diamond_pickaxe/iron_pickaxe/stone_pickaxe are missing from that table, prismarine-block
+// computes speed=1 -> obsidian digTime=75,000ms (8x too slow; real 1.21.1 time is 9,400ms!),
+// causing Mineflayer's bot.dig() waitTimeout to hold for 75s (375s if !onGround) and always time out.
+// Replacing incorrect_for_* material tables with the mineable/pickaxe multipliers restores exact
+// Vanilla 1.21.1 speeds (wood=2, stone=4, iron=6, diamond=8, netherite=9, gold=12) while
+// block.canHarvest(heldItemType) still enforces block.harvestTools independently.
+function patchBrokenPickaxeMaterials(registry) {
+  if (!registry || !registry.materials) return false;
+  const pickMap = registry.materials['mineable/pickaxe'];
+  if (!pickMap || typeof pickMap !== 'object') return false;
+  let patched = false;
+  for (const key of Object.keys(registry.materials)) {
+    if (!/^incorrect_for_/.test(key)) continue;
+    const cur = registry.materials[key];
+    if (!cur || typeof cur !== 'object') continue;
+    registry.materials[key] = Object.assign({}, pickMap);
+    patched = true;
+  }
+  return patched;
+}
+
 // Event-driven dig confirmation wrapper:
 // Mineflayer's bot.dig() resolves on a local client-side digTime() timer, NOT on Paper's server-side
 // blockUpdate confirmation. A 50-200ms client/server tick or RTT drift causes Paper to reject the
 // early STOP_DESTROY_BLOCK while the caller immediately rotates its head ("挖没完就转头").
 // Instead of adding a blind 500ms sleep to every action (which slows combat/movement), we:
-//   1. Return in 0ms when the block is already air/replaced.
-//   2. Wait up to 320ms for Paper's actual blockUpdate event (resolves immediately on arrival).
-//   3. If the block is STILL intact after 320ms (early-stop rejected), settle 150ms and retry ONCE.
+//   1. Patch 1.21.1 incorrect_for_* pickaxe material tables so obsidian/ores dig at real Vanilla speed.
+//   2. Add a small +150ms (3-tick) RTT buffer on long digs (>=5s like obsidian) so Paper accepts the first finish packet.
+//   3. Return in 0ms when the block is already air/replaced.
+//   4. Wait up to 320ms for Paper's actual blockUpdate event (resolves immediately on arrival).
+//   5. If the block is STILL intact after 320ms (early-stop rejected), settle 150ms and retry ONCE.
 function installSafeDig(bot) {
   if (!bot || typeof bot.dig !== 'function' || bot._safeDigInstalled) return;
   bot._safeDigInstalled = true;
+  try { patchBrokenPickaxeMaterials(bot.registry); } catch {}
+  try { if (bot.version) patchBrokenPickaxeMaterials(require('minecraft-data')(bot.version)); } catch {}
+  if (typeof bot.digTime === 'function' && !bot._safeDigTimeInstalled) {
+    bot._safeDigTimeInstalled = true;
+    const origDigTime = bot.digTime.bind(bot);
+    bot.digTime = (block) => {
+      const ms = origDigTime(block);
+      if (Number.isFinite(ms) && ms >= 5000) return ms + 150;
+      return ms;
+    };
+  }
   const origDig = bot.dig.bind(bot);
   const waitMs = (ms) => new Promise(r => setTimeout(r, ms));
   const isGone = (pos, origType) => {
@@ -285,7 +322,10 @@ function createBot() {
   }
 
   bot.once('spawn', () => {
-    const mov = new Movements(bot, require('minecraft-data')(bot.version));
+    const mcDataSpawn = require('minecraft-data')(bot.version);
+    try { patchBrokenPickaxeMaterials(bot.registry); } catch {}
+    try { patchBrokenPickaxeMaterials(mcDataSpawn); } catch {}
+    const mov = new Movements(bot, mcDataSpawn);
     bot._movements = mov;
     // Balanced Movements policy:
     // - digCost=4 (was 0.4, which made digging straight into cliffs/aquifers 2.5x cheaper than walking!)
@@ -841,4 +881,4 @@ function createBot() {
   return bot;
 }
 
-module.exports = { createBot, goals, selectConservativeTool, syncPathfinderPolicy, hasUsableBulkPick, installSafeDig, hasPathMoved };
+module.exports = { createBot, goals, selectConservativeTool, syncPathfinderPolicy, hasUsableBulkPick, installSafeDig, patchBrokenPickaxeMaterials, hasPathMoved };
