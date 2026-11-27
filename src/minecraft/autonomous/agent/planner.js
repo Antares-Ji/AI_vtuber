@@ -486,23 +486,30 @@ async function run(bot) {
   bot.on('kicked', () => { _ended = true; });
   while (!bot.entity || !bot.entity.position) { await sleep(1000); if (_ended) return; }
 
-  // Health watchdog. A milestone routine can run for up to PROGRAM_TIMEOUT_MS (420s) and never
-  // re-reads hp - that is how it came out of a step at hp 2. Every few seconds: on low hp stop
-  // walking, take the assist effects, and eat up to the regen threshold.
+  // Health watchdog. Only interrupt pathfinder when we actually have an action to take (either
+  // MC_ASSIST effects when enabled, or an edible food item in the pack to eat). Under MC_ASSIST=0
+  // with an empty food pack, stopping pathfinder every 4s did nothing except paralyze every hunt,
+  // roam, and escape leg whenever HP<=6 (live 11:08:04-11:08:42: 9 consecutive 4s cancellations).
   let wdBusy = false;
-  const FOOD_ITEMS = ['cooked_beef', 'cooked_porkchop', 'cooked_chicken', 'cooked_mutton', 'bread', 'cooked_cod', 'cooked_salmon', 'baked_potato', 'apple', 'beef', 'porkchop', 'chicken', 'mutton', 'cod', 'salmon', 'carrot', 'potato'];
+  const FOOD_ITEMS = ['cooked_beef', 'cooked_porkchop', 'cooked_chicken', 'cooked_mutton', 'cooked_rabbit', 'bread', 'cooked_cod', 'cooked_salmon', 'baked_potato', 'apple', 'sweet_berries', 'glow_berries', 'beef', 'porkchop', 'chicken', 'mutton', 'rabbit', 'cod', 'salmon', 'carrot', 'potato', 'rotten_flesh'];
   setInterval(() => {
-    if (wdBusy || !bot.entity || bot.health > 12 && bot.food > 14) return;
-    // Yield the hand to whatever milestone step is running (see bot._stepBusy) unless we are close to
-    // dying - then eat anyway, because that is the one thing worth interrupting a craft for.
+    if (wdBusy || !bot.entity || (bot.health > 12 && bot.food > 14)) return;
     if (bot._stepBusy && bot.health > 6) return;
+    const canAssist = process.env.MC_ASSIST !== '0' && bot.health <= 12;
+    const needEat = bot.food < (bot.health <= 12 ? 19 : 15);
+    const it = needEat ? bot.inventory.items().find(i => FOOD_ITEMS.includes(i.name)) : null;
+    if (!canAssist && !it) return;
     wdBusy = true;
     (async () => {
       try {
-        if (bot.health <= 12) { try { bot.pathfinder.stop(); } catch {} await assistEffects(bot); }
-        if (bot.food < 15) {
-          const it = bot.inventory.items().find(i => FOOD_ITEMS.includes(i.name));
-          if (it) { try { await bot.equip(it, 'hand'); await bot.activateItem(); await sleep(1200); } catch {} }
+        if (canAssist) { try { bot.pathfinder.stop('health-watchdog-assist'); } catch {} await assistEffects(bot); }
+        if (it) {
+          try {
+            try { bot.pathfinder.stop('health-watchdog-eat'); } catch {}
+            await bot.equip(it, 'hand');
+            await bot.activateItem();
+            await sleep(1200);
+          } catch {}
         }
       } catch {} finally { wdBusy = false; }
     })();
