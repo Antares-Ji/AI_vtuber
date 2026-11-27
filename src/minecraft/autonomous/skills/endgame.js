@@ -1176,7 +1176,44 @@ reg.define('ensure_bucket', {
       try { await reg.get('walk_to').run(bot, { x: st.x, y: st.y, z: st.z, tolerance: 6 }); } catch {}
       if (await fillFrom(8)) return { ok: true, observation: `walked ${Math.round(st.dist)} blocks to a remembered water source and filled the bucket` };
     }
-    return { ok: false, observation: `the pack has a bucket but no water source in reach (searched 6 blocks, then the remembered lake) - obsidian needs one filled bucket` };
+    // Scan loaded surface/nearby water up to 40 blocks (remembering it for future runs) and break covering ice in frozen biomes.
+    try {
+      const wPts = bot.findBlocks({ matching: blockIds(bot, ['water']), maxDistance: 40, count: 20 }) || [];
+      const wCands = wPts.map(pt => bot.blockAt(pt))
+        .filter(b => b && b.name === 'water' && isFluidSource(b))
+        .sort((a, b) => {
+          const ao = (() => { const ab = bot.blockAt(a.position.offset(0, 1, 0)); return !ab || isAir(ab.name) ? 0 : (ab.name === 'ice' ? 1 : 2); })();
+          const bo = (() => { const ab = bot.blockAt(b.position.offset(0, 1, 0)); return !ab || isAir(ab.name) ? 0 : (ab.name === 'ice' ? 1 : 2); })();
+          return ao - bo || bot.entity.position.distanceTo(a.position) - bot.entity.position.distanceTo(b.position);
+        })
+        .slice(0, 4);
+      for (const wc of wCands) {
+        if (countItem(bot, 'water_bucket') > 0) break;
+        if (bot.entity.position.distanceTo(wc.position) > 4) {
+          try { await capped(bot.pathfinder.goto(new (GN())(wc.position.x, wc.position.y + 1, wc.position.z, 2)), 20000, 'ensure_bucket walk to water'); } catch {}
+        }
+        if (bot.entity.position.distanceTo(wc.position) > 4.5) continue;
+        let tgt = wc;
+        const cov = bot.blockAt(wc.position.offset(0, 1, 0));
+        if (cov && cov.name === 'ice') {
+          try { await equipBulkPick(bot, false); await bot.dig(cov); await sleep(250); } catch {}
+          const th = bot.blockAt(cov.position);
+          if (th && th.name === 'water' && isFluidSource(th)) tgt = th;
+        }
+        const bs = bot.inventory.items().find(i => i.name === 'bucket');
+        if (!bs) break;
+        try { await bot.equip(bs, 'hand'); } catch {}
+        try { await bot.lookAt(tgt.position.offset(0.5, 0.5, 0.5), true); } catch {}
+        try { await bot.activateItem(); } catch {}
+        await sleep(800);
+        if (countItem(bot, 'water_bucket') > 0) {
+          if (tgt.position.y >= 56) { try { oreCache.remember('water', tgt.position.x, tgt.position.y, tgt.position.z); } catch {} }
+          log.skill(`ensure_bucket: walked to and filled bucket at ${tgt.position.x},${tgt.position.y},${tgt.position.z}`);
+          return { ok: true, observation: `filled water_bucket at ${tgt.position.x},${tgt.position.y},${tgt.position.z}` };
+        }
+      }
+    } catch {}
+    return { ok: false, observation: `the pack has a bucket but no water source in reach (searched 40 blocks and the remembered lake) - obsidian needs one filled bucket` };
   },
 });
 
@@ -3164,17 +3201,28 @@ reg.define('make_obsidian', {
         log.warn(`make_obsidian: bucket is empty and no water source was found within 40 blocks at y=${Math.round(bot.entity.position.y)} - skipping the pour and continuing`);
       }
       try {
+        // Walk into reach of found water first when it sits in the 8..40 block band: previously findBlock
+        // succeeded at ~17 blocks (so roam skipped), then the <=12 filter discarded every candidate, leaving
+        // cands=[] and walking 160 blocks to lava with an EMPTY bucket!
+        if (water && bot.entity.position.distanceTo(water.position) > 8 && bot.entity.position.distanceTo(water.position) <= 42) {
+          log.skill(`make_obsidian: walking ${Math.round(bot.entity.position.distanceTo(water.position))} blocks to water at ${water.position.x},${water.position.y},${water.position.z} to fill bucket`);
+          try {
+            await capped(bot.pathfinder.goto(new (GN())(water.position.x, water.position.y + 1, water.position.z, 2)), 20000, 'walk to water source');
+          } catch {}
+        }
         // One candidate was not enough: findBlock returns flowing water too, and a bucket only
         // fills from a SOURCE. Try each nearby water cell until one actually fills the bucket.
         let cands = [];
         try {
-          cands = bot.findBlocks({ matching: blockIds(bot, ['water']), maxDistance: 40, count: 12 })
+          cands = bot.findBlocks({ matching: blockIds(bot, ['water']), maxDistance: 40, count: 24 })
             .map(p => bot.blockAt(p)).filter(b => b && b.name === 'water')
-            // Only cells we could actually stand next to. Twelve candidates spread over 40 blocks
-            // meant twelve sequential gotos of up to 30 s each - the 200 s of silence at 11:33-11:36
-            // while the milestone step burned its whole budget on a bucket.
-            .filter(b => bot.entity.position.distanceTo(b.position) <= 12)
-            .sort((a, b) => bot.entity.position.distanceTo(a.position) - bot.entity.position.distanceTo(b.position))
+            // Allow up to 32 blocks (capped to 4 best candidates) so 12..32 block surface ponds are never dropped.
+            .filter(b => bot.entity.position.distanceTo(b.position) <= 32)
+            .sort((a, b) => {
+              const ao = (() => { const ab = bot.blockAt(a.position.offset(0, 1, 0)); return !ab || isAir(ab.name) ? 0 : (ab.name === 'ice' ? 1 : 2); })();
+              const bo = (() => { const ab = bot.blockAt(b.position.offset(0, 1, 0)); return !ab || isAir(ab.name) ? 0 : (ab.name === 'ice' ? 1 : 2); })();
+              return ao - bo || bot.entity.position.distanceTo(a.position) - bot.entity.position.distanceTo(b.position);
+            })
             .slice(0, 4);
         } catch { cands = []; }
         // A bucket only takes a level-0 source. In a flooded cave almost every visible cell is
@@ -3185,10 +3233,7 @@ reg.define('make_obsidian', {
           if (src.length) cands = src;
           else if (cands.length) log.info(`make_obsidian: all ${cands.length} nearby water cells are flowing (level>0) - a bucket cannot take them, need a source`);
         }
-        // Reach-gated, otherwise this single far cell keeps defeating the "nothing is close, climb
-        // out" branch below: at 18:14 the remembered water was 36 blocks above and `cands` became
-        // [that cell], so the loop just refused it and the round ended without ever climbing.
-        if (!cands.length && water && bot.entity.position.distanceTo(water.position) <= 12) cands = [water];
+        if (!cands.length && water && bot.entity.position.distanceTo(water.position) <= 32) cands = [water];
         // Sources first. `drainable` is undefined on this mineflayer (measured 11:33:10), so use the
         // terrain definition of a source: something solid beneath it and no water above.
         const srcScore = (b) => {
@@ -3265,7 +3310,10 @@ reg.define('make_obsidian', {
             await sleep(900);
           }
           if (countItem(bot, 'water_bucket') < 1) log.skill(`bucket still empty at source water ${fillTarget.position.x},${fillTarget.position.y},${fillTarget.position.z} (level ${fluidLevel(fillTarget)}) - tried aim+use twice - trying the next cell`);
-          else water = fillTarget;
+          else {
+            water = fillTarget;
+            if (fillTarget.position.y >= 56) { try { oreCache.remember('water', fillTarget.position.x, fillTarget.position.y, fillTarget.position.z); } catch {} }
+          }
         }
       } catch (e) { log.warn(`fill bucket threw ${e.message}`); }
       if (countItem(bot, 'water_bucket') < 1) {

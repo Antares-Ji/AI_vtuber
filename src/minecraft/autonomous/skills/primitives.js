@@ -2320,6 +2320,8 @@ async function dropJunk(bot, force, minFree = 6) {
       if (/_bed$/.test(it.name)) return true;
       // the hoisted rule: while the pack cannot pay for a table, no wood or plank leaves at all.
       if (woodThin() && WOOD_RE.test(it.name)) return true;
+      // Never toss the last <=8 logs in Pass 2 (e.g. tossing spruce_logx5 instead of dandelionx1).
+      if (/_(log|wood|stem|hyphae)$/.test(it.name) && logsAllW() <= 8) return true;
       if (woodIsBootstrap && /_(log|wood|stem|hyphae)$/.test(it.name)) return true;
       if (pickSupplyThin && /_(log|wood|stem|hyphae)$/.test(it.name)) return true;
       const cap = JUNK_CAP[it.name];

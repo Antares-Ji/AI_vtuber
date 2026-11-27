@@ -1259,8 +1259,94 @@ function makeBot(overrides = {}) {
     assert.equal(botRoof._badLavaKeys && botRoof._badLavaKeys.has('2,30,0'), true, 'make_obsidian must blacklist lava cell that emptied water_bucket with 0 obsidian');
   }
 
+  // 29. make_obsidian walks to water in the 12..40m band to fill bucket (no 12..40m dead zone) & tidy protects <=8 logs
+  {
+    const P8 = require('../src/minecraft/autonomous/skills/primitives');
+    const waterId = P8.blockIds(makeBot(), ['water'])[0];
+    const origDS = reg.get('deep_shaft').run;
+    const origRoam = reg.get('roam').run;
+    const origWalk = reg.get('walk_to').run;
+    try {
+      reg.get('deep_shaft').run = async () => ({ ok: false, observation: 'stub-stop' });
+      reg.get('roam').run = async () => ({ ok: false, observation: 'stub-stop' });
+      reg.get('walk_to').run = async () => ({ ok: false, observation: 'stub-stop' });
+      const items = [
+        { name: 'diamond_pickaxe', count: 1, slot: 36, maxDurability: 1561, durabilityUsed: 0 },
+        { name: 'bucket', count: 1, slot: 37 },
+      ];
+      let walkedToWater = false;
+      const waterPos = new Vec3(18, 61, 0); // 18 blocks away (inside 12..40m band!)
+      const botBand = makeBot({
+        entity: { position: new Vec3(0, 63, 0), yaw: 0, pitch: 0 },
+        inventory: { slots: new Array(46).fill(null), items: () => items },
+        equip: async (it) => { botBand.heldItem = it; },
+        lookAt: async () => {},
+        pathfinder: {
+          stop: () => {},
+          goto: async (goal) => {
+            if (goal && Math.abs(goal.x - 18) <= 2) {
+              walkedToWater = true;
+              botBand.entity.position = new Vec3(17, 62, 0);
+            }
+          },
+        },
+        findBlock: ({ matching }) => {
+          const m = Array.isArray(matching) ? matching : [matching];
+          return m.includes(waterId) ? { name: 'water', position: waterPos, getProperties: () => ({ level: 0 }) } : null;
+        },
+        findBlocks: ({ matching }) => {
+          const m = Array.isArray(matching) ? matching : [matching];
+          return m.includes(waterId) ? [waterPos] : [];
+        },
+        blockAt: (p) => {
+          if (!p) return { name: 'air', boundingBox: 'none' };
+          if (Math.floor(p.x) === 18 && Math.floor(p.y) === 61 && Math.floor(p.z) === 0) {
+            return { name: 'water', position: waterPos, getProperties: () => ({ level: 0 }) };
+          }
+          return { name: 'air', boundingBox: 'none' };
+        },
+        activateItem: async () => {
+          if (botBand.heldItem && botBand.heldItem.name === 'bucket' && botBand.entity.position.distanceTo(waterPos) <= 4.5) {
+            items.splice(items.findIndex(i => i.name === 'bucket'), 1, { name: 'water_bucket', count: 1, slot: 37 });
+          }
+        },
+      });
+      await reg.get('make_obsidian').run(botBand, { count: 1 });
+      assert.equal(walkedToWater, true, 'make_obsidian must walk to water found 18 blocks away instead of dropping it with <=12 filter');
+      assert.equal(items.some(i => i.name === 'water_bucket'), true, 'bucket must be filled after walking to 18m surface water');
+    } finally {
+      reg.get('deep_shaft').run = origDS;
+      reg.get('roam').run = origRoam;
+      reg.get('walk_to').run = origWalk;
+    }
+
+    // Also verify tidy (dropJunk) protects <=8 spruce_log and drops flower junk instead
+    const tossed = [];
+    const invLogs = [
+      { name: 'crafting_table', count: 1, slot: 9 },
+      { name: 'spruce_planks', count: 8, slot: 10 },
+      { name: 'spruce_log', count: 5, slot: 11 },
+      { name: 'dandelion', count: 1, slot: 12 },
+    ];
+    // Pad to 33 stacks so freeSlots = 3 < minFree=6
+    for (let s = 13; s < 42; s++) invLogs.push({ name: 'diamond', count: 1, slot: s });
+    const botWood = makeBot({
+      entity: { position: new Vec3(0, 64, 0), yaw: 0, pitch: 0 },
+      inventory: { slots: new Array(46).fill(null), items: () => invLogs },
+      tossStack: async (it) => {
+        tossed.push(it.name);
+        const idx = invLogs.indexOf(it);
+        if (idx >= 0) invLogs.splice(idx, 1);
+      },
+      toss: async () => {},
+    });
+    await P8.dropJunk(botWood, false, 6);
+    assert.ok(!tossed.includes('spruce_log'), 'tidy must NEVER toss <=8 backup logs in Pass 2');
+    assert.ok(tossed.includes('dandelion'), 'tidy should drop flower junk instead of backup logs');
+  }
+
   fs.rmSync(tmp, { recursive: true, force: true });
-  console.log('PASS minecraft-autonomous: all 28 regression groups passed');
+  console.log('PASS minecraft-autonomous: all 29 regression groups passed');
 })().catch(e => {
   console.error(e);
   process.exitCode = 1;
