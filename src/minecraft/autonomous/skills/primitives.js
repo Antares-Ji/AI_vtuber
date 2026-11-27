@@ -10,6 +10,7 @@ const log = require('../log');
 const cfg = require('../config');
 const oreCache = require('../oreCache');
 const pov = require('../pov');
+const lease = require('../stepLease');
 
 function data(bot) { return mcdata(bot.version || '1.21.1'); }
 function blockIds(bot, names) {
@@ -120,6 +121,8 @@ reg.define('chop_trees', {
       return { ok: false, observation: `logs now=${logsNow()} in ${dimHere}: no log block generates in this dimension - wood, planks and sticks have to come from the Overworld, so take the portal back (return_overworld / use_portal) before any recipe that needs them` };
     }
     let guard = 0, surfaced = false, triedToSurface = false, sawTree = false, lastErr = '', walkedForWood = false, logsCut = 0;
+    const badTrees = new Set();
+    const treeKey = (p) => `${Math.floor(p.x)},${Math.floor(p.y)},${Math.floor(p.z)}`;
     // Never try pathing straight through 40 blocks of ceiling rock to a surface tree while underground:
     // findBlock(maxDistance: 48) sees trees overhead at y=70 from y=29 and skips the !tree surface branch.
     if ((bot.entity.position.y < 52 || roofed()) && !triedToSurface) {
@@ -131,9 +134,26 @@ reg.define('chop_trees', {
       } catch (e) { log.warn('chop_trees pre-surface threw:', e.message); }
     }
     while (logsNow() < need && guard++ < 12) {
+      if (lease.stale() || Date.now() >= (bot._stepDeadline || Infinity)) break;
       pov.progress('砍树', logsNow(), need);
       const ids = blockIds(bot, LOG_NAMES);
-      const tree = bot.findBlock({ matching: ids, maxDistance: 48 });
+      let tree = null;
+      try {
+        const pts = (typeof bot.findBlocks === 'function'
+          ? (bot.findBlocks({ matching: ids, maxDistance: 48, count: 24 }) || [])
+          : [])
+          .filter(p => p && !badTrees.has(treeKey(p)))
+          .sort((a, b) => (Math.abs(a.y - bot.entity.position.y) * 2 + bot.entity.position.distanceTo(a))
+            - (Math.abs(b.y - bot.entity.position.y) * 2 + bot.entity.position.distanceTo(b)));
+        for (const p of pts) {
+          const bl = bot.blockAt(p);
+          if (bl && LOG_NAMES.includes(bl.name)) { tree = bl; break; }
+        }
+      } catch {}
+      if (!tree) {
+        const fb = bot.findBlock({ matching: ids, maxDistance: 48 });
+        if (fb && !badTrees.has(treeKey(fb.position))) tree = fb;
+      }
       if (!tree) {
         // A reef is not a forest, and the old two tests both missed it: at 04:52 on 2026-10-31 the bot
         // stood at y=62-63 on an open-sky coral shelf (roofed()=false, y<62=false), so it never left the
@@ -183,12 +203,32 @@ reg.define('chop_trees', {
         await stepMove(bot); continue;
       }
       sawTree = true;
+      let treeTimer = null;
       try {
-        await bot.pathfinder.goto(new (require('mineflayer-pathfinder').goals || require('mineflayer-pathfinder').pathfinder.Goals).GoalNear(tree.position.x, tree.position.y, tree.position.z, 2));
+        const GN = (require('mineflayer-pathfinder').goals || require('mineflayer-pathfinder').pathfinder.Goals).GoalNear;
+        await Promise.race([
+          bot.pathfinder.goto(new GN(tree.position.x, tree.position.y, tree.position.z, 2)),
+          new Promise((_, rej) => { treeTimer = setTimeout(() => rej(new Error('goto tree timed out (15s)')), 15000); }),
+        ]);
         const dr = await digTree(bot, tree);
         if (dr && dr.broke > 0) logsCut += dr.broke;
+        else badTrees.add(treeKey(tree.position));
         if (dr && dr.broke > 0 && logsNow() === 0) lastErr = `${dr.broke} log block(s) broken but no log in the pack - the drop never reached it${dr.err ? ` (${dr.err})` : ''}`;
-      } catch (e) { lastErr = String(e.message || e).slice(0, 60); log.warn(`chop_trees: the ${sawTree ? 'dig' : 'walk'} to the trunk failed - ${lastErr}`); if (cfg.bot && cfg.bot.talk === 'game' && bot.chat) { try { bot.chat('chop err: ' + e.message); } catch {} } }
+      } catch (e) {
+        if (/timed out/i.test(String(e && e.message))) { try { bot.pathfinder.stop(); } catch {} }
+        badTrees.add(treeKey(tree.position));
+        lastErr = String(e.message || e).slice(0, 60);
+        log.warn(`chop_trees: the ${sawTree ? 'dig' : 'walk'} to the trunk failed - ${lastErr}`);
+        if (cfg.bot && cfg.bot.talk === 'game' && bot.chat) { try { bot.chat('chop err: ' + e.message); } catch {} }
+        if (lease.stale()) break;
+        // Stuck in a <=y=62 shoreline pit (e.g. canDig=false when picks are worn) while trying to reach a hill tree: climb out once!
+        if (bot.entity.position.y <= 62 && !surfaced && reg.get('recover_surface')) {
+          surfaced = true;
+          try { await reg.get('recover_surface').run(bot, {}); } catch {}
+        }
+      } finally {
+        if (treeTimer) clearTimeout(treeTimer);
+      }
     }
     const have = logsNow();
     const fy = bot.entity.position.floored().y;
@@ -2734,6 +2774,7 @@ reg.define('ensure_tools', {
     const lowWoodReserve = (!tableNear && !canPayForTable)
       || (woodEquiv0 < 4 && countItem(bot, 'stick') < 2)
       || (deepY >= 52 && (woodEquiv0 < 16 || (countItem(bot, 'crafting_table') < 1 && woodEquiv0 < 20)));
+    if (lease.stale()) return { ok: false, observation: 'ensure_tools lease revoked' };
     if (lowWoodReserve && bot.game && bot.game.dimension === 'overworld') {
       log.skill(`ensure_tools: topping up backup wood reserve (logs=${logs0} planks=${planks0} stick=${countItem(bot, 'stick')} table=${countItem(bot, 'crafting_table')} y=${Math.round(deepY)})`);
       if (deepY < 50) {
@@ -2788,6 +2829,7 @@ reg.define('ensure_tools', {
       // that dead-ended the whole iron chain.
       const gcP = require('../gridcraft');
       for (const nm of ['stone_pickaxe', 'wooden_pickaxe', 'iron_pickaxe', 'diamond_pickaxe']) {
+        if (lease.stale()) return { ok: false, observation: 'ensure_tools lease revoked mid-craft' };
         // Cheap tiers are guaranteed against the CHEAP set: breaking on goodPicks() here is what let
         // a lone diamond pick count as "tools are fine". Stone is tried before wooden because this
         // pack has 16 cobblestone and no planks.

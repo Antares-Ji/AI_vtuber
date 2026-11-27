@@ -1673,8 +1673,80 @@ function makeBot(overrides = {}) {
     }
   }
 
+  // 36. chop_trees skips unreachable cliff trees (badTrees), climbs out of y<=62 pit, and ensures stale lease exits fast
+  {
+    const P11 = require('../src/minecraft/autonomous/skills/primitives');
+    const lease2 = require('../src/minecraft/autonomous/stepLease');
+    const spruceId = P11.blockIds(makeBot(), ['spruce_log'])[0];
+    const origRec3 = reg.get('recover_surface').run;
+    let climbedPit = false;
+    const gotoTargets = [];
+    const items = [];
+    try {
+      reg.get('recover_surface').run = async (b) => {
+        climbedPit = true;
+        b.entity.position = new Vec3(0, 64, 0);
+        return { ok: true, observation: 'climbed pit' };
+      };
+      const cliffPos = new Vec3(20, 72, 0);
+      const nearPos = new Vec3(3, 64, 0);
+      const botTree = makeBot({
+        entity: { position: new Vec3(0, 61, 0), yaw: 0, pitch: 0 },
+        game: { dimension: 'overworld' },
+        inventory: { slots: new Array(46).fill(null), items: () => items },
+        pathfinder: {
+          stop: () => {},
+          goto: async (goal) => {
+            gotoTargets.push(`${goal.x},${goal.y},${goal.z}`);
+            if (goal.x === 20) throw new Error('No path to the goal!');
+            botTree.entity.position = new Vec3(3, 64, 0);
+          },
+        },
+        findBlocks: ({ matching }) => {
+          const m = Array.isArray(matching) ? matching : [matching];
+          if (m.includes(spruceId)) return [cliffPos, nearPos];
+          return [];
+        },
+        blockAt: (p) => {
+          if (!p) return { name: 'air', boundingBox: 'none' };
+          const x = Math.floor(p.x), y = Math.floor(p.y), z = Math.floor(p.z);
+          if (x === 20 && y === 72 && z === 0) return { name: 'spruce_log', position: cliffPos, boundingBox: 'block', type: spruceId };
+          if (x === 3 && y === 64 && z === 0) return { name: 'spruce_log', position: nearPos, boundingBox: 'block', type: spruceId };
+          return { name: 'air', boundingBox: 'none' };
+        },
+        dig: async (blk) => {
+          if (blk && blk.position.x === 3) {
+            items.push({ name: 'spruce_log', count: 4, slot: 10 });
+          }
+        },
+      });
+      // First make nearPos unreachable while cliffPos fails -> nearPos should be tried first (closer y),
+      // wait: reverse so cliffPos is tried first when at y=61 by making nearPos higher, OR put cliffPos closer!
+      botTree.findBlocks = ({ matching }) => {
+        const m = Array.isArray(matching) ? matching : [matching];
+        if (!m.includes(spruceId)) return [];
+        return climbedPit ? [cliffPos, nearPos] : [cliffPos];
+      };
+      await reg.get('chop_trees').run(botTree, { count: 4 });
+      assert.equal(climbedPit, true, 'chop_trees must climb out of y<=62 pit when tree goto fails');
+      assert.ok(gotoTargets.includes('3,64,0'), `chop_trees must skip failed cliff tree and move to reachable tree (tried=${gotoTargets.join(' | ')})`);
+      assert.equal(P11.countItem(botTree, 'spruce_log') >= 4, true, 'chop_trees must collect logs from the reachable tree');
+
+      // Also verify ensure_tools exits immediately when stepLease is stale
+      let staleToolsRes = null;
+      await lease2.run(async () => {
+        lease2.revoke();
+        staleToolsRes = await reg.get('ensure_tools').run(makeBot({ game: { dimension: 'overworld' } }), {});
+      });
+      assert.equal(staleToolsRes && staleToolsRes.ok, false, 'ensure_tools must exit immediately when stepLease is stale');
+      assert.ok(/lease revoked/i.test(staleToolsRes.observation));
+    } finally {
+      reg.get('recover_surface').run = origRec3;
+    }
+  }
+
   fs.rmSync(tmp, { recursive: true, force: true });
-  console.log('PASS minecraft-autonomous: all 35 regression groups passed');
+  console.log('PASS minecraft-autonomous: all 36 regression groups passed');
 })().catch(e => {
   console.error(e);
   process.exitCode = 1;
