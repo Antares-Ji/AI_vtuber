@@ -2118,8 +2118,65 @@ function makeBot(overrides = {}) {
     }
   }
 
+  // 42. obsidian_farm mines already-converted nearby obsidian BEFORE trekking to refill empty bucket,
+  //     and reclaim() is in scope after pouring (no ReferenceError: reclaim is not defined)
+  {
+    const oreCache42 = require('../src/minecraft/autonomous/oreCache');
+    const P42 = require('../src/minecraft/autonomous/skills/primitives');
+    const obsId42 = P42.blockIds(makeBot(), ['obsidian'])[0];
+    const origWalk42 = reg.get('walk_to').run;
+    let walkedToWaterStation = false;
+    try {
+      oreCache42.remember('lava', 1500, -55, 1500);
+      oreCache42.remember('water', 1520, 62, 1520);
+      reg.get('walk_to').run = async (b, a) => {
+        if (a && a.y >= 50) walkedToWaterStation = true;
+        return { ok: false, observation: 'stub-stop' };
+      };
+      const remainingObs = new Set(['1501,-55,1500', '1502,-55,1500']);
+      const inv42 = [
+        { name: 'diamond_pickaxe', count: 1, slot: 36, maxDurability: 1561, durabilityUsed: 0 },
+        { name: 'bucket', count: 1, slot: 37 }, // empty bucket!
+        { name: 'obsidian', count: 8, slot: 38 },
+      ];
+      const botFarm42 = makeBot({
+        entity: { position: new Vec3(1500, -55, 1500), yaw: 0, pitch: 0 },
+        heldItem: inv42[0],
+        inventory: { slots: new Array(46).fill(null), items: () => inv42 },
+        equip: async (it) => { botFarm42.heldItem = it; },
+        setQuickBarSlot: async (idx) => { const h = inv42.find(i => i.slot === 36 + idx); if (h) botFarm42.heldItem = h; },
+        pathfinder: { stop: () => {}, goto: async () => {} },
+        findBlocks: ({ matching }) => {
+          const m = Array.isArray(matching) ? matching : [matching];
+          if (!m.includes(obsId42)) return [];
+          return [...remainingObs].map(k => { const [x, y, z] = k.split(',').map(Number); return new Vec3(x, y, z); });
+        },
+        blockAt: (p) => {
+          if (!p) return { name: 'air', boundingBox: 'none' };
+          const x = Math.floor(p.x), y = Math.floor(p.y), z = Math.floor(p.z);
+          if (remainingObs.has(`${x},${y},${z}`)) return { name: 'obsidian', position: new Vec3(x, y, z), boundingBox: 'block' };
+          return { name: 'air', position: new Vec3(x, y, z), boundingBox: 'none' };
+        },
+        dig: async (blk) => {
+          const k = `${blk.position.x},${blk.position.y},${blk.position.z}`;
+          if (remainingObs.delete(k)) {
+            const obs = inv42.find(i => i.name === 'obsidian');
+            if (obs) obs.count += 1;
+          }
+        },
+      });
+      const rFarm42 = await reg.get('obsidian_farm').run(botFarm42, { count: 10 });
+      assert.equal(rFarm42.ok, true, `obsidian_farm must finish 8->10 from nearby converted obsidian (got ${rFarm42.observation})`);
+      assert.equal(walkedToWaterStation, false, 'obsidian_farm must NOT leave the site to refill bucket while converted obsidian is already in reach');
+    } finally {
+      oreCache42.forget(1500, -55, 1500);
+      oreCache42.forget(1520, 62, 1520);
+      reg.get('walk_to').run = origWalk42;
+    }
+  }
+
   fs.rmSync(tmp, { recursive: true, force: true });
-  console.log('PASS minecraft-autonomous: all 41 regression groups passed');
+  console.log('PASS minecraft-autonomous: all 42 regression groups passed');
 })().catch(e => {
   console.error(e);
   process.exitCode = 1;

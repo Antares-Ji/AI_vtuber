@@ -2769,6 +2769,55 @@ reg.define('obsidian_farm', {
       }
       return !wetCell(bot);
     };
+    // Carry the water like a player does. Hoisted above `fill` so BOTH `fill` AND the post-pour step
+    // can call it (previously declared inside `fill`, causing `ReferenceError: reclaim is not defined`
+    // right after every pour!).
+    const reclaim = async (near) => {
+      if (countItem(bot, 'water_bucket') > 0) return true;
+      const bs = bot.inventory.items().find(i => i.name === 'bucket');
+      if (!bs) return false;
+      const headB = bot.blockAt(bot.entity.position.floored().offset(0, 1, 0));
+      if (headB && /water/.test(headB.name)) return false;
+      const seenKey = new Set();
+      const cells = [];
+      try {
+        for (const pt of (bot.findBlocks({ matching: blockIds(bot, ['water']), maxDistance: 5, count: 20 }) || [])) {
+          const b = bot.blockAt(pt);
+          if (!b || b.name !== 'water') continue;
+          const k = `${b.position.x},${b.position.y},${b.position.z}`;
+          if (seenKey.has(k)) continue;
+          seenKey.add(k);
+          cells.push({ c: b.position, src: isFluidSource(b) });
+        }
+      } catch {}
+      if (near) {
+        for (const [dx, dy, dz] of [[0, 0, 0], [0, 1, 0], [0, 2, 0], [1, 0, 0], [-1, 0, 0], [0, 0, 1], [0, 0, -1], [1, 1, 0], [-1, 1, 0], [0, 1, 1], [0, 1, -1]]) {
+          try {
+            const c = near.offset(dx, dy, dz);
+            const k = `${c.x},${c.y},${c.z}`;
+            if (seenKey.has(k)) continue;
+            const b = bot.blockAt(c);
+            if (b && b.name === 'water') { seenKey.add(k); cells.push({ c, src: isFluidSource(b) }); }
+          } catch {}
+        }
+      }
+      if (!cells.length) return false;
+      const srcCells = cells.filter(v => v.src);
+      if (!srcCells.length) {
+        log.info(`obsidian_farm: the ${cells.length} poured water cell(s) here are all flowing after the conversion - no source to reclaim, one trip per pour is real`);
+        return false;
+      }
+      try { await bot.equip(bs, 'hand'); } catch {}
+      for (const { c } of srcCells) {
+        if (d3(c) > 5.5) continue;
+        try { await bot.lookAt(c.offset(0.5, 0.5, 0.5), true); } catch {}
+        try { await bot.activateItem(); } catch {}
+        await sleep(900);
+        if (countItem(bot, 'water_bucket') > 0) { log.skill(`obsidian_farm: reclaimed the water I poured (${c.x},${c.y},${c.z}) - empty bucket -> full without leaving the site`); return true; }
+      }
+      log.info(`obsidian_farm: tried to reclaim from ${cells.length} poured water cell(s) and the bucket stayed empty - falling back to a station`);
+      return false;
+    };
     const fill = async () => {
       if (countItem(bot, 'water_bucket') > 0) return true;
       const bk = bot.inventory.items().find(i => i.name === 'bucket');
@@ -2780,39 +2829,6 @@ reg.define('obsidian_farm', {
         log.warn(`obsidian_farm: ensure_bucket said (${String(eb.observation).slice(0, 170)})`);
         return countItem(bot, 'water_bucket') > 0;
       }
-      // Carry the water like a player does. A poured cell IS a water source, so the bucket that was
-      // just emptied three blocks away can be refilled on the spot - no trek back to a lake. Before
-      // this rule the sequence was pour -> empty bucket -> walk to a station (89-430 blocks of open
-      // sea, see §27b) -> fill -> walk back, and every pour paid that round trip.
-      const reclaim = async (near) => {
-        if (countItem(bot, 'water_bucket') > 0) return true;
-        const bs = bot.inventory.items().find(i => i.name === 'bucket');
-        if (!bs || wetCell(bot)) return false;
-        const cells = [];
-        for (const [dx, dy, dz] of [[0, 0, 0], [0, 1, 0], [0, 2, 0], [1, 0, 0], [-1, 0, 0], [0, 0, 1], [0, 0, -1], [1, 1, 0], [-1, 1, 0], [0, 1, 1], [0, 1, -1]]) {
-          try { const c = near.offset(dx, dy, dz); const b = bot.blockAt(c); if (b && b.name === 'water') cells.push({ c, src: isFluidSource(b) }); } catch {}
-        }
-        if (!cells.length) return false;
-        // A bucket only fills from a SOURCE. Live measurement at 18:02:54 and 18:07:22:
-        // `tried to reclaim from 1 poured water cell(s) and the bucket stayed empty` - the cell left
-        // behind after the conversion is flowing water (the source went into obsidian), so the reclaim
-        // must aim at a source cell or admit that one pour really does cost one trip to a lake.
-        const srcCells = cells.filter(v => v.src);
-        if (!srcCells.length) {
-          log.info(`obsidian_farm: the ${cells.length} poured water cell(s) here are all flowing after the conversion - no source to reclaim, one trip per pour is real`);
-          return false;
-        }
-        try { await bot.equip(bs, 'hand'); } catch {}
-        for (const { c } of srcCells) {
-          if (d3(c) > 5.5) continue;
-          try { await bot.lookAt(c.offset(0.5, 0.5, 0.5), true); } catch {}
-          try { await bot.activateItem(); } catch {}
-          await sleep(900);
-          if (countItem(bot, 'water_bucket') > 0) { log.skill(`obsidian_farm: reclaimed the water I poured (${c.x},${c.y},${c.z}) - empty bucket -> full without leaving the site`); return true; }
-        }
-        log.info(`obsidian_farm: tried to reclaim from ${cells.length} poured water cell(s) and the bucket stayed empty - falling back to a station`);
-        return false;
-      };
       // First, whatever is within reach right here.
       const lvp = pair && pair.lv ? (pair.lv.position || new Vec3(pair.lv.x, pair.lv.y, pair.lv.z)) : null;
       if (lvp && await reclaim(lvp)) return true;
@@ -2860,10 +2876,13 @@ reg.define('obsidian_farm', {
             // `could not fill the bucket` without a single attempt.
             const from = bot.entity.position.floored();
             log.info(`obsidian_farm: ${Math.round(d3(c.position) * 10) / 10} from the water cell - closing in`);
+            let appTimer = null;
             try {
               await Promise.race([bot.pathfinder.goto(new (GN())(c.position.x, c.position.y, c.position.z, 3)),
-                new Promise((_, rej) => setTimeout(() => rej(new Error('approach timed out')), 12000))]);
-            } catch (e) { log.info(`obsidian_farm: approach to the water cell: ${e.message}`); }
+                new Promise((_, rej) => { appTimer = setTimeout(() => rej(new Error('approach timed out')), 12000); })]);
+            } catch (e) { log.info(`obsidian_farm: approach to the water cell: ${e.message}`); } finally {
+              if (appTimer) clearTimeout(appTimer);
+            }
             if (wetCell(bot)) {
               // Do not fill while swimming: the cave-pool fills at (56,11,743) never once worked, and the
               // bot drowns in the time it takes to click. Back to the dry cell it came from.
@@ -2891,11 +2910,25 @@ reg.define('obsidian_farm', {
     };
 
     let cycles = 0, poured = 0, dug = 0, stop = 'stack complete';
+    const triedObs = new Set();
     while (have() < need && cycles < 16) {
       if (Date.now() >= deadline) { stop = 'step deadline'; break; }
       cycles++;
-      if (!await fill()) { stop = 'could not fill the bucket'; break; }
-      if (!await arrive(pair.lv, 'lava')) { stop = 'could not reach the lava cell at the site';
+      // Mine ALREADY-CONVERTED obsidian sitting right here BEFORE trekking 120 blocks to refill water!
+      // A single pour on a flat y=-55 lava lake converts 10-18 blocks; previously the loop dug only 1
+      // block and immediately left the cave to refill its bucket.
+      let made = [];
+      let before = have();
+      try {
+        made = (bot.findBlocks({ matching: blockIds(bot, ['obsidian']), maxDistance: 10, count: 16 }) || [])
+          .map(p => bot.blockAt(p))
+          .filter(b => b && b.name === 'obsidian' && !triedObs.has(`${b.position.x},${b.position.y},${b.position.z}`));
+      } catch { made = []; }
+      if (made.length) {
+        log.skill(`obsidian_farm: ${made.length} converted obsidian cell(s) already within 10 blocks - mining them before refilling water`);
+      } else {
+        if (!await fill()) { stop = 'could not fill the bucket'; break; }
+        if (!await arrive(pair.lv, 'lava')) { stop = 'could not reach the lava cell at the site';
         // "route blocked" from 40 blocks away and from 2 blocks away are different problems, and the log
         // could not tell them apart (18:56:30 lost the lava cell at 91,-20,900 while the leg before it
         // said `walked 4 legs to 2 blocks of 91,-20,900 (target is same level)`). Name the cells that are
@@ -3027,7 +3060,7 @@ reg.define('obsidian_farm', {
       if (!wb) { continue; }
       try { await bot.equip(wb, 'hand'); } catch {}
       if (!bot.heldItem || bot.heldItem.name !== 'water_bucket') { log.warn(`obsidian_farm: hand holds ${bot.heldItem ? bot.heldItem.name : 'nothing'}, not the water bucket`); continue; }
-      const before = have();
+      before = have();
       // Aim the cell itself first (that is the pour that emptied the bucket at 15:12/16:04), then the
       // air above it - water dropped on top of a source cell also converts it.
       for (const aim of [[0.5, 0.5, 0.5], [0.5, 1.5, 0.5]]) {
@@ -3044,8 +3077,7 @@ reg.define('obsidian_farm', {
       // submerged, which is ~5x slower and drowns the bot before the block breaks.
       // (No step-up onto the lava cell here: it moved the bot INTO the pool. The bank climb in
       // standDryNear now happens against the obsidian cell itself, right before the dig.)
-      let made = [];
-      try { made = bot.findBlocks({ matching: blockIds(bot, ['obsidian']), maxDistance: 10, count: 12 }).map(p => bot.blockAt(p)).filter(b => b && b.name === 'obsidian'); } catch { made = []; }
+      try { made = bot.findBlocks({ matching: blockIds(bot, ['obsidian']), maxDistance: 10, count: 16 }).map(p => bot.blockAt(p)).filter(b => b && b.name === 'obsidian' && !triedObs.has(`${b.position.x},${b.position.y},${b.position.z}`)); } catch { made = []; }
       if (!made.length) {
         // Two different failures wore the same sentence all evening: the water never reached the cell
         // (bad aim / bad stand) versus the cell was not a real source (slope flow -> cobblestone). The
@@ -3069,7 +3101,9 @@ reg.define('obsidian_farm', {
       // this round cannot finish: 22:26:38 shows `1 pour(s), 0 dug` - the conversion succeeded and then
       // the bot walked 100 blocks to refill, so the block it had made was never scanned again.
       try { for (const b of made) oreCache.remember('obsidian', b.position.x, b.position.y, b.position.z); } catch {}
+      }
       const tgt = made.sort((x, y) => d3(x.position) - d3(y.position))[0];
+      triedObs.add(`${tgt.position.x},${tgt.position.y},${tgt.position.z}`);
       // Get onto the bank first: the pool this cell sits in is water-filled, and a floating dig is an
       // aborted dig (240 s of cap burned on 112,9,772 at 23:53 with `wet=Y`).
       await standDryNear(tgt);
@@ -3122,18 +3156,12 @@ reg.define('obsidian_farm', {
       if (wetCell(bot)) {
         const w = bot.entity.position.floored();
         log.warn(`obsidian_farm: standing in water at ${w.x},${w.y},${w.z} before digging ${tgt.position.x},${tgt.position.y},${tgt.position.z} - re-standing dry first`);
-        try { await standDryNear(bot, tgt.position); } catch {}
+        try { await standDryNear(tgt); } catch {}
         if (wetCell(bot)) { stop = 'cannot reach the obsidian from a dry standing cell - the pool needs a higher shelf'; log.warn(`obsidian_farm: still wet after re-standing - giving this cell up instead of burning another ${Math.round(digMs / 1000)}s`); break; }
       }
-      // Breathe before the dig. A submerged dig lasts 45-150 s while the air meter gives ~10 bubbles of
-      // grace: 16 steps on 2026-10-30 ended at `out of air (oxygen=2)` MID-dig, losing both the round and
-      // the block, and the trend showed the bot working on at air=6-20 for minutes. This is the consumer
-      // of planner's LOW AIR warning. Deliberately `standDryNear` (local, bounded) and not
-      // `recover_surface` - the assisted instance teleports to remembered dry land, which once threw the
-      // bot 700 blocks backwards from the very site it was working (§26dd).
       if (typeof bot.oxygenLevel === 'number' && bot.oxygenLevel >= 0 && bot.oxygenLevel <= 6) {
         log.warn(`obsidian_farm: ${bot.oxygenLevel} bubbles left before a ${Math.round(digMs / 1000)}s dig at ${tgt.position.x},${tgt.position.y},${tgt.position.z} - standing dry to breathe first`);
-        try { await standDryNear(bot, tgt.position); } catch {}
+        try { await standDryNear(tgt); } catch {}
         if (typeof bot.oxygenLevel === 'number' && bot.oxygenLevel <= 6 && wetCell(bot)) {
           stop = 'no dry standing cell with enough breath to take this obsidian - the pool needs a higher shelf';
           log.warn('obsidian_farm: still short of breath and wet after the re-stand - giving the cell up rather than drowning on it');
@@ -3141,7 +3169,12 @@ reg.define('obsidian_farm', {
         }
       }
       const tDig = Date.now();
-      try { await Promise.race([bot.dig(tgt), new Promise((_, rej) => setTimeout(() => rej(new Error(`dig did not finish in ${Math.round(digMs / 1000)}s`)), digMs))]); } catch (e) { log.warn(`obsidian_farm: dig at ${tgt.position.x},${tgt.position.y},${tgt.position.z}: ${e.message}`); }
+      let digTimer = null;
+      try {
+        await Promise.race([bot.dig(tgt), new Promise((_, rej) => { digTimer = setTimeout(() => rej(new Error(`dig did not finish in ${Math.round(digMs / 1000)}s`)), digMs); })]);
+      } catch (e) { log.warn(`obsidian_farm: dig at ${tgt.position.x},${tgt.position.y},${tgt.position.z}: ${e.message}`); } finally {
+        if (digTimer) clearTimeout(digTimer);
+      }
       log.skill(`obsidian_farm: dig attempt on ${tgt.position.x},${tgt.position.y},${tgt.position.z} took ${Date.now() - tDig}ms (cap ${Math.round(digMs / 1000)}s, wet=${wetCell(bot) ? 'Y' : 'n'}, hand=${held0})`);
       await sleep(500);
       const check = bot.blockAt(tgt.position);
