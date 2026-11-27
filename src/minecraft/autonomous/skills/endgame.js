@@ -1534,17 +1534,27 @@ async function climbOut(bot, targetY) {
     let placedCell = false;
     try {
       await bot.equip(blk, 'hand');
-      const y0 = bot.entity.position.y;
-      bot.setControlState('jump', true);
-      for (let w = 0; w < 16 && bot.entity.position.y < y0 + 0.95; w++) await sleep(80);
-      if (stillInside(target)) {
-        log.skill(`climbOut: jump did not clear ${target.x},${target.y},${target.z} (y=${bot.entity.position.y.toFixed(2)}, physicsEnabled=${bot.physicsEnabled})`);
-      } else {
-        await bot.placeBlock(below, new Vec3(0, 1, 0));
-        placedCell = true;
+      if (!bot.heldItem || bot.heldItem.name !== blk.name) {
+        const onBar = (bot.inventory.slots || []).slice(36, 45).find(it => it && it.name === blk.name);
+        if (onBar) { try { await bot.setQuickBarSlot(onBar.slot - 36); } catch {} }
       }
-      await sleep(250);
-      bot.setControlState('jump', false);
+      if (!bot.heldItem || bot.heldItem.name !== blk.name) {
+        log.skill(`climbOut: equip ${blk.name} did not land in hand (held=${bot.heldItem ? bot.heldItem.name : 'empty'}) - skipping jump-place`);
+      } else {
+        const y0 = bot.entity.position.y;
+        bot.setControlState('jump', true);
+        // Poll every 25ms (was 80ms) so we catch the ~150ms jump apex cleanly above y0 + 1.02 before
+        // falling back into the target cell's hitbox on Paper 1.21.1.
+        for (let w = 0; w < 28 && (bot.entity.position.y < y0 + 1.02 || stillInside(target)); w++) await sleep(25);
+        if (stillInside(target)) {
+          log.skill(`climbOut: jump did not clear ${target.x},${target.y},${target.z} (y=${bot.entity.position.y.toFixed(2)}, physicsEnabled=${bot.physicsEnabled})`);
+        } else {
+          await bot.placeBlock(below, new Vec3(0, 1, 0));
+          placedCell = true;
+        }
+        await sleep(180);
+        bot.setControlState('jump', false);
+      }
     } catch (e) {
       bot.setControlState('jump', false);
       log.skill(`climbOut pillar: ${e.message}`);

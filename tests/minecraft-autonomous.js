@@ -565,8 +565,21 @@ function makeBot(overrides = {}) {
     assert.equal(digCallsB, 2, 'must retry once when block snaps back solid after local dig timer');
   }
 
+  // 15. Prevent in-place jumping loops: allow1by1towers disabled in pathfinder, and jump bounce does not fool path stall guard
+  {
+    const { syncPathfinderPolicy, hasPathMoved } = require('../src/minecraft/autonomous/bot');
+    const mov = { liquidCost: 1, canDig: true, digCost: 0.4, allow1by1towers: true };
+    const bot = makeBot({ inventory: { slots: new Array(46).fill(null), items: () => [{ name: 'iron_pickaxe', count: 1, maxDurability: 250, durabilityUsed: 10 }] } });
+    syncPathfinderPolicy(bot, mov, { wet: false, dryNear: true });
+    assert.equal(mov.allow1by1towers, false, 'pathfinder 1x1 tower-jumping must stay disabled on Paper 1.21.1');
+    const anchor = { x: -48, y: 69.0, z: -256 };
+    assert.equal(hasPathMoved(anchor, { x: -48.1, y: 70.25, z: -255.9 }), false, 'in-place vertical jump bounce (+1.25y) must NOT reset path stall guard');
+    assert.equal(hasPathMoved(anchor, { x: -47.0, y: 69.0, z: -256.0 }), true, 'real horizontal step (>=0.9m) counts as progress');
+    assert.equal(hasPathMoved(anchor, { x: -48.0, y: 71.1, z: -256.0 }), true, 'sustained vertical climb (>=2m) counts as progress');
+  }
+
   fs.rmSync(tmp, { recursive: true, force: true });
-  console.log('PASS minecraft-autonomous: all 14 regression groups passed');
+  console.log('PASS minecraft-autonomous: all 15 regression groups passed');
 })().catch(e => {
   console.error(e);
   process.exitCode = 1;

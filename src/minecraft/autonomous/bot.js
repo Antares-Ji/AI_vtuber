@@ -84,6 +84,16 @@ function selectConservativeTool(bot, block) {
   return null;
 }
 
+function hasPathMoved(anchor, pos) {
+  if (!anchor || !pos) return false;
+  const horiz = Math.hypot(pos.x - anchor.x, pos.z - anchor.z);
+  // A normal jump bounces y by ~1.25 blocks in place. Counting |dy| > 0.4 as progress let an
+  // in-place jumping bot defeat the 60s path stall guard forever; require real horizontal motion
+  // (>= 0.9 blocks) or sustained vertical climb (>= 2.0 blocks).
+  const vert = Math.abs(pos.y - anchor.y);
+  return horiz >= 0.9 || vert >= 2.0;
+}
+
 function syncPathfinderPolicy(bot, mov, opts = {}) {
   if (!mov) return;
   const wet = !!opts.wet;
@@ -94,6 +104,9 @@ function syncPathfinderPolicy(bot, mov, opts = {}) {
   // Never allow pathfinder to bare-hand dig stone (7.5s/block) or dig sideways while submerged (37s/block -> drown).
   mov.canDig = !wet && bulkPick;
   mov.digCost = bulkPick ? 4 : 40;
+  // Paper 1.21.1 rejects mineflayer-pathfinder's built-in 1x1 tower placements (entity hitbox overlap
+  // + un-acked hotbar swap -> infinite jumping in place). Explicit vertical climbs use climbOut().
+  mov.allow1by1towers = false;
 }
 
 // Event-driven dig confirmation wrapper:
@@ -285,7 +298,7 @@ function createBot() {
     mov.liquidCost = 35;
     mov.maxDropDown = 3;
     mov.infiniteLiquidDropdownDistance = false;
-    mov.allow1by1towers = true;
+    mov.allow1by1towers = false;
     mov.allowParkour = false;
     mov.allowSprinting = false;
     mov.dontCreateFlow = true;
@@ -519,7 +532,7 @@ function createBot() {
         // above the slowest honest block break (obsidian ~10 s) with a wide margin.
         let guard = null;
         if (name === 'goto') {
-          const STALL_MS = Number(process.env.PATH_STALL_MS || 60000);
+          const STALL_MS = Number(process.env.PATH_STALL_MS || 28000);
           const t0 = Date.now();
           let anchor = { x: 0, y: 0, z: 0 };
           try { const p0 = bot.entity.position; anchor = { x: p0.x, y: p0.y, z: p0.z }; } catch {}
@@ -527,12 +540,13 @@ function createBot() {
           guard = setInterval(() => {
             try {
               const p = bot.entity.position;
-              if (Math.abs(p.x - anchor.x) + Math.abs(p.y - anchor.y) + Math.abs(p.z - anchor.z) > 0.4) {
+              if (hasPathMoved(anchor, p)) {
                 anchor = { x: p.x, y: p.y, z: p.z };
                 lastMove = Date.now();
               }
               if (Date.now() - lastMove > STALL_MS) {
                 log.warn(`path guard: goto outstanding ${Math.round((Date.now() - t0) / 1000)}s with no movement for ${Math.round((Date.now() - lastMove) / 1000)}s - cancelling the path so the step can hand back`);
+                try { bot.setControlState('jump', false); } catch {}
                 obj.stop('no-progress path guard');
                 clearInterval(guard);
                 guard = null;
@@ -796,4 +810,4 @@ function createBot() {
   return bot;
 }
 
-module.exports = { createBot, goals, selectConservativeTool, syncPathfinderPolicy, hasUsableBulkPick, installSafeDig };
+module.exports = { createBot, goals, selectConservativeTool, syncPathfinderPolicy, hasUsableBulkPick, installSafeDig, hasPathMoved };
