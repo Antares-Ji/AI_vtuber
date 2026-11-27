@@ -2883,8 +2883,74 @@ function makeBot(overrides = {}) {
     }
   }
 
+  // 54. equipBestToolFor selects sword for cobweb (0.4s instead of 100s with pickaxe) and
+  //     build_nether_portal descends vertically when standing >5 blocks above an underground portal frame
+  {
+    const P54 = require('../src/minecraft/autonomous/skills/primitives');
+    const WS54 = require('../src/minecraft/autonomous/workshopRecord');
+    // 54a: cobweb selects sword
+    const inv54 = [
+      { name: 'diamond_pickaxe', count: 1, slot: 36, maxDurability: 1561, durabilityUsed: 10 },
+      { name: 'stone_sword', count: 1, slot: 37, maxDurability: 131, durabilityUsed: 10 },
+    ];
+    let equipped54 = null;
+    const botWeb54 = makeBot({
+      inventory: { slots: new Array(46).fill(null), items: () => inv54 },
+      heldItem: inv54[0],
+      equip: async (it) => { equipped54 = it.name; botWeb54.heldItem = it; },
+    });
+    await P54.equipBestToolFor(botWeb54, { name: 'cobweb', type: 112, hardness: 4 });
+    assert.equal(equipped54, 'stone_sword', `equipBestToolFor must select sword for cobweb, not pickaxe (got ${equipped54})`);
+
+    // 54b: build_nether_portal descends when standing 23 blocks above remembered underground frame
+    WS54.note('nether_portal_frame', { x: 30, y: 40, z: 30 }, 'underground 8/10');
+    const origWalk54 = reg.get('walk_to').run;
+    const origShaft54 = reg.get('deep_shaft').run;
+    let descendedToY54 = null;
+    try {
+      reg.get('walk_to').run = async () => ({ ok: true, observation: 'horizontal only' });
+      reg.get('deep_shaft').run = async (b, a) => {
+        descendedToY54 = a && a.toY;
+        b.entity.position = new Vec3(31, 40, 28);
+        return { ok: true, observation: 'descended' };
+      };
+      const botHigh54 = makeBot({
+        entity: { position: new Vec3(31, 63, 28), yaw: 0, pitch: 0 },
+        game: { dimension: 'overworld' },
+        inventory: { slots: new Array(46).fill(null), items: () => [{ name: 'flint_and_steel', count: 1, slot: 36 }] },
+        findBlock: () => null,
+        findBlocks: () => [],
+        blockAt: (p) => {
+          if (!p) return { name: 'air', boundingBox: 'empty' };
+          const x = Math.floor(p.x), y = Math.floor(p.y), z = Math.floor(p.z);
+          if (z === 30 && y >= 40 && y <= 43 && (x === 30 || x === 33 || (y === 40 && (x === 31 || x === 32)))) {
+            return { name: 'obsidian', position: new Vec3(x, y, z), boundingBox: 'block' };
+          }
+          if (y === 39) return { name: 'stone', position: new Vec3(x, y, z), boundingBox: 'block' };
+          return { name: 'air', position: new Vec3(x, y, z), boundingBox: 'none' };
+        },
+      });
+      // Stop right after descent via stub make_obsidian so test finishes fast
+      const origMake54 = reg.get('make_obsidian').run;
+      const origPour54 = reg.get('pour_portal_cell').run;
+      try {
+        reg.get('pour_portal_cell').run = async () => ({ ok: false, observation: 'no lava' });
+        reg.get('make_obsidian').run = async () => ({ ok: false, observation: 'stop' });
+        await reg.get('build_nether_portal').run(botHigh54, {});
+      } finally {
+        reg.get('make_obsidian').run = origMake54;
+        reg.get('pour_portal_cell').run = origPour54;
+      }
+      assert.equal(descendedToY54, 40, `build_nether_portal must descend vertically to frame y=40 when standing 23m above it (got ${descendedToY54})`);
+    } finally {
+      reg.get('walk_to').run = origWalk54;
+      reg.get('deep_shaft').run = origShaft54;
+      WS54.forget('nether_portal_frame');
+    }
+  }
+
   fs.rmSync(tmp, { recursive: true, force: true });
-  console.log('PASS minecraft-autonomous: all 53 regression groups passed');
+  console.log('PASS minecraft-autonomous: all 54 regression groups passed');
 })().catch(e => {
   console.error(e);
   process.exitCode = 1;

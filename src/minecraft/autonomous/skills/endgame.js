@@ -4488,13 +4488,37 @@ reg.define('build_nether_portal', {
     let need = FRAME_COST;
     if (site) {
       const off = Math.round(Math.hypot(site.x - bot.entity.position.x, site.z - bot.entity.position.z));
+      const dyOff = Math.round(bot.entity.position.y - site.y);
       need = missingAt(site);
-      log.info(`build_nether_portal: remembered frame at ${site.x},${site.y},${site.z} (${off} blocks away) has ${FRAME_COST - need}/${FRAME_COST} cells standing - finishing THAT frame, not a new one`);
-      if (off > 16 && need > 0) {
+      log.info(`build_nether_portal: remembered frame at ${site.x},${site.y},${site.z} (${off} blocks away, dy=${dyOff}) has ${FRAME_COST - need}/${FRAME_COST} cells standing - finishing THAT frame, not a new one`);
+      if ((off > 16 || Math.abs(dyOff) > 5) && need > 0) {
         const w = await reg.get('walk_to').run(bot, { x: site.x + 1, y: site.y, z: site.z - 2, tolerance: 6 });
+        // walk_to only checks horizontal distance and can stop 20+ blocks directly ABOVE or BELOW an underground frame!
+        // Match the frame's Y level cleanly (climbOut if below, deep_shaft on an unflooded spot if above) before touching the frame.
+        const dyNow = bot.entity.position.y - site.y;
+        if (dyNow < -5 && !lease.stale()) {
+          log.info(`build_nether_portal: ${Math.round(-dyNow)} blocks BELOW frame y=${site.y} - climbing up to frame level`);
+          try { await climbOut(bot, site.y); } catch {}
+          try { await reg.get('walk_to').run(bot, { x: site.x + 1, y: site.y, z: site.z - 2, tolerance: 3 }); } catch {}
+        } else if (dyNow > 5 && !lease.stale()) {
+          log.info(`build_nether_portal: ${Math.round(dyNow)} blocks ABOVE frame y=${site.y} - descending to frame level`);
+          const curF = bot.entity.position.floored();
+          if (nearFlood(bot, curF.x, curF.z)) {
+            for (const [ox2, oz2] of [[8, 0], [-8, 0], [0, 8], [0, -8], [10, 10], [-10, -10], [10, -10], [-10, 10]]) {
+              const cx = curF.x + ox2, cz = curF.z + oz2;
+              if (nearFlood(bot, cx, cz)) continue;
+              const topB = bot.blockAt(new Vec3(cx, curF.y - 1, cz));
+              if (topB && /water|ice|lava/.test(topB.name)) continue;
+              try { await reg.get('walk_to').run(bot, { x: cx, y: curF.y, z: cz, tolerance: 2 }); } catch {}
+              break;
+            }
+          }
+          try { await reg.get('deep_shaft').run(bot, { toY: site.y, max: Math.min(30, Math.round(dyNow) + 4) }); } catch {}
+          try { await reg.get('walk_to').run(bot, { x: site.x + 1, y: site.y, z: site.z - 2, tolerance: 3 }); } catch {}
+        }
         const before = need;
         need = missingAt(site);
-        log.info(`build_nether_portal: walked to the frame (${String(w.observation).slice(0, 100)}); ${FRAME_COST - need} cells read obsidian (was ${FRAME_COST - before})`);
+        log.info(`build_nether_portal: walked to the frame (${String(w.observation).slice(0, 100)}); now y=${Math.round(bot.entity.position.y)}, ${FRAME_COST - need} cells read obsidian (was ${FRAME_COST - before})`);
         if (need === FRAME_COST && before === FRAME_COST) {
           log.warn(`build_nether_portal: at the remembered site NO cell reads obsidian - the chunks may be unloaded or the frame was wrong; falling back to a fresh site`);
         }
@@ -4602,6 +4626,9 @@ reg.define('build_nether_portal', {
             : bot.blockAt(new Vec3(site.x + (cx === 0 ? 1 : 2), site.y + 4, site.z));
           if (!dep || dep.name !== 'obsidian') continue;
           try {
+            if (bot.entity.position.distanceTo(p) > 3.8) {
+              await reg.get('walk_to').run(bot, { x: p.x, y: p.y, z: p.z - 1, tolerance: 2 }).catch(() => {});
+            }
             if (bot.entity.position.distanceTo(p) > 3.8) {
               await capped(bot.pathfinder.goto(new (GN())(p.x, p.y, p.z, 2)), 10000, 'walk to optional corner');
             }

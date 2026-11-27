@@ -1747,6 +1747,7 @@ function blockHarvestTool(bot, block) {
   // `harvestWith` does not exist either; the dataset spells the field `toolType`, and it is undefined
   // for a number of blocks, so the name heuristic is the fallback rather than a default pickaxe.
   const t = (b && (b.harvestWith && b.harvestWith.length ? b.harvestWith[0] : b.toolType)) || '';
+  if ((block.name || '') === 'cobweb') return 'sword';
   if (t === 'axe' || /log|plank|wood|bark|mushroom_stem/.test(block.name || '')) return 'axe';
   if (t === 'shovel' || /dirt|grass$|sand|gravel|clay|snow|soul_|mud|farmland/.test(block.name || '')) return 'shovel';
   return 'pickaxe';
