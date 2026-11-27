@@ -611,7 +611,8 @@ reg.define('hunt', {
       if (diveDoor && doorDist(en.position) > myDoor + slack) { leashFiltered++; return false; }
       return d <= 100 && Math.abs(en.position.y - bot.entity.position.y) <= 30;
     };
-    const find = () => bot.nearestEntity(reachable);
+    const skippedIds = new Set();
+    const find = () => bot.nearestEntity(en => !skippedIds.has(en.id) && reachable(en));
     // The leash belongs to the CHASE too, not only to the wander. Live 20:32: the run was 420 blocks from
     // an already-open End portal and `hunt` kept walking it further out after cows, because the thing it
     // was missing (8 leather for a chestplate) can be found anywhere and the door cannot. Anything that
@@ -653,7 +654,7 @@ reg.define('hunt', {
       const shot0 = find();
       const quiver = bot.inventory.items().find(i => i.name === 'arrow');
       const hasBow = !!bot.inventory.items().find(i => i.name === 'bow');
-      if (shot0 && hasBow && quiver && bot.entity.position.distanceTo(shot0.position) <= 34) {
+      if (shot0 && hasBow && quiver && quiver.count >= 12 && !(shot0.name === 'rabbit' && bot.entity.position.distanceTo(shot0.position) > 10) && bot.entity.position.distanceTo(shot0.position) <= 34) {
         log.skill(`hunt: ${why} - but ${shot0.name} #${shot0.id} is ${Math.round(bot.entity.position.distanceTo(shot0.position))} blocks away and the pack has a bow + ${quiver.count} arrow(s): shooting from here instead of walking`);
         stuckFromWater = true; // the loop's shot gate, applied where `stuck` is declared
       } else {
@@ -717,7 +718,10 @@ reg.define('hunt', {
       // arrow, so refusing to shoot at arrow=3 (which is exactly what starved the bot beside chicken
       // #744361 on 2026-10-30) trades a guaranteed meal for a quiver it was never going to spend.
       const small = /chicken|rabbit/.test(target.name || '') || (typeof target.health === 'number' && target.health > 0 && target.health <= 6);
-      if (arrow.count <= 4 && !(small && arrow.count >= 2)) { log.skill(`hunt: only ${arrow.count} arrows left - holding them, going melee instead of shooting ${target.name}`); return false; }
+      // Never drain the bow milestone's arrow reserve (<12) shooting at passive animals, and never snipe
+      // tiny hopping rabbits from far away (live 09:10 burned 2/6 precious arrows at a rabbit 26m away).
+      if (arrow.count < 12) { log.skill(`hunt: preserving ${arrow.count} arrow(s) (<12 reserve) - going melee instead of shooting ${target.name}`); return false; }
+      if (target.name === 'rabbit' && bot.entity.position.distanceTo(target.position) > 10) return false;
       // The give-up tally was kept ON THE ENTITY OBJECT (`target._volleys`), and `find()` hands back a
       // freshly-read entity every iteration - so the counter was always undefined and the same pig got
       // "survived 2 volleys - giving up on shooting it" eight times in 30 seconds at 00:57, leaking
@@ -834,16 +838,21 @@ reg.define('hunt', {
         const wx = bot.entity.position.x + (e.position.x - bot.entity.position.x) * k;
         const wz = bot.entity.position.z + (e.position.z - bot.entity.position.z) * k;
         await leg(new GN(wx, e.position.y, wz, 2), 16000, 'waypoint to animal');
+        try { if (bot.pathfinder.isMoving()) bot.pathfinder.stop(); } catch {}
         let after = bot.entity.position.distanceTo(e.position);
         if (after > before - 3) {
           log.skill(`no path to the ${Math.round(k * d)}-block waypoint (${e.name} still ${Math.round(after)} away) - chasing by hand${shotOut ? ' to reach it with the sword' : ''}`);
-          // A shot-out animal is worth swimming/slow-walking an extra 7 s for, because the alternative is
-          // starving beside a carcass the pathfinder calls unreachable.
-          await chase(shotOut ? 14 : 7);
+          await chase(shotOut ? 10 : 6);
           after = bot.entity.position.distanceTo(e.position);
         }
         stuck = after < before - 2 ? 0 : stuck + 1;
-        if (stuck >= (shotOut ? 6 : 4)) return { ok: false, observation: `cannot reach ${e.name} (${Math.round(after)} blocks away after ${stuck} waypoints + hand chase${shotOut ? ', and it has already survived 2 arrow volleys so the sword was the plan' : ''}, y=${Math.round(bot.entity.position.y)}) - roam to grass land where animals are reachable instead` };
+        if (stuck >= 2) {
+          skippedIds.add(e.id);
+          log.skill(`hunt: skipping unreachable ${e.name} #${e.id} (${Math.round(after)}m away after ${stuck} stuck attempts)`);
+          stuck = 0;
+          if (!find()) return { ok: kills > 0, observation: `cannot reach ${e.name} (${Math.round(after)} blocks away, y=${Math.round(bot.entity.position.y)}) - roam to open grass land instead` };
+          continue;
+        }
       }
       const e2 = find();
       if (!e2) break;

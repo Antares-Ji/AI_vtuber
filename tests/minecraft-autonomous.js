@@ -805,6 +805,34 @@ function makeBot(overrides = {}) {
       reg.get('hunt_spider').run = origHS;
       reg.get('eat').run = origEat;
     }
+
+    // Also verify hunt preserves scarce arrows (<12) and does not waste them shooting distant rabbits
+    let bowActivated = 0;
+    const farRabbit = { id: 701, name: 'rabbit', position: new Vec3(24, 63, 0), health: 3 };
+    const botArrowGuard = makeBot({
+      entity: { position: new Vec3(0, 63, 0), yaw: 0, pitch: 0 },
+      entities: { 701: farRabbit },
+      nearestEntity: (pred) => (pred(farRabbit) ? farRabbit : null),
+      inventory: {
+        slots: new Array(46).fill(null),
+        items: () => [{ name: 'bow', count: 1 }, { name: 'arrow', count: 6 }, { name: 'iron_sword', count: 1 }],
+      },
+      blockAt: () => ({ name: 'air', boundingBox: 'none' }),
+      setControlState: () => {},
+      lookAt: async () => {},
+      activateItem: async () => { bowActivated++; },
+      pathfinder: { isMoving: () => false, stop: () => {}, goto: async () => { throw new Error('no path'); } },
+    });
+    let gotoCount = 0;
+    botArrowGuard.pathfinder.goto = async () => {
+      gotoCount++;
+      if (gotoCount === 1) throw new Error('no path');
+      botArrowGuard.entity.position = new Vec3(22, 63, 0);
+    };
+    botArrowGuard.pvp = { attack: async () => { delete botArrowGuard.entities[701]; } };
+    botArrowGuard.nearestEntity = (pred) => (botArrowGuard.entities[701] && pred(farRabbit) ? farRabbit : null);
+    await reg.get('hunt').run(botArrowGuard, { count: 1 });
+    assert.equal(bowActivated, 0, 'hunt must NOT waste scarce arrows (<12) shooting at a rabbit 24m away');
   }
 
   fs.rmSync(tmp, { recursive: true, force: true });

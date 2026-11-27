@@ -383,32 +383,30 @@ const LADDER = [
       else if (!b._hungrySince) b._hungrySince = Date.now();
       const starvedFor = () => (b._hungrySince ? Date.now() - b._hungrySince : 0);
       const VILLAGE_AFTER_MS = Number(process.env.MC_VILLAGE_AFTER_MS || 180000);
-      if (have() < 3) {
-        // In taiga / snowy taiga biomes (zero cows/kelp), sweet berry bushes grow everywhere and
-        // yield instant edible berries with zero combat and zero cooking.
+      const harvestNearbyBerries = async () => {
+        if (have() >= 3) return;
         try {
           const berryIds = blockIds(b, ['sweet_berry_bush']);
-          if (berryIds.length) {
-            const bushes = b.findBlocks({ matching: berryIds, maxDistance: 48, count: 6 }) || [];
-            if (bushes.length) {
-              const GN = g();
-              let picked = 0;
-              for (const bp of bushes) {
-                if (have() >= 6) break;
-                const blk = b.blockAt(bp);
-                if (!blk || blk.name !== 'sweet_berry_bush') continue;
-                try {
-                  await b.pathfinder.goto(new GN(bp.x, bp.y, bp.z, 2));
-                  try { await b.activateBlock(blk); } catch {}
-                  await P.collectNear(b, bp, ['sweet_berries']);
-                  picked++;
-                } catch {}
-              }
-              if (picked > 0) log.skill(`food: harvested ${picked} sweet_berry_bush(es) -> sweet_berries=${countItem(b, 'sweet_berries')}`);
-            }
+          if (!berryIds.length) return;
+          const bushes = b.findBlocks({ matching: berryIds, maxDistance: 64, count: 8 }) || [];
+          if (!bushes.length) return;
+          const GN = g();
+          let picked = 0;
+          for (const bp of bushes) {
+            if (have() >= 6) break;
+            const blk = b.blockAt(bp);
+            if (!blk || blk.name !== 'sweet_berry_bush') continue;
+            try {
+              await b.pathfinder.goto(new GN(bp.x, bp.y, bp.z, 2));
+              try { await b.activateBlock(blk); } catch {}
+              await P.collectNear(b, bp, ['sweet_berries']);
+              picked++;
+            } catch {}
           }
+          if (picked > 0) log.skill(`food: harvested ${picked} sweet_berry_bush(es) -> sweet_berries=${countItem(b, 'sweet_berries')}`);
         } catch {}
-      }
+      };
+      await harvestNearbyBerries();
       if (have() < 3) {
         const h = await reg.get('hunt').run(b, { count: 3 });
         if (!h.ok) {
@@ -441,10 +439,12 @@ const LADDER = [
             }
           } else {
             await reg.get('roam').run(b, { look_for: 'cow,pig,sheep,chicken,rabbit', distance: 300 });
-            await reg.get('hunt').run(b, { count: 3 });
+            await harvestNearbyBerries();
+            if (have() < 3) await reg.get('hunt').run(b, { count: 3 });
           }
         }
       }
+      await harvestNearbyBerries();
       if (have() < 3) {
         // In barren snowy / frozen-ocean biomes where livestock, kelp, berries, and villages are all absent,
         // zombies/husks/shore-drowned drop rotten_flesh (edible emergency rations) without needing grass.
