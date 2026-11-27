@@ -4583,6 +4583,42 @@ reg.define('build_nether_portal', {
       return put;
     };
     if (site) await placeBottomCorners(site);
+    if (countItem(bot, 'obsidian') < need && site) {
+      // Reclaim unneeded obsidian from optional portal corners (bottom corners first so top corners
+      // remain as reference faces for the top bar): a 4x5 portal only requires the 10 essential cells,
+      // so mining 2 optional obsidian corners off an 8/10+4-corner frame completes the portal in 20s
+      // instead of descending 100 blocks to y=-55!
+      const dPick = bot.inventory.items().find(i => /^(diamond|netherite)_pickaxe$/.test(i.name));
+      if (dPick) {
+        const cornerOrder = [[0, 0], [3, 0], [0, 4], [3, 4]];
+        for (const [cx, cy] of cornerOrder) {
+          if (countItem(bot, 'obsidian') >= need || lease.stale()) break;
+          const p = new Vec3(site.x + cx, site.y + cy, site.z);
+          const cur = bot.blockAt(p);
+          if (!cur || cur.name !== 'obsidian') continue;
+          // Only reclaim once the adjacent essential block that used this corner as scaffolding is already obsidian
+          const dep = cy === 0
+            ? bot.blockAt(new Vec3(site.x + cx, site.y + 1, site.z))
+            : bot.blockAt(new Vec3(site.x + (cx === 0 ? 1 : 2), site.y + 4, site.z));
+          if (!dep || dep.name !== 'obsidian') continue;
+          try {
+            if (bot.entity.position.distanceTo(p) > 3.8) {
+              await capped(bot.pathfinder.goto(new (GN())(p.x, p.y, p.z, 2)), 10000, 'walk to optional corner');
+            }
+            if (bot.entity.position.distanceTo(p) > 4.6) continue;
+            await capped(bot.equip(dPick, 'hand'), 4000, 'equip diamond pick for corner');
+            const beforeObs = countItem(bot, 'obsidian');
+            await capped(bot.dig(cur), 20000, 'reclaim corner obsidian');
+            await sleep(300);
+            try { await P.collectNear(bot, p, ['obsidian'], 5000); } catch {}
+            log.info(`build_nether_portal: reclaimed optional corner obsidian at ${p.x},${p.y},${p.z} (${beforeObs} -> ${countItem(bot, 'obsidian')}/${need})`);
+          } catch (e) {
+            log.warn(`build_nether_portal: reclaim corner ${p.x},${p.y},${p.z} threw ${String(e.message).slice(0, 70)}`);
+          }
+        }
+        need = missingFrameCells(bot, site).length;
+      }
+    }
     if (countItem(bot, 'obsidian') < need) {
       // Two ways to fill the gap and the cheap one comes FIRST: pour the cells where they stand (a lava
       // bucket + a water bucket, no pickaxe tier, no obsidian carried) before mining obsidian somewhere

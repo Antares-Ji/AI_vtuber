@@ -2804,8 +2804,87 @@ function makeBot(overrides = {}) {
     }
   }
 
+  // 53. build_nether_portal reclaims unneeded obsidian from optional bottom corners of an 8/10 + 4-corner frame
+  //     to finish the final 2 top-bar cells immediately without trekking back down to y=-55
+  {
+    const WS53 = require('../src/minecraft/autonomous/workshopRecord');
+    WS53.note('nether_portal_frame', { x: 20, y: 64, z: 20 }, '8/10 + 4 corners');
+    const world53 = new Map();
+    // Place 8 essential cells (missing top bar (1,4) & (2,4)) PLUS all 4 optional obsidian corners!
+    for (const [dx, dy] of [[0,0],[1,0],[2,0],[3,0],[0,1],[3,1],[0,2],[3,2],[0,3],[3,3],[0,4],[3,4]]) {
+      world53.set(`${20 + dx},${64 + dy},20`, 'obsidian');
+    }
+    const inv53 = [
+      { name: 'diamond_pickaxe', count: 1, slot: 36, maxDurability: 1561, durabilityUsed: 100 },
+      { name: 'flint_and_steel', count: 1, slot: 37 },
+      { name: 'cobblestone', count: 20, slot: 38 },
+    ];
+    let reclaimed53 = 0, lit53 = false;
+    const origUse53 = reg.get('use_portal').run;
+    const origMakeObs53 = reg.get('make_obsidian').run;
+    let makeObsCalled53 = false;
+    try {
+      reg.get('use_portal').run = async (b) => { b.game.dimension = 'the_nether'; return { ok: true, observation: 'entered' }; };
+      reg.get('make_obsidian').run = async () => { makeObsCalled53 = true; return { ok: false, observation: 'should not be called' }; };
+      const botRec53 = makeBot({
+        entity: { position: new Vec3(21, 64, 19), yaw: 0, pitch: 0 },
+        game: { dimension: 'overworld' },
+        inventory: { slots: new Array(46).fill(null), items: () => inv53 },
+        heldItem: inv53[0],
+        waitForChunksToLoad: async () => {},
+        lookAt: async () => {},
+        findBlocks: () => [],
+        findBlock: (opts) => {
+          if (lit53) return { name: 'nether_portal', position: new Vec3(21, 65, 20) };
+          return null;
+        },
+        equip: async (it) => { botRec53.heldItem = it; },
+        dig: async (blk) => {
+          const k = `${blk.position.x},${blk.position.y},${blk.position.z}`;
+          if (world53.get(k) === 'obsidian') {
+            world53.delete(k);
+            reclaimed53++;
+            const o = inv53.find(i => i.name === 'obsidian');
+            if (o) o.count++;
+            else inv53.push({ name: 'obsidian', count: 1, slot: 39 });
+          }
+        },
+        pathfinder: {
+          stop: () => {},
+          goto: async (goal) => { botRec53.entity.position = new Vec3(goal.x, goal.y, goal.z); },
+        },
+        placeBlock: async (ref, face) => {
+          const tx = ref.position.x + face.x, ty = ref.position.y + face.y, tz = ref.position.z + face.z;
+          const held = botRec53.heldItem;
+          if (!held) return;
+          if (held.name === 'flint_and_steel') { lit53 = true; return; }
+          world53.set(`${tx},${ty},${tz}`, held.name);
+          held.count--;
+          if (held.count <= 0) { inv53.splice(inv53.indexOf(held), 1); botRec53.heldItem = null; }
+        },
+        blockAt: (p) => {
+          if (!p) return { name: 'air', boundingBox: 'empty' };
+          const x = Math.floor(p.x), y = Math.floor(p.y), z = Math.floor(p.z);
+          const nm = world53.get(`${x},${y},${z}`);
+          if (nm) return { name: nm, position: new Vec3(x, y, z), boundingBox: 'block' };
+          if (y <= 63) return { name: 'stone', position: new Vec3(x, y, z), boundingBox: 'block' };
+          return { name: 'air', position: new Vec3(x, y, z), boundingBox: 'none' };
+        },
+      });
+      await reg.get('build_nether_portal').run(botRec53, {});
+      assert.equal(reclaimed53, 2, `must reclaim 2 optional bottom corner obsidian blocks (got ${reclaimed53})`);
+      assert.equal(makeObsCalled53, false, 'must NOT call make_obsidian when optional corners supply the missing 2 blocks');
+      assert.equal(world53.get('21,68,20'), 'obsidian', 'top-left bar cell (1,4) must be placed with reclaimed obsidian');
+      assert.equal(world53.get('22,68,20'), 'obsidian', 'top-right bar cell (2,4) must be placed with reclaimed obsidian');
+    } finally {
+      reg.get('use_portal').run = origUse53;
+      reg.get('make_obsidian').run = origMakeObs53;
+      WS53.forget('nether_portal_frame');
+    }
+  }
+
   fs.rmSync(tmp, { recursive: true, force: true });
-  console.log('PASS minecraft-autonomous: all 52 regression groups passed');
+  console.log('PASS minecraft-autonomous: all 53 regression groups passed');
 })().catch(e => {
   console.error(e);
   process.exitCode = 1;
