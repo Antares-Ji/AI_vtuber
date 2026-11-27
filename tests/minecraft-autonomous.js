@@ -919,8 +919,43 @@ function makeBot(overrides = {}) {
     assert.ok(botLava.entity.position.distanceTo(lavaBlk.position) >= 2.5, 'mineBlockHere must stop at safe edge before stepping into lava');
   }
 
+  // 22. make_obsidian skips flowing lava (level>0) instead of wasting water_bucket making cobblestone
+  {
+    const origDeepShaft = reg.get('deep_shaft').run;
+    const origRoam = reg.get('roam').run;
+    const origWalkTo = reg.get('walk_to').run;
+    let activateCalls = 0;
+    try {
+      reg.get('deep_shaft').run = async () => ({ ok: false, observation: 'stub-stop' });
+      reg.get('roam').run = async () => ({ ok: false, observation: 'stub-stop' });
+      reg.get('walk_to').run = async () => ({ ok: false, observation: 'stub-walk' });
+      const flowingLava = { name: 'lava', position: new Vec3(2, -30, 0), getProperties: () => ({ level: 4 }) };
+      const botFlow = makeBot({
+        entity: { position: new Vec3(0, -30, 0), yaw: 0, pitch: 0 },
+        inventory: {
+          slots: new Array(46).fill(null),
+          items: () => [
+            { name: 'diamond_pickaxe', count: 1, maxDurability: 1561, durabilityUsed: 0 },
+            { name: 'water_bucket', count: 1 },
+          ],
+        },
+        equip: async (it) => { botFlow.heldItem = it; },
+        findBlocks: ({ matching }) => (matching && matching.length ? [flowingLava.position] : []),
+        blockAt: (p) => (p && Math.floor(p.x) === 2 && Math.floor(p.y) === -30 && Math.floor(p.z) === 0 ? flowingLava : { name: 'air', boundingBox: 'none' }),
+        activateItem: async () => { activateCalls++; },
+      });
+      const r = await reg.get('make_obsidian').run(botFlow, { count: 10 });
+      assert.equal(activateCalls, 0, 'make_obsidian must NOT waste water_bucket pouring on flowing lava (level=4)');
+      assert.equal(r.ok, false);
+    } finally {
+      reg.get('deep_shaft').run = origDeepShaft;
+      reg.get('roam').run = origRoam;
+      reg.get('walk_to').run = origWalkTo;
+    }
+  }
+
   fs.rmSync(tmp, { recursive: true, force: true });
-  console.log('PASS minecraft-autonomous: all 21 regression groups passed');
+  console.log('PASS minecraft-autonomous: all 22 regression groups passed');
 })().catch(e => {
   console.error(e);
   process.exitCode = 1;

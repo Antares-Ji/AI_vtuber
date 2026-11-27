@@ -3284,41 +3284,47 @@ reg.define('make_obsidian', {
     if (!['diamond_pickaxe', 'netherite_pickaxe'].some(n => countItem(bot, n) > 0)) {
       return { ok: false, observation: `obsidian needs a diamond pickaxe (iron drops nothing); diamonds=${countItem(bot, 'diamond')} - craft diamond_pickaxe first, then make_obsidian` };
     }
-    const lava = bot.findBlock({ matching: blockIds(bot, ['lava']), maxDistance: 32 });
-    if (!lava) { const m = await reg.get('mine').run(bot, { names: ['lava'], count: 1, maxDistance: 64 }); }
-    let lavaTarget = bot.findBlock({ matching: blockIds(bot, ['lava', 'lava_cauldron']), maxDistance: 40 });
+    const lavaIds = blockIds(bot, ['lava', 'lava_cauldron']);
+    const findSourceLava = (maxDist) => {
+      try {
+        const pts = bot.findBlocks({ matching: lavaIds, maxDistance: maxDist, count: 64 }) || [];
+        for (const pt of pts) {
+          const bl = bot.blockAt(pt);
+          if (bl && (bl.name === 'lava_cauldron' || (bl.name === 'lava' && isFluidSource(bl)))) return bl;
+        }
+      } catch {}
+      return null;
+    };
+    let lavaTarget = findSourceLava(40);
     if (!lavaTarget) {
       // A pool the bot has ALREADY seen is worth more than a blind new column: every descend loop
       // below digs where it happens to be standing, and the pools live in caves. Hop toward the
       // remembered coordinate first (same ore-cache pattern that made `mine` stop re-diging dirt).
       const known = oreCache.nearest(['lava', 'deepslate_lava'], bot.entity.position);
       if (known && known.dist <= 400) {
-        log.skill(`make_obsidian: no lava in sight - walking toward remembered lava at ${known.x},${known.y},${known.z} (${Math.round(known.dist)} blocks)`);
+        log.skill(`make_obsidian: no source lava in sight - walking toward remembered lava at ${known.x},${known.y},${known.z} (${Math.round(known.dist)} blocks)`);
         const w = await reg.get('walk_to').run(bot, { x: known.x, y: known.y, z: known.z, tolerance: 10 });
         log.skill(`make_obsidian: ${w.observation}`);
         await sleep(900);
-        lavaTarget = bot.findBlock({ matching: blockIds(bot, ['lava', 'lava_cauldron']), maxDistance: 40 });
-        // Only a pool we stood next to at its own level and could not see is dead. Dropping the
-        // entry whenever the horizontal search failed deleted the good pools: two got remembered at
-        // 10:28/10:34 (-64,-60,739 and -80,-58,736), one hop from the surface "verified" nothing at
-        // y=64, and the cache was empty again - which is why no hop fired after 10:51.
-        if (!lavaTarget && Math.abs(known.y - bot.entity.position.y) <= 8) oreCache.forget(known.x, known.y, known.z);
+        lavaTarget = findSourceLava(40);
+        // If we are right at the remembered spot's depth and there is still NO level-0 source lava
+        // (e.g. only a flowing lava waterfall), forget it so we descend to real y=-54 lava lakes instead.
+        if (!lavaTarget && Math.abs(known.y - bot.entity.position.y) <= 10) oreCache.forget(known.x, known.y, known.z);
       }
     }
     if (!lavaTarget) {
-      // Lava pools form below y=0. From the surface nothing is in range and the old code returned
-      // "no lava pool found" forever, which blocked the portal and therefore the whole End route.
-      // Dig down in stages and re-check what is loaded after each one.
+      // In Minecraft 1.21.1, flat level-0 source lava lakes generate abundantly at y=-54.
+      // Dig down in stages all the way to y=-52, checking for true level-0 lava sources after each stage.
       let highGroundTries = 0;
-      for (const toY of [12, 0, -20, -40]) {
+      for (const toY of [12, 0, -20, -40, -52]) {
         if (highGroundTries < 2 && bot.entity.position.y >= 60 && bot.entity.position.y < MIN_HIGH_Y) { highGroundTries++; await relocateToHighGround(bot, 'make_obsidian'); }
         if (bot.entity.position.y <= toY + 2) continue;
-        log.skill(`no lava within 40 blocks at y=${Math.round(bot.entity.position.y)} - descending to y=${toY} looking for a pool`);
+        log.skill(`no source lava within 40 blocks at y=${Math.round(bot.entity.position.y)} - descending to y=${toY} looking for a lava lake`);
         const yB = Math.round(bot.entity.position.y);
         const ds = await reg.get('deep_shaft').run(bot, { toY, max: 45 });
         await sleep(1000);
-        lavaTarget = bot.findBlock({ matching: blockIds(bot, ['lava', 'lava_cauldron']), maxDistance: 40 });
-        if (lavaTarget) { log.skill(`lava found at ${lavaTarget.position.x},${lavaTarget.position.y},${lavaTarget.position.z} after descending`); break; }
+        lavaTarget = findSourceLava(40);
+        if (lavaTarget) { log.skill(`source lava found at ${lavaTarget.position.x},${lavaTarget.position.y},${lavaTarget.position.z} after descending`); break; }
         // Harvest on the way down. Natural obsidian (lava that met water underground) needs no bucket
         // and no pour, and 16:03-16:10 shows the round ending at a lava pool with an empty bucket:
         // the trip is paid in full for zero obsidian. Fields seen at 11:04 (4 cells) and 14:52
@@ -3359,7 +3365,7 @@ reg.define('make_obsidian', {
       // pool loads. Digging a blind shaft only ever reported "no lava within 40 blocks".
       const trip = await reg.get('roam').run(bot, { block: 'lava', distance: 420 });
       log.skill(`roaming sideways at y=${Math.round(bot.entity.position.y)} for lava: ${trip.observation}`);
-      lavaTarget = bot.findBlock({ matching: blockIds(bot, ['lava', 'lava_cauldron']), maxDistance: 40 });
+      lavaTarget = findSourceLava(40);
     }
     if (!lavaTarget) return { ok: false, observation: `no lava pool within 40 blocks even after descending to y=${Math.round(bot.entity.position.y)} and roaming sideways - dig a branch tunnel at this level or find a cave/ravine entrance` };
     // Remember the pool: losing it between rounds is what made every obsidian attempt start from zero.
@@ -3438,13 +3444,18 @@ reg.define('make_obsidian', {
       let lavaBlocks = [];
       try { lavaBlocks = bot.findBlocks({ matching: blockIds(bot, ['lava']), maxDistance: 12, count: 14 }).map(p => bot.blockAt(p)).filter(b => b && b.name === 'lava'); } catch { lavaBlocks = []; }
       if (!lavaBlocks.length && lavaTarget) lavaBlocks = [lavaTarget];
-      // Pour on a SOURCE or the result is cobblestone (both successful pours so far - 15:12 and
-      // 16:04 - made cobble, because every candidate the distance sort offered was the pool's
-      // flowing surface film).
+      // Pour ONLY on a level-0 SOURCE lava block: water on flowing lava (level>0) wastes the bucket
+      // turning it into cobblestone (live 11:33:48). If every cell here is flowing, forget this spot
+      // and keep the water_bucket full for a real y=-54 lava lake!
       {
         const src = lavaBlocks.filter(isFluidSource);
-        if (src.length) lavaBlocks = src;
-        else log.info(`make_obsidian: ${lavaBlocks.length} lava cell(s) in sight are all flowing (level>0) - no obsidian available here, look for a deeper pool`);
+        if (src.length) {
+          lavaBlocks = src;
+        } else {
+          log.info(`make_obsidian: ${lavaBlocks.length} lava cell(s) in sight are all flowing (level>0) - keeping water_bucket full and forgetting this waterfall`);
+          try { if (lavaTarget && lavaTarget.position) oreCache.forget(lavaTarget.position.x, lavaTarget.position.y, lavaTarget.position.z); } catch {}
+          break;
+        }
       }
       // Aim a SOURCE. A pool's surface cells are flowing lava, and water on flowing lava just makes
       // steam and a cobble block: at 11:17:37 six cells in a row "left lava" while the source sat
@@ -3468,7 +3479,7 @@ reg.define('make_obsidian', {
         // at cells up to 12 blocks away (`pour at 126,40,860 left lava` 16:53, right after filling a
         // bucket 100+ blocks away). Walk into range first, and say so if the range cannot be closed.
         if (bot.entity.position.distanceTo(p) > 3.5) {
-          const g = await capped(bot.pathfinder.goto(new (GN())(p.x, p.y, p.z, 1)), 12000, 'walk to lava cell');
+          const g = await capped(bot.pathfinder.goto(new (GN())(p.x, p.y + 1, p.z, 2)), 12000, 'walk to lava cell');
           if (g === null) { try { bot.pathfinder.stop(); } catch {} }
           if (bot.entity.position.distanceTo(p) > 4.5) {
             log.warn(`make_obsidian: lava cell ${p.x},${p.y},${p.z} is ${Math.round(bot.entity.position.distanceTo(p) * 10) / 10} blocks away and unreachable - not pouring from here`);
@@ -3507,6 +3518,24 @@ reg.define('make_obsidian', {
         if (after && (after.name === 'obsidian' || after.name === 'cobblestone' || after.name === 'stone')) {
           poured++; made = true;
           log.skill(`make_obsidian: poured on lava at ${p.x},${p.y},${p.z} -> ${after.name}${after.name === 'obsidian' ? '' : ' (flowing lava makes cobble, not obsidian - aim a SOURCE next time)'}`);
+          // Let water spread across adjacent lava sources for 1.1s, then scoop the water source back
+          // into our bucket so we can keep pouring without trekking back to the surface for water!
+          await sleep(1100);
+          try {
+            const eb = bot.inventory.items().find(i => i.name === 'bucket');
+            if (eb && !bot.inventory.items().some(i => i.name === 'water_bucket')) {
+              const wIds = blockIds(bot, ['water']);
+              const wPts = bot.findBlocks({ matching: wIds, maxDistance: 5, count: 8 }) || [];
+              const wSrc = wPts.map(pt => bot.blockAt(pt)).find(bl => bl && bl.name === 'water' && isFluidSource(bl));
+              if (wSrc) {
+                await bot.equip(eb, 'hand');
+                await bot.lookAt(wSrc.position.offset(0.5, 0.5, 0.5), true);
+                await bot.activateItem();
+                await sleep(450);
+                if (countItem(bot, 'water_bucket') > 0) log.skill(`make_obsidian: scooped water back into bucket from ${wSrc.position.x},${wSrc.position.y},${wSrc.position.z}`);
+              }
+            }
+          } catch {}
           break;
         }
         log.skill(`make_obsidian: pour at ${p.x},${p.y},${p.z} left ${after ? after.name : 'NULL'} - trying the next lava cell`);
