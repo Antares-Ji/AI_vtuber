@@ -3620,8 +3620,9 @@ function makeBot(overrides = {}) {
     assert.equal(res67.moved, 1, `stepOnto must advance exactly 1 cell onto the bridge (got ${res67.moved})`);
   }
 
-  // 68. nextMilestone detects a total inventory wipe (0 tools/weapons/armor, <=3 items) and re-opens wood..bow
-  //     so the bot re-arms cleanly while keeping obsidian/diamond done when a Nether portal frame already stands
+  // 68. nextMilestone detects a total inventory wipe (0 tools/weapons/armor, even with incidental junk stacks
+  //     like rotten_flesh/snowball/dirt) and re-opens wood..bow while keeping obsidian/diamond done when a
+  //     Nether portal frame already stands — and does NOT fire when any gear/ingot/pickaxe is held
   {
     const { nextMilestone } = require('../src/minecraft/autonomous/agent/planner');
     const WS68 = require('../src/minecraft/autonomous/workshopRecord');
@@ -3634,25 +3635,140 @@ function makeBot(overrides = {}) {
           armor: true, diamond_pick: true, diamond_gear: true, bow: true, obsidian: true, flint_steel: true,
         },
       };
+      const junk68 = [
+        { name: 'rotten_flesh', count: 4, slot: 36 },
+        { name: 'string', count: 2, slot: 37 },
+        { name: 'spider_eye', count: 1, slot: 38 },
+        { name: 'snowball', count: 9, slot: 39 },
+        { name: 'dirt', count: 5, slot: 40 },
+      ];
       const botWiped68 = makeBot({
         _chunksOk: true,
         food: 20, health: 20,
         game: { dimension: 'overworld' },
-        inventory: { slots: new Array(46).fill(null), items: () => [] },
+        inventory: { slots: new Array(46).fill(null), items: () => junk68 },
       });
       const nxt68 = nextMilestone(botWiped68, state68);
-      assert.equal(nxt68 && nxt68.id, 'wood', `total wipe must re-open from wood (got ${nxt68 && nxt68.id})`);
+      assert.equal(nxt68 && nxt68.id, 'wood', `total wipe with 5 junk stacks must re-open from wood (got ${nxt68 && nxt68.id})`);
       assert.equal(state68.done.iron_gear, undefined, 'total wipe must re-open iron_gear');
       assert.equal(state68.done.bow, undefined, 'total wipe must re-open bow');
       assert.equal(state68.done.obsidian, true, 'total wipe must keep obsidian done when Nether portal frame already stands');
       assert.equal(state68.done.diamond_pick, true, 'total wipe must keep diamond_pick done when Nether portal frame already stands');
+
+      // Non-wiped bot with even 1 tool or ingot must NOT trigger total wipe
+      const state68b = { done: { wood: true, crafting_table: true, wooden_pickaxe: true, stone: true, stone_tools: true, food: true, iron_gear: true } };
+      const botArmed68 = makeBot({
+        _chunksOk: true, food: 20, health: 20,
+        game: { dimension: 'overworld' },
+        inventory: { slots: new Array(46).fill(null), items: () => [{ name: 'stone_pickaxe', count: 1, slot: 36 }, { name: 'cooked_salmon', count: 4, slot: 37 }] },
+      });
+      nextMilestone(botArmed68, state68b);
+      assert.equal(state68b.done.iron_gear, true, 'non-wiped bot carrying a pickaxe must NOT re-open iron_gear');
     } finally {
       WS68.forget('nether_portal_frame');
     }
   }
 
+  // 69. build_nether_portal walks/climbs to a remembered 10/10 frame (need===0) that is 40+ blocks away,
+  //     detects the already-lit nether_portal block upon arrival, and enters via use_portal without flint_and_steel
+  {
+    const WS69 = require('../src/minecraft/autonomous/workshopRecord');
+    const origWalk69 = reg.get('walk_to').run;
+    const origUse69 = reg.get('use_portal').run;
+    let walkedToFrame69 = false;
+    let usedPortal69 = false;
+    try {
+      WS69.note('nether_portal_frame', { x: -78, y: 40, z: -259 }, 'standing 10/10 lit portal');
+      reg.get('walk_to').run = async (b, a) => {
+        walkedToFrame69 = true;
+        b.entity.position = new Vec3(a.x, a.y, a.z);
+        return { ok: true, observation: 'arrived at portal' };
+      };
+      reg.get('use_portal').run = async (b) => {
+        usedPortal69 = true;
+        b.game.dimension = 'the_nether';
+        return { ok: true, observation: 'entered the_nether' };
+      };
+      const botReenter69 = makeBot({
+        entity: { position: new Vec3(-20, 40, -259), yaw: 0, pitch: 0 }, // 58m away (>48m initial lit scan), 0 flint_and_steel!
+        game: { dimension: 'overworld' },
+        inventory: { slots: new Array(46).fill(null), items: () => [{ name: 'iron_sword', count: 1, slot: 36 }] },
+        findBlock: (opts) => {
+          const d = botReenter69.entity.position.distanceTo(new Vec3(-77, 41, -259));
+          if (d <= (opts && opts.maxDistance || 16)) {
+            return { name: 'nether_portal', position: new Vec3(-77, 41, -259) };
+          }
+          return null;
+        },
+        blockAt: (p) => {
+          if (!p) return { name: 'air', boundingBox: 'none' };
+          const x = Math.floor(p.x), y = Math.floor(p.y), z = Math.floor(p.z);
+          if (z === -259 && y >= 40 && y <= 44 && x >= -78 && x <= -75) {
+            const isFrame = y === 40 || y === 44 || x === -78 || x === -75;
+            if (isFrame) return { name: 'obsidian', position: new Vec3(x, y, z), boundingBox: 'block' };
+            return { name: 'nether_portal', position: new Vec3(x, y, z), boundingBox: 'empty' };
+          }
+          if (y === 39) return { name: 'stone', position: new Vec3(x, y, z), boundingBox: 'block' };
+          return { name: 'air', position: new Vec3(x, y, z), boundingBox: 'none' };
+        },
+      });
+      const res69 = await reg.get('build_nether_portal').run(botReenter69, {});
+      assert.equal(walkedToFrame69, true, 'build_nether_portal must walk to remembered 10/10 frame even when need===0');
+      assert.equal(usedPortal69, true, 'build_nether_portal must call use_portal when remembered frame is already lit');
+      assert.equal(res69.ok, true, `re-entering already-lit portal without flint&steel must succeed (got ${res69.observation})`);
+    } finally {
+      reg.get('walk_to').run = origWalk69;
+      reg.get('use_portal').run = origUse69;
+      WS69.forget('nether_portal_frame');
+    }
+  }
+
+  // 70. recover_surface/climbOut under MC_ASSIST=0 with 0 stackable blocks and 0 tools climbs up a natural
+  //     cave slope via pathfinder instead of immediately aborting with "no stackable block left in the pack"
+  {
+    const prevAssist70 = process.env.MC_ASSIST;
+    process.env.MC_ASSIST = '0';
+    try {
+      const botSlope70 = makeBot({
+        entity: { position: new Vec3(0, -40, 0), yaw: 0, pitch: 0, onGround: true },
+        game: { dimension: 'overworld' },
+        inventory: { slots: new Array(46).fill(null), items: () => [] },
+        pathfinder: {
+          isMoving: () => false,
+          stop: () => {},
+          goto: async (goal) => {
+            if (goal && typeof goal.y === 'number') {
+              botSlope70.entity.position = new Vec3(goal.x, goal.y, goal.z);
+            }
+          },
+        },
+        blockAt: (p) => {
+          if (!p) return { name: 'air', boundingBox: 'none' };
+          const x = Math.floor(p.x), y = Math.floor(p.y), z = Math.floor(p.z);
+          // Natural staircase slope rising +12 blocks every 4 blocks north-east up to y=64
+          if (y === -41 && x === 0 && z === 0) return { name: 'deepslate', position: new Vec3(x, y, z), boundingBox: 'block' };
+          if (x === 4 && z === 0 && y === -29) return { name: 'stone', position: new Vec3(x, y, z), boundingBox: 'block' };
+          if (x === 8 && z === 0 && y === -17) return { name: 'stone', position: new Vec3(x, y, z), boundingBox: 'block' };
+          if (x === 12 && z === 0 && y === -5) return { name: 'stone', position: new Vec3(x, y, z), boundingBox: 'block' };
+          if (x === 16 && z === 0 && y === 7) return { name: 'stone', position: new Vec3(x, y, z), boundingBox: 'block' };
+          if (x === 20 && z === 0 && y === 20) return { name: 'stone', position: new Vec3(x, y, z), boundingBox: 'block' };
+          if (x === 24 && z === 0 && y === 34) return { name: 'stone', position: new Vec3(x, y, z), boundingBox: 'block' };
+          if (x === 28 && z === 0 && y === 48) return { name: 'stone', position: new Vec3(x, y, z), boundingBox: 'block' };
+          if (x === 32 && z === 0 && y === 62) return { name: 'grass_block', position: new Vec3(x, y, z), boundingBox: 'block' };
+          return { name: 'air', position: new Vec3(x, y, z), boundingBox: 'none' };
+        },
+      });
+      const res70 = await reg.get('recover_surface').run(botSlope70, {});
+      assert.equal(res70.ok, true, `climbOut with 0 blocks must walk up natural cave slopes to surface (got ${res70.observation})`);
+      assert.ok(botSlope70.entity.position.y >= 62, `bot must reach surface y>=62 via natural slope (y=${botSlope70.entity.position.y})`);
+    } finally {
+      if (prevAssist70 === undefined) delete process.env.MC_ASSIST;
+      else process.env.MC_ASSIST = prevAssist70;
+    }
+  }
+
   fs.rmSync(tmp, { recursive: true, force: true });
-  console.log('PASS minecraft-autonomous: all 68 regression groups passed');
+  console.log('PASS minecraft-autonomous: all 70 regression groups passed');
 })().catch(e => {
   console.error(e);
   process.exitCode = 1;

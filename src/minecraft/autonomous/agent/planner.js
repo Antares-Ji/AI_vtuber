@@ -244,8 +244,8 @@ function nextMilestone(bot, state) {
     try {
       const items = bot.inventory.items() || [];
       const wornNow = [5, 6, 7, 8].filter(s => !!bot.inventory.slots[s]).length;
-      const hasGear = items.some(i => /_(pickaxe|sword|axe|shovel|helmet|chestplate|leggings|boots)$|^(bow|shield|fishing_rod|flint_and_steel|water_bucket|ender_eye|ender_pearl|blaze_rod)$/.test(i.name));
-      if (wornNow === 0 && !hasGear && items.length <= 3) {
+      const hasGear = items.some(i => /_(pickaxe|sword|axe|shovel|helmet|chestplate|leggings|boots)$|^(bow|shield|fishing_rod|flint_and_steel|water_bucket|lava_bucket|bucket|ender_eye|ender_pearl|blaze_rod|diamond|iron_ingot|raw_iron)$/.test(i.name));
+      if (wornNow === 0 && !hasGear) {
         const hasPortal = (() => { try { return !!require('../workshopRecord').at('nether_portal_frame'); } catch { return false; } })();
         const reopenIds = ['wood', 'crafting_table', 'wooden_pickaxe', 'stone', 'stone_tools', 'food', 'coal', 'iron_ore', 'iron_ingots', 'iron_gear', 'armor', 'bow'];
         if (!hasPortal) reopenIds.push('diamond_pick', 'obsidian', 'flint_steel');

@@ -1707,8 +1707,177 @@ async function climbOut(bot, targetY) {
   // 02:42:52 `climbOut pillar: Server refused to place beef at (-753,80,1150)`; and when the biggest stack
   // IS raw iron the server does not refuse - it places `raw_iron_block`, which is the floating ore the
   // player saw hanging in the sky over the island, built one climb at a time out of armour iron.
-  const stackable = () => P.cheapFill(bot, 2);
+  const stackable = () => P.cheapFill(bot, 1);
+  const SOFT_DROP = new Set(['dirt', 'coarse_dirt', 'rooted_dirt', 'grass_block', 'gravel', 'sand', 'red_sand', 'clay', 'mud', 'moss_block', 'snow_block', 'oak_planks', 'spruce_planks', 'birch_planks', 'dark_oak_planks', 'jungle_planks', 'acacia_planks']);
+  const ROCK_DROP = ['cobblestone', 'cobbled_deepslate', 'stone', 'deepslate', 'tuff', 'andesite', 'diorite', 'granite'];
+  const tryWalkHigher = async (maxR = 24) => {
+    let climbedAny = false;
+    for (let leg = 0; leg < 4 && bot.entity.position.y < goal && Date.now() < (bot._stepDeadline || Infinity) && !lease.stale(); leg++) {
+      const f0 = bot.entity.position.floored();
+      const beforeY = bot.entity.position.y;
+      const cands = [];
+      const maxDy = Math.min(18, Math.max(3, Math.ceil(goal - f0.y) + 4));
+      for (let dx = -maxR; dx <= maxR; dx += 2) {
+        for (let dz = -maxR; dz <= maxR; dz += 2) {
+          if (dx === 0 && dz === 0) continue;
+          for (let dy = maxDy; dy >= 2; dy--) {
+            const fl = bot.blockAt(new Vec3(f0.x + dx, f0.y + dy - 1, f0.z + dz));
+            if (!fl || fl.boundingBox !== 'block' || /water|lava|magma/.test(fl.name)) continue;
+            const ft = bot.blockAt(new Vec3(f0.x + dx, f0.y + dy, f0.z + dz));
+            const hd = bot.blockAt(new Vec3(f0.x + dx, f0.y + dy + 1, f0.z + dz));
+            if ((!ft || isAir(ft.name)) && (!hd || isAir(hd.name))) {
+              cands.push({ x: f0.x + dx, y: f0.y + dy, z: f0.z + dz, dist: Math.hypot(dx, dz) });
+              break;
+            }
+          }
+        }
+      }
+      if (!cands.length) break;
+      cands.sort((a, b) => (b.y - a.y) || (a.dist - b.dist));
+      let rose = false;
+      for (const c of cands.slice(0, 3)) {
+        if (lease.stale() || Date.now() >= (bot._stepDeadline || Infinity)) break;
+        try { await capped(bot.pathfinder.goto(new (GN())(c.x, c.y, c.z, 1)), 7000, 'climbOut walk higher'); } catch {}
+        if (bot.entity.position.y >= beforeY + 1.5) {
+          log.skill(`climbOut: walked up natural cave slope y=${Math.round(beforeY)} -> y=${Math.round(bot.entity.position.y)}`);
+          rose = true;
+          climbedAny = true;
+          break;
+        }
+      }
+      if (!rose) break;
+    }
+    return climbedAny;
+  };
+  const trySwimWaterfall = async () => {
+    if (lease.stale() || typeof bot.findBlocks !== 'function') return false;
+    const beforeY = bot.entity.position.y;
+    try {
+      const wIds = blockIds(bot, ['water']);
+      if (!wIds.length) return false;
+      const pts = bot.findBlocks({ matching: wIds, maxDistance: 16, count: 16 }) || [];
+      const col = pts.find(p => {
+        const b1 = bot.blockAt(p.offset(0, 1, 0));
+        const b2 = bot.blockAt(p.offset(0, 2, 0));
+        return b1 && b1.name === 'water' && b2 && b2.name === 'water';
+      });
+      if (!col) return false;
+      await capped(bot.pathfinder.goto(new (GN())(col.x, col.y, col.z, 1)), 6000, 'climbOut waterfall');
+      try {
+        bot.setControlState('jump', true);
+        for (let t = 0; t < 20 && bot.entity.position.y < goal && !lease.stale() && Date.now() < (bot._stepDeadline || Infinity); t++) {
+          if (typeof bot.oxygenLevel === 'number' && bot.oxygenLevel >= 0 && bot.oxygenLevel <= 6) break;
+          await sleep(250);
+        }
+      } finally {
+        try { bot.setControlState('jump', false); } catch {}
+      }
+    } catch {}
+    return bot.entity.position.y >= beforeY + 1.5;
+  };
+  const tryRestockBlocks = async () => {
+    if (lease.stale() || typeof bot.findBlocks !== 'function') return false;
+    const f0 = bot.entity.position.floored();
+    const hasPick = bot.inventory.items().some(i => /_pickaxe$/.test(i.name));
+    const names = Array.from(SOFT_DROP).concat(hasPick ? ROCK_DROP : []);
+    const ids = blockIds(bot, names);
+    if (!ids.length) return false;
+    const pts = (bot.findBlocks({ matching: ids, maxDistance: 20, count: 24 }) || [])
+      .filter(p => !(p.x === f0.x && p.z === f0.z && p.y < f0.y))
+      .sort((a, b) => a.distanceTo(bot.entity.position) - b.distanceTo(bot.entity.position));
+    let dug = 0;
+    for (const p of pts) {
+      if (dug >= 10 || P.cheapFillTotal(bot) >= 12 || lease.stale() || Date.now() >= (bot._stepDeadline || Infinity)) break;
+      const b = bot.blockAt(p);
+      if (!b || !ids.includes(b.type)) continue;
+      // Never breach adjacent fluid while harvesting pillar fill
+      const nearFluid = [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, 0, 1], [0, 0, -1]].some(([dx, dy, dz]) => {
+        const nb = bot.blockAt(p.offset(dx, dy, dz));
+        return nb && /water|lava/.test(nb.name);
+      });
+      if (nearFluid) continue;
+      if (bot.entity.position.distanceTo(p) > 4.2) {
+        try { await capped(bot.pathfinder.goto(new (GN())(p.x, p.y, p.z, 2)), 5000, 'climbOut restock walk'); } catch {}
+      }
+      if (bot.entity.position.distanceTo(p) > 4.6) continue;
+      try { if (hasPick && !SOFT_DROP.has(b.name)) { if (!(await equipBulkPick(bot, false))) await equipPick(bot); } } catch {}
+      const est = typeof bot.digTime === 'function' ? bot.digTime(b) : 500;
+      if (!Number.isFinite(est) || est > 4500) continue;
+      try {
+        await capped(bot.dig(b), Math.min(8000, Math.max(3000, est * 2 + 1000)), `climbOut restock ${b.name}`);
+        dug++;
+        await sleep(220);
+      } catch {}
+    }
+    if (dug > 0) log.skill(`climbOut: restocked ${dug} block(s) from nearby ${hasPick ? 'soft/rock' : 'soft'} terrain (cheapFillTotal=${P.cheapFillTotal(bot)})`);
+    return !!stackable();
+  };
+  const tryDescendDeadEndPillar = async () => {
+    if (lease.stale() || P.cheapFillTotal(bot) > 0) return false;
+    const hasPick = bot.inventory.items().some(i => /_pickaxe$/.test(i.name));
+    let moved = false;
+    for (let dStep = 0; dStep < 12 && !lease.stale() && Date.now() < (bot._stepDeadline || Infinity); dStep++) {
+      const f0 = bot.entity.position.floored();
+      const exposed = [[1, 0], [-1, 0], [0, 1], [0, -1]].every(([dx, dz]) => {
+        const s0 = bot.blockAt(f0.offset(dx, 0, dz));
+        const s1 = bot.blockAt(f0.offset(dx, -1, dz));
+        return (!s0 || isAir(s0.name)) && (!s1 || isAir(s1.name));
+      });
+      if (!exposed) break;
+      const under = bot.blockAt(f0.offset(0, -1, 0));
+      if (!under || isAir(under.name) || /water|lava|bedrock/.test(under.name)) break;
+      const selfDrops = SOFT_DROP.has(under.name) || (hasPick && ROCK_DROP.includes(under.name));
+      if (!selfDrops) break;
+      let safeBelow = false;
+      for (let dy = -2; dy >= -20; dy--) {
+        const b = bot.blockAt(f0.offset(0, dy, 0));
+        if (!b || isAir(b.name)) continue;
+        safeBelow = !/lava|magma|cactus|fire/.test(b.name);
+        break;
+      }
+      if (!safeBelow) break;
+      try {
+        if (hasPick && !SOFT_DROP.has(under.name)) { if (!(await equipBulkPick(bot, false))) await equipPick(bot); }
+        await capped(bot.dig(under), 5000, 'climbOut reclaim dead-end pillar');
+        moved = true;
+        await sleep(320);
+      } catch { break; }
+      if (P.cheapFillTotal(bot) >= 4) break;
+    }
+    if (moved) log.skill(`climbOut: descended dead-end freestanding pillar to y=${Math.round(bot.entity.position.y)} (reclaimed blocks=${P.cheapFillTotal(bot)})`);
+    return moved;
+  };
+  const tryBlocklessStair = async () => {
+    const f0 = bot.entity.position.floored();
+    const beforeY = bot.entity.position.y;
+    const hasPick = bot.inventory.items().some(i => /_pickaxe$/.test(i.name));
+    for (const [dx, dz] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+      if (lease.stale() || Date.now() >= (bot._stepDeadline || Infinity)) break;
+      const stand = bot.blockAt(f0.offset(dx, 0, dz));
+      if (!stand || stand.boundingBox !== 'block' || /water|lava|magma/.test(stand.name)) continue;
+      const clearList = [bot.blockAt(f0.offset(0, 2, 0)), bot.blockAt(f0.offset(dx, 1, dz)), bot.blockAt(f0.offset(dx, 2, dz))];
+      if (clearList.some(b => b && /water|lava|bedrock/.test(b.name))) continue;
+      const solids = clearList.filter(b => b && !isAir(b.name));
+      if (hasPick) { try { if (!(await equipBulkPick(bot, false))) await equipPick(bot); } catch {} }
+      const diggableAll = solids.every(b => {
+        const est = typeof bot.digTime === 'function' ? bot.digTime(b) : 1000;
+        return Number.isFinite(est) && est <= 16000;
+      });
+      if (!diggableAll) continue;
+      for (const b of solids) {
+        try { await capped(bot.dig(b), 18000, `climbOut stair dig ${b.name}`); } catch {}
+      }
+      try { await capped(bot.pathfinder.goto(new (GN())(f0.x + dx, f0.y + 1, f0.z + dz, 0)), 5000, 'climbOut blockless stair'); } catch {}
+      if (bot.entity.position.y >= beforeY + 0.7) return true;
+    }
+    return false;
+  };
+  // Before burning blocks pillaring up in a cave, check if natural cave slopes/ramps walk upward for free!
+  if (bot.entity.position.y < goal - 1 && P.cheapFillTotal(bot) < 16) {
+    await tryWalkHigher(24);
+  }
   let lastY = bot.entity.position.y, stalled = 0, blocked = 0;
+  let noBlockTries = 0;
   // Every long loop in this project has to test the step deadline: `withTimeout` cancels the AWAIT but
   // not this worker, and an abandoned climb that keeps placing blocks outrides the step that replaced it.
   let why = '200-round loop budget used up';
@@ -1783,7 +1952,22 @@ async function climbOut(bot, targetY) {
       continue;
     }
     const blk = stackable();
-    if (!blk) { why = 'no stackable block left in the pack'; break; }
+    if (!blk) {
+      if (noBlockTries++ < 4) {
+        if (await tryWalkHigher(28)) { lastY = bot.entity.position.y; stalled = 0; noBlockTries = 0; continue; }
+        if (await trySwimWaterfall()) { lastY = bot.entity.position.y; stalled = 0; noBlockTries = 0; continue; }
+        if (await tryRestockBlocks()) { stalled = 0; continue; }
+        if (await tryDescendDeadEndPillar()) {
+          await tryWalkHigher(28);
+          lastY = bot.entity.position.y;
+          stalled = 0;
+          continue;
+        }
+        if (await tryBlocklessStair()) { lastY = bot.entity.position.y; stalled = 0; noBlockTries = 0; continue; }
+      }
+      why = 'no stackable block left in the pack';
+      break;
+    }
     // Wait briefly to land if mid-jump before sampling underfoot; if overhanging an edge, step 1 block onto solid ground.
     for (let g = 0; g < 12 && bot.entity && !bot.entity.onGround; g++) await sleep(50);
     const fLand = bot.entity.position.floored();
@@ -4529,7 +4713,7 @@ reg.define('build_nether_portal', {
     // three times in a row, and the ladder stayed on `travelled overworld -> overworld y=64` forever. Hand
     // it to `use_portal`, which owns entering, and pay nothing for the frame.
     let lit = null;
-    try { lit = bot.findBlock({ matching: blockIds(bot, ['nether_portal', 'portal']), maxDistance: 16 }); } catch {}
+    try { lit = bot.findBlock({ matching: blockIds(bot, ['nether_portal', 'portal']), maxDistance: 48 }); } catch {}
     if (lit) {
       const up = await reg.get('use_portal').run(bot, { to: a.to }).catch(e => ({ ok: false, observation: `use_portal threw ${e.message}` }));
       return { ok: !!up.ok, observation: `portal already lit at ${lit.position.x},${lit.position.y},${lit.position.z} - entered it instead of building: ${up.observation}` };
@@ -4564,7 +4748,7 @@ reg.define('build_nether_portal', {
       if (deepShortOnObs) {
         log.info(`build_nether_portal: ${Math.round(-dyOff)} blocks BELOW frame y=${site.y} with only ${countItem(bot, 'obsidian')}/${need} obsidian - staying deep to harvest obsidian first instead of climbing up empty-handed`);
       }
-      if ((off > 16 || Math.abs(dyOff) > 5) && need > 0 && !deepShortOnObs) {
+      if ((off > 12 || Math.abs(dyOff) > 5) && !deepShortOnObs) {
         // When far horizontally AND on a different Y level (e.g. y=68 above a y=40 frame under a frozen ocean),
         // NEVER walk off a dry hilltop (<=48m away) across flooded sea ice above site! Descend DRY to site.y
         // first, then walk/tunnel horizontally at site.y.
@@ -4623,6 +4807,14 @@ reg.define('build_nether_portal', {
           // 153,64,764` and finished with `portal frame placed 0 obsidian` - a new origin burned into the
           // record over an empty spot, while a 3-cell door sat 73 blocks away.
           return { ok: false, observation: `the frame at ${site.x},${site.y},${site.z} has ${FRAME_COST - need}/${FRAME_COST} cells standing, the pack already holds ${countItem(bot, 'obsidian')} of the ${need} it needs, and I am still ${off2} blocks from it: the APPROACH is the blocker, not the obsidian (${String(w.observation).slice(0, 150)}). Bridge or drain the route to THIS frame - do not start a second one.` };
+        }
+        // If we walked up to a remembered 10/10 frame that is ALREADY lit, enter it directly without
+        // demanding flint_and_steel or re-building!
+        let litAtSite = null;
+        try { litAtSite = bot.findBlock({ matching: blockIds(bot, ['nether_portal', 'portal']), maxDistance: 16 }); } catch {}
+        if (litAtSite) {
+          const up = await reg.get('use_portal').run(bot, { to: a.to }).catch(e => ({ ok: false, observation: `use_portal threw ${e.message}` }));
+          return { ok: !!up.ok, observation: `remembered portal already lit at ${litAtSite.position.x},${litAtSite.position.y},${litAtSite.position.z} - entered it without re-lighting: ${up.observation}` };
         }
       }
     }
@@ -4813,6 +5005,15 @@ reg.define('build_nether_portal', {
       log.warn(`build_nether_portal: make_obsidian said (${String(mo.observation).slice(0, 170)})`);
       if (countItem(bot, 'obsidian') < need) {
         return { ok: false, observation: `the frame needs ${need} cell(s) filled and the pack has ${countItem(bot, 'obsidian')}; asked make_obsidian for ${short} more and it did not deliver (${String(mo.observation).slice(0, 140)})` };
+      }
+    }
+    // Final check before requiring flint_and_steel: if the standing frame is already lit right here, step through!
+    {
+      let litHere = null;
+      try { litHere = bot.findBlock({ matching: blockIds(bot, ['nether_portal', 'portal']), maxDistance: 16 }); } catch {}
+      if (litHere) {
+        const up = await reg.get('use_portal').run(bot, { to: a.to }).catch(e => ({ ok: false, observation: `use_portal threw ${e.message}` }));
+        return { ok: !!up.ok, observation: `portal already lit at ${litHere.position.x},${litHere.position.y},${litHere.position.z} - entered it without flint&steel: ${up.observation}` };
       }
     }
     if (countItem(bot, 'flint_and_steel') < 1) { const c = await craft(bot, 'flint_and_steel', 1); if (!c.ok) return { ok: false, observation: 'need flint&steel: ' + c.observation }; }
