@@ -45,8 +45,13 @@ function itemDigsLeft(item) {
 
 function hasUsableBulkPick(bot) {
   try {
-    return bot.inventory.items().some(i =>
-      /^(iron|stone|wooden|golden)_pickaxe$/.test(i.name) && itemDigsLeft(i) >= 8);
+    const items = bot.inventory.items();
+    if (items.some(i => /^(iron|stone|wooden|golden)_pickaxe$/.test(i.name) && itemDigsLeft(i) >= 8)) return true;
+    const dim = bot && bot.game && bot.game.dimension;
+    if (dim === 'the_nether' || dim === 'the_end') {
+      return items.some(i => /^(diamond|netherite)_pickaxe$/.test(i.name) && itemDigsLeft(i) >= 40);
+    }
+    return false;
   } catch { return false; }
 }
 
@@ -54,9 +59,9 @@ function selectConservativeTool(bot, block) {
   if (!bot || !block || !bot.inventory) return null;
   const items = bot.inventory.items() || [];
   const name = String(block.name || '');
-  const pickByOrder = (order) => {
+  const pickByOrder = (order, minDigs = 8) => {
     for (const nm of order) {
-      const cands = items.filter(i => i.name === nm && itemDigsLeft(i) >= 8)
+      const cands = items.filter(i => i.name === nm && itemDigsLeft(i) >= minDigs)
         .sort((a, b) => itemDigsLeft(b) - itemDigsLeft(a));
       if (cands.length) return cands[0];
     }
@@ -77,9 +82,17 @@ function selectConservativeTool(bot, block) {
   if (AXE_BLOCKS.test(name) && !/stone_brick|cobblestone|deepslate|blackstone|nether_brick/.test(name)) {
     return pickByOrder(['iron_axe', 'stone_axe', 'wooden_axe', 'diamond_axe', 'golden_axe']);
   }
-  // Pickaxe / rock blocks: keep diamond_pickaxe strictly reserved for obsidian!
-  if (block.material === 'mineable/pickaxe' || (block.harvestTools && Object.keys(block.harvestTools).length > 0) || (block.hardness || 0) >= 1.2) {
-    return pickByOrder(['iron_pickaxe', 'stone_pickaxe', 'wooden_pickaxe', 'golden_pickaxe']);
+  // Pickaxe / rock blocks: keep diamond_pickaxe strictly reserved for obsidian in Overworld!
+  // Inside the_nether / the_end (after portal is already built), allow diamond_pickaxe fallback if no cheap pick exists
+  // while keeping a 40-dig emergency reserve.
+  if (block.material === 'mineable/pickaxe' || (block.harvestTools && Object.keys(block.harvestTools).length > 0) || (block.hardness || 0) >= 1.2 || name === 'netherrack') {
+    const cheap = pickByOrder(['iron_pickaxe', 'stone_pickaxe', 'wooden_pickaxe', 'golden_pickaxe']);
+    if (cheap) return cheap;
+    const dim = bot && bot.game && bot.game.dimension;
+    if (dim === 'the_nether' || dim === 'the_end') {
+      return pickByOrder(['diamond_pickaxe', 'netherite_pickaxe'], 40);
+    }
+    return null;
   }
   return null;
 }

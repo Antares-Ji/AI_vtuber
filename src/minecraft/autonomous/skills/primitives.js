@@ -1774,6 +1774,7 @@ async function equipBestToolFor(bot, block) {
       const digs = (i) => (i.maxDurability ? i.maxDurability - (i.durabilityUsed || 0) : 999);
       const can = (i) => { const id = itemId(bot, i.name); return id !== undefined && allowed.has(id); };
       const needsDiamond = /^(obsidian|crying_obsidian|respawn_anchor|ancient_debris)$/.test(block.name || '');
+      const inNetherOrEnd = !!(bot.game && (bot.game.dimension === 'the_nether' || bot.game.dimension === 'the_end'));
       const diamondFallbackOk = needsDiamond || /^(diamond_ore|deepslate_diamond_ore|gold_ore|deepslate_gold_ore|redstone_ore|deepslate_redstone_ore|emerald_ore|deepslate_emerald_ore)$/.test(block.name || '');
       const cands = bot.inventory.items()
         .filter(i => /_pickaxe$/.test(i.name) && can(i) && digs(i) >= 8
@@ -1790,11 +1791,11 @@ async function equipBestToolFor(bot, block) {
         }
         return;
       }
-      // If no non-diamond pick has >=8 digs for ordinary rock, try quick-minting a stone/iron pick
-      // right here (throttled) instead of either burning the obsidian diamond_pickaxe or hand-digging stone!
+      // If no non-diamond pick has >=8 digs for ordinary rock (including netherrack!), try quick-minting a stone/iron pick
+      // right here (throttled) instead of either burning the obsidian diamond_pickaxe or hand-digging rock!
       // Bootstrap planks/sticks/table from carried logs/planks too: carrying spruce_log+cobblestone with
       // stick=0 previously skipped this block and left water_bucket in hand against stone.
-      if (!needsDiamond && cands.length === 0 && (block.hardness || 0) >= 1.2) {
+      if (!needsDiamond && cands.length === 0 && ((block.hardness || 0) >= 1.2 || block.name === 'netherrack' || inNetherOrEnd)) {
         const nowMs = Date.now();
         if (!bot._quickPickAt || nowMs - bot._quickPickAt > 15000) {
           const cob = countItem(bot, 'cobblestone') + countItem(bot, 'cobbled_deepslate') + countItem(bot, 'blackstone');
@@ -1830,6 +1831,25 @@ async function equipBestToolFor(bot, block) {
                 }
               }
             } catch {}
+          }
+        }
+      }
+      // Inside the_nether or the_end (after the Nether portal is already built!), when NO cheap pick exists
+      // and none can be crafted, allow using diamond/netherite pickaxe as long as >=40 digs remain reserved!
+      // Otherwise netherrack (0.1s with diamond pick) stalls for 5s bare-hand and drops nothing.
+      if (inNetherOrEnd && cands.length === 0) {
+        const dFallback = bot.inventory.items()
+          .filter(i => /^(diamond|netherite)_pickaxe$/.test(i.name) && can(i) && digs(i) >= 40)
+          .sort((a, b) => digs(b) - digs(a))[0];
+        if (dFallback) {
+          await bounded(`equip ${dFallback.name}`, bot.equip(dFallback, 'hand'), 6000);
+          for (let q = 0; q < 6 && !handIsRight(); q++) await sleep(250);
+          if (handIsRight()) {
+            if (!bot._netherDpickLogged || Date.now() - bot._netherDpickLogged > 60000) {
+              bot._netherDpickLogged = Date.now();
+              log.skill(`equipBestToolFor: in ${bot.game.dimension} with no cheap pick -> using ${dFallback.name}@${digs(dFallback)} digs left (reserving 40 digs)`);
+            }
+            return;
           }
         }
       }

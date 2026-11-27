@@ -3544,8 +3544,48 @@ function makeBot(overrides = {}) {
     }
   }
 
+  // 66. Inside the_nether / the_end with no cheap pickaxe left, equipBestToolFor and selectConservativeTool
+  //     fall back to diamond_pickaxe (while keeping a 40-dig emergency reserve) instead of bare-handing netherrack,
+  //     while Overworld still strictly conserves diamond_pickaxe for obsidian
+  {
+    const P66 = require('../src/minecraft/autonomous/skills/primitives');
+    const { selectConservativeTool, hasUsableBulkPick } = require('../src/minecraft/autonomous/bot');
+    const mc66 = require('minecraft-data')('1.21.1');
+    const netherrackBlk = { name: 'netherrack', type: mc66.blocksByName.netherrack.id, hardness: 0.4, material: 'mineable/pickaxe', harvestTools: mc66.blocksByName.netherrack.harvestTools };
+    const dPickHealthy = { name: 'diamond_pickaxe', count: 1, slot: 36, maxDurability: 1561, durabilityUsed: 500 }; // 1061 digs left
+    const dPickLow = { name: 'diamond_pickaxe', count: 1, slot: 36, maxDurability: 1561, durabilityUsed: 1530 }; // 31 digs left (<40 reserve)
+    // In the_nether with healthy diamond pick and no cheap pick -> equips diamond_pickaxe!
+    const botNether66 = makeBot({
+      game: { dimension: 'the_nether' },
+      inventory: { slots: new Array(46).fill(null), items: () => [dPickHealthy] },
+      heldItem: null,
+      equip: async (it) => { botNether66.heldItem = it; },
+    });
+    await P66.equipBestToolFor(botNether66, netherrackBlk);
+    assert.equal(botNether66.heldItem && botNether66.heldItem.name, 'diamond_pickaxe', 'in the_nether with no cheap pick, equipBestToolFor must use healthy diamond_pickaxe on netherrack');
+    assert.equal(selectConservativeTool(botNether66, netherrackBlk)?.name, 'diamond_pickaxe', 'selectConservativeTool must allow healthy diamond_pickaxe in the_nether');
+    assert.equal(hasUsableBulkPick(botNether66), true, 'hasUsableBulkPick must be true in the_nether with >=40 digs diamond_pickaxe');
+    // In the_nether with <40 digs left -> still reserves last 40 digs!
+    const botLow66 = makeBot({
+      game: { dimension: 'the_nether' },
+      inventory: { slots: new Array(46).fill(null), items: () => [dPickLow] },
+      heldItem: null,
+      equip: async (it) => { botLow66.heldItem = it; },
+    });
+    await P66.equipBestToolFor(botLow66, netherrackBlk);
+    assert.equal(botLow66.heldItem, null, 'must reserve final 40 digs of diamond_pickaxe even in the_nether');
+    // In overworld -> strictly refuses diamond_pickaxe on ordinary rock
+    const botOver66 = makeBot({
+      game: { dimension: 'overworld' },
+      inventory: { slots: new Array(46).fill(null), items: () => [dPickHealthy] },
+      heldItem: null,
+      equip: async (it) => { botOver66.heldItem = it; },
+    });
+    assert.equal(selectConservativeTool(botOver66, netherrackBlk), null, 'Overworld must still conserve diamond_pickaxe');
+  }
+
   fs.rmSync(tmp, { recursive: true, force: true });
-  console.log('PASS minecraft-autonomous: all 65 regression groups passed');
+  console.log('PASS minecraft-autonomous: all 66 regression groups passed');
 })().catch(e => {
   console.error(e);
   process.exitCode = 1;
