@@ -9,6 +9,7 @@
 | [mcplayer:harness-demo](../../skills/mcplayer/harness-demo/README.md) | simulation | 运行原版 Java AgentHarness 的确定性演示，保留原始验收与任务记录。 |
 | [mcplayer:inspect-profile](../../skills/mcplayer/inspect-profile/README.md) | read | 查看 ZIP 的版本化示例配置与原生 Skill 清单。 |
 | [minecraft:legacy-status](../../skills/minecraft/legacy-status/README.md) | read | 读取本地 Mineflayer 兼容后端、反射与自主任务状态。 |
+| [minecraft:autonomous-status](../../skills/minecraft/autonomous-status/README.md) | read | 读取 23 级自主通关引擎的实时里程碑进度、生存状态、卡点诊断与核验事件。 |
 | [minecraft:legacy-play](../../skills/minecraft/legacy-play/README.md) | live | 保留 Mineflayer 生存反射、脱困、任务复盘及解说；与原生 MC 后端分开运行。 |
 | [sts2:knowledge](../../skills/sts2/knowledge/README.md) | read | 检索现有卡牌知识、人工核验经验与条件化复盘，不重新训练或覆盖资料。 |
 | [sts2:play](../../skills/sts2/play/README.md) | live | 复用尖塔 MCP/DeepSeek 执行与复盘链路；停止后等待执行器释放。 |
