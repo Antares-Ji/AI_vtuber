@@ -2154,41 +2154,70 @@ const freeSlots = (bot) => 36 - bot.inventory.items().length;
 async function trashDisposal(bot) {
   const V = require('vec3');
   const feet = bot.entity.position.floored();
+  const eyeY = bot.entity.position.y + 1.62;
   try {
     const lavaIds = blockIds(bot, ['lava']);
     const under = bot.blockAt(feet.offset(0, -1, 0));
-    const lv = lavaIds.length && bot.findBlock({ matching: lavaIds, maxDistance: 8 });
-    if (lv && !(under && /lava/.test(under.name))) return { kind: 'lava', pos: lv.position.offset(0.5, 0.2, 0.5) };
+    if (lavaIds.length && !(under && /lava/.test(under.name))) {
+      const lvs = (bot.findBlocks({ matching: lavaIds, maxDistance: 4, count: 16 }) || [])
+        .map(p => bot.blockAt(p))
+        .filter(b => {
+          if (!b || b.name !== 'lava') return false;
+          const hd = Math.hypot((b.position.x + 0.5) - bot.entity.position.x, (b.position.z + 0.5) - bot.entity.position.z);
+          if (hd < 1.1 || hd > 3.2 || Math.abs(b.position.y - feet.y) > 2) return false;
+          // Require an open air/lava cell above the lava AND no solid wall directly between feet and lava.
+          const above = bot.blockAt(b.position.offset(0, 1, 0));
+          if (above && above.boundingBox === 'block') return false;
+          const midX = Math.floor((bot.entity.position.x + b.position.x + 0.5) / 2);
+          const midZ = Math.floor((bot.entity.position.z + b.position.z + 0.5) / 2);
+          if (midX !== feet.x || midZ !== feet.z) {
+            const mid = bot.blockAt(new V(midX, Math.max(feet.y, b.position.y + 1), midZ));
+            if (mid && mid.boundingBox === 'block') return false;
+          }
+          return true;
+        })
+        .sort((a, b) => bot.entity.position.distanceTo(a.position) - bot.entity.position.distanceTo(b.position));
+      if (lvs.length) return { kind: 'lava', pos: lvs[0].position.offset(0.5, 0.1, 0.5), aim: lvs[0].position.offset(0.5, 0.15, 0.5) };
+    }
   } catch {}
+  // Prefer cardinal neighbours (distance 1.0, clean square lip) over diagonals.
   const NB = [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [-1, -1], [1, -1], [-1, 1]];
   for (const [dx, dz] of NB) {
     // Never the column we are standing in - that hole takes the bot down with the trash.
     const cx = feet.x + dx, cz = feet.z + dz;
+    // The mouth above the pit MUST be clear air so thrown items drop straight in instead of bouncing off a wall.
+    const m0 = bot.blockAt(new V(cx, feet.y, cz));
+    const m1 = bot.blockAt(new V(cx, feet.y + 1, cz));
+    if ((m0 && m0.boundingBox === 'block') || (m1 && m1.boundingBox === 'block')) continue;
     let dug = 0, blocked = false;
-    for (let d = 1; d <= 3; d++) {
+    // Dig 4 blocks deep when possible (falls well below the 0.5-block vertical pickup box, even before sealing).
+    for (let d = 1; d <= 4; d++) {
       const pos = new V(cx, feet.y - d, cz);
       const b = bot.blockAt(pos);
       if (!b || b.boundingBox === 'none' || /air/.test(b.name)) { dug++; continue; }
-      if (/lava|water|bedrock/.test(b.name)) { blocked = true; break; }
+      if (/lava|water|bedrock/.test(b.name)) { if (d === 4 && dug >= 3) break; blocked = true; break; }
       // Never bare-hand dig hard stone/deepslate for a trash pit (takes 7.5s-15s and aborts mid-dig).
-      if ((b.hardness || 0) >= 1.2 && usablePickCount(bot) === 0) { blocked = true; break; }
+      if ((b.hardness || 0) >= 1.2 && usablePickCount(bot) === 0) { if (d === 4 && dug >= 3) break; blocked = true; break; }
       try { await equipBestToolFor(bot, b); } catch {}
       const digTimeout = Math.max(8500, ((typeof bot.digTime === 'function' ? Number(bot.digTime(b)) : 3000) || 3000) + 3000);
       try { await Promise.race([Promise.resolve(bot.dig(b)).catch(() => {}), sleep(digTimeout)]); } catch {}
       const after = bot.blockAt(pos);
-      if (after && after.boundingBox !== 'none' && !/air/.test(after.name)) { blocked = true; break; }
+      if (after && after.boundingBox !== 'none' && !/air/.test(after.name)) { if (d === 4 && dug >= 3) break; blocked = true; break; }
       dug++;
     }
     if (!blocked && dug >= 3) {
-      // `pos` is where the trash must LAND; the AIM is deliberately not that point. Looking at the pit
-      // floor three blocks below and one across is a ~70° ray, and the stack leaves the hand on that ray
-      // only far enough to clip the near lip and drop back at the bot's feet (the operator's own note:
-      // 视角抬高一点，扔不进去他挖的洞里). Aiming at the MOUTH, raised about a block, flattens the throw to
-      // ~40° so the stack clears the lip and falls in.
+      // Launch physics in Java 1.21.1: Q-drop spawns at (eyeY - 0.3) with v_h = 0.3*cos(pitch),
+      // v_y = 0.3*sin(pitch) + 0.1. The old aim (feet.y + 0.7 -> pitch -42 deg) threw items 1.85 blocks
+      // horizontally — straight OVER the 1-block pit onto the far rim, where the bot picked them right back up!
+      // Targeting pitch ~ -65 deg (tan 65 ~= 2.15) drops the stack through y=feet.y at ~0.60b and dead-center
+      // at ~0.87b into the 4-deep pit, which we then seal flush with a cap block when done.
+      const horiz = Math.max(0.7, Math.hypot((cx + 0.5) - bot.entity.position.x, (cz + 0.5) - bot.entity.position.z));
+      const aimY = Math.max(feet.y - 2.0, Math.min(feet.y - 0.1, eyeY - horiz * 2.15));
       return {
         kind: 'pit',
-        pos: new V(cx + 0.5, feet.y - 3 + 0.1, cz + 0.5),
-        aim: new V(cx + 0.5, feet.y + 0.7, cz + 0.5),
+        pos: new V(cx + 0.5, feet.y - dug + 0.1, cz + 0.5),
+        aim: new V(cx + 0.5, aimY, cz + 0.5),
+        pitCol: { x: cx, y: feet.y, z: cz, depth: dug },
       };
     }
   }
@@ -2199,24 +2228,63 @@ async function dropJunk(bot, force, minFree = 6) {
   const pressure = force || freeSlots(bot) <= minFree;
   const goodPick = bot.inventory.items().some(i => i.name.endsWith('_pickaxe') && (ob.wear(bot, i) ?? 100) >= 15);
   const tossed = [];
-  // One disposal per tidy call: the pit is dug once and every stack after it aims at the same hole.
-  let disposal = null, disposalTried = false;
+  // One disposal per tidy call: the pit is dug once, every stack aims steeply into its center,
+  // and at the end we CAP/SEAL the pit with a solid block so nothing can ever be picked back up.
+  let disposal = null, disposalTried = false, pitToSeal = null, pitUsed = false;
+  const onRealSolidGround = () => {
+    try {
+      const f = bot.entity.position.floored();
+      const u = bot.blockAt(f.offset(0, -1, 0));
+      return !!(u && u.boundingBox === 'block');
+    } catch { return false; }
+  };
   const aim = async () => {
     if (!disposalTried) {
       disposalTried = true;
       disposal = await trashDisposal(bot);
+      if (disposal && disposal.kind === 'pit' && disposal.pitCol) pitToSeal = disposal.pitCol;
       log.skill(disposal
         // floor, not round: `pos` is a cell CENTRE (-99.5 rounds to -98 and points at the next column),
         // and these coordinates are the only record of where the trash went.
         ? `tidy: disposal = ${disposal.kind} in cell ${Math.floor(disposal.pos.x)},${Math.floor(disposal.pos.y)},${Math.floor(disposal.pos.z)}`
-        : 'tidy: no lava within 8 and no diggable 3-deep pit here - anything tossed lands at the feet and comes back');
+        : 'tidy: no reachable lava within 3 and no diggable 3-deep pit here - refusing to drop trash at feet');
     }
-    if (disposal) { try { await bot.lookAt(disposal.aim || disposal.pos, true); } catch {} }
+    if (disposal) {
+      try { await bot.lookAt(disposal.aim || disposal.pos, true); } catch {}
+      // Let Paper process the head rotation packet before tossing so the throw vector matches the pit!
+      await sleep(160);
+    }
     return disposal;
+  };
+  const tossPartial = async (it, excess, why) => {
+    if (bot.heldItem && bot.heldItem.slot === it.slot) return false;
+    const d = await aim();
+    if (!d && onRealSolidGround()) return false;
+    const before = countItem(bot, it.name);
+    try {
+      await bot.toss(itemId(bot, it.name), null, excess);
+    } catch (e) {
+      log.skill(`trim ${it.name} x${excess} failed: ${e.message}`);
+      return false;
+    }
+    let took = true;
+    if (d) {
+      await sleep(650);
+      if (countItem(bot, it.name) >= before) {
+        log.warn(`tidy: the ${d.kind} did not take trimmed ${it.name}x${excess} (still ${countItem(bot, it.name)} after 0.65s) - stopping tosses here`);
+        took = false;
+        disposal = null;
+      } else if (d.kind === 'pit') {
+        pitUsed = true;
+      }
+    }
+    tossed.push(`${it.name}x${excess}(${why}${d ? `->${d.kind}${took ? '' : ' REJECTED'}` : ''})`);
+    return took;
   };
   const toss = async (it, why) => {
     if (bot.heldItem && bot.heldItem.slot === it.slot) return false; // never drop what is in hand
     const d = await aim();
+    if (!d && onRealSolidGround()) return false;
     const before = countItem(bot, it.name);
     const cnt0 = it.count; // read it BEFORE the throw: the stack object is emptied by the toss, and
     // `sandx0(cap)` is what the log used to say - unreadable as "how much did it actually drop"
@@ -2233,6 +2301,8 @@ async function dropJunk(bot, force, minFree = 6) {
         log.warn(`tidy: the ${d.kind} did not take ${it.name} (still ${countItem(bot, it.name)} after 0.9s) - no more aiming here this call`);
         took = false;
         disposal = null;
+      } else if (d.kind === 'pit') {
+        pitUsed = true;
       }
     }
     // A stack can leave the pack and still be sitting on the ground two blocks away - which is exactly the
@@ -2240,13 +2310,14 @@ async function dropJunk(bot, force, minFree = 6) {
     // INSIDE the hole's column and below its lip, so "tossed" means "in the pit" rather than "gone".
     if (d && took && d.kind === 'pit' && bot.entities) {
       let inside = 0, outside = 0;
+      const lipY = d.pitCol ? d.pitCol.y - 0.5 : d.pos.y + 2.0;
       try {
         for (const x of Object.values(bot.entities)) {
           if (!x || x.name !== 'item' || !x.position) continue;
           const dxz = Math.abs(x.position.x - d.pos.x) < 1.2 && Math.abs(x.position.z - d.pos.z) < 1.2;
           // BELOW the lip only: a stack resting on the ground beside the hole is at about the standing
-          // floor level (pit floor +3.1), and counting that as "inside" would re-create the false success.
-          if (dxz && x.position.y <= d.pos.y + 2.0) inside++;
+          // floor level, and counting that as "inside" would re-create the false success.
+          if (dxz && x.position.y <= lipY) inside++;
           else if (x.position.distanceTo(bot.entity.position) < 4) outside++;
         }
       } catch {}
@@ -2315,10 +2386,7 @@ async function dropJunk(bot, force, minFree = 6) {
       // is 16 silently destroyed the portal kit. Only cap-0 junk may leave as a whole stack.
       if (keep !== undefined && keep > 0 && it.count > keep) {
         const excess = it.count - keep;
-        // bot.toss takes a numeric item type, not a name ("Invalid itemType" for every trim, so the
-        // caps silently did nothing).
-        try { await aim(); await bot.toss(itemId(bot, it.name), null, excess); tossed.push(`${it.name}x${excess}(trim->${keep}${disposal ? `->${disposal.kind}` : ''})`); }
-        catch (e) { log.skill(`trim ${it.name} x${excess} failed: ${e.message}`); }
+        await tossPartial(it, excess, `trim->${keep}`);
         continue;
       }
       await toss(it, deadTool ? 'worn' : 'cap');
@@ -2386,8 +2454,7 @@ async function dropJunk(bot, force, minFree = 6) {
       const cap = JUNK_CAP[top.name];
       if (cap !== undefined && cap > 0 && top.count > cap) {
         const excess = top.count - cap;
-        try { await aim(); await bot.toss(itemId(bot, top.name), null, excess); tossed.push(`${top.name}x${excess}(trim->${cap}${disposal ? `->${disposal.kind}` : ''})`); }
-        catch (e) { log.skill(`pass2 trim ${top.name} x${excess} failed: ${e.message}`); }
+        if (!(await tossPartial(top, excess, `trim->${cap}`))) break;
         if (excess > 0 && freeSlots(bot) >= minFree) break;
         continue;
       }
@@ -2403,7 +2470,7 @@ async function dropJunk(bot, force, minFree = 6) {
     if (!trimmable) break;
     const cut = Math.min(trimmable.count - JUNK_CAP[trimmable.name], trimmable.count - 1);
     if (cut <= 0) break;
-    try { await aim(); await bot.toss(itemId(bot, trimmable.name), null, cut); tossed.push(`${trimmable.name}x${cut}(trim->cap${disposal ? `->${disposal.kind}` : ''})`); } catch { break; }
+    if (!(await tossPartial(trimmable, cut, 'trim->cap'))) break;
   }
   // Pass 3: the caps are a policy about ITEMS, but a slot is spent per STACK (`freeSlots = 36 - stacks`),
   // so twelve stone families sitting AT their cap plus the kit legally fill all 36 slots and the bot
@@ -2467,6 +2534,36 @@ async function dropJunk(bot, force, minFree = 6) {
       }
     }
   }
+  // Seal the trash pit with a cap block at (pitCol.x, pitCol.y - 1, pitCol.z) after tossing
+  // so items remain permanently buried 2-3 blocks underground and can NEVER be picked back up or fallen into.
+  if (pitToSeal && pitUsed && typeof bot.placeBlock === 'function') {
+    try {
+      await sleep(450);
+      const V = require('vec3');
+      const capPos = new V(pitToSeal.x, pitToSeal.y - 1, pitToSeal.z);
+      const curCap = bot.blockAt(capPos);
+      if (!curCap || curCap.boundingBox === 'none' || /air/.test(curCap.name)) {
+        const SEAL_FILL = ['dirt', 'cobblestone', 'cobbled_deepslate', 'diorite', 'andesite', 'granite', 'tuff', 'netherrack', 'sandstone', 'stone', 'deepslate'];
+        const filler = SEAL_FILL.map(n => bot.inventory.items().find(i => i.name === n && i.count >= 1)).find(Boolean);
+        if (filler) {
+          let ref = null, face = null;
+          for (const [rx, ry, rz] of [[1, 0, 0], [-1, 0, 0], [0, 0, 1], [0, 0, -1]]) {
+            const nb = bot.blockAt(capPos.offset(rx, ry, rz));
+            if (nb && nb.boundingBox === 'block' && !/water|lava/.test(nb.name)) {
+              ref = nb;
+              face = new V(-rx, 0, -rz);
+              break;
+            }
+          }
+          if (ref && face) {
+            await bot.equip(filler, 'hand');
+            await bot.placeBlock(ref, face);
+            log.skill(`tidy: sealed trash pit at ${capPos.x},${capPos.y},${capPos.z} with ${filler.name}`);
+          }
+        }
+      }
+    } catch (e) { log.skill(`tidy: seal pit skipped (${String((e && e.message) || e).slice(0, 80)})`); }
+  }
   if (tossed.length) log.skill(`tidy tossed ${tossed.length}: ${tossed.slice(0, 8).join(' ')}`);
   return tossed;
 }
@@ -2502,7 +2599,8 @@ const KEEP_ALWAYS = new Set([
   'blaze_rod', 'blaze_powder', 'glowstone_dust', 'nether_wart', 'gold_nugget', 'iron_nugget',
   'apple', 'bread', 'wheat', 'wheat_seeds', 'carrot', 'potato', 'baked_potato', 'beef',
   'cooked_beef', 'porkchop', 'cooked_porkchop', 'chicken', 'cooked_chicken', 'mutton',
-  'cooked_mutton', 'cod', 'cooked_cod', 'salmon', 'cooked_salmon', 'cookie', 'pumpkin_pie',
+  'cooked_mutton', 'rabbit', 'cooked_rabbit', 'cod', 'cooked_cod', 'salmon', 'cooked_salmon',
+  'sweet_berries', 'dried_kelp', 'fishing_rod', 'cookie', 'pumpkin_pie',
   'golden_apple', 'totem_of_undying', 'name_tag', 'saddle',
 ]);
 const TOOL_RE = /_(pickaxe|axe|shovel|sword|helmet|chestplate|leggings|boots)$/;

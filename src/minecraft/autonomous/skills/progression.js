@@ -332,10 +332,22 @@ const LADDER = [
   // complete and the door is close, a bot with a ration in the pack and a meter above 8 is fed ENOUGH to
   // dive; the dive gate's own latched waiver is what decides. An empty pack still re-opens this (no dive on
   // zero food), and any earlier stage keeps the original 3-items-or-full-bar rule untouched.
-  { id: 'food', budgetMs: 420000, done: b => {
+  { id: 'food', budgetMs: 480000, done: b => {
       if (permaFed()) return true;
+      const FOOD_VAL = {
+        cooked_beef: 8, cooked_porkchop: 8, pumpkin_pie: 8, cooked_mutton: 6, cooked_salmon: 6,
+        golden_carrot: 6, cooked_chicken: 5, cooked_cod: 5, cooked_rabbit: 5, bread: 5,
+        baked_potato: 5, apple: 4, rotten_flesh: 4, golden_apple: 4, beef: 3, porkchop: 3,
+        rabbit: 3, carrot: 3, mutton: 2, chicken: 2, cod: 2, salmon: 2, sweet_berries: 2,
+        melon_slice: 2, cookie: 2, dried_kelp: 1, potato: 1,
+      };
       const ed = EDIBLE.reduce((s, n) => s + countItem(b, n), 0);
-      if (ed >= 3 || b.food >= 18) return true;
+      const pts = Object.entries(FOOD_VAL).reduce((s, [n, v]) => s + countItem(b, n) * v, 0);
+      // Stockpile enough food in ONE trip so mining/Nether is not interrupted every few minutes:
+      // >=40 hunger points (e.g. 5+ steaks / 8+ bread or cooked fish / 20+ berries) OR 12+ edible items,
+      // OR a full bar (food>=18) PLUS at least 16 hunger points of reserve rations in the pack
+      // (never mark done with 0 rations in pack just because respawn gave food=20!).
+      if (pts >= 40 || ed >= 12 || (b.food >= 18 && pts >= 16)) return true;
       try {
         const rec = require('../portalRecord').current();
         if (!rec || !rec.ringComplete || !Number.isFinite(rec.x)) return false;
@@ -351,8 +363,19 @@ const LADDER = [
       if (permaFed()) return { ok: true, observation: 'MC_PERMA_FED: saturation is infinite, the hunger bar cannot move - no food errand, no hunt, no descent for a zombie. Go dig the paving blocks and the eyes instead.' };
       // Hunt alone livelocked this step: the bot stood on dry land with food=0 and hunt found no
       // animal, while eat() answered "auto-eat on" (ok) - so it reported success forever. Now it
-      // hunts, cooks whatever raw meat it already carries, and reports the true edible count.
+      // stockpiles a real multi-stage ration reserve (hunting up to 8 animals / 6 fish / 24 kelp /
+      // 24 berries), cooks ALL raw meat/fish in the pack into high-saturation food, then eats to full.
+      const FOOD_VAL = {
+        cooked_beef: 8, cooked_porkchop: 8, pumpkin_pie: 8, cooked_mutton: 6, cooked_salmon: 6,
+        golden_carrot: 6, cooked_chicken: 5, cooked_cod: 5, cooked_rabbit: 5, bread: 5,
+        baked_potato: 5, apple: 4, rotten_flesh: 4, golden_apple: 4, beef: 3, porkchop: 3,
+        rabbit: 3, carrot: 3, mutton: 2, chicken: 2, cod: 2, salmon: 2, sweet_berries: 2,
+        melon_slice: 2, cookie: 2, dried_kelp: 1, potato: 1,
+      };
       const have = () => EDIBLE.reduce((s, n) => s + countItem(b, n), 0);
+      const pts = () => Object.entries(FOOD_VAL).reduce((s, [n, v]) => s + countItem(b, n) * v, 0);
+      // Target >= 48 hunger points (~6-8 cooked steaks / 10 cooked fish or bread / 24 berries) in one trip.
+      const stocked = () => pts() >= 48 || have() >= 14;
       // With the End door open and close, THE MEAL IS BELOW, NOT ON THE SURFACE. Tonight, measured: it killed
       // a zombie at y=23 in the stronghold corridor, while every surface graze in this ocean region answered
       // `no kelp column within 64 blocks` / `no REACHABLE cow/pig/sheep/chicken within 70`, and each of those
@@ -374,7 +397,7 @@ const LADDER = [
         let dr = null;
         try { dr = await reg.get('dig_to_y').run(b, { toY: 26, max: 26 }); } catch (e) { dr = { ok: false, observation: 'dig_to_y threw ' + String(e.message).slice(0, 60) }; }
         let hr = null;
-        try { hr = await reg.get('hunt_spider').run(b, { kind: 'zombie', count: 2, maxDistance: 34 }); } catch (e) { hr = { ok: false, observation: 'hunt_spider threw ' + String(e.message).slice(0, 60) }; }
+        try { hr = await reg.get('hunt_spider').run(b, { kind: 'zombie', count: 4, maxDistance: 34 }); } catch (e) { hr = { ok: false, observation: 'hunt_spider threw ' + String(e.message).slice(0, 60) }; }
         return { ok: have() >= 1, observation: `dark larder now at y=${b.entity.position.floored().y}: descent=${String((dr && dr.observation) || 'none').slice(0, 80)} | hunt=${String((hr && hr.observation) || 'none').slice(0, 110)} | rations=${have()}` };
       }
       const inWater = () => { const bl = b.blockAt(b.entity.position.floored()); return !!bl && (bl.name === 'water' || bl.name === 'kelp_plant' || bl.name === 'seagrass'); };
@@ -393,43 +416,52 @@ const LADDER = [
       // hunt -> kelp -> roam -> hunt sixty-odd times with `edible=0` the whole way). Past three minutes of
       // an empty pack, stop asking this biome for a cow and go for a village's hay bales - grain is the
       // one food that exists where there is no livestock and no seaweed.
-      if (have() >= 3 || b.food >= 19) b._hungrySince = 0;
+      if (stocked() || (have() >= 4 && b.food >= 19)) b._hungrySince = 0;
       else if (!b._hungrySince) b._hungrySince = Date.now();
       const starvedFor = () => (b._hungrySince ? Date.now() - b._hungrySince : 0);
       const VILLAGE_AFTER_MS = Number(process.env.MC_VILLAGE_AFTER_MS || 180000);
+      let berriesPickedTotal = 0;
+      const pickedBushes = new Set();
       const harvestNearbyBerries = async () => {
-        if (have() >= 3) return;
+        if (stocked()) return;
         try {
           const berryIds = blockIds(b, ['sweet_berry_bush']);
           if (!berryIds.length) return;
-          const bushes = b.findBlocks({ matching: berryIds, maxDistance: 64, count: 8 }) || [];
+          const bushes = (b.findBlocks({ matching: berryIds, maxDistance: 64, count: 16 }) || [])
+            .filter(bp => !pickedBushes.has(`${bp.x},${bp.y},${bp.z}`));
           if (!bushes.length) return;
           const GN = g();
           let picked = 0;
           for (const bp of bushes) {
-            if (have() >= 6) break;
+            if (stocked()) break;
+            const k = `${bp.x},${bp.y},${bp.z}`;
+            if (pickedBushes.has(k)) continue;
             const blk = b.blockAt(bp);
             if (!blk || blk.name !== 'sweet_berry_bush') continue;
             try {
               await b.pathfinder.goto(new GN(bp.x, bp.y, bp.z, 2));
               try { await b.activateBlock(blk); } catch {}
               await P.collectNear(b, bp, ['sweet_berries']);
+              pickedBushes.add(k);
               picked++;
+              berriesPickedTotal++;
             } catch {}
           }
           if (picked > 0) log.skill(`food: harvested ${picked} sweet_berry_bush(es) -> sweet_berries=${countItem(b, 'sweet_berries')}`);
         } catch {}
       };
       await harvestNearbyBerries();
-      if (have() < 3) {
-        const h = await reg.get('hunt').run(b, { count: 3 });
-        if (!h.ok) {
+      // If sweet_berry_bushes just supplied >=6 berries and no more bushes are loaded, keep going to cook/eat
+      // without wandering across empty tundra for cows; otherwise bulk-hunt up to 8 animals / 6 fish / 24 kelp.
+      if (!stocked() && !(berriesPickedTotal > 0 && have() >= 6)) {
+        const h = await reg.get('hunt').run(b, { count: 8 });
+        if (!h.ok && !stocked()) {
           log.skill(`hunt said: ${h.observation}`);
-          const kk = await reg.get('harvest_kelp').run(b, { count: 12 });
+          const kk = await reg.get('harvest_kelp').run(b, { count: 24 });
           if (kk.ok) log.skill(`harvest_kelp said: ${kk.observation}`);
           else {
-            // If we already have a fishing rod (or string+sticks after 10 min) and open water is nearby,
-            // walk to shore and fish right away instead of roaming into open ocean repeatedly.
+            // If we already have a fishing rod (or string+sticks after 3 min) and open water is nearby,
+            // walk to shore and fish a real batch (6 fish) in one sitting instead of roaming into ocean.
             const hasRod = countItem(b, 'fishing_rod') >= 1;
             const canFish = hasRod || (starvedFor() > VILLAGE_AFTER_MS && countItem(b, 'string') >= 2 && countItem(b, 'stick') >= 3);
             let fishedOk = false;
@@ -437,30 +469,30 @@ const LADDER = [
               try {
                 const waterNear = b.findBlock({ matching: blockIds(b, ['water']), maxDistance: 36 });
                 if (waterNear) {
-                  const fr = await reg.get('fish').run(b, { count: 3, timeoutSec: 90 });
+                  const fr = await reg.get('fish').run(b, { count: 6, timeoutSec: 120 });
                   log.skill(`food: shore fishing said (${String(fr.observation).slice(0, 120)})`);
-                  fishedOk = fr.ok || have() >= 3;
+                  fishedOk = fr.ok || stocked();
                 }
               } catch {}
             }
-            if (!fishedOk && have() < 3 && starvedFor() > VILLAGE_AFTER_MS) {
+            if (!fishedOk && !stocked() && starvedFor() > VILLAGE_AFTER_MS) {
               log.skill(`nothing edible for ${Math.round(starvedFor() / 60000)} min (kelp: ${String(kk.observation).slice(0, 80)}) - raiding a village for hay instead of roaming for a cow`);
-              const rv = await reg.get('raid_village').run(b, { need: 3 });
+              const rv = await reg.get('raid_village').run(b, { need: 12 });
               log.skill(`raid_village said: ${rv.observation}`);
-              if (!rv.ok) {
+              if (!rv.ok && !stocked()) {
                 await reg.get('roam').run(b, { look_for: 'cow,pig,sheep,chicken,rabbit', distance: 300 });
-                await reg.get('hunt').run(b, { count: 3 });
+                await reg.get('hunt').run(b, { count: 8 });
               }
-            } else if (!fishedOk && have() < 3) {
+            } else if (!fishedOk && !stocked()) {
               await reg.get('roam').run(b, { look_for: 'cow,pig,sheep,chicken,rabbit', distance: 300 });
               await harvestNearbyBerries();
-              if (have() < 3) await reg.get('hunt').run(b, { count: 3 });
+              if (!stocked()) await reg.get('hunt').run(b, { count: 8 });
             }
           }
         }
       }
       await harvestNearbyBerries();
-      if (have() < 3) {
+      if (have() < 4 && !stocked()) {
         // In barren snowy / frozen-ocean biomes where livestock, kelp, berries, and villages are all absent,
         // zombies/husks/shore-drowned drop rotten_flesh (edible emergency rations) without needing grass.
         const nearUndead = (() => {
@@ -474,22 +506,29 @@ const LADDER = [
         const todF = b.time && typeof b.time.timeOfDay === 'number' ? (b.time.timeOfDay % 24000) : null;
         const isNightF = todF !== null && todF >= 12300 && todF <= 23400;
         if (nearUndead || isNightF || starvedFor() > 60000) {
-          const z = await reg.get('hunt_spider').run(b, { kind: 'zombie', count: 4, maxDistance: 48 });
+          const z = await reg.get('hunt_spider').run(b, { kind: 'zombie', count: 6, maxDistance: 48 });
           log.skill(`food: barren-biome undead ration hunt -> ${z.ok ? 'ok' : 'failed'} (${String(z.observation).slice(0, 110)})`);
         }
       }
-      const raw = ['beef', 'porkchop', 'chicken', 'mutton', 'rabbit', 'cod', 'salmon', 'kelp'].map(n => ({ n, c: countItem(b, n) })).filter(x => x.c > 0).sort((a, c) => c.c - a.c)[0];
-      // Log the outcome. This call was fire-and-forget, so `eat: short food 9 -> 9 ate=nothing` on
-      // 08:35 was the only trace that cooking had failed - i.e. the bot walked 100+ blocks hunting again
-      // with a furnace and 31 coal in the pack and no way to see why the porkchop stayed raw.
-      if (raw) {
-        const sm = await reg.get('smelt').run(b, { item: raw.n, count: Math.min(6, raw.c) }).catch(e => ({ ok: false, observation: 'threw ' + e.message }));
-        log.skill(`food: cooking ${raw.n} x${Math.min(6, raw.c)} -> ${sm.ok ? 'ok' : 'FAILED: ' + String(sm.observation).slice(0, 160)}`);
+      // Cook ALL raw meat/fish/kelp in the pack BEFORE eating: cooked steak/porkchop gives 8 hunger + 12.8
+      // saturation vs 3 hunger raw — nearly 4x the endurance so we don't interrupt again minutes later.
+      const rawList = ['beef', 'porkchop', 'mutton', 'chicken', 'salmon', 'cod', 'rabbit', 'kelp']
+        .map(n => ({ n, c: countItem(b, n) }))
+        .filter(x => x.c > 0)
+        .sort((a, c) => c.c - a.c);
+      for (const rawItem of rawList) {
+        if (Date.now() >= (b._stepDeadline || Infinity) - 15000) break;
+        const batch = Math.min(16, rawItem.c);
+        const sm = await reg.get('smelt').run(b, { item: rawItem.n, count: batch }).catch(e => ({ ok: false, observation: 'threw ' + e.message }));
+        log.skill(`food: cooking ${rawItem.n} x${batch} -> ${sm.ok ? 'ok' : 'FAILED: ' + String(sm.observation).slice(0, 160)}`);
+        if (!sm.ok) break;
       }
-      await reg.get('eat').run(b, {});
-      const fed = b.food >= 14 && b.saturation >= 3;
+      await reg.get('eat').run(b, { target: 20 });
+      const rawLeft = ['beef', 'porkchop', 'mutton', 'chicken', 'salmon', 'cod', 'rabbit', 'kelp']
+        .map(n => ({ n, c: countItem(b, n) })).filter(x => x.c > 0).sort((a, c) => c.c - a.c)[0];
       const allLogs = b.inventory.items().filter(i => /_log$/.test(i.name)).reduce((s, i) => s + i.count, 0);
-      return { ok: have() >= 3 || fed, observation: `edible=${have()} meter=${Math.round(b.food)}/20 (raw meat=${raw ? raw.n + 'x' + raw.c : 'none'}, fuel coal=${countItem(b, 'coal') + countItem(b, 'charcoal')} logs=${allLogs}, hp=${Math.round(b.health)} at y=${Math.round(b.entity.position.y)} dim=${b.game.dimension})` };
+      const totalPts = pts();
+      return { ok: totalPts >= 40 || have() >= 4, observation: `edible=${have()} (pts=${totalPts}) meter=${Math.round(b.food)}/20 (raw meat=${rawLeft ? rawLeft.n + 'x' + rawLeft.c : 'none'}, fuel coal=${countItem(b, 'coal') + countItem(b, 'charcoal')} logs=${allLogs}, hp=${Math.round(b.health)} at y=${Math.round(b.entity.position.y)} dim=${b.game.dimension})` };
     } },
   { id: 'coal', done: b => countItem(b, 'coal') >= 3 || countItem(b, 'charcoal') >= 3 || b.inventory.items().filter(i => /_planks$|_log$/.test(i.name)).reduce((s, i) => s + i.count, 0) >= 6,
     run: b => reg.get('mine').run(b, { names: ['coal_ore', 'deepslate_coal_ore'], count: 5 }) },

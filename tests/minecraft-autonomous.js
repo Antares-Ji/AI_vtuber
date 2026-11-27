@@ -1948,8 +1948,125 @@ function makeBot(overrides = {}) {
     }
   }
 
+  // 39. survive() does NOT re-open food milestone deep underground (y=-55) at hp=13, food=16 (avoids 120-block climb-out mid-obsidian)
+  {
+    const st39 = { done: { food: true } };
+    const botDeep = makeBot({
+      entity: { position: new Vec3(-71, -55, -263), yaw: 0, pitch: 0 },
+      game: { dimension: 'overworld' },
+      health: 13,
+      food: 16,
+    });
+    const blocked = await planner.survive(botDeep, st39);
+    assert.equal(blocked, false, 'survive() must return false underground at hp=13, food=16');
+    assert.equal(st39.done.food, true, 'survive() must NOT re-open food milestone underground at hp=13, food=16');
+  }
+
+  // 40. tidy aims steeply into a 4-deep pit & seals it with a cap block (never tosses onto own feet without disposal);
+  //     food milestone stockpiles >=40 hunger points in one trip & cooks ALL raw meat before closing
+  {
+    const P14 = require('../src/minecraft/autonomous/skills/primitives');
+    const { LADDER } = require('../src/minecraft/autonomous/skills/progression');
+
+    // Part A: pit aim is steeply downward (< feet.y) and pit gets sealed at (1, 63, 0) after tossing
+    const dugCells = new Set();
+    let lookTarget = null;
+    let sealedPos = null;
+    const pitInv = [
+      { name: 'snowball', count: 8, slot: 9 },
+      { name: 'cobblestone', count: 16, slot: 10 },
+      { name: 'stone_pickaxe', count: 1, slot: 36, maxDurability: 131, durabilityUsed: 0 },
+    ];
+    const botPit = makeBot({
+      entity: { position: new Vec3(0.5, 64, 0.5), yaw: 0, pitch: 0 },
+      inventory: { slots: new Array(46).fill(null), items: () => pitInv },
+      lookAt: async (pt) => { lookTarget = pt; },
+      equip: async (it) => { botPit.heldItem = it; },
+      dig: async (blk) => { dugCells.add(`${blk.position.x},${blk.position.y},${blk.position.z}`); },
+      tossStack: async (it) => {
+        const idx = pitInv.indexOf(it);
+        if (idx >= 0) pitInv.splice(idx, 1);
+      },
+      placeBlock: async (ref, face) => {
+        sealedPos = ref.position.plus(face);
+      },
+      blockAt: (p) => {
+        if (!p) return { name: 'air', boundingBox: 'none' };
+        const x = Math.floor(p.x), y = Math.floor(p.y), z = Math.floor(p.z);
+        if (dugCells.has(`${x},${y},${z}`)) return { name: 'air', position: new Vec3(x, y, z), boundingBox: 'none' };
+        if (y <= 63) return { name: 'dirt', position: new Vec3(x, y, z), boundingBox: 'block', hardness: 0.5 };
+        return { name: 'air', position: new Vec3(x, y, z), boundingBox: 'none' };
+      },
+    });
+    await P14.dropJunk(botPit, true, 6);
+    assert.ok(dugCells.has('1,60,0'), 'tidy must dig a 4-deep pit down to feet.y - 4');
+    assert.ok(lookTarget && lookTarget.y < 64, `tidy must aim steeply DOWN into the pit (< feet.y=64), not above the lip (got y=${lookTarget && lookTarget.y})`);
+    assert.ok(sealedPos && sealedPos.x === 1 && sealedPos.y === 63 && sealedPos.z === 0, `tidy must seal the pit with a cap block at 1,63,0 after tossing (got ${sealedPos})`);
+
+    // Part B: no diggable pit (bedrock floor) & no close lava -> refuse to drop trash at own feet!
+    let bedrockTossed = 0;
+    const botBedrock = makeBot({
+      entity: { position: new Vec3(0.5, 64, 0.5), yaw: 0, pitch: 0 },
+      inventory: {
+        slots: new Array(46).fill(null),
+        items: () => [{ name: 'granite', count: 32, slot: 9 }, { name: 'snowball', count: 8, slot: 10 }],
+      },
+      toss: async () => { bedrockTossed++; },
+      tossStack: async () => { bedrockTossed++; },
+      blockAt: (p) => {
+        const y = p ? Math.floor(p.y) : 64;
+        if (y <= 63) return { name: 'bedrock', position: p, boundingBox: 'block' };
+        return { name: 'air', position: p, boundingBox: 'none' };
+      },
+    });
+    await P14.dropJunk(botBedrock, true, 6);
+    assert.equal(bedrockTossed, 0, 'tidy must NOT dump trash onto its own feet when no pit or close lava is available');
+
+    // Part C: food milestone requires stockpiled rations (not done at food=20 with 0 items), hunts count>=8, cooks ALL raw beef (>6)
+    const foodMs40 = LADDER.find(m => m.id === 'food');
+    assert.equal(foodMs40.done(makeBot({ food: 20, inventory: { slots: new Array(46).fill(null), items: () => [] } })), false, 'food milestone must NOT close with 0 rations in pack even when food bar is 20');
+    const origHunt40 = reg.get('hunt').run;
+    const origSmelt40 = reg.get('smelt').run;
+    const origEat40 = reg.get('eat').run;
+    let huntReqCount = 0;
+    let smeltBeefTotal = 0;
+    try {
+      const fInv = [{ name: 'coal', count: 16, slot: 9 }];
+      reg.get('hunt').run = async (b, a) => {
+        huntReqCount = a && a.count ? a.count : 0;
+        fInv.push({ name: 'beef', count: 10, slot: 10 });
+        return { ok: true, observation: 'hunted 8' };
+      };
+      reg.get('smelt').run = async (b, a) => {
+        if (a && a.item === 'beef') {
+          smeltBeefTotal += a.count;
+          const bi = fInv.find(i => i.name === 'beef');
+          if (bi) bi.count = Math.max(0, bi.count - a.count);
+          fInv.push({ name: 'cooked_beef', count: a.count, slot: 11 });
+        }
+        return { ok: true, observation: 'smelted' };
+      };
+      reg.get('eat').run = async (b) => { b.food = 20; return { ok: true, observation: 'ate' }; };
+      const botFood40 = makeBot({
+        food: 10,
+        entity: { position: new Vec3(0, 64, 0), yaw: 0, pitch: 0 },
+        inventory: { slots: new Array(46).fill(null), items: () => fInv },
+        findBlocks: () => [],
+      });
+      const rF40 = await foodMs40.run(botFood40);
+      assert.ok(huntReqCount >= 8, `food milestone must bulk-hunt >=8 animals in one trip (asked ${huntReqCount})`);
+      assert.equal(smeltBeefTotal, 10, `food milestone must cook ALL 10 raw beef, not stop at 6 (cooked ${smeltBeefTotal})`);
+      assert.equal(rF40.ok, true, 'food milestone must succeed once bulk cooked rations are stocked');
+      assert.equal(foodMs40.done(botFood40), true, 'food.done must pass once >=40 hunger points of cooked steak are stocked');
+    } finally {
+      reg.get('hunt').run = origHunt40;
+      reg.get('smelt').run = origSmelt40;
+      reg.get('eat').run = origEat40;
+    }
+  }
+
   fs.rmSync(tmp, { recursive: true, force: true });
-  console.log('PASS minecraft-autonomous: all 38 regression groups passed');
+  console.log('PASS minecraft-autonomous: all 40 regression groups passed');
 })().catch(e => {
   console.error(e);
   process.exitCode = 1;

@@ -340,10 +340,14 @@ async function survive(bot, state) {
   // the exact treadmill the operator asked to switch off. Health still gates.
   const permaFed = process.env.MC_PERMA_FED === '1' && process.env.MC_ASSIST !== '0';
   const starving = permaFed ? false : bot.food < 8;
-  // Vanilla regeneration needs FOOD >= 18 when actually hurt (<14 HP / 7 hearts). Using `< 16`
-  // triggered on float 15.999998 (8 hearts) at food=17 underground (live 12:09:30)!
-  const minFood = bot.health < 14 ? 19 : 10;
-  if (bot.health >= 12 && (bot.food >= minFood || permaFed)) return false;
+  // Vanilla regeneration needs FOOD >= 18 when actually hurt (<14 HP / 7 hearts on the surface).
+  // Deep underground in the overworld (y < 20, e.g. mining a y=-55 obsidian field), re-opening the food
+  // milestone forces a 120-block climb out and re-descent — only demand food=19 underground when genuinely
+  // hurt (<10 HP), while still triggering anytime food < 10.
+  const dimNow = (bot.game && bot.game.dimension) || 'overworld';
+  const deepUnderground = dimNow === 'overworld' && bot.entity && bot.entity.position && bot.entity.position.y < 20;
+  const minFood = bot.health < (deepUnderground ? 10 : 14) ? 19 : 10;
+  if (bot.health >= (deepUnderground ? 10 : 12) && (bot.food >= minFood || permaFed)) return false;
   if (permaFed && bot.food < minFood) {
     // Infinite saturation HOLDS the hunger bar but cannot RAISE it, and vanilla regen needs food >= 18 - so
     // bypassing the meter entirely would also have bypassed the only healing it has between End deaths
