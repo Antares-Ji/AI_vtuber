@@ -499,14 +499,16 @@ const LADDER = [
               } catch {}
             }
             // Once hunt + kelp + shallow fish hunt all came up empty beside water, immediately craft/use a
-            // fishing_rod (or hunt a nearby spider for 2 string -> rod) without waiting 3 minutes!
+            // fishing_rod (or hunt a nearby/nighttime spider for 2 string -> rod) without waiting 3 minutes!
+            const todPre = b.time && typeof b.time.timeOfDay === 'number' ? (b.time.timeOfDay % 24000) : null;
+            const isNightPre = todPre !== null && todPre >= 12300 && todPre <= 23400;
             const waterNear = (() => { try { return b.findBlock({ matching: blockIds(b, ['water']), maxDistance: 36 }); } catch { return null; } })();
             if (!stocked() && waterNear && countItem(b, 'fishing_rod') < 1 && countItem(b, 'string') < 2) {
               const nearSpider = (() => {
-                try { return !!b.nearestEntity(e => e && /spider/.test(e.name || '') && e.position && b.entity.position.distanceTo(e.position) <= 48); } catch { return false; }
+                try { return !!b.nearestEntity(e => e && /spider/.test(e.name || '') && e.position && b.entity.position.distanceTo(e.position) <= 56); } catch { return false; }
               })();
-              if (nearSpider) {
-                const sp = await reg.get('hunt_spider').run(b, { count: 2, maxDistance: 48 }).catch(() => ({ ok: false, observation: 'failed' }));
+              if (nearSpider || isNightPre) {
+                const sp = await reg.get('hunt_spider').run(b, { count: 2, maxDistance: 56 }).catch(() => ({ ok: false, observation: 'failed' }));
                 log.skill(`food: spider hunt for fishing-rod string -> ${sp.ok ? 'ok' : 'failed'} (string=${countItem(b, 'string')})`);
               }
             }
@@ -541,16 +543,29 @@ const LADDER = [
                 }
               }
             }
+            // Commit to ONE sustained compass heading per food march (rotating E -> S -> W -> N across failed
+            // rounds) instead of random-walking every 5 legs inside a 600-block frozen ocean!
+            const FOOD_DIRS = ['E', 'S', 'W', 'N'];
+            const nextFoodDir = () => {
+              const idx = (b._foodDirIdx || 0) % FOOD_DIRS.length;
+              b._foodDirIdx = idx + 1;
+              return FOOD_DIRS[idx];
+            };
             if (!fishedOk && !stocked() && starvedFor() > VILLAGE_AFTER_MS) {
               log.skill(`nothing edible for ${Math.round(starvedFor() / 60000)} min (kelp: ${String(kk.observation).slice(0, 80)}) - raiding a village for hay instead of roaming for a cow`);
               const rv = await reg.get('raid_village').run(b, { need: 12 });
               log.skill(`raid_village said: ${rv.observation}`);
               if (!rv.ok && !stocked()) {
-                await reg.get('roam').run(b, { look_for: 'cow,pig,sheep,chicken,rabbit', distance: 300 });
-                await reg.get('hunt').run(b, { count: 8 });
+                const dir = nextFoodDir();
+                log.skill(`food: sustained overland march ${dir} (300m) out of barren biome`);
+                await reg.get('roam').run(b, { look_for: 'cow,pig,sheep,chicken,rabbit', distance: 300, dir });
+                await harvestNearbyBerries();
+                if (!stocked()) await reg.get('hunt').run(b, { count: 8 });
               }
             } else if (!fishedOk && !stocked()) {
-              await reg.get('roam').run(b, { look_for: 'cow,pig,sheep,chicken,rabbit', distance: 300 });
+              const dir = nextFoodDir();
+              log.skill(`food: sustained overland march ${dir} (300m) for livestock`);
+              await reg.get('roam').run(b, { look_for: 'cow,pig,sheep,chicken,rabbit', distance: 300, dir });
               await harvestNearbyBerries();
               if (!stocked()) await reg.get('hunt').run(b, { count: 8 });
             }
@@ -561,6 +576,7 @@ const LADDER = [
       if (have() < 4 && !stocked()) {
         // In barren snowy / frozen-ocean biomes where livestock, kelp, berries, and villages are all absent,
         // zombies/husks/shore-drowned drop rotten_flesh (edible emergency rations) without needing grass.
+        // Only run undead hunt when zombies are actually loaded nearby, at night, or underground (not on bright sunlit surface!).
         const nearUndead = (() => {
           try {
             return !!b.nearestEntity(e => e && e.name && /zombie|husk|drowned/.test(e.name) && e.position
@@ -571,7 +587,8 @@ const LADDER = [
         })();
         const todF = b.time && typeof b.time.timeOfDay === 'number' ? (b.time.timeOfDay % 24000) : null;
         const isNightF = todF !== null && todF >= 12300 && todF <= 23400;
-        if (nearUndead || isNightF || starvedFor() > 60000) {
+        const undergroundF = b.entity && b.entity.position && b.entity.position.y < 58;
+        if (nearUndead || isNightF || undergroundF) {
           const z = await reg.get('hunt_spider').run(b, { kind: 'zombie', count: 6, maxDistance: 48 });
           log.skill(`food: barren-biome undead ration hunt -> ${z.ok ? 'ok' : 'failed'} (${String(z.observation).slice(0, 110)})`);
         }

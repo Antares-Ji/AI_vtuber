@@ -2554,8 +2554,90 @@ function makeBot(overrides = {}) {
     WS48.forget('herd');
   }
 
+  // 49. tidy ballistic pit solver adjusts pitch to bot's exact offset (far edge vs near edge) and ignores pre-existing
+  //     dug dirt entities when verifying tossed items; food sustained march rotates compass headings E->S->W->N
+  {
+    const prevVerify49 = process.env.MC_TIDY_VERIFY_MS;
+    process.env.MC_TIDY_VERIFY_MS = '50';
+    try {
+      // Bot standing at far edge of its block (x=0.15, pit at x=1 -> center 1.5 -> horiz=1.35m)
+      let lookTarget49 = null;
+      const pitDug49 = new Set();
+      const inv49 = [
+        { name: 'snowball', count: 8, slot: 9 },
+        { name: 'cobblestone', count: 16, slot: 10 },
+      ];
+      // Pre-existing dug dirt entity already sitting at the bottom of the pit BEFORE toss!
+      const ents49 = {
+        7001: { id: 7001, name: 'item', position: new Vec3(1.5, 60.1, 0.5) },
+      };
+      const botPit49 = makeBot({
+        entity: { position: new Vec3(0.15, 64, 0.5), yaw: 0, pitch: 0 },
+        entities: ents49,
+        inventory: { slots: new Array(46).fill(null), items: () => inv49 },
+        lookAt: async (pt) => { lookTarget49 = pt; },
+        findBlocks: () => [],
+        dig: async (b) => { pitDug49.add(`${b.position.x},${b.position.y},${b.position.z}`); },
+        tossStack: async (it) => {
+          const idx = inv49.indexOf(it);
+          if (idx >= 0) inv49.splice(idx, 1);
+          // Simulate an OUTSIDE mis-throw at bot's own feet — must NOT be fooled by pre-existing dug dirt #7001!
+          ents49[7002] = { id: 7002, name: 'item', position: new Vec3(0.2, 64.0, 0.5) };
+        },
+        blockAt: (p) => {
+          if (!p) return { name: 'air', boundingBox: 'empty' };
+          const x = Math.floor(p.x), y = Math.floor(p.y), z = Math.floor(p.z);
+          if (y >= 64) return { name: 'air', position: p, boundingBox: 'none' };
+          if (pitDug49.has(`${x},${y},${z}`)) return { name: 'air', position: p, boundingBox: 'none' };
+          return { name: 'dirt', position: p, boundingBox: 'block', hardness: 0.5 };
+        },
+      });
+      const r49 = await reg.get('tidy').run(botPit49, { min_free: 6 });
+      assert.ok(lookTarget49, 'tidy must aim at the dug pit');
+      // For horiz=1.35m, ballistic solver picks ~43-49 deg (aimY ~ 64.1..64.6), shallower than -65 deg so it reaches 1.35m!
+      const effPitchDeg = Math.atan2((64 + 1.62) - lookTarget49.y, 1.35) * 180 / Math.PI;
+      assert.ok(effPitchDeg >= 30 && effPitchDeg <= 56, `far-edge horiz=1.35m must use ballistic pitch ~38-52deg instead of undershooting -65deg (got -${effPitchDeg.toFixed(1)}deg)`);
+      assert.match(r49.observation, /REJECTED/, 'tidy must NOT be fooled by pre-existing dug dirt entity inside pit when tossed item lands outside');
+    } finally {
+      if (prevVerify49 === undefined) delete process.env.MC_TIDY_VERIFY_MS; else process.env.MC_TIDY_VERIFY_MS = prevVerify49;
+    }
+
+    // Second half: food rotates sustained compass headings (E -> S) across calls
+    const { LADDER } = require('../src/minecraft/autonomous/skills/progression');
+    const foodMs49 = LADDER.find(m => m.id === 'food');
+    const origHunt49 = reg.get('hunt').run;
+    const origKelp49 = reg.get('harvest_kelp').run;
+    const origRoam49 = reg.get('roam').run;
+    const origEat49 = reg.get('eat').run;
+    const dirsSeen49 = [];
+    try {
+      reg.get('hunt').run = async () => ({ ok: false, observation: 'none' });
+      reg.get('harvest_kelp').run = async () => ({ ok: false, observation: 'none' });
+      reg.get('roam').run = async (b, a) => { dirsSeen49.push(a && a.dir); return { ok: false, observation: 'marched' }; };
+      reg.get('eat').run = async () => ({ ok: true, observation: 'ate' });
+      const botDir49 = makeBot({
+        food: 12,
+        health: 20,
+        time: { timeOfDay: 6000 }, // bright noon: must not waste time on surface undead hunt
+        entity: { position: new Vec3(0, 64, 0), yaw: 0, pitch: 0 },
+        inventory: { slots: new Array(46).fill(null), items: () => [] },
+        findBlocks: () => [],
+        findBlock: () => null,
+        nearestEntity: () => null,
+      });
+      await foodMs49.run(botDir49);
+      await foodMs49.run(botDir49);
+      assert.deepEqual(dirsSeen49, ['E', 'S'], `food sustained march must pass rotating compass dirs E->S (got ${JSON.stringify(dirsSeen49)})`);
+    } finally {
+      reg.get('hunt').run = origHunt49;
+      reg.get('harvest_kelp').run = origKelp49;
+      reg.get('roam').run = origRoam49;
+      reg.get('eat').run = origEat49;
+    }
+  }
+
   fs.rmSync(tmp, { recursive: true, force: true });
-  console.log('PASS minecraft-autonomous: all 48 regression groups passed');
+  console.log('PASS minecraft-autonomous: all 49 regression groups passed');
 })().catch(e => {
   console.error(e);
   process.exitCode = 1;

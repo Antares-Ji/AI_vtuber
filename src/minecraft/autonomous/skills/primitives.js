@@ -2265,18 +2265,37 @@ async function trashDisposal(bot) {
       dug++;
     }
     if (!blocked && dug >= 3) {
-      // Launch physics in Java 1.21.1: Q-drop spawns at (eyeY - 0.3) with v_h = 0.3*cos(pitch),
-      // v_y = 0.3*sin(pitch) + 0.1. The old aim (feet.y + 0.7 -> pitch -42 deg) threw items 1.85 blocks
-      // horizontally — straight OVER the 1-block pit onto the far rim, where the bot picked them right back up!
-      // Targeting pitch ~ -65 deg (tan 65 ~= 2.15) drops the stack through y=feet.y at ~0.60b and dead-center
-      // at ~0.87b into the 4-deep pit, which we then seal flush with a cap block when done.
-      const horiz = Math.max(0.7, Math.hypot((cx + 0.5) - bot.entity.position.x, (cz + 0.5) - bot.entity.position.z));
-      const aimY = Math.max(feet.y - 2.0, Math.min(feet.y - 0.1, eyeY - horiz * 2.15));
+      // Exact Java 1.21.1 Player.drop() trajectory solver:
+      // Spawn at y0 = eyeY - 0.3; per tick with pitch down theta > 0:
+      //   vh0 = 0.3 * cos(theta), vy0 = -0.3 * sin(theta) + 0.1; each tick: y += vy, x += vh, vy = (vy - 0.04)*0.98, vh *= 0.98.
+      // Because the bot can stand anywhere from 0.65m to 1.45m from the pit center (cx+0.5, cz+0.5),
+      // a fixed -65 deg pitch UNDERSHOT when horiz >= 1.1m (landing on the bot's own block and bouncing back
+      // after the 40-tick / 2.0s pickup delay!) while -42 deg OVERSHOT when horiz <= 0.9m.
+      // Sweep theta in [25..78 deg] to hit dead-center (x == horiz) at y == feet.y - 0.15!
+      const horiz = Math.max(0.55, Math.hypot((cx + 0.5) - bot.entity.position.x, (cz + 0.5) - bot.entity.position.z));
+      const targetDy = (feet.y - 0.15) - (eyeY - 0.3);
+      let bestDeg = 55, bestErr = Infinity;
+      for (let deg = 25; deg <= 78; deg += 1) {
+        const rad = deg * Math.PI / 180;
+        let vh = 0.3 * Math.cos(rad), vy = -0.3 * Math.sin(rad) + 0.1;
+        let x = 0, y = 0;
+        for (let tick = 0; tick < 20; tick++) {
+          x += vh; y += vy;
+          if (y <= targetDy) break;
+          vy = (vy - 0.04) * 0.98;
+          vh *= 0.98;
+        }
+        const err = Math.abs(x - horiz);
+        if (err < bestErr) { bestErr = err; bestDeg = deg; }
+      }
+      const aimY = eyeY - horiz * Math.tan(bestDeg * Math.PI / 180);
       return {
         kind: 'pit',
         pos: new V(cx + 0.5, feet.y - dug + 0.1, cz + 0.5),
         aim: new V(cx + 0.5, aimY, cz + 0.5),
         pitCol: { x: cx, y: feet.y, z: cz, depth: dug },
+        aimDeg: bestDeg,
+        horiz: Number(horiz.toFixed(2)),
       };
     }
   }
@@ -2289,7 +2308,7 @@ async function dropJunk(bot, force, minFree = 6) {
   const tossed = [];
   // One disposal per tidy call: the pit is dug once, every stack aims steeply into its center,
   // and at the end we CAP/SEAL the pit with a solid block so nothing can ever be picked back up.
-  let disposal = null, disposalTried = false, pitToSeal = null, pitUsed = false;
+  let disposal = null, disposalTried = false, pitToSeal = null, pitUsed = false, pitVerified = false;
   const onRealSolidGround = () => {
     try {
       const f = bot.entity.position.floored();
@@ -2305,20 +2324,34 @@ async function dropJunk(bot, force, minFree = 6) {
       log.skill(disposal
         // floor, not round: `pos` is a cell CENTRE (-99.5 rounds to -98 and points at the next column),
         // and these coordinates are the only record of where the trash went.
-        ? `tidy: disposal = ${disposal.kind} in cell ${Math.floor(disposal.pos.x)},${Math.floor(disposal.pos.y)},${Math.floor(disposal.pos.z)}`
+        ? `tidy: disposal = ${disposal.kind} in cell ${Math.floor(disposal.pos.x)},${Math.floor(disposal.pos.y)},${Math.floor(disposal.pos.z)}${disposal.aimDeg ? ` (horiz=${disposal.horiz}m, pitch=-${disposal.aimDeg}deg)` : ''}`
         : 'tidy: no reachable lava within 3 and no diggable 3-deep pit here - refusing to drop trash at feet');
     }
     if (disposal) {
       try { await bot.lookAt(disposal.aim || disposal.pos, true); } catch {}
       // Let Paper process the head rotation packet before tossing so the throw vector matches the pit!
-      await sleep(160);
+      await sleep(180);
     }
     return disposal;
   };
+  const snapshotItemIds = () => {
+    const s = new Set();
+    try {
+      for (const x of Object.values(bot.entities || {})) {
+        if (x && x.name === 'item' && x.id !== undefined) s.add(x.id);
+      }
+    } catch {}
+    return s;
+  };
+  // Minecraft Java gives player-dropped items a 40-tick (2.0s) pickup delay! Waiting only 0.65s-0.9s
+  // hid undershot drops that sat on our own block and snapped straight back into inventory 1.1s later.
+  // Verify the first pit drop past the full 2.25s pickup delay (capped shorter in unit tests via env).
+  const PIT_VERIFY_MS = Number(process.env.MC_TIDY_VERIFY_MS || 2250);
   const tossPartial = async (it, excess, why) => {
     if (bot.heldItem && bot.heldItem.slot === it.slot) return false;
     const d = await aim();
     if (!d && onRealSolidGround()) return false;
+    const preIds = snapshotItemIds();
     const before = countItem(bot, it.name);
     try {
       await bot.toss(itemId(bot, it.name), null, excess);
@@ -2328,13 +2361,32 @@ async function dropJunk(bot, force, minFree = 6) {
     }
     let took = true;
     if (d) {
-      await sleep(650);
+      const waitMs = (d.kind === 'pit' && !pitVerified) ? PIT_VERIFY_MS : 650;
+      await sleep(waitMs);
       if (countItem(bot, it.name) >= before) {
-        log.warn(`tidy: the ${d.kind} did not take trimmed ${it.name}x${excess} (still ${countItem(bot, it.name)} after 0.65s) - stopping tosses here`);
+        log.warn(`tidy: the ${d.kind} did not take trimmed ${it.name}x${excess} (still ${countItem(bot, it.name)} after ${waitMs}ms) - stopping tosses here`);
         took = false;
         disposal = null;
       } else if (d.kind === 'pit') {
         pitUsed = true;
+        pitVerified = true;
+      }
+    }
+    if (d && took && d.kind === 'pit' && bot.entities) {
+      let inside = 0, outside = 0;
+      const lipY = d.pitCol ? d.pitCol.y - 0.5 : d.pos.y + 2.0;
+      try {
+        for (const x of Object.values(bot.entities)) {
+          if (!x || x.name !== 'item' || !x.position || preIds.has(x.id)) continue;
+          const dxz = Math.abs(x.position.x - d.pos.x) < 0.75 && Math.abs(x.position.z - d.pos.z) < 0.75;
+          if (dxz && x.position.y <= lipY) inside++;
+          else if (x.position.distanceTo(bot.entity.position) < 4) outside++;
+        }
+      } catch {}
+      if (!inside && outside) {
+        log.warn(`tidy: trimmed ${it.name} landed OUTSIDE the pit (${outside} new loose item(s) near me) - rejecting pit`);
+        took = false;
+        disposal = null;
       }
     }
     tossed.push(`${it.name}x${excess}(${why}${d ? `->${d.kind}${took ? '' : ' REJECTED'}` : ''})`);
@@ -2344,52 +2396,45 @@ async function dropJunk(bot, force, minFree = 6) {
     if (bot.heldItem && bot.heldItem.slot === it.slot) return false; // never drop what is in hand
     const d = await aim();
     if (!d && onRealSolidGround()) return false;
+    const preIds = snapshotItemIds();
     const before = countItem(bot, it.name);
     const cnt0 = it.count; // read it BEFORE the throw: the stack object is emptied by the toss, and
     // `sandx0(cap)` is what the log used to say - unreadable as "how much did it actually drop"
     try { await bot.tossStack(it); } catch { try { await bot.toss(it.name, null, it.count); } catch { return false; } }
     let took = true;
-    // Prove it left. A pit or lava that the throw missed looks identical to one that worked until the
-    // next pass runs out of slots, and "tossed" that came back is the exact loop this replaced.
+    // Prove it left past the real 40-tick (2.0s) Minecraft drop pickup delay on the first pit toss!
     if (d) {
-      // 400 ms was shorter than the pickup itself: a stack that lands on the bot's own feet is collected
-      // about half a second later, so the old check said "tossed" for trash that was back in the pack, and
-      // the next pass found the same stack again (the loop the pit was supposed to end).
-      await sleep(900);
+      const waitMs = (d.kind === 'pit' && !pitVerified) ? PIT_VERIFY_MS : 900;
+      await sleep(waitMs);
       if (countItem(bot, it.name) >= before) {
-        log.warn(`tidy: the ${d.kind} did not take ${it.name} (still ${countItem(bot, it.name)} after 0.9s) - no more aiming here this call`);
+        log.warn(`tidy: the ${d.kind} did not take ${it.name} (still ${countItem(bot, it.name)} after ${waitMs}ms) - no more aiming here this call`);
         took = false;
         disposal = null;
       } else if (d.kind === 'pit') {
         pitUsed = true;
+        pitVerified = true;
       }
     }
-    // A stack can leave the pack and still be sitting on the ground two blocks away - which is exactly the
-    // complaint about the pit ("扔不进去他挖的洞里") and invisible to a count check. Look for the item entity
-    // INSIDE the hole's column and below its lip, so "tossed" means "in the pit" rather than "gone".
+    // Check ONLY newly spawned item entities (exclude dug pit blocks from preIds) inside the 1x1 shaft!
     if (d && took && d.kind === 'pit' && bot.entities) {
       let inside = 0, outside = 0;
       const lipY = d.pitCol ? d.pitCol.y - 0.5 : d.pos.y + 2.0;
       try {
         for (const x of Object.values(bot.entities)) {
-          if (!x || x.name !== 'item' || !x.position) continue;
-          const dxz = Math.abs(x.position.x - d.pos.x) < 1.2 && Math.abs(x.position.z - d.pos.z) < 1.2;
-          // BELOW the lip only: a stack resting on the ground beside the hole is at about the standing
-          // floor level, and counting that as "inside" would re-create the false success.
+          if (!x || x.name !== 'item' || !x.position || preIds.has(x.id)) continue;
+          const dxz = Math.abs(x.position.x - d.pos.x) < 0.75 && Math.abs(x.position.z - d.pos.z) < 0.75;
           if (dxz && x.position.y <= lipY) inside++;
           else if (x.position.distanceTo(bot.entity.position) < 4) outside++;
         }
       } catch {}
       if (!inside && outside) {
         log.warn(`tidy: the ${it.name} stack left the pack but landed OUTSIDE the pit (${outside} loose item(s) near me, none in the hole at ${Math.floor(d.pos.x)},${Math.floor(d.pos.y)},${Math.floor(d.pos.z)}) - the aim is the suspect`);
+        took = false;
         disposal = null;
       } else if (inside) {
         log.skill(`tidy: ${it.name} confirmed inside the pit at ${Math.floor(d.pos.x)},${Math.floor(d.pos.y)},${Math.floor(d.pos.z)}`);
       }
     }
-    // The label is the only record of where the trash went, so it must not claim a disposal that the
-    // verification above just denied - `cobblestonex48(trim->16->pit)` read as success while the stacks
-    // sat on the ground at its feet, which is how "扔不进去" looked like a working feature in the log.
     tossed.push(`${it.name}x${cnt0}(${why}${d ? `->${d.kind}${took ? '' : ' REJECTED'}` : ''})`);
     return true;
   };
