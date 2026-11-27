@@ -3584,8 +3584,75 @@ function makeBot(overrides = {}) {
     assert.equal(selectConservativeTool(botOver66, netherrackBlk), null, 'Overworld must still conserve diamond_pickaxe');
   }
 
+  // 67. stepOnto in the_nether holds sneak=true (impossible to walk off a 1-block bridge into lava), stops
+  //     forward as soon as centered on target (no blind 1.55s sprint!), and never jumps on a flat bridge
+  {
+    const P67 = require('../src/minecraft/autonomous/skills/primitives');
+    const states67 = [];
+    let forwardSteps67 = 0;
+    const botBridge67 = makeBot({
+      entity: { position: new Vec3(8.5, 34, -104.5), yaw: 0, pitch: 0 }, // block (8, 34, -105)
+      game: { dimension: 'the_nether' },
+      lookAt: async () => {},
+      pathfinder: { stop: () => {} },
+      setControlState: (k, v) => {
+        states67.push([k, v]);
+        if (k === 'forward' && v) {
+          // Simulate sneaking smoothly onto target cell center (8.5, 34, -103.5) = block (8, 34, -104)
+          setTimeout(() => { forwardSteps67++; botBridge67.entity.position = new Vec3(8.5, 34, -103.5); }, 80);
+        }
+      },
+      blockAt: (p) => {
+        if (!p) return { name: 'air', boundingBox: 'none' };
+        const x = Math.floor(p.x), y = Math.floor(p.y), z = Math.floor(p.z);
+        if (x === 8 && y === 33 && (z === -105 || z === -104)) return { name: 'cobblestone', position: new Vec3(x, y, z), boundingBox: 'block' };
+        if (y <= 31) return { name: 'lava', position: new Vec3(x, y, z), boundingBox: 'empty' };
+        return { name: 'air', position: new Vec3(x, y, z), boundingBox: 'none' };
+      },
+    });
+    const t67 = Date.now();
+    const res67 = await P67.stepOnto(botBridge67, { x: 8, y: 34, z: -104 });
+    const dt67 = Date.now() - t67;
+    assert.ok(states67.some(([k, v]) => k === 'sneak' && v === true), 'stepOnto in the_nether must hold sneak=true');
+    assert.ok(states67.some(([k, v]) => k === 'sneak' && v === false), 'stepOnto must release sneak after stepping');
+    assert.equal(states67.some(([k, v]) => k === 'jump' && v === true), false, 'stepOnto must NOT jump on a flat lava bridge');
+    assert.ok(dt67 < 900, `stepOnto must stop immediately on reaching target instead of 1.55s blind walk (took ${dt67}ms)`);
+    assert.equal(res67.moved, 1, `stepOnto must advance exactly 1 cell onto the bridge (got ${res67.moved})`);
+  }
+
+  // 68. nextMilestone detects a total inventory wipe (0 tools/weapons/armor, <=3 items) and re-opens wood..bow
+  //     so the bot re-arms cleanly while keeping obsidian/diamond done when a Nether portal frame already stands
+  {
+    const { nextMilestone } = require('../src/minecraft/autonomous/agent/planner');
+    const WS68 = require('../src/minecraft/autonomous/workshopRecord');
+    try {
+      WS68.note('nether_portal_frame', { x: -78, y: 40, z: -259 }, 'standing lit portal');
+      const state68 = {
+        done: {
+          wood: true, crafting_table: true, wooden_pickaxe: true, stone: true, stone_tools: true,
+          food: true, coal: true, iron_ore: true, iron_ingots: true, iron_gear: true,
+          armor: true, diamond_pick: true, diamond_gear: true, bow: true, obsidian: true, flint_steel: true,
+        },
+      };
+      const botWiped68 = makeBot({
+        _chunksOk: true,
+        food: 20, health: 20,
+        game: { dimension: 'overworld' },
+        inventory: { slots: new Array(46).fill(null), items: () => [] },
+      });
+      const nxt68 = nextMilestone(botWiped68, state68);
+      assert.equal(nxt68 && nxt68.id, 'wood', `total wipe must re-open from wood (got ${nxt68 && nxt68.id})`);
+      assert.equal(state68.done.iron_gear, undefined, 'total wipe must re-open iron_gear');
+      assert.equal(state68.done.bow, undefined, 'total wipe must re-open bow');
+      assert.equal(state68.done.obsidian, true, 'total wipe must keep obsidian done when Nether portal frame already stands');
+      assert.equal(state68.done.diamond_pick, true, 'total wipe must keep diamond_pick done when Nether portal frame already stands');
+    } finally {
+      WS68.forget('nether_portal_frame');
+    }
+  }
+
   fs.rmSync(tmp, { recursive: true, force: true });
-  console.log('PASS minecraft-autonomous: all 66 regression groups passed');
+  console.log('PASS minecraft-autonomous: all 68 regression groups passed');
 })().catch(e => {
   console.error(e);
   process.exitCode = 1;

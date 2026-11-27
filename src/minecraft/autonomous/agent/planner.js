@@ -235,6 +235,30 @@ function nextMilestone(bot, state) {
   // that can be spent is not a fact to re-assert; only an unobservable-now state (dimension, hunger,
   // nothing worn) is. A missing pick is fixed by the step that needs it (make_obsidian's prerequisite,
   // ensure_diamond_pick, the stage routes), not by rewinding the ladder.
+  // Total inventory wipe recovery (e.g. dying in lava/void on a world where keepInventory was false):
+  // Unlike normal single-tool wear (which never triggers this), a genuine wipe leaves 0 tools/weapons/armor
+  // and <=3 incidental items while stone_tools is marked done. Re-open the core combat/mining kit milestones
+  // (wood..bow) so the bot re-arms cleanly instead of punching mobs bare-handed; keep obsidian/diamond done
+  // when a Nether portal frame is already standing so we don't repeat the entire diamond/obsidian mine.
+  if (bot._chunksOk === true && state.done.stone_tools) {
+    try {
+      const items = bot.inventory.items() || [];
+      const wornNow = [5, 6, 7, 8].filter(s => !!bot.inventory.slots[s]).length;
+      const hasGear = items.some(i => /_(pickaxe|sword|axe|shovel|helmet|chestplate|leggings|boots)$|^(bow|shield|fishing_rod|flint_and_steel|water_bucket|ender_eye|ender_pearl|blaze_rod)$/.test(i.name));
+      if (wornNow === 0 && !hasGear && items.length <= 3) {
+        const hasPortal = (() => { try { return !!require('../workshopRecord').at('nether_portal_frame'); } catch { return false; } })();
+        const reopenIds = ['wood', 'crafting_table', 'wooden_pickaxe', 'stone', 'stone_tools', 'food', 'coal', 'iron_ore', 'iron_ingots', 'iron_gear', 'armor', 'bow'];
+        if (!hasPortal) reopenIds.push('diamond_pick', 'obsidian', 'flint_steel');
+        const reopened = [];
+        for (const id of reopenIds) {
+          if (state.done[id]) { delete state.done[id]; reopened.push(id); changed = true; }
+        }
+        if (reopened.length) {
+          log.warn(`TOTAL INVENTORY WIPE detected (0 tools/weapons/armor, items=${items.length}, portal=${hasPortal ? 'standing' : 'none'}) - re-opening [${reopened.join(',')}] to re-arm cleanly`);
+        }
+      }
+    } catch {}
+  }
   const REVALIDATE = new Set(['food', 'armor', 'nether', 'enter_end']);
   for (const m of LADDER) {
     if (!state.done[m.id] || !REVALIDATE.has(m.id)) continue;

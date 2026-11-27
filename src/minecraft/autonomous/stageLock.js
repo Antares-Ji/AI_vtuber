@@ -155,7 +155,7 @@ const STAGES = {
       { name: 'water_bucket', dir: 1, get: b => cnt(b, 'water_bucket') },
     ],
     unblock: [
-      { alt: 'pour-frame', when: /cell\(s\) still missing|frame needs|cells still need filling|obsidian cannot be collected|cannot reach the Nether/i, skill: 'pour_portal_cell', args: {}, capMs: 300000, ready: () => !!workshopRecord.at('nether_portal_frame'), why: 'the gate to the Nether is 4-10 frame cells, and a cell can be poured into existence without a pickaxe tier' },
+      { alt: 'pour-frame', when: /cell\(s\) still missing|frame needs|cells still need filling|obsidian cannot be collected|cannot reach the Nether/i, skill: 'pour_portal_cell', args: {}, capMs: 300000, ready: (b) => !(b && b.game && b.game.dimension === 'the_nether') && !!workshopRecord.at('nether_portal_frame'), why: 'the gate to the Nether is 4-10 frame cells, and a cell can be poured into existence without a pickaxe tier' },
       // Ahead of `frame`: at 03:01:36 the `frame` route fired, make_obsidian answered `no diamond-tier
       // pickaxe`, and the lock would have kept re-asking the same skill that cannot do anything without
       // the pick. The pick chain is the prerequisite, so it goes first.

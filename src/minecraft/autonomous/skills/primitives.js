@@ -3865,15 +3865,35 @@ async function stepOnto(bot, q, opts) {
   }
   try { bot.pathfinder.stop(); } catch {}
   try { await bot.lookAt(new V(q.x + 0.5, q.y + 0.1, q.z + 0.5), true); } catch {}
+  const inHazardDim = !!(bot.game && (bot.game.dimension === 'the_nether' || bot.game.dimension === 'the_end'));
+  const useSneak = o.sneak !== undefined ? !!o.sneak : inHazardDim;
+  const needJump = q.y > (bot.entity.position.y + 0.35);
   try {
+    // In the_nether / the_end (1-block bridges over lava seas or the Void!), hold sneak so Minecraft physics
+    // cannot walk off the far edge of a 1-block bridge, poll arrival every 50ms instead of a blind 1550ms
+    // 6.7-block sprint, and only jump when actually stepping UP a ledge!
+    if (useSneak) bot.setControlState('sneak', true);
     bot.setControlState('forward', true);
-    await sleep(900);
-    bot.setControlState('jump', true);
-    await sleep(250);
-    bot.setControlState('jump', false);
-    await sleep(400);
-  } catch {}
-  try { bot.setControlState('forward', false); } catch {}
+    const maxWalkMs = useSneak ? 1400 : 1200;
+    const tWalk = Date.now();
+    let jumped = false;
+    while (Date.now() - tWalk < maxWalkMs) {
+      const pNow = bot.entity.position;
+      if (Math.hypot(pNow.x - (q.x + 0.5), pNow.z - (q.z + 0.5)) <= 0.35) break;
+      if (needJump && !jumped && Date.now() - tWalk >= 220) {
+        jumped = true;
+        bot.setControlState('jump', true);
+        await sleep(220);
+        bot.setControlState('jump', false);
+        continue;
+      }
+      await sleep(50);
+    }
+  } catch {} finally {
+    try { bot.setControlState('forward', false); } catch {}
+    try { bot.setControlState('jump', false); } catch {}
+    if (useSneak) { try { bot.setControlState('sneak', false); } catch {} }
+  }
   const after = bot.entity.position.floored();
   return { moved: Math.abs(after.x - before.x) + Math.abs(after.z - before.z), to: after };
 }
