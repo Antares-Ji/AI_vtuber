@@ -916,6 +916,7 @@ function makeBot(overrides = {}) {
     assert.equal(ok, true, 'mineBlockHere must tunnel within reach of lava target and return true');
     assert.equal(dug.includes('lava'), false, 'mineBlockHere must NEVER call bot.dig() on lava');
     assert.equal(equipped.includes('diamond_pickaxe'), false, 'mineBlockHere must NOT equip diamond_pickaxe to tunnel rock toward lava');
+    assert.ok(botLava.entity.position.distanceTo(lavaBlk.position) >= 2.5, 'mineBlockHere must stop at safe edge before stepping into lava');
   }
 
   fs.rmSync(tmp, { recursive: true, force: true });

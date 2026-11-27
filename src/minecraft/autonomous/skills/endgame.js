@@ -641,7 +641,8 @@ async function mineBlockHere(bot, b) {
   // pack is how the one diamond pickaxe - the only tool that drops obsidian - gets spent on soil.
   if (/obsidian|diamond_ore|deepslate_diamond|emerald|ancient_debris/.test(b.name)) await equipPick(bot);
   else if (!(await equipBulkPick(bot, true))) await equipPick(bot);
-  const near = () => bot.entity.position.distanceTo(b.position) <= 4;
+  const isLavaTarget = /lava/.test(b.name);
+  const near = () => bot.entity.position.distanceTo(b.position) <= (isLavaTarget ? 4.5 : 4);
   // Per-call budget, independent of the planner's step deadline: an abandoned (timed-out) skill no
   // longer has a deadline set, so without this bound one buried ore ate 65 s of tunneling (173
   // equipPick lines in 6 s of log) and the whole branch_mine step died on a single unreachable block.
@@ -654,9 +655,9 @@ async function mineBlockHere(bot, b) {
     const k = 14 / d0;
     const hx = Math.round(bot.entity.position.x + (b.position.x - bot.entity.position.x) * k);
     const hz = Math.round(bot.entity.position.z + (b.position.z - bot.entity.position.z) * k);
-    try { await capped(bot.pathfinder.goto(new (GN())(hx, Math.round(b.position.y), hz, 1)), 15000, 'hop toward target'); } catch {}
+    try { await capped(bot.pathfinder.goto(new (GN())(hx, Math.round(b.position.y), hz, isLavaTarget ? 3 : 1)), 15000, 'hop toward target'); } catch {}
   } else {
-    try { await capped(bot.pathfinder.goto(new (GN())(b.position.x, b.position.y, b.position.z, 1)), 15000, 'walk to target'); } catch {}
+    try { await capped(bot.pathfinder.goto(new (GN())(b.position.x, b.position.y, b.position.z, isLavaTarget ? 3 : 1)), 15000, 'walk to target'); } catch {}
   }
   // Reset tunnel timer AFTER initial goto: previously a 15-45s failed goto exhausted the 12s budget
   // before the tunnel loop even ran iteration 0 (live 10:36:53).
@@ -666,6 +667,14 @@ async function mineBlockHere(bot, b) {
     const dx = Math.round(b.position.x - feet.x), dz = Math.round(b.position.z - feet.z), dy = Math.round(b.position.y - feet.y);
     const sx = Math.abs(dx) >= Math.abs(dz) ? Math.sign(dx) : 0;
     const sz = sx === 0 ? Math.sign(dz) : 0;
+    // Never step into or open a wall directly into lava (live 11:22:45 walked into (-19,-26,-283) lava!).
+    const stepFeet = bot.blockAt(feet.offset(sx, 0, sz));
+    const stepUnder = bot.blockAt(feet.offset(sx, -1, sz));
+    const stepHead = bot.blockAt(feet.offset(sx, 1, sz));
+    if ((stepFeet && stepFeet.name.includes('lava')) || (stepUnder && stepUnder.name.includes('lava')) || (stepHead && stepHead.name.includes('lava'))) {
+      log.skill(`mineBlockHere: stopping at lava edge (${feet.x},${feet.y},${feet.z}) instead of stepping into lava`);
+      break;
+    }
     // clear head + feet ahead (and the step-down/up cell) so we can advance toward the target
     for (const off of [[sx, 0, sz], [sx, 1, sz], [sx, Math.sign(dy) || 0, sz]]) {
       if (off[0] === 0 && off[2] === 0 && off[1] === 0) continue;
@@ -1510,7 +1519,7 @@ async function climbOut(bot, targetY) {
     // Dig with the PICKAXE. The old order dug while still holding the block it had placed last
     // iteration (deepslate with cobblestone in hand), which is why "climbing out" gained one block
     // per 33 s: the bot starved at y=-6 with food 4 while recover_surface ran for three minutes.
-    await equipPick(bot);
+    if (!(await equipBulkPick(bot, false))) await equipPick(bot);
     for (const b of [bot.blockAt(f.offset(0, 1, 0)), bot.blockAt(f.offset(0, 2, 0))]) {
       if (b && !isAir(b.name) && !/water|lava|bedrock/.test(b.name)) {
         try { if (bot.pathfinder.isMoving()) bot.pathfinder.stop(); } catch {}
@@ -1603,7 +1612,7 @@ async function climbOut(bot, targetY) {
         const step = bot.blockAt(f.offset(dx, 1, dz));
         const stepHead = bot.blockAt(f.offset(dx, 2, dz));
         const stand = bot.blockAt(f.offset(dx, 0, dz));
-        try { await equipPick(bot); } catch {}
+        try { if (!(await equipBulkPick(bot, false))) await equipPick(bot); } catch {}
         if (step && !isAir(step.name)) { try { await bot.dig(step); } catch {} }
         if (stepHead && !isAir(stepHead.name)) { try { await bot.dig(stepHead); } catch {} }
         if (stand && isAir(stand.name)) {
@@ -4148,7 +4157,7 @@ reg.define('build_nether_portal', {
       const p = new Vec3(ox + dx, bottomY + dy, oz);
       const b = bot.blockAt(p);
       if (b && b.name !== 'obsidian' && !isAir(b.name) && !b.name.includes('bedrock') && !b.name.includes('lava') && !b.name.includes('water') && !b.name.includes('portal')) {
-        try { await equipPick(bot); await withReach(bot, b); } catch (e) { log.warn(`portal: clear ${b.name} threw ${e.message}`); }
+        try { if (!(await equipBulkPick(bot, false))) await equipPick(bot); await withReach(bot, b); } catch (e) { log.warn(`portal: clear ${b.name} threw ${e.message}`); }
       }
     }
     log.info('portal: cells cleared, placing frame');
@@ -4365,7 +4374,7 @@ reg.define('pour_portal_cell', {
       const cur = read(dx, dy);
       if (cur && cur.name === 'obsidian') { done.push(`${dx},${dy} already standing`); continue; }
       if (cur && !isAir(cur.name)) {
-        try { await equipPick(bot); await bot.dig(cur); } catch { failed.push(`${dx},${dy}: ${cur.name} in the way and the dig failed`); continue; }
+        try { if (!(await equipBulkPick(bot, false))) await equipPick(bot); await bot.dig(cur); } catch { failed.push(`${dx},${dy}: ${cur.name} in the way and the dig failed`); continue; }
       }
       // 1) a lava SOURCE into the cell. Flowing lava + water makes cobblestone, so this is the whole
       // difference between obsidian and rubble (measured twice on 2026-10-30).
@@ -6240,7 +6249,7 @@ async function descendToStronghold(bot, p) {
           const b = bot.blockAt(p.offset(d[0], dy, d[1]));
           if (b && !isAir(b.name) && !b.name.includes('bedrock') && !b.name.includes('lava')) {
             const capMs = Math.max(8000, ((typeof bot.digTime === 'function' ? Number(bot.digTime(b)) : 3000) || 3000) + 2500);
-            await capped(equipPick(bot).then(() => bot.dig(b)), capMs, 'tunnel for portal room');
+            await capped((async () => { if (!(await equipBulkPick(bot, false))) await equipPick(bot); await bot.dig(b); })(), capMs, 'tunnel for portal room');
           }
         }
         await capped(bot.pathfinder.goto(new (GN())(p.x + d[0], p.y, p.z + d[1], 0)), 6000, 'tunnel hop');
@@ -6708,7 +6717,7 @@ async function refuelFiller(bot, want) {
     }
     if (!target) { dry++; await sleep(500); continue; }
     try {
-      await equipPick(bot);
+      if (!(await equipBulkPick(bot, false))) await equipPick(bot);
       const dug = await capped(bot.dig(target), 15000, `mine ${target.name} for paving`).catch(() => null);
       if (dug === null) dry++;
       else mined++;
