@@ -24,6 +24,10 @@
     "test:games": "node tests/game-workbench.js",
     "minecraft:workbench": "node scripts/minecraft-workbench.js",
     "minecraft:command": "node scripts/minecraft-api.js",
+    "minecraft:doctor": "node scripts/minecraft-doctor.js",
+    "minecraft:server": "node scripts/minecraft-server.js",
+    "minecraft:autonomous": "node --max-old-space-size=4096 scripts/minecraft-autonomous.js",
+    "test:minecraft:autonomous": "node tests/minecraft-autonomous.js",
     "test:minecraft:api": "node tests/minecraft-deepseek.js && node tests/deepseek-transport.js && node tests/minecraft-occluded-threats.js && node tests/minecraft-astra-jev.js && node tests/minecraft-astra-streamer.js",
     "start": "powershell -ExecutionPolicy Bypass -File scripts/start-services.ps1",
     "start:server": "node src/server.js",
@@ -76,11 +80,19 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "@modelcontextprotocol/client": "^2.3.1",
+    "@modelcontextprotocol/server": "^2.3.1",
+    "dotenv": "^16.6.1",
     "live2dcubismcore": "^1.0.2",
     "mineflayer": "^4.39.0",
+    "mineflayer-armor-manager": "^2.0.1",
+    "mineflayer-auto-eat": "^5.0.3",
     "mineflayer-pathfinder": "^2.4.5",
+    "mineflayer-pvp": "^1.3.2",
+    "mineflayer-tool": "^1.2.0",
     "obs-websocket-js": "^5.0.8",
     "pixi.js": "^8.13.1",
-    "untitled-pixi-live2d-engine": "^1.3.5"
+    "untitled-pixi-live2d-engine": "^1.3.5",
+    "zod": "^4.4.3"
   }
 }

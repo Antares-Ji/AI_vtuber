@@ -5,11 +5,21 @@ const activities = { gather_wood: '采集木头', mine: '采矿', craft: '制作
 function factualSpeech(context) {
   if (!context?.connected || context.stale) return '暂时收不到游戏实时状态，还不能确认当前进度。';
   if (context.phase === '死亡') return '刚刚倒下了，游戏状态需要重新确认。';
+  if (context.phase === '已通关' || context.autonomous?.victory) return '末影龙已被核验击败，本次自主通关全部完成。';
   if (context.phase === '避险') return '正在处理附近危险，目前还不能确认安全。';
   const execution = context.execution;
   const result = context.result;
+  const auto = context.autonomous;
   const activity = action => activities[action?.action] || '这一步';
-  if (execution?.status === 'running') return `正在尝试${activity(execution.action)}，还没有完成确认。`;
+  if (auto && result?.verified && auto.lastEvent?.kind === 'milestone_done' && auto.lastEvent?.milestoneCn) {
+    return `刚才已完成并核验里程碑「${auto.lastEvent.milestoneCn}」，当前进度已推进到第 ${auto.milestonesDone} 段。`;
+  }
+  if (execution?.status === 'running') {
+    if (auto?.currentMilestoneCn) {
+      return `正在推进「${auto.currentMilestoneCn}」阶段，正在尝试${auto.activeSkillCn || activity(execution.action)}，还没有完成确认。`;
+    }
+    return `正在尝试${activity(execution.action)}，还没有完成确认。`;
+  }
   if (execution?.status === 'cancelled') return '刚才的动作已停止，不能把它算作完成。';
   if (execution?.status === 'rejected' || context.error) return '这次尝试没有顺利完成，需要重新检查计划。';
   if (result?.partial) return `刚才${activity(result.action)}只完成了一部分，目标尚未完成。`;

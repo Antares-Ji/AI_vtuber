@@ -62,6 +62,16 @@
       "arguments": {}
     },
     {
+      "id": "minecraft:autonomous-status",
+      "version": "1",
+      "game": "minecraft",
+      "mode": "read",
+      "description": "读取 23 级自主通关引擎的实时里程碑进度、生存状态、卡点诊断与核验事件。",
+      "resources": [],
+      "enabled": true,
+      "arguments": {}
+    },
+    {
       "id": "minecraft:legacy-play",
       "version": "1",
       "game": "minecraft",

@@ -45,6 +45,16 @@ function register(registry, { root, dataRoot, env, main, sts2, runProcess }) {
       const [world, loop] = await Promise.all([main('/api/minecraft/status', undefined, signal), main('/api/minecraft/loop', undefined, signal)]);
       return { backend: 'legacy-mineflayer', world, loop };
     } });
+  add({ id: 'minecraft:autonomous-status', game: 'minecraft', mode: 'read',
+    description: '读取 23 级自主通关引擎的实时里程碑进度、生存状态、卡点诊断与核验事件。', validate: noArgs,
+    async execute(args, { signal }) {
+      const [world, live, loop] = await Promise.all([
+        main('/api/minecraft/status', undefined, signal),
+        main('/api/minecraft/live-context', undefined, signal),
+        main('/api/minecraft/loop', undefined, signal),
+      ]);
+      return { backend: 'autonomous-mineflayer', autonomous: world.autonomous || live.context?.autonomous || null, world, loop };
+    } });
   add({ id: 'minecraft:legacy-play', game: 'minecraft', mode: 'live', resources: ['desktop', 'minecraft'],
     description: '保留 Mineflayer 生存反射、脱困、任务复盘及解说；与原生 MC 后端分开运行。',
     arguments: { goal: 'string', durationMinutes: '1..20' },
