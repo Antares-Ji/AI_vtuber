@@ -76,12 +76,22 @@ async function equipBulkPick(bot, preferIron) {
   // attempt every 90 s because this helper runs around every dig.
   const cheapInPack = bot.inventory.items().some(i => /_pickaxe$/.test(i.name) && !/diamond|netherite/.test(i.name)
     && ((i.maxDurability || 999) - (i.durabilityUsed || 0)) >= 8);
-  if (!cheapInPack && countItem(bot, 'cobblestone') + countItem(bot, 'cobbled_deepslate') >= 3 && countItem(bot, 'stick') >= 2
-    && Date.now() - (bot._bulkCraftAt || 0) > 90000) {
+  const bulkCob = countItem(bot, 'cobblestone') + countItem(bot, 'cobbled_deepslate') + countItem(bot, 'blackstone');
+  const bulkLogs = (P.LOG_NAMES || []).reduce((s, n) => s + countItem(bot, n), 0);
+  const bulkPlanks = bot.inventory.items().filter(i => /_planks$/.test(i.name)).reduce((s, i) => s + i.count, 0);
+  const canBootstrapSticks = countItem(bot, 'stick') >= 2 || (bulkPlanks + bulkLogs * 4) >= 2;
+  if (!cheapInPack && bulkCob >= 3 && canBootstrapSticks
+    && Date.now() - (bot._bulkCraftAt || 0) > 30000) {
     bot._bulkCraftAt = Date.now();
     try {
-      const c = await craft(bot, 'stone_pickaxe', 1);
-      log.skill(`equipBulkPick: no cheap pick left to cut rock with - crafted stone_pickaxe (${String(c.observation).slice(0, 110)})`);
+      if (countItem(bot, 'stick') < 2) {
+        if (bulkPlanks < 2 && bulkLogs > 0) { try { await P.craftPlanks(bot); } catch {} }
+        try { await craft(bot, 'stick', 4); } catch {}
+      }
+      if (countItem(bot, 'stick') >= 2) {
+        const c = await craft(bot, 'stone_pickaxe', 1);
+        log.skill(`equipBulkPick: no cheap pick left to cut rock with - crafted stone_pickaxe (${String(c.observation).slice(0, 110)})`);
+      }
     } catch (e) { log.warn(`equipBulkPick: stone_pickaxe bootstrap threw ${e.message}`); }
   }
   // Iron first when the rock may hide an ore: an iron pick drops every ore except ancient debris,
@@ -642,7 +652,7 @@ async function mineBlockHere(bot, b) {
   if (/obsidian|diamond_ore|deepslate_diamond|emerald|ancient_debris/.test(b.name)) await equipPick(bot);
   else if (!(await equipBulkPick(bot, true))) await equipPick(bot);
   const isLavaTarget = /lava/.test(b.name);
-  const near = () => bot.entity.position.distanceTo(b.position) <= (isLavaTarget ? 4.5 : 4);
+  const near = () => bot.entity.position.distanceTo(b.position) <= (isLavaTarget ? 3.5 : 4);
   // Per-call budget, independent of the planner's step deadline: an abandoned (timed-out) skill no
   // longer has a deadline set, so without this bound one buried ore ate 65 s of tunneling (173
   // equipPick lines in 6 s of log) and the whole branch_mine step died on a single unreachable block.
@@ -3413,19 +3423,19 @@ reg.define('make_obsidian', {
       }
     }
     if (reach) {
-      // A player digs; `mineBlockHere` digs too, but it carries a 12 s per-call budget (rightly - an
-      // abandoned step loses its deadline), so one call cannot cross 34 blocks of rock. Repeat while it
-      // is actually closing the distance, and stop when a pass makes no progress.
-      for (let t = 0; t < 4; t++) {
+      // A player digs; `mineBlockHere` digs too, but it carries a per-call budget, so repeat while it
+      // closes the gap all the way into pour reach (<= 3.8 blocks, not <= 6 which stranded the bot 5.4b
+      // behind a 2-block rock wall while the pour loop requires <= 4.5b).
+      for (let t = 0; t < 6; t++) {
         const d0 = bot.entity.position.distanceTo(lavaTarget.position);
-        if (d0 <= 6) break;
+        if (d0 <= 3.8) break;
         log.skill(`make_obsidian: no path to the pool (${reach.message}) - tunneling, pass ${t + 1} from ${Math.round(d0)} blocks`);
         try { await mineBlockHere(bot, lavaTarget); } catch (e) { log.warn(`make_obsidian: tunnel threw ${e.message}`); }
         const d1 = bot.entity.position.distanceTo(lavaTarget.position);
-        if (d1 <= 6) break;
-        if (d1 > d0 - 2) { log.skill(`make_obsidian: tunnel stalled at ${Math.round(d1)} blocks from the pool - abandoning it`); break; }
+        if (d1 <= 3.8) break;
+        if (d1 > d0 - 1.5) { log.skill(`make_obsidian: tunnel stalled at ${Math.round(d1)} blocks from the pool - abandoning it`); break; }
       }
-      if (bot.entity.position.distanceTo(lavaTarget.position) > 6) {
+      if (bot.entity.position.distanceTo(lavaTarget.position) > 4.5) {
         return { ok: false, observation: `could not reach the lava pool at ${lavaTarget.position.x},${lavaTarget.position.y},${lavaTarget.position.z}: ${reach.message}, and tunneling did not close the gap (obsidian=${countItem(bot, 'obsidian')} of ${need}; this is a reach failure, not a done round)` };
       }
       reach = null;
@@ -3488,6 +3498,9 @@ reg.define('make_obsidian', {
         if (bot.entity.position.distanceTo(p) > 3.5) {
           const g = await capped(bot.pathfinder.goto(new (GN())(p.x, p.y + 1, p.z, 2)), 12000, 'walk to lava cell');
           if (g === null) { try { bot.pathfinder.stop(); } catch {} }
+          if (bot.entity.position.distanceTo(p) > 4.2 && bot.entity.position.distanceTo(p) <= 8.5) {
+            try { await mineBlockHere(bot, b); } catch {}
+          }
           if (bot.entity.position.distanceTo(p) > 4.5) {
             log.warn(`make_obsidian: lava cell ${p.x},${p.y},${p.z} is ${Math.round(bot.entity.position.distanceTo(p) * 10) / 10} blocks away and unreachable - not pouring from here`);
             continue;

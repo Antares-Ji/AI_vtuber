@@ -171,11 +171,19 @@ function withTimeout(promise, ms, bot) {
       if (typeof air === 'number' && air > (bot._airMax || 0)) bot._airMax = air;
       const airMax = Math.max(bot._airMax || 0, 10);
       const airPct = Math.round((air / airMax) * 100);
-      if (bot._wet === true && typeof air === 'number' && air >= 0 && air <= airMax * 0.5 && !(bot._lowAirLogged && Date.now() - bot._lowAirLogged < 30000)) {
+      const headSubmerged = (() => {
+        try {
+          const p = bot.entity && bot.entity.position && bot.entity.position.floored();
+          if (!p || typeof bot.blockAt !== 'function') return true;
+          const hb = bot.blockAt(p.offset(0, 1, 0));
+          return !!(hb && hb.name === 'water');
+        } catch { return true; }
+      })();
+      if (bot._wet === true && headSubmerged && typeof air === 'number' && air >= 0 && air <= airMax * 0.5 && !(bot._lowAirLogged && Date.now() - bot._lowAirLogged < 30000)) {
         bot._lowAirLogged = Date.now();
         log.warn(`LOW AIR: oxygen=${air} (${airPct}% of ${airMax}) in phase "${bot._loopPhase || '?'}" - wet work must surface before its next click (hard abort at 20%)`);
       }
-      if (bot._wet === true && bot._chunksOk !== false && typeof air === 'number' && air >= 0 && air <= airMax * 0.2) {
+      if (bot._wet === true && headSubmerged && bot._chunksOk !== false && typeof air === 'number' && air >= 0 && air <= airMax * 0.2) {
         done = true; clearTimeout(t); cleanup();
         try { bot.pathfinder.stop(); } catch {}
         log.warn(`STEP AIR ABORT: oxygen=${air} in phase "${bot._loopPhase || '?'}" after ${Math.round(ms / 1000)}s - the breath ran out even with the early warning`);
@@ -274,7 +282,7 @@ function nextMilestone(bot, state) {
     // Re-open only when food is genuinely at risk: a low hunger bar or an empty pack.
     if (m.id === 'food' && bot.food >= 10) {
       let stock = 0;
-      try { stock = bot.inventory.items().filter(i => /(cooked_)?(beef|porkchop|chicken|mutton|rabbit|cod|salmon)|apple|bread|baked_potato|potato|carrot|rotten_flesh|melon_slice/.test(i.name)).length; } catch {}
+      try { stock = bot.inventory.items().filter(i => /(cooked_)?(beef|porkchop|chicken|mutton|rabbit|cod|salmon)|apple|bread|baked_potato|potato|carrot|rotten_flesh|melon_slice|sweet_berries/.test(i.name)).length; } catch {}
       if (stock > 0) continue;
     }
     let stillTrue = true; // a throwing predicate must not silently delete progress

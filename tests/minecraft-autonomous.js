@@ -1071,8 +1071,149 @@ function makeBot(overrides = {}) {
     assert.equal(scoopedBack, true, 'make_obsidian must scoop water back into bucket after pouring');
   }
 
+  // 25. equipBestToolFor bootstraps sticks + stone_pickaxe from planks/cobble when only diamond_pickaxe is in pack
+  {
+    const P4 = require('../src/minecraft/autonomous/skills/primitives');
+    const items = [
+      { name: 'diamond_pickaxe', count: 1, slot: 36, maxDurability: 1561, durabilityUsed: 0 },
+      { name: 'spruce_planks', count: 8, slot: 10 },
+      { name: 'cobblestone', count: 12, slot: 11 },
+      { name: 'crafting_table', count: 1, slot: 12 },
+    ];
+    const crafted = [];
+    const botPick = makeBot({
+      entity: { position: new Vec3(0, 30, 0), yaw: 0, pitch: 0 },
+      inventory: { slots: new Array(46).fill(null), items: () => items },
+      heldItem: { name: 'water_bucket', count: 1 },
+      equip: async (it) => { botPick.heldItem = it; },
+      findBlock: ({ matching }) => {
+        const tblId = P4.blockIds(botPick, ['crafting_table'])[0];
+        if (matching === tblId || (Array.isArray(matching) && matching.includes(tblId))) {
+          return { name: 'crafting_table', position: new Vec3(1, 30, 0), boundingBox: 'block' };
+        }
+        return null;
+      },
+      recipesFor: (id) => [{ id, requiresTable: id === P4.itemId(botPick, 'stone_pickaxe') }],
+      craft: async (rec) => {
+        const nm = (P4.data(botPick).items[rec.id] || {}).name;
+        crafted.push(nm);
+        if (nm === 'stick') items.push({ name: 'stick', count: 4, slot: 13 });
+        if (nm === 'stone_pickaxe') items.push({ name: 'stone_pickaxe', count: 1, slot: 37, maxDurability: 131, durabilityUsed: 0 });
+      },
+    });
+    const stoneId = P4.blockIds(botPick, ['stone'])[0];
+    await P4.equipBestToolFor(botPick, { type: stoneId, name: 'stone', hardness: 1.5, position: new Vec3(1, 30, 0) });
+    assert.ok(crafted.includes('stick'), 'equipBestToolFor must bootstrap sticks from planks when stick=0');
+    assert.ok(crafted.includes('stone_pickaxe'), 'equipBestToolFor must craft stone_pickaxe instead of burning diamond_pickaxe or hand-digging stone');
+    assert.equal(botPick.heldItem && botPick.heldItem.name, 'stone_pickaxe', 'must equip the newly minted stone_pickaxe');
+  }
+
+  // 26. make_obsidian tunnels past the 5.4-block wall gap into <=4.5 pour reach instead of stopping at <=6
+  {
+    const P5 = require('../src/minecraft/autonomous/skills/primitives');
+    const lavaId = P5.blockIds(makeBot(), ['lava'])[0];
+    const items = [
+      { name: 'diamond_pickaxe', count: 1, slot: 36, maxDurability: 1561, durabilityUsed: 0 },
+      { name: 'stone_pickaxe', count: 1, slot: 37, maxDurability: 131, durabilityUsed: 0 },
+      { name: 'water_bucket', count: 1, slot: 38 },
+    ];
+    let pouredAtReach = false;
+    let stoneWallIntact = true;
+    const botGap = makeBot({
+      entity: { position: new Vec3(0, 30, 0), yaw: 0, pitch: 0 },
+      inventory: { slots: new Array(46).fill(null), items: () => items },
+      equip: async (it) => { botGap.heldItem = it; },
+      lookAt: async () => {},
+      pathfinder: {
+        stop: () => {},
+        goto: async (goal) => {
+          if (stoneWallIntact && Math.abs((goal.x || 0) - 5) <= 2) throw new Error('No path to the goal!');
+          if (!stoneWallIntact && goal) botGap.entity.position = new Vec3(Math.min(3, goal.x), 30, 0);
+        },
+      },
+      findBlocks: ({ matching }) => {
+        const m = Array.isArray(matching) ? matching : [matching];
+        if (m.includes(lavaId)) return [new Vec3(5.4, 30, 0)];
+        return [];
+      },
+      blockAt: (p) => {
+        if (!p) return { name: 'air', boundingBox: 'none' };
+        const x = Math.floor(p.x), y = Math.floor(p.y), z = Math.floor(p.z);
+        if (x === 5 && y === 30 && z === 0) return { name: 'lava', position: new Vec3(5.4, 30, 0), getProperties: () => ({ level: 0 }) };
+        if (stoneWallIntact && x >= 1 && x <= 3 && (y === 30 || y === 31) && z === 0) return { name: 'stone', position: new Vec3(x, y, z), boundingBox: 'block' };
+        return { name: 'air', boundingBox: 'none' };
+      },
+      dig: async (blk) => {
+        if (blk && blk.name === 'stone') {
+          stoneWallIntact = false;
+          botGap.entity.position = new Vec3(3, 30, 0);
+        }
+      },
+      activateItem: async () => {
+        if (botGap.heldItem && botGap.heldItem.name === 'water_bucket' && botGap.entity.position.distanceTo(new Vec3(5.4, 30, 0)) <= 4.5) {
+          pouredAtReach = true;
+          botGap._stepDeadline = 1;
+        }
+      },
+    });
+    await reg.get('make_obsidian').run(botGap, { count: 1 });
+    assert.equal(pouredAtReach, true, 'make_obsidian must tunnel past the 5.4-block gap and pour once inside <=4.5 reach');
+  }
+
+  // 27. flint_steel milestone mines + smelts 1 iron ingot when iron_ingot=0 before crafting flint_and_steel
+  {
+    const { LADDER } = require('../src/minecraft/autonomous/skills/progression');
+    const fsMs = LADDER.find(m => m.id === 'flint_steel');
+    const origMine = reg.get('mine').run;
+    const origSmelt = reg.get('smelt').run;
+    const P6 = require('../src/minecraft/autonomous/skills/primitives');
+    let minedIron = 0, smeltedIron = 0, craftedFS = 0;
+    try {
+      const items = [
+        { name: 'flint', count: 3, slot: 10 },
+        { name: 'stone_pickaxe', count: 1, slot: 36, maxDurability: 131, durabilityUsed: 0 },
+      ];
+      reg.get('mine').run = async (b, a) => {
+        if (a && Array.isArray(a.block) && a.block.includes('iron_ore')) {
+          minedIron++;
+          items.push({ name: 'raw_iron', count: 2, slot: 11 });
+          return { ok: true, observation: 'mined 2 raw_iron' };
+        }
+        return { ok: false, observation: 'unexpected mine' };
+      };
+      reg.get('smelt').run = async (b, a) => {
+        if (a && a.item === 'raw_iron') {
+          smeltedIron++;
+          items.push({ name: 'iron_ingot', count: 1, slot: 12 });
+          return { ok: true, observation: 'smelted 1 iron_ingot' };
+        }
+        return { ok: false, observation: 'unexpected smelt' };
+      };
+      const fsId = P6.itemId(makeBot(), 'flint_and_steel');
+      const botFS = makeBot({
+        entity: { position: new Vec3(0, 64, 0), yaw: 0, pitch: 0 },
+        inventory: { slots: new Array(46).fill(null), items: () => items },
+        recipesFor: (id) => (id === fsId ? [{ id: fsId, requiresTable: false }] : []),
+        craft: async (rec) => {
+          if (rec && rec.id === fsId) {
+            craftedFS++;
+            items.push({ name: 'flint_and_steel', count: 1, slot: 13 });
+          }
+        },
+      });
+      const res = await fsMs.run(botFS);
+      assert.equal(minedIron, 1, 'flint_steel must mine iron ore when iron_ingot=0 and raw_iron=0');
+      assert.equal(smeltedIron, 1, 'flint_steel must smelt raw_iron when iron_ingot=0');
+      assert.equal(craftedFS, 1, 'flint_steel must craft flint_and_steel after obtaining iron_ingot');
+      assert.equal(res.ok, true);
+    } finally {
+      reg.get('mine').run = origMine;
+      reg.get('smelt').run = origSmelt;
+    }
+  }
+
   fs.rmSync(tmp, { recursive: true, force: true });
-  console.log('PASS minecraft-autonomous: all 24 regression groups passed');
+  console.log('PASS minecraft-autonomous: all 27 regression groups passed');
 })().catch(e => {
   console.error(e);
   process.exitCode = 1;

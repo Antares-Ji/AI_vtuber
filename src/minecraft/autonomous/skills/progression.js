@@ -983,6 +983,12 @@ const LADDER = [
           return { ok: false, observation: `no diamond pickaxe yet (diamonds=${countItem(b, 'diamond')}; craft said: ${c.observation}) - obsidian cannot be collected without one` };
         }
       }
+      // Ensure a cheap bulk pickaxe (>=15 uses) before descending/tunneling to lava so rock digs
+      // neither burn the reserved diamond_pickaxe nor hand-dig stone with a bucket.
+      const bulkPickOk = () => b.inventory.items().some(i => /^(wooden|stone|golden|iron)_pickaxe$/.test(i.name) && dpickUses(i) >= 15);
+      if (!bulkPickOk()) {
+        try { await reg.get('ensure_tools').run(b, {}); } catch {}
+      }
       // Farm first when a water+lava pair is already remembered: make_obsidian re-derives its whole
       // continent-wide search every round and never refills mid-pour, which is why obsidian sat at 2 for
       // three hours while a 28-block water+lava pair existed in the terrain memory (18:29-18:48:
@@ -998,8 +1004,24 @@ const LADDER = [
       const f2 = await reg.get('obsidian_farm').run(b, { count: 12 });
       return f2.ok ? f2 : mo;
     } },
-  { id: 'flint_steel', done: b => countItem(b, 'flint_and_steel') >= 1,
-    run: b => craft(b, 'flint_and_steel', 1) },
+  { id: 'flint_steel', budgetMs: 240000, done: b => countItem(b, 'flint_and_steel') >= 1,
+    run: async b => {
+      if (countItem(b, 'iron_ingot') < 1) {
+        if (countItem(b, 'raw_iron') < 1) {
+          const hasMinePick = b.inventory.items().some(i => /^(stone|iron)_pickaxe$/.test(i.name)
+            && ((i.maxDurability ? i.maxDurability - (i.durabilityUsed || 0) : 999) >= 12));
+          if (!hasMinePick) { try { await reg.get('ensure_tools').run(b, {}); } catch {} }
+          await reg.get('mine').run(b, { block: ['iron_ore', 'deepslate_iron_ore'], count: 2 });
+        }
+        if (countItem(b, 'raw_iron') >= 1) {
+          await reg.get('smelt').run(b, { item: 'raw_iron', count: 1 });
+        }
+      }
+      if (countItem(b, 'flint') < 1) {
+        await reg.get('mine').run(b, { block: ['gravel'], count: 6 });
+      }
+      return craft(b, 'flint_and_steel', 1);
+    } },
   { id: 'nether', done: b => {
       if (b.game && b.game.dimension === 'the_nether') return true;
       // "I am standing in the Nether" is not what this milestone ever meant, and reading it that way made

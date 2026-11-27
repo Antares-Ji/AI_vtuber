@@ -442,18 +442,18 @@ function createBot() {
         if (ox > (bot._airMaxSeen || 0)) bot._airMaxSeen = ox;
         const airMax = Math.max(bot._airMaxSeen || bot._airMax || 10, 10);
         if (ox > airMax * 0.5) return;
-        if (!wetHere()) {
+        const f = bot.entity.position.floored();
+        const above = bot.blockAt(f.offset(0, 1, 0));
+        const headInWater = !!(above && above.name === 'water');
+        if (!wetHere() || !headInWater) {
           if (Date.now() - lastStaleAir > 15000) {
             lastStaleAir = Date.now();
-            const f = bot.entity.position.floored();
-            log.warn(`air=${ox} but no water in the body cells at ${f.x},${f.y},${f.z} - stale reading, not swimming`);
+            log.warn(`air=${ox} but ${!wetHere() ? 'no water in the body cells' : `head is in ${above ? above.name : 'air'} (ankle-deep water only)`} at ${f.x},${f.y},${f.z} - stale reading, not swimming`);
           }
           return;
         }
         if (Date.now() - lastAir < 3000) return;
         lastAir = Date.now();
-        const f = bot.entity.position.floored();
-        const above = bot.blockAt(f.offset(0, 1, 0));
         const head = bot.blockAt(f.offset(0, 2, 0));
         (async () => {
           try {

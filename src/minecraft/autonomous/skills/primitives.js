@@ -1547,21 +1547,42 @@ async function equipBestToolFor(bot, block) {
       }
       // If no non-diamond pick has >=8 digs for ordinary rock, try quick-minting a stone/iron pick
       // right here (throttled) instead of either burning the obsidian diamond_pickaxe or hand-digging stone!
+      // Bootstrap planks/sticks/table from carried logs/planks too: carrying spruce_log+cobblestone with
+      // stick=0 previously skipped this block and left water_bucket in hand against stone.
       if (!needsDiamond && cands.length === 0 && (block.hardness || 0) >= 1.2) {
         const nowMs = Date.now();
         if (!bot._quickPickAt || nowMs - bot._quickPickAt > 15000) {
           const cob = countItem(bot, 'cobblestone') + countItem(bot, 'cobbled_deepslate') + countItem(bot, 'blackstone');
+          const logs = LOG_NAMES.reduce((s, n) => s + countItem(bot, n), 0);
+          const planks = bot.inventory.items().filter(i => /_planks$/.test(i.name)).reduce((s, i) => s + i.count, 0);
+          const woodEquiv = planks + logs * 4;
           const hasTable = countItem(bot, 'crafting_table') > 0 || !!bot.findBlock({ matching: blockIds(bot, ['crafting_table']), maxDistance: 5 });
-          if (hasTable && countItem(bot, 'stick') >= 2 && (countItem(bot, 'iron_ingot') >= 3 || cob >= 3)) {
+          const canMakeTable = hasTable || woodEquiv >= 4;
+          const canMakeSticks = countItem(bot, 'stick') >= 2 || woodEquiv >= (hasTable ? 2 : 6);
+          const hasHead = countItem(bot, 'iron_ingot') >= 3 || cob >= 3 || woodEquiv >= (hasTable ? 5 : 9);
+          if (canMakeTable && canMakeSticks && hasHead) {
             bot._quickPickAt = nowMs;
-            const targetPick = countItem(bot, 'iron_ingot') >= 3 ? 'iron_pickaxe' : 'stone_pickaxe';
             try {
-              const cr = await craft(bot, targetPick, 1);
-              log.skill(`equipBestToolFor: auto-crafted ${targetPick} before digging ${block.name} -> ${cr.ok ? 'ok' : 'failed'}`);
-              const fresh = bot.inventory.items().find(i => i.name === targetPick && digs(i) >= 8);
-              if (fresh) {
-                await bounded(`equip ${fresh.name}`, bot.equip(fresh, 'hand'), 6000);
-                if (handIsRight()) return;
+              if (bot.inventory.items().filter(i => /_planks$/.test(i.name)).reduce((s, i) => s + i.count, 0) < 4 && logs > 0) {
+                try { await craftPlanks(bot); } catch {}
+              }
+              if (countItem(bot, 'stick') < 2) {
+                try { await craft(bot, 'stick', 4); } catch {}
+              }
+              if (!hasTable && countItem(bot, 'crafting_table') < 1) {
+                try { await craft(bot, 'crafting_table', 1); } catch {}
+              }
+              const planksNow = bot.inventory.items().filter(i => /_planks$/.test(i.name)).reduce((s, i) => s + i.count, 0);
+              const targetPick = countItem(bot, 'iron_ingot') >= 3 ? 'iron_pickaxe'
+                : (cob >= 3 ? 'stone_pickaxe' : (planksNow >= 3 ? 'wooden_pickaxe' : null));
+              if (targetPick && countItem(bot, 'stick') >= 2) {
+                const cr = await craft(bot, targetPick, 1);
+                log.skill(`equipBestToolFor: auto-crafted ${targetPick} before digging ${block.name} -> ${cr.ok ? 'ok' : 'failed'}`);
+                const fresh = bot.inventory.items().find(i => i.name === targetPick && digs(i) >= 8);
+                if (fresh) {
+                  await bounded(`equip ${fresh.name}`, bot.equip(fresh, 'hand'), 6000);
+                  if (handIsRight()) return;
+                }
               }
             } catch {}
           }
@@ -2711,6 +2732,11 @@ reg.define('ensure_tools', {
       const planksNow = bot.inventory.items().filter(i => /_planks$/.test(i.name)).reduce((s, i) => s + i.count, 0);
       log.skill(`ensure_tools: wood resupply -> logs ${logs0}->${logsNow}, planks ${planks0}->${planksNow} (y=${Math.round(bot.entity.position.y)})`);
       if (!tableNear && logsNow * 4 + planksNow < 4) return { ok: false, observation: `no wood at the surface either (logs=${logsNow} planks=${planksNow}) - the pick ladder cannot be re-minted until trees are reachable` };
+    }
+    // Always convert carried logs to planks when planks are low so sticks/table/picks can be crafted underground.
+    if (bot.inventory.items().filter(i => /_planks$/.test(i.name)).reduce((s, i) => s + i.count, 0) < 4
+      && LOG_NAMES.some(n => countItem(bot, n) > 0)) {
+      try { await craftPlanks(bot); } catch {}
     }
     // Always keep at least 1 carried crafting_table and 8 backup sticks when wood allows.
     if (countItem(bot, 'crafting_table') < 1 && (bot.inventory.items().filter(i => /_planks$/.test(i.name)).reduce((s, i) => s + i.count, 0) >= 4)) {
