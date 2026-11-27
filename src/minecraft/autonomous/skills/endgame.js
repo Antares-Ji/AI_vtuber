@@ -1878,26 +1878,50 @@ async function climbOut(bot, targetY) {
         totalEst += est;
       }
       if (!okAll) continue;
-      // Strongly prefer directions that break into open cave air or softer blocks (dirt/gravel/stone vs deepslate)
+      // Strongly prefer directions that break into open cave air or softer blocks (dirt/gravel/stone vs deepslate),
+      // with mild hysteresis for the current stair heading so we carve a straight tunnel instead of zig-zagging.
       const beyond = bot.blockAt(f0.offset(dx * 2, 1, dz * 2));
       const openBonus = (!beyond || isAir(beyond.name)) ? -5000 : 0;
-      dirs.push({ dx, dz, solids, totalEst, score: totalEst + openBonus });
+      const keepBonus = (bot._stairDir && bot._stairDir.dx === dx && bot._stairDir.dz === dz) ? -1500 : 0;
+      dirs.push({ dx, dz, solids, totalEst, score: totalEst + openBonus + keepBonus });
     }
     dirs.sort((a, b) => a.score - b.score);
     for (const d of dirs) {
       if (lease.stale() || Date.now() >= (bot._stepDeadline || Infinity)) break;
       if (Date.now() + d.totalEst + 2000 >= (bot._stepDeadline || Infinity)) return false;
+      try { if (bot.pathfinder && typeof bot.pathfinder.stop === 'function') bot.pathfinder.stop(); } catch {}
       for (const b of d.solids) {
         if (lease.stale() || Date.now() >= (bot._stepDeadline || Infinity)) return false;
         const est = typeof bot.digTime === 'function' ? bot.digTime(b) : 1000;
         if (Date.now() + est + 1500 >= (bot._stepDeadline || Infinity)) return false;
+        try { await bot.lookAt(b.position.offset(0.5, 0.5, 0.5), true); } catch {}
         try {
-          await capped(bot.dig(b), Math.min(18000, Math.max(4000, est + 3000)), `climbOut stair dig ${b.name}`, () => { try { if (typeof bot.stopDigging === 'function') bot.stopDigging(); } catch {} });
+          const capMs = Math.min(26000, Math.max(5000, Math.round(est * 1.45) + 2500));
+          await capped(bot.dig(b), capMs, `climbOut stair dig ${b.name}`, () => { try { if (typeof bot.stopDigging === 'function') bot.stopDigging(); } catch {} });
         } catch {}
       }
       if (lease.stale()) return false;
-      try { await capped(bot.pathfinder.goto(new (GN())(f0.x + d.dx, f0.y + 1, f0.z + d.dz, 0)), 5000, 'climbOut blockless stair'); } catch {}
+      const tx = f0.x + d.dx, ty = f0.y + 1, tz = f0.z + d.dz;
+      // Direct jump-step onto the carved stair (350ms live vs 5000ms pathfinder GoalNear(0) timeouts in 1x2 tunnels!)
+      try {
+        await bot.lookAt(new Vec3(tx + 0.5, ty + 0.6, tz + 0.5), true);
+        bot.setControlState('forward', true);
+        bot.setControlState('jump', true);
+        for (let k = 0; k < 16 && !lease.stale(); k++) {
+          await sleep(50);
+          const pNow = bot.entity.position;
+          if (pNow.y >= beforeY + 0.75 && Math.floor(pNow.x) === tx && Math.floor(pNow.z) === tz) break;
+        }
+      } catch {} finally {
+        try { bot.setControlState('forward', false); bot.setControlState('jump', false); } catch {}
+      }
+      if (bot.entity.position.y < beforeY + 0.7 && !lease.stale()) {
+        try {
+          await capped(bot.pathfinder.goto(new (GN())(tx, ty, tz, 0)), 3500, 'climbOut blockless stair', () => { try { if (bot.pathfinder && typeof bot.pathfinder.stop === 'function') bot.pathfinder.stop(); } catch {} });
+        } catch {}
+      }
       if (bot.entity.position.y >= beforeY + 0.7) {
+        bot._stairDir = { dx: d.dx, dz: d.dz };
         log.skill(`climbOut: blockless stair y=${Math.round(beforeY)} -> y=${Math.round(bot.entity.position.y)} (dir=${d.dx},${d.dz}, est=${Math.round(d.totalEst)}ms)`);
         return true;
       }
@@ -1909,7 +1933,7 @@ async function climbOut(bot, targetY) {
     await tryWalkHigher(24);
   }
   let lastY = bot.entity.position.y, stalled = 0, blocked = 0;
-  let noBlockTries = 0;
+  let noBlockTries = 0, stairSteps = 0;
   // Every long loop in this project has to test the step deadline: `withTimeout` cancels the AWAIT but
   // not this worker, and an abandoned climb that keeps placing blocks outrides the step that replaced it.
   let why = '200-round loop budget used up';
@@ -1961,8 +1985,13 @@ async function climbOut(bot, targetY) {
     if (!(await equipBulkPick(bot, false))) await equipPick(bot);
     for (const b of [bot.blockAt(f.offset(0, 1, 0)), bot.blockAt(f.offset(0, 2, 0))]) {
       if (b && !isAir(b.name) && !/water|lava|bedrock/.test(b.name)) {
+        const est = typeof bot.digTime === 'function' ? bot.digTime(b) : 1000;
+        if (Date.now() + est + 1500 >= (bot._stepDeadline || Infinity)) break;
         try { if (bot.pathfinder.isMoving()) bot.pathfinder.stop(); } catch {}
-        try { await bot.dig(b); } catch (e) { log.skill(`climbOut dig ${b.name}: ${e.message}`); }
+        try {
+          const capMs = Math.min(26000, Math.max(5000, Math.round(est * 1.45) + 2500));
+          await capped(bot.dig(b), capMs, `climbOut dig ${b.name}`, () => { try { if (typeof bot.stopDigging === 'function') bot.stopDigging(); } catch {} });
+        } catch (e) { log.skill(`climbOut dig ${b.name}: ${e.message}`); }
       }
     }
     await sleep(150);
@@ -1986,16 +2015,27 @@ async function climbOut(bot, targetY) {
     const blk = stackable();
     if (!blk) {
       if (noBlockTries++ < 4) {
-        if (await tryWalkHigher(28)) { lastY = bot.entity.position.y; stalled = 0; noBlockTries = 0; continue; }
-        if (await trySwimWaterfall()) { lastY = bot.entity.position.y; stalled = 0; noBlockTries = 0; continue; }
-        if (await tryRestockBlocks()) { stalled = 0; continue; }
-        if (await tryDescendDeadEndPillar()) {
-          await tryWalkHigher(28);
-          lastY = bot.entity.position.y;
-          stalled = 0;
-          continue;
+        // Inside a 1x2 carved tunnel, skip repeating 10 failing pathfinder walks on every single stair step;
+        // re-probe cave slopes/restock every 3rd step or immediately if we just breached into open air!
+        let openAround = 0;
+        for (const [dx, dz] of [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [-1, -1]]) {
+          const nb = bot.blockAt(f.offset(dx, 1, dz));
+          if (!nb || isAir(nb.name)) openAround++;
         }
-        if (await tryBlocklessStair()) { lastY = bot.entity.position.y; stalled = 0; noBlockTries = 0; continue; }
+        const probeCave = stairSteps === 0 || (stairSteps % 3 === 0) || openAround >= 4;
+        if (probeCave) {
+          if (await tryWalkHigher(28)) { lastY = bot.entity.position.y; stalled = 0; noBlockTries = 0; stairSteps = 0; continue; }
+          if (await trySwimWaterfall()) { lastY = bot.entity.position.y; stalled = 0; noBlockTries = 0; stairSteps = 0; continue; }
+          if (await tryRestockBlocks()) { stalled = 0; stairSteps = 0; continue; }
+          if (await tryDescendDeadEndPillar()) {
+            await tryWalkHigher(28);
+            lastY = bot.entity.position.y;
+            stalled = 0;
+            stairSteps = 0;
+            continue;
+          }
+        }
+        if (await tryBlocklessStair()) { lastY = bot.entity.position.y; stalled = 0; noBlockTries = 0; stairSteps++; continue; }
       }
       why = 'no stackable block left in the pack';
       break;
