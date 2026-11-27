@@ -437,7 +437,7 @@ const LADDER = [
               try {
                 const waterNear = b.findBlock({ matching: blockIds(b, ['water']), maxDistance: 36 });
                 if (waterNear) {
-                  const fr = await reg.get('fish').run(b, { count: 3, timeoutSec: 55 });
+                  const fr = await reg.get('fish').run(b, { count: 3, timeoutSec: 90 });
                   log.skill(`food: shore fishing said (${String(fr.observation).slice(0, 120)})`);
                   fishedOk = fr.ok || have() >= 3;
                 }

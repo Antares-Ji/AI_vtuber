@@ -506,7 +506,7 @@ reg.define('fish', {
       rod = bot.inventory.items().find(i => i.name === 'fishing_rod');
       if (!rod) return { ok: false, observation: `no fishing_rod and could not make one (sticks=${countItem(bot, 'stick')} string=${countItem(bot, 'string')}; the recipe wants 3 sticks + 2 string): ${String(c.observation).slice(0, 120)}` };
     }
-    const findAdjacentWater = () => {
+    const findAdjacentWater = async (allowIceBreak = false) => {
       const f = bot.entity.position.floored();
       for (const [dx, dz] of [[2, 0], [-2, 0], [0, 2], [0, -2], [1, 0], [-1, 0], [0, 1], [0, -1], [3, 0], [-3, 0], [0, 3], [0, -3]]) {
         for (const dy of [0, 1, -1, -2]) {
@@ -516,13 +516,37 @@ reg.define('fish', {
           if (!above || isAir(above.name)) return b.position;
         }
       }
+      if (allowIceBreak) {
+        // Frozen ocean/river: break 1 adjacent ice block covering water to open an ice-fishing hole.
+        for (const [dx, dz] of [[1, 0], [-1, 0], [0, 1], [0, -1], [2, 0], [-2, 0], [0, 2], [0, -2]]) {
+          for (const dy of [-1, 0, -2]) {
+            const ice = bot.blockAt(f.offset(dx, dy, dz));
+            if (!ice || ice.name !== 'ice') continue;
+            const under = bot.blockAt(ice.position.offset(0, -1, 0));
+            const top = bot.blockAt(ice.position.offset(0, 1, 0));
+            if (under && under.name === 'water' && (!top || isAir(top.name) || top.name === 'snow')) {
+              try {
+                await P.equipBestToolFor(bot, ice);
+                await bot.dig(ice);
+                await sleep(250);
+                const opened = bot.blockAt(ice.position);
+                if (opened && opened.name === 'water') {
+                  log.skill(`fish: broke ice at ${ice.position.x},${ice.position.y},${ice.position.z} to open fishing hole`);
+                  return opened.position;
+                }
+                return under.position;
+              } catch {}
+            }
+          }
+        }
+      }
       return null;
     };
-    let water = findAdjacentWater();
+    let water = await findAdjacentWater(true);
     if (!water) {
       // Water is often 8-30 blocks away on coastal islands (live 23:10: bot stood at 155,65,-324
       // holding a rod while open ocean sat 10 blocks away at 155,-334). Walk to a dry shoreline cell
-      // next to open surface water instead of failing on the 3-block check.
+      // next to open (or ice-covered) surface water instead of failing on the 3-block check.
       try {
         const GN = (require('mineflayer-pathfinder').goals || require('mineflayer-pathfinder').pathfinder.Goals).GoalNear;
         const pts = (bot.findBlocks({ matching: blockIds(bot, ['water']), maxDistance: 36, count: 64 }) || [])
@@ -530,10 +554,17 @@ reg.define('fish', {
           .filter(b => {
             if (!b || b.name !== 'water') return false;
             const ab = bot.blockAt(b.position.offset(0, 1, 0));
-            return !ab || isAir(ab.name);
+            return !ab || isAir(ab.name) || ab.name === 'ice';
           })
-          .sort((a, b) => (b.position.y >= 56 ? 0 : 1) - (a.position.y >= 56 ? 0 : 1)
-            || bot.entity.position.distanceTo(a.position) - bot.entity.position.distanceTo(b.position));
+          .sort((a, b) => {
+            const aa = bot.blockAt(a.position.offset(0, 1, 0));
+            const ba = bot.blockAt(b.position.offset(0, 1, 0));
+            const aOpen = (!aa || isAir(aa.name)) ? 0 : 1;
+            const bOpen = (!ba || isAir(ba.name)) ? 0 : 1;
+            return aOpen - bOpen
+              || (b.position.y >= 56 ? 0 : 1) - (a.position.y >= 56 ? 0 : 1)
+              || bot.entity.position.distanceTo(a.position) - bot.entity.position.distanceTo(b.position);
+          });
         if (pts.length) {
           // Prefer a dry solid bank cell 1-2 blocks beside the open water so we cast from shore instead of swimming.
           let target = null;
@@ -560,7 +591,7 @@ reg.define('fish', {
           } catch {} finally {
             if (shoreTimer) clearTimeout(shoreTimer);
           }
-          water = findAdjacentWater();
+          water = await findAdjacentWater(true);
         }
       } catch {}
     }
@@ -570,34 +601,46 @@ reg.define('fish', {
     if (!bot.heldItem || bot.heldItem.name !== 'fishing_rod') {
       return { ok: false, observation: `the rod never reached the hand (holding ${bot.heldItem ? bot.heldItem.name : 'nothing'}) - refusing to report a cast that could not happen` };
     }
-    let caught = 0, casts = 0, lastErr = '';
+    let totalCaught = 0, eatenDuring = 0, casts = 0, lastErr = '';
     const t0 = Date.now();
-    while (before + caught < want && Date.now() - t0 < capMs && Date.now() < (bot._stepDeadline || Infinity)) {
+    while (before + totalCaught < want && Date.now() - t0 < capMs && Date.now() < (bot._stepDeadline || Infinity)) {
       casts++;
+      const packBefore = fishCount();
+      const foodBefore = typeof bot.food === 'number' ? bot.food : null;
       try { await bot.lookAt(water.offset(0.5, 0.5, 0.5), true); } catch {}
+      const castCap = Math.min(35000, Math.max(12000, capMs - (Date.now() - t0)));
       let fishTimer = null;
       try {
-        await Promise.race([bot.fish(), new Promise((_, rej) => { fishTimer = setTimeout(() => rej(new Error('no bite within 60s')), 60000); })]);
+        await Promise.race([bot.fish(), new Promise((_, rej) => { fishTimer = setTimeout(() => rej(new Error(`no bite within ${Math.round(castCap / 1000)}s`)), castCap); })]);
       } catch (e) { lastErr = String(e.message).slice(0, 60); } finally {
         if (fishTimer) clearTimeout(fishTimer);
       }
       // The catch is an ITEM entity drifting at the bobber, several blocks out: in open water it does not
       // fly into the inventory, so an uncollected fish is not food (same lesson as the kelp columns).
-      for (let t = 0; t < 8 && fishCount() <= before + caught; t++) {
+      for (let t = 0; t < 8 && fishCount() <= packBefore; t++) {
         const it = Object.values(bot.entities || {}).find(e => e && e.name === 'item' && e.item
           && FISH.includes(e.item.name) && e.position.distanceTo(bot.entity.position) < 10);
         if (!it) { await sleep(300); continue; }
         try { await bot.collectEntity(it); } catch (e) { lastErr = `collect threw ${String(e.message).slice(0, 40)}`; break; }
       }
-      caught = Math.max(0, fishCount() - before);
-      if (caught > 0) log.skill(`fish: ${caught} fish in the pack after ${casts} cast(s)`);
+      const packDelta = Math.max(0, fishCount() - packBefore);
+      if (packDelta > 0) {
+        totalCaught += packDelta;
+        log.skill(`fish: ${totalCaught} fish caught (${fishCount()} in pack) after ${casts} cast(s)`);
+      } else if (foodBefore !== null && typeof bot.food === 'number' && bot.food > foodBefore) {
+        // Auto-eat immediately consumed the raw fish when food was critical (e.g. food 1 -> 3 at 23:28).
+        totalCaught += 1;
+        eatenDuring += 1;
+        log.skill(`fish: caught & auto-ate fish (food ${foodBefore} -> ${bot.food}, total=${totalCaught}) after ${casts} cast(s)`);
+      }
       if (Date.now() - t0 > capMs) break;
       await sleep(900);
     }
     const have = fishCount();
-    try { bot._lastFish = { at: Date.now(), casts, have }; } catch {}
-    if (have === 0) return { ok: false, observation: `cast ${casts} time(s) into the water at ${water.x},${water.y},${water.z} and landed nothing${lastErr ? ` (last: ${lastErr})` : ''} - fishing is bite-random, so this is a retry-or-leave call, not a broken rod` };
-    return { ok: have >= want, observation: `caught ${have} fish in ${casts} cast(s); raw cod/salmon are edible but weak - cook them with the ${countItem(bot, 'coal')} coal${countItem(bot, 'furnace') ? ' and the furnace already in the pack' : ' (a furnace must be placed first)'}` };
+    const produced = Math.max(have, totalCaught);
+    try { bot._lastFish = { at: Date.now(), casts, have, totalCaught, eatenDuring }; } catch {}
+    if (produced === 0) return { ok: false, observation: `cast ${casts} time(s) into the water at ${water.x},${water.y},${water.z} and landed nothing${lastErr ? ` (last: ${lastErr})` : ''} - fishing is bite-random, so this is a retry-or-leave call, not a broken rod` };
+    return { ok: produced >= want || (typeof bot.food === 'number' && bot.food >= 19), observation: `caught ${produced} fish in ${casts} cast(s) (${have} in pack${eatenDuring ? `, ${eatenDuring} auto-eaten -> food=${bot.food}` : ''}); raw cod/salmon are edible but weak - cook them with the ${countItem(bot, 'coal')} coal${countItem(bot, 'furnace') ? ' and the furnace already in the pack' : ' (a furnace must be placed first)'}` };
   },
 });
 

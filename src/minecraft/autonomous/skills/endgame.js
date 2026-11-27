@@ -341,7 +341,7 @@ async function relocateToHighGround(bot, why) {
       }
       return true;
     };
-    let bestHill = null, bestScore = -Infinity;
+    let hills = [];
     const maxScanY = Math.min(110, Math.max(84, f0.y + 20));
     for (let dx = -44; dx <= 44; dx += 4) {
       for (let dz = -44; dz <= 44; dz += 4) {
@@ -361,28 +361,33 @@ async function relocateToHighGround(bot, why) {
         if (topY === null || topY < 65) continue;
         const dist = Math.hypot(dx, dz);
         const sc = topY * 3 - dist * 0.25;
-        if (sc > bestScore) { bestScore = sc; bestHill = { x: cx, y: topY + 1, z: cz, dist: Math.round(dist) }; }
+        hills.push({ x: cx, y: topY + 1, z: cz, dist: Math.round(dist), sc });
       }
     }
-    if (bestHill) {
+    hills.sort((a, b) => b.sc - a.sc);
+    const chosenHills = [];
+    for (const h of hills) {
+      if (chosenHills.every(c => Math.hypot(c.x - h.x, c.z - h.z) >= 10)) chosenHills.push(h);
+      if (chosenHills.length >= 2) break;
+    }
+    for (const bestHill of chosenHills) {
       log.skill(`${why}: found inland dry hill at ${bestHill.x},${bestHill.y},${bestHill.z} (${bestHill.dist}m away, 4+m clear of water & unflooded) - walking there before digging`);
-      try { await capped(bot.pathfinder.goto(new (GN())(bestHill.x, bestHill.y, bestHill.z, 2)), 18000, 'walk to inland hill'); } catch {}
+      try { await capped(bot.pathfinder.goto(new (GN())(bestHill.x, bestHill.y, bestHill.z, 2)), 25000, 'walk to inland hill'); } catch {}
       const fx = Math.floor(bot.entity.position.x), fz = Math.floor(bot.entity.position.z);
       if (bot.entity.position.y >= 65 && !nearFlood(bot, fx, fz, 5) && isDrySea(fx, fz)) {
         bot._dryLand = bot.entity.position.floored();
         return true;
       }
+      if (typeof bot.food === 'number' && bot.food < 10) return false;
     }
   } catch {}
   // No upland on file (recover_surface pins whatever is dry AND low enough to feed a hungry bot, and
-  // on this coast that was y=63 - still sea level, still floods). Probe a few directions and keep
-  // whichever one actually gains height, instead of roaming to another random puddle.
+  // on this coast that was y=63 - still sea level, still floods). Keep probes bounded (45m, 45s total,
+  // food>=12) so one relocation cannot march 400m and starve the bot from food 20 -> 1.
   const tProbe = Date.now();
-  for (const [dx, dz] of [[90, 0], [-90, 0], [0, 90], [0, -90]]) {
-    if (typeof bot.food === 'number' && bot.food < 10) return false;
-    // A probe is not allowed to eat the expedition: four directions with a stalled leg each would
-    // spend the whole 720 s round walking instead of digging.
-    if (Date.now() - tProbe > 90000) { log.skill(`${why}: high-ground probe out of time (${Math.round((Date.now() - tProbe) / 1000)}s)`); break; }
+  for (const [dx, dz] of [[45, 0], [-45, 0], [0, 45], [0, -45]]) {
+    if (typeof bot.food === 'number' && bot.food < 12) return false;
+    if (Date.now() - tProbe > 45000) { log.skill(`${why}: high-ground probe out of time (${Math.round((Date.now() - tProbe) / 1000)}s)`); break; }
     const f = bot.entity.position.floored();
     const pw = await reg.get('walk_to').run(bot, { x: f.x + dx, y: f.y, z: f.z + dz, tolerance: 6 });
     if (/EMERGENCY/i.test(String(pw && pw.observation || ''))) return false;
@@ -393,8 +398,8 @@ async function relocateToHighGround(bot, why) {
       return true;
     }
   }
-  if (typeof bot.food === 'number' && bot.food < 10) return false;
-  try { await reg.get('roam').run(bot, { distance: 140 }); } catch {}
+  if (typeof bot.food === 'number' && bot.food < 14) return false;
+  try { await reg.get('roam').run(bot, { distance: 60 }); } catch {}
   return bot.entity.position.y >= MIN_HIGH_Y && !nearFlood(bot, Math.floor(bot.entity.position.x), Math.floor(bot.entity.position.z), 5);
 }
 
@@ -516,8 +521,9 @@ reg.define('deep_shaft', {
     while (bot.entity.position.y > toY && dug < max && stuck < 25 && Date.now() < (bot._stepDeadline || Infinity)) {
       const y0 = bot.entity.position.y;
       const feet = bot.entity.position.floored();
-      // In water, every second spent here is air spent: refuse and let the caller escape+relocate.
+      // In water, every second spent here is air spent: record the flooded column and let the caller escape+relocate.
       if (wetCell(bot)) {
+        noteFlood(bot, feet.x, feet.z, feet.y);
         return { ok: false, observation: `STANDING IN WATER at ${feet.x},${feet.y},${feet.z} - this column is flooded; backfill out and pick a new one` };
       }
       // Mobs climb into the shaft and chew the bot while it is digging (hp repeatedly dropped to 7

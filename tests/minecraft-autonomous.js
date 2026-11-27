@@ -1874,6 +1874,33 @@ function makeBot(overrides = {}) {
       assert.equal(walkedShore, true, 'fish must walk to nearby open shoreline water (within 36 blocks)');
       assert.equal(fishedCast, true, 'fish must cast after reaching shoreline');
       assert.equal(rFish.ok, true, 'fish must succeed once target fish caught');
+
+      // Part D: fish breaks covering ice on frozen ocean AND counts catches auto-eaten mid-cast
+      let iceHoleDug = false;
+      const botIceFish = makeBot({
+        entity: { position: new Vec3(0, 63, 0), yaw: 0, pitch: 0 },
+        health: 16,
+        food: 1,
+        inventory: { slots: new Array(46).fill(null), items: () => [{ name: 'fishing_rod', count: 1, slot: 36 }] },
+        equip: async (it) => { botIceFish.heldItem = it; },
+        lookAt: async () => {},
+        findBlocks: () => [],
+        blockAt: (p) => {
+          if (!p) return { name: 'air', boundingBox: 'none' };
+          const x = Math.floor(p.x), y = Math.floor(p.y), z = Math.floor(p.z);
+          if (x === 1 && y === 62 && z === 0) return iceHoleDug
+            ? { name: 'water', position: new Vec3(1, 62, 0), boundingBox: 'empty' }
+            : { name: 'ice', position: new Vec3(1, 62, 0), boundingBox: 'block' };
+          if (x === 1 && y === 61 && z === 0) return { name: 'water', position: new Vec3(1, 61, 0), boundingBox: 'empty' };
+          return { name: 'air', position: new Vec3(x, y, z), boundingBox: 'none' };
+        },
+        dig: async (blk) => { if (blk && blk.name === 'ice') iceHoleDug = true; },
+        fish: async () => { botIceFish.food = Math.min(20, botIceFish.food + 2); },
+      });
+      const rIceFish = await reg.get('fish').run(botIceFish, { count: 1, timeoutSec: 25 });
+      assert.equal(iceHoleDug, true, 'fish must break adjacent ice over water to open an ice-fishing hole');
+      assert.equal(rIceFish.ok, true, 'fish must recognize catch even when auto-eat consumes it immediately');
+      assert.ok(/caught 1 fish/i.test(rIceFish.observation), `fish observation must report caught fish (got ${rIceFish.observation})`);
     } finally {
       reg.get('deep_shaft').run = origDS5;
       reg.get('roam').run = origRoam5;
