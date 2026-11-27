@@ -3204,8 +3204,15 @@ reg.define('make_obsidian', {
             cands = bot.findBlocks({ matching: blockIds(bot, ['water']), maxDistance: 24, count: 12 })
               .map(p => bot.blockAt(p))
               .filter(b => b && b.name === 'water' && isFluidSource(b) && bot.entity.position.distanceTo(b.position) <= 12)
-              .sort((a, b) => bot.entity.position.distanceTo(a.position) - bot.entity.position.distanceTo(b.position))
-              .slice(0, 4);
+              .sort((a, b) => {
+                // Prefer open-air surface water over water sealed under ice/stone!
+                const aAbove = bot.blockAt(a.position.offset(0, 1, 0));
+                const bAbove = bot.blockAt(b.position.offset(0, 1, 0));
+                const aOpen = !aAbove || isAir(aAbove.name) ? 0 : (aAbove.name === 'ice' ? 1 : 2);
+                const bOpen = !bAbove || isAir(bAbove.name) ? 0 : (bAbove.name === 'ice' ? 1 : 2);
+                return aOpen - bOpen || bot.entity.position.distanceTo(a.position) - bot.entity.position.distanceTo(b.position);
+              })
+              .slice(0, 6);
           } catch { cands = []; }
           if (!cands.length) { const here2 = bot.blockAt(bot.entity.position.floored()); if (here2 && here2.name === 'water') cands = [here2]; }
         }
@@ -3223,32 +3230,32 @@ reg.define('make_obsidian', {
           // from 8-12 blocks away (the 20 s goto never arrived over the hillside), so the skill
           // reported a flow problem when the truth was that the bot had never reached the water.
           if (bot.entity.position.distanceTo(cand.position) > 4.5) { log.info(`make_obsidian: still ${Math.round(bot.entity.position.distanceTo(cand.position) * 10) / 10} blocks from the water cell - not attempting the fill`); continue; }
+          // In frozen biomes, y=61 water sits under a solid y=62 ice block that blocks the bucket raycast
+          // (live 11:40:39-45: 4x "bucket still empty at source water -52,61,-245"). Breaking the ice turns
+          // y=62 itself into an open-air water source block!
+          let fillTarget = cand;
+          try {
+            const cover = bot.blockAt(cand.position.offset(0, 1, 0));
+            if (cover && cover.name === 'ice') {
+              try { await equipBulkPick(bot, false); await bot.dig(cover); await sleep(250); } catch {}
+              const thawed = bot.blockAt(cover.position);
+              if (thawed && thawed.name === 'water' && isFluidSource(thawed)) fillTarget = thawed;
+            }
+          } catch {}
           try { await bot.equip(bk, 'hand'); } catch (e) { log.warn(`fill bucket equip threw ${e.message}`); }
-          // The hand is not the bucket's: it can still be holding the porkchop it ate last round, or
-          // an abandoned step's item swap can win. placeBlock/activateItem then does something else
-          // entirely and the skill reports a "flow problem".
           if (!bot.heldItem || bot.heldItem.name !== 'bucket') {
             log.warn(`fill bucket: hand holds ${bot.heldItem ? bot.heldItem.name : 'nothing'}, not the bucket - re-equipping`);
             try { await bot.equip(bk, 'hand'); } catch {}
             if (!bot.heldItem || bot.heldItem.name !== 'bucket') continue;
           }
-          // A bucket cannot take flowing water - that is a rule, not a failure to try hard enough. The
-          // shore lakes here offer 16 surface cells of level>0 while the source sits a few cells away, and
-          // the old code spent aim+use plus five placeBlock faces on each impossible cell (10:59:22-11:01:59:
-          // seven `Server refused to place bucket` inside six seconds). Say which cell was skipped instead of
-          // testing it.
-          if (!isFluidSource(cand)) { log.info(`make_obsidian: water at ${cand.position.x},${cand.position.y},${cand.position.z} is flowing (level ${fluidLevel(cand)}) - a bucket cannot take it, skipping`); continue; }
-          // Try the packet that has actually worked: aim AT the cell and use the item. Once, then again -
-          // the first call can land before the equip ack. `placeBlock` with a bucket in hand has been
-          // refused every time it was tried (15:34 x5, 16:32 x5, 10:59 x7), so it is gone rather than
-          // "kept as a fallback": a fallback that has never once succeeded only burns the 75 s fill budget.
+          if (!isFluidSource(fillTarget)) { log.info(`make_obsidian: water at ${fillTarget.position.x},${fillTarget.position.y},${fillTarget.position.z} is flowing (level ${fluidLevel(fillTarget)}) - a bucket cannot take it, skipping`); continue; }
           for (let attempt = 0; attempt < 2 && countItem(bot, 'water_bucket') < 1; attempt++) {
-            try { await bot.lookAt(cand.position.offset(0.5, 0.5, 0.5), true); } catch {}
+            try { await bot.lookAt(fillTarget.position.offset(0.5, 0.5, 0.5), true); } catch {}
             try { await bot.activateItem(); } catch (e) { log.info(`make_obsidian: activateItem on water threw ${e.message}`); }
             await sleep(900);
           }
-          if (countItem(bot, 'water_bucket') < 1) log.skill(`bucket still empty at source water ${cand.position.x},${cand.position.y},${cand.position.z} (level ${fluidLevel(cand)}) - tried aim+use twice - trying the next cell`);
-          else water = cand;
+          if (countItem(bot, 'water_bucket') < 1) log.skill(`bucket still empty at source water ${fillTarget.position.x},${fillTarget.position.y},${fillTarget.position.z} (level ${fluidLevel(fillTarget)}) - tried aim+use twice - trying the next cell`);
+          else water = fillTarget;
         }
       } catch (e) { log.warn(`fill bucket threw ${e.message}`); }
       if (countItem(bot, 'water_bucket') < 1) {

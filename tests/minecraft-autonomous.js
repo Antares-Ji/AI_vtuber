@@ -954,8 +954,74 @@ function makeBot(overrides = {}) {
     }
   }
 
+  // 23. make_obsidian breaks covering ice over y=61 water so bucket fills reliably in frozen biomes
+  {
+    const origDeepShaft = reg.get('deep_shaft').run;
+    const origRoam = reg.get('roam').run;
+    const origWalkTo = reg.get('walk_to').run;
+    let iceDug = 0;
+    const items = [
+      { name: 'diamond_pickaxe', count: 1, maxDurability: 1561, durabilityUsed: 0 },
+      { name: 'stone_pickaxe', count: 1, maxDurability: 131, durabilityUsed: 0 },
+      { name: 'bucket', count: 1 },
+    ];
+    let iceThawed = false;
+    try {
+      reg.get('deep_shaft').run = async () => ({ ok: false, observation: 'stub-stop' });
+      reg.get('roam').run = async () => ({ ok: false, observation: 'stub-stop' });
+      reg.get('walk_to').run = async () => ({ ok: false, observation: 'stub-walk' });
+      const P2 = require('../src/minecraft/autonomous/skills/primitives');
+      const botIce = makeBot({
+        entity: { position: new Vec3(0, 63, 0), yaw: 0, pitch: 0 },
+        inventory: { slots: new Array(46).fill(null), items: () => items },
+        equip: async (it) => { botIce.heldItem = it; },
+        lookAt: async () => {},
+        findBlock: ({ matching }) => {
+          const waterId = P2.blockIds(botIce, ['water'])[0];
+          if (matching === waterId || (Array.isArray(matching) && matching.includes(waterId))) {
+            return { name: 'water', position: new Vec3(2, 61, 0), getProperties: () => ({ level: 0 }) };
+          }
+          return null;
+        },
+        findBlocks: ({ matching }) => {
+          const waterId = P2.blockIds(botIce, ['water'])[0];
+          if (matching === waterId || (Array.isArray(matching) && matching.includes(waterId))) {
+            return [new Vec3(2, 61, 0)];
+          }
+          return [];
+        },
+        blockAt: (p) => {
+          if (!p) return { name: 'air', boundingBox: 'none' };
+          const x = Math.floor(p.x), y = Math.floor(p.y), z = Math.floor(p.z);
+          if (x === 2 && z === 0 && y === 61) return { name: 'water', position: new Vec3(2, 61, 0), getProperties: () => ({ level: 0 }) };
+          if (x === 2 && z === 0 && y === 62) {
+            return iceThawed
+              ? { name: 'water', position: new Vec3(2, 62, 0), getProperties: () => ({ level: 0 }) }
+              : { name: 'ice', position: new Vec3(2, 62, 0), boundingBox: 'block' };
+          }
+          return { name: 'air', boundingBox: 'none' };
+        },
+        dig: async (blk) => {
+          if (blk && blk.name === 'ice') { iceDug++; iceThawed = true; }
+        },
+        activateItem: async () => {
+          if (iceThawed && botIce.heldItem && botIce.heldItem.name === 'bucket') {
+            items.splice(items.findIndex(i => i.name === 'bucket'), 1, { name: 'water_bucket', count: 1 });
+          }
+        },
+      });
+      await reg.get('make_obsidian').run(botIce, { count: 10 });
+      assert.equal(iceDug, 1, 'make_obsidian must dig covering ice block above water source in frozen biomes');
+      assert.equal(items.some(i => i.name === 'water_bucket'), true, 'bucket must fill after breaking covering ice');
+    } finally {
+      reg.get('deep_shaft').run = origDeepShaft;
+      reg.get('roam').run = origRoam;
+      reg.get('walk_to').run = origWalkTo;
+    }
+  }
+
   fs.rmSync(tmp, { recursive: true, force: true });
-  console.log('PASS minecraft-autonomous: all 22 regression groups passed');
+  console.log('PASS minecraft-autonomous: all 23 regression groups passed');
 })().catch(e => {
   console.error(e);
   process.exitCode = 1;
