@@ -621,6 +621,14 @@ reg.define('fish', {
     // listens to 1.21.1 fishing_bobber metadata[9] (biting=true), nor does it reel in on timeout (so every
     // timeout leaves the bobber floating and immediately cancels the next cast). Listen to BOTH metadata[9]
     // and splash particles, and always reel in cleanly on bite or timeout!
+    const HOSTILE_FISH_FOES = /^(zombie|zombie_villager|husk|drowned|skeleton|stray|spider|cave_spider|creeper|witch|pillager|phantom|slime)$/;
+    const nearestThreat = (r = 7) => {
+      try {
+        return bot.nearestEntity(e => e && e.position && HOSTILE_FISH_FOES.test(e.name || '')
+          && bot.entity.position.distanceTo(e.position) <= r
+          && Math.abs(e.position.y - bot.entity.position.y) <= 4);
+      } catch { return null; }
+    };
     const castOnce = (castCap) => {
       if (!bot._client || typeof bot.activateItem !== 'function' || typeof bot.on !== 'function') {
         let fishTimer = null;
@@ -633,8 +641,11 @@ reg.define('fish', {
         let done = false;
         let bobber = null;
         let timer = null;
+        let threatPoll = null;
+        const hpStart = typeof bot.health === 'number' ? bot.health : 20;
         const cleanup = () => {
           if (timer) { clearTimeout(timer); timer = null; }
+          if (threatPoll) { clearInterval(threatPoll); threatPoll = null; }
           try { bot.removeListener('entitySpawn', onSpawn); } catch {}
           try { bot.removeListener('entityUpdate', onUpdate); } catch {}
           try { bot.removeListener('entityGone', onGone); } catch {}
@@ -686,11 +697,46 @@ reg.define('fish', {
         bot.on('entityUpdate', onUpdate);
         bot.on('entityGone', onGone);
         if (typeof bot._client.on === 'function') bot._client.on('world_particles', onParticles);
+        // Never stand defenseless holding a fishing rod while a zombie/spider attacks at night!
+        threatPoll = setInterval(() => {
+          if (lease.stale()) return finish(new Error('lease stale'), !!bobber);
+          if (typeof bot.health === 'number' && (bot.health <= 0 || bot.health < hpStart - 2.5)) {
+            return finish(new Error('attacked while fishing'), !!bobber);
+          }
+          if (bot.entity?.position && bot.entity.position.distanceTo(water) > 7) {
+            return finish(new Error('moved away from fishing water'), !!bobber);
+          }
+          const foe = nearestThreat(6.5);
+          if (foe) return finish(new Error(`hostile ${foe.name} within 6.5m`), !!bobber);
+        }, 500);
         timer = setTimeout(() => finish(new Error(`no bite within ${Math.round(castCap / 1000)}s`), !!bobber), castCap);
         try { bot.activateItem(); } catch (e) { finish(e, false); }
       });
     };
     while (before + totalCaught < want && Date.now() - t0 < capMs && Date.now() < (bot._stepDeadline || Infinity) && !lease.stale()) {
+      if (typeof bot.health === 'number' && bot.health <= 8) {
+        lastErr = `hp=${Math.round(bot.health)} too low to keep fishing`;
+        break;
+      }
+      if (bot.entity?.position && bot.entity.position.distanceTo(water) > 7) {
+        lastErr = 'drifted/respawned away from fishing hole';
+        break;
+      }
+      const foe = nearestThreat(7.5);
+      if (foe) {
+        if (foe.name === 'creeper') { lastErr = 'creeper nearby'; break; }
+        log.skill(`fish: defending against ${foe.name} (${Math.round(bot.entity.position.distanceTo(foe.position))}m away) before next cast`);
+        try {
+          const sw = bot.inventory.items().find(i => /_sword$|_axe$/.test(i.name));
+          if (sw) await bot.equip(sw, 'hand').catch(() => {});
+          await P.meleeKill(bot, foe, 6500);
+        } catch {}
+        rod = bot.inventory.items().find(i => i.name === 'fishing_rod');
+        if (!rod) break;
+        try { await bot.equip(rod, 'hand'); } catch {}
+        if (!bot.heldItem || bot.heldItem.name !== 'fishing_rod') break;
+        continue;
+      }
       casts++;
       const packBefore = fishCount();
       const foodBefore = typeof bot.food === 'number' ? bot.food : null;

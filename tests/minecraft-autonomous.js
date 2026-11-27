@@ -3483,8 +3483,69 @@ function makeBot(overrides = {}) {
     }
   }
 
+  // 65. fish interrupts casting to defend against a nearby zombie with sword (meleeKill) and re-equips the rod,
+  //     instead of standing defenseless at night while getting killed 4x in a row
+  {
+    const EventEmitter = require('events');
+    const em65 = new EventEmitter();
+    const client65 = new EventEmitter();
+    const P65 = require('../src/minecraft/autonomous/skills/primitives');
+    const origMelee65 = P65.meleeKill;
+    const inv65 = [
+      { name: 'fishing_rod', count: 1, slot: 36 },
+      { name: 'stone_sword', count: 1, slot: 37 },
+    ];
+    let zombie65 = { id: 777, name: 'zombie', position: new Vec3(2, 63, 0) };
+    let defended65 = false;
+    let castAfterDefend65 = 0;
+    try {
+      P65.meleeKill = async (b, foe) => {
+        if (foe && foe.id === 777) {
+          defended65 = true;
+          zombie65 = null;
+          return { killed: true, swings: 3 };
+        }
+        return { killed: false, swings: 0 };
+      };
+      const botDef65 = makeBot({
+        entity: { position: new Vec3(0, 63, 0), yaw: 0, pitch: 0 },
+        food: 20, health: 20,
+        inventory: { slots: new Array(46).fill(null), items: () => inv65 },
+        heldItem: inv65[0],
+        _client: client65,
+        on: (...a) => em65.on(...a),
+        removeListener: (...a) => em65.removeListener(...a),
+        lookAt: async () => {},
+        equip: async (it) => { botDef65.heldItem = it; },
+        nearestEntity: (fn) => (zombie65 && fn(zombie65) ? zombie65 : null),
+        activateItem: () => {
+          castAfterDefend65++;
+          if (castAfterDefend65 === 1) {
+            const bob = { id: 902, name: 'fishing_bobber', position: new Vec3(1, 62, 0), metadata: [] };
+            setTimeout(() => em65.emit('entitySpawn', bob), 10);
+            setTimeout(() => { bob.metadata[9] = true; em65.emit('entityUpdate', bob); }, 25);
+          } else if (castAfterDefend65 === 2) {
+            inv65.push({ name: 'salmon', count: 1, slot: 38 });
+          }
+        },
+        blockAt: (p) => {
+          if (!p) return { name: 'air', boundingBox: 'none' };
+          const x = Math.floor(p.x), y = Math.floor(p.y), z = Math.floor(p.z);
+          if (x === 1 && y === 62 && z === 0) return { name: 'water', position: new Vec3(x, y, z), boundingBox: 'empty' };
+          if (y <= 62) return { name: 'stone', position: new Vec3(x, y, z), boundingBox: 'block' };
+          return { name: 'air', position: new Vec3(x, y, z), boundingBox: 'none' };
+        },
+      });
+      const r65 = await reg.get('fish').run(botDef65, { count: 1, timeoutSec: 10 });
+      assert.equal(defended65, true, 'fish must switch to sword and kill attacking zombie within 7.5m before casting');
+      assert.equal(r65.ok, true, `fish must re-equip fishing_rod and catch salmon after defending (got ${r65.observation})`);
+    } finally {
+      P65.meleeKill = origMelee65;
+    }
+  }
+
   fs.rmSync(tmp, { recursive: true, force: true });
-  console.log('PASS minecraft-autonomous: all 64 regression groups passed');
+  console.log('PASS minecraft-autonomous: all 65 regression groups passed');
 })().catch(e => {
   console.error(e);
   process.exitCode = 1;
