@@ -9,6 +9,7 @@ const log = require('../log');
 const reg = require('./registry');
 const ob = require('../observe');
 const P = require('./primitives');
+const WS = require('../workshopRecord');
 const { countItem, craft, itemId, blockIds, sleep, data } = P;
 require('./endgame'); // registers deep-mining + Nether/End skills used by the LADDER below
 
@@ -518,6 +519,27 @@ const LADDER = [
                 log.skill(`food: shore fishing said (${String(fr.observation).slice(0, 120)})`);
                 fishedOk = fr.ok || stocked();
               } catch {}
+            }
+            // If we remember a real livestock meadow from earlier in this run (<=600m away), head back toward
+            // that direction instead of wandering blindly across frozen ocean!
+            if (!fishedOk && !stocked()) {
+              const herd = (() => { try { return WS.at('herd'); } catch { return null; } })();
+              if (herd && (!b.game || b.game.dimension === 'overworld')) {
+                const hd = Math.hypot(herd.x - b.entity.position.x, herd.z - b.entity.position.z);
+                if (hd > 36 && hd <= 600 && (!b._herdRoamAt || Date.now() - b._herdRoamAt > 90000)) {
+                  b._herdRoamAt = Date.now();
+                  const hdx = herd.x - b.entity.position.x, hdz = herd.z - b.entity.position.z;
+                  const hdir = Math.abs(hdx) >= Math.abs(hdz) ? (hdx >= 0 ? 'E' : 'W') : (hdz >= 0 ? 'S' : 'N');
+                  log.skill(`food: heading ${hdir} toward remembered ${herd.extra || 'livestock'} herd at ${herd.x},${herd.z} (${Math.round(hd)}m away)`);
+                  await reg.get('roam').run(b, { look_for: 'cow,pig,sheep,chicken,rabbit', distance: Math.min(300, Math.round(hd) + 24), dir: hdir });
+                  await harvestNearbyBerries();
+                  if (!stocked()) {
+                    const hh = await reg.get('hunt').run(b, { count: 8 });
+                    const hdAfter = Math.hypot(herd.x - b.entity.position.x, herd.z - b.entity.position.z);
+                    if (!hh.ok && hdAfter <= 40) { try { WS.forget('herd'); } catch {} }
+                  }
+                }
+              }
             }
             if (!fishedOk && !stocked() && starvedFor() > VILLAGE_AFTER_MS) {
               log.skill(`nothing edible for ${Math.round(starvedFor() / 60000)} min (kelp: ${String(kk.observation).slice(0, 80)}) - raiding a village for hay instead of roaming for a cow`);

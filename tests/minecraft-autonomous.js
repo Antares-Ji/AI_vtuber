@@ -2503,8 +2503,59 @@ function makeBot(overrides = {}) {
     assert.ok(cPicked47.includes('wheat') && cPicked47.includes('wheat_seeds'), `collectNear must sweep all matching drops in array filter (got [${cPicked47.join(',')}])`);
   }
 
+  // 48. breathe() punches through overhead ice sheet when trapped underwater, nearestLandPatch avoids recent
+  //     swim cells & prefers lush plains over snowy_taiga, and hunt records passive livestock into WS herd memory
+  {
+    const P48 = require('../src/minecraft/autonomous/skills/primitives');
+    const WS48 = require('../src/minecraft/autonomous/workshopRecord');
+    // 48a: breathe breaks overhead ice ceiling
+    let iceBroken48 = false;
+    const botUnderIce = makeBot({
+      oxygenLevel: 4,
+      entity: { position: new Vec3(0, 60, 0), yaw: 0, pitch: 0 },
+      pathfinder: { isMoving: () => false, stop: () => {} },
+      look: async () => {},
+      setControlState: (st, val) => {
+        if (st === 'jump' && val && iceBroken48) botUnderIce.entity.position = new Vec3(0, 63, 0);
+      },
+      dig: async (blk) => { if (blk && blk.name === 'ice') iceBroken48 = true; },
+      blockAt: (p) => {
+        if (!p) return { name: 'air', boundingBox: 'none' };
+        const y = Math.floor(p.y);
+        if (y === 62) return iceBroken48 ? { name: 'air', position: p, boundingBox: 'none' } : { name: 'ice', position: p, boundingBox: 'block' };
+        if (y === 60 || y === 61) return { name: 'water', position: p, boundingBox: 'empty' };
+        return { name: 'air', position: p, boundingBox: 'none' };
+      },
+    });
+    const br48 = await P48.breathe(botUnderIce, 'ice-trap-test');
+    assert.equal(iceBroken48, true, 'breathe() must dig overhead ice ceiling when trapped underwater');
+    assert.equal(br48.ok, true, 'breathe() must surface after breaking overhead ice');
+
+    // 48b: nearestLandPatch skips avoid cells and prefers lush plains over nearby snowy_taiga
+    const botBiome48 = makeBot({
+      entity: { position: new Vec3(0, 64, 0), yaw: 0, pitch: 0 },
+      blockAt: (p) => {
+        if (!p) return { name: 'air', boundingBox: 'empty' };
+        const x = Math.floor(p.x), y = Math.floor(p.y), z = Math.floor(p.z);
+        if (y === 63) {
+          if (Math.hypot(x - 20, z) <= 8) return { name: 'snow_block', position: p, boundingBox: 'block', biome: { name: 'snowy_taiga' } };
+          if (Math.hypot(x + 40, z) <= 12) return { name: 'grass_block', position: p, boundingBox: 'block', biome: { name: 'plains' } };
+          return { name: 'water', position: p, boundingBox: 'empty' };
+        }
+        return { name: 'air', position: p, boundingBox: 'empty' };
+      },
+    });
+    const lp48 = P48.nearestLandPatch(botBiome48, { reach: 100, minDist: 16, avoid: [{ x: 20, z: 0 }], preferLush: true });
+    assert.ok(lp48 && lp48.biome === 'plains', `nearestLandPatch must avoid visited snowy_taiga and prefer lush plains (got ${JSON.stringify(lp48)})`);
+
+    // 48c: hunt notes livestock meadow in workshopRecord('herd') (already verified via cow kill in #47)
+    const herd48 = WS48.at('herd');
+    assert.ok(herd48 && herd48.extra === 'cow', `hunt must record livestock meadow in WS('herd') (got ${JSON.stringify(herd48)})`);
+    WS48.forget('herd');
+  }
+
   fs.rmSync(tmp, { recursive: true, force: true });
-  console.log('PASS minecraft-autonomous: all 47 regression groups passed');
+  console.log('PASS minecraft-autonomous: all 48 regression groups passed');
 })().catch(e => {
   console.error(e);
   process.exitCode = 1;

@@ -922,6 +922,7 @@ reg.define('hunt', {
         try { await bot.pathfinder.goto(new GN(e2.position.x, e2.position.y, e2.position.z, 1)); } catch {}
         const killAt = (e2.position || bot.entity.position).clone();
         try { await bot.pvp.attack(e2); kills++; log.skill(`hunt killed ${e2.name}`); } catch (err) { log.skill(`attack ${e2.name} threw ${err.message}`); }
+        try { if (/^(cow|pig|sheep|chicken)$/.test(e2.name || '')) WS.note('herd', killAt, e2.name); } catch {}
         try { if (bot.pvp && typeof bot.pvp.stop === 'function') bot.pvp.stop(); } catch {}
         await sleep(250);
         await walkDrops(killAt);
@@ -1086,11 +1087,15 @@ function nearestHeadland (bot, radius, stride, minDist) {
 // Villages score as half their distance: a plains patch 200 out beats a beach 60 out, a beach 60 out
 // still beats a plains patch 300 out.
 const VILLAGE_BIOME = /^(snowy_|sunflower_)?(plains|meadow|taiga|savanna|desert|badlands|mesa)/;
+const LUSH_BIOME = /^(plains|sunflower_plains|meadow|forest|birch_forest|flower_forest|dark_forest|savanna|savanna_plateau|windswept_hills|windswept_forest|taiga|old_growth_pine_taiga|old_growth_spruce_taiga)$/;
+const FROZEN_BIOME = /^(snowy_|frozen_|ice_spikes)/;
 function nearestLandPatch (bot, opts) {
   const o = opts || {};
   const reach = Math.max(32, Math.min(280, o.reach || 200));
   const stride = Math.max(6, o.stride || 10);
   const minDist = Math.max(stride, o.minDist || 0);
+  const avoid = Array.isArray(o.avoid) ? o.avoid : [];
+  const avoidRadius = Math.max(12, o.avoidRadius || 24);
   const f = bot.entity.position.floored();
   const solid = (b) => !!b && b.boundingBox === 'block' && !/lava|water|kelp|seagrass/.test(b.name);
   const air = (b) => !b || (b.boundingBox === 'empty' && !/water|lava/.test(b.name));
@@ -1100,6 +1105,7 @@ function nearestLandPatch (bot, opts) {
       const d = Math.round(Math.hypot(dx, dz));
       if (d > reach || d < minDist) continue;
       const x = f.x + dx, z = f.z + dz;
+      if (avoid.some(av => av && Math.hypot(x - av.x, z - av.z) < avoidRadius)) continue;
       // Cheap reject for the common case, which is the open ocean column: air at the sea surface line and
       // water one below it is a swimming lane, not a landing, and it saves 17 block reads on almost every
       // lattice point when the bot is in the middle of a basin.
@@ -1136,7 +1142,11 @@ function nearestLandPatch (bot, opts) {
       } catch {}
       const village = VILLAGE_BIOME.test(biome);
       if (o.villageOnly && !village) continue;
-      const score = village ? d * 0.5 : d;
+      let score = village ? d * 0.5 : d;
+      if (o.preferLush) {
+        if (LUSH_BIOME.test(biome)) score = d * 0.35;
+        else if (FROZEN_BIOME.test(biome)) score = d * 1.8;
+      }
       if (!best || score < best.score) best = { x: patch.x, y: patch.y, z: patch.z, d, biome, village, score };
     }
   }
@@ -1225,7 +1235,9 @@ reg.define('roam', {
     // Why this exists: the bot starved at food=0 for 30 min at -300,64,1666 while the dry-route guard
     // refused every heading with "open water between, turning aside" - a rule written for a bot standing
     // on the shore, which from inside the ocean is an instruction to stay exactly where it is.
-    let swimStuck = 0;
+    let swimStuck = 0, islandEscapes = 0;
+    const nowSwimMs = Date.now();
+    bot._recentSwims = (bot._recentSwims || []).filter(s => nowSwimMs - s.ts < 180000).slice(-8);
     const wetFeetNow = () => {
       const q = bot.entity.position.floored();
       const a = (bot.blockAt(q) || {}).name || '';
@@ -1233,15 +1245,26 @@ reg.define('roam', {
       return /water|kelp_plant|seagrass/.test(a) || /water/.test(h);
     };
     const swimToShore = async (why) => {
-      // When leaving a tiny dry island/iceberg/peninsula (!wetFeetNow), nearestHeadland(bot, 48, 4) returns
-      // the bot's OWN standing cell (0 blocks away) and loops 3x without moving! Require >=14-18 blocks away.
+      // When leaving a tiny dry island/iceberg/peninsula (!wetFeetNow), avoid recently visited cells and
+      // progressively widen minDist (24 -> 40 -> 56 -> 72 -> 80) while preferring lush non-frozen biomes
+      // when hunting surface livestock, so we never ping-pong 20 blocks across the same snowy archipelago!
       const leavingIsland = !wetFeetNow();
+      const curF = bot.entity.position.floored();
+      const avoid = [...(bot._recentSwims || []), { x: start.x, z: start.z }, { x: curF.x, z: curF.z }];
+      const minD = Math.min(80, 24 + islandEscapes * 16);
       const land = leavingIsland
-        ? (nearestLandPatch(bot, { reach: 200, minDist: 18 }) || nearestHeadland(bot, 64, 4, 14))
+        ? (nearestLandPatch(bot, { reach: 240, minDist: minD, avoid, preferLush: surfaceAnimalsOnly })
+          || nearestLandPatch(bot, { reach: 240, minDist: 20, avoid, preferLush: surfaceAnimalsOnly })
+          || nearestHeadland(bot, 64, 4, 14))
         : (nearestHeadland(bot, 48, 4) || nearestLandPatch(bot, { reach: 200 }));
       if (!land) {
         const f2 = bot.entity.position.floored();
         return { moved: 0, dead: `no dry standing ground within 48 blocks and no land biome within 200 of ${f2.x},${f2.y},${f2.z} - this is open ocean: the meal has to come from a kelp bed (harvest_kelp), a village (raid_village) or a boat, not from another roam` };
+      }
+      if (leavingIsland) {
+        islandEscapes++;
+        bot._recentSwims.push({ x: curF.x, z: curF.z, ts: Date.now() }, { x: land.x, z: land.z, ts: Date.now() });
+        if (bot._recentSwims.length > 10) bot._recentSwims = bot._recentSwims.slice(-10);
       }
       const b0 = bot.entity.position.clone();
       log.skill(`roam: ${why} - swimming to dry ground at ${land.x},${land.y},${land.z} (${land.d} blocks${land.biome ? `, biome=${land.biome}` : ''})`);
@@ -1254,6 +1277,10 @@ reg.define('roam', {
       const stillWet = (() => { const hb = bot.blockAt(b1.offset(0, 1, 0)); return !!hb && /water/.test(hb.name); })();
       if (stillWet) await breathe(bot, 'roam swim to shore (after leg)');
       const moved = Math.round(Math.hypot(bot.entity.position.x - b0.x, bot.entity.position.z - b0.z));
+      if (moved >= 6 && leavingIsland) {
+        // Re-anchor roam start to the new shore so the next leg pushes outward instead of snapping back!
+        start.x = b1.x; start.z = b1.z;
+      }
       if (moved < 3) {
         swimStuck++;
         if (swimStuck >= 3) return { moved, dead: `${swimStuck} swim attempts toward ${land.x},${land.y},${land.z} moved ${moved} blocks from ${b0.x.toFixed(0)},${b0.y.toFixed(0)},${b0.z.toFixed(0)} - pathfinder will not give a water route here; the cell needs dry_escape or a new region` };
@@ -3009,7 +3036,9 @@ reg.define('ensure_tools', {
         log.skill(`ensure_tools: cannot make a stone pickaxe - need 3 of cobblestone/cobbled_deepslate/blackstone + 2 sticks` +
           ` (have ctx cobble=${cobble} stick=${countItem(bot, 'stick')}); granite/diorite/andesite/stone_bricks do NOT work`);
       }
-      if (goodPicks().length && cobble < 6 && bot.inventory.items().some(i => /_pickaxe$/.test(i.name))) {
+      // Only opportunistically mine bonus cobble when already underground in rock (y<58); at sea level on a
+      // frozen coast this sent the bot diving underwater for ocean-floor stone and drowning under ice!
+      if (goodPicks().length && cobble < 6 && bot.entity.position.y < 58 && bot.inventory.items().some(i => /_pickaxe$/.test(i.name))) {
         try {
           const m = await reg.get('mine').run(bot, { names: ['cobblestone', 'stone', 'cobbled_deepslate', 'blackstone'], count: 8, maxDistance: 24 });
           log.skill(`ensure_tools cobble bootstrap: ${m.observation}`);
@@ -3479,6 +3508,15 @@ async function breathe (bot, label) {
     const g = bot.entity.position.floored();
     const headCell = bot.blockAt(g.offset(0, 1, 0));
     if (!headCell || !/water|lava/.test(headCell.name)) { surfaced = true; break; }
+    // On frozen oceans, holding jump presses the bot's head into the y=62 ice sheet until it drowns!
+    // Punch through any soft overhead ceiling (ice/snow/dirt/sand/gravel) directly above head first.
+    const ceil = bot.blockAt(g.offset(0, 2, 0));
+    if (ceil && /^(ice|packed_ice|blue_ice|frosted_ice|snow_block|dirt|sand|gravel|clay)$/.test(ceil.name)) {
+      try {
+        await bot.dig(ceil);
+        log.skill(`breathe (${label}): broke overhead ${ceil.name} at ${ceil.position.x},${ceil.position.y},${ceil.position.z} to open breathing hole`);
+      } catch {}
+    }
     try {
       await bot.look(yawNow(bot), -Math.PI / 2, true);
       bot.setControlState('jump', true);
