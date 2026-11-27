@@ -2864,7 +2864,14 @@ reg.define('obsidian_farm', {
           if (wide.length) { log.info(`obsidian_farm: no source within 8 of ${st.x},${st.y},${st.z} but ${wide.length} source cell(s) further out - widening the fill scan to 16`); cs = wide; src = wide; }
         }
         if (src.length) cs = src; else if (cs.length) log.info('obsidian_farm: every water cell in reach is flowing (level>0) - a bucket cannot take them');
-        cs.sort((x, y) => d3(x.position) - d3(y.position));
+        // Prefer open-air water sources, then ice-covered sources (which we break below), before stone-roofed ones.
+        cs.sort((x, y) => {
+          const xa = bot.blockAt(x.position.offset(0, 1, 0));
+          const ya = bot.blockAt(y.position.offset(0, 1, 0));
+          const xo = (!xa || isAir(xa.name)) ? 0 : (xa.name === 'ice' ? 1 : 2);
+          const yo = (!ya || isAir(ya.name)) ? 0 : (ya.name === 'ice' ? 1 : 2);
+          return xo - yo || d3(x.position) - d3(y.position);
+        });
         try { await bot.equip(bk, 'hand'); } catch {}
         let win = null;
         for (const c of cs.slice(0, 4)) {
@@ -2891,10 +2898,21 @@ reg.define('obsidian_farm', {
             }
             if (d3(c.position) > 5) { log.info(`obsidian_farm: still ${Math.round(d3(c.position) * 10) / 10} away after the approach - skipping this cell`); continue; }
           }
-          try { await bot.lookAt(c.position.offset(0.5, 0.5, 0.5), true); } catch {}
+          // Frozen biomes: break covering ice directly above y=61 water so bucket raycast hits water instead of ice!
+          let fillCell = c;
+          try {
+            const cover = bot.blockAt(c.position.offset(0, 1, 0));
+            if (cover && cover.name === 'ice') {
+              try { await equipBulkPick(bot, false); await bot.dig(cover); await sleep(250); } catch {}
+              const thawed = bot.blockAt(cover.position);
+              if (thawed && thawed.name === 'water' && isFluidSource(thawed)) fillCell = thawed;
+              try { await bot.equip(bk, 'hand'); } catch {}
+            }
+          } catch {}
+          try { await bot.lookAt(fillCell.position.offset(0.5, 0.5, 0.5), true); } catch {}
           try { await bot.activateItem(); } catch {}
           await sleep(900);
-          if (countItem(bot, 'water_bucket') > 0) { win = c; break; }
+          if (countItem(bot, 'water_bucket') > 0) { win = fillCell; break; }
         }
         if (countItem(bot, 'water_bucket') < 1) { markSiteFail(st, cs.length ? 'no SOURCE cell within reach (all flowing) - often just the wrong side of the same lake' : 'no water cell in reach', FILL_COOLDOWN_MS); log.warn(`obsidian_farm: bucket still empty at ${cs.length} tested cell(s) around ${st.x},${st.y},${st.z} - trying the next station`); continue; }
         // Remember the station itself: this is the cell that WORKED, which is stronger evidence than a
@@ -3237,7 +3255,17 @@ reg.define('make_obsidian', {
       // and one bucket costs a trip to the surface: measured 15:07-15:13, the bot found lava at
       // 54,-27,714, climbed ~70 blocks to fill at 127,62,858, poured once onto flowing lava (cobble),
       // and the round ended with obsidian=2. A known field is 12 digs with no travel at all.
-      const field = oreCache.nearest(['obsidian'], bot.entity.position);
+      const field = (() => {
+        const allObs = oreCache.list(['obsidian'], bot.entity.position) || [];
+        if (!allObs.length) return null;
+        // Prefer deep lava-lake obsidian sheets (y <= -40, typically 10-20 blocks) over isolated flooded
+        // mid-cave obsidian pockets (e.g. -76,30,-250 with 1 underwater cell).
+        allObs.sort((a, b) => (a.y <= -40 ? 0 : 1) - (b.y <= -40 ? 0 : 1)
+          || Math.hypot(a.x - bot.entity.position.x, a.y - bot.entity.position.y, a.z - bot.entity.position.z)
+           - Math.hypot(b.x - bot.entity.position.x, b.y - bot.entity.position.y, b.z - bot.entity.position.z));
+        const pick = allObs[0];
+        return Object.assign({}, pick, { dist: Math.round(Math.hypot(pick.x - bot.entity.position.x, (pick.y - bot.entity.position.y) * 1.6, pick.z - bot.entity.position.z)) });
+      })();
       if (field) {
         const curLat = () => Math.hypot(field.x - bot.entity.position.x, field.z - bot.entity.position.z);
         const fieldColFlooded = nearFlood(bot, field.x, field.z, 5);
@@ -4130,7 +4158,7 @@ reg.define('make_obsidian', {
         log.warn(`make_obsidian: ${blocks.length} obsidian cell(s) in reach, NONE with dry footing (closest ${nearest.b.position.x},${nearest.b.position.y},${nearest.b.position.z} at ${Math.round(bot.entity.position.distanceTo(nearest.b.position))} blocks) - refusing to swim into it again`);
         // Forget underwater-only obsidian cells from oreCache so obsidian_farm does not treat a single
         // unreachable flooded pocket as a "proven interface" and drag future rounds back into this aquifer.
-        for (const x of wet) { try { oreCache.forget(x.b.position.x, x.b.position.y, x.b.position.z); } catch {} }
+        for (const x of wet) { try { oreCache.forget(x.b.position.x, x.b.position.y, x.b.position.z, 30 * 60 * 1000); } catch {} }
         return { ok: false, observation: carve
           ? `no obsidian cell in reach can be dug from dry ground, and this server will not let a block be placed into the water beside it. Carve ${carve.x},${carve.y},${carve.z} (${(bot.blockAt(carve) || {}).name}) - it is solid rock with a solid floor and headroom, two blocks from the obsidian - then call make_obsidian again.`
           : `the obsidian field is only reachable by swimming and there is no rock beside it to carve a stand from - this column needs a dry approach shaft dug down from above (shaft record + resume_shaft), not another dive.` };

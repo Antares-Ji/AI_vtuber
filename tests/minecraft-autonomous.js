@@ -2175,8 +2175,71 @@ function makeBot(overrides = {}) {
     }
   }
 
+  // 43. oreCache.forget(x,y,z,blockMs) suppresses passive re-remembering of underwater pockets,
+  //     and obsidian_farm breaks covering ice on frozen water stations to fill its bucket
+  {
+    const oreCache43 = require('../src/minecraft/autonomous/oreCache');
+    const P43 = require('../src/minecraft/autonomous/skills/primitives');
+    const waterId43 = P43.blockIds(makeBot(), ['water'])[0];
+    oreCache43.remember('obsidian', 1700, 30, 1700);
+    oreCache43.forget(1700, 30, 1700, 60000);
+    oreCache43.remember('obsidian', 1700, 30, 1700);
+    const reAdded = oreCache43.list(['obsidian'], { x: 1700, y: 30, z: 1700 }).find(e => e.x === 1700 && e.z === 1700);
+    assert.equal(reAdded, undefined, 'oreCache.forget with blockMs must suppress immediate re-remembering of dead/underwater pockets');
+
+    let iceBroke43 = false;
+    let bucketFilled43 = false;
+    const inv43 = [
+      { name: 'diamond_pickaxe', count: 1, slot: 36, maxDurability: 1561, durabilityUsed: 0 },
+      { name: 'stone_pickaxe', count: 1, slot: 37, maxDurability: 131, durabilityUsed: 0 },
+      { name: 'bucket', count: 1, slot: 38 },
+    ];
+    try {
+      oreCache43.remember('lava', 1800, -55, 1800);
+      oreCache43.remember('water', 1801, 61, 1800);
+      const botIce43 = makeBot({
+        entity: { position: new Vec3(1800, 63, 1800), yaw: 0, pitch: 0 },
+        heldItem: inv43[2],
+        inventory: { slots: new Array(46).fill(null), items: () => inv43 },
+        equip: async (it) => { botIce43.heldItem = it; },
+        setQuickBarSlot: async (idx) => { const h = inv43.find(i => i.slot === 36 + idx); if (h) botIce43.heldItem = h; },
+        lookAt: async () => {},
+        pathfinder: { stop: () => {}, goto: async () => {} },
+        findBlocks: ({ matching }) => {
+          const m = Array.isArray(matching) ? matching : [matching];
+          return m.includes(waterId43) ? [new Vec3(1801, 61, 1800)] : [];
+        },
+        blockAt: (p) => {
+          if (!p) return { name: 'air', boundingBox: 'none' };
+          const x = Math.floor(p.x), y = Math.floor(p.y), z = Math.floor(p.z);
+          if (x === 1801 && y === 62 && z === 1800) {
+            return iceBroke43
+              ? { name: 'water', position: new Vec3(1801, 62, 1800), boundingBox: 'empty', getProperties: () => ({ level: 0 }) }
+              : { name: 'ice', position: new Vec3(1801, 62, 1800), boundingBox: 'block' };
+          }
+          if (x === 1801 && y === 61 && z === 1800) return { name: 'water', position: new Vec3(1801, 61, 1800), boundingBox: 'empty', getProperties: () => ({ level: 0 }) };
+          return { name: 'air', position: new Vec3(x, y, z), boundingBox: 'none' };
+        },
+        dig: async (blk) => { if (blk && blk.name === 'ice') iceBroke43 = true; },
+        activateItem: async () => {
+          if (iceBroke43) {
+            bucketFilled43 = true;
+            inv43[2].name = 'water_bucket';
+            botIce43._stepDeadline = 1;
+          }
+        },
+      });
+      await reg.get('obsidian_farm').run(botIce43, { count: 10 });
+      assert.equal(iceBroke43, true, 'obsidian_farm must break covering ice above y=61 water on frozen stations');
+      assert.equal(bucketFilled43, true, 'obsidian_farm must fill water_bucket after breaking covering ice');
+    } finally {
+      oreCache43.forget(1800, -55, 1800);
+      oreCache43.forget(1801, 61, 1800);
+    }
+  }
+
   fs.rmSync(tmp, { recursive: true, force: true });
-  console.log('PASS minecraft-autonomous: all 42 regression groups passed');
+  console.log('PASS minecraft-autonomous: all 43 regression groups passed');
 })().catch(e => {
   console.error(e);
   process.exitCode = 1;

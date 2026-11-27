@@ -18,6 +18,16 @@ const MAX = 90;
 const TTL = 45 * 60 * 1000; // a vein mined out or forgotten 45 min ago is not worth a detour
 
 let mem = null;
+const suppressed = new Map(); // key "x,y,z" -> untilMs (prevents passive scanner from re-adding dead/underwater pockets)
+function isSuppressed(x, y, z) {
+  const now = Date.now();
+  for (const [k, until] of suppressed) {
+    if (until <= now) { suppressed.delete(k); continue; }
+    const [sx, sy, sz] = k.split(',').map(Number);
+    if (Math.abs(sx - x) <= 2 && Math.abs(sy - y) <= 2 && Math.abs(sz - z) <= 2) return true;
+  }
+  return false;
+}
 function entries() {
   if (mem) return mem;
   try { mem = JSON.parse(fs.readFileSync(FILE, 'utf8')).entries || []; } catch { mem = []; }
@@ -46,6 +56,7 @@ const ttlFor = (name) => (TERRAIN.test(name) ? Infinity : TTL);
 // vein does not eat the whole cache.
 function remember(name, x, y, z) {
   if (UNWORTHY.test(name)) return;
+  if (isSuppressed(x, y, z)) return;
   const e = entries();
   // Re-confirmed: a sighting of the same cell refreshes it. Without this a pool the bot visits every
   // ten minutes still ages out on its FIRST timestamp, which is how the 6-hour clock behaved like a
@@ -99,7 +110,7 @@ function list(names, from) {
   return out;
 }
 
-function forget(x, y, z) {
+function forget(x, y, z, blockMs = 0) {
   const e = entries();
   let changed = false;
   for (let i = e.length - 1; i >= 0; i--) {
@@ -108,6 +119,7 @@ function forget(x, y, z) {
       changed = true;
     }
   }
+  if (blockMs > 0) suppressed.set(`${Math.floor(x)},${Math.floor(y)},${Math.floor(z)}`, Date.now() + blockMs);
   if (changed) save();
 }
 
