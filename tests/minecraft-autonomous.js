@@ -3364,8 +3364,66 @@ function makeBot(overrides = {}) {
     }
   }
 
+  // 63. roam stranded high up on a multi-block sky-bridge/ledge at y=118 (terrain 55m below at y=63 so
+  //     gy===null and swimToShore throws No path!) finds the nearby solid vertical trunk within 4m and
+  //     descends safely via deep_shaft instead of spinning forever on "surrounded by open ocean"
+  {
+    const origShaft63 = reg.get('deep_shaft').run;
+    let shaftCalled63 = null;
+    try {
+      reg.get('deep_shaft').run = async (b, a) => {
+        shaftCalled63 = { x: Math.round(b.entity.position.x), y: Math.round(b.entity.position.y), z: Math.round(b.entity.position.z), toY: a.toY };
+        b.entity.position = new Vec3(b.entity.position.x, a.toY, b.entity.position.z);
+        return { ok: true, observation: 'descended trunk' };
+      };
+      // Standing at (127, 118, -516) on a 4-block sky-bridge leading back to vertical pillar trunk at (129, 64..117, -518)
+      const botHigh63 = makeBot({
+        entity: { position: new Vec3(127, 118, -516), yaw: 0, pitch: 0 },
+        game: { dimension: 'overworld' },
+        inventory: { slots: new Array(46).fill(null), items: () => [{ name: 'stone_pickaxe', count: 1, slot: 36, maxDurability: 131, durabilityUsed: 5 }] },
+        heldItem: { name: 'stone_pickaxe', count: 1, slot: 36, maxDurability: 131, durabilityUsed: 5 },
+        entities: {},
+        nearestEntity: () => null,
+        findBlocks: () => [],
+        findBlock: () => null,
+        pathfinder: {
+          stop: () => {},
+          goto: async (goal) => {
+            // Allow walking across the sky-bridge (same Y=118, dist<=5); refuse drops to y=63!
+            if (Math.abs(goal.y - botHigh63.entity.position.y) <= 2 && Math.hypot(goal.x - botHigh63.entity.position.x, goal.z - botHigh63.entity.position.z) <= 5) {
+              botHigh63.entity.position = new Vec3(goal.x, goal.y, goal.z);
+              return;
+            }
+            throw new Error('No path to the goal!');
+          },
+        },
+        blockAt: (p) => {
+          if (!p) return { name: 'air', boundingBox: 'none' };
+          const x = Math.floor(p.x), y = Math.floor(p.y), z = Math.floor(p.z);
+          // Flat ground 55 blocks below at y<=63
+          if (y <= 63) return { name: 'grass_block', position: new Vec3(x, y, z), boundingBox: 'block' };
+          // 4-block horizontal sky-bridge deck at y=117 connecting (127,-516) to trunk (129,-518)
+          if (y === 117 && x >= 127 && x <= 129 && z >= -518 && z <= -516) {
+            return { name: 'cobblestone', position: new Vec3(x, y, z), boundingBox: 'block' };
+          }
+          // Solid vertical pillar trunk at (129, 64..117, -518)
+          if (x === 129 && z === -518 && y >= 64 && y <= 117) {
+            return { name: 'cobblestone', position: new Vec3(x, y, z), boundingBox: 'block' };
+          }
+          return { name: 'air', position: new Vec3(x, y, z), boundingBox: 'none' };
+        },
+      });
+      botHigh63._stepDeadline = Date.now() + 8000;
+      await reg.get('roam').run(botHigh63, { target: 'cow', distance: 40 });
+      assert.ok(shaftCalled63 && shaftCalled63.x === 129 && shaftCalled63.z === -518 && shaftCalled63.toY === 66,
+        `roam stranded at y=118 must walk to solid trunk (129,-518) and run deep_shaft to y=66 (got ${JSON.stringify(shaftCalled63)})`);
+    } finally {
+      reg.get('deep_shaft').run = origShaft63;
+    }
+  }
+
   fs.rmSync(tmp, { recursive: true, force: true });
-  console.log('PASS minecraft-autonomous: all 62 regression groups passed');
+  console.log('PASS minecraft-autonomous: all 63 regression groups passed');
 })().catch(e => {
   console.error(e);
   process.exitCode = 1;

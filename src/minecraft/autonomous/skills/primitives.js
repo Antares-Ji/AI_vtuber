@@ -1428,6 +1428,68 @@ reg.define('roam', {
         // instead of spinning 48x in place!
         if (wetFeetNow() || (++waterTurns >= 6)) {
           waterTurns = 0;
+          // High-altitude strand rescue (mountain spire, sky-bridge, pillar with bridge nub, or tall tree canopy):
+          // At y>=78 dry, gy===null in every direction means surrounding terrain is >24 blocks BELOW us, so calling
+          // swimToShore to y=63 only fails with `No path to the goal!` (maxDropDown=3). Find a solid vertical
+          // trunk/core within 4 blocks (or tree leaves/logs underfoot / waterfall) and descend safely FIRST!
+          if (!wetFeetNow() && bot.entity.position.y >= 78 && bot.game?.dimension === 'overworld') {
+            const hf = bot.entity.position.floored();
+            const isSolidCore = (cx, cy, cz) => {
+              const b = bot.blockAt(new Vec3(cx, cy, cz));
+              return !!(b && !isAir(b.name) && !/water|lava|bedrock/.test(b.name));
+            };
+            let trunk = null;
+            for (let r = 0; r <= 4 && !trunk; r++) {
+              for (let tx = -r; tx <= r && !trunk; tx++) {
+                for (let tz = -r; tz <= r && !trunk; tz++) {
+                  if (Math.max(Math.abs(tx), Math.abs(tz)) !== r) continue;
+                  const cx = hf.x + tx, cz = hf.z + tz;
+                  if (isSolidCore(cx, hf.y - 1, cz) && isSolidCore(cx, hf.y - 2, cz) && isSolidCore(cx, hf.y - 3, cz)) {
+                    trunk = { x: cx, y: hf.y, z: cz };
+                  }
+                }
+              }
+            }
+            if (trunk) {
+              log.warn(`roam: stranded high at ${hf.x},${hf.y},${hf.z} with terrain far below - moving to solid core ${trunk.x},${trunk.y},${trunk.z} and descending via deep_shaft`);
+              if (trunk.x !== hf.x || trunk.z !== hf.z) {
+                try { await capped(bot.pathfinder.goto(new GN(trunk.x, trunk.y, trunk.z, 0)), 8000, 'walk to descent trunk'); } catch {}
+              }
+              const ds = await reg.get('deep_shaft').run(bot, { toY: 66, max: 45 }).catch(e => ({ ok: false, observation: e.message }));
+              const afterH = bot.entity.position.floored();
+              if (afterH.y < hf.y - 2) {
+                log.warn(`roam: descended from y=${hf.y} -> y=${afterH.y} (${String(ds && ds.observation).slice(0, 90)})`);
+                start.x = afterH.x; start.y = afterH.y; start.z = afterH.z;
+                stuckLegs = 0; continue;
+              }
+            } else {
+              const under1 = bot.blockAt(hf.offset(0, -1, 0));
+              if (under1 && /leaves|log/.test(under1.name)) {
+                log.warn(`roam: stranded on tree canopy at ${hf.x},${hf.y},${hf.z} - digging down through ${under1.name}`);
+                try { await equipBestToolFor(bot, under1); await bot.dig(under1); await sleep(250); } catch {}
+                const afterT = bot.entity.position.floored();
+                start.x = afterT.x; start.y = afterT.y; start.z = afterT.z;
+                continue;
+              }
+              const wb = bot.inventory.items().find(i => i.name === 'water_bucket');
+              if (wb && under1 && !isAir(under1.name)) {
+                log.warn(`roam: stranded on thin floating ledge at ${hf.x},${hf.y},${hf.z} - pouring water_bucket waterfall to descend safely`);
+                try {
+                  await bot.equip(wb, 'hand');
+                  await bot.lookAt(hf.offset(0.5, -0.5, 0.5), true);
+                  await bot.activateItem();
+                  await sleep(1200);
+                  await bot.setControlState('forward', true);
+                  await sleep(500);
+                  await bot.setControlState('forward', false);
+                  await sleep(2000);
+                  const afterW = bot.entity.position.floored();
+                  start.x = afterW.x; start.y = afterW.y; start.z = afterW.z;
+                  if (afterW.y < hf.y - 3) continue;
+                } catch {}
+              }
+            }
+          }
           const s = await swimToShore(wetFeetNow()
             ? 'no dry goal column and the feet are already wet'
             : 'surrounded by open ocean on a small island/iceberg');
