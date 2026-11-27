@@ -1708,15 +1708,16 @@ async function climbOut(bot, targetY) {
   // IS raw iron the server does not refuse - it places `raw_iron_block`, which is the floating ore the
   // player saw hanging in the sky over the island, built one climb at a time out of armour iron.
   const stackable = () => P.cheapFill(bot, 1);
-  const SOFT_DROP = new Set(['dirt', 'coarse_dirt', 'rooted_dirt', 'grass_block', 'gravel', 'sand', 'red_sand', 'clay', 'mud', 'moss_block', 'snow_block', 'oak_planks', 'spruce_planks', 'birch_planks', 'dark_oak_planks', 'jungle_planks', 'acacia_planks']);
+  // Only blocks that genuinely drop a solid placeable block bare-handed (snow_block/clay drop nothing or clay_ball!).
+  const SOFT_DROP = new Set(['dirt', 'coarse_dirt', 'rooted_dirt', 'grass_block', 'gravel', 'sand', 'red_sand', 'mud', 'moss_block', 'oak_planks', 'spruce_planks', 'birch_planks', 'dark_oak_planks', 'jungle_planks', 'acacia_planks', 'oak_log', 'spruce_log', 'birch_log', 'dark_oak_log', 'jungle_log', 'acacia_log']);
   const ROCK_DROP = ['cobblestone', 'cobbled_deepslate', 'stone', 'deepslate', 'tuff', 'andesite', 'diorite', 'granite'];
-  const tryWalkHigher = async (maxR = 24) => {
+  const tryWalkHigher = async (maxR = 28) => {
     let climbedAny = false;
     for (let leg = 0; leg < 4 && bot.entity.position.y < goal && Date.now() < (bot._stepDeadline || Infinity) && !lease.stale(); leg++) {
       const f0 = bot.entity.position.floored();
       const beforeY = bot.entity.position.y;
       const cands = [];
-      const maxDy = Math.min(18, Math.max(3, Math.ceil(goal - f0.y) + 4));
+      const maxDy = Math.min(24, Math.max(3, Math.ceil(goal - f0.y) + 4));
       for (let dx = -maxR; dx <= maxR; dx += 2) {
         for (let dz = -maxR; dz <= maxR; dz += 2) {
           if (dx === 0 && dz === 0) continue;
@@ -1782,12 +1783,16 @@ async function climbOut(bot, targetY) {
     const names = Array.from(SOFT_DROP).concat(hasPick ? ROCK_DROP : []);
     const ids = blockIds(bot, names);
     if (!ids.length) return false;
-    const pts = (bot.findBlocks({ matching: ids, maxDistance: 20, count: 24 }) || [])
-      .filter(p => !(p.x === f0.x && p.z === f0.z && p.y < f0.y))
+    const exposedToAir = (p) => [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0], [0, 0, 1], [0, 0, -1]].some(([dx, dy, dz]) => {
+      const nb = bot.blockAt(p.offset(dx, dy, dz));
+      return !nb || isAir(nb.name);
+    });
+    const pts = (bot.findBlocks({ matching: ids, maxDistance: 20, count: 32 }) || [])
+      .filter(p => !(p.x === f0.x && p.z === f0.z && p.y < f0.y) && exposedToAir(p))
       .sort((a, b) => a.distanceTo(bot.entity.position) - b.distanceTo(bot.entity.position));
-    let dug = 0;
+    let dug = 0, walkFails = 0;
     for (const p of pts) {
-      if (dug >= 10 || P.cheapFillTotal(bot) >= 12 || lease.stale() || Date.now() >= (bot._stepDeadline || Infinity)) break;
+      if (dug >= 10 || walkFails >= 4 || P.cheapFillTotal(bot) >= 16 || lease.stale() || Date.now() >= (bot._stepDeadline || Infinity)) break;
       const b = bot.blockAt(p);
       if (!b || !ids.includes(b.type)) continue;
       // Never breach adjacent fluid while harvesting pillar fill
@@ -1797,16 +1802,23 @@ async function climbOut(bot, targetY) {
       });
       if (nearFluid) continue;
       if (bot.entity.position.distanceTo(p) > 4.2) {
-        try { await capped(bot.pathfinder.goto(new (GN())(p.x, p.y, p.z, 2)), 5000, 'climbOut restock walk'); } catch {}
+        try { await capped(bot.pathfinder.goto(new (GN())(p.x, p.y, p.z, 2)), 4500, 'climbOut restock walk'); } catch {}
       }
-      if (bot.entity.position.distanceTo(p) > 4.6) continue;
+      if (bot.entity.position.distanceTo(p) > 4.6) { walkFails++; continue; }
       try { if (hasPick && !SOFT_DROP.has(b.name)) { if (!(await equipBulkPick(bot, false))) await equipPick(bot); } } catch {}
       const est = typeof bot.digTime === 'function' ? bot.digTime(b) : 500;
-      if (!Number.isFinite(est) || est > 4500) continue;
+      if (!Number.isFinite(est) || est > 4500 || Date.now() + est + 1500 >= (bot._stepDeadline || Infinity)) continue;
       try {
+        const beforeFill = P.cheapFillTotal(bot);
         await capped(bot.dig(b), Math.min(8000, Math.max(3000, est * 2 + 1000)), `climbOut restock ${b.name}`);
         dug++;
-        await sleep(220);
+        await sleep(250);
+        if (P.cheapFillTotal(bot) <= beforeFill && !lease.stale()) {
+          try { await capped(bot.pathfinder.goto(new (GN())(p.x, p.y, p.z, 1)), 2500, 'climbOut collect drop'); } catch {}
+          if (P.cheapFillTotal(bot) <= beforeFill && typeof P.collectNear === 'function') {
+            try { await P.collectNear(bot, p, null, 2500); } catch {}
+          }
+        }
       } catch {}
     }
     if (dug > 0) log.skill(`climbOut: restocked ${dug} block(s) from nearby ${hasPick ? 'soft/rock' : 'soft'} terrain (cheapFillTotal=${P.cheapFillTotal(bot)})`);
@@ -1851,24 +1863,44 @@ async function climbOut(bot, targetY) {
     const f0 = bot.entity.position.floored();
     const beforeY = bot.entity.position.y;
     const hasPick = bot.inventory.items().some(i => /_pickaxe$/.test(i.name));
+    if (hasPick) { try { if (!(await equipBulkPick(bot, false))) await equipPick(bot); } catch {} }
+    const dirs = [];
     for (const [dx, dz] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
-      if (lease.stale() || Date.now() >= (bot._stepDeadline || Infinity)) break;
       const stand = bot.blockAt(f0.offset(dx, 0, dz));
       if (!stand || stand.boundingBox !== 'block' || /water|lava|magma/.test(stand.name)) continue;
       const clearList = [bot.blockAt(f0.offset(0, 2, 0)), bot.blockAt(f0.offset(dx, 1, dz)), bot.blockAt(f0.offset(dx, 2, dz))];
       if (clearList.some(b => b && /water|lava|bedrock/.test(b.name))) continue;
       const solids = clearList.filter(b => b && !isAir(b.name));
-      if (hasPick) { try { if (!(await equipBulkPick(bot, false))) await equipPick(bot); } catch {} }
-      const diggableAll = solids.every(b => {
-        const est = typeof bot.digTime === 'function' ? bot.digTime(b) : 1000;
-        return Number.isFinite(est) && est <= 16000;
-      });
-      if (!diggableAll) continue;
+      let totalEst = 0, okAll = true;
       for (const b of solids) {
-        try { await capped(bot.dig(b), 18000, `climbOut stair dig ${b.name}`); } catch {}
+        const est = typeof bot.digTime === 'function' ? bot.digTime(b) : 1000;
+        if (!Number.isFinite(est) || est > 16000) { okAll = false; break; }
+        totalEst += est;
       }
-      try { await capped(bot.pathfinder.goto(new (GN())(f0.x + dx, f0.y + 1, f0.z + dz, 0)), 5000, 'climbOut blockless stair'); } catch {}
-      if (bot.entity.position.y >= beforeY + 0.7) return true;
+      if (!okAll) continue;
+      // Strongly prefer directions that break into open cave air or softer blocks (dirt/gravel/stone vs deepslate)
+      const beyond = bot.blockAt(f0.offset(dx * 2, 1, dz * 2));
+      const openBonus = (!beyond || isAir(beyond.name)) ? -5000 : 0;
+      dirs.push({ dx, dz, solids, totalEst, score: totalEst + openBonus });
+    }
+    dirs.sort((a, b) => a.score - b.score);
+    for (const d of dirs) {
+      if (lease.stale() || Date.now() >= (bot._stepDeadline || Infinity)) break;
+      if (Date.now() + d.totalEst + 2000 >= (bot._stepDeadline || Infinity)) return false;
+      for (const b of d.solids) {
+        if (lease.stale() || Date.now() >= (bot._stepDeadline || Infinity)) return false;
+        const est = typeof bot.digTime === 'function' ? bot.digTime(b) : 1000;
+        if (Date.now() + est + 1500 >= (bot._stepDeadline || Infinity)) return false;
+        try {
+          await capped(bot.dig(b), Math.min(18000, Math.max(4000, est + 3000)), `climbOut stair dig ${b.name}`, () => { try { if (typeof bot.stopDigging === 'function') bot.stopDigging(); } catch {} });
+        } catch {}
+      }
+      if (lease.stale()) return false;
+      try { await capped(bot.pathfinder.goto(new (GN())(f0.x + d.dx, f0.y + 1, f0.z + d.dz, 0)), 5000, 'climbOut blockless stair'); } catch {}
+      if (bot.entity.position.y >= beforeY + 0.7) {
+        log.skill(`climbOut: blockless stair y=${Math.round(beforeY)} -> y=${Math.round(bot.entity.position.y)} (dir=${d.dx},${d.dz}, est=${Math.round(d.totalEst)}ms)`);
+        return true;
+      }
     }
     return false;
   };

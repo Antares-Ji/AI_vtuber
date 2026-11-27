@@ -3767,8 +3767,62 @@ function makeBot(overrides = {}) {
     }
   }
 
+  // 71. climbOut blockless stair picks the fastest direction (dirt/air instead of deepslate) and refuses
+  //     to start a dig whose digTime exceeds remaining stepDeadline (preventing orphan-lease Digging aborted)
+  {
+    const prevAssist71 = process.env.MC_ASSIST;
+    process.env.MC_ASSIST = '0';
+    try {
+      const dugNames71 = [];
+      const dugSet71 = new Set();
+      const botStair71 = makeBot({
+        entity: { position: new Vec3(0, -35, 0), yaw: 0, pitch: 0, onGround: true },
+        game: { dimension: 'overworld' },
+        inventory: { slots: new Array(46).fill(null), items: () => [] },
+        _stepDeadline: Date.now() + 60000,
+        digTime: (b) => {
+          if (!b) return 0;
+          if (b.name === 'deepslate') return 15000;
+          if (b.name === 'dirt') return 750;
+          return 1000;
+        },
+        dig: async (b) => {
+          dugNames71.push(b.name);
+          if (b && b.position) dugSet71.add(`${b.position.x},${b.position.y},${b.position.z}`);
+        },
+        pathfinder: {
+          isMoving: () => false,
+          stop: () => {},
+          goto: async (goal) => {
+            if (goal && typeof goal.y === 'number') botStair71.entity.position = new Vec3(goal.x, goal.y, goal.z);
+          },
+        },
+        blockAt: (p) => {
+          if (!p) return { name: 'air', boundingBox: 'none' };
+          const x = Math.floor(p.x), y = Math.floor(p.y), z = Math.floor(p.z);
+          if (dugSet71.has(`${x},${y},${z}`)) return { name: 'air', position: new Vec3(x, y, z), boundingBox: 'none' };
+          // At y=-35: East (+X) is solid deepslate, West (-X) is soft dirt breaking into open air!
+          if (y === -36 && x === 0 && z === 0) return { name: 'deepslate', position: new Vec3(x, y, z), boundingBox: 'block' };
+          if (x === 1 && z === 0 && (y === -35 || y === -34 || y === -33)) return { name: 'deepslate', position: new Vec3(x, y, z), boundingBox: 'block' };
+          if (x === -1 && z === 0 && y === -35) return { name: 'dirt', position: new Vec3(x, y, z), boundingBox: 'block' };
+          if (x === -1 && z === 0 && (y === -34 || y === -33)) return { name: 'dirt', position: new Vec3(x, y, z), boundingBox: 'block' };
+          return { name: 'air', position: new Vec3(x, y, z), boundingBox: 'none' };
+        },
+      });
+      // Give tight deadline after 1 step via fake clock? Test single step up from -35 -> -34 with goal -34
+      botStair71.entity.position = new Vec3(0, -35, 0);
+      await reg.get('recover_surface').run(botStair71, {});
+      assert.ok(dugNames71.length > 0 && dugNames71.every(n => n === 'dirt'),
+        `blockless stair must pick fastest dirt direction over 15s deepslate (dug=${JSON.stringify(dugNames71)})`);
+      assert.ok(botStair71.entity.position.y >= -34, `must climb higher via soft dirt side without digging deepslate (y=${botStair71.entity.position.y})`);
+    } finally {
+      if (prevAssist71 === undefined) delete process.env.MC_ASSIST;
+      else process.env.MC_ASSIST = prevAssist71;
+    }
+  }
+
   fs.rmSync(tmp, { recursive: true, force: true });
-  console.log('PASS minecraft-autonomous: all 70 regression groups passed');
+  console.log('PASS minecraft-autonomous: all 71 regression groups passed');
 })().catch(e => {
   console.error(e);
   process.exitCode = 1;

@@ -737,14 +737,17 @@ async function run(bot) {
             const beforePos = bot.entity.position.floored();
             const logsBefore = bot.inventory.items().filter(i => /_log$/.test(i.name)).reduce((s, i) => s + i.count, 0);
             log.warn(`broke and ${cause} underground at y=${beforePos.y} with no armour - surfacing to rebuild from trees before any milestone`);
-            const surfRes = await runHelper(bot, 90000, 'surface rebuild', () => reg.get('recover_surface').run(bot, {}));
+            const surfRes = await runHelper(bot, 120000, 'surface rebuild', () => reg.get('recover_surface').run(bot, {}));
             const afterPos = bot.entity.position.floored();
-            const climbed = afterPos.y >= 62 || afterPos.y >= beforePos.y + 2;
-            if (climbed && logsBefore < 6) {
+            const surfaced = afterPos.y >= 58;
+            const climbed = surfaced || afterPos.y >= beforePos.y + 1;
+            if (surfaced && logsBefore < 6) {
               await runHelper(bot, 90000, 'surface wood', () => reg.get('chop_trees').run(bot, { count: 6 }));
             } else if (!climbed) {
               bot._overworldSpiralCoolUntil = Date.now() + 60000;
               log.warn(`death-spiral rebuild could not surface (${beforePos.y} -> ${afterPos.y}, res=${String(surfRes && surfRes.observation || 'none').slice(0, 90)}) - cooling guard for 60s and falling through to ladder`);
+            } else if (!surfaced) {
+              log.info(`death-spiral rebuild ascending (${beforePos.y} -> ${afterPos.y}) - continuing climb to surface before chopping trees`);
             } else {
               bot._overworldSpiralCoolUntil = Date.now() + 45000;
               log.info(`death-spiral rebuild surfaced (${beforePos.y} -> ${afterPos.y}, logs=${logsBefore}) - cooling guard 45s so milestone can proceed`);
