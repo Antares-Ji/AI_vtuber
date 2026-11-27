@@ -874,8 +874,47 @@ function makeBot(overrides = {}) {
     assert.equal(sr.ok, false);
   }
 
+  // 21. mineBlockHere tunneling to a lava target NEVER calls bot.dig(lava) or equips diamond_pickaxe on rock
+  {
+    const { mineBlockHere } = require('../src/minecraft/autonomous/skills/endgame');
+    const dug = [];
+    const equipped = [];
+    const lavaBlk = { name: 'lava', position: new Vec3(6, -26, 0) };
+    const botLava = makeBot({
+      entity: { position: new Vec3(0, -26, 0), yaw: 0, pitch: 0 },
+      inventory: {
+        slots: new Array(46).fill(null),
+        items: () => [
+          { name: 'iron_pickaxe', count: 1, slot: 36, maxDurability: 250, durabilityUsed: 10 },
+          { name: 'diamond_pickaxe', count: 1, slot: 37, maxDurability: 1561, durabilityUsed: 0 },
+        ],
+      },
+      blockAt: (p) => {
+        if (!p) return { name: 'air', boundingBox: 'none' };
+        if (Math.floor(p.x) === 6 && Math.floor(p.y) === -26 && Math.floor(p.z) === 0) return lavaBlk;
+        if (Math.floor(p.x) >= 1 && Math.floor(p.x) <= 2 && Math.floor(p.y) >= -26 && Math.floor(p.y) <= -25) {
+          return { name: 'deepslate', position: new Vec3(Math.floor(p.x), Math.floor(p.y), 0), boundingBox: 'block' };
+        }
+        return { name: 'air', boundingBox: 'none' };
+      },
+      setQuickBarSlot: () => { botLava.heldItem = { name: 'iron_pickaxe', count: 1, maxDurability: 250, durabilityUsed: 10 }; },
+      equip: async (it) => { equipped.push(it.name); botLava.heldItem = it; },
+      dig: async (blk) => { dug.push(blk.name); },
+      pathfinder: {
+        goto: async (goal) => {
+          if (goal && Math.round(goal.x) === 6) throw new Error('No path');
+          if (goal) botLava.entity.position = new Vec3(goal.x, goal.y, goal.z);
+        },
+      },
+    });
+    const ok = await mineBlockHere(botLava, lavaBlk);
+    assert.equal(ok, true, 'mineBlockHere must tunnel within reach of lava target and return true');
+    assert.equal(dug.includes('lava'), false, 'mineBlockHere must NEVER call bot.dig() on lava');
+    assert.equal(equipped.includes('diamond_pickaxe'), false, 'mineBlockHere must NOT equip diamond_pickaxe to tunnel rock toward lava');
+  }
+
   fs.rmSync(tmp, { recursive: true, force: true });
-  console.log('PASS minecraft-autonomous: all 20 regression groups passed');
+  console.log('PASS minecraft-autonomous: all 21 regression groups passed');
 })().catch(e => {
   console.error(e);
   process.exitCode = 1;

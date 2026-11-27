@@ -654,11 +654,14 @@ async function mineBlockHere(bot, b) {
     const k = 14 / d0;
     const hx = Math.round(bot.entity.position.x + (b.position.x - bot.entity.position.x) * k);
     const hz = Math.round(bot.entity.position.z + (b.position.z - bot.entity.position.z) * k);
-    try { await bot.pathfinder.goto(new (GN())(hx, Math.round(b.position.y), hz, 1)); } catch {}
+    try { await capped(bot.pathfinder.goto(new (GN())(hx, Math.round(b.position.y), hz, 1)), 15000, 'hop toward target'); } catch {}
   } else {
-    try { await bot.pathfinder.goto(new (GN())(b.position.x, b.position.y, b.position.z, 1)); } catch {}
+    try { await capped(bot.pathfinder.goto(new (GN())(b.position.x, b.position.y, b.position.z, 1)), 15000, 'walk to target'); } catch {}
   }
-  for (let i = 0; i < 40 && !near() && Date.now() - t0 < 12000; i++) {
+  // Reset tunnel timer AFTER initial goto: previously a 15-45s failed goto exhausted the 12s budget
+  // before the tunnel loop even ran iteration 0 (live 10:36:53).
+  const tLoop = Date.now();
+  for (let i = 0; i < 40 && !near() && Date.now() - tLoop < 25000 && Date.now() < (bot._stepDeadline || Infinity); i++) {
     const feet = bot.entity.position.floored();
     const dx = Math.round(b.position.x - feet.x), dz = Math.round(b.position.z - feet.z), dy = Math.round(b.position.y - feet.y);
     const sx = Math.abs(dx) >= Math.abs(dz) ? Math.sign(dx) : 0;
@@ -671,16 +674,25 @@ async function mineBlockHere(bot, b) {
         try { await (/obsidian|emerald_ore|ancient_debris/.test(blk.name) ? equipPick(bot) : equipBulkPick(bot, true)); await bot.dig(blk); } catch {}
       }
     }
-    try { await bot.pathfinder.goto(new (GN())(feet.x + sx, bot.entity.position.y + (Math.sign(dy) || 0), feet.z + sz, 0)); }
+    try { await capped(bot.pathfinder.goto(new (GN())(feet.x + sx, bot.entity.position.y + (Math.sign(dy) || 0), feet.z + sz, 0)), 5000, 'tunnel step'); }
     catch { try { await bot.setControlState('forward', true); await sleep(220); await bot.setControlState('forward', false); } catch {} }
     await sleep(100);
   }
   const cur = bot.blockAt(b.position);
-  if (cur && cur.name === b.name) { try { await equipPick(bot); await bot.dig(cur); } catch {} }
-  try { await bot.pathfinder.goto(new (GN())(b.position.x, b.position.y, b.position.z, 0)); } catch {} // step onto drop
-  await sleep(300);
-  // Report honestly: this used to `return true` no matter what, which let every caller count a
-  // phantom collection (mineBlockHere cannot break obsidian through a wall, but it said success).
+  const unbreakable = !cur || isAir(cur.name) || /lava|water|bedrock/.test(cur.name);
+  const inReach = bot.entity.position.distanceTo(b.position) <= 5.2;
+  if (!unbreakable && cur.name === b.name && inReach) {
+    try {
+      const needsHigh = /obsidian|diamond_ore|deepslate_diamond|emerald|ancient_debris/.test(cur.name);
+      if (needsHigh) await equipPick(bot);
+      else if (!(await equipBulkPick(bot, true))) await equipPick(bot);
+      await bot.dig(cur);
+    } catch {}
+    try { await capped(bot.pathfinder.goto(new (GN())(b.position.x, b.position.y, b.position.z, 0)), 5000, 'step onto drop'); } catch {}
+    await sleep(300);
+  }
+  // Report honestly: for fluid targets (e.g. tunneling to a lava pool), success means we closed into reach.
+  if (/lava|water/.test(b.name)) return bot.entity.position.distanceTo(b.position) <= 6;
   const end = bot.blockAt(b.position);
   return !end || end.name !== b.name;
 }

@@ -519,10 +519,13 @@ function createBot() {
         // tells us which generation this call came from; calls from outside any lease (chat
         // replies, the wet-escape helpers) are always allowed, so this cannot freeze the bot.
         if (lease.stale()) return lease.refuse(name);
-        // bedrock is unbreakable: bot.dig() on it warns forever instead of failing, which
-        // pinned the bot at the bottom of the world. Reject it once, here, for every skill.
-        if (name === 'dig' && args[0] && args[0].name && args[0].name.includes('bedrock')) {
-          return Promise.reject(new Error('refusing to dig bedrock'));
+        // bedrock, liquids, and air are unbreakable: bot.dig() on them either warns forever or computes
+        // digTime=Infinity and hangs the whole milestone until STEP QUIET ABORT (live 10:36:53 hung on lava).
+        if (name === 'dig' && args[0] && args[0].name) {
+          const bn = args[0].name;
+          if (bn.includes('bedrock') || bn === 'lava' || bn === 'water' || bn === 'air' || bn === 'cave_air' || bn === 'void_air') {
+            return Promise.reject(new Error(`refusing to dig unbreakable/liquid block ${bn}`));
+          }
         }
         // A `goto` whose promise never lands is the fault that froze the obsidian step twice today
         // (05:40:30 and 05:52:04 both logged `mine: heading to iron_ore ... (try 1)` and then nothing at
