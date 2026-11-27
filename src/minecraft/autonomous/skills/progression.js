@@ -517,9 +517,13 @@ const LADDER = [
             let fishedOk = false;
             if (!stocked() && canFish && waterNear) {
               try {
-                const fr = await reg.get('fish').run(b, { count: 6, timeoutSec: 120 });
+                const fishBefore = countItem(b, 'cod') + countItem(b, 'salmon');
+                const fr = await reg.get('fish').run(b, { count: 14, timeoutSec: 210 });
                 log.skill(`food: shore fishing said (${String(fr.observation).slice(0, 120)})`);
-                fishedOk = fr.ok || stocked();
+                const fishGained = Math.max(0, (countItem(b, 'cod') + countItem(b, 'salmon')) - fishBefore);
+                // When shore fishing actively yields fish (>=2), stay here to cook them instead of
+                // abandoning a working shore hole to march 300m across frozen ocean or chase night zombies!
+                fishedOk = fr.ok || stocked() || fishGained >= 2 || (b._lastFish && b._lastFish.totalCaught >= 2);
               } catch {}
             }
             // If we remember a real livestock meadow from earlier in this run (<=600m away), head back toward

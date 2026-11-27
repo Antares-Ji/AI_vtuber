@@ -3422,8 +3422,69 @@ function makeBot(overrides = {}) {
     }
   }
 
+  // 64. food milestone stays at a productive shore fishing spot (caught >=2 fish) and immediately cooks them
+  //     instead of abandoning the shore for a 300m ocean roam
+  {
+    const { LADDER } = require('../src/minecraft/autonomous/skills/progression');
+    const foodMs64 = LADDER.find(m => m.id === 'food');
+    const origHunt64 = reg.get('hunt').run;
+    const origFish64 = reg.get('fish').run;
+    const origRoam64 = reg.get('roam').run;
+    const origSmelt64 = reg.get('smelt').run;
+    const origEat64 = reg.get('eat').run;
+    const origKelp64 = reg.get('harvest_kelp').run;
+    let roamed64 = false;
+    let cookedCod64 = 0;
+    try {
+      const inv64 = [
+        { name: 'fishing_rod', count: 1, slot: 36 },
+        { name: 'coal', count: 8, slot: 37 },
+      ];
+      reg.get('hunt').run = async () => ({ ok: false, observation: 'no livestock' });
+      reg.get('harvest_kelp').run = async () => ({ ok: false, observation: 'no kelp' });
+      reg.get('fish').run = async (b) => {
+        inv64.push({ name: 'cod', count: 4, slot: 38 });
+        b._lastFish = { at: Date.now(), casts: 4, have: 4, totalCaught: 4, eatenDuring: 0 };
+        return { ok: false, observation: 'caught 4 fish in 4 cast(s)' }; // partial batch (<14)
+      };
+      reg.get('roam').run = async () => { roamed64 = true; return { ok: false, observation: 'should not roam' }; };
+      reg.get('smelt').run = async (b, a) => {
+        if (a && a.item === 'cod') {
+          cookedCod64 += a.count;
+          const idx = inv64.findIndex(i => i.name === 'cod');
+          if (idx >= 0) inv64.splice(idx, 1);
+          inv64.push({ name: 'cooked_cod', count: a.count, slot: 39 });
+          return { ok: true, observation: `smelted ${a.count} cooked_cod` };
+        }
+        return { ok: false, observation: 'none' };
+      };
+      reg.get('eat').run = async () => ({ ok: true, observation: 'fed' });
+      const botFish64 = makeBot({
+        entity: { position: new Vec3(-52, 63, -226), yaw: 0, pitch: 0 },
+        game: { dimension: 'overworld' },
+        food: 20, health: 20,
+        time: { timeOfDay: 3000 },
+        inventory: { slots: new Array(46).fill(null), items: () => inv64 },
+        entities: {},
+        nearestEntity: () => null,
+        findBlock: (opts) => ({ name: 'water', position: new Vec3(-52, 62, -227) }),
+        findBlocks: () => [],
+      });
+      await foodMs64.run(botFish64);
+      assert.equal(roamed64, false, 'food milestone must NOT abandon a productive shore fishing spot to roam 300m');
+      assert.equal(cookedCod64, 4, `food milestone must immediately cook all caught cod (got ${cookedCod64})`);
+    } finally {
+      reg.get('hunt').run = origHunt64;
+      reg.get('fish').run = origFish64;
+      reg.get('roam').run = origRoam64;
+      reg.get('smelt').run = origSmelt64;
+      reg.get('eat').run = origEat64;
+      reg.get('harvest_kelp').run = origKelp64;
+    }
+  }
+
   fs.rmSync(tmp, { recursive: true, force: true });
-  console.log('PASS minecraft-autonomous: all 63 regression groups passed');
+  console.log('PASS minecraft-autonomous: all 64 regression groups passed');
 })().catch(e => {
   console.error(e);
   process.exitCode = 1;
