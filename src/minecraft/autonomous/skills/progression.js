@@ -1145,7 +1145,7 @@ const LADDER = [
       }
       return craft(b, 'flint_and_steel', 1);
     } },
-  { id: 'nether', done: b => {
+  { id: 'nether', budgetMs: 360000, done: b => {
       if (b.game && b.game.dimension === 'the_nether') return true;
       // "I am standing in the Nether" is not what this milestone ever meant, and reading it that way made
       // every trip home rewind the ladder: measured 07:13-07:18 on the stronghold trek, `nether` re-opened
@@ -1159,8 +1159,11 @@ const LADDER = [
       return false;
     },
     run: async b => {
-      // a portal cannot be framed inside a 1-high tunnel, so get onto dry ground first
-      if (b.entity.position.y < 45) await reg.get('recover_surface').run(b, {});
+      // Only surface before framing a BRAND-NEW portal; if a half-built portal frame is already standing
+      // underground (e.g. y=40), surfacing whenever y<45 creates an infinite y=40 <-> y=63 ping-pong!
+      const existingFrame = (() => { try { return WS.at('nether_portal_frame'); } catch { return null; } })();
+      const nearExistingFrameY = !!(existingFrame && Number.isFinite(existingFrame.y) && existingFrame.y < 52);
+      if (!nearExistingFrameY && b.entity.position.y < 45) await reg.get('recover_surface').run(b, {});
       return reg.get('build_nether_portal').run(b, {});
     } },
   { id: 'blaze_rods', budgetMs: 480000, done: b => countItem(b, 'blaze_rod') >= 6,

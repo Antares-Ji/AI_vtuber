@@ -2949,8 +2949,35 @@ function makeBot(overrides = {}) {
     }
   }
 
+  // 55. nether milestone does NOT call recover_surface (hauling the bot away into ocean) when an underground
+  //     nether_portal_frame is already recorded at y<52
+  {
+    const { LADDER } = require('../src/minecraft/autonomous/skills/progression');
+    const WS55 = require('../src/minecraft/autonomous/workshopRecord');
+    const netherMs55 = LADDER.find(m => m.id === 'nether');
+    const origRec55 = reg.get('recover_surface').run;
+    const origBuild55 = reg.get('build_nether_portal').run;
+    let surfaced55 = false, built55 = false;
+    try {
+      WS55.note('nether_portal_frame', { x: -78, y: 40, z: -259 }, 'underground standing frame');
+      reg.get('recover_surface').run = async () => { surfaced55 = true; return { ok: true, observation: 'surfaced' }; };
+      reg.get('build_nether_portal').run = async () => { built55 = true; return { ok: true, observation: 'built' }; };
+      const botN55 = makeBot({
+        entity: { position: new Vec3(-75, 40, -261), yaw: 0, pitch: 0 },
+        game: { dimension: 'overworld' },
+      });
+      await netherMs55.run(botN55);
+      assert.equal(surfaced55, false, 'nether milestone must NOT haul bot to surface when underground frame already exists at y=40');
+      assert.equal(built55, true, 'nether milestone must go straight to build_nether_portal at frame depth');
+    } finally {
+      reg.get('recover_surface').run = origRec55;
+      reg.get('build_nether_portal').run = origBuild55;
+      WS55.forget('nether_portal_frame');
+    }
+  }
+
   fs.rmSync(tmp, { recursive: true, force: true });
-  console.log('PASS minecraft-autonomous: all 54 regression groups passed');
+  console.log('PASS minecraft-autonomous: all 55 regression groups passed');
 })().catch(e => {
   console.error(e);
   process.exitCode = 1;

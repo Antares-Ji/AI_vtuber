@@ -4492,19 +4492,25 @@ reg.define('build_nether_portal', {
       need = missingAt(site);
       log.info(`build_nether_portal: remembered frame at ${site.x},${site.y},${site.z} (${off} blocks away, dy=${dyOff}) has ${FRAME_COST - need}/${FRAME_COST} cells standing - finishing THAT frame, not a new one`);
       if ((off > 16 || Math.abs(dyOff) > 5) && need > 0) {
-        const w = await reg.get('walk_to').run(bot, { x: site.x + 1, y: site.y, z: site.z - 2, tolerance: 6 });
-        // walk_to only checks horizontal distance and can stop 20+ blocks directly ABOVE or BELOW an underground frame!
-        // Match the frame's Y level cleanly (climbOut if below, deep_shaft on an unflooded spot if above) before touching the frame.
+        // When far horizontally AND on a different Y level (e.g. y=64 above a y=40 frame), passing y=40
+        // straight to pathfinder stalls 28s searching underwater caves! First approach horizontally at our
+        // current Y (if >28m away), then align Y vertically via deep_shaft/climbOut, then close horizontally at site.y.
+        let w = { ok: true, observation: 'already horizontally close' };
+        if (off > 28) {
+          w = await reg.get('walk_to').run(bot, { x: site.x + 1, y: Math.round(bot.entity.position.y), z: site.z - 2, tolerance: 12 });
+        } else if (Math.abs(dyOff) <= 5) {
+          w = await reg.get('walk_to').run(bot, { x: site.x + 1, y: site.y, z: site.z - 2, tolerance: 6 });
+        }
         const dyNow = bot.entity.position.y - site.y;
         if (dyNow < -5 && !lease.stale()) {
           log.info(`build_nether_portal: ${Math.round(-dyNow)} blocks BELOW frame y=${site.y} - climbing up to frame level`);
           try { await climbOut(bot, site.y); } catch {}
-          try { await reg.get('walk_to').run(bot, { x: site.x + 1, y: site.y, z: site.z - 2, tolerance: 3 }); } catch {}
+          w = await reg.get('walk_to').run(bot, { x: site.x + 1, y: site.y, z: site.z - 2, tolerance: 3 }).catch(() => w);
         } else if (dyNow > 5 && !lease.stale()) {
           log.info(`build_nether_portal: ${Math.round(dyNow)} blocks ABOVE frame y=${site.y} - descending to frame level`);
           const curF = bot.entity.position.floored();
-          if (nearFlood(bot, curF.x, curF.z)) {
-            for (const [ox2, oz2] of [[8, 0], [-8, 0], [0, 8], [0, -8], [10, 10], [-10, -10], [10, -10], [-10, 10]]) {
+          if (nearFlood(bot, curF.x, curF.z) || wetCell(bot)) {
+            for (const [ox2, oz2] of [[8, 0], [-8, 0], [0, 8], [0, -8], [14, 0], [-14, 0], [0, 14], [0, -14]]) {
               const cx = curF.x + ox2, cz = curF.z + oz2;
               if (nearFlood(bot, cx, cz)) continue;
               const topB = bot.blockAt(new Vec3(cx, curF.y - 1, cz));
@@ -4513,8 +4519,8 @@ reg.define('build_nether_portal', {
               break;
             }
           }
-          try { await reg.get('deep_shaft').run(bot, { toY: site.y, max: Math.min(30, Math.round(dyNow) + 4) }); } catch {}
-          try { await reg.get('walk_to').run(bot, { x: site.x + 1, y: site.y, z: site.z - 2, tolerance: 3 }); } catch {}
+          try { await reg.get('deep_shaft').run(bot, { toY: site.y, max: Math.min(35, Math.round(dyNow) + 6) }); } catch {}
+          w = await reg.get('walk_to').run(bot, { x: site.x + 1, y: site.y, z: site.z - 2, tolerance: 3 }).catch(() => w);
         }
         const before = need;
         need = missingAt(site);
