@@ -3171,8 +3171,88 @@ function makeBot(overrides = {}) {
     }
   }
 
+  // 60. build_nether_portal reclaims an optional TOP corner obsidian ((3,4) or (0,4)) when carrying 1/2 obsidian
+  //     and cobblestone scaffolding (both bottom corners already gone), re-scaffolds it with cobblestone, and finishes
+  //     the 10/10 frame without calling make_obsidian
+  {
+    const WS60 = require('../src/minecraft/autonomous/workshopRecord');
+    WS60.note('nether_portal_frame', { x: 40, y: 40, z: 40 }, '8/10 + 2 top corners');
+    const world60 = new Map();
+    // 8 essential cells + ONLY the 2 top optional corners (0,4) and (3,4) — bottom corners already gone!
+    for (const [dx, dy] of [[1,0],[2,0],[0,1],[3,1],[0,2],[3,2],[0,3],[3,3],[0,4],[3,4]]) {
+      world60.set(`${40 + dx},${40 + dy},40`, 'obsidian');
+    }
+    const inv60 = [
+      { name: 'diamond_pickaxe', count: 1, slot: 36, maxDurability: 1561, durabilityUsed: 50 },
+      { name: 'obsidian', count: 1, slot: 37 },
+      { name: 'flint_and_steel', count: 1, slot: 38 },
+      { name: 'cobblestone', count: 32, slot: 39 },
+    ];
+    let reclaimedTop60 = false, lit60 = false, makeObs60 = false;
+    const origUse60 = reg.get('use_portal').run;
+    const origMake60 = reg.get('make_obsidian').run;
+    try {
+      reg.get('use_portal').run = async (b) => { b.game.dimension = 'the_nether'; return { ok: true, observation: 'entered' }; };
+      reg.get('make_obsidian').run = async () => { makeObs60 = true; return { ok: false, observation: 'should not be called' }; };
+      const slots60 = new Array(46).fill(null);
+      for (const it of inv60) slots60[it.slot] = it;
+      const botTop60 = makeBot({
+        entity: { position: new Vec3(42, 41, 39), yaw: 0, pitch: 0 },
+        game: { dimension: 'overworld' },
+        inventory: { slots: slots60, items: () => inv60 },
+        heldItem: inv60[0],
+        waitForChunksToLoad: async () => {},
+        lookAt: async () => {},
+        findBlocks: () => [],
+        findBlock: () => (lit60 ? { name: 'nether_portal', position: new Vec3(41, 41, 40) } : null),
+        equip: async (it) => { botTop60.heldItem = it; },
+        dig: async (blk) => {
+          const k = `${blk.position.x},${blk.position.y},${blk.position.z}`;
+          if (world60.get(k) === 'obsidian') {
+            world60.delete(k);
+            if (blk.position.y === 44) reclaimedTop60 = true;
+            const o = inv60.find(i => i.name === 'obsidian');
+            if (o) o.count++;
+            else inv60.push({ name: 'obsidian', count: 1, slot: 37 });
+          }
+        },
+        pathfinder: {
+          stop: () => {},
+          goto: async (goal) => { botTop60.entity.position = new Vec3(goal.x, goal.y, goal.z); },
+        },
+        placeBlock: async (ref, face) => {
+          const tx = ref.position.x + face.x, ty = ref.position.y + face.y, tz = ref.position.z + face.z;
+          const held = botTop60.heldItem;
+          if (!held) return;
+          if (held.name === 'flint_and_steel') { lit60 = true; return; }
+          world60.set(`${tx},${ty},${tz}`, held.name);
+          held.count--;
+          if (held.count <= 0) { inv60.splice(inv60.indexOf(held), 1); botTop60.heldItem = null; }
+        },
+        blockAt: (p) => {
+          if (!p) return { name: 'air', boundingBox: 'none' };
+          const x = Math.floor(p.x), y = Math.floor(p.y), z = Math.floor(p.z);
+          const nm = world60.get(`${x},${y},${z}`);
+          if (nm) return { name: nm, position: new Vec3(x, y, z), boundingBox: 'block' };
+          if (y <= 39) return { name: 'stone', position: new Vec3(x, y, z), boundingBox: 'block' };
+          return { name: 'air', position: new Vec3(x, y, z), boundingBox: 'none' };
+        },
+      });
+      await reg.get('build_nether_portal').run(botTop60, {});
+      assert.equal(reclaimedTop60, true, 'must reclaim an optional top-corner obsidian when carrying 1/2 obsidian + cobblestone');
+      assert.equal(makeObs60, false, 'must NOT call make_obsidian when top corner supplies the final needed obsidian');
+      assert.equal(world60.get('41,44,40'), 'obsidian', 'top-bar (1,4) must be obsidian');
+      assert.equal(world60.get('42,44,40'), 'obsidian', 'top-bar (2,4) must be obsidian');
+      assert.equal(world60.get('43,44,40'), 'cobblestone', 'reclaimed top corner (3,4) must be re-scaffolded with cobblestone');
+    } finally {
+      reg.get('use_portal').run = origUse60;
+      reg.get('make_obsidian').run = origMake60;
+      WS60.forget('nether_portal_frame');
+    }
+  }
+
   fs.rmSync(tmp, { recursive: true, force: true });
-  console.log('PASS minecraft-autonomous: all 59 regression groups passed');
+  console.log('PASS minecraft-autonomous: all 60 regression groups passed');
 })().catch(e => {
   console.error(e);
   process.exitCode = 1;

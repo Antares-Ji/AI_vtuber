@@ -4729,25 +4729,36 @@ reg.define('build_nether_portal', {
       // instead of descending 100 blocks to y=-55!
       const dPick = bot.inventory.items().find(i => /^(diamond|netherite)_pickaxe$/.test(i.name));
       if (dPick) {
-        const cornerOrder = [[0, 0], [3, 0], [0, 4], [3, 4]];
+        const cornerOrder = [[0, 0], [3, 0], [3, 4], [0, 4]];
+        const hasCheapScaffold = !!P.cheapFill(bot, 1);
+        const eyeDist = (pos) => {
+          const ep = bot.entity.position;
+          return Math.hypot((pos.x + 0.5) - ep.x, (pos.y + 0.5) - (ep.y + 1.62), (pos.z + 0.5) - ep.z);
+        };
         for (const [cx, cy] of cornerOrder) {
           if (countItem(bot, 'obsidian') >= need || lease.stale()) break;
           const p = new Vec3(site.x + cx, site.y + cy, site.z);
           const cur = bot.blockAt(p);
           if (!cur || cur.name !== 'obsidian') continue;
-          // Only reclaim once the adjacent essential block that used this corner as scaffolding is already obsidian
+          // Reclaim bottom corners once the column above is obsidian; reclaim top corners either once
+          // the adjacent top-bar cell is obsidian OR whenever cheap scaffolding rock (cobblestone/etc.)
+          // is in the pack and the column cell (cx,3) below is obsidian so placedAt can immediately
+          // re-scaffold the corner with cobblestone instead of obsidian!
           const dep = cy === 0
             ? bot.blockAt(new Vec3(site.x + cx, site.y + 1, site.z))
             : bot.blockAt(new Vec3(site.x + (cx === 0 ? 1 : 2), site.y + 4, site.z));
-          if (!dep || dep.name !== 'obsidian') continue;
+          const topColOk = cy === 4 && hasCheapScaffold
+            && (() => { const cb = bot.blockAt(new Vec3(site.x + cx, site.y + 3, site.z)); return cb && cb.name === 'obsidian'; })();
+          if ((!dep || dep.name !== 'obsidian') && !topColOk) continue;
           try {
-            if (bot.entity.position.distanceTo(p) > 3.8) {
-              await reg.get('walk_to').run(bot, { x: p.x, y: p.y, z: p.z - 1, tolerance: 2 }).catch(() => {});
+            const standY = cy === 4 ? site.y + 1 : p.y;
+            if (eyeDist(p) > 4.2) {
+              await reg.get('walk_to').run(bot, { x: p.x, y: standY, z: p.z - 1, tolerance: 2 }).catch(() => {});
             }
-            if (bot.entity.position.distanceTo(p) > 3.8) {
-              await capped(bot.pathfinder.goto(new (GN())(p.x, p.y, p.z, 2)), 10000, 'walk to optional corner');
+            if (eyeDist(p) > 4.2) {
+              await capped(bot.pathfinder.goto(new (GN())(p.x, standY, p.z - 1, 1)), 10000, 'walk to optional corner');
             }
-            if (bot.entity.position.distanceTo(p) > 4.6) continue;
+            if (eyeDist(p) > 4.7) continue;
             try { if (bot.pathfinder && typeof bot.pathfinder.stop === 'function') bot.pathfinder.stop(); } catch {}
             // Settle onto solid ground before digging obsidian so we never eat a 5x airborne digTime penalty
             for (let gWait = 0; gWait < 4 && bot.entity && bot.entity.onGround === false; gWait++) await sleep(180);
@@ -4765,11 +4776,12 @@ reg.define('build_nether_portal', {
             const digCap = Math.min(35000, Math.max(18000, Math.round(estMs * 2.2)));
             const beforeObs = countItem(bot, 'obsidian');
             await capped(bot.dig(cur), digCap, 'reclaim corner obsidian', () => { try { if (typeof bot.stopDigging === 'function') bot.stopDigging(); } catch {} });
-            await sleep(400);
-            try { await capped(bot.pathfinder.goto(new (GN())(p.x, p.y, p.z, 1)), 4000, 'step to corner drop'); } catch {}
+            await sleep(450);
+            const dropTarget = cy === 4 ? new Vec3(p.x, site.y, p.z - 1) : p;
+            try { await capped(bot.pathfinder.goto(new (GN())(dropTarget.x, dropTarget.y, dropTarget.z, 1)), 4000, 'step to corner drop'); } catch {}
             if (countItem(bot, 'obsidian') <= beforeObs) {
-              try { await P.stepOnto(bot, { x: p.x, y: p.y, z: p.z }); } catch {}
-              try { await P.collectNear(bot, p, ['obsidian'], 6000); } catch {}
+              try { await P.stepOnto(bot, { x: dropTarget.x, y: dropTarget.y, z: dropTarget.z }); } catch {}
+              try { await P.collectNear(bot, dropTarget, ['obsidian'], 6000); } catch {}
             }
             log.info(`build_nether_portal: reclaimed optional corner obsidian at ${p.x},${p.y},${p.z} (${beforeObs} -> ${countItem(bot, 'obsidian')}/${need}, held=${heldBefore}, est=${estMs}ms, now=${(bot.blockAt(p) || {}).name || '?'})`);
           } catch (e) {
