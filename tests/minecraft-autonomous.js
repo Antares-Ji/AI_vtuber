@@ -2636,8 +2636,69 @@ function makeBot(overrides = {}) {
     }
   }
 
+  // 50. meleeKill waits until a mob actually dies when mineflayer-pvp.attack() resolves immediately in 0 ms,
+  //     swings bot.attack() until entityGone, and collects all drops at its real death spot
+  {
+    const inv50 = [{ name: 'iron_sword', count: 1, slot: 36 }];
+    let cowHp50 = 10, swings50 = 0, pvpStopCalls50 = 0;
+    const ents50 = {
+      8001: { id: 8001, name: 'cow', height: 1.4, position: new Vec3(2, 64, 0) },
+    };
+    const picked50 = [];
+    const botPvp50 = makeBot({
+      entity: { position: new Vec3(0, 64, 0), yaw: 0, pitch: 0 },
+      game: { dimension: 'overworld' },
+      entities: ents50,
+      inventory: { slots: new Array(46).fill(null), items: () => inv50 },
+      nearestEntity: (fn) => Object.values(ents50).find(e => fn(e)) || null,
+      blockAt: (p) => {
+        if (!p) return { name: 'air', boundingBox: 'empty' };
+        return Math.floor(p.y) <= 63
+          ? { name: 'grass_block', position: p, boundingBox: 'block' }
+          : { name: 'air', position: p, boundingBox: 'empty' };
+      },
+      // Simulate real mineflayer-pvp: attack() returns immediately without killing the mob!
+      pvp: {
+        target: null,
+        attack: async (ent) => { botPvp50.pvp.target = ent; },
+        stop: () => { pvpStopCalls50++; botPvp50.pvp.target = null; },
+      },
+      attack: (ent) => {
+        swings50++;
+        cowHp50 -= 6;
+        // Cow flees slightly when hit, dies on 2nd hit and drops beef + leather at new spot (3, 64, 0)
+        if (cowHp50 > 0) ent.position = new Vec3(3, 64, 0);
+        else {
+          delete ents50[ent.id];
+          ents50[8002] = { id: 8002, name: 'item', position: new Vec3(3, 64, 0), item: { name: 'beef' } };
+          ents50[8003] = { id: 8003, name: 'item', position: new Vec3(3.2, 64, 0), item: { name: 'leather' } };
+        }
+      },
+      pathfinder: {
+        isMoving: () => false,
+        stop: () => {},
+        goto: async (goal) => {
+          botPvp50.entity.position = new Vec3(goal.x, goal.y, goal.z);
+          for (const id of Object.keys(ents50)) {
+            const en = ents50[id];
+            if (en && en.name === 'item' && en.position.distanceTo(botPvp50.entity.position) < 1.3) {
+              picked50.push(en.item.name);
+              inv50.push({ name: en.item.name, count: 2, slot: 37 + picked50.length });
+              delete ents50[id];
+            }
+          }
+        },
+      },
+    });
+    const r50 = await reg.get('hunt').run(botPvp50, { count: 1, kind: 'cow' });
+    assert.equal(r50.ok, true, 'hunt must succeed after actually killing cow');
+    assert.ok(swings50 >= 2, `meleeKill must wait & swing until cow dies instead of stopping pvp in 0ms (swings=${swings50})`);
+    assert.ok(pvpStopCalls50 >= 1, 'meleeKill must cleanly stop pvp after mob dies');
+    assert.ok(picked50.includes('beef') && picked50.includes('leather'), `hunt must collect beef & leather at real death pos (got [${picked50.join(',')}])`);
+  }
+
   fs.rmSync(tmp, { recursive: true, force: true });
-  console.log('PASS minecraft-autonomous: all 49 regression groups passed');
+  console.log('PASS minecraft-autonomous: all 50 regression groups passed');
 })().catch(e => {
   console.error(e);
   process.exitCode = 1;

@@ -539,11 +539,8 @@ reg.define('deep_shaft', {
         const foe = bot.nearestEntity(en => en.position && ['zombie', 'zombie_villager', 'skeleton', 'spider', 'cave_spider', 'drowned', 'creeper'].includes(en.name) && bot.entity.position.distanceTo(en.position) < 4);
         if (foe) {
           try {
-            const sword = bot.inventory.items().find(i => i.name.endsWith('_sword'));
-            if (sword) await bot.equip(sword, 'hand');
-            await Promise.race([bot.pvp.attack(foe), sleep(6000)]);
-            try { bot.pvp.stop(); } catch {}
-            log.skill(`deep_shaft cleared ${foe.name} at ${Math.round(bot.entity.position.distanceTo(foe.position))} blocks`);
+            const mk = await P.meleeKill(bot, foe, 6000);
+            log.skill(`deep_shaft ${mk.killed ? 'cleared' : 'engaged'} ${foe.name} at ${Math.round(bot.entity.position.distanceTo(foe.position))} blocks`);
           } catch (e) { log.skill(`deep_shaft attack ${foe.name} threw ${e.message}`); }
           try { await equipBulkPick(bot, true); } catch {}
           continue;
@@ -6249,9 +6246,12 @@ reg.define('farm_pearl', {
         const sw = bot.inventory.items().find(i => /_sword$/.test(i.name));
         if (sw) await bot.equip(sw, 'hand');
         await capped(bot.pathfinder.goto(new (GN())(e.position.x, e.position.y, e.position.z, 2)), 10000, 'close on enderman').catch(() => {});
-        await capped(bot.pvp.attack(e), 20000, 'attack enderman').catch(() => {});
-        kills++;
-        try { await P.collectNear(bot, at, ['ender_pearl']); } catch {}
+        const mk = await P.meleeKill(bot, e, 20000);
+        if (mk.killed) {
+          kills++;
+          await sleep(250);
+          try { await P.collectNear(bot, mk.lastPos || at, ['ender_pearl']); } catch {}
+        }
       } catch {}
       await sleep(800);
     }
@@ -8781,7 +8781,7 @@ reg.define('kill_dragon', {
               try {
                 if (sw) await bot.equip(sw, 'hand');
                 await lookAtItsFloor(bot, mangler);
-                await capped(bot.pvp.attack(mangler), 20000, 'finish the enderman under the roof').catch(() => null);
+                await P.meleeKill(bot, mangler, 15000, { keepLowAim: true });
               } catch (e) { log.warn(`kill_dragon: sheltered swing threw ${String(e.message).slice(0, 60)}`); }
               continue;
             }
@@ -8815,8 +8815,8 @@ reg.define('kill_dragon', {
               await bot.equip(sw, 'hand');
               if (!roofed) await capped(bot.pathfinder.goto(new (GN())(mangler.position.x, bot.entity.position.y, mangler.position.z, 1)), 6000, 'close on the enderman').catch(() => {});
               await lookAtItsFloor(bot, mangler);   // 起手前把准星压到它脚下那格，不抬到脸上
-              await capped(bot.pvp.attack(mangler), 20000, 'melee the enderman').catch(() => null);
-              const gone2 = !Object.values(bot.entities || {}).some(x => x && x.id === mangler.id);
+              const mkEnd = await P.meleeKill(bot, mangler, 15000, { keepLowAim: true });
+              const gone2 = mkEnd.killed || !Object.values(bot.entities || {}).some(x => x && x.id === mangler.id);
               if (gone2) { bot._shelterRounds = 0; log.warn(`kill_dragon: enderman #${mangler.id} killed from under the roof - back to the dragon`); }
             } catch (e) { log.warn(`kill_dragon: enderman melee threw ${e.message}`); }
           }

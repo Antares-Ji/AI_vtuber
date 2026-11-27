@@ -920,12 +920,18 @@ reg.define('hunt', {
       if (!e2 || lease.stale()) break;
       if (bot.entity.position.distanceTo(e2.position) <= 4) {
         try { await bot.pathfinder.goto(new GN(e2.position.x, e2.position.y, e2.position.z, 1)); } catch {}
-        const killAt = (e2.position || bot.entity.position).clone();
-        try { await bot.pvp.attack(e2); kills++; log.skill(`hunt killed ${e2.name}`); } catch (err) { log.skill(`attack ${e2.name} threw ${err.message}`); }
-        try { if (/^(cow|pig|sheep|chicken)$/.test(e2.name || '')) WS.note('herd', killAt, e2.name); } catch {}
-        try { if (bot.pvp && typeof bot.pvp.stop === 'function') bot.pvp.stop(); } catch {}
-        await sleep(250);
-        await walkDrops(killAt);
+        const mk = await meleeKill(bot, e2, 16000);
+        const killAt = mk.lastPos || (e2.position || bot.entity.position).clone();
+        if (mk.killed) {
+          kills++;
+          log.skill(`hunt killed ${e2.name}`);
+          try { if (/^(cow|pig|sheep|chicken)$/.test(e2.name || '')) WS.note('herd', killAt, e2.name); } catch {}
+          await sleep(250);
+          await walkDrops(killAt);
+        } else {
+          log.skill(`hunt: failed to finish ${e2.name} #${e2.id} (${mk.why || 'survived'})`);
+          skippedIds.add(e2.id);
+        }
       }
     }
     return { ok: kills > 0, observation: `hunted ${kills}; slots=${ob.invSummary(bot).slots}` };
@@ -1005,22 +1011,18 @@ reg.define('hunt_spider', {
         }
         noPath = 0;
       } else noPath = 0;
-      const sword = bot.inventory.items().filter(i => /_sword$/.test(i.name))
-        .sort((x, y) => (ob.wear(bot, y) ?? 0) - (ob.wear(bot, x) ?? 0))[0];
-      if (sword) { try { await bot.equip(sword, 'hand'); } catch {} }
       const at = live.position.clone();
-      let atkTimer = null;
-      try {
-        await Promise.race([
-          Promise.resolve(bot.pvp.attack(live)),
-          new Promise(r => { atkTimer = setTimeout(r, 20000); }),
-        ]);
+      const mk = await meleeKill(bot, live, 20000);
+      const dropAt = mk.lastPos || at;
+      if (mk.killed) {
         kills++;
-      } catch (err) { log.skill(`hunt_spider attack threw ${String(err.message).slice(0, 70)}`); }
-      finally { if (atkTimer) clearTimeout(atkTimer); }
-      // The drop is on the floor where it died; the bot is not standing there and mineflayer has no
-      // pickup sweep, so this is the difference between "killed 3, string 0" and string.
-      try { await collectNear(bot, at, archer ? ['arrow', 'bow'] : [dropItem]); } catch {}
+        await sleep(250);
+        // The drop is on the floor where it died; the bot is not standing there and mineflayer has no
+        // pickup sweep, so this is the difference between "killed 3, string 0" and string.
+        try { await collectNear(bot, dropAt, archer ? ['arrow', 'bow'] : [dropItem]); } catch {}
+      } else {
+        log.skill(`hunt_spider: did not kill ${live.name} #${live.id} (${mk.why || 'survived'})`);
+      }
       got = countItem(bot, dropItem);
       if (Date.now() >= deadline) break;
     }
@@ -3126,10 +3128,12 @@ reg.define('ensure_tools', {
     if (!goodPicks().length && ctx?.assist !== false && process.env.MC_ASSIST !== '0') {
       try { bot.chat('/give @s iron_pickaxe 2'); await sleep(1500); } catch {}
     }
-    if (!bot.inventory.items().some(i => /sword$/.test(i.name))) {
+    const usableSwords = () => bot.inventory.items().filter(i => /sword$/.test(i.name) && ((ob.wear(bot, i) ?? 100) >= 15));
+    if (!usableSwords().length) {
       if (countItem(bot, 'stick') < 1) await craft(bot, 'stick', 4);
-      await craft(bot, 'iron_sword', 1);
-      if (!bot.inventory.items().some(i => /sword$/.test(i.name))) await craft(bot, 'stone_sword', 1);
+      if (countItem(bot, 'iron_ingot') >= 2) await craft(bot, 'iron_sword', 1);
+      if (!usableSwords().length) await craft(bot, 'stone_sword', 1);
+      if (!usableSwords().length) await craft(bot, 'wooden_sword', 1);
     }
     await equipPick(bot);
     const ok = goodPicks().length > 0;
@@ -3812,4 +3816,63 @@ async function bridgeOut(bot, prefer) {
   return { ok: false, why: `no side to bridge (neighbours as floor/foot: ${why.join(' ')})${fillNote}` };
 }
 
-module.exports = { data, blockIds, itemId, countItem, craft, craftPlanks, sleep, LOG_NAMES, placeAtFreeNeighbor, digWorkshop, equipBestToolFor, isAir, isSupport, dropJunk, freeSlots, equipBestArmor, nearestHeadland, nearestLandPatch, collectNear, firstPhysical, standCells, nearestDryCell, bridgeOut, digDownAllowed, cheapFill, cheapFillTotal, usablePickCount, stepOnto, breathe, yawNow, nearOpenDoor };
+// Real melee kill helper: mineflayer-pvp's `bot.pvp.attack(entity)` resolves IMMEDIATELY (0 ms) after
+// setting `this.target = entity` and starting GoalFollow in physicsTick — it does NOT wait for the mob
+// to die! Previously every caller (`hunt`, `hunt_spider`, `deep_shaft`, `farm_pearl`, `kill_dragon`)
+// logged `kills++` and called `pvp.stop()` / `walkDrops()` in 0 ms while the mob was still alive at full HP!
+async function meleeKill(bot, entity, maxMs = 15000, opts = {}) {
+  const fallbackPos = (entity && entity.position && typeof entity.position.clone === 'function')
+    ? entity.position.clone()
+    : (bot.entity && bot.entity.position && typeof bot.entity.position.clone === 'function' ? bot.entity.position.clone() : null);
+  if (!entity) return { killed: false, lastPos: fallbackPos, why: 'no entity' };
+  const id = entity.id;
+  let lastPos = fallbackPos;
+  const tracked = !!(id !== undefined && bot.entities && bot.entities[id]);
+  const pickWeapon = () => bot.inventory.items()
+    .filter(i => /_sword$/.test(i.name) && ((ob.wear(bot, i) ?? 100) >= 3))
+    .sort((a, b) => (TIER_RANK[b.name.split('_')[0]] ?? 0) - (TIER_RANK[a.name.split('_')[0]] ?? 0)
+      || (ob.wear(bot, b) ?? 100) - (ob.wear(bot, a) ?? 100))[0]
+    || bot.inventory.items().find(i => /_axe$/.test(i.name) && ((ob.wear(bot, i) ?? 100) >= 5))
+    || null;
+  const wpn = pickWeapon();
+  if (wpn && (!bot.heldItem || bot.heldItem.slot !== wpn.slot)) {
+    try { await bot.equip(wpn, 'hand'); } catch {}
+  }
+  const stopPvp = () => { try { if (bot.pvp && typeof bot.pvp.stop === 'function') bot.pvp.stop(); } catch {} };
+  try {
+    if (bot.pvp && typeof bot.pvp.attack === 'function') {
+      try { await bot.pvp.attack(entity); } catch {}
+    }
+    if (!tracked) return { killed: true, lastPos };
+    if (!bot.entities[id] || bot.entities[id].isValid === false) return { killed: true, lastPos };
+    const end = Math.min(Date.now() + maxMs, (bot._stepDeadline || Infinity) - 2000);
+    let lastSwing = 0;
+    while (Date.now() < end) {
+      if (lease.stale()) return { killed: false, lastPos, why: 'lease stale' };
+      const live = bot.entities[id];
+      if (!live || live.isValid === false) return { killed: true, lastPos };
+      if (live.position && typeof live.position.clone === 'function') lastPos = live.position.clone();
+      const dist = live.position && bot.entity && bot.entity.position ? bot.entity.position.distanceTo(live.position) : 99;
+      if (dist > (opts.maxChaseDist || 22)) return { killed: false, lastPos, why: 'target fled' };
+      if (dist <= 3.6 && Date.now() - lastSwing >= 650 && typeof bot.attack === 'function') {
+        lastSwing = Date.now();
+        try {
+          if (!opts.keepLowAim && typeof bot.lookAt === 'function') {
+            await bot.lookAt(live.position.offset(0, (live.height || 1.2) * 0.55, 0), true);
+          }
+          bot.attack(live);
+        } catch {}
+      }
+      if (bot.pvp && !bot.pvp.target && dist > 3.2 && dist <= 16 && typeof bot.pvp.attack === 'function') {
+        try { await bot.pvp.attack(live); } catch {}
+      }
+      await sleep(220);
+    }
+    const stillAlive = !!(bot.entities[id] && bot.entities[id].isValid !== false);
+    return { killed: !stillAlive, lastPos, why: stillAlive ? 'timeout' : '' };
+  } finally {
+    stopPvp();
+  }
+}
+
+module.exports = { data, blockIds, itemId, countItem, craft, craftPlanks, sleep, LOG_NAMES, placeAtFreeNeighbor, digWorkshop, equipBestToolFor, isAir, isSupport, dropJunk, freeSlots, equipBestArmor, nearestHeadland, nearestLandPatch, collectNear, meleeKill, firstPhysical, standCells, nearestDryCell, bridgeOut, digDownAllowed, cheapFill, cheapFillTotal, usablePickCount, stepOnto, breathe, yawNow, nearOpenDoor };
