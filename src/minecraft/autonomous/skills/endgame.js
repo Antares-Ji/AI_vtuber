@@ -3423,20 +3423,30 @@ reg.define('make_obsidian', {
     const lavaIds = blockIds(bot, ['lava', 'lava_cauldron']);
     const badLava = (bot._badLavaKeys = bot._badLavaKeys || new Set());
     const lavaKey = (p) => `${Math.floor(p.x)},${Math.floor(p.y)},${Math.floor(p.z)}`;
-    const findSourceLava = (maxDist) => {
+    const findSourceLava = (maxDist, minCluster = 1) => {
       try {
         const pts = bot.findBlocks({ matching: lavaIds, maxDistance: maxDist, count: 64 }) || [];
-        let fallback = null;
+        const srcs = [];
         for (const pt of pts) {
           if (badLava.has(lavaKey(pt))) continue;
           const bl = bot.blockAt(pt);
           if (!bl || !(bl.name === 'lava_cauldron' || (bl.name === 'lava' && isFluidSource(bl)))) continue;
           const ab = bot.blockAt(bl.position.offset(0, 1, 0));
-          // Strongly prefer open-top level-0 lava sources (real lava lakes) over roofed single pockets.
-          if (!ab || isAir(ab.name)) return bl;
-          if (!fallback) fallback = bl;
+          const openTop = !ab || isAir(ab.name);
+          srcs.push({ bl, openTop });
         }
-        return fallback;
+        if (!srcs.length) return null;
+        // Count nearby level-0 lava neighbours so massive flat lava lakes (y=-54) beat isolated 1-block
+        // cave-wall springs (-76,30,-250 / -75,-9,-265 / -17,-26,-283) that yield 0-1 obsidian.
+        for (const s of srcs) {
+          s.cluster = srcs.filter(o => o.bl.position.distanceTo(s.bl.position) <= 6).length;
+        }
+        const qualified = srcs.filter(s => s.cluster >= minCluster);
+        if (!qualified.length) return null;
+        qualified.sort((a, b) => (b.openTop ? 1 : 0) - (a.openTop ? 1 : 0)
+          || (b.cluster - a.cluster)
+          || bot.entity.position.distanceTo(a.bl.position) - bot.entity.position.distanceTo(b.bl.position));
+        return qualified[0].bl;
       } catch {}
       return null;
     };
@@ -3481,7 +3491,9 @@ reg.define('make_obsidian', {
         const yB = Math.round(bot.entity.position.y);
         const ds = await reg.get('deep_shaft').run(bot, { toY, max: 45 });
         await sleep(1000);
-        lavaTarget = findSourceLava(40);
+        // Above y=-52, only stop descending early for a real lava pool (>=3 clustered level-0 sources),
+        // skipping 1-block cave-wall springs so we reach the massive flat lava lakes at y=-54!
+        lavaTarget = findSourceLava(40, toY > -52 ? 3 : 1);
         if (lavaTarget) { log.skill(`source lava found at ${lavaTarget.position.x},${lavaTarget.position.y},${lavaTarget.position.z} after descending`); break; }
         // Harvest on the way down. Natural obsidian (lava that met water underground) needs no bucket
         // and no pour, and 16:03-16:10 shows the round ending at a lava pool with an empty bucket:
@@ -3629,7 +3641,11 @@ reg.define('make_obsidian', {
       // layer is at the bottom of the pool and each cobblestone conversion strips one flowing layer
       // off, so pouring at the deepest visible cell eats down to the source in a few buckets, while
       // pouring at the nearest one just paves the top.
-      lavaBlocks.sort((a, b) => score(b) - score(a) || a.position.y - b.position.y || bot.entity.position.distanceTo(a.position) - bot.entity.position.distanceTo(b.position));
+      // Prefer lava cells at or below our standing height (water flows DOWN/level, never up from 2 blocks below).
+      lavaBlocks.sort((a, b) => ((a.position.y <= bot.entity.position.y + 0.5 ? 0 : 1) - (b.position.y <= bot.entity.position.y + 0.5 ? 0 : 1))
+        || score(b) - score(a)
+        || a.position.y - b.position.y
+        || bot.entity.position.distanceTo(a.position) - bot.entity.position.distanceTo(b.position));
       let made = false;
       for (const b of lavaBlocks) {
         const p = b.position;
@@ -3707,6 +3723,22 @@ reg.define('make_obsidian', {
           }
         }
         try { await bot.lookAt(aimPt, true); } catch {}
+        // Verify clear raycast line-of-sight before clicking water_bucket: if a wall block between the
+        // bot's eyes and the lava intercepts the cursor (>2.5b from p), dig it out first instead of
+        // dumping water onto our own head behind the wall (live -18,-27,-281 vs lava -17,-26,-283!).
+        try {
+          if (typeof bot.blockAtCursor === 'function') {
+            const hit = bot.blockAtCursor(4.5);
+            if (hit && hit.position && hit.position.distanceTo(p) > 2.5
+              && hit.boundingBox === 'block' && !/lava|water|bedrock|obsidian/.test(hit.name)) {
+              log.skill(`make_obsidian: clearing blocking ${hit.name} at ${hit.position.x},${hit.position.y},${hit.position.z} before pouring on lava ${p.x},${p.y},${p.z}`);
+              try { await equipBulkPick(bot, false); await bot.dig(hit); await sleep(200); } catch {}
+              const wbRe = bot.inventory.items().find(i => i.name === 'water_bucket');
+              if (wbRe) { try { await bot.equip(wbRe, 'hand'); } catch {} }
+              try { await bot.lookAt(aimPt, true); } catch {}
+            }
+          }
+        } catch {}
         try { await bot.activateItem(); } catch (e) { log.warn(`make_obsidian: activateItem threw ${e.message}`); }
         await sleep(1100);
         const afterWater = countItem(bot, 'water_bucket');

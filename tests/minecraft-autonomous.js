@@ -1608,8 +1608,73 @@ function makeBot(overrides = {}) {
     }
   }
 
+  // 35. make_obsidian skips 1-block cave springs during upper descent to reach y=-52 lava lakes,
+  //     and clears blocking wall blocks in cursor LOS before pouring water_bucket
+  {
+    const P10 = require('../src/minecraft/autonomous/skills/primitives');
+    const lavaId = P10.blockIds(makeBot(), ['lava'])[0];
+    const origDS4 = reg.get('deep_shaft').run;
+    const origRoam4 = reg.get('roam').run;
+    const origWalk4 = reg.get('walk_to').run;
+    const stagesVisited = [];
+    let blockingWallDug = false;
+    try {
+      reg.get('roam').run = async () => ({ ok: false, observation: 'stub-stop' });
+      reg.get('walk_to').run = async () => ({ ok: false, observation: 'stub-stop' });
+      reg.get('deep_shaft').run = async (b, a) => {
+        stagesVisited.push(a.toY);
+        b.entity.position = new Vec3(600, a.toY, 600);
+        return { ok: true, observation: `y=${a.toY}` };
+      };
+      const items = [
+        { name: 'diamond_pickaxe', count: 1, slot: 36, maxDurability: 1561, durabilityUsed: 0 },
+        { name: 'stone_pickaxe', count: 1, slot: 37, maxDurability: 131, durabilityUsed: 0 },
+        { name: 'water_bucket', count: 1, slot: 38 },
+      ];
+      const botLake = makeBot({
+        entity: { position: new Vec3(600, 70, 600), yaw: 0, pitch: 0 },
+        inventory: { slots: new Array(46).fill(null), items: () => items },
+        equip: async (it) => { botLake.heldItem = it; },
+        lookAt: async () => {},
+        pathfinder: { stop: () => {}, goto: async () => {} },
+        findBlocks: ({ matching }) => {
+          const m = Array.isArray(matching) ? matching : [matching];
+          if (!m.includes(lavaId)) return [];
+          const y = botLake.entity.position.y;
+          // At y=0..12 only a 1-block spring exists (must NOT stop early!)
+          if (y <= 12 && y > -45) return [new Vec3(603, -20, 600)];
+          // At y=-52 a real lava lake exists
+          if (y <= -45) return [new Vec3(602, -52, 600), new Vec3(603, -52, 600), new Vec3(604, -52, 600)];
+          return [];
+        },
+        blockAt: (p) => {
+          if (!p) return { name: 'air', boundingBox: 'none' };
+          const x = Math.floor(p.x), y = Math.floor(p.y), z = Math.floor(p.z);
+          if (x === 603 && y === -20 && z === 600) return { name: 'lava', position: new Vec3(603, -20, 600), getProperties: () => ({ level: 0 }) };
+          if (x >= 602 && x <= 604 && y === -52 && z === 600) return { name: 'lava', position: new Vec3(x, -52, 600), getProperties: () => ({ level: 0 }) };
+          if (x === 601 && y === -52 && z === 600) return { name: 'deepslate', position: new Vec3(601, -52, 600), boundingBox: 'block' };
+          return { name: 'air', boundingBox: 'none' };
+        },
+        blockAtCursor: () => (blockingWallDug
+          ? { name: 'deepslate', position: new Vec3(601, -52, 600), boundingBox: 'block' }
+          : { name: 'stone', position: new Vec3(598, -51, 600), boundingBox: 'block' }),
+        dig: async (blk) => {
+          if (blk && blk.name === 'stone' && blk.position.x === 598) blockingWallDug = true;
+        },
+        activateItem: async () => { botLake._stepDeadline = 1; },
+      });
+      await reg.get('make_obsidian').run(botLake, { count: 1 });
+      assert.ok(stagesVisited.includes(-52), `make_obsidian must skip 1-block spring at y=-20 and continue to y=-52 lava lake (visited=${stagesVisited.join(',')})`);
+      assert.equal(blockingWallDug, true, 'make_obsidian must clear blocking stone wall in cursor LOS before pouring water_bucket');
+    } finally {
+      reg.get('deep_shaft').run = origDS4;
+      reg.get('roam').run = origRoam4;
+      reg.get('walk_to').run = origWalk4;
+    }
+  }
+
   fs.rmSync(tmp, { recursive: true, force: true });
-  console.log('PASS minecraft-autonomous: all 34 regression groups passed');
+  console.log('PASS minecraft-autonomous: all 35 regression groups passed');
 })().catch(e => {
   console.error(e);
   process.exitCode = 1;
