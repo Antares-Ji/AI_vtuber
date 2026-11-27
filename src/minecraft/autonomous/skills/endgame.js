@@ -3206,41 +3206,76 @@ reg.define('make_obsidian', {
       // and the round ended with obsidian=2. A known field is 12 digs with no travel at all.
       const field = oreCache.nearest(['obsidian'], bot.entity.position);
       if (field) {
-        if (Math.hypot(field.x - bot.entity.position.x, field.z - bot.entity.position.z) > 12) {
-          log.skill(`make_obsidian: remembered field at ${field.x},${field.y},${field.z} (${Math.round(field.dist)} away) - travelling to its column first`);
-          const w = await reg.get('walk_to').run(bot, { x: field.x, y: bot.entity.position.y, z: field.z, tolerance: 10 });
+        const curLat = () => Math.hypot(field.x - bot.entity.position.x, field.z - bot.entity.position.z);
+        const fieldColFlooded = nearFlood(bot, field.x, field.z, 5);
+        // Never walk directly onto a FLOODED column above a deep field when we are already on an
+        // unflooded column within 32 blocks horizontally — dig down dry from here, then tunnel over at field.y!
+        const curFInit = bot.entity.position.floored();
+        const shouldHopToField = curLat() > (fieldColFlooded && !nearFlood(bot, curFInit.x, curFInit.z, 5) ? 32 : 12);
+        if (shouldHopToField) {
+          log.skill(`make_obsidian: remembered field at ${field.x},${field.y},${field.z} (${Math.round(field.dist)} away) - travelling near its column first`);
+          const w = await reg.get('walk_to').run(bot, { x: field.x, y: bot.entity.position.y, z: field.z, tolerance: fieldColFlooded ? 16 : 10 });
           log.skill(`make_obsidian: field hop (${String(w.observation).slice(0, 140)})`);
         }
-        if (bot.entity.position.y > field.y + 18) {
-          // If the column directly above a deep obsidian field is ocean or FLOODED (e.g. -70,62,-262
-          // directly above -71,-55,-265), relocate to the nearest dry inland hilltop first so deep_shaft
-          // descends cleanly on dry rock instead of hitting water at y=62!
-          const curF0 = bot.entity.position.floored();
-          const fieldColWet = (() => {
-            if (bot.entity.position.y < 55) return false;
-            if (nearFlood(bot, curF0.x, curF0.z, 5)) return true;
+        const ensureDryShaftCol = async () => {
+          const cf = bot.entity.position.floored();
+          const onWetSurface = bot.entity.position.y >= 55 && (() => {
+            if (bot.entity.position.y < MIN_HIGH_Y) return true;
             for (const sy of [61, 62]) {
-              const sb = bot.blockAt(new Vec3(curF0.x, sy, curF0.z));
+              const sb = bot.blockAt(new Vec3(cf.x, sy, cf.z));
               if (sb && /water|ice/.test(sb.name)) return true;
             }
             return false;
           })();
-          if (fieldColWet) {
+          if (onWetSurface || (bot.entity.position.y >= 55 && nearFlood(bot, cf.x, cf.z, 5))) {
             log.skill(`make_obsidian: surface above field ${field.x},${field.y},${field.z} is wet/flooded - relocating to nearby dry inland high ground before descending`);
             await relocateToHighGround(bot, 'make_obsidian(field)');
+            return true;
           }
-          for (let k = 0; k < 4 && bot.entity.position.y > field.y + 6; k++) {
+          if (nearFlood(bot, cf.x, cf.z, 5)) {
+            // Underground on a FLOODED column (e.g. -71,43,-265 above -71,-55,-265): shift 14-22 blocks
+            // sideways at this depth onto an unflooded column instead of letting deep_shaft refuse forever!
+            let shiftSpot = null;
+            for (const [dx, dz] of [[16, 0], [-16, 0], [0, 16], [0, -16], [16, 16], [-16, -16], [16, -16], [-16, 16], [22, 0], [-22, 0], [0, 22], [0, -22]]) {
+              const cx = cf.x + dx, cz = cf.z + dz;
+              if (nearFlood(bot, cx, cz, 6)) continue;
+              const bHere = bot.blockAt(new Vec3(cx, cf.y, cz));
+              const bBelow = bot.blockAt(new Vec3(cx, cf.y - 1, cz));
+              if ((bHere && /water|lava/.test(bHere.name)) || (bBelow && /water|lava/.test(bBelow.name))) continue;
+              shiftSpot = { x: cx, y: cf.y, z: cz };
+              break;
+            }
+            if (!shiftSpot) shiftSpot = { x: cf.x + 18, y: cf.y, z: cf.z + 10 };
+            log.skill(`make_obsidian: underground column ${cf.x},${cf.y},${cf.z} is FLOODED - shifting to unflooded column ${shiftSpot.x},${shiftSpot.y},${shiftSpot.z} before descending to field ${field.x},${field.y},${field.z}`);
+            await reg.get('walk_to').run(bot, { x: shiftSpot.x, y: shiftSpot.y, z: shiftSpot.z, tolerance: 3 });
+            return true;
+          }
+          return false;
+        };
+        const tunnelToFieldAtDepth = async () => {
+          if (bot.entity.position.y > field.y + 10 || curLat() <= 4) return;
+          try { await capped(bot.pathfinder.goto(new (GN())(field.x, field.y + 1, field.z, 2)), 20000, 'walk to obsidian field at depth'); } catch {}
+          for (let t = 0; t < 6 && curLat() > 4 && Date.now() < (bot._stepDeadline || Infinity); t++) {
+            const d0 = curLat();
+            try { await mineBlockHere(bot, { position: new Vec3(field.x, field.y, field.z), name: 'obsidian' }); } catch { break; }
+            if (curLat() > d0 - 1.0) break;
+          }
+        };
+        if (bot.entity.position.y > field.y + 18) {
+          await ensureDryShaftCol();
+          let shiftedOnce = false;
+          for (let k = 0; k < 4 && bot.entity.position.y > field.y + 6 && Date.now() < (bot._stepDeadline || Infinity); k++) {
             const yB = Math.round(bot.entity.position.y);
-            await reg.get('deep_shaft').run(bot, { toY: field.y, max: 45 });
-            if (Math.round(bot.entity.position.y) >= yB - 1) break;
-          }
-          // Once down at field depth from an adjacent dry shaft, tunnel/walk over to the field!
-          if (bot.entity.position.y <= field.y + 10 && Math.hypot(bot.entity.position.x - field.x, bot.entity.position.z - field.z) > 4) {
-            try { await capped(bot.pathfinder.goto(new (GN())(field.x, field.y + 1, field.z, 2)), 20000, 'walk to obsidian field at depth'); } catch {}
-            for (let t = 0; t < 4 && Math.hypot(bot.entity.position.x - field.x, bot.entity.position.z - field.z) > 4; t++) {
-              try { await mineBlockHere(bot, { position: new Vec3(field.x, field.y, field.z), name: 'obsidian' }); } catch { break; }
+            const dz0 = await reg.get('deep_shaft').run(bot, { toY: field.y, max: 45 });
+            if (Math.round(bot.entity.position.y) >= yB - 1) {
+              if (!shiftedOnce && /FLOOD|WATER/i.test(String(dz0 && dz0.observation || ''))) {
+                shiftedOnce = true;
+                if (await ensureDryShaftCol()) continue;
+              }
+              break;
             }
           }
+          await tunnelToFieldAtDepth();
         }
         await mineObsidianField(32, 'field-hop');
         // One line that settles whether the cached coordinate is a real block or a stale map cell:
@@ -3251,34 +3286,30 @@ reg.define('make_obsidian', {
         // bucket trip that ends 60 blocks away. Paper keeps the player's coordinates across a
         // reconnect, so "call me again" is real incremental progress, not a retry from zero.
         if (bot.entity.position.y > field.y + 12) {
-          // Digging only makes sense when we are ABOVE (or on dry inland ground beside) the field.
-          const lat = Math.hypot(bot.entity.position.x - field.x, bot.entity.position.z - field.z);
+          const lat = curLat();
           if (lat > 32) {
-            const wt = await reg.get('walk_to').run(bot, { x: field.x, y: Math.max(bot.entity.position.y, 60), z: field.z, tolerance: 8 });
+            const wt = await reg.get('walk_to').run(bot, { x: field.x, y: Math.max(bot.entity.position.y, 60), z: field.z, tolerance: fieldColFlooded ? 16 : 8 });
             log.info(`make_obsidian: field is ${Math.round(lat)} blocks away horizontally - travelling near its column first (${String(wt && wt.observation).slice(0, 90)})`);
           }
-          const curF2 = bot.entity.position.floored();
-          if (bot.entity.position.y >= 55 && (bot.entity.position.y < MIN_HIGH_Y || nearFlood(bot, curF2.x, curF2.z, 5))) {
-            await relocateToHighGround(bot, 'make_obsidian(field)');
-          }
-          const lat2 = Math.hypot(bot.entity.position.x - field.x, bot.entity.position.z - field.z);
-          if (lat2 <= 44) {
+          await ensureDryShaftCol();
+          const lat2 = curLat();
+          if (lat2 <= 48) {
           const yTarget = field.y + 1;
+          let shifted2 = false;
           for (let s = 0; s < 6 && bot.entity.position.y > yTarget && Date.now() < (bot._stepDeadline || Infinity); s++) {
             const yB = Math.round(bot.entity.position.y);
             const dz = await reg.get('deep_shaft').run(bot, { toY: yTarget, max: 30 });
             if (wetCell(bot) || /WATER|FLOOD/i.test(String(dz && dz.observation || ''))) {
+              if (!shifted2 && !wetCell(bot)) {
+                shifted2 = true;
+                if (await ensureDryShaftCol()) continue;
+              }
               log.warn(`make_obsidian: shaft toward the field hit water at y=${Math.round(bot.entity.position.y)} (${String(dz && dz.observation).slice(0, 70)}) - leaving the rest of the descent to the next round`);
               break;
             }
             if (Math.abs(Math.round(bot.entity.position.y) - yB) < 2) { log.warn(`make_obsidian: descent toward the field stalled at y=${yB} (${String(dz && dz.observation).slice(0, 70)})`); break; }
           }
-          if (bot.entity.position.y <= field.y + 10 && Math.hypot(bot.entity.position.x - field.x, bot.entity.position.z - field.z) > 4) {
-            try { await capped(bot.pathfinder.goto(new (GN())(field.x, field.y + 1, field.z, 2)), 20000, 'walk to obsidian field'); } catch {}
-            for (let t = 0; t < 4 && Math.hypot(bot.entity.position.x - field.x, bot.entity.position.z - field.z) > 4; t++) {
-              try { await mineBlockHere(bot, { position: new Vec3(field.x, field.y, field.z), name: 'obsidian' }); } catch { break; }
-            }
-          }
+          await tunnelToFieldAtDepth();
           await mineObsidianField(24, 'field-descend');
           if (countItem(bot, 'obsidian') >= need) return { ok: true, observation: `obsidian=${countItem(bot, 'obsidian')} dug out of the remembered field at ${field.x},${field.y},${field.z}` };
           return { ok: false, observation: `dug down to the obsidian field at ${field.x},${field.y},${field.z} (now y=${Math.round(bot.entity.position.y)}); still ${countItem(bot, 'obsidian')}/${need}` };

@@ -2065,8 +2065,61 @@ function makeBot(overrides = {}) {
     }
   }
 
+  // 41. make_obsidian shifts off a FLOODED column even when already underground (y=43) above a remembered y=-55 obsidian field
+  {
+    const oreCache41 = require('../src/minecraft/autonomous/oreCache');
+    const origDS41 = reg.get('deep_shaft').run;
+    const origWalk41 = reg.get('walk_to').run;
+    const origRoam41 = reg.get('roam').run;
+    let shiftedToUnflooded = false;
+    let dugAtUnflooded = false;
+    try {
+      oreCache41.remember('obsidian', 1200, -55, 1200);
+      reg.get('roam').run = async () => ({ ok: false, observation: 'stub-stop' });
+      reg.get('walk_to').run = async (b, a) => {
+        if (a && Math.hypot(a.x - 1200, a.z - 1200) >= 12) {
+          shiftedToUnflooded = true;
+          b.entity.position = new Vec3(a.x, a.y, a.z);
+        }
+        return { ok: true, observation: 'shifted' };
+      };
+      reg.get('deep_shaft').run = async (b, a) => {
+        if (Math.hypot(b.entity.position.x - 1200, b.entity.position.z - 1200) >= 12) {
+          dugAtUnflooded = true;
+          b.entity.position = new Vec3(b.entity.position.x, a.toY, b.entity.position.z);
+          b._stepDeadline = 1;
+          return { ok: true, observation: `y=${a.toY}` };
+        }
+        return { ok: false, observation: 'column 1200,1200 is FLOODED' };
+      };
+      const items41 = [
+        { name: 'diamond_pickaxe', count: 1, slot: 36, maxDurability: 1561, durabilityUsed: 0 },
+        { name: 'water_bucket', count: 1, slot: 37 },
+      ];
+      const botField41 = makeBot({
+        entity: { position: new Vec3(1200, 43, 1200), yaw: 0, pitch: 0 },
+        heldItem: items41[0],
+        _floods: [{ x: 1200, z: 1200, y: 40 }],
+        inventory: { slots: new Array(46).fill(null), items: () => items41 },
+        equip: async (it) => { botField41.heldItem = it; },
+        setQuickBarSlot: async (idx) => { const hit = items41.find(i => i.slot === 36 + idx); if (hit) botField41.heldItem = hit; },
+        findBlocks: () => [],
+        pathfinder: { stop: () => {}, goto: async () => {} },
+        blockAt: () => ({ name: 'stone', boundingBox: 'block' }),
+      });
+      await reg.get('make_obsidian').run(botField41, { count: 10 });
+      assert.equal(shiftedToUnflooded, true, 'make_obsidian must shift off a FLOODED column even at underground y=43');
+      assert.equal(dugAtUnflooded, true, 'make_obsidian must descend deep_shaft on the unflooded column toward y=-55 field');
+    } finally {
+      oreCache41.forget(1200, -55, 1200);
+      reg.get('deep_shaft').run = origDS41;
+      reg.get('walk_to').run = origWalk41;
+      reg.get('roam').run = origRoam41;
+    }
+  }
+
   fs.rmSync(tmp, { recursive: true, force: true });
-  console.log('PASS minecraft-autonomous: all 40 regression groups passed');
+  console.log('PASS minecraft-autonomous: all 41 regression groups passed');
 })().catch(e => {
   console.error(e);
   process.exitCode = 1;
