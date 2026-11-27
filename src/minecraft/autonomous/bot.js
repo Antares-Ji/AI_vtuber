@@ -492,25 +492,43 @@ function createBot() {
           }
           return;
         }
-        if (Date.now() - lastAir < 3000) return;
+        if (Date.now() - lastAir < 3000 || bot._airDigBusy) return;
         lastAir = Date.now();
-        const head = bot.blockAt(f.offset(0, 2, 0));
+        const roofBlocks = [1, 2, 3].map(dy => bot.blockAt(f.offset(0, dy, 0)))
+          .filter(b => b && b.name !== 'air' && b.name !== 'cave_air' && !/water|lava|bedrock/.test(b.name));
+        bot._airDigBusy = true;
         (async () => {
           try {
-            // dig upward through soil/gravel so a water-filled ceiling cannot trap us
-            for (const b of [above, head]) {
-              if (b && b.name !== 'air' && b.name !== 'cave_air' && !/water|lava|bedrock/.test(b.name)) {
+            if (roofBlocks.length) {
+              try { if (bot.pathfinder && typeof bot.pathfinder.stop === 'function') bot.pathfinder.stop(); } catch {}
+              try { bot.setControlState('forward', false); } catch {}
+              // Equip a pickaxe when breaking overhead ice/rock so underwater dig isn't 18s bare-hand!
+              const hasIceOrRock = roofBlocks.some(b => /ice|stone|cobble|deepslate/.test(b.name));
+              if (hasIceOrRock) {
+                try {
+                  const pTool = selectConservativeTool(bot, roofBlocks[0])
+                    || (bot.inventory && bot.inventory.items().find(i => /_pickaxe$/.test(i.name)));
+                  if (pTool && (!bot.heldItem || bot.heldItem.name !== pTool.name)) {
+                    if (pTool.slot >= 36 && pTool.slot <= 44 && typeof bot.setQuickBarSlot === 'function') await bot.setQuickBarSlot(pTool.slot - 36);
+                    else await Promise.race([bot.equip(pTool, 'hand'), new Promise(r => setTimeout(r, 1500))]);
+                  }
+                } catch {}
+              }
+              for (const b of roofBlocks) {
                 try { await bot.dig(b); } catch {}
               }
             }
             await bot.look(Number.isFinite(bot.entity.yaw) ? bot.entity.yaw : 0, -Math.PI / 2, true); // straight up
             bot.setControlState('jump', true);
-            bot.setControlState('forward', true);
+            // NEVER hold forward when escaping an ice/cave roof (swims horizontally deeper under the ice sheet!)
+            if (!roofBlocks.length) bot.setControlState('forward', true);
             await new Promise(r => setTimeout(r, 1400));
             bot.setControlState('forward', false);
             bot.setControlState('jump', false);
-            log.warn(`low air (${ox}) at ${f.x},${f.y},${f.z} - swimming up${above ? ' past ' + above.name : ''}`);
-          } catch {}
+            log.warn(`low air (${ox}) at ${f.x},${f.y},${f.z} - swimming up${roofBlocks.length ? ' past ' + roofBlocks.map(b => b.name).join('+') : (above ? ' past ' + above.name : '')}`);
+          } catch {} finally {
+            bot._airDigBusy = false;
+          }
         })();
       } catch {}
     });

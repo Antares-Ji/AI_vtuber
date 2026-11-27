@@ -3071,8 +3071,64 @@ function makeBot(overrides = {}) {
     assert.equal(jumpedChasm57, false, 'deep_shaft must NOT jump off a >40-block open chasm when dropToSolid is null');
   }
 
+  // 58. make_obsidian stays on a dry hilltop (<=48m) instead of walking back onto a flooded ocean column above
+  //     a deep obsidian field, AND build_nether_portal descends DRY from a hilltop <=48m away when sea ice/water
+  //     sits above an underground y=40 portal frame
+  {
+    const WS58 = require('../src/minecraft/autonomous/workshopRecord');
+    const origWalk58 = reg.get('walk_to').run;
+    const origShaft58 = reg.get('deep_shaft').run;
+    const origPour58 = reg.get('pour_portal_cell').run;
+    const origMake58 = reg.get('make_obsidian').run;
+    const walkedSurface58 = [];
+    let shaftStartPos58 = null;
+    try {
+      WS58.note('nether_portal_frame', { x: 0, y: 40, z: 0 }, 'under-ice 8/10 frame');
+      reg.get('walk_to').run = async (b, a) => {
+        walkedSurface58.push({ y: Math.round(b.entity.position.y), tx: a.x, ty: a.y, tz: a.z });
+        return { ok: true, observation: 'walked' };
+      };
+      reg.get('deep_shaft').run = async (b, a) => {
+        shaftStartPos58 = { x: Math.round(b.entity.position.x), y: Math.round(b.entity.position.y), z: Math.round(b.entity.position.z), toY: a.toY };
+        b.entity.position = new Vec3(b.entity.position.x, a.toY, b.entity.position.z);
+        return { ok: true, observation: 'descended dry' };
+      };
+      reg.get('pour_portal_cell').run = async () => ({ ok: false, observation: 'no lava' });
+      reg.get('make_obsidian').run = async () => ({ ok: false, observation: 'stop' });
+      const botIce58 = makeBot({
+        entity: { position: new Vec3(-20, 68, 28), yaw: 0, pitch: 0 }, // 34m away on dry hilltop!
+        game: { dimension: 'overworld' },
+        inventory: { slots: new Array(46).fill(null), items: () => [{ name: 'flint_and_steel', count: 1, slot: 36 }] },
+        findBlock: () => null,
+        findBlocks: () => [],
+        blockAt: (p) => {
+          if (!p) return { name: 'air', boundingBox: 'none' };
+          const x = Math.floor(p.x), y = Math.floor(p.y), z = Math.floor(p.z);
+          // Sea ice at y=62 above the portal frame (0,40,0)
+          if (x === 0 && z === 0 && (y === 61 || y === 62)) return { name: y === 62 ? 'ice' : 'water', position: new Vec3(x, y, z), boundingBox: 'block' };
+          if (z === 0 && y >= 40 && y <= 43 && (x === 0 || x === 3 || (y === 40 && (x === 1 || x === 2)))) {
+            return { name: 'obsidian', position: new Vec3(x, y, z), boundingBox: 'block' };
+          }
+          if (y === 39 || (x === -20 && z === 28 && y <= 67)) return { name: 'stone', position: new Vec3(x, y, z), boundingBox: 'block' };
+          return { name: 'air', position: new Vec3(x, y, z), boundingBox: 'none' };
+        },
+      });
+      await reg.get('build_nether_portal').run(botIce58, {});
+      assert.ok(shaftStartPos58 && shaftStartPos58.y === 68 && shaftStartPos58.toY === 40,
+        `build_nether_portal must descend dry from hilltop y=68 to y=40 instead of walking across sea ice (shaft=${JSON.stringify(shaftStartPos58)})`);
+      assert.ok(walkedSurface58.every(w => w.y <= 45),
+        `build_nether_portal must NOT walk across y=68 sea ice before descending (walks=${JSON.stringify(walkedSurface58)})`);
+    } finally {
+      reg.get('walk_to').run = origWalk58;
+      reg.get('deep_shaft').run = origShaft58;
+      reg.get('pour_portal_cell').run = origPour58;
+      reg.get('make_obsidian').run = origMake58;
+      WS58.forget('nether_portal_frame');
+    }
+  }
+
   fs.rmSync(tmp, { recursive: true, force: true });
-  console.log('PASS minecraft-autonomous: all 57 regression groups passed');
+  console.log('PASS minecraft-autonomous: all 58 regression groups passed');
 })().catch(e => {
   console.error(e);
   process.exitCode = 1;

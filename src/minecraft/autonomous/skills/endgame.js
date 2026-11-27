@@ -3358,9 +3358,11 @@ reg.define('make_obsidian', {
         const curLat = () => Math.hypot(field.x - bot.entity.position.x, field.z - bot.entity.position.z);
         const fieldColFlooded = nearFlood(bot, field.x, field.z, 5);
         // Never walk directly onto a FLOODED column above a deep field when we are already on an
-        // unflooded column within 32 blocks horizontally — dig down dry from here, then tunnel over at field.y!
+        // unflooded dry column within 48 blocks horizontally — dig down dry from here, then tunnel over at field.y!
         const curFInit = bot.entity.position.floored();
-        const shouldHopToField = curLat() > (fieldColFlooded && !nearFlood(bot, curFInit.x, curFInit.z, 5) ? 32 : 12);
+        const yBeforeField = Math.round(bot.entity.position.y);
+        const maxFieldLat = fieldColFlooded && !nearFlood(bot, curFInit.x, curFInit.z, 5) ? 48 : 12;
+        const shouldHopToField = curLat() > maxFieldLat;
         if (shouldHopToField) {
           log.skill(`make_obsidian: remembered field at ${field.x},${field.y},${field.z} (${Math.round(field.dist)} away) - travelling near its column first`);
           const w = await reg.get('walk_to').run(bot, { x: field.x, y: bot.entity.position.y, z: field.z, tolerance: fieldColFlooded ? 16 : 10 });
@@ -3436,8 +3438,11 @@ reg.define('make_obsidian', {
         // reconnect, so "call me again" is real incremental progress, not a retry from zero.
         if (bot.entity.position.y > field.y + 12) {
           const lat = curLat();
-          if (lat > 32) {
-            const wt = await reg.get('walk_to').run(bot, { x: field.x, y: Math.max(bot.entity.position.y, 60), z: field.z, tolerance: fieldColFlooded ? 16 : 8 });
+          // If the field's surface column is flooded, DO NOT walk off our dry hilltop (within 48m)
+          // back onto the ocean/flooded column — line below accepts lat2 <= 48 specifically for dry-hill descent!
+          const walkThresh = fieldColFlooded ? 48 : 32;
+          if (lat > walkThresh) {
+            const wt = await reg.get('walk_to').run(bot, { x: field.x, y: Math.max(bot.entity.position.y, 60), z: field.z, tolerance: fieldColFlooded ? 20 : 8 });
             log.info(`make_obsidian: field is ${Math.round(lat)} blocks away horizontally - travelling near its column first (${String(wt && wt.observation).slice(0, 90)})`);
           }
           await ensureDryShaftCol();
@@ -3461,9 +3466,19 @@ reg.define('make_obsidian', {
           await tunnelToFieldAtDepth();
           await mineObsidianField(24, 'field-descend');
           if (countItem(bot, 'obsidian') >= need) return { ok: true, observation: `obsidian=${countItem(bot, 'obsidian')} dug out of the remembered field at ${field.x},${field.y},${field.z}` };
-          return { ok: false, observation: `dug down to the obsidian field at ${field.x},${field.y},${field.z} (now y=${Math.round(bot.entity.position.y)}); still ${countItem(bot, 'obsidian')}/${need}` };
+          // If the flooded field yielded ZERO descent progress and we hold water_bucket with a live lava source
+          // visible or cached (e.g. a shallower y=24 lava pool under dry hills), fall through to pour fresh obsidian!
+          const madeDescent = Math.round(bot.entity.position.y) < yBeforeField - 2;
+          let liveLava = null;
+          try { liveLava = bot.findBlock({ matching: blockIds(bot, ['lava']), maxDistance: 64 }) || oreCache.nearest(['lava'], bot.entity.position); } catch {}
+          if (!madeDescent && fieldColFlooded && countItem(bot, 'water_bucket') >= 1 && liveLava) {
+            log.warn(`make_obsidian: flooded field ${field.x},${field.y},${field.z} made no descent from y=${yBeforeField} - falling through to pour live lava`);
+          } else {
+            return { ok: false, observation: `dug down to the obsidian field at ${field.x},${field.y},${field.z} (now y=${Math.round(bot.entity.position.y)}); still ${countItem(bot, 'obsidian')}/${need}` };
           }
-          return { ok: false, observation: `the obsidian field at ${field.x},${field.y},${field.z} is ${Math.round(lat2)} blocks away horizontally (I am at ${Math.round(bot.entity.position.x)},${Math.round(bot.entity.position.y)},${Math.round(bot.entity.position.z)}) - walk_to did not close the column; do not dig here` };
+          } else {
+            return { ok: false, observation: `the obsidian field at ${field.x},${field.y},${field.z} is ${Math.round(lat2)} blocks away horizontally (I am at ${Math.round(bot.entity.position.x)},${Math.round(bot.entity.position.y)},${Math.round(bot.entity.position.z)}) - walk_to did not close the column; do not dig here` };
+          }
         }
       }
     }
@@ -4543,16 +4558,21 @@ reg.define('build_nether_portal', {
       need = missingAt(site);
       log.info(`build_nether_portal: remembered frame at ${site.x},${site.y},${site.z} (${off} blocks away, dy=${dyOff}) has ${FRAME_COST - need}/${FRAME_COST} cells standing - finishing THAT frame, not a new one`);
       if ((off > 16 || Math.abs(dyOff) > 5) && need > 0) {
-        // When far horizontally AND on a different Y level (e.g. y=64 above a y=40 frame), passing y=40
-        // straight to pathfinder stalls 28s searching underwater caves! First approach horizontally at our
-        // current Y (if >28m away), then align Y vertically via deep_shaft/climbOut, then close horizontally at site.y.
+        // When far horizontally AND on a different Y level (e.g. y=68 above a y=40 frame under a frozen ocean),
+        // NEVER walk off a dry hilltop (<=48m away) across flooded sea ice above site! Descend DRY to site.y
+        // first, then walk/tunnel horizontally at site.y.
         if (wetCell(bot) && !lease.stale()) {
           log.info(`build_nether_portal: standing in water at y=${Math.round(bot.entity.position.y)} before frame approach - climbing dry first`);
           try { await climbOut(bot, Math.max(site.y, Math.round(bot.entity.position.y) + 4)); } catch {}
         }
+        const siteAboveFlooded = site.y < 52 && (nearFlood(bot, site.x, site.z, 8) || [61, 62].some(sy => {
+          const b = bot.blockAt(new Vec3(site.x, sy, site.z));
+          return b && /water|ice/.test(b.name);
+        }));
+        const horizSkipThresh = (siteAboveFlooded && bot.entity.position.y >= 55 && !wetCell(bot)) ? 48 : 28;
         let w = { ok: true, observation: 'already horizontally close' };
-        if (off > 28) {
-          w = await reg.get('walk_to').run(bot, { x: site.x + 1, y: Math.round(bot.entity.position.y), z: site.z - 2, tolerance: 12 });
+        if (off > horizSkipThresh) {
+          w = await reg.get('walk_to').run(bot, { x: site.x + 1, y: Math.round(bot.entity.position.y), z: site.z - 2, tolerance: siteAboveFlooded ? 20 : 12 });
         } else if (Math.abs(dyOff) <= 5) {
           w = await reg.get('walk_to').run(bot, { x: site.x + 1, y: site.y, z: site.z - 2, tolerance: 6 });
         }
