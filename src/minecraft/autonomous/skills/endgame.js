@@ -1593,8 +1593,24 @@ async function climbOut(bot, targetY) {
     }
     const blk = stackable();
     if (!blk) { why = 'no stackable block left in the pack'; break; }
-    const below = bot.blockAt(f.offset(0, -1, 0));
-    if (!below || isAir(below.name)) { why = `nothing solid under my feet to build on (reads ${below ? below.name : 'NULL'})`; break; }
+    // Wait briefly to land if mid-jump before sampling underfoot; if overhanging an edge, step 1 block onto solid ground.
+    for (let g = 0; g < 12 && bot.entity && !bot.entity.onGround; g++) await sleep(50);
+    const fLand = bot.entity.position.floored();
+    let below = bot.blockAt(fLand.offset(0, -1, 0));
+    if (!below || isAir(below.name)) {
+      let steppedSolid = false;
+      for (const [dx, dz] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+        const nf = bot.blockAt(fLand.offset(dx, -1, dz));
+        const nFeet = bot.blockAt(fLand.offset(dx, 0, dz));
+        const nHead = bot.blockAt(fLand.offset(dx, 1, dz));
+        if (nf && !isAir(nf.name) && !/water|lava/.test(nf.name)
+          && (!nFeet || isAir(nFeet.name)) && (!nHead || isAir(nHead.name))) {
+          try { await capped(bot.pathfinder.goto(new (GN())(fLand.x + dx, fLand.y, fLand.z + dz, 0)), 4000, 'climbOut step solid'); steppedSolid = true; break; } catch {}
+        }
+      }
+      below = bot.blockAt(bot.entity.position.floored().offset(0, -1, 0));
+      if (!steppedSolid && (!below || isAir(below.name))) { why = `nothing solid under my feet to build on (reads ${below ? below.name : 'NULL'})`; break; }
+    }
     // Pillar up through our own shaft. Two rules, each learned by breaking the run:
     // (1) measure the rise against the PRE-JUMP height - a player's own floored cell rises with it,
     //     so "fraction above my current cell" stays small and the placement was attempted far too
@@ -1656,15 +1672,17 @@ async function climbOut(bot, targetY) {
     else if (++blocked >= 2) {
       blocked = 0;
       for (const [dx, dz] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+        const stand = bot.blockAt(f.offset(dx, 0, dz));
+        // A staircase step up to (f.x+dx, f.y+1, f.z+dz) requires a SOLID support block at (dx,0,dz)
+        // (previously checked `isAir(stand.name)`, stepping off ledges into pits instead of climbing solid rock!).
+        if (!stand || isAir(stand.name) || /water|lava/.test(stand.name)) continue;
         const step = bot.blockAt(f.offset(dx, 1, dz));
         const stepHead = bot.blockAt(f.offset(dx, 2, dz));
-        const stand = bot.blockAt(f.offset(dx, 0, dz));
+        if ((step && /water|lava|bedrock/.test(step.name)) || (stepHead && /water|lava|bedrock/.test(stepHead.name))) continue;
         try { if (!(await equipBulkPick(bot, false))) await equipPick(bot); } catch {}
         if (step && !isAir(step.name)) { try { await bot.dig(step); } catch {} }
         if (stepHead && !isAir(stepHead.name)) { try { await bot.dig(stepHead); } catch {} }
-        if (stand && isAir(stand.name)) {
-          try { await bot.pathfinder.goto(new (GN())(f.x + dx, f.y + 1, f.z + dz, 1)); break; } catch {}
-        }
+        try { await capped(bot.pathfinder.goto(new (GN())(f.x + dx, f.y + 1, f.z + dz, 0)), 5000, 'climbOut stair step'); break; } catch {}
       }
       await sleep(250);
     }

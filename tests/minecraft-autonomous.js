@@ -1504,8 +1504,60 @@ function makeBot(overrides = {}) {
     }
   }
 
+  // 33. recover_surface (climbOut) carves & steps onto SOLID adjacent stair block (not air pit) when jump-pillar fails
+  {
+    const prevAssist = process.env.MC_ASSIST;
+    process.env.MC_ASSIST = '0';
+    let climbedToY = -15;
+    let steppedOntoSolid = false;
+    try {
+      const botClimb = makeBot({
+        entity: { position: new Vec3(0, -15, 0), yaw: 0, pitch: 0, onGround: true },
+        game: { dimension: 'overworld' },
+        physicsEnabled: true,
+        inventory: {
+          slots: new Array(46).fill(null),
+          items: () => [
+            { name: 'cobblestone', count: 32, slot: 36 },
+            { name: 'stone_pickaxe', count: 1, slot: 37, maxDurability: 131, durabilityUsed: 0 },
+          ],
+        },
+        equip: async (it) => { botClimb.heldItem = it; },
+        setControlState: () => {},
+        placeBlock: async () => { throw new Error('the block is still air'); },
+        dig: async () => {},
+        pathfinder: {
+          isMoving: () => false,
+          stop: () => {},
+          goto: async (goal) => {
+            if (goal && goal.x === 1 && goal.y === -14 && goal.z === 0) {
+              steppedOntoSolid = true;
+              climbedToY = 64;
+              botClimb.entity.position = new Vec3(1, 64, 0);
+            }
+          },
+        },
+        blockAt: (p) => {
+          if (!p) return { name: 'air', boundingBox: 'none' };
+          const x = Math.floor(p.x), y = Math.floor(p.y), z = Math.floor(p.z);
+          if (y === -16) return { name: 'deepslate', position: new Vec3(x, y, z), boundingBox: 'block' };
+          // x=1,y=-15,z=0 is SOLID rock (valid staircase step), whereas x=-1/z=+-1 are air pits
+          if (x === 1 && y === -15 && z === 0) return { name: 'stone', position: new Vec3(1, -15, 0), boundingBox: 'block' };
+          if (x === 1 && (y === -14 || y === -13) && z === 0) return { name: 'stone', position: new Vec3(1, y, 0), boundingBox: 'block' };
+          return { name: 'air', position: new Vec3(x, y, z), boundingBox: 'none' };
+        },
+      });
+      await reg.get('recover_surface').run(botClimb, {});
+      assert.equal(steppedOntoSolid, true, 'climbOut stair fallback must step onto SOLID (1,-15,0) step, NOT air pits');
+      assert.ok(climbedToY >= 63);
+    } finally {
+      if (prevAssist === undefined) delete process.env.MC_ASSIST;
+      else process.env.MC_ASSIST = prevAssist;
+    }
+  }
+
   fs.rmSync(tmp, { recursive: true, force: true });
-  console.log('PASS minecraft-autonomous: all 32 regression groups passed');
+  console.log('PASS minecraft-autonomous: all 33 regression groups passed');
 })().catch(e => {
   console.error(e);
   process.exitCode = 1;
