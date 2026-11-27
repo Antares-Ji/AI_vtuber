@@ -161,9 +161,14 @@ function start() {
       if (!rulesApplied) {
         rulesApplied = true;
         try {
-          p.stdin.write(`gamerule keepInventory ${keepInventory ? 'true' : 'false'}\n`);
+          const kiVal = keepInventory ? 'true' : 'false';
+          // Paper 1.21.1 stores gamerules per-dimension (world, world_nether, world_the_end).
+          // Apply keepInventory explicitly across all three dimensions so Nether/End deaths never wipe gear.
+          p.stdin.write(`gamerule keepInventory ${kiVal}\n`);
+          p.stdin.write(`execute in minecraft:the_nether run gamerule keepInventory ${kiVal}\n`);
+          p.stdin.write(`execute in minecraft:the_end run gamerule keepInventory ${kiVal}\n`);
           p.stdin.write(`difficulty ${difficulty}\n`);
-          console.log(`operator gamerule applied via server console: keepInventory=${keepInventory}, difficulty=${difficulty}`);
+          console.log(`operator gamerule applied via server console (all 3 dims): keepInventory=${keepInventory}, difficulty=${difficulty}`);
         } catch (e) { console.error('failed to write server gamerules:', e.message); }
       }
     }
