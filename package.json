@@ -28,6 +28,7 @@
     "minecraft:server": "node scripts/minecraft-server.js",
     "minecraft:autonomous": "node --max-old-space-size=4096 scripts/minecraft-autonomous.js",
     "minecraft:panel": "node scripts/minecraft-panel.js",
+    "minecraft:pov": "node scripts/minecraft-pov.js",
     "test:minecraft:autonomous": "node tests/minecraft-autonomous.js",
     "test:minecraft:api": "node tests/minecraft-deepseek.js && node tests/deepseek-transport.js && node tests/minecraft-occluded-threats.js && node tests/minecraft-astra-jev.js && node tests/minecraft-astra-streamer.js",
     "start": "powershell -ExecutionPolicy Bypass -File scripts/start-services.ps1",

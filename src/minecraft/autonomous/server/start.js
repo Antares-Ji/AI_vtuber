@@ -168,6 +168,17 @@ function start() {
       }
     }
     if (/Gamerule keepInventory is now set to:/i.test(s)) console.log(s.trim());
+    // Auto-grant permanent night vision to watching human operators (MC_EXTRA_OPS) on join so underground
+    // spectating is always clear, while NEVER granting any effect or OP privilege to the bot account.
+    const extraOps = String(process.env.MC_EXTRA_OPS || '').split(',').map(x => x.trim()).filter(x => x && x !== cfg.mc.username);
+    for (const opName of extraOps) {
+      if (s.includes(`${opName} joined the game`)) {
+        try {
+          p.stdin.write(`effect give ${opName} minecraft:night_vision infinite 0 true\n`);
+          console.log(`spectator night_vision auto-applied to human observer ${opName}`);
+        } catch {}
+      }
+    }
   });
   p.stderr.on('data', d => out.write(d));
   p.on('exit', c => { console.log('server exited', c); try { out.end(); } catch {} });
