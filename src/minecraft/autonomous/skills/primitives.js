@@ -1102,6 +1102,18 @@ reg.define('roam', {
     const wantsEntities = !!a.look_for;
     const names = wantsEntities ? String(a.look_for).split(',').map(s => s.trim()).filter(Boolean) : [];
     const wantBlock = a.block ? blockIds(bot, String(a.block).split(',').map(s => s.trim())) : null;
+    // Surface livestock (cows/pigs/sheep/chickens/rabbits) do not spawn underground in caves;
+    // roaming at y=18 burned 311s turning in circles inside a 4-block stone cave. Surface first, or fail fast.
+    const surfaceAnimalsOnly = wantsEntities && !wantBlock && names.length > 0
+      && names.every(n => /^(cow|pig|sheep|chicken|rabbit|mooshroom)$/.test(n));
+    if (surfaceAnimalsOnly && bot.entity && bot.entity.position && bot.entity.position.y < 52
+      && (!bot.game || bot.game.dimension === 'overworld')) {
+      log.skill(`roam: asked for surface animals (${names.join(',')}) while underground at y=${Math.round(bot.entity.position.y)} - surfacing first`);
+      try { await reg.get('recover_surface').run(bot, {}); } catch {}
+      if (bot.entity.position.y < 52) {
+        return { ok: false, observation: `underground at y=${Math.round(bot.entity.position.y)} - surface animals (${names.join(',')}) do not spawn in caves; climb to surface first` };
+      }
+    }
     const DIRS = { N: [0, -1], S: [0, 1], E: [1, 0], W: [-1, 0] };
     const total = Math.max(48, Math.min(600, parseInt(a.distance, 10) || 240));
     const start = bot.entity.position.floored();

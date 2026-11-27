@@ -2417,7 +2417,7 @@ reg.define('obsidian_farm', {
       // OBSIDIAN_PROVEN_MAX_COOLINGS structural failures in a row the pool stays cooled and the open
       // candidates get their turn; any success resets the count (rememberPair).
       const strikes = siteStrikes(bestP);
-      const MAX_STRIKES = Number(process.env.OBSIDIAN_PROVEN_MAX_COOLINGS || 3);
+      const MAX_STRIKES = Number(process.env.OBSIDIAN_PROVEN_MAX_COOLINGS || 1);
       // The cap exists to stop the farm hammering one wedged interface - but it must not cut off the ONE
       // place where a dry stand has already been built and measured (18:22:41 `dry work shelf at
       // 113,9,775 ... obsidian here can be taken`). A standing shelf is fresh evidence that outranks a
@@ -3805,6 +3805,9 @@ reg.define('make_obsidian', {
         }
         const nearest = wet.sort((a, b) => bot.entity.position.distanceTo(a.b.position) - bot.entity.position.distanceTo(b.b.position))[0];
         log.warn(`make_obsidian: ${blocks.length} obsidian cell(s) in reach, NONE with dry footing (closest ${nearest.b.position.x},${nearest.b.position.y},${nearest.b.position.z} at ${Math.round(bot.entity.position.distanceTo(nearest.b.position))} blocks) - refusing to swim into it again`);
+        // Forget underwater-only obsidian cells from oreCache so obsidian_farm does not treat a single
+        // unreachable flooded pocket as a "proven interface" and drag future rounds back into this aquifer.
+        for (const x of wet) { try { oreCache.forget(x.b.position.x, x.b.position.y, x.b.position.z); } catch {} }
         return { ok: false, observation: carve
           ? `no obsidian cell in reach can be dug from dry ground, and this server will not let a block be placed into the water beside it. Carve ${carve.x},${carve.y},${carve.z} (${(bot.blockAt(carve) || {}).name}) - it is solid rock with a solid floor and headroom, two blocks from the obsidian - then call make_obsidian again.`
           : `the obsidian field is only reachable by swimming and there is no rock beside it to carve a stand from - this column needs a dry approach shaft dug down from above (shaft record + resume_shaft), not another dive.` };

@@ -101,8 +101,14 @@ function list(names, from) {
 
 function forget(x, y, z) {
   const e = entries();
-  const i = e.findIndex(v => Math.abs(v.x - x) <= 1 && Math.abs(v.y - y) <= 1 && Math.abs(v.z - z) <= 1);
-  if (i >= 0) { e.splice(i, 1); save(); }
+  let changed = false;
+  for (let i = e.length - 1; i >= 0; i--) {
+    if (Math.abs(e[i].x - x) <= 1 && Math.abs(e[i].y - y) <= 1 && Math.abs(e[i].z - z) <= 1) {
+      e.splice(i, 1);
+      changed = true;
+    }
+  }
+  if (changed) save();
 }
 
 module.exports = { remember, nearest, list, forget, FILE };

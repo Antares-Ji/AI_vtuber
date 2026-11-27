@@ -1411,8 +1411,35 @@ function makeBot(overrides = {}) {
     }
   }
 
+  // 31. oreCache.forget removes ALL co-located entries (lava+obsidian), and roam refuses underground livestock spin
+  {
+    const oc = require('../src/minecraft/autonomous/oreCache');
+    oc.remember('lava', 123, 30, -456);
+    oc.remember('obsidian', 123, 30, -456);
+    oc.forget(123, 30, -456);
+    const left = oc.list(['lava', 'obsidian'], new Vec3(123, 30, -456))
+      .filter(e => Math.abs(e.x - 123) <= 1 && Math.abs(e.y - 30) <= 1 && Math.abs(e.z + 456) <= 1);
+    assert.equal(left.length, 0, 'oreCache.forget must remove BOTH lava and obsidian entries at the forgotten coordinates');
+
+    const origRec2 = reg.get('recover_surface').run;
+    let recCalled = 0;
+    try {
+      reg.get('recover_surface').run = async () => { recCalled++; return { ok: false, observation: 'still-cave' }; };
+      const botCave = makeBot({
+        entity: { position: new Vec3(0, 18, 0), yaw: 0, pitch: 0 },
+        game: { dimension: 'overworld' },
+      });
+      const r = await reg.get('roam').run(botCave, { look_for: 'cow,pig,sheep,chicken', distance: 140 });
+      assert.equal(recCalled, 1, 'roam for surface livestock underground must attempt recover_surface first');
+      assert.equal(r.ok, false, 'roam for surface livestock must fail fast when still underground instead of spinning 300s');
+      assert.ok(/underground|caves/i.test(r.observation));
+    } finally {
+      reg.get('recover_surface').run = origRec2;
+    }
+  }
+
   fs.rmSync(tmp, { recursive: true, force: true });
-  console.log('PASS minecraft-autonomous: all 30 regression groups passed');
+  console.log('PASS minecraft-autonomous: all 31 regression groups passed');
 })().catch(e => {
   console.error(e);
   process.exitCode = 1;
