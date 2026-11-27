@@ -2113,6 +2113,7 @@ reg.define('pillar_up', {
 reg.define('recover_surface', {
   desc: 'If stuck deep underground, teleport back up onto DRY land (OP recovery) so mining/crafting/portal building can resume.',
   params: {},
+  budgetMs: 180000,
   async run(bot) {
     // 末地的"地面"不是换维度。20:45:58-20:49 现场这条支路把 recover_surface 变成 return_overworld ->
     // use_portal，在末地里找下界传送门：每 20 秒一次 `search walk for portal timed out`，又被下一回合的
@@ -3210,14 +3211,21 @@ reg.define('make_obsidian', {
             await capped(bot.pathfinder.goto(new (GN())(water.position.x, water.position.y + 1, water.position.z, 2)), 20000, 'walk to water source');
           } catch {}
         }
-        // One candidate was not enough: findBlock returns flowing water too, and a bucket only
-        // fills from a SOURCE. Try each nearby water cell until one actually fills the bucket.
+        // Filter strictly to reachable level-0 water SOURCES BEFORE slicing to 4 (otherwise 4 nearby
+        // flowing waterfall cells at y=30 crowd out every real source and leave cands non-empty with
+        // unfillable flowing cells, preventing the climb-out to surface water).
         let cands = [];
         try {
-          cands = bot.findBlocks({ matching: blockIds(bot, ['water']), maxDistance: 40, count: 24 })
-            .map(p => bot.blockAt(p)).filter(b => b && b.name === 'water')
-            // Allow up to 32 blocks (capped to 4 best candidates) so 12..32 block surface ponds are never dropped.
-            .filter(b => bot.entity.position.distanceTo(b.position) <= 32)
+          const nearW = bot.findBlocks({ matching: blockIds(bot, ['water']), maxDistance: 40, count: 64 })
+            .map(p => bot.blockAt(p))
+            .filter(b => b && b.name === 'water'
+              && bot.entity.position.distanceTo(b.position) <= 32
+              && Math.abs(b.position.y - bot.entity.position.y) <= 10);
+          const srcW = nearW.filter(isFluidSource);
+          if (!srcW.length && nearW.length) {
+            log.info(`make_obsidian: all ${nearW.length} nearby water cells at this level are flowing (level>0) - need a real source`);
+          }
+          cands = srcW
             .sort((a, b) => {
               const ao = (() => { const ab = bot.blockAt(a.position.offset(0, 1, 0)); return !ab || isAir(ab.name) ? 0 : (ab.name === 'ice' ? 1 : 2); })();
               const bo = (() => { const ab = bot.blockAt(b.position.offset(0, 1, 0)); return !ab || isAir(ab.name) ? 0 : (ab.name === 'ice' ? 1 : 2); })();
@@ -3225,15 +3233,9 @@ reg.define('make_obsidian', {
             })
             .slice(0, 4);
         } catch { cands = []; }
-        // A bucket only takes a level-0 source. In a flooded cave almost every visible cell is
-        // flowing water, which is why five attempts at (56,11,743) on 15:34 produced nothing but
-        // refusals while the surface lakes filled instantly.
-        {
-          const src = cands.filter(isFluidSource);
-          if (src.length) cands = src;
-          else if (cands.length) log.info(`make_obsidian: all ${cands.length} nearby water cells are flowing (level>0) - a bucket cannot take them, need a source`);
-        }
-        if (!cands.length && water && bot.entity.position.distanceTo(water.position) <= 32) cands = [water];
+        if (!cands.length && water && isFluidSource(water)
+          && bot.entity.position.distanceTo(water.position) <= 32
+          && Math.abs(water.position.y - bot.entity.position.y) <= 10) cands = [water];
         // Sources first. `drainable` is undefined on this mineflayer (measured 11:33:10), so use the
         // terrain definition of a source: something solid beneath it and no water above.
         const srcScore = (b) => {
@@ -3248,17 +3250,16 @@ reg.define('make_obsidian', {
         // flowing cave pool, which the level-0 filter above now removes anyway.
         const feetW = bot.blockAt(bot.entity.position.floored());
         if (feetW && feetW.name === 'water' && isFluidSource(feetW)) cands = [feetW, ...cands.filter(c => c !== feetW)];
-        // Nothing close by: at 18:14 the only remembered water sat 36 blocks ABOVE the bot (y=-24
-        // while it stood at y=-60), so every candidate failed the reach check and the round died on
-        // `did NOT fill`. walk_to cannot lift it 36 blocks, so climb out and fill at the surface.
-        if (!cands.length && bot.entity.position.y < 5) {
-          log.warn(`make_obsidian: no water within 12 blocks at y=${Math.round(bot.entity.position.y)} (nearest ${water ? `${water.position.x},${water.position.y},${water.position.z}` : 'none'}) - climbing out to fill the bucket`);
+        // Underground (y < 56) with no reachable level-0 water source at this level: climb out to the
+        // surface lakes/ocean to fill the bucket cleanly instead of looping on flowing cave waterfalls.
+        if (!cands.length && bot.entity.position.y < 56) {
+          log.warn(`make_obsidian: no level-0 water source reachable at y=${Math.round(bot.entity.position.y)} (nearest ${water ? `${water.position.x},${water.position.y},${water.position.z}` : 'none'}) - climbing out to fill the bucket`);
           try { await reg.get('recover_surface').run(bot, {}); } catch (e) { log.warn(`make_obsidian: recover_surface on the way to water threw ${e.message}`); }
           try { await reg.get('roam').run(bot, { block: 'water', distance: 200 }); } catch {}
           try {
-            cands = bot.findBlocks({ matching: blockIds(bot, ['water']), maxDistance: 24, count: 12 })
+            cands = bot.findBlocks({ matching: blockIds(bot, ['water']), maxDistance: 40, count: 64 })
               .map(p => bot.blockAt(p))
-              .filter(b => b && b.name === 'water' && isFluidSource(b) && bot.entity.position.distanceTo(b.position) <= 12)
+              .filter(b => b && b.name === 'water' && isFluidSource(b) && bot.entity.position.distanceTo(b.position) <= 32)
               .sort((a, b) => {
                 // Prefer open-air surface water over water sealed under ice/stone!
                 const aAbove = bot.blockAt(a.position.offset(0, 1, 0));
@@ -3269,7 +3270,7 @@ reg.define('make_obsidian', {
               })
               .slice(0, 6);
           } catch { cands = []; }
-          if (!cands.length) { const here2 = bot.blockAt(bot.entity.position.floored()); if (here2 && here2.name === 'water') cands = [here2]; }
+          if (!cands.length) { const here2 = bot.blockAt(bot.entity.position.floored()); if (here2 && here2.name === 'water' && isFluidSource(here2)) cands = [here2]; }
         }
         const fillBudgetEnd = Date.now() + 75000; // a bucket is worth 75 s of this step, not 400
         for (const cand of cands) {

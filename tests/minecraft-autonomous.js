@@ -1345,8 +1345,74 @@ function makeBot(overrides = {}) {
     assert.ok(tossed.includes('dandelion'), 'tidy should drop flower junk instead of backup logs');
   }
 
+  // 30. make_obsidian climbs to surface from y=30 when only flowing (level>0) cave water exists at depth
+  {
+    const P9 = require('../src/minecraft/autonomous/skills/primitives');
+    const waterId = P9.blockIds(makeBot(), ['water'])[0];
+    const origRec = reg.get('recover_surface').run;
+    const origDS = reg.get('deep_shaft').run;
+    const origRoam = reg.get('roam').run;
+    const origWalk = reg.get('walk_to').run;
+    let climbedToSurface = false;
+    try {
+      const items = [
+        { name: 'diamond_pickaxe', count: 1, slot: 36, maxDurability: 1561, durabilityUsed: 0 },
+        { name: 'bucket', count: 1, slot: 37 },
+      ];
+      reg.get('recover_surface').run = async (b) => {
+        climbedToSurface = true;
+        b.entity.position = new Vec3(0, 63, 0);
+        return { ok: true, observation: 'surfaced' };
+      };
+      reg.get('deep_shaft').run = async () => ({ ok: false, observation: 'stub-stop' });
+      reg.get('roam').run = async () => ({ ok: false, observation: 'stub-stop' });
+      reg.get('walk_to').run = async () => ({ ok: false, observation: 'stub-stop' });
+      const botFlow = makeBot({
+        entity: { position: new Vec3(0, 30, 0), yaw: 0, pitch: 0 },
+        inventory: { slots: new Array(46).fill(null), items: () => items },
+        equip: async (it) => { botFlow.heldItem = it; },
+        lookAt: async () => {},
+        pathfinder: { stop: () => {}, goto: async () => {} },
+        findBlock: ({ matching }) => {
+          const m = Array.isArray(matching) ? matching : [matching];
+          if (!m.includes(waterId)) return null;
+          return botFlow.entity.position.y < 50
+            ? { name: 'water', position: new Vec3(2, 30, 0), getProperties: () => ({ level: 1 }) }
+            : { name: 'water', position: new Vec3(2, 62, 0), getProperties: () => ({ level: 0 }) };
+        },
+        findBlocks: ({ matching }) => {
+          const m = Array.isArray(matching) ? matching : [matching];
+          if (!m.includes(waterId)) return [];
+          return botFlow.entity.position.y < 50
+            ? [new Vec3(1, 30, 0), new Vec3(2, 30, 0), new Vec3(3, 30, 0), new Vec3(4, 30, 0)]
+            : [new Vec3(2, 62, 0)];
+        },
+        blockAt: (p) => {
+          if (!p) return { name: 'air', boundingBox: 'none' };
+          const y = Math.floor(p.y);
+          if (y === 30) return { name: 'water', position: p.floored(), getProperties: () => ({ level: 1 }) };
+          if (y === 62 && Math.floor(p.x) === 2) return { name: 'water', position: new Vec3(2, 62, 0), getProperties: () => ({ level: 0 }) };
+          return { name: 'air', boundingBox: 'none' };
+        },
+        activateItem: async () => {
+          if (botFlow.heldItem && botFlow.heldItem.name === 'bucket' && botFlow.entity.position.y >= 60) {
+            items.splice(items.findIndex(i => i.name === 'bucket'), 1, { name: 'water_bucket', count: 1, slot: 37 });
+          }
+        },
+      });
+      await reg.get('make_obsidian').run(botFlow, { count: 1 });
+      assert.equal(climbedToSurface, true, 'make_obsidian must climb to surface from y=30 when only flowing water exists nearby');
+      assert.equal(items.some(i => i.name === 'water_bucket'), true, 'bucket must fill from surface level-0 source after climbing out');
+    } finally {
+      reg.get('recover_surface').run = origRec;
+      reg.get('deep_shaft').run = origDS;
+      reg.get('roam').run = origRoam;
+      reg.get('walk_to').run = origWalk;
+    }
+  }
+
   fs.rmSync(tmp, { recursive: true, force: true });
-  console.log('PASS minecraft-autonomous: all 29 regression groups passed');
+  console.log('PASS minecraft-autonomous: all 30 regression groups passed');
 })().catch(e => {
   console.error(e);
   process.exitCode = 1;
