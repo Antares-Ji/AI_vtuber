@@ -63,34 +63,34 @@ async function equipBulkPick(bot, preferIron) {
   // 13:17-13:18, i.e. a timeout path, not mining time): mineflayer's 1.21 equip does a window click
   // and waits for an ack that arrives late - and this project has repeatedly been bitten by exactly
   // that ack. An "already holding it" short-circuit costs nothing and removes the wait.
-  const held = bot.heldItem;
-  if (held && held.name.endsWith('_pickaxe')) {
-    const left = held.maxDurability ? held.maxDurability - (held.durabilityUsed || 0) : 999;
-    const tierOk = !/diamond|netherite/.test(held.name);
-    if (tierOk && left >= 8) return true;
-  }
-  // Cheap-pick supply, before the fallback below reaches the diamond tier. A stone pick is 3 cobble +
-  // 2 sticks and buys ~130 digs of rock; those digs are exactly what killed the last two picks
-  // (80% -> 30% -> gone across 60 minutes of descents, because with the stone pick discarded as worn
-  // and the iron one spent, the cheapest pick left in `order` WAS the diamond one). Throttled to one
-  // attempt every 90 s because this helper runs around every dig.
-  const cheapInPack = bot.inventory.items().some(i => /_pickaxe$/.test(i.name) && !/diamond|netherite/.test(i.name)
-    && ((i.maxDurability || 999) - (i.durabilityUsed || 0)) >= 8);
   const bulkCob = countItem(bot, 'cobblestone') + countItem(bot, 'cobbled_deepslate') + countItem(bot, 'blackstone');
   const bulkLogs = (P.LOG_NAMES || []).reduce((s, n) => s + countItem(bot, n), 0);
   const bulkPlanks = bot.inventory.items().filter(i => /_planks$/.test(i.name)).reduce((s, i) => s + i.count, 0);
   const canBootstrapSticks = countItem(bot, 'stick') >= 2 || (bulkPlanks + bulkLogs * 4) >= 2;
-  if (!cheapInPack && bulkCob >= 3 && canBootstrapSticks
+  const canCraftStonePick = bulkCob >= 3 && canBootstrapSticks;
+  const held = bot.heldItem;
+  if (held && held.name.endsWith('_pickaxe')) {
+    const left = held.maxDurability ? held.maxDurability - (held.durabilityUsed || 0) : 999;
+    // Never settle for wooden_pickaxe (11.25s/block on deepslate!) when stone_pickaxe is craftable.
+    const tierOk = !/diamond|netherite/.test(held.name) && !(held.name === 'wooden_pickaxe' && canCraftStonePick);
+    if (tierOk && left >= 8) return true;
+  }
+  // Cheap-pick supply, before the fallback below reaches wooden (11.25s/block deepslate) or diamond tier.
+  // A stone pick is 3 cobble + 2 sticks and buys ~130 fast digs of stone/deepslate.
+  const stonePlusCheapInPack = bot.inventory.items().some(i => (i.name === 'stone_pickaxe' || i.name === 'iron_pickaxe')
+    && (ob.wear(bot, i) ?? 100) >= 12
+    && ((i.maxDurability || 999) - (i.durabilityUsed || 0)) >= 8);
+  if (!stonePlusCheapInPack && canCraftStonePick
     && Date.now() - (bot._bulkCraftAt || 0) > 30000) {
     bot._bulkCraftAt = Date.now();
     try {
       if (countItem(bot, 'stick') < 2) {
         if (bulkPlanks < 2 && bulkLogs > 0) { try { await P.craftPlanks(bot); } catch {} }
-        try { await craft(bot, 'stick', 4); } catch {}
+        try { await P.craft(bot, 'stick', 4); } catch {}
       }
       if (countItem(bot, 'stick') >= 2) {
-        const c = await craft(bot, 'stone_pickaxe', 1);
-        log.skill(`equipBulkPick: no cheap pick left to cut rock with - crafted stone_pickaxe (${String(c.observation).slice(0, 110)})`);
+        const c = await P.craft(bot, 'stone_pickaxe', 1);
+        log.skill(`equipBulkPick: no stone/iron pick left to cut rock with - crafted stone_pickaxe (${String(c.observation).slice(0, 110)})`);
       }
     } catch (e) { log.warn(`equipBulkPick: stone_pickaxe bootstrap threw ${e.message}`); }
   }

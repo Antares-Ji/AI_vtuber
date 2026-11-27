@@ -1908,8 +1908,48 @@ function makeBot(overrides = {}) {
     }
   }
 
+  // 38. deep_shaft / equipBulkPick crafts a fresh stone_pickaxe instead of digging deepslate with wooden_pickaxe (11.25s/block)
+  {
+    const P13 = require('../src/minecraft/autonomous/skills/primitives');
+    const origCraft13 = P13.craft;
+    let craftedStonePick = false;
+    try {
+      const items = [
+        { name: 'wooden_pickaxe', count: 1, slot: 36, maxDurability: 59, durabilityUsed: 0 },
+        { name: 'cobblestone', count: 12, slot: 37 },
+        { name: 'stick', count: 6, slot: 38 },
+      ];
+      P13.craft = async (b, name) => {
+        if (name === 'stone_pickaxe') {
+          craftedStonePick = true;
+          items.push({ name: 'stone_pickaxe', count: 1, slot: 39, maxDurability: 131, durabilityUsed: 0 });
+          return { ok: true, observation: 'crafted stone_pickaxe' };
+        }
+        return { ok: false, observation: 'stub' };
+      };
+      const botPick = makeBot({
+        entity: { position: new Vec3(0, -10, 0), yaw: 0, pitch: 0 },
+        heldItem: items[0],
+        _floods: [],
+        inventory: { slots: new Array(46).fill(null), items: () => items },
+        setQuickBarSlot: async (idx) => {
+          const hit = items.find(i => i.slot === 36 + idx);
+          if (hit) botPick.heldItem = hit;
+        },
+        equip: async (it) => { botPick.heldItem = it; },
+        nearestEntity: () => null,
+        blockAt: () => ({ name: 'bedrock', position: new Vec3(0, -11, 0), boundingBox: 'block' }),
+      });
+      await reg.get('deep_shaft').run(botPick, { toY: -53, max: 1 });
+      assert.equal(craftedStonePick, true, 'equipBulkPick must craft stone_pickaxe when only wooden_pickaxe is in pack and cobble+sticks exist');
+      assert.equal(botPick.heldItem && botPick.heldItem.name, 'stone_pickaxe', 'deep_shaft must equip the newly crafted stone_pickaxe instead of wooden_pickaxe');
+    } finally {
+      P13.craft = origCraft13;
+    }
+  }
+
   fs.rmSync(tmp, { recursive: true, force: true });
-  console.log('PASS minecraft-autonomous: all 37 regression groups passed');
+  console.log('PASS minecraft-autonomous: all 38 regression groups passed');
 })().catch(e => {
   console.error(e);
   process.exitCode = 1;
