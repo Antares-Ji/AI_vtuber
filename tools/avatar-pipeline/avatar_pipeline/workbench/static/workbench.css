@@ -1,0 +1,51 @@
+:root {
+  color-scheme: dark;
+  --bg: #0f131b;
+  --panel: #171d28;
+  --border: #283347;
+  --text: #e6eefc;
+  --muted: #93a3bf;
+  --primary: #4aa8e0;
+  --accent: #7a6bf0;
+  --ok: #38c98a;
+  --err: #ef6475;
+}
+* { box-sizing: border-box; }
+body { margin: 0; font-family: system-ui, "Segoe UI", "Microsoft YaHei", sans-serif; background: var(--bg); color: var(--text); }
+.topbar { display: flex; justify-content: space-between; align-items: center; padding: 10px 18px; background: #121722; border-bottom: 1px solid var(--border); }
+.topbar a { color: var(--primary); text-decoration: none; margin-left: 14px; font-size: 13px; }
+.badge { margin-left: 10px; padding: 2px 8px; border-radius: 999px; font-size: 12px; background: #213044; color: #9ad4fa; }
+.layout { display: grid; grid-template-columns: 310px 1fr 310px; gap: 12px; padding: 12px; height: calc(100vh - 49px); }
+.panel { background: var(--panel); border: 1px solid var(--border); border-radius: 10px; padding: 12px; overflow: auto; display: flex; flex-direction: column; gap: 14px; }
+h2 { margin: 0 0 8px; font-size: 14px; color: #b7c8e6; }
+.stack { display: flex; flex-direction: column; gap: 8px; }
+label { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--muted); }
+input, select, textarea, button { font: inherit; border-radius: 6px; border: 1px solid var(--border); background: #101520; color: var(--text); padding: 7px 9px; }
+button, .btn-link, .file-btn { cursor: pointer; background: var(--primary); color: #08121d; font-weight: 600; border: none; text-decoration: none; display: inline-flex; align-items: center; justify-content: center; padding: 7px 11px; border-radius: 6px; font-size: 12px; }
+button.secondary, .btn-link, .file-btn { background: #232d3f; color: var(--text); border: 1px solid var(--border); }
+button.accent { background: var(--accent); color: #fff; }
+button:disabled { opacity: 0.45; cursor: not-allowed; }
+button.small { padding: 4px 8px; font-size: 12px; }
+.row-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; align-items: center; }
+.inline-check { flex-direction: row; align-items: center; gap: 6px; color: var(--text); cursor: pointer; }
+.section-row { display: flex; justify-content: space-between; align-items: center; }
+.job-list { display: flex; flex-direction: column; gap: 6px; }
+.job-item { text-align: left; background: #121824; border: 1px solid var(--border); color: var(--text); padding: 8px; border-radius: 7px; display: flex; flex-direction: column; gap: 3px; font-weight: 400; }
+.job-item.active { border-color: var(--primary); background: #172438; }
+.job-item small { color: var(--muted); font-size: 11px; }
+.stage-panel { padding: 0; overflow: hidden; }
+.stage-toolbar, .stage-footer { display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: #131924; border-bottom: 1px solid var(--border); gap: 8px; flex-wrap: wrap; }
+.stage-footer { border-bottom: none; border-top: 1px solid var(--border); font-size: 12px; color: var(--muted); }
+.toolbar-buttons, .psd-tools { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.stage-wrap { position: relative; flex: 1; min-height: 460px; background: radial-gradient(circle at 50% 35%, #202a3d 0%, #0f131b 75%); overflow: hidden; }
+#pixiMount { position: absolute; inset: 0; }
+.bone-overlay { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.bone-overlay circle { pointer-events: all; cursor: grab; }
+.bone-overlay circle.dirty { fill: #ffb84d; stroke: #fff; }
+.chip-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.persona-btn.active { background: var(--primary); color: #08121d; }
+.persona-btn:not(.active) { background: #232d3f; color: var(--text); }
+.qa-box { background: #0e131c; border: 1px solid var(--border); padding: 8px; border-radius: 6px; font-size: 11px; max-height: 250px; overflow: auto; white-space: pre-wrap; margin: 0; }
+#toast { position: fixed; right: 16px; bottom: 16px; padding: 9px 14px; border-radius: 8px; background: #1c2c3f; border: 1px solid var(--primary); color: #fff; opacity: 0; transition: opacity .2s; pointer-events: none; }
+#toast.show { opacity: 1; }
+#toast.error { background: #3d1820; border-color: var(--err); }

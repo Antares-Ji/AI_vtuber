@@ -31,6 +31,7 @@ const { streamRoutedReply, openAiTokenStream, selectThinkingPreface } = require(
 const { getLlmConfig } = require("./brain/llm");
 const { responseAbortController } = require("./runtime/request-lifecycle");
 const { createVoiceCallRoutes } = require("./api/voice-call-routes");
+const { listAvailableAvatars, resolveActiveAvatar, describeAvatarPath, safeAvatarModelPath } = require("./avatars/registry");
 const minecraftBridge = require("./minecraft/qwen-bridge");
 const { AutonomyLoop } = require('./minecraft/autonomy-loop');
 const { MinecraftEngine } = require('./minecraft/astra-jev');
@@ -57,6 +58,7 @@ const queue = queueStore.items;
 const seenDanmaku = new Map();
 const REPEAT_WINDOW_MS = 90_000;
 let runtimeSettings = loadRuntimeSettings();
+let latestAvatarAction = null;
 let nextInFlight = false;
 let cloudReplyInFlight = null;
 let deferredReply = null;
@@ -464,9 +466,60 @@ async function handleApi(req, res) {
 
   if (await handleStudioApi(req, res, url, { brain, liveRuntime, runtimeMetrics, parseBody, parseBinaryBody, send })) return;
 
+  if (req.method === "GET" && url.pathname === "/api/avatars") {
+    const activePath = resolveActiveAvatar(runtimeSettings);
+    const avatars = listAvailableAvatars();
+    return send(res, 200, {
+      ok: true,
+      activeModelPath: activePath,
+      active: describeAvatarPath(activePath),
+      avatars,
+      action: latestAvatarAction,
+      workbenchUrl: `http://${process.env.AVATAR_WORKBENCH_HOST || "127.0.0.1"}:${Number(process.env.AVATAR_WORKBENCH_PORT || 8770)}`
+    });
+  }
+
+  if (req.method === "POST" && url.pathname === "/api/avatars/active") {
+    const localPeer = ["127.0.0.1", "::1", "::ffff:127.0.0.1"].includes(req.socket.remoteAddress);
+    const host = new URL(`http://${req.headers.host}`);
+    if (!localPeer || !["127.0.0.1", "localhost", "[::1]"].includes(host.hostname) || (req.headers.origin && req.headers.origin !== host.origin)) {
+      return send(res, 403, { error: "Local console only" });
+    }
+    const body = await parseBody(req);
+    const validated = safeAvatarModelPath(body.modelPath);
+    if (!validated) return send(res, 400, { error: "无效或不存在的形象模型路径" });
+    runtimeSettings.activeAvatarPath = validated;
+    saveRuntimeSettings();
+    return send(res, 200, {
+      ok: true,
+      activeModelPath: validated,
+      active: describeAvatarPath(validated),
+      avatars: listAvailableAvatars()
+    });
+  }
+
+  if (req.method === "POST" && url.pathname === "/api/avatars/action") {
+    const localPeer = ["127.0.0.1", "::1", "::ffff:127.0.0.1"].includes(req.socket.remoteAddress);
+    const host = new URL(`http://${req.headers.host}`);
+    if (!localPeer || !["127.0.0.1", "localhost", "[::1]"].includes(host.hostname) || (req.headers.origin && req.headers.origin !== host.origin)) {
+      return send(res, 403, { error: "Local console only" });
+    }
+    const body = await parseBody(req);
+    latestAvatarAction = {
+      id: `${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      motion: typeof body.motion === "string" ? body.motion.slice(0, 40) : null,
+      emotion: typeof body.emotion === "string" ? body.emotion.slice(0, 40) : null,
+      intensity: Number.isFinite(Number(body.intensity)) ? Number(body.intensity) : 1,
+      mouseFollow: typeof body.mouseFollow === "boolean" ? body.mouseFollow : null,
+      at: new Date().toISOString()
+    };
+    return send(res, 200, { ok: true, action: latestAvatarAction });
+  }
+
   if (req.method === "GET" && url.pathname === "/api/state") {
     const asrStatus = await getAsrStatus();
-    const live2dModelPath = process.env.LIVE2D_MODEL_PATH || "/live2d-web/miku-web.model3.json";
+    const live2dModelPath = resolveActiveAvatar(runtimeSettings);
+    const avatarInfo = describeAvatarPath(live2dModelPath);
     const publicState = {
       queue,
       queueStatus: { pending: queue.length, replyInFlight: nextInFlight },
@@ -480,10 +533,13 @@ async function handleApi(req, res) {
       build: BUILD_ID,
       instance: { id: INSTANCE_ID, pid: process.pid },
       avatar: {
-        renderer: "live2d-local-preview",
+        id: avatarInfo.id,
+        name: avatarInfo.name,
+        renderer: avatarInfo.renderer,
         live2dModelPath,
         live2dReady: isLive2dModelReady(live2dModelPath),
-        license: "local-preview-only"
+        license: avatarInfo.license,
+        action: latestAvatarAction
       }
     };
     assertPublicStateSafe(publicState);

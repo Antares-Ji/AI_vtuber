@@ -57,6 +57,11 @@ logs/
 /public/sts2-tactics.json
 /public/sts2-tactics-status.json
 
-data/genshin.local.json*
-data/mcplayer.local.json*
-**/director-token.txt
+# Avatar auto-rigging pipeline caches, virtualenvs, and local weights
+tools/avatar-pipeline/.venv/
+tools/avatar-pipeline/cache/
+tools/avatar-pipeline/weights/
+tools/avatar-pipeline/output/
+.pytest_cache/
+*.safetensors
+*.onnx

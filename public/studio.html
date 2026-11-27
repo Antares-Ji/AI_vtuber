@@ -13,7 +13,7 @@
   </header>
   <main>
     <nav class="tabs" aria-label="工作台模块">
-      <button class="active" data-tab="memory">记忆训练</button><button data-tab="brain">大脑诊断</button><button data-tab="story">连续经历</button><button data-tab="vision">osu! 视觉</button><button data-tab="game-input">本地游戏操作</button><button data-tab="live">直播运行</button>
+      <button class="active" data-tab="memory">记忆训练</button><button data-tab="brain">大脑诊断</button><button data-tab="story">连续经历</button><button data-tab="avatars">形象与换装</button><button data-tab="vision">osu! 视觉</button><button data-tab="game-input">本地游戏操作</button><button data-tab="live">直播运行</button>
     </nav>
 
     <section id="memory" class="view active">
@@ -50,6 +50,56 @@
     <section id="story" class="view">
       <div class="section-head"><div><h1>连续经历与计划</h1><p>让角色知道自己正在经历什么、想完成什么，以及下一次该延续什么。</p></div></div>
       <div class="grid-2"><form id="arcForm" class="pane form"><h2>当前篇章</h2><label>标题<input id="arcTitle" required /></label><label>背景<textarea id="arcSummary" rows="5"></textarea></label><button type="submit">更新篇章</button></form><div class="pane"><h2>目标</h2><form id="goalForm" class="row"><input id="goalText" placeholder="新增角色目标" required /><button type="submit">添加</button></form><div id="goalList" class="stack"></div></div><div class="pane"><h2>经历时间线</h2><form id="beatForm" class="form"><input id="beatTitle" placeholder="事件标题" required /><textarea id="beatDetail" rows="3" placeholder="发生了什么"></textarea><button type="submit">记录经历</button></form><div id="beatList" class="stack"></div></div><div class="pane"><h2>待办与约定</h2><form id="scheduleForm" class="form"><input id="scheduleTitle" placeholder="例如：下次继续测试识别" required /><input id="scheduleDue" type="datetime-local" required /><button type="submit">加入计划</button></form><div id="scheduleList" class="stack"></div></div></div>
+    </section>
+
+    <section id="avatars" class="view">
+      <div class="section-head">
+        <div>
+          <h1>形象与换装（Rig2D 自动绑骨模型库）</h1>
+          <p>支持免重启热切换 <code>public/avatars/</code> 下自动生成的开放 2D 骨骼模型，并保留 Cubism 5 回退。</p>
+        </div>
+        <div class="row">
+          <span id="avatarActiveLabel" class="meta">读取中…</span>
+          <a id="openWorkbenchLink" href="http://127.0.0.1:8770" target="_blank" rel="noopener">打开本地绑骨校准台</a>
+        </div>
+      </div>
+      <div class="grid-2">
+        <div class="pane">
+          <div class="pane-heading"><h2>可用模型与服装列表</h2><button id="refreshAvatarsBtn" class="secondary" type="button">刷新列表</button></div>
+          <div id="avatarList" class="stack"></div>
+        </div>
+        <div class="pane form">
+          <h2>实时舞台测试与双人格联调</h2>
+          <p class="meta">以下指令会通过本地广播与后端同步到已打开的直播主屏与 OBS 舞台。</p>
+          <div class="row">
+            <button id="avatarPersonaSui" type="button">切换到：岁（听潮记岁）</button>
+            <button id="avatarPersonaGe" class="secondary" type="button">切换到：歌（守潮成歌）</button>
+          </div>
+          <label>触发情绪表情
+            <select id="avatarEmotionSelect">
+              <option value="neutral">neutral（日常）</option><option value="happy">happy（开心）</option>
+              <option value="excited">excited（兴奋）</option><option value="shy">shy（害羞）</option>
+              <option value="focused">focused（专注）</option><option value="curious">curious（好奇）</option>
+              <option value="annoyed">annoyed（生气）</option><option value="concerned">concerned（担心）</option>
+              <option value="sad">sad（难过）</option><option value="grateful">grateful（感谢）</option>
+              <option value="proud">proud（得意）</option><option value="playful">playful（俏皮）</option>
+              <option value="surprised">surprised（惊讶）</option><option value="protective">protective（守护）</option>
+            </select>
+          </label>
+          <button id="avatarTriggerEmotion" type="button" class="secondary">发送情绪到直播舞台</button>
+          <h3>全身预设动作</h3>
+          <div id="avatarMotionButtons" class="row" style="flex-wrap:wrap;gap:6px;">
+            <button type="button" class="secondary" data-avatar-motion="wave">挥手 wave</button>
+            <button type="button" class="secondary" data-avatar-motion="lean_in">前倾 lean_in</button>
+            <button type="button" class="secondary" data-avatar-motion="happy_bounce">欢呼 happy_bounce</button>
+            <button type="button" class="secondary" data-avatar-motion="think">思考 think</button>
+            <button type="button" class="secondary" data-avatar-motion="cross_arms">抱胸 cross_arms</button>
+            <button type="button" class="secondary" data-avatar-motion="bow">鞠躬 bow</button>
+            <button type="button" class="secondary" data-avatar-motion="idle">回待机 idle</button>
+          </div>
+          <label style="flex-direction:row;align-items:center;gap:8px;"><input id="avatarMouseFollow" type="checkbox" /> 启用舞台鼠标视线跟随调试</label>
+        </div>
+      </div>
     </section>
 
     <section id="vision" class="view">

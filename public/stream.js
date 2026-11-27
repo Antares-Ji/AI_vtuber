@@ -1,4 +1,12 @@
-import { setLive2DEmotion, setLive2DMouth, startLive2D } from "./live2d-renderer.js";
+import {
+  setLive2DEmotion,
+  setLive2DMouth,
+  setLive2DPersona,
+  setLive2DMouseFollow,
+  startLive2D,
+  switchLive2DModel,
+  triggerLive2DMotion
+} from "./live2d-renderer.js";
 import { StreamingAsrClient } from "./asr-stream-client.js";
 import { VoiceCallController } from "./voice-call.js";
 const streamParameters = new URLSearchParams(location.search);
@@ -82,6 +90,9 @@ const speechArbiter = new globalThis.SpeechOutputArbiter();
 const personaSelect = document.querySelector("#personaSelect");
 const interruptSpeech = document.querySelector("#interruptSpeech");
 const personaChannel = "BroadcastChannel" in window ? new BroadcastChannel("jisui-persona") : null;
+const avatarChannel = "BroadcastChannel" in window ? new BroadcastChannel("jisui-avatar") : null;
+let activeAvatarModelPath = null;
+let lastAvatarActionId = null;
 let pollSequence = 0;
 const presentation = new globalThis.PersonaPresentation(() => {
   stopSpeechOutput();
@@ -298,7 +309,11 @@ async function playStreamingWav(response, epoch, onFirstAudio = null) {
       firstAudioScheduled = true;
       onFirstAudio?.();
     }
-    setLive2DMouth(true);
+    let chunkSquareSum = 0;
+    const ch0 = buffer.getChannelData(0);
+    for (let i = 0; i < ch0.length; i += 4) chunkSquareSum += ch0[i] * ch0[i];
+    const chunkRms = Math.sqrt(chunkSquareSum / Math.max(1, Math.ceil(ch0.length / 4)));
+    setLive2DMouth(Math.min(1, Math.max(0.22, chunkRms * 5.2)));
     return bytes.slice(usable);
   };
 
@@ -346,7 +361,8 @@ async function startAmplitudeLipSync(audio) {
       let sum = 0;
       for (const sample of samples) { const value = (sample - 128) / 128; sum += value * value; }
       const rms = Math.sqrt(sum / samples.length);
-      setLive2DMouth(rms > 0.018);
+      const level = rms > 0.014 ? Math.min(1, (rms - 0.012) * 6.5) : 0;
+      setLive2DMouth(level);
       ttsLipSyncFrame = requestAnimationFrame(tick);
     };
     tick();
@@ -434,6 +450,19 @@ async function poll() {
   if (personaSelect && state.personaRuntime) {
     personaSelect.hidden = !state.personaRuntime.enabled;
     personaSelect.value = state.personaRuntime.personaId;
+  }
+  const activePersonaId = state.personaRuntime?.personaId || state.persona?.id;
+  if (activePersonaId) setLive2DPersona(activePersonaId);
+  if (state.avatar?.live2dModelPath && state.avatar.live2dModelPath !== activeAvatarModelPath) {
+    const nextPath = state.avatar.live2dModelPath;
+    activeAvatarModelPath = nextPath;
+    void switchLive2DModel(nextPath)
+      .then(() => { fallback.hidden = true; modelError.textContent = ""; })
+      .catch(error => { modelError.textContent = `形象热切失败：${error.message}`; });
+  }
+  if (state.avatar?.action?.id && state.avatar.action.id !== lastAvatarActionId) {
+    lastAvatarActionId = state.avatar.action.id;
+    applyAvatarAction(state.avatar.action);
   }
   personaName = state.persona?.displayName || state.persona?.name || personaName;
   if (!lastRenderedSpeechId) speaker.textContent = personaName;
@@ -731,6 +760,7 @@ async function changePersona(personaId = null) {
     if (presentation.adopt(result.runtime)) {
       personaChannel?.postMessage(result.runtime);
       personaSelect.value = result.runtime.personaId;
+      setLive2DPersona(result.runtime.personaId);
       personaName = result.runtime.personas.find(p => p.id === result.runtime.personaId)?.displayName || personaName;
       speaker.textContent = personaName;
       composerStatus.textContent = personaId ? `已切换到${personaName}` : "已停止当前发言";
@@ -752,8 +782,28 @@ personaChannel?.addEventListener("message", event => {
   const runtime = event.data;
   if (runtime && Number.isSafeInteger(runtime.generationEpoch) && presentation.adopt(runtime)) {
     personaSelect.value = runtime.personaId;
+    setLive2DPersona(runtime.personaId);
     personaName = runtime.personas?.find(p => p.id === runtime.personaId)?.displayName || personaName;
     speaker.textContent = personaName;
+  }
+});
+
+function applyAvatarAction(action) {
+  if (!action) return;
+  if (action.emotion) setLive2DEmotion(action.emotion, action.intensity ?? 1);
+  if (action.motion) triggerLive2DMotion(action.motion);
+  if (typeof action.mouseFollow === "boolean") setLive2DMouseFollow(action.mouseFollow);
+}
+
+avatarChannel?.addEventListener("message", event => {
+  const msg = event.data || {};
+  if (msg.type === "switch-model" && msg.modelPath && msg.modelPath !== activeAvatarModelPath) {
+    activeAvatarModelPath = msg.modelPath;
+    void switchLive2DModel(msg.modelPath)
+      .then(() => { fallback.hidden = true; modelError.textContent = ""; })
+      .catch(error => { modelError.textContent = `形象热切失败：${error.message}`; });
+  } else if (msg.type === "action") {
+    applyAvatarAction(msg.action);
   }
 });
 
@@ -1306,7 +1356,12 @@ async function boot() {
     presentation.adopt(state.personaRuntime);
     personaName = state.persona?.displayName || state.persona?.name || personaName;
     speaker.textContent = personaName;
-    await startLive2D({ container: document.querySelector("#live2d-stage"), modelPath: state.avatar.live2dModelPath });
+    activeAvatarModelPath = state.avatar.live2dModelPath;
+    await startLive2D({
+      container: document.querySelector("#live2d-stage"),
+      modelPath: state.avatar.live2dModelPath,
+      personaId: state.personaRuntime?.personaId || state.persona?.id || "sui"
+    });
     fallback.hidden = true;
   } catch (error) {
     modelError.textContent = `Live2D 未加载：${error.message}。当前使用后备形象。`;

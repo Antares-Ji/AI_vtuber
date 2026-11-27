@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Rig2D 形象验收与关节点校准台</title>
+  <link rel="stylesheet" href="/static/workbench.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div>
+      <strong>Rig2D 形象验收与关节点校准台</strong>
+      <span id="statusBadge" class="badge">连接中…</span>
+    </div>
+    <div class="top-actions">
+      <a href="http://127.0.0.1:3000" target="_blank" rel="noopener">打开 AI_vtuber 舞台</a>
+      <a href="http://127.0.0.1:3000/studio.html" target="_blank" rel="noopener">打开导演工作台</a>
+    </div>
+  </header>
+
+  <main class="layout">
+    <!-- Left: Job Creation & Job List -->
+    <aside class="panel left">
+      <section>
+        <h2>新建服设生成任务</h2>
+        <form id="createForm" class="stack">
+          <label>模型名称<input name="name" value="姬岁歌 · 潮汐常服（草案）" required /></label>
+          <label>模型 ID（英文/短横线）<input name="modelId" placeholder="自动生成，如 jisui-starlight" /></label>
+          <label>服设参考图（平铺/穿搭/草图）<input name="outfitImage" type="file" accept="image/*" /></label>
+          <label>角色脸发参考图（可选，空则用姬岁歌底设）<input name="characterRef" type="file" accept="image/*" /></label>
+          <label>文字微调说明<textarea name="promptNotes" rows="2" placeholder="如：强调海浪裙摆与银蓝挑染"></textarea></label>
+          <div class="row-2">
+            <label>生成引擎
+              <select name="provider" id="providerSelect">
+                <option value="synthetic_demo">离线合成夹具（0成本验通）</option>
+                <option value="openai_gpt_image">OpenAI GPT Image API</option>
+              </select>
+            </label>
+            <label>双人格形态
+              <select name="personaMode">
+                <option value="dual">岁 + 歌双形态</option>
+                <option value="sui">仅岁</option>
+                <option value="ge">仅歌</option>
+              </select>
+            </label>
+          </div>
+          <label class="inline-check"><input type="checkbox" name="keepBase" value="true" checked /> 输入已是标准正面全身立绘时直接保真原图拆层（省 1 次生图且不走样）</label>
+          <label class="inline-check"><input type="checkbox" name="publish" value="true" checked /> 质检通过后直接发布到 AI_vtuber</label>
+          <button type="submit" id="createBtn">开始生成并自动绑骨</button>
+        </form>
+      </section>
+
+      <section>
+        <div class="section-row">
+          <h2>历史任务缓存</h2>
+          <button id="refreshJobsBtn" type="button" class="secondary small">刷新</button>
+        </div>
+        <div id="jobList" class="job-list"></div>
+      </section>
+    </aside>
+
+    <!-- Center: Live PixiJS 8 Rig2D Preview + Interactive Bone Drag Overlay -->
+    <section class="panel stage-panel">
+      <div class="stage-toolbar">
+        <span id="currentModelLabel">未加载模型</span>
+        <div class="toolbar-buttons">
+          <label class="inline-check"><input type="checkbox" id="showBonesToggle" checked /> 显示可拖拽骨骼关节点</label>
+          <label class="inline-check"><input type="checkbox" id="mouseFollowToggle" /> 鼠标视线跟随</label>
+          <button id="saveJointsBtn" type="button" class="accent" disabled>保存关节点并秒级重绑</button>
+          <button id="publishBtn" type="button" disabled>一键发布到 AI_vtuber</button>
+        </div>
+      </div>
+      <div id="stageWrap" class="stage-wrap">
+        <div id="pixiMount"></div>
+        <svg id="boneOverlay" class="bone-overlay"></svg>
+      </div>
+      <div class="stage-footer">
+        <span id="qaSummary">等待加载任务…</span>
+        <div class="psd-tools">
+          <a id="downloadPsdLink" class="btn-link" hidden download>下载分层 .psd（PS精修）</a>
+          <label class="file-btn" id="uploadPsdLabel" hidden>
+            上传修改后的 .psd 重绑
+            <input id="uploadPsdInput" type="file" accept=".psd" hidden />
+          </label>
+        </div>
+      </div>
+    </section>
+
+    <!-- Right: Live Rig Tester (Persona, 22 Emotions, Continuous RMS Lip-Sync, 7 Motions, QA) -->
+    <aside class="panel right">
+      <section>
+        <h2>双人格切换（岁 / 歌）</h2>
+        <div class="row-2">
+          <button type="button" class="persona-btn active" data-persona="sui">岁 · 听潮记岁</button>
+          <button type="button" class="persona-btn" data-persona="ge">歌 · 守潮成歌</button>
+        </div>
+      </section>
+
+      <section>
+        <h2>连续口型测试（音频 RMS 模拟）</h2>
+        <input type="range" id="mouthSlider" min="0" max="1" step="0.01" value="0" />
+        <div class="row-2">
+          <span id="mouthVal">开合度：0.00</span>
+          <button type="button" id="talkSimBtn" class="secondary small">模拟说话口型</button>
+        </div>
+      </section>
+
+      <section>
+        <h2>22 种 AI 主播情绪测试</h2>
+        <select id="emotionSelect"></select>
+        <label>情绪强度 <input type="range" id="emotionIntensity" min="0.2" max="1.2" step="0.05" value="1" /></label>
+      </section>
+
+      <section>
+        <h2>全身预设动作测试</h2>
+        <div id="motionButtons" class="chip-grid"></div>
+      </section>
+
+      <section>
+        <h2>自动质检报告（QA）</h2>
+        <pre id="qaJson" class="qa-box">尚无报告</pre>
+      </section>
+    </aside>
+  </main>
+
+  <output id="toast"></output>
+  <script src="/vendor/pixi8.min.js"></script>
+  <script type="module" src="/static/workbench.js"></script>
+</body>
+</html>

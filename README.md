@@ -18,6 +18,8 @@ ai主播项目
 
 GPT-SoVITS 下载后接入现有希儿声库、配置语调和切换声音，见 [声库部署与切换交接](docs/seele-voice-handoff.md)。包含可迁移配置工具；权重和参考录音另行提供。
 
+自研 **Rig2D 自动化立绘拆层/绑骨与直播热切换**（输入服设图 → 分层 PNG + PS 可编辑 `.psd` → 自动绑骨 → PixiJS 8 原生渲染，支持岁/歌双人格与 Cubism 5 回退），见 [自研 Rig2D 接入与对接手册（含仓库初音模型对比）](docs/rig2d-live2d-integration-guide.md)。
+
 # Live2D AI Streamer MVP
 
 一个本地可跑的 AI 虚拟主播原型：Live2D、人格情绪、分层记忆、主动陪聊、GPT-SoVITS、SenseVoice、osu! 视觉分析和直播运行工作台。
