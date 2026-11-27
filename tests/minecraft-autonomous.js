@@ -1556,8 +1556,60 @@ function makeBot(overrides = {}) {
     }
   }
 
+  // 34. make_obsidian relocates to an inland dry hilltop (4+m clear of ocean water) before descending
+  {
+    const origDS3 = reg.get('deep_shaft').run;
+    const origRoam3 = reg.get('roam').run;
+    const origWalk3 = reg.get('walk_to').run;
+    let movedInland = false;
+    let blind90Probe = 0;
+    try {
+      reg.get('deep_shaft').run = async () => ({ ok: false, observation: 'stub-stop' });
+      reg.get('roam').run = async () => ({ ok: false, observation: 'stub-stop' });
+      reg.get('walk_to').run = async (b, a) => {
+        if (a && Math.hypot(a.x - b.entity.position.x, a.z - b.entity.position.z) >= 80) blind90Probe++;
+        return { ok: false, observation: 'stub-stop' };
+      };
+      const botHill = makeBot({
+        entity: { position: new Vec3(500, 63, 500), yaw: 0, pitch: 0 },
+        inventory: {
+          slots: new Array(46).fill(null),
+          items: () => [
+            { name: 'diamond_pickaxe', count: 1, slot: 36, maxDurability: 1561, durabilityUsed: 0 },
+            { name: 'water_bucket', count: 1, slot: 37 },
+          ],
+        },
+        findBlocks: () => [],
+        pathfinder: {
+          stop: () => {},
+          goto: async (goal) => {
+            if (goal && Math.abs(goal.x - 516) <= 8 && goal.y >= 67) {
+              movedInland = true;
+              botHill.entity.position = new Vec3(516, 68, 500);
+            }
+          },
+        },
+        blockAt: (p) => {
+          if (!p) return { name: 'air', boundingBox: 'none' };
+          const x = Math.floor(p.x), y = Math.floor(p.y), z = Math.floor(p.z);
+          // Ocean for x < 508 at y=61..62; inland solid dry hill around x >= 510 with top at y=67
+          if (x < 508 && (y === 61 || y === 62)) return { name: 'water', position: new Vec3(x, y, z), boundingBox: 'empty' };
+          if (x >= 510 && x <= 524 && z >= 490 && z <= 510 && y <= 67) return { name: 'stone', position: new Vec3(x, y, z), boundingBox: 'block' };
+          return { name: 'air', position: new Vec3(x, y, z), boundingBox: 'none' };
+        },
+      });
+      await reg.get('make_obsidian').run(botHill, { count: 1 });
+      assert.equal(movedInland, true, 'relocateToHighGround must walk to loaded inland dry hilltop before descending');
+      assert.equal(blind90Probe, 0, 'relocateToHighGround must NOT run blind 90-block probes when an inland hill is loaded');
+    } finally {
+      reg.get('deep_shaft').run = origDS3;
+      reg.get('roam').run = origRoam3;
+      reg.get('walk_to').run = origWalk3;
+    }
+  }
+
   fs.rmSync(tmp, { recursive: true, force: true });
-  console.log('PASS minecraft-autonomous: all 33 regression groups passed');
+  console.log('PASS minecraft-autonomous: all 34 regression groups passed');
 })().catch(e => {
   console.error(e);
   process.exitCode = 1;

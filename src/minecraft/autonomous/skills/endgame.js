@@ -313,6 +313,53 @@ async function relocateToHighGround(bot, why) {
     if (Math.abs(bot.entity.position.y - dl.y) <= 4) return true;
     log.skill(`${why}: high-ground hop said (${String(w.observation).slice(0, 140)})`);
   }
+  // Scan loaded terrain within 36 blocks for a genuine INLAND dry hilltop (solid ground y >= 65 AND
+  // no water/ice within 4 blocks horizontally at sea level y=61..62) before blind 90-block probes.
+  // Previously a 1-block beach tile at y=63-65 flooded immediately on the first dig from the side ocean.
+  try {
+    const f0 = bot.entity.position.floored();
+    const isDrySea = (cx, cz) => {
+      for (const ox of [-4, 0, 4]) {
+        for (const oz of [-4, 0, 4]) {
+          for (const sy of [61, 62]) {
+            const b = bot.blockAt(new Vec3(cx + ox, sy, cz + oz));
+            if (b && /water|ice/.test(b.name)) return false;
+          }
+        }
+      }
+      return true;
+    };
+    let bestHill = null, bestScore = -Infinity;
+    const maxScanY = Math.min(110, Math.max(84, f0.y + 20));
+    for (let dx = -36; dx <= 36; dx += 4) {
+      for (let dz = -36; dz <= 36; dz += 4) {
+        const cx = f0.x + dx, cz = f0.z + dz;
+        if (!isDrySea(cx, cz)) continue;
+        let topY = null;
+        for (let sy = maxScanY; sy >= 64; sy--) {
+          const g = bot.blockAt(new Vec3(cx, sy, cz));
+          if (!g || isAir(g.name) || /leaves|log|snow$|grass|fern|flower|sapling/.test(g.name)) continue;
+          if (g.boundingBox !== 'block' || /water|lava|ice/.test(g.name)) break;
+          const a1 = bot.blockAt(new Vec3(cx, sy + 1, cz));
+          const a2 = bot.blockAt(new Vec3(cx, sy + 2, cz));
+          if ((!a1 || isAir(a1.name) || a1.name === 'snow') && (!a2 || isAir(a2.name))) topY = sy;
+          break;
+        }
+        if (topY === null || topY < 65) continue;
+        const dist = Math.hypot(dx, dz);
+        const sc = topY * 3 - dist * 0.25;
+        if (sc > bestScore) { bestScore = sc; bestHill = { x: cx, y: topY + 1, z: cz, dist: Math.round(dist) }; }
+      }
+    }
+    if (bestHill) {
+      log.skill(`${why}: found inland dry hill at ${bestHill.x},${bestHill.y},${bestHill.z} (${bestHill.dist}m away, 4+m clear of water) - walking there before digging`);
+      try { await capped(bot.pathfinder.goto(new (GN())(bestHill.x, bestHill.y, bestHill.z, 2)), 18000, 'walk to inland hill'); } catch {}
+      if (bot.entity.position.y >= 65 && isDrySea(Math.floor(bot.entity.position.x), Math.floor(bot.entity.position.z))) {
+        bot._dryLand = bot.entity.position.floored();
+        return true;
+      }
+    }
+  } catch {}
   // No upland on file (recover_surface pins whatever is dry AND low enough to feed a hungry bot, and
   // on this coast that was y=63 - still sea level, still floods). Probe a few directions and keep
   // whichever one actually gains height, instead of roaming to another random puddle.
