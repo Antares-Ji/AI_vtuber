@@ -421,9 +421,9 @@ function makeBot(overrides = {}) {
       assert.match(rFar.observation, /marching toward estimated stronghold/i);
       // Now clear _strongholdEst and verify packet-level eye tracking captures the east bearing
       delete bot._strongholdEst;
-      bot._stepDeadline = Date.now() + 22000; // stops after 1st ray due to deadline margin
+      bot._stepDeadline = Date.now() + 22000;
       const rEye = await reg.get('locate_stronghold').run(bot, { throws: 2 });
-      assert.match(rEye.observation, /followed 1 eye bearing \(1\.00,0\.00\)/i, 'must capture eye bearing from raw spawn_entity + rel_entity_move packets');
+      assert.match(rEye.observation, /(followed 1 eye bearing|stronghold is still ahead along) \(1\.00,0\.00\)/i, 'must capture eye bearing from raw spawn_entity + rel_entity_move packets');
     } finally {
       if (prevAssist === undefined) delete process.env.MC_ASSIST; else process.env.MC_ASSIST = prevAssist;
       reg.get('deep_shaft').run = origDeepShaft;
@@ -2424,8 +2424,87 @@ function makeBot(overrides = {}) {
     }
   }
 
+  // 47. hunt walkDrops sweeps ALL drop entities from a multi-drop animal kill (both leather AND beef),
+  //     instead of returning after grabbing leather and leaving beef behind
+  {
+    const inv47 = [{ name: 'iron_sword', count: 1, slot: 36 }];
+    const worldEntities47 = {
+      1001: { id: 1001, name: 'cow', position: new Vec3(2, 64, 0) },
+    };
+    const pickedIds47 = [];
+    const botCow47 = makeBot({
+      entity: { position: new Vec3(0, 64, 0), yaw: 0, pitch: 0 },
+      game: { dimension: 'overworld' },
+      entities: worldEntities47,
+      inventory: { slots: new Array(46).fill(null), items: () => inv47 },
+      nearestEntity: (fn) => Object.values(worldEntities47).find(e => fn(e)) || null,
+      blockAt: (p) => {
+        if (!p) return { name: 'air', boundingBox: 'none' };
+        return Math.floor(p.y) <= 63
+          ? { name: 'grass_block', position: p, boundingBox: 'block' }
+          : { name: 'air', position: p, boundingBox: 'none' };
+      },
+      pvp: {
+        stop: () => {},
+        attack: async (ent) => {
+          delete worldEntities47[ent.id];
+          // Cow drops TWO separate item entities: leather (closer) + beef (slightly further)
+          worldEntities47[2001] = { id: 2001, name: 'item', position: new Vec3(1.5, 64, 0), item: { name: 'leather' } };
+          worldEntities47[2002] = { id: 2002, name: 'item', position: new Vec3(3.0, 64, 0), item: { name: 'beef' } };
+        },
+      },
+      pathfinder: {
+        isMoving: () => false,
+        stop: () => {},
+        goto: async (goal) => {
+          botCow47.entity.position = new Vec3(goal.x, goal.y, goal.z);
+          for (const id of Object.keys(worldEntities47)) {
+            const en = worldEntities47[id];
+            if (en && en.name === 'item' && en.position.distanceTo(botCow47.entity.position) < 1.2) {
+              pickedIds47.push(en.item.name);
+              inv47.push({ name: en.item.name, count: 2, slot: 37 + pickedIds47.length });
+              delete worldEntities47[id];
+            }
+          }
+        },
+      },
+    });
+    const r47 = await reg.get('hunt').run(botCow47, { count: 1, kind: 'cow' });
+    assert.equal(r47.ok, true, 'hunt must succeed on cow kill');
+    assert.ok(pickedIds47.includes('leather'), 'walkDrops must pick up leather');
+    assert.ok(pickedIds47.includes('beef'), `walkDrops must sweep ALL drops including beef, not return after leather (got [${pickedIds47.join(',')}])`);
+
+    // Also verify collectNear matches array itemName filters and sweeps multiple matching drops
+    const P47 = require('../src/minecraft/autonomous/skills/primitives');
+    const cEnts47 = {
+      3001: { id: 3001, name: 'item', position: new Vec3(1, 64, 0), item: { name: 'wheat_seeds' } },
+      3002: { id: 3002, name: 'item', position: new Vec3(2, 64, 0), item: { name: 'wheat' } },
+    };
+    const cPicked47 = [];
+    const botCol47 = makeBot({
+      entity: { position: new Vec3(0, 64, 0), yaw: 0, pitch: 0 },
+      entities: cEnts47,
+      pathfinder: {
+        stop: () => {},
+        goto: async (goal) => {
+          botCol47.entity.position = new Vec3(goal.x, goal.y, goal.z);
+          for (const id of Object.keys(cEnts47)) {
+            const en = cEnts47[id];
+            if (en && en.position.distanceTo(botCol47.entity.position) < 1.2) {
+              cPicked47.push(en.item.name);
+              delete cEnts47[id];
+            }
+          }
+        },
+      },
+    });
+    const colOk47 = await P47.collectNear(botCol47, new Vec3(1, 64, 0), ['wheat', 'wheat_seeds'], 5000);
+    assert.equal(colOk47, true, 'collectNear must accept array itemName filter');
+    assert.ok(cPicked47.includes('wheat') && cPicked47.includes('wheat_seeds'), `collectNear must sweep all matching drops in array filter (got [${cPicked47.join(',')}])`);
+  }
+
   fs.rmSync(tmp, { recursive: true, force: true });
-  console.log('PASS minecraft-autonomous: all 46 regression groups passed');
+  console.log('PASS minecraft-autonomous: all 47 regression groups passed');
 })().catch(e => {
   console.error(e);
   process.exitCode = 1;

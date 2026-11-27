@@ -799,11 +799,24 @@ reg.define('hunt', {
     // the hunger bar. Extracted from the melee branch because an arrow kill needs it just as much -
     // a shot animal drops its meat on the bank the pathfinder will not route to.
     const walkDrops = async (killAt) => {
-      for (let t = 0; t < 12; t++) {
+      // Cows drop leather + beef, sheep drop wool + mutton, rabbits drop hide + rabbit, chickens drop
+      // feather + chicken. Previously walkDrops returned `true` on the VERY FIRST item picked up,
+      // grabbing leather/wool/hide and walking away from 12+ beef lying on the ground! Sweep ALL
+      // nearby drops until none remain (with stall guard so unreachable drops never hang).
+      let collected = 0, emptyTicks = 0, stallId = null, stallCount = 0;
+      const skippedDrops = new Set();
+      for (let t = 0; t < 20 && Date.now() < (bot._stepDeadline || Infinity) - 2000; t++) {
+        if (lease.stale()) break;
         const drops = Object.values(bot.entities)
-          .filter(en => { try { return en.name === 'item' && en.position && en.position.distanceTo(killAt) < 12; } catch { return false; } })
+          .filter(en => { try { return en.name === 'item' && !skippedDrops.has(en.id) && en.position && en.position.distanceTo(killAt) < 12; } catch { return false; } })
           .sort((a, b) => a.position.distanceTo(bot.entity.position) - b.position.distanceTo(bot.entity.position));
-        if (!drops.length) { await sleep(300); continue; }
+        if (!drops.length) {
+          emptyTicks++;
+          if ((collected > 0 && emptyTicks >= 2) || emptyTicks >= 3) break;
+          await sleep(280);
+          continue;
+        }
+        emptyTicks = 0;
         const d = drops[0];
         // `d.item` is often absent on 1.21.1 (the item metadata arrives with its own packet), so the name
         // read as '?' and `countItem(bot, '?')` is ALWAYS 0 - the bot picked the meat up and then reported
@@ -811,15 +824,17 @@ reg.define('hunt', {
         // `edible=0 raw meat=none`. Prove the pickup by what left the world, not by a name we may not have.
         const dName = (d.item && d.item.name) || null;
         const packsBefore = bot.inventory.items().reduce((s, i) => s + i.count, 0);
-        try { await bot.pathfinder.goto(new GN(d.position.x, d.position.y, d.position.z, 0.7)); }
-        catch (e) {
+        try {
+          await capped(bot.pathfinder.goto(new GN(d.position.x, d.position.y, d.position.z, 0.7)), 6000, 'hunt drop pickup', () => { try { bot.pathfinder.stop(); } catch {} });
+        } catch (e) {
+          if (/orphan step|lease/i.test(String(e.message))) break;
           // A failed goto used to be invisible, which is how "hunt killed cow" and leather=0 sat
           // side by side (198 cow kills in this log) - the bot never reported that it could not
           // reach its own drop. Brush toward it by hand instead of giving up.
           try {
             await bot.lookAt(d.position.offset(0.5, 0.2, 0.5), true);
             bot.setControlState('forward', true);
-            await sleep(600);
+            await sleep(550);
             bot.setControlState('forward', false);
           } catch {}
           log.skill(`hunt: goto to ${dName || 'unnamed'} drop failed (${e.message.slice(0, 40)}) - walked by hand`);
@@ -828,14 +843,21 @@ reg.define('hunt', {
         const stillThere = Object.values(bot.entities).some(x => x.id === d.id);
         const before2 = dName ? countItem(bot, dName) : bot.inventory.items().reduce((s, i) => s + i.count, 0);
         if (!stillThere || (dName ? before2 > 0 : before2 > packsBefore)) {
+          collected++;
+          stallId = null;
+          stallCount = 0;
           log.skill(`hunt: collected ${dName || 'the drop'}${dName ? ` (have ${before2})` : ` (pack ${packsBefore} -> ${before2})`}`);
-          return true;
+        } else {
+          if (stallId === d.id && ++stallCount >= 2) { skippedDrops.add(d.id); stallId = null; stallCount = 0; }
+          else { stallId = d.id; stallCount = 1; }
         }
       }
-      return false;
+      return collected > 0;
     };
     let stuck = stuckFromWater ? 1 : 0;
-    for (let tries = 0; kills < (a.count || 3) && tries < 14; tries++) {
+    const maxTries = Math.max(14, (a.count || 3) * 4);
+    for (let tries = 0; kills < (a.count || 3) && tries < maxTries && Date.now() < (bot._stepDeadline || Infinity) - 4000; tries++) {
+      if (lease.stale()) break;
       const e = find();
       if (!e) break;
       const d = bot.entity.position.distanceTo(e.position);
@@ -846,7 +868,7 @@ reg.define('hunt', {
       if (d > 4) {
         if (!shotOut && !huntUndead && stuck >= 1 && d <= 34) {
           const shotAt = (e.position || bot.entity.position).clone();
-          if (await shootAt(e)) { kills++; log.skill(`hunt: ${e.name} down to arrows at ${Math.round(d)} blocks - walking its drop`); await walkDrops(shotAt); continue; }
+          if (await shootAt(e)) { kills++; log.skill(`hunt: ${e.name} down to arrows at ${Math.round(d)} blocks - walking its drop`); await sleep(220); await walkDrops(shotAt); continue; }
         }
         // A single GoalNear 85 blocks away is unroutable (pathfinder answered in 0.3s, every leg),
         // so close the distance in <=14-block waypoints; and when even a waypoint has no path,
@@ -858,7 +880,7 @@ reg.define('hunt', {
           bot.setControlState('forward', true);
           const t0 = Date.now();
           let last = bot.entity.position.distanceTo(e.position), stagnant = 0;
-          while (Date.now() - t0 < seconds * 1000) {
+          while (Date.now() - t0 < seconds * 1000 && !lease.stale()) {
             if (!e.position || bot.entity.position.distanceTo(e.position) < 4) break;
             try { await bot.lookAt(e.position.offset(0, 0.4, 0)); } catch {}
             await sleep(280);
@@ -895,11 +917,13 @@ reg.define('hunt', {
         }
       }
       const e2 = find();
-      if (!e2) break;
+      if (!e2 || lease.stale()) break;
       if (bot.entity.position.distanceTo(e2.position) <= 4) {
         try { await bot.pathfinder.goto(new GN(e2.position.x, e2.position.y, e2.position.z, 1)); } catch {}
         const killAt = (e2.position || bot.entity.position).clone();
         try { await bot.pvp.attack(e2); kills++; log.skill(`hunt killed ${e2.name}`); } catch (err) { log.skill(`attack ${e2.name} threw ${err.message}`); }
+        try { if (bot.pvp && typeof bot.pvp.stop === 'function') bot.pvp.stop(); } catch {}
+        await sleep(250);
         await walkDrops(killAt);
       }
     }
@@ -3296,19 +3320,33 @@ function nearOpenDoor(bot, radius) {
 
 async function collectNear(bot, atPos, itemName, budgetMs = 9000) {
   const GN = (require('mineflayer-pathfinder').goals || require('mineflayer-pathfinder').pathfinder.Goals).GoalNear;
+  const wantMatch = (nm) => {
+    if (!itemName) return true;
+    if (Array.isArray(itemName)) return itemName.includes(nm);
+    return nm === itemName;
+  };
   const t0 = Date.now();
-  for (let t = 0; t < 10 && Date.now() - t0 < budgetMs; t++) {
+  let collected = 0, emptyTicks = 0, stallId = null, stallCount = 0;
+  const skipped = new Set();
+  for (let t = 0; t < 16 && Date.now() - t0 < budgetMs; t++) {
+    if (lease.stale()) break;
     const ents = Object.values(bot.entities || {});
     const drops = ents
       .filter(e => {
         try {
-          if (e.name !== 'item' || !e.position) return false;
+          if (e.name !== 'item' || !e.position || skipped.has(e.id)) return false;
           if (e.position.distanceTo(atPos) > 10) return false;
-          return !itemName || !e.item || e.item.name === itemName;
+          return !e.item || wantMatch(e.item.name);
         } catch { return false; }
       })
       .sort((a, b) => a.position.distanceTo(bot.entity.position) - b.position.distanceTo(bot.entity.position));
-    if (!drops.length) { await sleep(250); continue; }
+    if (!drops.length) {
+      emptyTicks++;
+      if ((collected > 0 && emptyTicks >= 2) || emptyTicks >= 3) break;
+      await sleep(250);
+      continue;
+    }
+    emptyTicks = 0;
     const d = drops[0];
     try { await capped(bot.pathfinder.goto(new GN(d.position.x, d.position.y, d.position.z, 0.7)), 4000, 'walk to drop', () => { try { bot.pathfinder.stop(); } catch {} }); } catch {}
     if (!d.position || d.position.distanceTo(bot.entity.position) > 1.6) {
@@ -3320,10 +3358,17 @@ async function collectNear(bot, atPos, itemName, budgetMs = 9000) {
         bot.setControlState('forward', true); await sleep(500); bot.setControlState('forward', false);
       } catch {}
     }
-    await sleep(300);
-    if (!Object.values(bot.entities || {}).includes(d)) return true;
+    await sleep(260);
+    if (!Object.values(bot.entities || {}).includes(d)) {
+      collected++;
+      stallId = null;
+      stallCount = 0;
+    } else {
+      if (stallId === d.id && ++stallCount >= 2) { skipped.add(d.id); stallId = null; stallCount = 0; }
+      else { stallId = d.id; stallCount = 1; }
+    }
   }
-  return false;
+  return collected > 0;
 }
 
 // `bot.blockAt()` returns a block object for AIR as well, so `blockAt(a) || blockAt(b)` never falls
