@@ -3394,22 +3394,22 @@ reg.define('make_obsidian', {
       // against the goal that starts immediately after it, so stopping-then-going-out produced exactly
       // the "Path was stopped before it could be completed!" it was meant to recover from. Stop only
       // AFTER a rejection (to clear state), then wait, then re-issue.
+      let lavaGotoTimer = null;
       try {
         await Promise.race([
           bot.pathfinder.goto(new (GN())(lavaTarget.position.x, lavaTarget.position.y + 1, lavaTarget.position.z, 2)),
-          new Promise((_, rej) => setTimeout(() => rej(new Error('goto lava pool timed out')), 45000)),
+          new Promise((_, rej) => { lavaGotoTimer = setTimeout(() => rej(new Error('goto lava pool timed out')), 45000); }),
         ]);
         reach = null;
         break;
       } catch (e) {
         reach = e;
-        // No stop() here either: with a `goto` already rejected there is nothing to cancel, and the
-        // stop poisoned the NEXT attempt - 09:06:54/55/56 shows three rejections 1.2 s apart, i.e. my
-        // own retry marching through the cascade it was supposed to escape.
         await sleep(1200);
         if (!/goal was changed|Path was stopped/i.test(e.message) || attempt === 2) break;
         const who = bot._lastPathStop ? ` stopped-by=${bot._lastPathStop.where} at +${Date.now() - bot._lastPathStop.at}ms` : '';
         log.skill(`make_obsidian: path cancelled (${e.message})${who} - retrying (pass ${attempt + 2})`);
+      } finally {
+        if (lavaGotoTimer) clearTimeout(lavaGotoTimer);
       }
     }
     if (reach) {
