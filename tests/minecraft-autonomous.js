@@ -2697,8 +2697,50 @@ function makeBot(overrides = {}) {
     assert.ok(picked50.includes('beef') && picked50.includes('leather'), `hunt must collect beef & leather at real death pos (got [${picked50.join(',')}])`);
   }
 
+  // 51. Inside a 2x1 vertical shaft (`bot._avoidPitCols`), tidy skips the staircase columns and carves a
+  //     perpendicular side-wall alcove + 4-deep pit so descending deeper never unearths sealed trash
+  {
+    const prevVerify51 = process.env.MC_TIDY_VERIFY_MS;
+    process.env.MC_TIDY_VERIFY_MS = '50';
+    try {
+      const dug51 = new Set();
+      const inv51 = [
+        { name: 'stone_pickaxe', count: 1, slot: 36, maxDurability: 131, durabilityUsed: 10 },
+        { name: 'snowball', count: 6, slot: 9 },
+        { name: 'cobblestone', count: 16, slot: 10 },
+      ];
+      let pitColUsed51 = null;
+      const botShaft51 = makeBot({
+        entity: { position: new Vec3(0.5, 40, 0.5), yaw: 0, pitch: 0 },
+        _avoidPitCols: new Set(['1,0', '-1,0']), // 2x1 shaft runs along +-X
+        entities: {},
+        inventory: { slots: new Array(46).fill(null), items: () => inv51 },
+        heldItem: inv51[0],
+        findBlocks: () => [],
+        equip: async (it) => { botShaft51.heldItem = it; },
+        lookAt: async (pt) => { pitColUsed51 = { x: Math.floor(pt.x), z: Math.floor(pt.z) }; },
+        dig: async (b) => { dug51.add(`${b.position.x},${b.position.y},${b.position.z}`); },
+        tossStack: async (it) => { const i = inv51.indexOf(it); if (i >= 0) inv51.splice(i, 1); },
+        blockAt: (p) => {
+          if (!p) return { name: 'air', boundingBox: 'empty' };
+          const x = Math.floor(p.x), y = Math.floor(p.y), z = Math.floor(p.z);
+          if (dug51.has(`${x},${y},${z}`)) return { name: 'air', position: p, boundingBox: 'none' };
+          // Open 2x1 shaft at (0,y,0) and (1,y,0) for y >= 40; solid stone walls on +-Z (0,y,+-1)
+          if ((x === 0 || x === 1) && z === 0 && y >= 40) return { name: 'air', position: p, boundingBox: 'none' };
+          return { name: 'stone', position: p, boundingBox: 'block', hardness: 1.5 };
+        },
+      });
+      await reg.get('tidy').run(botShaft51, { min_free: 6 });
+      assert.ok(pitColUsed51, 'tidy inside a narrow shaft must carve a perpendicular side-wall pit');
+      assert.equal(pitColUsed51.x, 0, `pit must NOT use staircase column x=+-1 (got ${JSON.stringify(pitColUsed51)})`);
+      assert.ok(Math.abs(pitColUsed51.z) === 1, `pit must be carved into perpendicular z=+-1 wall (got ${JSON.stringify(pitColUsed51)})`);
+    } finally {
+      if (prevVerify51 === undefined) delete process.env.MC_TIDY_VERIFY_MS; else process.env.MC_TIDY_VERIFY_MS = prevVerify51;
+    }
+  }
+
   fs.rmSync(tmp, { recursive: true, force: true });
-  console.log('PASS minecraft-autonomous: all 50 regression groups passed');
+  console.log('PASS minecraft-autonomous: all 51 regression groups passed');
 })().catch(e => {
   console.error(e);
   process.exitCode = 1;

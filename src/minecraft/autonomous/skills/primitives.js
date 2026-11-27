@@ -2242,63 +2242,95 @@ async function trashDisposal(bot) {
     }
   } catch {}
   // Prefer cardinal neighbours (distance 1.0, clean square lip) over diagonals.
+  // When called from inside a vertical shaft (`bot._avoidPitCols`), skip the shaft's own staircase columns
+  // so descending 4 blocks deeper never digs open our sealed trash pit; if needed, carve a 2-high side alcove
+  // into a solid perpendicular wall first so the pit sits permanently outside the shaft!
+  const avoidCols = bot._avoidPitCols instanceof Set ? bot._avoidPitCols : null;
   const NB = [[1, 0], [-1, 0], [0, 1], [0, -1], [1, 1], [-1, -1], [1, -1], [-1, 1]];
-  for (const [dx, dz] of NB) {
-    // Never the column we are standing in - that hole takes the bot down with the trash.
-    const cx = feet.x + dx, cz = feet.z + dz;
-    // The mouth above the pit MUST be clear air so thrown items drop straight in instead of bouncing off a wall.
-    const m0 = bot.blockAt(new V(cx, feet.y, cz));
-    const m1 = bot.blockAt(new V(cx, feet.y + 1, cz));
-    if ((m0 && m0.boundingBox === 'block') || (m1 && m1.boundingBox === 'block')) continue;
-    let dug = 0, blocked = false;
-    // Dig 4 blocks deep when possible (falls well below the 0.5-block vertical pickup box, even before sealing).
-    for (let d = 1; d <= 4; d++) {
-      const pos = new V(cx, feet.y - d, cz);
-      const b = bot.blockAt(pos);
-      if (!b || b.boundingBox === 'none' || /air/.test(b.name)) { dug++; continue; }
-      if (/lava|water|bedrock/.test(b.name)) { if (d === 4 && dug >= 3) break; blocked = true; break; }
-      // Never bare-hand dig hard stone/deepslate for a trash pit (takes 7.5s-15s and aborts mid-dig).
-      if ((b.hardness || 0) >= 1.2 && usablePickCount(bot) === 0) { if (d === 4 && dug >= 3) break; blocked = true; break; }
-      try { await equipBestToolFor(bot, b); } catch {}
-      const digTimeout = Math.max(8500, ((typeof bot.digTime === 'function' ? Number(bot.digTime(b)) : 3000) || 3000) + 3000);
-      try { await Promise.race([Promise.resolve(bot.dig(b)).catch(() => {}), sleep(digTimeout)]); } catch {}
-      const after = bot.blockAt(pos);
-      if (after && after.boundingBox !== 'none' && !/air/.test(after.name)) { if (d === 4 && dug >= 3) break; blocked = true; break; }
-      dug++;
-    }
-    if (!blocked && dug >= 3) {
-      // Exact Java 1.21.1 Player.drop() trajectory solver:
-      // Spawn at y0 = eyeY - 0.3; per tick with pitch down theta > 0:
-      //   vh0 = 0.3 * cos(theta), vy0 = -0.3 * sin(theta) + 0.1; each tick: y += vy, x += vh, vy = (vy - 0.04)*0.98, vh *= 0.98.
-      // Because the bot can stand anywhere from 0.65m to 1.45m from the pit center (cx+0.5, cz+0.5),
-      // a fixed -65 deg pitch UNDERSHOT when horiz >= 1.1m (landing on the bot's own block and bouncing back
-      // after the 40-tick / 2.0s pickup delay!) while -42 deg OVERSHOT when horiz <= 0.9m.
-      // Sweep theta in [25..78 deg] to hit dead-center (x == horiz) at y == feet.y - 0.15!
-      const horiz = Math.max(0.55, Math.hypot((cx + 0.5) - bot.entity.position.x, (cz + 0.5) - bot.entity.position.z));
-      const targetDy = (feet.y - 0.15) - (eyeY - 0.3);
-      let bestDeg = 55, bestErr = Infinity;
-      for (let deg = 25; deg <= 78; deg += 1) {
-        const rad = deg * Math.PI / 180;
-        let vh = 0.3 * Math.cos(rad), vy = -0.3 * Math.sin(rad) + 0.1;
-        let x = 0, y = 0;
-        for (let tick = 0; tick < 20; tick++) {
-          x += vh; y += vy;
-          if (y <= targetDy) break;
-          vy = (vy - 0.04) * 0.98;
-          vh *= 0.98;
+  const passes = avoidCols ? [false, true] : [false];
+  for (const allowCarveMouth of passes) {
+    for (const [dx, dz] of NB) {
+      // Never the column we are standing in - that hole takes the bot down with the trash.
+      const cx = feet.x + dx, cz = feet.z + dz;
+      if (avoidCols && avoidCols.has(`${cx},${cz}`)) continue;
+      if (allowCarveMouth && (Math.abs(dx) + Math.abs(dz) > 1)) continue; // only carve cardinal side walls
+      // The mouth above the pit MUST be clear air so thrown items drop straight in instead of bouncing off a wall.
+      const m0 = bot.blockAt(new V(cx, feet.y, cz));
+      const m1 = bot.blockAt(new V(cx, feet.y + 1, cz));
+      const mouthBlocked = (m0 && m0.boundingBox === 'block') || (m1 && m1.boundingBox === 'block');
+      if (mouthBlocked) {
+        if (!allowCarveMouth) continue;
+        // Safely carve the 2-high side alcove into a non-shaft wall if no lava/water/bedrock touches it
+        let canCarve = true;
+        for (const mb of [m0, m1]) {
+          if (!mb || mb.boundingBox !== 'block') continue;
+          if (/lava|water|bedrock|obsidian/.test(mb.name) || ((mb.hardness || 0) >= 1.2 && usablePickCount(bot) === 0)) {
+            canCarve = false;
+            break;
+          }
         }
-        const err = Math.abs(x - horiz);
-        if (err < bestErr) { bestErr = err; bestDeg = deg; }
+        if (!canCarve) continue;
+        let carveOk = true;
+        for (const mb of [m0, m1]) {
+          if (!mb || mb.boundingBox !== 'block') continue;
+          try { await equipBestToolFor(bot, mb); } catch {}
+          const dt = Math.max(8500, ((typeof bot.digTime === 'function' ? Number(bot.digTime(mb)) : 3000) || 3000) + 3000);
+          try { await Promise.race([Promise.resolve(bot.dig(mb)).catch(() => {}), sleep(dt)]); } catch {}
+          const afterM = bot.blockAt(mb.position);
+          if (afterM && afterM.boundingBox === 'block') { carveOk = false; break; }
+        }
+        if (!carveOk) continue;
       }
-      const aimY = eyeY - horiz * Math.tan(bestDeg * Math.PI / 180);
-      return {
-        kind: 'pit',
-        pos: new V(cx + 0.5, feet.y - dug + 0.1, cz + 0.5),
-        aim: new V(cx + 0.5, aimY, cz + 0.5),
-        pitCol: { x: cx, y: feet.y, z: cz, depth: dug },
-        aimDeg: bestDeg,
-        horiz: Number(horiz.toFixed(2)),
-      };
+      let dug = 0, blocked = false;
+      // Dig 4 blocks deep when possible (falls well below the 0.5-block vertical pickup box, even before sealing).
+      for (let d = 1; d <= 4; d++) {
+        const pos = new V(cx, feet.y - d, cz);
+        const b = bot.blockAt(pos);
+        if (!b || b.boundingBox === 'none' || /air/.test(b.name)) { dug++; continue; }
+        if (/lava|water|bedrock/.test(b.name)) { if (d === 4 && dug >= 3) break; blocked = true; break; }
+        // Never bare-hand dig hard stone/deepslate for a trash pit (takes 7.5s-15s and aborts mid-dig).
+        if ((b.hardness || 0) >= 1.2 && usablePickCount(bot) === 0) { if (d === 4 && dug >= 3) break; blocked = true; break; }
+        try { await equipBestToolFor(bot, b); } catch {}
+        const digTimeout = Math.max(8500, ((typeof bot.digTime === 'function' ? Number(bot.digTime(b)) : 3000) || 3000) + 3000);
+        try { await Promise.race([Promise.resolve(bot.dig(b)).catch(() => {}), sleep(digTimeout)]); } catch {}
+        const after = bot.blockAt(pos);
+        if (after && after.boundingBox !== 'none' && !/air/.test(after.name)) { if (d === 4 && dug >= 3) break; blocked = true; break; }
+        dug++;
+      }
+      if (!blocked && dug >= 3) {
+        // Exact Java 1.21.1 Player.drop() trajectory solver:
+        // Spawn at y0 = eyeY - 0.3; per tick with pitch down theta > 0:
+        //   vh0 = 0.3 * cos(theta), vy0 = -0.3 * sin(theta) + 0.1; each tick: y += vy, x += vh, vy = (vy - 0.04)*0.98, vh *= 0.98.
+        // Because the bot can stand anywhere from 0.65m to 1.45m from the pit center (cx+0.5, cz+0.5),
+        // a fixed -65 deg pitch UNDERSHOT when horiz >= 1.1m (landing on the bot's own block and bouncing back
+        // after the 40-tick / 2.0s pickup delay!) while -42 deg OVERSHOT when horiz <= 0.9m.
+        // Sweep theta in [25..78 deg] to hit dead-center (x == horiz) at y == feet.y - 0.15!
+        const horiz = Math.max(0.55, Math.hypot((cx + 0.5) - bot.entity.position.x, (cz + 0.5) - bot.entity.position.z));
+        const targetDy = (feet.y - 0.15) - (eyeY - 0.3);
+        let bestDeg = 55, bestErr = Infinity;
+        for (let deg = 25; deg <= 78; deg += 1) {
+          const rad = deg * Math.PI / 180;
+          let vh = 0.3 * Math.cos(rad), vy = -0.3 * Math.sin(rad) + 0.1;
+          let x = 0, y = 0;
+          for (let tick = 0; tick < 20; tick++) {
+            x += vh; y += vy;
+            if (y <= targetDy) break;
+            vy = (vy - 0.04) * 0.98;
+            vh *= 0.98;
+          }
+          const err = Math.abs(x - horiz);
+          if (err < bestErr) { bestErr = err; bestDeg = deg; }
+        }
+        const aimY = eyeY - horiz * Math.tan(bestDeg * Math.PI / 180);
+        return {
+          kind: 'pit',
+          pos: new V(cx + 0.5, feet.y - dug + 0.1, cz + 0.5),
+          aim: new V(cx + 0.5, aimY, cz + 0.5),
+          pitCol: { x: cx, y: feet.y, z: cz, depth: dug },
+          aimDeg: bestDeg,
+          horiz: Number(horiz.toFixed(2)),
+        };
+      }
     }
   }
   return null;

@@ -557,7 +557,16 @@ reg.define('deep_shaft', {
       // slot the next dig's drop is lost outright, and obsidian (which must be CARRIED out) cannot be
       // collected at all, so the dig itself is the right moment to drop rock rather than waiting for
       // the next planner iteration.
-      if (P.freeSlots(bot) <= 3) await P.dropJunk(bot, true, 8);
+      if (P.freeSlots(bot) <= 3) {
+        // Keep trash pits strictly OUTSIDE the 2x1 staircase axis so descending 4 blocks deeper never
+        // digs right back through our own sealed trash pit and re-collects the discarded junk!
+        const ax = bot._stair || { x: 1, z: 0 };
+        bot._avoidPitCols = new Set([
+          `${feet.x + ax.x},${feet.z + ax.z}`,
+          `${feet.x - ax.x},${feet.z - ax.z}`,
+        ]);
+        try { await P.dropJunk(bot, true, 8); } finally { bot._avoidPitCols = null; }
+      }
       // A shaft is dug with a pick, so require the HAND, not the pack. The descent from 19:31 to 19:35
       // moved 4 blocks in 8 minutes at 37.5 s per stone block with `pick=-` because equipPick had
       // returned true for an iron pick in slot 30 that never reached the hand; dirt would have taken
