@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MC 陪玩 · 实时控制台</title>
+<style>
+  :root{--bg:#0e1320;--pan:#161d2c;--line:#26314a;--tx:#e8edf6;--dim:#8b9ab5;--ok:#2fbf71;--now:#f2b134;--bad:#e0574a;--acc:#4aa3ff}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--tx);font-family:-apple-system,"Segoe UI","Microsoft YaHei",sans-serif;font-size:14px;line-height:1.5}
+  header{padding:14px 18px;border-bottom:1px solid var(--line);display:flex;flex-wrap:wrap;gap:10px;align-items:center;background:#121828;position:sticky;top:0;z-index:5}
+  h1{font-size:16px;margin:0 10px 0 0}
+  .pill{font-size:12px;padding:4px 10px;border-radius:999px;border:1px solid var(--line);background:#101625;display:inline-flex;gap:6px;align-items:center}
+  .dot{width:8px;height:8px;border-radius:50%;background:var(--dim);display:inline-block}
+  .dot.on{background:var(--ok)}.dot.off{background:var(--bad)}
+  main{padding:16px 18px 40px;max-width:1180px;margin:0 auto}
+  .row{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+  button{background:#1b2436;color:var(--tx);border:1px solid var(--line);border-radius:8px;padding:7px 13px;font-size:13px;cursor:pointer}
+  button:hover{border-color:var(--acc)}
+  button.danger:hover{border-color:var(--bad);color:#ffd7d2}
+  button:disabled{opacity:.45;cursor:progress}
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px;margin-bottom:16px}
+  .card{background:var(--pan);border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+  .card b{display:block;font-size:21px;font-weight:650}
+  .card span{font-size:11.5px;color:var(--dim)}
+  .bar{height:8px;background:#1b2438;border-radius:6px;overflow:hidden;margin-top:6px}
+  .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--ok),var(--acc));transition:width .3s}
+  h2{font-size:13.5px;margin:18px 0 8px;color:#c9d6ea}
+  .ladder{display:grid;grid-template-columns:repeat(auto-fill,minmax(146px,1fr));gap:7px}
+  .ms{border:1px solid var(--line);border-left-width:4px;border-radius:8px;padding:7px 9px;background:#131a27;font-size:12px;cursor:default}
+  .ms.done{border-left-color:var(--ok)}.ms.current{border-left-color:var(--now);background:#1b1a12}
+  .ms.todo{border-left-color:#45506a}.ms.locked{border-left-color:#2c3040;opacity:.7}
+  .ms .idx{color:var(--dim);font-size:10.5px}
+  .ms .tag{float:right;font-size:10px;color:var(--dim)}
+  .now{text-align:center;padding:11px;border:1px dashed var(--now);border-radius:10px;background:#181510;font-size:13px;margin-bottom:14px}
+  .feed{list-style:none;margin:0;padding:0;font-size:12.5px}
+  .feed li{padding:6px 9px;border-left:2px solid var(--line);margin-bottom:5px;background:#121828;border-radius:0 6px 6px 0;word-break:break-word}
+  pre{background:#0c111c;border:1px solid var(--line);border-radius:9px;padding:10px;font-size:11.5px;max-height:290px;overflow:auto;white-space:pre-wrap;word-break:break-word;font-family:ui-monospace,Consolas,monospace;color:#b9c8e2}
+  .chips{display:flex;flex-wrap:wrap;gap:6px}
+  .chip{font-size:11.5px;padding:3px 8px;border-radius:6px;background:#18202f;border:1px solid var(--line)}
+  .chip.key{background:#152743;border-color:#2f5a92;color:#bfe0ff}
+  .note{font-size:11.5px;color:var(--dim)}
+  canvas{background:#0c111c;border:1px solid var(--line);border-radius:9px;width:100%;height:74px}
+  .err{border:1px solid var(--bad);background:#2a1518;padding:9px;border-radius:8px;font-size:12.5px;margin-bottom:10px}
+.tabOn{outline:2px solid #4aa3ff;background:#16233a}
+  @media (prefers-reduced-motion:reduce){.bar i{transition:none}}
+</style>
+</head>
+<body>
+<header>
+  <h1>MC 陪玩 · 实时控制台</h1>
+  <span class="pill"><i class="dot" id="dBot"></i><span id="tBot">bot 连接中…</span></span>
+  <span class="pill"><i class="dot" id="dSrv"></i><span id="tSrv">服务端…</span></span>
+  <span class="pill" id="tAge">—</span>
+</header>
+<div class="row" id="tabs" style="gap:6px;margin:0 0 8px"></div>
+<main>
+  <div id="err"></div>
+  <div class="row">
+    <button data-a="bot-start">▶ 启动 bot</button>
+    <button data-a="bot-stop">■ 停止 bot</button>
+    <button data-a="bot-restart">⟳ 重启 bot</button>
+    <button data-a="server-start">🌍 启动服务端</button>
+    <button data-a="server-stop" class="danger">⏹ 停止服务端</button>
+  </div>
+  <div class="row" style="margin-top:6px">
+    <input id="cmdIn" placeholder="给服务端控制台发指令（走 RCON，不经过 bot），如 /list、/op musekc、/gamerule keepInventory true" style="flex:1;min-width:240px;padding:6px 8px;background:#10151c;color:#dfe7ef;border:1px solid #2a3441;border-radius:6px">
+    <button id="cmdGo">📡 发到服务端</button>
+  </div>
+  <div class="now" id="cmdOut" style="margin-top:4px;white-space:pre-wrap"></div>
+  <div class="row" style="margin-top:0">
+    <label class="pill" style="cursor:pointer"><input type="checkbox" id="auto" checked style="width:auto"> 日志自动滚动</label>
+  </div>
+
+  <div class="now" id="nowLine">正在读取状态…</div>
+  <div class="now" id="stallLine" style="margin-top:4px"></div>
+  <div class="card" id="cnBox" style="margin-top:8px;padding:10px 12px;border-left:3px solid #2fbf71">
+    <b id="cnHead" style="font-size:15px">现在在干什么（中文）</b>
+    <div id="cnWhere" class="note" style="margin-top:4px"></div>
+    <div id="cnJudge" style="margin-top:6px;font-weight:600"></div>
+    <div id="cnWhy" class="note" style="margin-top:4px"></div>
+    <div id="cnTried" class="note" style="margin-top:2px"></div>
+    <div id="cnLong" class="note" style="margin-top:4px;color:#f0a97a"></div>
+    <div id="cnMissing" style="margin-top:6px"></div>
+    <div id="cnNext" style="margin-top:6px;padding:6px 8px;background:#0c111c;border-radius:6px"></div>
+    <div class="note" style="margin-top:8px">最近动作（已翻译，原文见下方日志）</div>
+    <ul class="feed" id="cnRecent" style="margin-top:2px"></ul>
+  </div>
+
+  <div class="cards" id="vitals" style="grid-template-columns:repeat(auto-fit,minmax(150px,1fr))"></div>
+  <div class="cards">
+    <div class="card"><b id="cProg">—</b><span>里程碑完成</span><div class="bar"><i id="cBar" style="width:0%"></i></div></div>
+    <div class="card"><b id="cDeaths">—</b><span>近段死亡次数</span></div>
+    <div class="card"><b id="cUnh">—</b><span>未捕获异常</span></div>
+    <div class="card"><b id="cLlm">—</b><span>LLM 调用 · 近10分钟</span></div>
+    <div class="card"><b id="cFree">—</b><span>背包空格</span></div>
+  </div>
+
+  <h2>DeepSeek 用量（token 来自逐次账本 = 精确值；金额 = 官方区间估算）</h2>
+  <div class="note" style="margin-bottom:8px">账本 <code>runs/llm.jsonl</code> 是这次改动才开始写的，所以「今日」只包含 bot 之后发出的调用；更早的历史只有 <code>logs/run.log</code> 里的文本行（上面 bot 卡片的「近10分钟 LLM 调用」仍按日志时间戳统计，两者口径不同，不是重复计数）。</div>
+  <div class="row" style="align-items:center">
+    <button id="btnBal">刷新余额</button>
+    <span class="pill" id="balState">余额：查询中…</span>
+    <span class="note" id="priceNote"></span>
+  </div>
+  <div class="cards">
+    <div class="card"><b id="dToday">—</b><span>今日调用次数</span></div>
+    <div class="card"><b id="dTokens">—</b><span>今日 tokens（入/出）</span></div>
+    <div class="card"><b id="dCost">—</b><span>今日估算成本</span></div>
+    <div class="card"><b id="dHour">—</b><span>近 1 小时调用 / 上限</span><div class="bar"><i id="dHourBar" style="width:0%"></i></div></div>
+    <div class="card"><b id="dCache">—</b><span>缓存命中率（窗口内）</span></div>
+    <div class="card"><b id="dRecent">—</b><span>近 10 分钟调用 / tokens</span></div>
+  </div>
+  <canvas id="llmChart" height="96" style="width:100%;background:#0c111c;border:1px solid var(--line);border-radius:9px"></canvas>
+  <div id="llmModels" class="note" style="margin-top:8px"></div>
+  <div id="llmErr" class="note" style="margin-top:6px;color:#f0a97a"></div>
+
+  <h2>科技树（23 段，绿=完成 / 黄=正在做 / 灰=待办）</h2>
+  <div class="ladder" id="ladder"></div>
+
+  <h2>里程碑完成时间线</h2>
+  <canvas id="spark" width="1100" height="74"></canvas>
+
+  <h2>它现在在干什么</h2>
+  <ul class="feed" id="feed"></ul>
+
+  <h2>背包（最新一次日志快照）</h2>
+  <div class="chips" id="inv"></div>
+
+  <h2 id="logHead">日志尾部（logs/run.log 最后 40 行）</h2>
+  <pre id="log">…</pre>
+  <p class="note" id="logNote">面板只监听 127.0.0.1:<span id="port">8790</span>，每 3 秒拉一次 /api/state；控制按钮需要本页加载时的一次性 token，所以请用这里的按钮，别用 curl 猜命令。全量日志在 logs/run.log（会长到几百 MB，面板只读尾部）。</p>
+</main>
+<script>
+const TOKEN='__TOKEN__';
+const $=id=>document.getElementById(id);
+let busy=false;
+let CUR=null, FLEET=null;
+// The page can show any instance: /api/fleet lists them all, and every read/write is routed through
+// this panel (peers are proxied so another instance's control token never reaches the browser).
+function apiFor(what, withBalance){
+  if (CUR && FLEET && CUR !== FLEET.selfId) return '/api/peer?id=' + encodeURIComponent(CUR) + '&what=' + what;
+  return what === 'llm' ? '/api/llm?balance=' + (withBalance ? 1 : 0) : '/api/' + what;
+}
+function drawTabs(){
+  if(!FLEET)return;
+  const items=[{id:FLEET.selfId,label:FLEET.selfLabel,state:FLEET.self}].concat(FLEET.peers||[]);
+  const html=items.map(it=>{
+    const on=!CUR||CUR===it.id, r=it.state&&it.state.bot&&it.state.bot.running;
+    const done=it.state?(it.state.doneCount+'/23'):'离线';
+    return '<button data-tab="'+esc(it.id)+'" style="padding:6px 10px"><i class="dot '+(r?'on':'off')+'"></i> '+esc(it.label)+' · '+esc(done)+(it.state&&it.state.current?' → '+esc(it.state.current):'')+'</button>';
+  }).join(' ')+' <span class="note">点标签切换实例；停止/启动只作用于当前选中的实例</span>';
+  // Rebuilding the strip on every 3 s poll detaches the button under the cursor (a click then
+  // fails with "node is detached"), so only touch the DOM when the labels actually changed.
+  if (html !== $('tabs').dataset.sig) {
+    $('tabs').dataset.sig = html;
+    $('tabs').innerHTML = html;
+    document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{CUR=b.dataset.tab;poll();llm(true);drawTabs();});
+  }
+}
+const KEYITEMS=['ender_eye','ender_pearl','obsidian','raw_iron','iron_ingot','diamond','coal','charcoal','bow','arrow','flint_and_steel','water_bucket','bucket','crafting_table','furnace','torch','iron_helmet','iron_chestplate','iron_leggings','iron_boots','diamond_pickaxe','iron_pickaxe','blaze_rod','beef','bread','apple'];
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]))}
+function setPill(dot,txt,on,label){$(dot).className='dot '+(on?'on':'off');$(txt).textContent=label}
+async function ctl(a){
+  if(busy)return;
+  const lbl=(FLEET&&((FLEET.peers||[]).find(p=>p.id===CUR)||{}).label)||FLEET&&FLEET.selfLabel||'该实例';
+  if(a==='server-stop'&&!confirm('停止【'+lbl+'】的服务端会断开 bot 连接（世界数据保留，不删除）。确定？'))return;
+  busy=true;document.querySelectorAll('[data-a]').forEach(b=>b.disabled=true);
+  try{
+    const inst=CUR||(FLEET&&FLEET.selfId);
+    const r=await fetch('/api/ctl',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:a,token:TOKEN,instance:inst})}).then(x=>x.json());
+    $('err').innerHTML=r.ok?'':'<div class="err">'+esc(r.note||'失败')+'</div>';
+  }catch(e){$('err').innerHTML='<div class="err">请求失败：'+esc(e.message)+'</div>'}
+  busy=false;document.querySelectorAll('[data-a]').forEach(b=>b.disabled=false);
+  setTimeout(poll,600);
+}
+document.querySelectorAll('[data-a]').forEach(b=>b.onclick=()=>ctl(b.dataset.a));
+async function sendCmd(){
+  const t=($('cmdIn').value||'').trim(); if(!t)return;
+  if(/^\/(stop|shutdown|restart)/i.test(t)&&!confirm('这条会停/重启服务端，bot 会掉线（世界数据保留）。确定？'))return;
+  $('cmdGo').disabled=true; $('cmdOut').textContent='发送中… '+t;
+  try{
+    const inst=CUR||(FLEET&&FLEET.selfId);
+    const r=await fetch('/api/ctl',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'server-cmd',text:t,token:TOKEN,instance:inst})}).then(x=>x.json());
+    $('cmdOut').textContent=(r.ok?'✔ '+(String(r.response||'').trim()||'（服务端回了空文本，指令已执行）'):'✘ '+(r.note||'失败'));
+  }catch(e){$('cmdOut').textContent='✘ 请求失败：'+e.message}
+  $('cmdGo').disabled=false; $('cmdIn').value='';
+}
+$('cmdGo').onclick=sendCmd;
+$('cmdIn').addEventListener('keydown',e=>{if(e.key==='Enter')sendCmd();});
+function draw(s){
+  setPill('dBot','tBot',s.bot.running,'bot '+(s.bot.running?('运行中 PID '+s.bot.pid):'已停止'));
+  setPill('dSrv','tSrv',s.server.running,'服务端 '+(s.server.running?('在线 :'+(s.server.mcPort||'?')+' java '+s.server.javaPid):('离线 :'+(s.server.mcPort||'?'))));
+  const lf=s.logFile||'logs/run.log';
+  const lh=$('logHead'); if(lh)lh.textContent='日志尾部（'+lf+' 最后 40 行）';
+  const ln=$('logNote'); if(ln)ln.innerHTML='面板只监听 127.0.0.1:<span id="port">'+esc(s.port)+'</span>，每 3 秒拉一次 /api/state；控制按钮需要本页加载时的一次性 token，所以请用这里的按钮，别用 curl 猜命令。全量日志在 '+esc(lf)+'（会长到几百 MB，面板只读尾部）。';
+  $('tAge').textContent='更新 '+new Date(s.now).toLocaleTimeString();
+  $('cProg').textContent=s.doneCount+'/23';
+  $('cBar').style.width=Math.round(s.doneCount/23*100)+'%';
+  $('cDeaths').textContent=s.metrics.deaths; $('cDeaths').style.color=s.metrics.deaths>3?'#e0574a':'#e8edf6'; $('cDeaths').nextElementSibling.textContent='死亡 · 近'+s.windowMinutes+'分钟（窗口内总计 '+s.metrics.deathsTail+'）';
+  $('cUnh').textContent=s.metrics.unhandled;
+  $('cUnh').style.color=s.metrics.unhandled>0?'#e0574a':'#2fbf71';
+  $('cLlm').textContent=s.metrics.llmCalls; $('cLlm').nextElementSibling.textContent='LLM 调用 · 近'+s.windowMinutes+'分钟（窗口内总计 '+s.metrics.llmTail+'）';
+  $('cFree').textContent=s.metrics.freeSlots==null?'?':s.metrics.freeSlots;
+  $('cFree').style.color=(s.metrics.freeSlots!=null&&s.metrics.freeSlots<3)?'#e0574a':'#e8edf6';
+  const v=s.live;
+  $('vitals').innerHTML=v?([
+    ['生命', (v.hp!=null?v.hp+' / 20':'—'), v.hp!=null&&v.hp<=8?'#e0574a':'#e8edf6'],
+    ['饥饿', (v.food!=null?v.food+' / 20':'—'), v.food!=null&&v.food<12?'#f2b134':'#e8edf6'],
+    ['坐标', v.pos?(v.pos.x+','+v.pos.y+','+v.pos.z):'—', v.dim==='the_nether'?'#c2643f':(v.dim==='the_end'?'#9b7ce0':'#e8edf6')],
+    ['维度', v.dim||'—', '#e8edf6'],
+    ['穿着', v.worn&&v.worn.length?v.worn.join('+'):'没穿甲', v.worn&&v.worn.length>=4?'#2fbf71':'#f2b134'],
+    ['背包种类', (()=>{try{return Object.keys(JSON.parse(v.inv||'{}')).length+' 种'}catch{return '—'}})(), '#e8edf6'],
+  ].map(r=>'<div class="card"><b style="color:'+r[2]+'">'+esc(String(r[1]))+'</b><span>'+r[0]+(v.stale?' · 快照已过期':'')+'</span></div>').join('')):'<div class="card"><span>还没读到 runs/live.json（bot 这一轮循环后会写）</span></div>';
+  $('nowLine').innerHTML=s.current?('当前里程碑：<b>'+esc(s.current)+'</b> ｜ 最新动作：'+esc((s.activity[0]||'—'))):'<b style="color:#2fbf71">23 段阶梯全部完成 —— 应该已经进入末地阶段</b>';
+  // Stall verdict from src/stageLock.js + the samplers: the point is to answer "卡住了吗、卡在哪、多久了、
+  // 它自己试过什么" without opening a terminal. Null-safe: an older panel build returns no `stall`.
+  (function(){
+    var k=s.stall,el=$('stallLine'); if(!el)return;
+    if(!k||!k.stage){el.innerHTML='<span class="note">卡点监测：等待 stage_lock 数据…</span>';return;}
+    var v=(k.verdict||'').replace(/^VERDICT\s+/,'').split(' ')[0]||'ADVANCING';
+    var col=v==='ADVANCING'?'#2fbf71':(v==='REPEATING'?'#f0a97a':'#ff6b6b');
+    var t=k.dossier?(' <span class="note">上次判决 '+(k.dossier.at||'').slice(11,19)+' · '+esc(k.dossier.level||'')+' · 换路线 '+esc(k.dossier.alt||'-')+'</span>'):'';
+    el.innerHTML='<span style="color:'+col+';font-weight:600">卡点：'+esc(v)+'</span>'
+      +' ｜ <b>'+esc(k.stage)+'</b> 已占 '+k.segmentMin+' 分钟（升级：'+(k.tiers.length?esc(k.tiers.join(',')):'未触发')+'）'
+      +' ｜ 目标量连续 '+k.idle+' 次没动'
+      +(k.lastObs?' <span class="note">最近回答：'+esc(k.lastObs)+'</span>':'')
+      +t
+      +(k.recent&&k.recent.length?'<div class="note" style="margin-top:3px">'+esc(k.recent.join(' ／ '))+'</div>':'');
+  })();
+  // 中文「现在在干什么」：翻译 + 缺料 + 下一步，全部由 panel/nowcn.js 从同一份快照算出来。
+  (function(){
+    var c=s.cn, box=$('cnBox'); if(!box)return;
+    if(!c){box.style.display='none';return;}
+    box.style.display='';
+    var col={ok:'#2fbf71',slow:'#f2b134',bug:'#ff6b6b',done:'#2fbf71',unknown:'#8b98ad'}[c.judgeLevel]||'#8b98ad';
+    box.style.borderLeftColor=col;
+    $('cnHead').textContent=c.headline||'现在在干什么（中文）';
+    $('cnWhere').textContent=(c.where||'')+' ｜ '+(c.vitals||'')+(c.moveIdleMin!=null?(' ｜ 位置 '+c.moveIdleMin+' 分钟前动过'):'');
+    var j=$('cnJudge'); j.textContent=c.judge||''; j.style.color=col;
+    $('cnWhy').textContent=c.why||'';
+    $('cnTried').textContent=c.tried||'';
+    $('cnLong').textContent=c.longTerm||'';
+    $('cnMissing').innerHTML=(c.missing&&c.missing.length)
+      ? '<b style="color:#f0a97a">缺的东西：</b>'+c.missing.map(function(x){return '<span class="pill" style="margin:2px 4px 2px 0">'+esc(x)+'</span>';}).join('')
+      : '<span class="note">背包里没有明显缺料</span>';
+    $('cnNext').innerHTML='<b style="color:#7fb2ff">下一步建议：</b>'+esc(c.next||'—');
+    $('cnRecent').innerHTML=(c.recent||[]).map(function(a){return '<li>'+esc(a)+'</li>';}).join('')||'<li>（暂无）</li>';
+  })();
+  $('ladder').innerHTML=s.ladder.map((m,i)=>'<div class="ms '+m.state+'"><span class="tag">'+m.state+'</span><span class="idx">'+String(i+1).padStart(2,'0')+'</span>'+esc(m.id)+'</div>').join('');
+  $('feed').innerHTML=(s.activity||[]).map(a=>'<li>'+esc(a)+'</li>').join('')||'<li>（日志暂时没有新动作）</li>';
+  const inv=s.inventory||{};
+  $('inv').innerHTML=Object.keys(inv).length?Object.entries(inv).map(([k,v])=>'<span class="chip'+(KEYITEMS.includes(k)?' key':'')+'">'+esc(k)+' ×'+v+'</span>').join(''):'<span class="note">还没抓到背包快照</span>';
+  const el=$('log');el.textContent=s.log||'';
+  if($('auto').checked)el.scrollTop=el.scrollHeight;
+  spark(s.stamps||[]);
+}
+function spark(st){
+  const c=$('spark'),g=c.getContext('2d');g.clearRect(0,0,c.width,c.height);
+  if(!st.length){g.fillStyle='#5d6b86';g.font='12px sans-serif';g.fillText('本轮日志里还没有里程碑完成记录',12,42);return}
+  const t0=st[0].at||Date.now()-1,t1=Math.max(...st.map(s=>s.at||0),t0+1);
+  const x=t=>12+(c.width-24)*((t-t0)/(t1-t0));
+  g.strokeStyle='#4aa3ff';g.lineWidth=2;g.beginPath();
+  st.forEach((s,i)=>{const px=x(s.at||t0),py=c.height-12-(c.height-24)*(i/(st.length-1||1));i?g.lineTo(px,py):g.moveTo(px,py)});
+  g.stroke();
+  g.fillStyle='#8b9ab5';g.font='11px sans-serif';
+  st.slice(-8).forEach(s=>{g.fillStyle='#2fbf71';g.fillRect(x(s.at||t0)-2,c.height-16,4,4);g.fillStyle='#8b9ab5';g.fillText(s.id,x(s.at||t0)-14,c.height-22)});
+}
+async function poll(){
+  if(busy)return;
+  try{ if(!FLEET){ FLEET=await fetch('/api/fleet',{cache:'no-store'}).then(x=>x.json()); } else { const f=await fetch('/api/fleet',{cache:'no-store'}); FLEET=await f.json(); } drawTabs(); const s=await fetch(apiFor('state'),{cache:'no-store'}).then(x=>x.json()); draw(s); $('err').innerHTML=''; }
+  catch(e){setPill('dBot','tBot',false,'面板后端不可达');$('err').innerHTML='<div class="err">取状态失败：'+esc(e.message)+'（server.js 可能已退出）</div>'}
+}
+const fmtN=(n)=>n==null?'—':(n>=1e6?(n/1e6).toFixed(2)+'M':n>=1e3?(n/1e3).toFixed(1)+'k':String(n));
+const money=(v)=>v==null||!isFinite(v)?'—':'¥'+(v<0.01?v.toFixed(4):v.toFixed(3));
+function llmChart(bk){
+  const c=$('llmChart'),g=c.getContext('2d');
+  const w=c.width=c.clientWidth*2,h=c.height=192;
+  g.clearRect(0,0,w,h);
+  const max=Math.max(1,...bk.map(b=>b.tokens));
+  const bw=(w-40)/bk.length;
+  bk.forEach((b,i)=>{
+    const xh=20+i*bw, bh=(h-56)*(b.tokens/max);
+    g.fillStyle=b.calls?((i>=bk.length-3)?'#4aa3ff':'#2b5f8f'):'#1b2333';
+    g.fillRect(xh,h-36-bh,bw-8,bh||2);
+    g.fillStyle='#8b9ab5';g.font='18px sans-serif';
+    if(i%2===0)g.fillText(b.label,xh+2,h-14);
+    if(b.calls){g.fillStyle='#bfe0ff';g.fillText(String(b.calls),xh+2,h-42-bh)}
+  });
+  g.fillStyle='#8b9ab5';g.font='18px sans-serif';g.fillText('每小时调用次数（柱上数字）/ token 量（柱高）',20,20);
+}
+async function llm(withBalance){
+  try{
+    const j=await fetch(apiFor('llm',withBalance),{cache:'no-store'}).then(r=>r.json());
+    const s=j.stats;
+    $('dToday').textContent=s.totals.today.calls;
+    $('dTokens').textContent=fmtN(s.totals.today.in)+' / '+fmtN(s.totals.today.out);
+    $('dCost').textContent=money(s.totals.today.cost);
+    $('dHour').textContent=s.budget.callsLastHour+' / '+s.budget.limit;
+    $('dHourBar').style.width=Math.min(100,Math.round(s.budget.callsLastHour/Math.max(1,s.budget.limit)*100))+'%';
+    $('dCache').textContent=s.cacheHitRate==null?'—':s.cacheHitRate+'%';
+    $('dRecent').textContent=s.totals.last10m.calls+' / '+fmtN(s.totals.last10m.in+s.totals.last10m.out);
+    $('priceNote').textContent='单价(元/百万token)：未缓存入 '+s.price.in+' · 缓存入 '+s.price.cached+' · 出 '+s.price.out+'（改 .env 的 DEEPSEEK_PRICE_*）';
+    $('llmModels').innerHTML='按模型：'+(Object.entries(s.byModel).map(([k,v])=>'<b>'+esc(k)+'</b> '+v.calls+' 次 · 入 '+fmtN(v.in)+' 出 '+fmtN(v.out)+' · '+money(v.cost)).join(' ｜ ')||'—')+'<br>账本窗口：'+s.ledger.rows+' 行'+(s.ledger.trimmed?'（runs/llm.jsonl 更大，只统计最近 4MB）':'')+' · 模型 '+esc(s.budget.model)+' · thinking '+(s.budget.thinking?('on/'+s.budget.reasoningEffort):'off')+' · max_tokens '+s.budget.maxTokens;
+    $('llmErr').textContent=s.ledger.error?('账本还没生成（'+esc(s.ledger.error)+'）：重启 bot 后的新调用会写入 runs/llm.jsonl'):(s.failed?('窗口内有 '+s.failed+' 次调用没有产出内容'):'');
+    if(s.buckets)llmChart(s.buckets);
+    if(j.balance){
+      const b=j.balance;
+      if(b.ok){
+        const i=(b.infos||[])[0];
+        $('balState').innerHTML='<i class="dot '+(b.isAvailable?'on':'off')+'"></i>余额 '+(i?(i.total.toFixed(2)+' '+(i.currency||'')):'—')+(i?'（赠 '+i.granted+' + 充 '+i.toppedUp+'）':'')+' · '+(b.cached?'缓存':'实时')+' '+new Date(b.fetchedAt).toLocaleTimeString();
+      } else $('balState').innerHTML='<i class="dot off"></i>余额查询失败：'+esc(b.error||('HTTP '+b.http));
+    }
+  }catch(e){$('llmErr').textContent='取 DeepSeek 用量失败：'+esc(e.message)}
+}
+$('btnBal').onclick=()=>llm(true);
+poll();setInterval(poll,3000);
+llm(true);setInterval(()=>llm(false),15000);setInterval(()=>llm(true),60000);
+</script>
+</body>
+</html>
