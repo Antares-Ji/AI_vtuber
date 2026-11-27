@@ -309,8 +309,99 @@ function makeBot(overrides = {}) {
     }
   }
 
+  // 9. bow milestone: self-heals missing pickaxes via ensure_tools, hunts spiders when string<3, and surfaces before chicken roam
+  {
+    const { LADDER } = require('../src/minecraft/autonomous/skills/progression');
+    const bowMs = LADDER.find(m => m.id === 'bow');
+    assert.ok(bowMs, 'bow milestone defined');
+    let ensureToolsCalls = 0, spiderCalls = 0, surfaceCalls = 0;
+    const origET = reg.get('ensure_tools').run;
+    const origHS = reg.get('hunt_spider').run;
+    const origRS = reg.get('recover_surface').run;
+    const origRoam = reg.get('roam').run;
+    const origHunt = reg.get('hunt').run;
+    const origMine = reg.get('mine').run;
+    try {
+      reg.get('ensure_tools').run = async () => { ensureToolsCalls++; return { ok: true, observation: 'stub-tools' }; };
+      reg.get('hunt_spider').run = async () => { spiderCalls++; return { ok: false, observation: 'stub-no-spider' }; };
+      reg.get('recover_surface').run = async (b) => { surfaceCalls++; b.entity.position = new Vec3(0, 64, 0); return { ok: true, observation: 'surfaced' }; };
+      reg.get('roam').run = async () => ({ ok: false, observation: 'stub-roam' });
+      reg.get('hunt').run = async () => ({ ok: false, observation: 'stub-hunt' });
+      reg.get('mine').run = async () => ({ ok: false, observation: 'stub-mine' });
+      const bot = makeBot({
+        entity: { position: new Vec3(0, 40, 0), yaw: 0, pitch: 0 },
+        inventory: {
+          slots: new Array(46).fill(null),
+          items: () => [{ name: 'flint', count: 3 }, { name: 'stick', count: 6 }],
+        },
+        findBlocks: () => [],
+      });
+      await bowMs.run(bot);
+      assert.equal(ensureToolsCalls, 1, 'bow milestone must call ensure_tools when carrying zero pickaxes');
+      assert.equal(spiderCalls, 1, 'bow milestone must actively run hunt_spider when bow=0 and string<3');
+      assert.equal(surfaceCalls, 1, 'bow milestone must surface before roaming for surface chickens when y<55');
+    } finally {
+      reg.get('ensure_tools').run = origET;
+      reg.get('hunt_spider').run = origHS;
+      reg.get('recover_surface').run = origRS;
+      reg.get('roam').run = origRoam;
+      reg.get('hunt').run = origHunt;
+      reg.get('mine').run = origMine;
+    }
+  }
+
+  // 10. locate_stronghold under MC_ASSIST=0: uses packet-level eye tracking and never digs far off-column
+  {
+    const prevAssist = process.env.MC_ASSIST;
+    const origDeepShaft = reg.get('deep_shaft').run;
+    let deepShaftCalled = 0;
+    try {
+      process.env.MC_ASSIST = '0';
+      reg.get('deep_shaft').run = async () => { deepShaftCalled++; return { ok: false, observation: 'should-not-dig-far' }; };
+      const client = new EventEmitter();
+      const bot = makeBot({
+        _client: client,
+        _stepDeadline: Date.now() + 25000,
+        game: { dimension: 'overworld' },
+        entity: { position: new Vec3(0, 64, 0), yaw: 0, pitch: 0 },
+        registry: { entitiesByName: { eye_of_ender: { id: 39 } }, blocksByName: {}, itemsByName: {} },
+        inventory: {
+          slots: new Array(46).fill(null),
+          items: () => [{ name: 'ender_eye', count: 12 }],
+        },
+        equip: async () => {},
+        look: async () => {},
+        activateItem: async () => {
+          // Simulate Paper 1.21.1 spawn_entity + rel_entity_move + entity_destroy packets flying +X (east)
+          setTimeout(() => {
+            client.emit('spawn_entity', { entityId: 9001, type: 39, x: 0, y: 65, z: 0, velocityX: 0, velocityY: 0, velocityZ: 0 });
+            client.emit('rel_entity_move', { entityId: 9001, dX: 4096 * 12, dY: 4096 * 4, dZ: 0 });
+            client.emit('entity_destroy', { entityIds: [9001] });
+          }, 50);
+        },
+        pathfinder: { goto: async () => {} },
+        findBlock: () => null,
+        blockAt: () => ({ name: 'air' }),
+      });
+      // Pre-set an estimated stronghold 500 blocks east to verify MC_ASSIST=0 refuses to dig off-column
+      bot._strongholdEst = { x: 500, z: 0, at: Date.now() };
+      const rFar = await reg.get('locate_stronghold').run(bot, {});
+      assert.equal(rFar.ok, false);
+      assert.equal(deepShaftCalled, 0, 'MC_ASSIST=0 must NEVER dig a shaft while 500 blocks away from estimated stronghold');
+      assert.match(rFar.observation, /marching toward estimated stronghold/i);
+      // Now clear _strongholdEst and verify packet-level eye tracking captures the east bearing
+      delete bot._strongholdEst;
+      bot._stepDeadline = Date.now() + 22000; // stops after 1st ray due to deadline margin
+      const rEye = await reg.get('locate_stronghold').run(bot, { throws: 2 });
+      assert.match(rEye.observation, /followed 1 eye bearing \(1\.00,0\.00\)/i, 'must capture eye bearing from raw spawn_entity + rel_entity_move packets');
+    } finally {
+      if (prevAssist === undefined) delete process.env.MC_ASSIST; else process.env.MC_ASSIST = prevAssist;
+      reg.get('deep_shaft').run = origDeepShaft;
+    }
+  }
+
   fs.rmSync(tmp, { recursive: true, force: true });
-  console.log('PASS minecraft-autonomous: deadline helper, survive anti-spin, victory halt, chat/MC_TALK guards, gridcraft tableWin count, bridge + streamer factual narration');
+  console.log('PASS minecraft-autonomous: deadline helper, survive anti-spin, victory halt, chat/MC_TALK guards, gridcraft tableWin count, bridge + streamer factual narration, bow/stronghold MC_ASSIST=0');
 })().catch(e => {
   console.error(e);
   process.exitCode = 1;

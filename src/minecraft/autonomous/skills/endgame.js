@@ -1237,11 +1237,27 @@ reg.define('find_diamonds', {
     // evidence (flood/bedrock, handled by resume_shaft's abandon) gets replaced.
     {
       const r = shaftRecord.current();
-      if (r && bot.entity.position.y > -25 && (r.stall || 0) < 4) {
+      const rHoriz = r ? Math.hypot(r.x - bot.entity.position.x, r.z - bot.entity.position.z) : Infinity;
+      if (r && rHoriz > 180) {
+        const g = shaftRecord.abandon(bot, `recorded shaft is ${Math.round(rHoriz)} blocks away; sinking a fresh column here`);
+        log.info(`fd: recorded shaft ${g.was} is ${Math.round(rHoriz)} blocks away - releasing it to sink a fresh column here`);
+      } else if (r && bot.entity.position.y > -25 && (r.stall || 0) < 4) {
         log.info(`fd: shaft on file at ${r.x},${r.y},${r.z} (target ${r.toY}, stall=${r.stall || 0}) - continuing it instead of opening a column`);
-        const rs = await reg.get('resume_shaft').run(bot, { max: 30 });
-        log.info(`fd: resume_shaft (${String(rs.observation).slice(0, 200)})`);
-        if (bot.entity.position.y > -25 && !rs.ok) return rs;
+        let lastRs = null;
+        for (let rHop = 0; rHop < 4 && bot.entity.position.y > -25; rHop++) {
+          if (bot._stepDeadline && Date.now() > bot._stepDeadline - 25000) break;
+          const yPre = Math.round(bot.entity.position.y);
+          const rs = await reg.get('resume_shaft').run(bot, { max: 35 });
+          lastRs = rs;
+          log.info(`fd: resume_shaft hop ${rHop + 1} (${String(rs.observation).slice(0, 200)})`);
+          const yPost = Math.round(bot.entity.position.y);
+          if (yPost <= -25 || rs.ok) break;
+          if (!shaftRecord.current()) break; // abandoned due to water/bedrock -> fall through to fresh shaft
+          if (yPost >= yPre - 1) break;
+        }
+        if (bot.entity.position.y > -25 && lastRs && !lastRs.ok && shaftRecord.current() && /no pickaxe|cannot get back/i.test(lastRs.observation || '')) {
+          return lastRs;
+        }
       } else if (r && (r.stall || 0) >= 4) {
         const g = shaftRecord.abandon(bot, `${r.stall} rounds with no new depth`);
         log.warn(`SHAFT GIVEN BACK: ${g.was} released after ${g.given} discards - ${r.stall} rounds spent at the same head, so this column is the problem, not the clock`);
@@ -5648,13 +5664,14 @@ async function locateStrongholdByCommand(bot) {
 }
 
 reg.define('locate_stronghold', {
-  desc: 'Throw eyes of ender, sample each throw flight bearing, intersect two rays -> stronghold coords, then dig to it.',
+  desc: 'Throw eyes of ender, sample each throw flight bearing, converge on the stronghold coordinates without commands, then descend to it.',
   params: { throws: 'int default 4' },
   async run(bot, a) {
+    const rec0 = require('../portalRecord').current();
+    if (rec0) return await descendToStronghold(bot, new Vec3(rec0.x, rec0.y, rec0.z));
     if (countItem(bot, 'ender_eye') < 1) return { ok: false, observation: 'need eye_of_ender (craft eyes first)' };
     if (bot.game && bot.game.dimension !== 'overworld') return { ok: false, observation: 'locate stronghold in the overworld' };
-    // Try /locate first when assist is on: the eye's flight is not observable on this server
-    // (measured), so throwing eyes first only burns 30-50s before arriving at the same place.
+    // Try /locate first when assist is on. MC_ASSIST=0 strictly disables all command assists.
     if (process.env.MC_ASSIST !== '0') {
       const p0 = await locateStrongholdByCommand(bot);
       if (p0) {
@@ -5663,16 +5680,70 @@ reg.define('locate_stronghold', {
         return await descendToStronghold(bot, p0);
       }
     }
+    // If a previous assist-free round already narrowed down a stronghold target, march to it without
+    // burning extra eyes on every step until we arrive near the estimated column.
+    if (bot._strongholdEst && Number.isFinite(bot._strongholdEst.x) && Number.isFinite(bot._strongholdEst.z)) {
+      const est = bot._strongholdEst;
+      let distEst = Math.hypot(est.x - bot.entity.position.x, est.z - bot.entity.position.z);
+      if (distEst > 45) {
+        if (bot.entity.position.y < 52) {
+          try { await reg.get('recover_surface').run(bot, {}); } catch {}
+        }
+        log.info(`locate_stronghold: marching toward estimated stronghold ${Math.round(est.x)},${Math.round(est.z)} (${Math.round(distEst)}m away)`);
+        const w = await walkSurfaceTowards(bot, est.x, est.z, 36, 120000);
+        distEst = w.dist;
+        if (!w.arrived && distEst > 45) {
+          return { ok: false, observation: `marching toward estimated stronghold ${Math.round(est.x)},${Math.round(est.z)} (${distEst} blocks left) - call locate_stronghold to continue` };
+        }
+      }
+      if (distEst <= 45) {
+        log.info(`locate_stronghold: within ${Math.round(distEst)}m of estimated stronghold ${Math.round(est.x)},${Math.round(est.z)} - descending`);
+        const res = await descendToStronghold(bot, new Vec3(est.x, 32, est.z));
+        if (!res.ok && /no frame visible yet/i.test(res.observation || '') && bot.entity.position.y <= 34) {
+          // Allow a fresh eye throw next round if the estimated column missed the actual room.
+          delete bot._strongholdEst;
+        }
+        return res;
+      }
+    }
+    // Eyes cannot fly freely inside a 2-high cave tunnel: surface first before throwing.
+    if (bot.entity.position.y < 55) {
+      log.info(`locate_stronghold: underground at y=${Math.round(bot.entity.position.y)} - surfacing before throwing eyes`);
+      try { await reg.get('recover_surface').run(bot, {}); } catch {}
+    }
     const rays = [];
     const samples = Math.max(2, a.throws || 4);
     for (let i = 0; i < samples && rays.length < 2; i++) {
+      if (bot._stepDeadline && Date.now() > bot._stepDeadline - 20000) break;
       const origin = bot.entity.position.clone();
       const bearing = await oneEyeBearing(bot);
       if (!bearing) { continue; }
+      if (bearing.downward || bearing.len < 2.2) {
+        const tgt = new Vec3(bearing.px ?? origin.x, 32, bearing.pz ?? origin.z);
+        bot._strongholdEst = { x: tgt.x, z: tgt.z, at: Date.now() };
+        log.info(`locate_stronghold: eye dove/hovered at ${Math.round(tgt.x)},${Math.round(tgt.z)} - stronghold is directly underneath`);
+        return await descendToStronghold(bot, tgt);
+      }
       rays.push({ o: { x: origin.x, z: origin.z }, d: bearing });
-      // move aside so the next throw has a different origin
-      try { await bot.pathfinder.goto(new (GN())(origin.x + 24, origin.y, origin.z + 12, 2)); } catch {}
-      await sleep(800);
+      // On the first throw, march ~140 blocks ALONG the eye bearing (legit follow-the-eye speedrun
+      // convergence) with a small lateral offset so a second throw either triangulates cleanly or
+      // catches an overshoot when the eye reverses direction.
+      if (rays.length === 1) {
+        const stepDist = 140;
+        const lat = 45;
+        const gx = Math.round(origin.x + bearing.x * stepDist - bearing.z * lat);
+        const gz = Math.round(origin.z + bearing.z * stepDist + bearing.x * lat);
+        log.info(`locate_stronghold: following eye bearing (${bearing.x.toFixed(2)},${bearing.z.toFixed(2)}) toward ${gx},${gz}`);
+        await walkSurfaceTowards(bot, gx, gz, 24, 90000);
+        await sleep(600);
+      }
+    }
+    if (rays.length === 1) {
+      // One valid bearing and budget ran low during the march: save progress along the ray so the
+      // next round keeps marching instead of digging blind.
+      const r0 = rays[0];
+      const moved = Math.hypot(bot.entity.position.x - r0.o.x, bot.entity.position.z - r0.o.z);
+      return { ok: false, observation: `followed 1 eye bearing (${r0.d.x.toFixed(2)},${r0.d.z.toFixed(2)}) for ${Math.round(moved)} blocks to ${Math.round(bot.entity.position.x)},${Math.round(bot.entity.position.z)} - call locate_stronghold again to throw the next eye` };
     }
     if (rays.length < 2) {
       // No /locate (assist off) and no observable eye flight: fall back to physically probing for
@@ -5685,61 +5756,168 @@ reg.define('locate_stronghold', {
       }
       return { ok: false, observation: `eye rays gave ${rays.length} bearings; brick probing said: ${pr.observation}` };
     }
-    const p = intersect(rays[0], rays[1]);
-    if (!p) return { ok: false, observation: 'eye rays nearly parallel; move and re-throw' };
-    // aim toward (p.x, p.z) and throw more eyes descending onto the spot
-    const found = await descendToStronghold(bot, p);
-    return found;
+    // Check if the eye reversed direction (we walked past the stronghold -> midpoint is the target).
+    const dot = rays[0].d.x * rays[1].d.x + rays[0].d.z * rays[1].d.z;
+    let p = null;
+    if (dot < -0.25) {
+      p = { x: (rays[0].o.x + rays[1].o.x) / 2, z: (rays[0].o.z + rays[1].o.z) / 2 };
+      log.info(`locate_stronghold: eye reversed direction (dot=${dot.toFixed(2)}) -> midpoint ${Math.round(p.x)},${Math.round(p.z)}`);
+    } else {
+      const ix = intersect(rays[0], rays[1]);
+      if (ix) {
+        const distIx = Math.hypot(ix.x - rays[1].o.x, ix.z - rays[1].o.z);
+        if (distIx <= 2600) p = ix;
+        else log.warn(`locate_stronghold: ray intersection ${Math.round(distIx)}m away (nearly parallel) - marching 180m along latest bearing instead`);
+      }
+    }
+    if (!p) {
+      // Rays were nearly parallel (stronghold is still far ahead): advance along ray[1] and re-throw next step.
+      const gx = Math.round(rays[1].o.x + rays[1].d.x * 180);
+      const gz = Math.round(rays[1].o.z + rays[1].d.z * 180);
+      await walkSurfaceTowards(bot, gx, gz, 24, 90000);
+      return { ok: false, observation: `stronghold is still ahead along (${rays[1].d.x.toFixed(2)},${rays[1].d.z.toFixed(2)}); marched to ${Math.round(bot.entity.position.x)},${Math.round(bot.entity.position.z)} - throw another eye to converge` };
+    }
+    bot._strongholdEst = { x: Math.round(p.x), z: Math.round(p.z), at: Date.now() };
+    log.info(`locate_stronghold: converged target -> ${Math.round(p.x)},${Math.round(p.z)}`);
+    return await descendToStronghold(bot, { x: p.x, y: 32, z: p.z });
   },
 });
-// One eye throw -> horizontal bearing. Measured on this server: the flying eye is an entity
-// named "eye_of_ender" (entityType 39) that disappears from bot.entities almost immediately,
-// so polling the entity list can never see it. Keep the object from entitySpawn, sample its
-// position directly, and treat entityGone (the eye breaking) as the strongest signal.
+// Surface march helper for MC_ASSIST=0 stronghold travel: walks in bounded 55-block legs so a
+// 1000-block journey never times out a single A* search and never digs prematurely far from target.
+async function walkSurfaceTowards(bot, tx, tz, stopDist = 28, budgetMs = 120000) {
+  const tEnd = Math.min(Date.now() + budgetMs, bot._stepDeadline ? bot._stepDeadline - 12000 : Infinity);
+  let legs = 0;
+  while (Date.now() < tEnd && legs++ < 10) {
+    const pos = bot.entity.position;
+    const dx = tx - pos.x, dz = tz - pos.z;
+    const dist = Math.hypot(dx, dz);
+    if (dist <= stopDist) return { arrived: true, dist: Math.round(dist) };
+    const step = Math.min(55, dist);
+    const wx = Math.round(pos.x + (dx / dist) * step);
+    const wz = Math.round(pos.z + (dz / dist) * step);
+    const before = pos.clone();
+    await capped(bot.pathfinder.goto(new (GN())(wx, Math.max(pos.y, 63), wz, 6)), 22000, 'stronghold surface leg');
+    const moved = bot.entity.position.distanceTo(before);
+    if (moved < 2.5) {
+      // Sidestep around a cliff/river if straight leg stalled.
+      const sx = Math.round(pos.x - (dz / dist) * 20);
+      const sz = Math.round(pos.z + (dx / dist) * 20);
+      await capped(bot.pathfinder.goto(new (GN())(sx, Math.max(pos.y, 63), sz, 6)), 12000, 'stronghold sidestep');
+    }
+  }
+  const rem = Math.hypot(tx - bot.entity.position.x, tz - bot.entity.position.z);
+  return { arrived: rem <= stopDist, dist: Math.round(rem) };
+}
+// One eye throw -> horizontal bearing. Listens to both mineflayer entity events AND raw protocol
+// packets (spawn_entity / rel_entity_move / entity_move_look / entity_teleport / entity_velocity)
+// so Paper 1.21.1 eye motion is captured reliably even when mineflayer's entity cache drops it early.
 async function oneEyeBearing(bot) {
   const eye = bot.inventory.items().find(i => i.name === 'ender_eye');
   if (!eye) return null;
+  const eyeTypeId = (bot.registry && bot.registry.entitiesByName && bot.registry.entitiesByName.eye_of_ender)
+    ? bot.registry.entitiesByName.eye_of_ender.id : 39;
   const start = bot.entity.position.clone();
-  let ent = null, gone = false, far = null;
-  const onSpawn = e => { if (!ent && e && (e.name === 'eye_of_ender' || e.entityType === 39)) ent = e; };
+  let ent = null, entId = null, gone = false, far = null;
+  let pktPos = null, pktVel = null;
+  const recordPos = (x, y, z) => {
+    if (!Number.isFinite(x) || !Number.isFinite(z)) return;
+    const d = Math.hypot(x - start.x, z - start.z);
+    if (!far || d > far.dist) far = { x, y: Number.isFinite(y) ? y : start.y, z, dist: d };
+  };
+  const onSpawn = e => {
+    if (!ent && e && (e.name === 'eye_of_ender' || e.entityType === eyeTypeId)) {
+      ent = e; entId = e.id;
+      if (e.position) recordPos(e.position.x, e.position.y, e.position.z);
+    }
+  };
+  const onMoved = e => {
+    if (ent && e && e.id === ent.id && e.position) recordPos(e.position.x, e.position.y, e.position.z);
+  };
   const onGone = e => { if (ent && e && e.id === ent.id) gone = true; };
+  const onPktSpawn = p => {
+    if (entId == null && p && p.type === eyeTypeId) {
+      entId = p.entityId;
+      pktPos = { x: p.x, y: p.y, z: p.z };
+      recordPos(p.x, p.y, p.z);
+      if (p.velocityX || p.velocityZ) pktVel = { x: p.velocityX / 8000, y: (p.velocityY || 0) / 8000, z: p.velocityZ / 8000 };
+    }
+  };
+  const onPktRel = p => {
+    if (entId != null && p && p.entityId === entId && pktPos) {
+      pktPos.x += (p.dX || 0) / 4096;
+      pktPos.y += (p.dY || 0) / 4096;
+      pktPos.z += (p.dZ || 0) / 4096;
+      recordPos(pktPos.x, pktPos.y, pktPos.z);
+    }
+  };
+  const onPktTp = p => {
+    if (entId != null && p && p.entityId === entId) {
+      pktPos = { x: p.x, y: p.y, z: p.z };
+      recordPos(p.x, p.y, p.z);
+    }
+  };
+  const onPktVel = p => {
+    if (entId != null && p && p.entityId === entId && (p.velocityX || p.velocityZ)) {
+      pktVel = { x: p.velocityX / 8000, y: (p.velocityY || 0) / 8000, z: p.velocityZ / 8000 };
+    }
+  };
+  const onPktDestroy = p => {
+    if (entId != null && p && Array.isArray(p.entityIds) && p.entityIds.includes(entId)) gone = true;
+  };
   bot.on('entitySpawn', onSpawn);
+  bot.on('entityMoved', onMoved);
   bot.on('entityGone', onGone);
+  if (bot._client && typeof bot._client.on === 'function') {
+    bot._client.on('spawn_entity', onPktSpawn);
+    bot._client.on('rel_entity_move', onPktRel);
+    bot._client.on('entity_move_look', onPktRel);
+    bot._client.on('entity_teleport', onPktTp);
+    bot._client.on('entity_velocity', onPktVel);
+    bot._client.on('entity_destroy', onPktDestroy);
+  }
   try { await bot.equip(eye, 'hand'); await bot.look(P.yawNow(bot), -0.9, true); await bot.activateItem(); } catch (e) { log.warn('eye throw threw', e.message); }
   const t0 = Date.now();
   const track = () => {
-    if (!ent || !ent.position) return;
-    const d = ent.position.distanceTo(start);
-    if (!far || d > far.dist) far = { x: ent.position.x, z: ent.position.z, dist: d };
+    if (ent && ent.position) recordPos(ent.position.x, ent.position.y, ent.position.z);
+    if (pktPos) recordPos(pktPos.x, pktPos.y, pktPos.z);
   };
   await new Promise(resolve => {
     const iv = setInterval(() => {
       track();
-      if (gone || Date.now() - t0 > 12000) { clearInterval(iv); resolve(); }
-    }, 120);
+      if (gone || Date.now() - t0 > 6500) { clearInterval(iv); resolve(); }
+    }, 100);
   });
   bot.removeListener('entitySpawn', onSpawn);
+  bot.removeListener('entityMoved', onMoved);
   bot.removeListener('entityGone', onGone);
+  if (bot._client && typeof bot._client.removeListener === 'function') {
+    bot._client.removeListener('spawn_entity', onPktSpawn);
+    bot._client.removeListener('rel_entity_move', onPktRel);
+    bot._client.removeListener('entity_move_look', onPktRel);
+    bot._client.removeListener('entity_teleport', onPktTp);
+    bot._client.removeListener('entity_velocity', onPktVel);
+    bot._client.removeListener('entity_destroy', onPktDestroy);
+  }
   track();
+  // Try picking up the eye if it dropped intact nearby (~80% chance in vanilla).
+  if (far && far.dist <= 18) {
+    try { await P.collectNear(bot, new Vec3(far.x, start.y, far.z), ['ender_eye']); } catch {}
+  }
   if (!far || far.dist < 1.5) {
-    // This server never moves the eye entity, so position sampling yields nothing - but the
-    // spawn packet DOES carry its initial velocity, and an eye always accelerates toward the
-    // portal frame. That keeps an assist-free (MC_ASSIST=0) triangulation possible: two throws
-    // from different spots still intersect. Without this the run has no way to find the fortress
-    // of rooms at all, since /locate is an assist.
-    const v = ent && ent.velocity;
+    const v = (ent && ent.velocity && (Math.abs(ent.velocity.x) > 0.02 || Math.abs(ent.velocity.z) > 0.02)) ? ent.velocity : pktVel;
     if (v && (Math.abs(v.x) > 0.02 || Math.abs(v.z) > 0.02)) {
       const len = Math.hypot(v.x, v.z);
       log.info(`eye bearing from VELOCITY (${(Math.atan2(v.z, v.x) * 180 / Math.PI).toFixed(1)}°), position never updated`);
-      return { x: v.x / len, z: v.z / len, len: 0, px: start.x, pz: start.z };
+      return { x: v.x / len, z: v.z / len, len: 0, px: start.x, pz: start.z, downward: (v.y || 0) < -0.05 };
     }
-    log.warn(`eye throw produced no travel and no velocity (ent=${!!ent} gone=${gone})`); return null;
+    log.warn(`eye throw produced no travel and no velocity (ent=${!!ent} entId=${entId} gone=${gone})`); return null;
   }
   const dx = far.x - start.x, dz = far.z - start.z;
   const len = Math.hypot(dx, dz);
-  log.info(`eye bearing dist=${Math.round(len)} travel=${Math.round(far.dist)} end=${Math.round(far.x)},${Math.round(far.z)}${len < 1.5 ? ' (straight up: stronghold is here)' : ''}`);
-  if (len < 1.5) return { x: dx, z: dz, len: 0, px: far.x, pz: far.z };
-  return { x: dx / len, z: dz / len, len, px: far.x, pz: far.z };
+  const downward = Number.isFinite(far.y) && far.y < start.y - 0.5 && len < 4;
+  log.info(`eye bearing dist=${Math.round(len)} dy=${Math.round((far.y || start.y) - start.y)} end=${Math.round(far.x)},${Math.round(far.z)}${downward || len < 1.5 ? ' (diving: stronghold is here)' : ''}`);
+  if (len < 1.5) return { x: dx, z: dz, len: 0, px: far.x, pz: far.z, downward: true };
+  return { x: dx / len, z: dz / len, len, px: far.x, pz: far.z, downward };
 }
 function intersect(a, b) {
   const denom = a.d.x * b.d.z - a.d.z * b.d.x;
@@ -5832,12 +6010,28 @@ async function descendToStronghold(bot, p) {
       await sleep(6000);
       log.info(`teleported to stronghold column ${Math.floor(p.x)},${Math.floor(p.z)} (was ${Math.round(far)} blocks away)`);
     } catch {}
+  } else if (far > 32 && !inMasonry() && process.env.MC_ASSIST === '0') {
+    // Assist-free travel: walk across the surface in bounded legs instead of timing out a single
+    // 20s goto and digging a shaft 1000 blocks away from the stronghold.
+    if (bot.entity.position.y < 52) {
+      try { await reg.get('recover_surface').run(bot, {}); } catch {}
+    }
+    const walk = await walkSurfaceTowards(bot, Math.floor(p.x), Math.floor(p.z), 28, 120000);
+    if (!walk.arrived) {
+      return { ok: false, observation: `walking to stronghold column ${Math.floor(p.x)},${Math.floor(p.z)} (${walk.dist} blocks left) - call locate_stronghold to continue the surface approach before digging` };
+    }
   }
   // Incremental on purpose: the portal room sits ~y30, which is 60+ blocks of deepslate, so
   // one call descends a slice and reports. The planner re-runs it (the ladder treats
   // "not done" as "try again") instead of one 10-minute wedged call.
   const target = new (GN())(Math.floor(p.x), bot.entity.position.y, Math.floor(p.z), 8);
   await capped(bot.pathfinder.goto(target), 20000, 'center on stronghold column');
+  if (process.env.MC_ASSIST === '0' && !inMasonry()) {
+    const remHoriz = Math.hypot(p.x - bot.entity.position.x, p.z - bot.entity.position.z);
+    if (remHoriz > 36) {
+      return { ok: false, observation: `still ${Math.round(remHoriz)} blocks off stronghold column ${Math.floor(p.x)},${Math.floor(p.z)} - refusing to dig far off column; call locate_stronghold to finish walking there` };
+    }
+  }
   const found0 = bot.findBlock({ matching: blockIds(bot, ['end_portal_frame']), maxDistance: 24 });
   if (found0) {
     require('../portalRecord').remember(found0.position);

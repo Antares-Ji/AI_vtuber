@@ -738,7 +738,52 @@ const LADDER = [
       return { ok: true, skipped: `sword crafted, ${countItem(b, 'diamond')} diamonds left (a chestplate wants 8)`, observation: `skipped the rest: a sword is in hand and the pick covers obsidian - a full set is not on the main chain` };
     } },
   { id: 'bow', done: b => countItem(b, 'bow') >= 1 && countItem(b, 'arrow') >= 8,
-    run: async b => { await craft(b, 'bow', 1);
+    run: async b => {
+      // Never spend the bow step hand-digging stone/gravel when picks broke or were dropped.
+      if (P.usablePickCount(b) === 0) {
+        try {
+          const et = await reg.get('ensure_tools').run(b, {});
+          log.skill(`bow step ensure_tools: ${et.ok ? 'ok' : 'failed'} (${String(et.observation).slice(0, 90)})`);
+        } catch (e) { log.warn('bow ensure_tools threw:', e.message); }
+      }
+      // A bow requires 3 string + 3 sticks. Previously this milestone tried craft('bow') once and then
+      // spent its entire budget hunting chickens/gravel without EVER acquiring string.
+      if (countItem(b, 'bow') < 1) {
+        if (countItem(b, 'string') < 3) {
+          // 1) Cobwebs (mineshafts/caves) drop 1 string guaranteed when broken with a sword.
+          try {
+            const webIds = blockIds(b, ['cobweb']);
+            if (webIds.length) {
+              const webs = b.findBlocks({ matching: webIds, maxDistance: 32, count: 4 }) || [];
+              if (webs.length) {
+                const sw = b.inventory.items().find(i => /_sword$/.test(i.name));
+                if (sw) { try { await b.equip(sw, 'hand'); } catch {} }
+                for (const wp of webs) {
+                  if (countItem(b, 'string') >= 3) break;
+                  const blk = b.blockAt(wp);
+                  if (!blk || blk.name !== 'cobweb') continue;
+                  try {
+                    await b.pathfinder.goto(new (require('mineflayer-pathfinder').goals ? require('mineflayer-pathfinder').goals.GoalNear : require('mineflayer-pathfinder').pathfinder.Goals.GoalNear)(wp.x, wp.y, wp.z, 2));
+                    await b.dig(blk);
+                    await P.collectNear(b, wp, ['string']);
+                  } catch {}
+                }
+              }
+            }
+          } catch {}
+          // 2) Hunt spiders (caves or night surface) for the remaining string.
+          if (countItem(b, 'string') < 3) {
+            const hs = await reg.get('hunt_spider').run(b, { count: 3, maxDistance: 48 });
+            log.skill(`bow step hunt_spider: ${hs.ok ? 'ok' : 'failed'} (${String(hs.observation).slice(0, 110)})`);
+          }
+        }
+        if (countItem(b, 'string') >= 3 && countItem(b, 'stick') < 3) {
+          await craft(b, 'stick', 4);
+        }
+        if (countItem(b, 'string') >= 3) {
+          await craft(b, 'bow', 1);
+        }
+      }
       // 1 feather per arrow, and the generic hunt was killing cows instead: with flint+sticks in the
       // pack but no feathers the arrow craft always made 0 and the bow step looped.
       // One feather + flint + stick crafts FOUR arrows, so 2 feathers already satisfy the 8-arrow
@@ -749,7 +794,7 @@ const LADDER = [
       // satisfy \"f\" (want 1 of flint)" four rounds in a row and this step ate its 180 s budget.
       // Vanilla flint only comes out of mined gravel (~10% per block), so dig a pile and keep what
       // drops instead of insisting the arrows are craftable.
-      if (countItem(b, 'flint') < 1) {
+      if (countItem(b, 'arrow') < 8 && countItem(b, 'flint') < 1) {
         const g = await reg.get('mine').run(b, { names: ['gravel'], count: 32, maxDistance: 64 });
         log.skill(`bow step digging gravel for flint: ${String(g.observation).slice(0, 110)} -> flint=${countItem(b, 'flint')}`);
       }
@@ -760,23 +805,22 @@ const LADDER = [
         const s = await craft(b, 'stick', 4);
         log.skill(`bow step making sticks for arrows: ${String(s.observation).slice(0, 90)}`);
       }
-      // This loop had NO bound, and `craft()` resolves immediately when it produces nothing: the step
-      // therefore ran in microtasks forever (measured 106% of one core, zero log lines for 4+ minutes,
-      // position frozen at y=-32). A loop like that starves EVERY timer in the process - the 180 s step
-      // cap, the cooperative deadline and even the connection keepalive - so nothing could report it,
-      // nothing could interrupt it, and the `bow` gate could not be reached. Bound it and stop the
-      // moment a craft attempt changes nothing, so the ladder sees the real failure instead.
-      for (let g = 0; g < 8 && countItem(b, 'feather') >= 1 && countItem(b, 'arrow') < 12; g++) {
-        const before = countItem(b, 'arrow');
-        // `want` is "how many to HAVE", not "how many to add" - craft() answers `already have arrow xN`
-        // and the next line read that as a dead craft and broke the loop at arrows=8 with feathers left.
-        await craft(b, 'arrow', Math.min(12, before + countItem(b, 'feather') * 4));
-        await sleep(250);
-        if (countItem(b, 'arrow') === before) { log.skill(`bow: arrow craft made nothing (feather=${countItem(b, 'feather')} flint=${countItem(b, 'flint')} stick=${countItem(b, 'stick')}) - giving up this round`); break; }
-      }
+      const craftArrowsNow = async () => {
+        // Bound the craft loop so a no-op craft never starves the event loop.
+        for (let g = 0; g < 8 && countItem(b, 'feather') >= 1 && countItem(b, 'flint') >= 1 && countItem(b, 'arrow') < 12; g++) {
+          const before = countItem(b, 'arrow');
+          await craft(b, 'arrow', Math.min(12, before + countItem(b, 'feather') * 4));
+          await sleep(250);
+          if (countItem(b, 'arrow') === before) { log.skill(`bow: arrow craft made nothing (feather=${countItem(b, 'feather')} flint=${countItem(b, 'flint')} stick=${countItem(b, 'stick')}) - giving up this round`); break; }
+        }
+      };
+      await craftArrowsNow();
       if (countItem(b, 'feather') < 1 && countItem(b, 'arrow') < 8) {
-        // chickens are grass-biome mobs; on a beach there is simply nothing to hunt, so walk until
-        // one is loaded instead of failing the same step forever
+        // Chickens only live on grass at the surface; roaming for them inside a cave sends the bot
+        // straight off a ravine ledge. Surface first when underground.
+        if (b.entity && b.entity.position && b.entity.position.y < 55) {
+          try { await reg.get('recover_surface').run(b, {}); } catch {}
+        }
         const roam = await reg.get('roam').run(b, { look_for: 'chicken,cow,sheep,pig', distance: 320 });
         log.skill(`bow step roaming for chickens: ${roam.observation}`);
         await reg.get('hunt').run(b, { count: 4, kind: 'chicken' });
@@ -788,9 +832,10 @@ const LADDER = [
           await reg.get('mine').run(b, { names: ['gravel'], count: 6 });
           await craft(b, 'flint', 2);
         }
-        await craft(b, 'arrow', Math.min(12, countItem(b, 'flint') * 4));
+        if (countItem(b, 'stick') < 4) await craft(b, 'stick', 4);
+        await craftArrowsNow();
       }
-      return { ok: countItem(b, 'bow') >= 1 && countItem(b, 'arrow') >= 8, observation: `bow=${countItem(b, 'bow')} arrows=${countItem(b, 'arrow')} feathers=${countItem(b, 'feather')} flint=${countItem(b, 'flint')} stick=${countItem(b, 'stick')}` }; } },
+      return { ok: countItem(b, 'bow') >= 1 && countItem(b, 'arrow') >= 8, observation: `bow=${countItem(b, 'bow')} arrows=${countItem(b, 'arrow')} string=${countItem(b, 'string')} feathers=${countItem(b, 'feather')} flint=${countItem(b, 'flint')} stick=${countItem(b, 'stick')}` }; } },
   // 420 s was cut in the middle of the productive part: measured 12:42-12:49, one round spent 6 min on
   // "walk to high ground, then dig y=68 -> y=-4 with no water trap" and timed out before it could
   // search a vein. This milestone is an expedition (relocate, descend to the diamond layer, mine,
