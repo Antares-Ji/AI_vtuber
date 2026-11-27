@@ -685,7 +685,7 @@ reg.define('deep_shaft', {
           const dropDesc = dropToSolid !== null ? `${dropToSolid}` : `${probedAir}+`;
           log.warn(`deep_shaft: ${dropDesc}-block free fall at ${feet.x},${feet.y},${feet.z} - not jumping down my own shaft, cutting the staircase via ${beside.x},${beside.y},${beside.z} (stepped ${st.moved})`);
           if (st.moved < 1) {
-            bot._stair = { x: s.z || -s.x, z: s.x ? 0 : 1 };   // flip to the other hand
+            bot._stair = { x: -s.z, z: s.x };   // rotate 90 deg (E -> S -> W -> N)
             stuck++;
           }
           await sleep(250);
@@ -753,9 +753,9 @@ reg.define('deep_shaft', {
             if (diggable(bBlk)) { try { await bot.dig(bBlk); dug++; } catch {} }
             if (diggable(hBlk)) { try { await bot.dig(hBlk); dug++; } catch {} }
             const st = await P.stepOnto(bot, { x: beside.x, y: beside.y, z: beside.z });
-            if (st.moved < 1) { bot._stair = { x: s.z || -s.x, z: s.x ? 0 : 1 }; stuck++; }
+            if (st.moved < 1) { bot._stair = { x: -s.z, z: s.x }; stuck++; }
           } else {
-            bot._stair = { x: s.z || -s.x, z: s.x ? 0 : 1 };
+            bot._stair = { x: -s.z, z: s.x };
             stuck++;
           }
           if (stuck >= 4) return { ok: false, observation: `CHASM (${crustDrop + 1}+ blocks) beneath crust at ${feet.x},${feet.y},${feet.z} - pick another shaft column` };
@@ -3466,13 +3466,13 @@ reg.define('make_obsidian', {
           await tunnelToFieldAtDepth();
           await mineObsidianField(24, 'field-descend');
           if (countItem(bot, 'obsidian') >= need) return { ok: true, observation: `obsidian=${countItem(bot, 'obsidian')} dug out of the remembered field at ${field.x},${field.y},${field.z}` };
-          // If the flooded field yielded ZERO descent progress and we hold water_bucket with a live lava source
-          // visible or cached (e.g. a shallower y=24 lava pool under dry hills), fall through to pour fresh obsidian!
+          // If the deep field yielded ZERO descent progress (flooded OR chasm) and we hold water_bucket with
+          // a live lava source visible or cached (e.g. y=-28 / y=24 lava pool), fall through to pour fresh obsidian!
           const madeDescent = Math.round(bot.entity.position.y) < yBeforeField - 2;
           let liveLava = null;
           try { liveLava = bot.findBlock({ matching: blockIds(bot, ['lava']), maxDistance: 64 }) || oreCache.nearest(['lava'], bot.entity.position); } catch {}
-          if (!madeDescent && fieldColFlooded && countItem(bot, 'water_bucket') >= 1 && liveLava) {
-            log.warn(`make_obsidian: flooded field ${field.x},${field.y},${field.z} made no descent from y=${yBeforeField} - falling through to pour live lava`);
+          if (!madeDescent && countItem(bot, 'water_bucket') >= 1 && liveLava) {
+            log.warn(`make_obsidian: deep field ${field.x},${field.y},${field.z} made no descent from y=${yBeforeField} - falling through to pour live lava at ${liveLava.x ?? liveLava.position?.x},${liveLava.y ?? liveLava.position?.y},${liveLava.z ?? liveLava.position?.z}`);
           } else {
             return { ok: false, observation: `dug down to the obsidian field at ${field.x},${field.y},${field.z} (now y=${Math.round(bot.entity.position.y)}); still ${countItem(bot, 'obsidian')}/${need}` };
           }
@@ -4557,7 +4557,14 @@ reg.define('build_nether_portal', {
       const dyOff = Math.round(bot.entity.position.y - site.y);
       need = missingAt(site);
       log.info(`build_nether_portal: remembered frame at ${site.x},${site.y},${site.z} (${off} blocks away, dy=${dyOff}) has ${FRAME_COST - need}/${FRAME_COST} cells standing - finishing THAT frame, not a new one`);
-      if ((off > 16 || Math.abs(dyOff) > 5) && need > 0) {
+      // Never spend 5 minutes climbing 50 blocks UP to the portal frame EMPTY-HANDED when we are already
+      // deep underground (dyOff < -8) and still short on obsidian! Harvest the missing obsidian down here
+      // near the lava layer FIRST, then climb up to finish and ignite the frame in one clean trip.
+      const deepShortOnObs = dyOff < -8 && need > 0 && countItem(bot, 'obsidian') < need;
+      if (deepShortOnObs) {
+        log.info(`build_nether_portal: ${Math.round(-dyOff)} blocks BELOW frame y=${site.y} with only ${countItem(bot, 'obsidian')}/${need} obsidian - staying deep to harvest obsidian first instead of climbing up empty-handed`);
+      }
+      if ((off > 16 || Math.abs(dyOff) > 5) && need > 0 && !deepShortOnObs) {
         // When far horizontally AND on a different Y level (e.g. y=68 above a y=40 frame under a frozen ocean),
         // NEVER walk off a dry hilltop (<=48m away) across flooded sea ice above site! Descend DRY to site.y
         // first, then walk/tunnel horizontally at site.y.
@@ -4751,6 +4758,10 @@ reg.define('build_nether_portal', {
             const heldBefore = bot.heldItem ? bot.heldItem.name : '-';
             try { await bot.lookAt(p.offset(0.5, 0.5, 0.5), true); } catch {}
             const estMs = (typeof bot.digTime === 'function' && Number.isFinite(bot.digTime(cur))) ? bot.digTime(cur) : 10000;
+            if (wetCell(bot) || estMs > 25000) {
+              log.warn(`build_nether_portal: skipping wet/airborne corner reclaim at ${p.x},${p.y},${p.z} (wet=${wetCell(bot)}, est=${estMs}ms)`);
+              continue;
+            }
             const digCap = Math.min(35000, Math.max(18000, Math.round(estMs * 2.2)));
             const beforeObs = countItem(bot, 'obsidian');
             await capped(bot.dig(cur), digCap, 'reclaim corner obsidian', () => { try { if (typeof bot.stopDigging === 'function') bot.stopDigging(); } catch {} });

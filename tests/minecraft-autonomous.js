@@ -3127,8 +3127,52 @@ function makeBot(overrides = {}) {
     }
   }
 
+  // 59. build_nether_portal does NOT climb 50 blocks UP empty-handed when already deep underground (y=-16)
+  //     below a y=40 frame with 0/2 obsidian; it stays deep and calls make_obsidian first
+  {
+    const WS59 = require('../src/minecraft/autonomous/workshopRecord');
+    const origWalk59 = reg.get('walk_to').run;
+    const origPour59 = reg.get('pour_portal_cell').run;
+    const origMake59 = reg.get('make_obsidian').run;
+    let climbedBeforeMake59 = false;
+    let makeObsY59 = null;
+    try {
+      WS59.note('nether_portal_frame', { x: -78, y: 40, z: -259 }, 'underground 8/10');
+      reg.get('walk_to').run = async () => { climbedBeforeMake59 = true; return { ok: true, observation: 'walked' }; };
+      reg.get('pour_portal_cell').run = async () => ({ ok: false, observation: 'no lava bucket' });
+      reg.get('make_obsidian').run = async (b) => {
+        makeObsY59 = Math.round(b.entity.position.y);
+        return { ok: false, observation: 'harvesting deep' };
+      };
+      const botDeep59 = makeBot({
+        entity: { position: new Vec3(-86, -16, -260), yaw: 0, pitch: 0 },
+        game: { dimension: 'overworld' },
+        inventory: { slots: new Array(46).fill(null), items: () => [{ name: 'flint_and_steel', count: 1, slot: 36 }] },
+        findBlock: () => null,
+        findBlocks: () => [],
+        blockAt: (p) => {
+          if (!p) return { name: 'air', boundingBox: 'none' };
+          const x = Math.floor(p.x), y = Math.floor(p.y), z = Math.floor(p.z);
+          if (z === -259 && y >= 40 && y <= 43 && (x === -78 || x === -75 || (y === 40 && (x === -77 || x === -76)))) {
+            return { name: 'obsidian', position: new Vec3(x, y, z), boundingBox: 'block' };
+          }
+          if (y === 39) return { name: 'stone', position: new Vec3(x, y, z), boundingBox: 'block' };
+          return { name: 'air', position: new Vec3(x, y, z), boundingBox: 'none' };
+        },
+      });
+      await reg.get('build_nether_portal').run(botDeep59, {});
+      assert.equal(climbedBeforeMake59, false, 'build_nether_portal must NOT climb back up to y=40 empty-handed with 0 obsidian');
+      assert.equal(makeObsY59, -16, `build_nether_portal must call make_obsidian directly from deep y=-16 (got ${makeObsY59})`);
+    } finally {
+      reg.get('walk_to').run = origWalk59;
+      reg.get('pour_portal_cell').run = origPour59;
+      reg.get('make_obsidian').run = origMake59;
+      WS59.forget('nether_portal_frame');
+    }
+  }
+
   fs.rmSync(tmp, { recursive: true, force: true });
-  console.log('PASS minecraft-autonomous: all 58 regression groups passed');
+  console.log('PASS minecraft-autonomous: all 59 regression groups passed');
 })().catch(e => {
   console.error(e);
   process.exitCode = 1;
