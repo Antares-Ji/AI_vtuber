@@ -258,9 +258,16 @@ reg.define('bridge_to', {
     const max = Math.max(1, a.max || 40);
     const budgetMs = Number(process.env.BRIDGE_BUDGET_MS || 150000);
     const t0 = Date.now();
-    let placed = 0, why = 'goal reached';
-    while (placed < max && Date.now() - t0 < budgetMs) {
+    let placed = 0, why = 'goal reached', consecutiveRefusals = 0;
+    let prevPos = bot.entity.position.floored();
+    while (placed < max && Date.now() - t0 < budgetMs && Date.now() < (bot._stepDeadline || Infinity)) {
       const f = bot.entity.position.floored();
+      if (Math.hypot(f.x - prevPos.x, f.z - prevPos.z) > 14 || Math.abs(f.y - prevPos.y) > 8) {
+        why = `relocated/respawned mid-bridge (${prevPos.x},${prevPos.y},${prevPos.z} -> ${f.x},${f.y},${f.z})`;
+        log.warn(`bridge_to: ${why}`);
+        break;
+      }
+      prevPos = f;
       const dx = a.x - f.x, dz = a.z - f.z;
       if (Math.hypot(dx, dz) <= 6) { why = 'within 6 of the target'; break; }
       if (totalExceptReserve() <= 0) { why = `build rock exhausted (keeping ${reserve} in reserve)`; break; }
@@ -299,15 +306,21 @@ reg.define('bridge_to', {
         break;
       }
       if (!cur || !isReplaceable(cur) || (up && !isReplaceable(up) && up.boundingBox === 'block')) { why = `cell ${cell.x},${cell.y},${cell.z} reads ${cur ? cur.name : 'null'} (not fillable)`; break; }
-      // Reference: the block under the target cell (sea floor) or the one we are standing on, or the
-      // last causeway block - whichever is solid and non-liquid.
-      const cands = [V(cell.x, cell.y - 1, cell.z), V(f.x, level - 1, f.z), V(cell.x - sx, cell.y, cell.z - sz), V(f.x, level, f.z)];
+      // Reference: only ORTHOGONALLY adjacent solid non-liquid blocks with valid non-zero face normals
+      // (previously index 1 was diagonal (f.x, level-1, f.z) with face=(0,0,0), causing an infinite loop
+      // of "invalid direction vector (0, 0, 0)" refusals!).
+      const cands = [
+        [V(cell.x, cell.y - 1, cell.z), new Vec3(0, 1, 0)],
+        [V(cell.x - sx, cell.y, cell.z - sz), new Vec3(sx, 0, sz)],
+        [V(cell.x, cell.y + 1, cell.z), new Vec3(0, -1, 0)],
+      ];
       let ref = null, face = null;
-      for (const [i, p] of cands.entries()) {
+      for (const [p, normal] of cands) {
+        if (!normal || (normal.x === 0 && normal.y === 0 && normal.z === 0)) continue;
         const b = bot.blockAt(p);
         if (b && b.boundingBox === 'block' && !/water|lava/.test(b.name)) {
           ref = b;
-          face = i === 0 ? new Vec3(0, 1, 0) : i === 2 ? new Vec3(sx, 0, sz) : i === 3 ? new Vec3(sx, 0, sz) : new Vec3(0, 0, 0);
+          face = normal;
           break;
         }
       }
@@ -316,9 +329,10 @@ reg.define('bridge_to', {
       if (!item) { why = `no ${BUILD.slice(0, 3).join('/')} left in the pack`; break; }
       try { await bot.equip(item, 'hand'); } catch {}
       if (!bot.heldItem || bot.heldItem.name !== item.name) { why = `hand is ${bot.heldItem ? bot.heldItem.name : 'empty'}, not ${item.name}`; break; }
-      try { await bot.placeBlock(ref, face); } catch (e) {
+      try { await bot.placeBlock(ref, face); consecutiveRefusals = 0; } catch (e) {
         why = `place at ${cell.x},${cell.y},${cell.z} refused: ${String(e.message).slice(0, 70)}`;
         log.warn(`bridge_to: ${why}`);
+        if (++consecutiveRefusals >= 3) break;
         // One refusal is not the end - nudge sideways and try once more from a different reference.
         try { await bot.setControlState('forward', true); await sleep(250); await bot.setControlState('forward', false); } catch {}
         continue;

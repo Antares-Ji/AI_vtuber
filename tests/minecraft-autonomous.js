@@ -1438,8 +1438,74 @@ function makeBot(overrides = {}) {
     }
   }
 
+  // 32. bridge_to never passes (0,0,0) direction vector & aborts cleanly on refusal/respawn; make_obsidian skips ocean-capped lava
+  {
+    const baseFaces = [];
+    const botBr = makeBot({
+      entity: { position: new Vec3(-40, 70, -253), yaw: 0, pitch: 0 },
+      game: { dimension: 'overworld' },
+      inventory: { slots: new Array(46).fill(null), items: () => [{ name: 'cobblestone', count: 32, slot: 36 }] },
+      equip: async (it) => { botBr.heldItem = it; },
+      setControlState: () => {},
+      blockAt: (p) => {
+        if (!p) return { name: 'air', boundingBox: 'none' };
+        const x = Math.floor(p.x), y = Math.floor(p.y), z = Math.floor(p.z);
+        // Only the diagonal block under feet (-40, 69, -253) is solid; target (-41, 70, -253) has air under/around it
+        if (x === -40 && y === 69 && z === -253) return { name: 'dirt', position: new Vec3(-40, 69, -253), boundingBox: 'block' };
+        return { name: 'air', position: new Vec3(x, y, z), boundingBox: 'none' };
+      },
+      placeBlock: async (ref, face) => {
+        baseFaces.push(face);
+        throw new Error('should not be called with (0,0,0)');
+      },
+    });
+    const brRes = await reg.get('bridge_to').run(botBr, { x: -75, z: -265, max: 10 });
+    assert.equal(baseFaces.length, 0, 'bridge_to must NEVER call placeBlock with a diagonal (0,0,0) direction vector');
+    assert.equal(brRes.ok, false, 'bridge_to must fail fast when no orthogonal solid reference exists');
+
+    // Also verify make_obsidian forgets ocean-capped lava in oreCache instead of walking into the ocean
+    const oc2 = require('../src/minecraft/autonomous/oreCache');
+    oc2.remember('lava', 10, -26, 10);
+    const origDS2 = reg.get('deep_shaft').run;
+    const origRoam2 = reg.get('roam').run;
+    const origWalk2 = reg.get('walk_to').run;
+    let walkedToOceanLava = false;
+    try {
+      reg.get('deep_shaft').run = async () => ({ ok: false, observation: 'stub-stop' });
+      reg.get('roam').run = async () => ({ ok: false, observation: 'stub-stop' });
+      reg.get('walk_to').run = async (b, a) => {
+        if (a && a.x === 10 && a.z === 10) walkedToOceanLava = true;
+        return { ok: false, observation: 'stub-stop' };
+      };
+      const botOc = makeBot({
+        entity: { position: new Vec3(0, 70, 0), yaw: 0, pitch: 0 },
+        inventory: {
+          slots: new Array(46).fill(null),
+          items: () => [
+            { name: 'diamond_pickaxe', count: 1, slot: 36, maxDurability: 1561, durabilityUsed: 0 },
+            { name: 'water_bucket', count: 1, slot: 37 },
+          ],
+        },
+        findBlocks: () => [],
+        blockAt: (p) => {
+          if (!p) return { name: 'air', boundingBox: 'none' };
+          if (Math.floor(p.x) === 10 && Math.floor(p.z) === 10 && (Math.floor(p.y) === 62 || Math.floor(p.y) === 61)) {
+            return { name: 'ice', position: p.floored(), boundingBox: 'block' };
+          }
+          return { name: 'air', boundingBox: 'none' };
+        },
+      });
+      await reg.get('make_obsidian').run(botOc, { count: 1 });
+      assert.equal(walkedToOceanLava, false, 'make_obsidian must forget ocean-capped lava (ice/water at y=61..62) instead of walking into the ocean');
+    } finally {
+      reg.get('deep_shaft').run = origDS2;
+      reg.get('roam').run = origRoam2;
+      reg.get('walk_to').run = origWalk2;
+    }
+  }
+
   fs.rmSync(tmp, { recursive: true, force: true });
-  console.log('PASS minecraft-autonomous: all 31 regression groups passed');
+  console.log('PASS minecraft-autonomous: all 32 regression groups passed');
 })().catch(e => {
   console.error(e);
   process.exitCode = 1;

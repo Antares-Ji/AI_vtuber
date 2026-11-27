@@ -2594,14 +2594,19 @@ reg.define('obsidian_farm', {
             const flooded = !!(ds && /FLOOD|STANDING IN WATER/i.test(String(ds.observation || '')));
             if (flooded) floodRefusals++; else floodRefusals = 0;
             if (floodRefusals >= 5) {
-              log.warn(`OBSIDIAN SITE WEDGED: ${tag} at ${cell.x},${cell.y},${cell.z} is reachable only through columns the pack has already flooded (${floodRefusals} refusals from y=${yB}) - releasing the site lock and cooling this interface for ${Math.round(SITE_WEDGE_COOLDOWN_MS / 60000)} min so the next round tries a different pool`);
+              log.warn(`OBSIDIAN SITE WEDGED: ${tag} at ${cell.x},${cell.y},${cell.z} is reachable only through columns the pack has already flooded (${floodRefusals} refusals from y=${yB}) - releasing the site lock and forgetting this flooded lava from oreCache so next round digs on dry land`);
               siteLock = null;
               try { lastSite = { lv: cell, wv: pair && pair.wv, ts: 0 }; fs.writeFileSync(LAST_SITE, JSON.stringify(lastSite)); } catch {}
               markSiteFail(cell, 'chimney flooded from every side', SITE_WEDGE_COOLDOWN_MS);
+              if (tag === 'lava') { try { oreCache.forget(cell.x, cell.y, cell.z); } catch {} }
               if (pair && pair.wv) markSiteFail(pair.wv, 'fill station across the same flooded chimney', SITE_WEDGE_COOLDOWN_MS);
               return false;
             }
-            if (stalled >= 5) { log.warn(`obsidian_farm: ${stalled} columns around y=${yB} refused the descent to ${tag} - giving up this approach`); return false; }
+            if (stalled >= 5) {
+              log.warn(`obsidian_farm: ${stalled} columns around y=${yB} refused the descent to ${tag} - giving up this approach`);
+              if (tag === 'lava' && yB >= 55) { try { oreCache.forget(cell.x, cell.y, cell.z); } catch {} }
+              return false;
+            }
             const f2 = bot.entity.position.floored();
             const off = [[6, 0], [-6, 0], [0, 6], [0, -6], [8, 8], [-8, -8]][k % 6];
             log.info(`obsidian_farm: ${tag} column ${f2.x},${f2.z} refused the descent (retry ${stalled}/5) - stepping to ${f2.x + off[0]},${f2.z + off[1]}`);
@@ -3376,7 +3381,16 @@ reg.define('make_obsidian', {
       // below digs where it happens to be standing, and the pools live in caves. Hop toward the
       // remembered coordinate first (same ore-cache pattern that made `mine` stop re-diging dirt).
       let known = oreCache.nearest(['lava', 'deepslate_lava'], bot.entity.position);
-      while (known && badLava.has(lavaKey(known))) {
+      const isOceanCapped = (pt) => {
+        if (!pt || pt.y >= 55) return false;
+        try {
+          const b62 = bot.blockAt(new Vec3(Math.floor(pt.x), 62, Math.floor(pt.z)));
+          const b61 = bot.blockAt(new Vec3(Math.floor(pt.x), 61, Math.floor(pt.z)));
+          return !!((b62 && /water|ice/.test(b62.name)) || (b61 && /water|ice/.test(b61.name)));
+        } catch { return false; }
+      };
+      while (known && (badLava.has(lavaKey(known)) || (bot.entity.position.y >= 58 && isOceanCapped(known)))) {
+        if (isOceanCapped(known)) log.info(`make_obsidian: forgetting ocean-capped lava ${known.x},${known.y},${known.z} (surface is water/ice) - descending on dry land instead`);
         oreCache.forget(known.x, known.y, known.z);
         known = oreCache.nearest(['lava', 'deepslate_lava'], bot.entity.position);
       }
