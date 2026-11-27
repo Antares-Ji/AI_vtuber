@@ -469,9 +469,10 @@ const LADDER = [
                 const GN2 = g();
                 let fishKills = 0;
                 for (let tries = 0; tries < 10 && !stocked() && Date.now() < fishBudgetEnd; tries++) {
-                  if (b.health <= 10 || (typeof b.oxygenLevel === 'number' && b.oxygenLevel >= 0 && b.oxygenLevel <= 10)) break;
+                  // On Easy difficulty starvation caps HP at 9.5-10; cod/salmon deal 0 damage, so allow hunting down to hp>4.
+                  if (b.health <= 4 || (typeof b.oxygenLevel === 'number' && b.oxygenLevel >= 0 && b.oxygenLevel <= 10)) break;
                   const prey = b.nearestEntity(e => e && (e.name === 'cod' || e.name === 'salmon') && e.position
-                    && e.position.y >= 58 && b.entity.position.distanceTo(e.position) <= 36);
+                    && e.position.y >= 58 && b.entity.position.distanceTo(e.position) <= 44);
                   if (!prey) break;
                   if (sw && (!b.heldItem || b.heldItem.slot !== sw.slot)) { try { await b.equip(sw, 'hand'); } catch {} }
                   if (b.entity.position.distanceTo(prey.position) > 3.2) {

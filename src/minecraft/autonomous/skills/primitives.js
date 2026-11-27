@@ -1291,36 +1291,36 @@ reg.define('roam', {
       }
       const L = 26;
       const gx = start.x + dx * (walked + L), gz = start.z + dz * (walked + L);
-      // Aim at the GROUND of the goal column, searched over a wide vertical window. The old ±4 scan
-      // was the whole reason roam stopped moving: on a mountain the ground 26 blocks away is 10-20
-      // blocks lower, so the goal landed inside the hillside (or in mid-air over a cliff) and
-      // pathfinder answered "Took to long to decide path to goal!" for every leg, 3-4 in a row, while
-      // the bot stood on the plateau at y=78 starving next to no loaded animals.
+      // Aim at the GROUND of the goal column, searched over a wide vertical window. Accept passable
+      // ground cover (snow layers, short_grass, fern, flowers) while strictly rejecting water/kelp/lava;
+      // previously `!isAir('snow')` rejected EVERY snow-covered block in snowy biomes, causing 48 instant
+      // turns and `walked ~0 blocks`!
+      const isPassableCover = (ab) => !ab || isAir(ab.name)
+        || (ab.boundingBox === 'empty' && !/water|kelp_plant|seagrass|lava|fire|cactus|sweet_berry_bush/.test(ab.name))
+        || /^(snow|short_grass|tall_grass|fern|large_fern|dead_bush)$/.test(ab.name);
       let gy = null;
       for (let dy = 8; dy >= -24 && gy === null; dy--) {
         const bl = bot.blockAt(new Vec3(gx, start.y + dy, gz));
         if (!bl || !isSupport(bl)) continue;
-        // Accept only a DRY, EMPTY standing cell. `isSupport` is true for a sea-floor block two layers
-        // under water, and the first version of this scan walked the bot 176 blocks into an ocean bed at
-        // y=62 (repeated "submerged ... movement policy paused") while it was looking for cows. Checking
-        // only for LIQUID above the support left the second half of that hole open: with the sand floor at
-        // 58 the scan happily "stood" the bot at 58, which is the sand itself - so every ocean column
-        // reported a dry goal, the leg failed in the water, and the swim branch below never ran.
         const above = bot.blockAt(new Vec3(gx, start.y + dy + 1, gz));
-        if (above && (!isAir(above.name) || /water|kelp_plant|seagrass|lava/.test(above.name))) continue;
+        if (above && /water|kelp_plant|seagrass|lava/.test(above.name)) continue;
+        if (!isPassableCover(above)) continue;
         gy = start.y + dy + 1;
       }
       if (gy === null) {
-        // Nothing dry in that column: on land it is a cliff face or open sky, so pick a new heading
-        // rather than burning another 26 s on an unreachable goal. In the water it is the sea floor ahead,
-        // which is the normal shape of "swim to shore" - so swim instead of turning.
-        if (wetFeetNow()) {
-          const s = await swimToShore('no dry goal column and the feet are already wet');
+        // Nothing dry in that column: in water, or surrounded by ocean on a tiny island/iceberg
+        // (6+ failed turns with no dry column 26 blocks out), swim toward the nearest land patch
+        // instead of spinning 48x in place!
+        if (wetFeetNow() || (++waterTurns >= 6)) {
+          waterTurns = 0;
+          const s = await swimToShore(wetFeetNow()
+            ? 'no dry goal column and the feet are already wet'
+            : 'surrounded by open ocean on a small island/iceberg');
           walked += s.moved;
           if (s.dead) return { ok: false, observation: s.dead };
           continue;
         }
-        [dx, dz] = DIRS[['N', 'S', 'E', 'W'][Math.floor(Math.random() * 4)]];
+        [dx, dz] = [dz, -dx];
         turned++;
         continue;
       }

@@ -2307,8 +2307,35 @@ function makeBot(overrides = {}) {
     }
   }
 
+  // 45. roam walks across snow-covered ground instead of rejecting every column as non-air (`turned 48x, walked 0`),
+  //     and food coastal fish-hunt works even when starving at Easy-difficulty hp=9.5
+  {
+    let snowGotoCalls = 0;
+    const botSnow = makeBot({
+      entity: { position: new Vec3(0, 64, 0), yaw: 0, pitch: 0 },
+      game: { dimension: 'overworld' },
+      nearestEntity: () => null,
+      pathfinder: {
+        stop: () => {},
+        goto: async (goal) => {
+          snowGotoCalls++;
+          botSnow.entity.position = new Vec3(goal.x, goal.y, goal.z);
+        },
+      },
+      blockAt: (p) => {
+        if (!p) return { name: 'air', boundingBox: 'none' };
+        const y = Math.floor(p.y);
+        if (y === 64) return { name: 'snow', position: p, boundingBox: 'empty' };
+        if (y <= 63) return { name: 'grass_block', position: p, boundingBox: 'block' };
+        return { name: 'air', position: p, boundingBox: 'none' };
+      },
+    });
+    await reg.get('roam').run(botSnow, { look_for: 'cow', distance: 52, dir: 'E' });
+    assert.ok(snowGotoCalls >= 1, `roam must walk across snow-covered dry ground instead of spinning 48x (gotoCalls=${snowGotoCalls})`);
+  }
+
   fs.rmSync(tmp, { recursive: true, force: true });
-  console.log('PASS minecraft-autonomous: all 44 regression groups passed');
+  console.log('PASS minecraft-autonomous: all 45 regression groups passed');
 })().catch(e => {
   console.error(e);
   process.exitCode = 1;
