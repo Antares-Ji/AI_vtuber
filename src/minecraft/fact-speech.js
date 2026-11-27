@@ -16,7 +16,11 @@ function factualSpeech(context) {
   }
   if (execution?.status === 'running') {
     if (auto?.currentMilestoneCn) {
-      return `正在推进「${auto.currentMilestoneCn}」阶段，正在尝试${auto.activeSkillCn || activity(execution.action)}，还没有完成确认。`;
+      const actText = auto.activeSkillCn || activity(execution.action);
+      if (actText && actText !== auto.currentMilestoneCn) {
+        return `正在推进「${auto.currentMilestoneCn}」阶段，正在尝试${actText}，还没有完成确认。`;
+      }
+      return `正在推进「${auto.currentMilestoneCn}」阶段（${auto.milestonesDone || 0}/${auto.milestonesTotal || 23}），还没有完成确认。`;
     }
     return `正在尝试${activity(execution.action)}，还没有完成确认。`;
   }

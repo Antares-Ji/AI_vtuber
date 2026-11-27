@@ -270,7 +270,7 @@ function publishEvent(evt) {
       state.activeSkillCn = null;
     }
     refresh();
-    if (evt.kind === 'milestone_done' || evt.kind === 'victory') void syncGoalToHost(true);
+    if (evt.kind === 'victory') void syncGoalToHost(true);
   }
 }
 

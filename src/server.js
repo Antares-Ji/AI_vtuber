@@ -82,6 +82,12 @@ function preemptMinecraftCommentary() {
 // skill already executing. Audience input can preempt this slot immediately.
 function requestMinecraftCommentary(result) {
   const audienceWaiting = () => nextInFlight || cloudReplyInFlight || queue.some(item => item.type !== 'proactive');
+  // Expire an unconsumed commentary reply after 90s (matching pendingPlayback recovery below),
+  // so GET /api/minecraft/commentary stays fresh even when only /studio.html or API monitors are open.
+  if (deferredReply?.commentaryId && minecraftCommentary.pendingPlayback && Date.now() - minecraftCommentary.pendingPlayback.at > 90000) {
+    minecraftCommentary.playbackEnded(deferredReply.commentaryId);
+    deferredReply = null;
+  }
   if (commentaryInferenceSlot || audienceWaiting() || deferredReply || minecraftCommentary.busy) return;
   if (minecraftCommentary.pendingPlayback) {
     // Preserve the existing lost-playback-receipt recovery without taking a

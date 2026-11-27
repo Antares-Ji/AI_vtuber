@@ -24,8 +24,15 @@ const RECIPES = {
   furnace: { out: 1, shape: ['ccc', 'c.c', 'ccc'], key: { c: ['cobblestone', 'cobbled_deepslate', 'stone', 'blackstone'] } },
   chest: { out: 1, shape: ['ppp', 'p.p', 'ppp'], key: { p: '@planks' } },
   wooden_pickaxe: { out: 1, shape: ['ppp', '.s.', '.s.'], key: { p: '@planks', s: 'stick' } },
+  wooden_sword: { out: 1, shape: ['p', 'p', 's'], key: { p: '@planks', s: 'stick' } },
+  wooden_axe: { out: 1, shape: ['pp', 'ps', '.s'], key: { p: '@planks', s: 'stick' } },
+  wooden_shovel: { out: 1, shape: ['p', 's', 's'], key: { p: '@planks', s: 'stick' } },
   stone_pickaxe: { out: 1, shape: ['ccc', '.s.', '.s.'], key: { c: ['cobblestone', 'cobbled_deepslate', 'stone'], s: 'stick' } },
+  stone_sword: { out: 1, shape: ['c', 'c', 's'], key: { c: ['cobblestone', 'cobbled_deepslate', 'stone'], s: 'stick' } },
+  stone_axe: { out: 1, shape: ['cc', 'cs', '.s'], key: { c: ['cobblestone', 'cobbled_deepslate', 'stone'], s: 'stick' } },
+  stone_shovel: { out: 1, shape: ['c', 's', 's'], key: { c: ['cobblestone', 'cobbled_deepslate', 'stone'], s: 'stick' } },
   iron_pickaxe: { out: 1, shape: ['iii', '.s.', '.s.'], key: { i: 'iron_ingot', s: 'stick' } },
+  iron_shovel: { out: 1, shape: ['i', 's', 's'], key: { i: 'iron_ingot', s: 'stick' } },
   diamond_pickaxe: { out: 1, shape: ['ddd', '.s.', '.s.'], key: { d: 'diamond', s: 'stick' } },
   iron_sword: { out: 1, shape: ['i', 'i', 's'], key: { i: 'iron_ingot', s: 'stick' } },
   iron_axe: { out: 1, shape: ['ii', 'is', '.s'], key: { i: 'iron_ingot', s: 'stick' } },
@@ -42,13 +49,15 @@ const RECIPES = {
   // mcdata 1.21.1: inShape [[null,iron],[iron,null]] - a diagonal, two ingots. The row used to read
   // `['ii','i.']`, an L of three, which is not shears in any version.
   shears: { out: 1, shape: ['.i', 'i.'], key: { i: 'iron_ingot' } },
-  // Four entries the table never had (02:21:20 live: `grid_craft failed: no recipe for
-  // leather_chestplate in src/gridcraft.js - add it there`). Every one of them is on a path this run
-  // needs: the leather chestplate is the armour the hide route can actually afford, and the bed is the
-  // forward base - both currently fall through to `bot.craft`, which is the 1.21 path that answers
-  // "success" and delivers nothing (mineflayer#3906).
+  // Leather and gold armor pieces for assist-free early/nether survivability.
+  leather_helmet: { out: 1, shape: ['lll', 'l.l'], key: { l: 'leather' } },
   leather_chestplate: { out: 1, shape: ['l.l', 'lll', 'lll'], key: { l: 'leather' } },
+  leather_leggings: { out: 1, shape: ['lll', 'l.l', 'l.l'], key: { l: 'leather' } },
+  leather_boots: { out: 1, shape: ['l.l', 'l.l'], key: { l: 'leather' } },
+  golden_helmet: { out: 1, shape: ['ggg', 'g.g'], key: { g: 'gold_ingot' } },
   golden_chestplate: { out: 1, shape: ['g.g', 'ggg', 'ggg'], key: { g: 'gold_ingot' } },
+  golden_leggings: { out: 1, shape: ['ggg', 'g.g', 'g.g'], key: { g: 'gold_ingot' } },
+  golden_boots: { out: 1, shape: ['g.g', 'g.g'], key: { g: 'gold_ingot' } },
   shield: { out: 1, shape: ['pop', 'ppp', '.p.'], key: { p: '@planks', o: 'iron_ingot' } },
   white_bed: { out: 1, shape: ['www', 'ppp'], key: { w: ['white_wool', 'light_gray_wool', 'light_blue_wool', 'lime_wool', 'yellow_wool', 'magenta_wool', 'pink_wool', 'gray_wool', 'cyan_wool', 'orange_wool', 'red_wool', 'blue_wool', 'brown_wool', 'green_wool', 'black_wool', 'purple_wool'], p: '@planks' } },
   // Vanilla: mcdata 1.21.1 inShape [[null,stick,string],[stick,null,string],[null,stick,string]].
@@ -329,7 +338,22 @@ async function craftGrid(bot, name, times, tableWin) {
   if (tableWin && bot.currentWindow !== tableWin) {
     return { made: 0, observation: `table window is dead (open=${bot.currentWindow ? bot.currentWindow.type : 'none'}, wanted id ${tableWin.id}) for ${name} - use bot.craft, or re-open a table within 16` };
   }
-  const before = P.countItem(bot, name);
+  // While a 3x3 crafting table window is open on Paper 1.21, server set_slot packets for the
+  // player's inventory section land in `tableWin.slots[10..45]` and may NOT mirror into
+  // `bot.inventory.items()` until the window closes. Counting only `bot.inventory` made `craftGrid`
+  // wait 4 s, report `made=0` while all 9 grid cells had already emptied (live 2026-11-27 06:32:03
+  // iron_pickaxe/iron_sword), and caused the caller to fall through and double-craft iron gear.
+  const countHeld = (w, loIdx, hiIdx) => {
+    let inWin = 0;
+    if (w && Array.isArray(w.slots)) {
+      for (let i = loIdx; i < Math.min(hiIdx, w.slots.length); i++) {
+        if (w.slots[i] && w.slots[i].name === name) inWin += w.slots[i].count;
+      }
+      if (w.selectedItem && w.selectedItem.name === name) inWin += w.selectedItem.count;
+    }
+    return Math.max(inWin, P.countItem(bot, name));
+  };
+  let before = countHeld(tableWin || bot.inventory, tableWin ? 10 : 9, tableWin ? (tableWin.slots || []).length : 45);
   let made = 0;
   for (let n = 0; n < times; n++) {
     const plan = planFor(bot, name);
@@ -365,6 +389,7 @@ async function craftGrid(bot, name, times, tableWin) {
     const win = tableWin || bot.inventory;
     const lo = tableWin ? 10 : 9, hi = tableWin ? win.slots.length : 45;
     const gridEnd = tableWin ? 9 : 4;
+    if (n === 0) before = countHeld(win, lo, hi);
     let fail = null;
     for (const cell of plan.cells) {
       const gs = gridSlot(win, plan.size, cell.x, cell.y);
@@ -422,11 +447,10 @@ async function craftGrid(bot, name, times, tableWin) {
     }
     // shift-click the result: crafts and moves it into the inventory in one packet
     try { await click(bot, 0, 0, 1); } catch (e) { log(`grid craft click result: ${e.message}`); }
-    // 12 x 130 ms was too short: a leggings craft completed (the pack gained iron_leggings) while
-    // this loop still reported 0, so craftGrid answered "nothing appeared", the milestone retried,
-    // and the second round stranded ingots in the grid. Poll ~4 s and stop on the first increment.
-    for (let w = 0; w < 28 && P.countItem(bot, name) <= before + made * RECIPES[name].out; w++) await sleep(140);
-    const now = P.countItem(bot, name);
+    // Poll both the open crafting table window slots (10..45) and bot.inventory so 1.21 table
+    // window set_slot updates are detected immediately without waiting 4s or double-crafting.
+    for (let w = 0; w < 28 && countHeld(win, lo, hi) <= before + made * RECIPES[name].out; w++) await sleep(140);
+    const now = countHeld(win, lo, hi);
     if (now > before + made * RECIPES[name].out) { made = Math.floor((now - before) / RECIPES[name].out); continue; }
     // Dump what actually landed in the cells. "grid clicks sent but nothing appeared" has two very
     // different causes (a mis-shaped grid vs a result click the server never answers), and only

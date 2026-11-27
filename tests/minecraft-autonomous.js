@@ -31,6 +31,7 @@ require('../src/minecraft/autonomous/skills/base');
 require('../src/minecraft/autonomous/skills/endgame');
 const planner = require('../src/minecraft/autonomous/agent/planner');
 const bridge = require('../src/minecraft/autonomous/host/bridge');
+const gridcraft = require('../src/minecraft/autonomous/gridcraft');
 const { liveGameContext } = require('../src/minecraft/live-context');
 const { factualSpeech } = require('../src/minecraft/fact-speech');
 
@@ -219,8 +220,55 @@ function makeBot(overrides = {}) {
     }
   }
 
+  // 7. gridcraft: stone_sword recipe exists AND 3x3 tableWin.slots[10..45] update is detected immediately
+  //    even while bot.inventory.items() has not synced yet (prevents 4s false-zero & double-crafting iron/diamond).
+  {
+    assert.ok(gridcraft.knows('stone_sword'), 'stone_sword must be in gridcraft RECIPES');
+    assert.ok(gridcraft.knows('leather_boots'), 'leather_boots must be in gridcraft RECIPES');
+    const slots = new Array(46).fill(null);
+    slots[10] = { name: 'iron_ingot', count: 5 };
+    slots[11] = { name: 'stick', count: 4 };
+    const tableWin = { id: 2, type: 'minecraft:crafting', slots, selectedItem: null };
+    const bot = makeBot({
+      currentWindow: tableWin,
+      inventory: {
+        slots: new Array(46).fill(null),
+        // Intentionally NEVER adds iron_pickaxe here (mirrors Paper 1.21 window-scoped set_slot)
+        items: () => [{ name: 'iron_ingot', count: 5 }, { name: 'stick', count: 4 }],
+      },
+      clickWindow: async (slot, button, mode) => {
+        if (slot === 0 && mode === 1) {
+          // Simulate Paper shifting crafted iron_pickaxe into tableWin slot 12 and clearing the grid
+          for (let i = 1; i <= 9; i++) tableWin.slots[i] = null;
+          tableWin.slots[12] = { name: 'iron_pickaxe', count: 1 };
+        } else if (button === 0 && mode === 0) {
+          const prev = tableWin.selectedItem;
+          tableWin.selectedItem = tableWin.slots[slot];
+          tableWin.slots[slot] = prev;
+        } else if (button === 1 && mode === 0 && tableWin.selectedItem) {
+          tableWin.slots[slot] = { name: tableWin.selectedItem.name, count: 1 };
+          tableWin.selectedItem.count -= 1;
+          if (tableWin.selectedItem.count <= 0) tableWin.selectedItem = null;
+        }
+      },
+    });
+    const t0 = Date.now();
+    const res = await gridcraft.craftGrid(bot, 'iron_pickaxe', 1, tableWin);
+    assert.equal(res.made, 1, `expected gridcraft to detect tableWin iron_pickaxe, got: ${JSON.stringify(res)}`);
+    assert.ok(Date.now() - t0 < 2500, 'should detect tableWin craft without waiting full 4s timeout');
+
+    // Also verify fact-speech dedupes identical milestone/skill names
+    const dedup = factualSpeech({
+      connected: true, stale: false, phase: '执行动作',
+      execution: { status: 'running', action: { action: 'explore' } },
+      autonomous: { currentMilestoneCn: '木头', activeSkillCn: '木头', milestonesDone: 1, milestonesTotal: 23 },
+    });
+    assert.ok(!dedup.includes('正在尝试木头'), `should not repeat milestone name: ${dedup}`);
+    assert.ok(dedup.includes('1/23'), `should show milestone progress: ${dedup}`);
+  }
+
   fs.rmSync(tmp, { recursive: true, force: true });
-  console.log('PASS minecraft-autonomous: deadline helper, survive anti-spin, victory halt, chat/MC_TALK guards, bridge + streamer factual narration');
+  console.log('PASS minecraft-autonomous: deadline helper, survive anti-spin, victory halt, chat/MC_TALK guards, gridcraft tableWin count, bridge + streamer factual narration');
 })().catch(e => {
   console.error(e);
   process.exitCode = 1;
