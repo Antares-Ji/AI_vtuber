@@ -853,6 +853,25 @@ function makeBot(overrides = {}) {
     });
     await P.dropJunk(botTidy, 4);
     assert.equal(tossed.length, 0, 'tidy must NOT throw away emergency rotten_flesh rations (cap=8)');
+
+    // Also verify smelt aborts immediately if bot respawned >36m away from old furnace instead of trekking back into a cave
+    let smeltWalks = 0;
+    const botSmeltFar = makeBot({
+      entity: { position: new Vec3(-44, 69, -246), yaw: 0, pitch: 0 },
+      inventory: { slots: new Array(46).fill(null), items: () => [{ name: 'raw_iron', count: 3 }] },
+      findBlock: () => ({ name: 'furnace', position: new Vec3(-45, 65, -245) }),
+      pathfinder: {
+        goto: async () => {
+          smeltWalks++;
+          // Simulate dying on try 1 and respawning 110 blocks above on the surface
+          botSmeltFar.entity.position = new Vec3(-44, 180, -246);
+          throw new Error('died');
+        },
+      },
+    });
+    const sr = await reg.get('smelt').run(botSmeltFar, { item: 'raw_iron', count: 3 });
+    assert.equal(smeltWalks, 1, 'smelt must stop retrying walk to distant furnace after respawn/relocation >36m away');
+    assert.equal(sr.ok, false);
   }
 
   fs.rmSync(tmp, { recursive: true, force: true });

@@ -31,11 +31,20 @@ reg.define('smelt', {
     // surface to hunt, abandoning a shaft it had spent ten minutes digging.
     const ALIAS = { raw_chicken: 'chicken', raw_beef: 'beef', raw_pork: 'porkchop', raw_porkchop: 'porkchop', raw_mutton: 'mutton', raw_rabbit: 'rabbit', raw_salmon: 'salmon', raw_cod: 'cod', pork: 'porkchop' };
     if (ALIAS[item]) { log.skill(`smelt: "${item}" is not an item id - smelting ${ALIAS[item]} instead`); item = ALIAS[item]; }
-    // Look 48 blocks, not 16: a furnace placed by the previous round sits just outside 16, and the
-    // skill then built and placed ANOTHER one, leaving the first full of uncounted raw iron behind.
-    // Each abandoned furnace is a hole in the inventory - its contents are invisible to both
-    // `raw_iron` and `iron_ingot`, which is how the armor step kept reporting ingots=0.
-    let furnace = bot.findBlock({ matching: blockIds(bot, ['furnace']), maxDistance: 48 });
+    // Prefer a furnace right next to us (<=16m and within 6 vertical blocks). If we already carry a
+    // furnace in our pack, place it locally instead of marching 40+ blocks (or across cave layers)
+    // to an old furnace; otherwise check up to 48m within 12 vertical blocks.
+    const fIds = blockIds(bot, ['furnace']);
+    let furnace = bot.findBlock({ matching: fIds, maxDistance: 16 });
+    if (furnace && bot.entity && bot.entity.position && Math.abs(furnace.position.y - bot.entity.position.y) > 6) {
+      furnace = null;
+    }
+    if (!furnace && !bot.inventory.items().some(i => i.name === 'furnace')) {
+      const farF = bot.findBlock({ matching: fIds, maxDistance: 48 });
+      if (farF && bot.entity && bot.entity.position && Math.abs(farF.position.y - bot.entity.position.y) <= 12) {
+        furnace = farF;
+      }
+    }
     if (!furnace) {
       let ti = bot.inventory.items().find(i => i.name === 'furnace');
       if (!ti) {
@@ -75,6 +84,11 @@ reg.define('smelt', {
     // before it could be completed!", which alone was enough to fail the whole smelt round - so 48
     // iron nuggets sat in the pack unwalked-to while the armor step claimed it had no material.
     for (let t = 0; t < 3; t++) {
+      // If we died/respawned far away mid-walk (live 09:43:24: died at y=-40, respawned at y=69),
+      // abort walking 110 blocks back into a dark cave to the old furnace!
+      if (bot.entity && bot.entity.position && bot.entity.position.distanceTo(furnace.position) > 36) {
+        return { ok: false, observation: `furnace at ${furnace.position.x},${furnace.position.y},${furnace.position.z} is now ${Math.round(bot.entity.position.distanceTo(furnace.position))}m away (respawned/relocated) - re-place locally on next step` };
+      }
       try { await bot.pathfinder.goto(new (g())(furnace.position.x, furnace.position.y, furnace.position.z, 2)); break; }
       catch (e) { log.skill(`walk to furnace try ${t + 1} failed: ${e.message}`); await sleep(700); }
     }
