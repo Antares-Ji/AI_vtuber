@@ -2815,22 +2815,24 @@ function makeBot(overrides = {}) {
       world53.set(`${20 + dx},${64 + dy},20`, 'obsidian');
     }
     const inv53 = [
-      { name: 'diamond_pickaxe', count: 1, slot: 36, maxDurability: 1561, durabilityUsed: 100 },
+      { name: 'diamond_pickaxe', count: 1, slot: 20, maxDurability: 1561, durabilityUsed: 100 },
       { name: 'flint_and_steel', count: 1, slot: 37 },
       { name: 'cobblestone', count: 20, slot: 38 },
     ];
-    let reclaimed53 = 0, lit53 = false;
+    let reclaimed53 = 0, lit53 = false, hotbarClicked53 = false;
     const origUse53 = reg.get('use_portal').run;
     const origMakeObs53 = reg.get('make_obsidian').run;
     let makeObsCalled53 = false;
     try {
       reg.get('use_portal').run = async (b) => { b.game.dimension = 'the_nether'; return { ok: true, observation: 'entered' }; };
       reg.get('make_obsidian').run = async () => { makeObsCalled53 = true; return { ok: false, observation: 'should not be called' }; };
+      const slots53 = new Array(46).fill(null);
+      for (const it of inv53) slots53[it.slot] = it;
       const botRec53 = makeBot({
         entity: { position: new Vec3(21, 64, 19), yaw: 0, pitch: 0 },
         game: { dimension: 'overworld' },
-        inventory: { slots: new Array(46).fill(null), items: () => inv53 },
-        heldItem: inv53[0],
+        inventory: { slots: slots53, items: () => inv53 },
+        heldItem: inv53[2], // holding cobblestone initially; first equip fails silently (mineflayer#3906)
         waitForChunksToLoad: async () => {},
         lookAt: async () => {},
         findBlocks: () => [],
@@ -2838,8 +2840,15 @@ function makeBot(overrides = {}) {
           if (lit53) return { name: 'nether_portal', position: new Vec3(21, 65, 20) };
           return null;
         },
-        equip: async (it) => { botRec53.heldItem = it; },
+        clickWindow: async (slot) => { if (slot === 20) hotbarClicked53 = true; },
+        setQuickBarSlot: async () => { if (hotbarClicked53) botRec53.heldItem = inv53[0]; },
+        equip: async (it) => {
+          // Simulate mineflayer#3906: non-hotbar diamond_pickaxe equip ignored until moved to hotbar
+          if (it && it.name === 'diamond_pickaxe' && !hotbarClicked53) return;
+          botRec53.heldItem = it;
+        },
         dig: async (blk) => {
+          assert.equal(botRec53.heldItem && botRec53.heldItem.name, 'diamond_pickaxe', 'must hold diamond_pickaxe before digging corner obsidian');
           const k = `${blk.position.x},${blk.position.y},${blk.position.z}`;
           if (world53.get(k) === 'obsidian') {
             world53.delete(k);

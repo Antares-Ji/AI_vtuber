@@ -4639,12 +4639,39 @@ reg.define('build_nether_portal', {
               await capped(bot.pathfinder.goto(new (GN())(p.x, p.y, p.z, 2)), 10000, 'walk to optional corner');
             }
             if (bot.entity.position.distanceTo(p) > 4.6) continue;
+            try { if (bot.pathfinder && typeof bot.pathfinder.stop === 'function') bot.pathfinder.stop(); } catch {}
             await capped(bot.equip(dPick, 'hand'), 4000, 'equip diamond pick for corner');
+            if (!bot.heldItem || bot.heldItem.name !== dPick.name) {
+              // 1.21.1 mineflayer#3906: bot.equip often leaves a non-hotbar pick unequipped; click onto hotbar explicitly
+              try {
+                if (dPick.slot >= 36 && dPick.slot <= 44 && typeof bot.setQuickBarSlot === 'function') {
+                  await bot.setQuickBarSlot(dPick.slot - 36);
+                } else if (typeof bot.clickWindow === 'function' && typeof bot.setQuickBarSlot === 'function') {
+                  const hb = [36, 37, 38, 39, 40, 41, 42, 43, 44].find(s => !bot.inventory.slots[s]) ?? 36;
+                  await capped(bot.clickWindow(dPick.slot, 0, 0), 2500, 'pick dpick');
+                  await capped(bot.clickWindow(hb, 0, 0), 2500, 'dpick to hotbar');
+                  if (bot.inventory.cursor) await capped(bot.clickWindow(dPick.slot, 0, 0), 2500, 'swap back');
+                  await bot.setQuickBarSlot(hb - 36);
+                }
+                await sleep(200);
+                if (!bot.heldItem || bot.heldItem.name !== dPick.name) {
+                  await capped(bot.equip(dPick, 'hand'), 4000, 're-equip diamond pick');
+                }
+              } catch {}
+            }
+            if (!bot.heldItem || bot.heldItem.name !== dPick.name) {
+              log.warn(`build_nether_portal: could not hold ${dPick.name} for corner ${p.x},${p.y},${p.z} (held=${bot.heldItem ? bot.heldItem.name : 'none'}) - skipping`);
+              continue;
+            }
+            try { await bot.lookAt(p.offset(0.5, 0.5, 0.5), true); } catch {}
+            const estMs = (typeof bot.digTime === 'function' && Number.isFinite(bot.digTime(cur))) ? bot.digTime(cur) : 12000;
+            const digCap = Math.min(60000, Math.max(25000, Math.round(estMs * 2.2)));
             const beforeObs = countItem(bot, 'obsidian');
-            await capped(bot.dig(cur), 20000, 'reclaim corner obsidian');
-            await sleep(300);
-            try { await P.collectNear(bot, p, ['obsidian'], 5000); } catch {}
-            log.info(`build_nether_portal: reclaimed optional corner obsidian at ${p.x},${p.y},${p.z} (${beforeObs} -> ${countItem(bot, 'obsidian')}/${need})`);
+            await capped(bot.dig(cur), digCap, 'reclaim corner obsidian', () => { try { if (typeof bot.stopDigging === 'function') bot.stopDigging(); } catch {} });
+            await sleep(350);
+            try { await capped(bot.pathfinder.goto(new (GN())(p.x, p.y, p.z, 1)), 4000, 'step to corner drop'); } catch {}
+            try { await P.collectNear(bot, p, ['obsidian'], 6000); } catch {}
+            log.info(`build_nether_portal: reclaimed optional corner obsidian at ${p.x},${p.y},${p.z} (${beforeObs} -> ${countItem(bot, 'obsidian')}/${need}, held=${bot.heldItem ? bot.heldItem.name : '-'}, est=${estMs}ms, now=${(bot.blockAt(p) || {}).name || '?'})`);
           } catch (e) {
             log.warn(`build_nether_portal: reclaim corner ${p.x},${p.y},${p.z} threw ${String(e.message).slice(0, 70)}`);
           }
