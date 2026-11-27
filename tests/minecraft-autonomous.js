@@ -3251,8 +3251,66 @@ function makeBot(overrides = {}) {
     }
   }
 
+  // 61. fish prefers sky-lit surface water (y>=56) over underground cave pools AND catches fish on Minecraft
+  //     1.21.1 fishing_bobber metadata[9]===true (biting flag) without relying on broken particle.amount===6
+  {
+    const EventEmitter = require('events');
+    const em61 = new EventEmitter();
+    const client61 = new EventEmitter();
+    const inv61 = [{ name: 'fishing_rod', count: 1, slot: 36 }];
+    let gotoTarget61 = null;
+    let activateCalls61 = 0;
+    const botFish61 = makeBot({
+      entity: { position: new Vec3(0, 64, 0), yaw: 0, pitch: 0 },
+      food: 16,
+      inventory: { slots: new Array(46).fill(null), items: () => inv61 },
+      heldItem: inv61[0],
+      _client: client61,
+      on: (...a) => em61.on(...a),
+      removeListener: (...a) => em61.removeListener(...a),
+      lookAt: async () => {},
+      equip: async (it) => { botFish61.heldItem = it; },
+      findBlocks: () => [
+        new Vec3(4, 48, 0), // closer underground cave pool (must NOT beat surface water!)
+        new Vec3(10, 62, 0), // surface ocean
+      ],
+      pathfinder: {
+        stop: () => {},
+        goto: async (goal) => {
+          gotoTarget61 = { x: goal.x, y: goal.y, z: goal.z };
+          botFish61.entity.position = new Vec3(goal.x, goal.y, goal.z);
+        },
+      },
+      activateItem: () => {
+        activateCalls61++;
+        if (activateCalls61 === 1) {
+          // Cast: spawn bobber then emit 1.21.1 metadata[9]=true (biting!)
+          const bob = { id: 901, name: 'fishing_bobber', position: new Vec3(10, 62, 0), metadata: [] };
+          setTimeout(() => em61.emit('entitySpawn', bob), 15);
+          setTimeout(() => { bob.metadata[9] = true; em61.emit('entityUpdate', bob); }, 35);
+        } else if (activateCalls61 === 2) {
+          // Reel-in lands a cod in inventory!
+          inv61.push({ name: 'cod', count: 1, slot: 37 });
+        }
+      },
+      blockAt: (p) => {
+        if (!p) return { name: 'air', boundingBox: 'none' };
+        const x = Math.floor(p.x), y = Math.floor(p.y), z = Math.floor(p.z);
+        if (x === 4 && y === 48 && z === 0) return { name: 'water', position: new Vec3(x, y, z), boundingBox: 'empty' };
+        if (x === 10 && y === 62 && z === 0) return { name: 'water', position: new Vec3(x, y, z), boundingBox: 'empty' };
+        if ((x === 9 || x === 11) && y === 62 && z === 0) return { name: 'grass_block', position: new Vec3(x, y, z), boundingBox: 'block' };
+        if (y <= 61 && !(x === 4 && y === 48 && z === 0)) return { name: 'stone', position: new Vec3(x, y, z), boundingBox: 'block' };
+        return { name: 'air', position: new Vec3(x, y, z), boundingBox: 'none' };
+      },
+    });
+    const r61 = await reg.get('fish').run(botFish61, { count: 1, timeoutSec: 10 });
+    assert.ok(gotoTarget61 && gotoTarget61.y >= 62, `fish must walk to surface y>=62 shoreline, not underground y=48 pool (got ${JSON.stringify(gotoTarget61)})`);
+    assert.equal(r61.ok, true, `fish must catch cod via 1.21.1 metadata[9]=true biting event (got ${r61.observation})`);
+    assert.equal(activateCalls61, 2, `fish must cast once and reel in once on bite (got ${activateCalls61})`);
+  }
+
   fs.rmSync(tmp, { recursive: true, force: true });
-  console.log('PASS minecraft-autonomous: all 60 regression groups passed');
+  console.log('PASS minecraft-autonomous: all 61 regression groups passed');
 })().catch(e => {
   console.error(e);
   process.exitCode = 1;

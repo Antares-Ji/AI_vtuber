@@ -517,7 +517,7 @@ reg.define('fish', {
         }
       }
       if (allowIceBreak) {
-        // Frozen ocean/river: break 1 adjacent ice block covering water to open an ice-fishing hole.
+        // Frozen ocean/river: break 1-2 adjacent ice blocks covering water to open a clear sky-lit ice-fishing hole.
         for (const [dx, dz] of [[1, 0], [-1, 0], [0, 1], [0, -1], [2, 0], [-2, 0], [0, 2], [0, -2]]) {
           for (const dy of [-1, 0, -2]) {
             const ice = bot.blockAt(f.offset(dx, dy, dz));
@@ -528,6 +528,16 @@ reg.define('fish', {
               try {
                 await P.equipBestToolFor(bot, ice);
                 await bot.dig(ice);
+                // Widen by 1 neighboring ice block so the bobber arcs cleanly into open water
+                for (const [nx, nz] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+                  const adj = bot.blockAt(ice.position.offset(nx, 0, nz));
+                  const adjUnder = adj && bot.blockAt(adj.position.offset(0, -1, 0));
+                  if (adj && adj.name === 'ice' && adjUnder && adjUnder.name === 'water'
+                    && bot.entity.position.distanceTo(adj.position) <= 4.0) {
+                    try { await bot.dig(adj); } catch {}
+                    break;
+                  }
+                }
                 await sleep(250);
                 const opened = bot.blockAt(ice.position);
                 if (opened && opened.name === 'water') {
@@ -561,8 +571,11 @@ reg.define('fish', {
             const ba = bot.blockAt(b.position.offset(0, 1, 0));
             const aOpen = (!aa || isAir(aa.name)) ? 0 : 1;
             const bOpen = (!ba || isAir(ba.name)) ? 0 : 1;
-            return aOpen - bOpen
-              || (b.position.y >= 56 ? 0 : 1) - (a.position.y >= 56 ? 0 : 1)
+            // Always prefer sky-lit surface water (y>=56) over underground dark cave pools (2x bite penalty + drowning trap)!
+            const aSurf = a.position.y >= 56 ? 0 : 1;
+            const bSurf = b.position.y >= 56 ? 0 : 1;
+            return aSurf - bSurf
+              || aOpen - bOpen
               || bot.entity.position.distanceTo(a.position) - bot.entity.position.distanceTo(b.position);
           });
         if (pts.length) {
@@ -603,25 +616,94 @@ reg.define('fish', {
     }
     let totalCaught = 0, eatenDuring = 0, casts = 0, lastErr = '';
     const t0 = Date.now();
-    while (before + totalCaught < want && Date.now() - t0 < capMs && Date.now() < (bot._stepDeadline || Infinity)) {
+    const lease = require('../stepLease');
+    // 1.21.1-safe cast helper: Mineflayer's built-in bot.fish() only checks particle.amount===6 and never
+    // listens to 1.21.1 fishing_bobber metadata[9] (biting=true), nor does it reel in on timeout (so every
+    // timeout leaves the bobber floating and immediately cancels the next cast). Listen to BOTH metadata[9]
+    // and splash particles, and always reel in cleanly on bite or timeout!
+    const castOnce = (castCap) => {
+      if (!bot._client || typeof bot.activateItem !== 'function' || typeof bot.on !== 'function') {
+        let fishTimer = null;
+        return Promise.race([
+          bot.fish(),
+          new Promise((_, rej) => { fishTimer = setTimeout(() => rej(new Error(`no bite within ${Math.round(castCap / 1000)}s`)), castCap); }),
+        ]).finally(() => { if (fishTimer) clearTimeout(fishTimer); });
+      }
+      return new Promise((resolve, reject) => {
+        let done = false;
+        let bobber = null;
+        let timer = null;
+        const cleanup = () => {
+          if (timer) { clearTimeout(timer); timer = null; }
+          try { bot.removeListener('entitySpawn', onSpawn); } catch {}
+          try { bot.removeListener('entityUpdate', onUpdate); } catch {}
+          try { bot.removeListener('entityGone', onGone); } catch {}
+          try { bot._client.removeListener('world_particles', onParticles); } catch {}
+        };
+        const finish = (err, reel = false) => {
+          if (done) return;
+          done = true;
+          cleanup();
+          if (reel) { try { bot.activateItem(); } catch {} }
+          if (err) reject(err);
+          else resolve();
+        };
+        const onSpawn = (ent) => {
+          if (!ent || bobber) return;
+          const nm = String(ent.name || '').toLowerCase();
+          if (nm === 'fishing_bobber' || nm === 'fishing_hook') {
+            if (!ent.position || !bot.entity?.position || ent.position.distanceTo(bot.entity.position) < 8) {
+              bobber = ent;
+            }
+          }
+        };
+        const onUpdate = (ent) => {
+          if (!ent) return;
+          if (!bobber && /fishing_(bobber|hook)/i.test(String(ent.name || ''))) bobber = ent;
+          if (!bobber || ent.id !== bobber.id) return;
+          // Minecraft 1.21.1 FishingHook DATA_BITING = metadata index 9 (boolean true while fish is biting!)
+          if (Array.isArray(ent.metadata) && ent.metadata[9] === true) {
+            finish(null, true);
+          }
+        };
+        const onParticles = (pkt) => {
+          if (!bobber || !bobber.position || !pkt) return;
+          const pType = String(pkt.particle?.type || pkt.particleName || '');
+          const cnt = pkt.amount ?? pkt.particles ?? 0;
+          if ((pType === 'fishing' || pType === 'bubble' || pType === 'splash') && cnt >= 4) {
+            const dx = (pkt.x || 0) - bobber.position.x;
+            const dz = (pkt.z || 0) - bobber.position.z;
+            if (Math.hypot(dx, dz) <= 1.6) finish(null, true);
+          }
+        };
+        const onGone = (ent) => {
+          if (bobber && ent && ent.id === bobber.id) {
+            bobber = null;
+            finish(new Error('bobber vanished before bite'), false);
+          }
+        };
+        bot.on('entitySpawn', onSpawn);
+        bot.on('entityUpdate', onUpdate);
+        bot.on('entityGone', onGone);
+        if (typeof bot._client.on === 'function') bot._client.on('world_particles', onParticles);
+        timer = setTimeout(() => finish(new Error(`no bite within ${Math.round(castCap / 1000)}s`), !!bobber), castCap);
+        try { bot.activateItem(); } catch (e) { finish(e, false); }
+      });
+    };
+    while (before + totalCaught < want && Date.now() - t0 < capMs && Date.now() < (bot._stepDeadline || Infinity) && !lease.stale()) {
       casts++;
       const packBefore = fishCount();
       const foodBefore = typeof bot.food === 'number' ? bot.food : null;
-      try { await bot.lookAt(water.offset(0.5, 0.5, 0.5), true); } catch {}
-      const castCap = Math.min(35000, Math.max(12000, capMs - (Date.now() - t0)));
-      let fishTimer = null;
+      // Aim slightly above water surface so bobber arcs cleanly into open water instead of snagging the shore bank
+      try { await bot.lookAt(water.offset(0.5, 0.85, 0.5), true); } catch {}
+      const castCap = Math.min(45000, Math.max(15000, capMs - (Date.now() - t0)));
       try {
-        await Promise.race([bot.fish(), new Promise((_, rej) => { fishTimer = setTimeout(() => rej(new Error(`no bite within ${Math.round(castCap / 1000)}s`)), castCap); })]);
-      } catch (e) { lastErr = String(e.message).slice(0, 60); } finally {
-        if (fishTimer) clearTimeout(fishTimer);
-      }
-      // The catch is an ITEM entity drifting at the bobber, several blocks out: in open water it does not
-      // fly into the inventory, so an uncollected fish is not food (same lesson as the kelp columns).
-      for (let t = 0; t < 8 && fishCount() <= packBefore; t++) {
-        const it = Object.values(bot.entities || {}).find(e => e && e.name === 'item' && e.item
-          && FISH.includes(e.item.name) && e.position.distanceTo(bot.entity.position) < 10);
-        if (!it) { await sleep(300); continue; }
-        try { await bot.collectEntity(it); } catch (e) { lastErr = `collect threw ${String(e.message).slice(0, 40)}`; break; }
+        await castOnce(castCap);
+        await sleep(500); // let reeled-in fish fly into inventory
+      } catch (e) { lastErr = String(e.message).slice(0, 60); }
+      // If a fish drop fell near our feet instead of direct-pickup, sweep it with collectNear
+      if (fishCount() <= packBefore) {
+        try { await P.collectNear(bot, bot.entity.position, FISH, 2500); } catch {}
       }
       const packDelta = Math.max(0, fishCount() - packBefore);
       if (packDelta > 0) {
@@ -634,7 +716,7 @@ reg.define('fish', {
         log.skill(`fish: caught & auto-ate fish (food ${foodBefore} -> ${bot.food}, total=${totalCaught}) after ${casts} cast(s)`);
       }
       if (Date.now() - t0 > capMs) break;
-      await sleep(900);
+      await sleep(700);
     }
     const have = fishCount();
     const produced = Math.max(have, totalCaught);
