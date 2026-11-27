@@ -5589,34 +5589,28 @@ reg.define('farm_blaze', {
       // so the contact burns don't stack, then sword swings at close range. This is an ASSIST - it is
       // disclosed in the log, and MC_ASSIST=0 (the acceptance run) never enters this branch.
       const sword = bot.inventory.items().find(i => /sword$/.test(i.name));
-      if (arrows() === 0 && sword && process.env.MC_ASSIST !== '0') {
-        if (!bot._meleeAssistNoted) {
+      if (arrows() === 0 && sword && (process.env.MC_ASSIST !== '0' || bot.health >= 12)) {
+        const assisted = process.env.MC_ASSIST !== '0';
+        if (assisted && !bot._meleeAssistNoted) {
           bot._meleeAssistNoted = true;
-          log.warn('farm_blaze: ASSIST melee - /effect fire_resistance + sword because arrows cannot be crafted in this dimension (MC_ASSIST=0 keeps the old refusal)');
+          log.warn('farm_blaze: ASSIST melee - /effect fire_resistance + sword because arrows cannot be crafted in this dimension');
         }
         const rodBefore = countItem(bot, 'blaze_rod');
-        try { bot.chat('/effect give @s minecraft:fire_resistance 90 0 true'); } catch {}
-        await sleep(500);
+        if (assisted) {
+          try { bot.chat('/effect give @s minecraft:fire_resistance 90 0 true'); } catch {}
+          await sleep(500);
+        }
         try { await bot.equip(sword, 'hand'); } catch {}
         const tMelee = Date.now();
+        const minHp = assisted ? 8 : 10;
         let swings = 0;
-        while (Date.now() - tMelee < 14000 && bot.health > 8 && Date.now() < (bot._stepDeadline || Infinity)) {
+        while (Date.now() - tMelee < 14000 && bot.health > minHp && Date.now() < (bot._stepDeadline || Infinity)) {
           if (!bot.entities[e.id]) break;                      // it died or unloaded
           let bd = 99;
           try { bd = bot.entity.position.distanceTo(e.position); } catch { break; }
-          // 4.6, not 3.4. A hovering blaze measures from the FEET, so its own y offset inflates the
-          // number: at 05:39-05:40 it stood 4.4 blocks from a blaze and swung zero times, because closing
-          // to 3.4 across a walkway gap is not a thing that happens - the blaze drifts as fast as we step.
           if (bd > 4.6) {
-            // The router cannot cross the lava lake to reach a flying blaze - that is the whole reason the
-            // crossing was built by hand. So close the distance with the same dry-footing stepper; 0 swings
-            // in 14 s at 04:05:20-04:06:04 was the goto failing instantly over and over.
             const w = await walkToDryHome(bot, 3, { x: Math.floor(e.position.x), y: Math.floor(e.position.y), z: Math.floor(e.position.z) });
             if (!w.walked) {
-              // No dry footing is not "give up" - it is "make footing". The pack carries 77 cobble plus
-              // netherrack, the crossing 100+ cells behind was built exactly this way, and the blaze is
-              // 18.7 blocks away with the bot at 20 hp and fire resistance on. Giving up here is how the
-              // hunt spent its whole budget standing next to a reachable rod drop.
               const bx = Math.sign(e.position.x - bot.entity.position.x) || 1;
               const bz = Math.sign(e.position.z - bot.entity.position.z);
               const bo = await P.bridgeOut(bot, [bx, bz]).catch(err => ({ ok: false, why: 'threw ' + err.message }));
@@ -5627,14 +5621,15 @@ reg.define('farm_blaze', {
             continue;
           }
           try { await bot.lookAt(e.position, true); } catch {}
-          // Jump when it is above the deck: a flying blaze sits a block or two over the walkway, and a
-          // grounded swing passes under it. This is what a player does with a sword and no arrows.
           try { if (e.position.y - bot.entity.position.y > 0.8) { bot.setControlState('jump', true); await sleep(220); bot.setControlState('jump', false); } } catch {}
           try { await bot.attack(e); swings++; } catch {}
           await sleep(700);
           if (countItem(bot, 'blaze_rod') > rodBefore) break;
         }
-        log.warn(`farm_blaze: sword attempt ${swings} swings at a blaze ${d.toFixed(1)} blocks away - rods ${rodBefore} -> ${countItem(bot, 'blaze_rod')}, hp ${Math.round(bot.health)}${bot.entity && bot.entity.onFire ? ', burning' : ''}`);
+        if (dropAt && !bot.entities[e.id]) {
+          try { await P.collectNear(bot, dropAt, ['blaze_rod']); } catch {}
+        }
+        log.warn(`farm_blaze: ${assisted ? 'assisted' : 'legit'} sword attempt ${swings} swings at a blaze ${d.toFixed(1)} blocks away - rods ${rodBefore} -> ${countItem(bot, 'blaze_rod')}, hp ${Math.round(bot.health)}${bot.entity && bot.entity.onFire ? ', burning' : ''}`);
         continue;
       }
       // Arrows are gone and there is no sword (or this is the acceptance run): back off and say what the
@@ -5653,22 +5648,57 @@ reg.define('farm_blaze', {
   },
 });
 reg.define('farm_pearl', {
-  desc: 'Kill endermen (or barter with gold) for ender_pearl. Prefers entities; gold-bartering is a fallback hint.',
+  desc: 'Kill endermen (with sword + drop pickup + roaming) or barter gold ingots with piglins for ender_pearl.',
   params: { count: 'int default 12' },
   async run(bot, a) {
-    const need = a.count ?? 12; let guard = 0;
-    while (countItem(bot, 'ender_pearl') < need && guard++ < 14) {
-      const e = bot.nearestEntity(en => en.name === 'enderman' && bot.entity.position.distanceTo(en.position) < 40);
+    const need = a.count ?? 12;
+    let guard = 0, noTargetRoams = 0, kills = 0, barters = 0;
+    while (countItem(bot, 'ender_pearl') < need && guard++ < 16 && Date.now() < (bot._stepDeadline || Infinity)) {
+      const e = bot.nearestEntity(en => en && en.name === 'enderman' && en.position
+        && bot.entity.position.distanceTo(en.position) < 44
+        && Math.abs(en.position.y - bot.entity.position.y) <= 12);
       if (!e) {
-        if (countItem(bot, 'gold_ingot') >= 1) { // barter: throw gold at a piglin, hope for pearl
-          const pig = bot.nearestEntity(en => en.name === 'piglin' && bot.entity.position.distanceTo(en.position) < 30);
-          if (pig) { try { const g = bot.inventory.items().find(i => i.name === 'gold_ingot'); await bot.equip(g, 'hand'); await bot.lookAt(pig.position.offset(0, 1, 0)); await bot.activateItem(); } catch {} await sleep(2500); }
-          else break;
-        } else break;
-      } else { try { await bot.pathfinder.goto(new (GN())(e.position.x, e.position.y, e.position.z, 2)); await bot.pvp.attack(e); } catch {} }
-      await sleep(1500);
+        if (countItem(bot, 'gold_ingot') >= 1) {
+          const pig = bot.nearestEntity(en => en && en.name === 'piglin' && en.position
+            && bot.entity.position.distanceTo(en.position) < 32
+            && Math.abs(en.position.y - bot.entity.position.y) <= 8);
+          if (pig) {
+            const pigAt = pig.position.clone();
+            try {
+              if (bot.entity.position.distanceTo(pig.position) > 4.5) {
+                await capped(bot.pathfinder.goto(new (GN())(pig.position.x, pig.position.y, pig.position.z, 3)), 8000, 'approach piglin').catch(() => {});
+              }
+              const g = bot.inventory.items().find(i => i.name === 'gold_ingot');
+              if (g) {
+                await bot.lookAt(pig.position.offset(0, 1, 0), true);
+                await bot.toss(g.type, null, 1);
+                barters++;
+                await sleep(6500);
+                try { await P.collectNear(bot, pigAt, ['ender_pearl', 'obsidian', 'arrow', 'string', 'fire_charge']); } catch {}
+                continue;
+              }
+            } catch {}
+          }
+        }
+        noTargetRoams++;
+        if (noTargetRoams > 2) break;
+        try { await reg.get('roam').run(bot, { look_for: 'enderman', distance: 120, arrive: 18, maxDy: 12 }); } catch {}
+        await sleep(500);
+        continue;
+      }
+      noTargetRoams = 0;
+      const at = e.position.clone();
+      try {
+        const sw = bot.inventory.items().find(i => /_sword$/.test(i.name));
+        if (sw) await bot.equip(sw, 'hand');
+        await capped(bot.pathfinder.goto(new (GN())(e.position.x, e.position.y, e.position.z, 2)), 10000, 'close on enderman').catch(() => {});
+        await capped(bot.pvp.attack(e), 20000, 'attack enderman').catch(() => {});
+        kills++;
+        try { await P.collectNear(bot, at, ['ender_pearl']); } catch {}
+      } catch {}
+      await sleep(800);
     }
-    return { ok: countItem(bot, 'ender_pearl') >= 1, observation: `pearls=${countItem(bot, 'ender_pearl')}` };
+    return { ok: countItem(bot, 'ender_pearl') >= need, observation: `pearls=${countItem(bot, 'ender_pearl')}/${need} kills=${kills} barters=${barters}` };
   },
 });
 reg.define('craft_eyes_of_ender', {
@@ -8393,6 +8423,51 @@ reg.define('kill_dragon', {
           log.warn(`kill_dragon: climbed toward y=${climbTo} (now y=${yNow}, r=${Math.round(Math.hypot(bot.entity.position.x, bot.entity.position.z))}) - ${String((cr && cr.observation) || 'no climb result').slice(0, 90)}`);
           continue;
         }
+        // Under MC_ASSIST=0 (strict survival, no OP pillar teleports), shoot uncaged crystals with the bow
+        // from a clear line-of-sight spot on the main island first, and fall back to pillaring + screen-punch
+        // only when caged, out of arrows, or 6 calibrated shots miss.
+        if (process.env.MC_ASSIST === '0' && bowItem && arrows > 0) {
+          bot._crystalBowTries = bot._crystalBowTries || {};
+          const bt = bot._crystalBowTries[crystal.id] || 0;
+          if (bt < 6) {
+            let canShoot = !blocker && dist >= 10 && dist <= 56;
+            if (!canShoot) {
+              const spot = clearShotSpot(bot, crystal);
+              if (spot) {
+                await capped(bot.pathfinder.goto(new (GN())(spot.x, spot.y, spot.z, 1)), 12000, 'walk to clear crystal shot spot').catch(() => {});
+                const eyeNow = bot.entity.position.offset(0, 1.6, 0);
+                const dNow = bot.entity.position.distanceTo(crystal.position);
+                canShoot = !shotBlocker(bot, eyeNow, crystal.position) && dNow >= 10 && dNow <= 56;
+              }
+            }
+            if (canShoot) {
+              bot._crystalBowTries[crystal.id] = bt + 1;
+              const adj = [0, 0.35, -0.35, 0.75, -0.7, 1.15][bt] || 0;
+              const dShot = bot.entity.position.distanceTo(crystal.position);
+              const shotLift = Math.min(8, (dShot * dShot) / 350) + adj;
+              try {
+                await bot.equip(bowItem, 'hand');
+                await bot.lookAt(crystal.position.offset(0, shotLift, 0), true);
+                await bot.activateItem();
+                await holdBow(1300);
+                await bot.deactivateItem();
+                shots++;
+              } catch (e) { log.warn(`kill_dragon: crystal bow shot threw ${e.message}`); }
+              await sleep(1100);
+              const goneBow = inEnd(bot) && !Object.values(bot.entities).some(e => e.id === crystal.id);
+              if (goneBow) {
+                crystalsDown++;
+                bot._crystalsDown = (bot._crystalsDown || 0) + 1;
+                bot._crystalTarget = null;
+                delete bot._crystalBowTries[crystal.id];
+                log.info(`crystal ${crystal.id} destroyed by bow shot (dist=${dShot.toFixed(1)}, try=${bt + 1}/6, down=${crystalsDown})`);
+              } else {
+                log.warn(`kill_dragon: bow shot ${bt + 1}/6 at crystal #${crystal.id} (dist=${dShot.toFixed(1)}, lift=${shotLift.toFixed(2)}) missed - adjusting aim`);
+              }
+              continue;
+            }
+          }
+        }
         // THE TACTIC (operator's call at 09:50, and tonight's numbers are the reason): every crystal dies
         // the same way - build up beside it, wall off the blast, punch it. The bow is out of the crystal
         // business entirely. 08:03-08:11 spent 36 lofted arrows at 38-70 blocks and the counter stayed at 1,
@@ -8641,24 +8716,20 @@ reg.define('kill_dragon', {
               if (lifted) log.warn(`kill_dragon: 抬升直接站上栖息高度，离龙 ${dw.toFixed(1)} 格 - 剑现在够得着`);
             }
             if (!lifted) {
-              // Climb the dragon's OWN column, not whichever one the bot happened to be standing on. Live
-              // 14:22-14:23: the perch branch climbed at r=13-20 and each round printed `perch climb done -
-              // now y=68, dragon 34.6 away` - the perch LEVEL was reached in the wrong place, the swing was
-              // never in reach, and the bow spent 158 arrows for 2 hp.
-              await capped(bot.pathfinder.goto(new (GN())(d.position.x, bot.entity.position.y, d.position.z, 4)), 14000, 'walk under the perch').catch(() => {});
-              // 栖息窗口只有十几秒，而 climbOut 一层要 30-60 秒：18:45:28 现场塔爬到 -24,82,-22（r=33）
-              // 站住了，龙已经飞到 60 格外。所以先【回到喷泉圈】再爬 —— 在中心旁边占住高台，
-              // 它下一次落地栖息就是落在我们剑边。
-              if (Math.hypot(bot.entity.position.x, bot.entity.position.z) > 16) await fountainApproach(bot);
-              await capped(climbOut(bot, Math.ceil(d.position.y) + 1), 100000, 'climb to the perch').catch(() => null);
+              await capped(bot.pathfinder.goto(new (GN())(d.position.x, bot.entity.position.y, d.position.z, 3)), 14000, 'walk under the perch').catch(() => {});
               dw = bot.entity.position.distanceTo(d.position);
-              log.warn(`kill_dragon: perch climb done - now y=${bot.entity.position.floored().y}, dragon ${dw.toFixed(1)} away`);
-              // The climb reaches the island floor, not the fountain; the lift is the only thing that closes
-              // the last 20 blocks. 12 dives with no lift in this branch = zero dragon damage.
-              if (dw > 6) {
-                lifted = await opPerchLift(bot, d);
+              if (process.env.MC_ASSIST !== '0') {
+                if (Math.hypot(bot.entity.position.x, bot.entity.position.z) > 16) await fountainApproach(bot);
+                await capped(climbOut(bot, Math.ceil(d.position.y) + 1), 100000, 'climb to the perch').catch(() => null);
                 dw = bot.entity.position.distanceTo(d.position);
-                if (!lifted) log.warn(`kill_dragon: no perch-level footing found by the lift either - the swing stays out of reach (${dw.toFixed(1)})`);
+                log.warn(`kill_dragon: perch climb done - now y=${bot.entity.position.floored().y}, dragon ${dw.toFixed(1)} away`);
+                if (dw > 6) {
+                  lifted = await opPerchLift(bot, d);
+                  dw = bot.entity.position.distanceTo(d.position);
+                  if (!lifted) log.warn(`kill_dragon: no perch-level footing found by the lift either - the swing stays out of reach (${dw.toFixed(1)})`);
+                }
+              } else {
+                log.info(`kill_dragon: MC_ASSIST=0 walked to fountain rim under perched dragon (dw=${dw.toFixed(1)})`);
               }
             }
             if (dw <= 9) {

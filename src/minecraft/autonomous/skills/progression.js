@@ -999,7 +999,7 @@ const LADDER = [
       await reg.get('search_nether_fortress').run(b, { steps: 6 });
       return reg.get('farm_blaze').run(b, { count: 7 });
     } },
-  { id: 'pearls', done: b => countItem(b, 'ender_pearl') >= 12,
+  { id: 'pearls', budgetMs: 420000, done: b => countItem(b, 'ender_pearl') >= 12,
     run: b => reg.get('farm_pearl').run(b, { count: 12 }) },
   { id: 'eyes', done: b => countItem(b, 'ender_eye') >= 12,
     run: b => reg.get('craft_eyes_of_ender').run(b, { count: 12 }) },

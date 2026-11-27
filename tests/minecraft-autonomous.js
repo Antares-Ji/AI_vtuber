@@ -667,8 +667,103 @@ function makeBot(overrides = {}) {
     assert.equal(rArch.ok, true, 'hunt_spider(kind=skeleton) must succeed once arrows reach target');
   }
 
+  // 18. MC_ASSIST=0 endgame survival: legit blaze sword melee when out of arrows, pearl enderman equip+pickup,
+  //     and uncaged End crystal bow shooting without OP liftOntoPillar
+  {
+    const prevAssist = process.env.MC_ASSIST;
+    try {
+      process.env.MC_ASSIST = '0';
+      // 18a: farm_blaze legit sword melee when arrows=0 and hp>=12 (no /effect command issued)
+      const chats = [];
+      let blazeSwings = 0;
+      const blazeItems = [{ name: 'iron_sword', count: 1 }];
+      const blaze = { id: 301, name: 'blaze', position: new Vec3(2, 64, 0) };
+      const botBlaze = makeBot({
+        health: 18,
+        game: { dimension: 'the_nether' },
+        entity: { position: new Vec3(0, 64, 0), yaw: 0, pitch: 0 },
+        entities: { 301: blaze },
+        nearestEntity: (pred) => (botBlaze.entities[301] && pred(blaze) ? blaze : null),
+        inventory: { slots: new Array(46).fill(null), items: () => blazeItems },
+        chat: (m) => chats.push(m),
+        equip: async () => {},
+        lookAt: async () => {},
+        attack: async () => {
+          blazeSwings++;
+          delete botBlaze.entities[301];
+          blazeItems.push({ name: 'blaze_rod', count: 1 });
+        },
+      });
+      const rb = await reg.get('farm_blaze').run(botBlaze, { count: 1 });
+      assert.equal(rb.ok, true, 'farm_blaze must allow legit sword melee when arrows=0 and hp>=12 under MC_ASSIST=0');
+      assert.ok(blazeSwings >= 1, 'farm_blaze must actually swing sword at close blaze');
+      assert.equal(chats.some(c => c.startsWith('/effect')), false, 'farm_blaze under MC_ASSIST=0 must NEVER send /effect');
+
+      // 18b: farm_pearl equips sword and collects ender_pearl
+      let equippedSword = false;
+      const pearlItems = [{ name: 'iron_sword', count: 1 }];
+      const em = { id: 302, name: 'enderman', position: new Vec3(4, 64, 0) };
+      const botPearl = makeBot({
+        entity: { position: new Vec3(0, 64, 0), yaw: 0, pitch: 0 },
+        entities: { 302: em },
+        nearestEntity: (pred) => (botPearl.entities[302] && pred(em) ? em : null),
+        inventory: { slots: new Array(46).fill(null), items: () => pearlItems },
+        equip: async (it) => { if (it && it.name === 'iron_sword') equippedSword = true; },
+        pathfinder: { goto: async () => {} },
+        pvp: {
+          attack: async () => {
+            delete botPearl.entities[302];
+            pearlItems.push({ name: 'ender_pearl', count: 2 });
+          },
+        },
+      });
+      const rp = await reg.get('farm_pearl').run(botPearl, { count: 2 });
+      assert.equal(equippedSword, true, 'farm_pearl must equip sword before fighting enderman');
+      assert.equal(rp.ok, true, 'farm_pearl must succeed when target ender_pearl count is reached');
+
+      // 18c: kill_dragon shoots uncaged End crystal with bow under MC_ASSIST=0 (no OP /tp lift)
+      const endChats = [];
+      let bowFired = 0;
+      const crystal = { id: 401, name: 'end_crystal', position: new Vec3(20, 82, 0) };
+      const botEnd = makeBot({
+        health: 20,
+        _stepDeadline: Date.now() + 15000,
+        game: { dimension: 'the_end' },
+        entity: { position: new Vec3(0, 64, 0), yaw: 0, pitch: 0 },
+        entities: { 401: crystal },
+        nearestEntity: (pred) => Object.values(botEnd.entities).find(e => e && pred(e)) || null,
+        blockAt: (p) => {
+          if (p && Math.floor(p.y) <= 63) return { name: 'end_stone', boundingBox: 'block' };
+          return { name: 'air', boundingBox: 'none' };
+        },
+        findBlock: () => null,
+        inventory: {
+          slots: new Array(46).fill(null),
+          items: () => [{ name: 'bow', count: 1 }, { name: 'arrow', count: 16 }, { name: 'iron_sword', count: 1 }],
+        },
+        chat: (m) => endChats.push(m),
+        equip: async () => {},
+        lookAt: async () => {},
+        activateItem: async () => {},
+        deactivateItem: async () => {
+          bowFired++;
+          delete botEnd.entities[401];
+          // End the loop cleanly on next check after crystal is verified destroyed
+          botEnd._stepDeadline = 1;
+        },
+      });
+      await reg.get('kill_dragon').run(botEnd, {});
+      assert.equal(bowFired, 1, 'kill_dragon under MC_ASSIST=0 must shoot uncaged crystal with bow');
+      assert.equal(botEnd._crystalsDown, 1, 'kill_dragon must record crystal destroyed by bow');
+      assert.equal(endChats.some(c => c.startsWith('/tp') || c.startsWith('/setblock') || c.startsWith('/give')), false, 'kill_dragon under MC_ASSIST=0 must NEVER send OP commands');
+    } finally {
+      if (prevAssist === undefined) delete process.env.MC_ASSIST;
+      else process.env.MC_ASSIST = prevAssist;
+    }
+  }
+
   fs.rmSync(tmp, { recursive: true, force: true });
-  console.log('PASS minecraft-autonomous: all 17 regression groups passed');
+  console.log('PASS minecraft-autonomous: all 18 regression groups passed');
 })().catch(e => {
   console.error(e);
   process.exitCode = 1;
