@@ -120,6 +120,16 @@ reg.define('chop_trees', {
       return { ok: false, observation: `logs now=${logsNow()} in ${dimHere}: no log block generates in this dimension - wood, planks and sticks have to come from the Overworld, so take the portal back (return_overworld / use_portal) before any recipe that needs them` };
     }
     let guard = 0, surfaced = false, triedToSurface = false, sawTree = false, lastErr = '', walkedForWood = false, logsCut = 0;
+    // Never try pathing straight through 40 blocks of ceiling rock to a surface tree while underground:
+    // findBlock(maxDistance: 48) sees trees overhead at y=70 from y=29 and skips the !tree surface branch.
+    if ((bot.entity.position.y < 52 || roofed()) && !triedToSurface) {
+      triedToSurface = true;
+      log.skill(`chop_trees: underground/roofed at y=${Math.round(bot.entity.position.y)} - surfacing before locating trees`);
+      try {
+        const rs = await reg.get('recover_surface').run(bot, {});
+        if (rs && rs.ok) surfaced = true;
+      } catch (e) { log.warn('chop_trees pre-surface threw:', e.message); }
+    }
     while (logsNow() < need && guard++ < 12) {
       pov.progress('砍树', logsNow(), need);
       const ids = blockIds(bot, LOG_NAMES);
@@ -879,7 +889,8 @@ reg.define('hunt_spider', {
       let e = find();
       if (!e) {
         // Caves have these; the loaded set is what lies about that, so walk a little before giving up.
-        try { await reg.get('roam').run(bot, { look_for: undead ? 'zombie,husk' : 'spider,cave_spider', distance: 90, arrive: 14 }); } catch {}
+        // Constrain vertical delta so a surface bot never dives 40 blocks into a flooded cave chasing an unreachable spider.
+        try { await reg.get('roam').run(bot, { look_for: undead ? 'zombie,husk' : 'spider,cave_spider', distance: 90, arrive: 14, maxDy: 10 }); } catch {}
         e = find();
         if (!e) { noPath++; if (noPath >= 2) break; continue; }
       }
@@ -1082,9 +1093,12 @@ reg.define('roam', {
     // food milestone while the real target was, in the bot's own words, "not food".
     const bad = new Set();
     let badTarget = null, badTries = 0;
+    const maxDy = Math.max(4, Math.min(48, parseInt(a.maxDy, 10) || 14));
     const spot = () => {
       const e = bot.nearestEntity(en => names.includes(en.name) && en.position
-        && !bad.has(en.id) && bot.entity.position.distanceTo(en.position) < 110);
+        && !bad.has(en.id)
+        && Math.abs(en.position.y - bot.entity.position.y) <= maxDy
+        && bot.entity.position.distanceTo(en.position) < 110);
       if (e) return { kind: 'entity', id: e.id, name: e.name, at: e.position.floored() };
       if (wantBlock) {
         // A block search that matches the cell under the bot's own feet reports "arrived" without moving
@@ -1494,8 +1508,11 @@ async function equipBestToolFor(bot, block) {
     if (allowed) {
       const digs = (i) => (i.maxDurability ? i.maxDurability - (i.durabilityUsed || 0) : 999);
       const can = (i) => { const id = itemId(bot, i.name); return id !== undefined && allowed.has(id); };
+      const needsDiamond = /^(obsidian|crying_obsidian|respawn_anchor|ancient_debris)$/.test(block.name || '');
+      const diamondFallbackOk = needsDiamond || /^(diamond_ore|deepslate_diamond_ore|gold_ore|deepslate_gold_ore|redstone_ore|deepslate_redstone_ore|emerald_ore|deepslate_emerald_ore)$/.test(block.name || '');
       const cands = bot.inventory.items()
-        .filter(i => /_pickaxe$/.test(i.name) && can(i) && digs(i) >= 8)
+        .filter(i => /_pickaxe$/.test(i.name) && can(i) && digs(i) >= 8
+          && (diamondFallbackOk || !/^(diamond|netherite)_pickaxe$/.test(i.name)))
         .sort((a, b) => (PICK_ORDER.indexOf(a.name) - PICK_ORDER.indexOf(b.name)) || (digs(b) - digs(a)));
       for (const t of cands) {
         await bounded(`equip ${t.name}`, bot.equip(t, 'hand'), 6000);
@@ -1508,19 +1525,47 @@ async function equipBestToolFor(bot, block) {
         }
         return;
       }
+      // If no non-diamond pick has >=8 digs for ordinary rock, try quick-minting a stone/iron pick
+      // right here (throttled) instead of either burning the obsidian diamond_pickaxe or hand-digging stone!
+      if (!needsDiamond && cands.length === 0 && (block.hardness || 0) >= 1.2) {
+        const nowMs = Date.now();
+        if (!bot._quickPickAt || nowMs - bot._quickPickAt > 15000) {
+          const cob = countItem(bot, 'cobblestone') + countItem(bot, 'cobbled_deepslate') + countItem(bot, 'blackstone');
+          const hasTable = countItem(bot, 'crafting_table') > 0 || !!bot.findBlock({ matching: blockIds(bot, ['crafting_table']), maxDistance: 5 });
+          if (hasTable && countItem(bot, 'stick') >= 2 && (countItem(bot, 'iron_ingot') >= 3 || cob >= 3)) {
+            bot._quickPickAt = nowMs;
+            const targetPick = countItem(bot, 'iron_ingot') >= 3 ? 'iron_pickaxe' : 'stone_pickaxe';
+            try {
+              const cr = await craft(bot, targetPick, 1);
+              log.skill(`equipBestToolFor: auto-crafted ${targetPick} before digging ${block.name} -> ${cr.ok ? 'ok' : 'failed'}`);
+              const fresh = bot.inventory.items().find(i => i.name === targetPick && digs(i) >= 8);
+              if (fresh) {
+                await bounded(`equip ${fresh.name}`, bot.equip(fresh, 'hand'), 6000);
+                if (handIsRight()) return;
+              }
+            } catch {}
+          }
+        }
+      }
       const hardOnly = cands.length === 0 && bot.inventory.items().some(i => /_pickaxe$/.test(i.name));
-      if (hardOnly) log.warn(`equipBestToolFor: ${block.name} allows only [${[...allowed].map(id => (data(bot).items[id] || {}).name).filter(Boolean).join(',')}] and no such pick in the pack has 8 digs left (held=${bot.heldItem ? bot.heldItem.name : 'nothing'})`);
+      if (hardOnly) log.warn(`equipBestToolFor: ${block.name} allows only [${[...allowed].map(id => (data(bot).items[id] || {}).name).filter(Boolean).join(',')}] and no non-reserved pick in the pack has 8 digs left (held=${bot.heldItem ? bot.heldItem.name : 'nothing'})`);
+      // Never fall through to mineflayer-tool/diamond_pickaxe for ordinary stone when conserving diamond_pickaxe!
+      if (!diamondFallbackOk && cands.length === 0) return;
     }
   }
   // Prefer mineflayer-tool (auto picks + equips the correct tier/tool for the block).
-  if (bot.tool) {
+  if (bot.tool && wantTool !== 'pickaxe') {
     await bounded('bot.tool.equipForBlock', bot.tool.equipForBlock(block, { itemDamageRatio: 1 }), 8000);
     for (let t = 0; t < 6 && !handIsRight(); t++) await sleep(250);
     if (handIsRight()) return;
     log.warn(`equipBestToolFor: equipForBlock left the hand on ${bot.heldItem ? bot.heldItem.name : 'nothing'}, need a ${wantTool} - falling back to the pack`);
   }
-  // Fallback: pick the highest-tier matching tool we already carry.
-  const want = ['diamond', 'iron', 'stone', 'golden', 'wooden', 'netherite'];
+  // Fallback: pick matching tool we carry, keeping diamond_pickaxe reserved for obsidian/high-tier ores.
+  const want = wantTool === 'pickaxe'
+    ? (/^(obsidian|crying_obsidian|respawn_anchor|ancient_debris|diamond_ore|deepslate_diamond_ore)$/.test(block.name || '')
+      ? ['iron', 'diamond', 'netherite', 'stone', 'wooden', 'golden']
+      : ['iron', 'stone', 'wooden', 'golden'])
+    : ['iron', 'stone', 'diamond', 'wooden', 'golden', 'netherite'];
   const items = bot.inventory.items();
   for (const tier of want) {
     const t = items.find(i => i.name === `${tier}_${wantTool}`);
@@ -2129,7 +2174,8 @@ async function dropJunk(bot, force, minFree = 6) {
   // every 3x3 recipe the endgame wants (chest, all armour, eyes of ender, the diamond pick itself).
   const logsAllW = () => LOG_NAMES.reduce((s, n) => s + countItem(bot, n), 0);
   const planksAllW = () => bot.inventory.items().filter(i => /_planks$/.test(i.name)).reduce((s, i) => s + i.count, 0);
-  const woodThin = () => countItem(bot, 'crafting_table') < 1 || (logsAllW() + planksAllW()) < 12;
+  // Always reserve backup wood (logs/planks), >=8 sticks, and >=1 crafting_table so tools/benches never deadlock underground.
+  const woodThin = () => countItem(bot, 'crafting_table') < 1 || logsAllW() < 4 || (logsAllW() * 4 + planksAllW()) < 20;
   const WOOD_RE = /_(log|wood|stem|hyphae|planks)$/;
   // Cheap rock is the Nether's bridge kit: it is the ONLY way across a lava sea, and the caps above
   // trim a stack of 64 soul_sand down to 16 - 48 causeway cells thrown away at once. Measured cost:
@@ -2166,6 +2212,8 @@ async function dropJunk(bot, force, minFree = 6) {
       const junky = deadTool || keep !== undefined || JUNK_DROP_ALL.test(it.name);
       if (!junky) continue;
       if (woodThin() && (/_planks$/.test(it.name) || /_(log|wood|stem|hyphae)$/.test(it.name))) continue;
+      if (it.name === 'stick' && countItem(bot, 'stick') <= 16) continue;
+      if (it.name === 'crafting_table' && countItem(bot, 'crafting_table') <= 1) continue;
       if (keep !== undefined && it.count <= keep) continue;
       // A capped stack must be TRIMMED, not thrown away: tossStack(all 36 obsidian) because the cap
       // is 16 silently destroyed the portal kit. Only cap-0 junk may leave as a whole stack.
@@ -2611,25 +2659,42 @@ reg.define('ensure_tools', {
     const tableNear = (() => {
       try { if (countItem(bot, 'crafting_table') > 0) return true; } catch {}
       try { if (bot.findBlock({ matching: blockIds(bot, ['crafting_table']), maxDistance: 12 })) return true; } catch { return true; }
-      // The bench this bot owns is where it LEFT it, and `craft()` walks there itself (the WS fallback at
-      // line ~1767 is what minted the 01:53 pick). Only loaded chunks are searched, so a bench 140 blocks
-      // away reads as "no table" and sent the routine off to chop a tree that does not exist on this reef
-      // (02:22:46 -> 02:24:09, two 60 s timeouts, then `no wood at the surface either`).
-      try { const rem = WS.at('crafting_table'); if (rem) { log.skill(`ensure_tools: bench is on file at ${rem.x},${rem.y},${rem.z} (${rem.extra || ''}) - craft() walks there, no tree needed`); return true; } } catch {}
+      try {
+        const rem = WS.at('crafting_table');
+        if (rem && bot.entity && bot.entity.position) {
+          const d3 = Math.hypot(rem.x - bot.entity.position.x, rem.y - bot.entity.position.y, rem.z - bot.entity.position.z);
+          if (d3 <= 24) {
+            log.skill(`ensure_tools: bench is on file at ${rem.x},${rem.y},${rem.z} (${Math.round(d3)}m) - craft() walks there, no tree needed`);
+            return true;
+          }
+        }
+      } catch {}
       return false;
     })();
-    const canPayForTable = (planks0 + logs0 * 4) >= 4;
-    if (!tableNear && !canPayForTable && bot.game && bot.game.dimension === 'overworld') {
-      log.skill(`ensure_tools: no table in the pack or within 12 and only ${planks0} planks + ${logs0} logs to buy one (stick=${countItem(bot, 'stick')} cobble=${countItem(bot, 'cobblestone')}) - a pick cannot be minted without a tree, so go get one`);
+    const woodEquiv0 = planks0 + logs0 * 4;
+    const canPayForTable = woodEquiv0 >= 4;
+    const lowWoodReserve = (!tableNear && !canPayForTable)
+      || (woodEquiv0 < 4 && countItem(bot, 'stick') < 2)
+      || (deepY >= 52 && (woodEquiv0 < 16 || (countItem(bot, 'crafting_table') < 1 && woodEquiv0 < 20)));
+    if (lowWoodReserve && bot.game && bot.game.dimension === 'overworld') {
+      log.skill(`ensure_tools: topping up backup wood reserve (logs=${logs0} planks=${planks0} stick=${countItem(bot, 'stick')} table=${countItem(bot, 'crafting_table')} y=${Math.round(deepY)})`);
       if (deepY < 50) {
         try { await reg.get('recover_surface').run(bot, {}); } catch (e) { log.warn(`ensure_tools: recover_surface threw ${String(e.message).slice(0, 80)}`); }
       }
       try { await reg.get('chop_trees').run(bot, { count: 6 }); } catch (e) { log.warn(`ensure_tools: chop_trees threw ${String(e.message).slice(0, 80)}`); }
+      // Keep at least 2 logs intact as emergency wood while converting the rest to planks/table/sticks.
       try { await craftPlanks(bot); } catch (e) { log.warn(`ensure_tools: craftPlanks threw ${String(e.message).slice(0, 80)}`); }
       const logsNow = LOG_NAMES.reduce((s, n) => s + countItem(bot, n), 0);
       const planksNow = bot.inventory.items().filter(i => /_planks$/.test(i.name)).reduce((s, i) => s + i.count, 0);
       log.skill(`ensure_tools: wood resupply -> logs ${logs0}->${logsNow}, planks ${planks0}->${planksNow} (y=${Math.round(bot.entity.position.y)})`);
-      if (logsNow + planksNow < 4) return { ok: false, observation: `no wood at the surface either (logs=${logsNow} planks=${planksNow}) - the pick ladder cannot be re-minted until trees are reachable` };
+      if (!tableNear && logsNow * 4 + planksNow < 4) return { ok: false, observation: `no wood at the surface either (logs=${logsNow} planks=${planksNow}) - the pick ladder cannot be re-minted until trees are reachable` };
+    }
+    // Always keep at least 1 carried crafting_table and 8 backup sticks when wood allows.
+    if (countItem(bot, 'crafting_table') < 1 && (bot.inventory.items().filter(i => /_planks$/.test(i.name)).reduce((s, i) => s + i.count, 0) >= 4)) {
+      try { await craft(bot, 'crafting_table', 1); } catch {}
+    }
+    if (countItem(bot, 'stick') < 8 && (bot.inventory.items().filter(i => /_planks$/.test(i.name)).reduce((s, i) => s + i.count, 0) >= 4)) {
+      try { await craft(bot, 'stick', 8); } catch {}
     }
     // Tier floor. A wooden pick IS a pickaxe and it was 54% healthy, so the old test said "tools are fine"
     // - but 1.21 drops NOTHING for an under-tier tool on iron ore: 06:28:57 `mine: broke iron_ore at
@@ -2726,6 +2791,7 @@ reg.define('ensure_tools', {
       // under 15% first left the bot with NO pickaxe at all - it mined coal bare-handed for six
       // minutes and could not smelt the iron for its own replacement.
       for (const it of bot.inventory.items().filter(i => i.name.endsWith('_pickaxe'))) {
+        if (/^(diamond|netherite)_pickaxe$/.test(it.name)) continue;
         const w = ob.wear(bot, it);
         if (w !== null && w < 5 && goodPicks().length) {
           try { await bot.toss(it.type, null, it.count); log.skill(`ensure_tools discarded spent ${it.name}@${w}%`); } catch (e) { log.skill(`discard ${it.name}: ${e.message}`); }

@@ -771,10 +771,28 @@ const LADDER = [
               }
             }
           } catch {}
-          // 2) Hunt spiders (caves or night surface) for the remaining string.
+          // 2) Hunt spiders for remaining string. If underground with no nearby same-level spider, surface
+          // first so night surface spiders (and daytime chickens/wood/gravel) are actually reachable instead
+          // of drowning in dark caves chasing spiders behind granite walls.
           if (countItem(b, 'string') < 3) {
-            const hs = await reg.get('hunt_spider').run(b, { count: 3, maxDistance: 48 });
-            log.skill(`bow step hunt_spider: ${hs.ok ? 'ok' : 'failed'} (${String(hs.observation).slice(0, 110)})`);
+            const nearSpiderSameLevel = (() => {
+              try {
+                return !!b.nearestEntity(e => e && e.name && /spider/.test(e.name) && e.position
+                  && b.entity.position.distanceTo(e.position) <= 32
+                  && Math.abs(e.position.y - b.entity.position.y) <= 8);
+              } catch { return false; }
+            })();
+            if (!nearSpiderSameLevel && b.entity && b.entity.position && b.entity.position.y < 55) {
+              try { await reg.get('recover_surface').run(b, {}); } catch {}
+            }
+            const tod = b.time && typeof b.time.timeOfDay === 'number' ? (b.time.timeOfDay % 24000) : null;
+            const isDaytime = tod !== null && (tod < 12300 || tod > 23400);
+            if (!isDaytime || nearSpiderSameLevel || countItem(b, 'arrow') >= 8) {
+              const hs = await reg.get('hunt_spider').run(b, { count: 3, maxDistance: 48 });
+              log.skill(`bow step hunt_spider: ${hs.ok ? 'ok' : 'failed'} (${String(hs.observation).slice(0, 110)})`);
+            } else {
+              log.skill(`bow step: daytime (tod=${Math.round(tod)}) with no spider on this level - gathering arrows/feathers/flint first before hunting night spiders`);
+            }
           }
         }
         if (countItem(b, 'string') >= 3 && countItem(b, 'stick') < 3) {

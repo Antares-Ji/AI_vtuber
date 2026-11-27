@@ -328,7 +328,9 @@ function makeBot(overrides = {}) {
       reg.get('roam').run = async () => ({ ok: false, observation: 'stub-roam' });
       reg.get('hunt').run = async () => ({ ok: false, observation: 'stub-hunt' });
       reg.get('mine').run = async () => ({ ok: false, observation: 'stub-mine' });
-      const bot = makeBot({
+      // Daytime (tod=1000) with no spider nearby: gathers arrows/chickens first and surfaces without cave-diving
+      const botDay = makeBot({
+        time: { timeOfDay: 1000, age: 1000 },
         entity: { position: new Vec3(0, 40, 0), yaw: 0, pitch: 0 },
         inventory: {
           slots: new Array(46).fill(null),
@@ -336,10 +338,23 @@ function makeBot(overrides = {}) {
         },
         findBlocks: () => [],
       });
-      await bowMs.run(bot);
+      await bowMs.run(botDay);
       assert.equal(ensureToolsCalls, 1, 'bow milestone must call ensure_tools when carrying zero pickaxes');
-      assert.equal(spiderCalls, 1, 'bow milestone must actively run hunt_spider when bow=0 and string<3');
-      assert.equal(surfaceCalls, 1, 'bow milestone must surface before roaming for surface chickens when y<55');
+      assert.equal(spiderCalls, 0, 'bow milestone must NOT dive into caves chasing spiders during daytime while arrows<8');
+      assert.equal(surfaceCalls, 1, 'bow milestone must surface when underground at y<55');
+
+      // Nighttime (tod=16000): actively runs hunt_spider on the surface when bow=0 and string<3
+      const botNight = makeBot({
+        time: { timeOfDay: 16000, age: 16000 },
+        entity: { position: new Vec3(0, 64, 0), yaw: 0, pitch: 0 },
+        inventory: {
+          slots: new Array(46).fill(null),
+          items: () => [{ name: 'flint', count: 3 }, { name: 'stick', count: 6 }],
+        },
+        findBlocks: () => [],
+      });
+      await bowMs.run(botNight);
+      assert.equal(spiderCalls, 1, 'bow milestone must actively run hunt_spider at night when bow=0 and string<3');
     } finally {
       reg.get('ensure_tools').run = origET;
       reg.get('hunt_spider').run = origHS;
@@ -400,8 +415,87 @@ function makeBot(overrides = {}) {
     }
   }
 
+  // 11. pov/server.js handles stage_lock entries without history array; roam filters out far-vertical cave mobs; chop_trees surfaces first when y<52
+  {
+    const povSrv = require('../src/minecraft/autonomous/pov/server');
+    fs.mkdirSync(process.env.MC_RUNS_DIR, { recursive: true });
+    fs.writeFileSync(path.join(process.env.MC_RUNS_DIR, 'live.json'), JSON.stringify({ ts: Date.now(), username: 'TestBot', milestones: { current: 'bow' }, inv: '{}' }));
+    fs.writeFileSync(path.join(process.env.MC_RUNS_DIR, 'stage_lock.json'), JSON.stringify({ stages: { bow: { lastObs: 'no history yet' } } }));
+    const snap = povSrv.fromFiles();
+    assert.equal(snap.ok, true, 'pov fromFiles must not throw when stage_lock stage has no history array');
+    assert.equal(snap.elapsedSec, 0);
+
+    // chop_trees at y=29 must call recover_surface BEFORE trying to path to an overhead surface tree at y=70
+    const origRS = reg.get('recover_surface').run;
+    let rsCalled = 0;
+    try {
+      reg.get('recover_surface').run = async (b) => { rsCalled++; b.entity.position = new Vec3(0, 64, 0); return { ok: true, observation: 'surfaced' }; };
+      const bot = makeBot({
+        entity: { position: new Vec3(0, 29, 0), yaw: 0, pitch: 0 },
+        inventory: { slots: new Array(46).fill(null), items: () => [{ name: 'oak_log', count: 12 }] },
+        findBlock: () => ({ name: 'spruce_log', position: new Vec3(0, 70, 0) }),
+        blockAt: () => ({ name: 'stone', boundingBox: 'block' }),
+      });
+      await reg.get('chop_trees').run(bot, { count: 12 });
+      assert.equal(rsCalled, 1, 'chop_trees must surface before searching for trees when underground at y=29');
+    } finally {
+      reg.get('recover_surface').run = origRS;
+    }
+
+    // roam must ignore spiders 35 blocks vertically below the bot (runs actual roam skill with 1 leg)
+    let approachCalled = 0;
+    const botRoam = makeBot({
+      _stepDeadline: Date.now() + 2000,
+      entity: { position: new Vec3(0, 64, 0), yaw: 0, pitch: 0 },
+      entities: { 99: { id: 99, name: 'spider', position: new Vec3(4, 25, 4) } },
+      nearestEntity(pred) { return Object.values(this.entities).find(pred) || null; },
+      pathfinder: {
+        goto: async (goal) => {
+          if (goal && goal.y === 25) approachCalled++;
+          botRoam._stepDeadline = Date.now() - 1; // stop after 1 leg
+        },
+        stop: () => {},
+      },
+      blockAt: () => ({ name: 'grass_block', boundingBox: 'block' }),
+    });
+    await reg.get('roam').run(botRoam, { look_for: 'spider', distance: 60, maxDy: 10 });
+    assert.equal(approachCalled, 0, 'roam must NEVER path toward a cave spider 39 blocks below surface');
+  }
+
+  // 12. Conservative pathfinder tool selection & liquid/canDig policy (reserve diamond_pickaxe for obsidian, no bare-hand digging, real liquidCost)
+  {
+    const { selectConservativeTool, syncPathfinderPolicy } = require('../src/minecraft/autonomous/bot');
+    const pack = [
+      { name: 'diamond_pickaxe', count: 1, maxDurability: 1561, durabilityUsed: 20 },
+      { name: 'iron_pickaxe', count: 1, maxDurability: 250, durabilityUsed: 10 },
+      { name: 'stone_shovel', count: 1, maxDurability: 131, durabilityUsed: 10 },
+      { name: 'iron_sword', count: 1, maxDurability: 250, durabilityUsed: 5 },
+    ];
+    const botA = makeBot({ inventory: { slots: new Array(46).fill(null), items: () => pack } });
+    assert.equal(selectConservativeTool(botA, { name: 'obsidian', hardness: 50 }).name, 'diamond_pickaxe', 'obsidian uses diamond_pickaxe');
+    assert.equal(selectConservativeTool(botA, { name: 'stone', hardness: 1.5 }).name, 'iron_pickaxe', 'ordinary stone prefers iron_pickaxe over diamond_pickaxe');
+    assert.equal(selectConservativeTool(botA, { name: 'dirt', hardness: 0.5 }).name, 'stone_shovel', 'dirt switches to shovel');
+    assert.equal(selectConservativeTool(botA, { name: 'cobweb', hardness: 4 }).name, 'iron_sword', 'cobweb switches to sword');
+
+    // Only diamond_pickaxe left: must NOT hand it over for cobblestone, and pathfinder canDig must turn OFF
+    const botDiamondOnly = makeBot({ inventory: { slots: new Array(46).fill(null), items: () => [pack[0]] } });
+    assert.equal(selectConservativeTool(botDiamondOnly, { name: 'cobblestone', hardness: 2 }), null, 'diamond_pickaxe stays reserved when digging cobblestone');
+    const mov = { liquidCost: 1, canDig: true, digCost: 0.4 };
+    syncPathfinderPolicy(botDiamondOnly, mov, { wet: false, dryNear: true });
+    assert.equal(mov.liquidCost, 35, 'dry land sets high real mov.liquidCost to avoid water');
+    assert.equal(mov.canDig, false, 'pathfinder must NOT dig rock without a non-diamond bulk pickaxe');
+
+    // With iron_pickaxe: dry allows digging (digCost=4), wet disables digging and raises liquidCost=85 near shore
+    syncPathfinderPolicy(botA, mov, { wet: false, dryNear: true });
+    assert.equal(mov.canDig, true);
+    assert.equal(mov.digCost, 4);
+    syncPathfinderPolicy(botA, mov, { wet: true, dryNear: true });
+    assert.equal(mov.canDig, false, 'submerged bot must NOT dig underwater');
+    assert.equal(mov.liquidCost, 85, 'submerged near dry land raises mov.liquidCost=85 to exit water');
+  }
+
   fs.rmSync(tmp, { recursive: true, force: true });
-  console.log('PASS minecraft-autonomous: deadline helper, survive anti-spin, victory halt, chat/MC_TALK guards, gridcraft tableWin count, bridge + streamer factual narration, bow/stronghold MC_ASSIST=0');
+  console.log('PASS minecraft-autonomous: all 12 regression groups passed');
 })().catch(e => {
   console.error(e);
   process.exitCode = 1;

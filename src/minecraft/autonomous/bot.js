@@ -27,6 +27,75 @@ process.on('unhandledRejection', (e) => {
 });
 process.on('uncaughtException', (e) => log.err('uncaught exception (kept alive)', String((e && e.stack) ? e.stack.split('\n')[0] : e).slice(0, 200)));
 
+// Conservation-aware tool selector shared by mineflayer-pathfinder and unit tests:
+// - Reserves diamond/netherite pickaxes strictly for obsidian/crying_obsidian/ancient_debris
+//   (and diamond_ore only when no iron pickaxe with >=8 digs is available).
+// - Prefers iron -> stone -> wooden -> golden pickaxes for ordinary stone/ores/netherrack.
+// - Automatically switches to shovel/axe/sword for dirt/wood/cobweb.
+// - Never hands over a diamond pickaxe to grind cobblestone, and never uses picks with <8 digs left.
+const DIAMOND_ONLY_BLOCKS = /^(obsidian|crying_obsidian|respawn_anchor|ancient_debris)$/;
+const IRON_PLUS_ORES = /^(diamond_ore|deepslate_diamond_ore|gold_ore|deepslate_gold_ore|redstone_ore|deepslate_redstone_ore|emerald_ore|deepslate_emerald_ore)$/;
+const SHOVEL_BLOCKS = /(dirt|grass_block|sand|gravel|clay|soul_sand|soul_soil|snow|mycelium|podzol|mud|farmland)/;
+const AXE_BLOCKS = /(_log|_wood|_planks|crafting_table|chest|barrel|bookshelf|_fence|_stairs|melon|pumpkin|crimson_stem|warped_stem|hyphae)/;
+
+function itemDigsLeft(item) {
+  if (!item) return 0;
+  return item.maxDurability ? item.maxDurability - (item.durabilityUsed || 0) : 999;
+}
+
+function hasUsableBulkPick(bot) {
+  try {
+    return bot.inventory.items().some(i =>
+      /^(iron|stone|wooden|golden)_pickaxe$/.test(i.name) && itemDigsLeft(i) >= 8);
+  } catch { return false; }
+}
+
+function selectConservativeTool(bot, block) {
+  if (!bot || !block || !bot.inventory) return null;
+  const items = bot.inventory.items() || [];
+  const name = String(block.name || '');
+  const pickByOrder = (order) => {
+    for (const nm of order) {
+      const cands = items.filter(i => i.name === nm && itemDigsLeft(i) >= 8)
+        .sort((a, b) => itemDigsLeft(b) - itemDigsLeft(a));
+      if (cands.length) return cands[0];
+    }
+    return null;
+  };
+  if (name === 'cobweb' || name === 'bamboo') {
+    return pickByOrder(['iron_sword', 'stone_sword', 'diamond_sword', 'wooden_sword', 'netherite_sword']);
+  }
+  if (DIAMOND_ONLY_BLOCKS.test(name)) {
+    return pickByOrder(['diamond_pickaxe', 'netherite_pickaxe']);
+  }
+  if (IRON_PLUS_ORES.test(name)) {
+    return pickByOrder(['iron_pickaxe', 'diamond_pickaxe', 'netherite_pickaxe']);
+  }
+  if (SHOVEL_BLOCKS.test(name) && !/_ore$/.test(name)) {
+    return pickByOrder(['iron_shovel', 'stone_shovel', 'wooden_shovel', 'diamond_shovel', 'golden_shovel']);
+  }
+  if (AXE_BLOCKS.test(name) && !/stone_brick|cobblestone|deepslate|blackstone|nether_brick/.test(name)) {
+    return pickByOrder(['iron_axe', 'stone_axe', 'wooden_axe', 'diamond_axe', 'golden_axe']);
+  }
+  // Pickaxe / rock blocks: keep diamond_pickaxe strictly reserved for obsidian!
+  if (block.material === 'mineable/pickaxe' || (block.harvestTools && Object.keys(block.harvestTools).length > 0) || (block.hardness || 0) >= 1.2) {
+    return pickByOrder(['iron_pickaxe', 'stone_pickaxe', 'wooden_pickaxe', 'golden_pickaxe']);
+  }
+  return null;
+}
+
+function syncPathfinderPolicy(bot, mov, opts = {}) {
+  if (!mov) return;
+  const wet = !!opts.wet;
+  const dryNear = opts.dryNear !== undefined ? !!opts.dryNear : true;
+  const bulkPick = hasUsableBulkPick(bot);
+  // Real mineflayer-pathfinder 2.4.5 Movements fields (previously bot.pathfinder.costs.liquid was a dead no-op!).
+  mov.liquidCost = wet ? (dryNear ? 85 : 8) : 35;
+  // Never allow pathfinder to bare-hand dig stone (7.5s/block) or dig sideways while submerged (37s/block -> drown).
+  mov.canDig = !wet && bulkPick;
+  mov.digCost = bulkPick ? 4 : 40;
+}
+
 function createBot() {
   const bot = mineflayer.createBot({
     host: cfg.mc.host,
@@ -140,24 +209,28 @@ function createBot() {
 
   bot.once('spawn', () => {
     const mov = new Movements(bot, require('minecraft-data')(bot.version));
-    // Real Movements knobs (mineflayer-pathfinder 2.4.5). digCost < 1 makes the pathfinder
-    // prefer tunnelling straight through stone over walking 40 blocks around a cavern,
-    // which is what a mining bot wants; the old allowBreakingScripts/automatePlace names
-    // do not exist and silently did nothing.
-    mov.canDig = true; mov.digCost = 0.4; mov.placeCost = 1.2; mov.allow1by1towers = true;
-    // Sprint-jumps and parkour gaps are the two places where mineflayer's client-side prediction
-    // most often disagrees with Paper, and a disagreement on a move packet is an
-    // invalid_player_movement disconnect: on the acceptance run the bot was kicked roughly every
-    // 45 s while roaming on the surface. Trading a little travel speed for staying connected is
-    // the right side of that bet for an unattended multi-hour run.
-    mov.allowParkour = false; mov.allowSprinting = false; mov.dontCreateFlow = true;
-    // Swimming is a capability this bot kept being blamed for lacking: walk_to reported
-    // `blocked 7 legs ... ahead=water/water, last leg said "No path to the goal!"` at 12:19 while the
-    // remembered lava pool sat 77 blocks away across a pond. Set it explicitly instead of relying on
-    // the default; the wet-escape branch and the drowning preemption are what keep it safe underwater.
+    bot._movements = mov;
+    // Balanced Movements policy:
+    // - digCost=4 (was 0.4, which made digging straight into cliffs/aquifers 2.5x cheaper than walking!)
+    // - liquidCost=35 when dry (was silently left at default 1 because pf.costs.liquid didn't exist!)
+    // - maxDropDown=3 & infiniteLiquidDropdownDistance=false to stop jumping off ravine cliffs into pools
+    // - canDig dynamically disabled when underwater or carrying zero non-diamond pickaxes
+    mov.canDig = hasUsableBulkPick(bot);
+    mov.digCost = 4;
+    mov.placeCost = 2.5;
+    mov.liquidCost = 35;
+    mov.maxDropDown = 3;
+    mov.infiniteLiquidDropdownDistance = false;
+    mov.allow1by1towers = true;
+    mov.allowParkour = false;
+    mov.allowSprinting = false;
+    mov.dontCreateFlow = true;
     mov.canSwim = true;
     mov.blocksCantBreak.add(require('minecraft-data')(bot.version).blocksByName.bedrock.id);
     bot.pathfinder.setMovements(mov);
+    // Override pathfinder's greedy tool selector so walking/pathing NEVER wears down or swaps the
+    // obsidian-reserved diamond_pickaxe onto ordinary stone, and uses the right tool per block class.
+    bot.pathfinder.bestHarvestTool = (block) => selectConservativeTool(bot, block);
     // 10 of 11 deaths in one observation window were "fell from a high place": the workshop sits on
     // a plateau rim and the bot repeatedly walks off it while roaming/hauling blocks. Catch actual
     // freefall and cast slow falling before the landing, throttled so the log stays readable.
@@ -237,34 +310,19 @@ function createBot() {
       // beside a lake it cannot cross. Raising the liquid cost makes the planner route around the shore
       // like a player does, instead of re-planning the same swim once the step restarts.
       try {
-        const pf = bot.pathfinder;
-        if (pf && pf.costs) {
-          // 100000 while swimming was a BAN, not a cost. It is correct next to a shore (walk around the
-          // pond instead of re-planning the same swim, which is what pinned the bot for 30 min at
-          // -310..-342,61,1526-1542) and fatal in the middle of the ocean, where the bot is wet every
-          // tick, there is no land route, and the only move is to swim: measured 15:07-15:25 at
-          // -300,64,1666 with food=0, `liquid=100000` made every goal unreachable and roam refused all
-          // four headings. Price it by whether dry ground is actually near.
-          pf.costs.liquid = on ? (dryGroundNear(12) ? 100000 : 8) : 30;
-        }
+        syncPathfinderPolicy(bot, mov, { wet: on, dryNear: on ? dryGroundNear(12) : true });
       } catch {}
-      if (on) { wetSince = Date.now(); const f = bot.entity.position.floored(); log.warn(`submerged at ${f.x},${f.y},${f.z}${why ? ' (' + why + ')' : ''} - movement policy paused, liquid routing raised`); }
-      else log.info(`movement policy resumed${why ? ' (' + why + ')' : ''}${wetSince ? ` after ${Math.round((Date.now() - wetSince) / 1000)}s wet` : ''}`);
+      if (on) { wetSince = Date.now(); const f = bot.entity.position.floored(); log.warn(`submerged at ${f.x},${f.y},${f.z}${why ? ' (' + why + ')' : ''} - movement policy paused, liquidCost=${mov.liquidCost}, canDig=${mov.canDig}`); }
+      else log.info(`movement policy resumed${why ? ' (' + why + ')' : ''}${wetSince ? ` after ${Math.round((Date.now() - wetSince) / 1000)}s wet` : ''} (liquidCost=${mov.liquidCost}, canDig=${mov.canDig})`);
     };
     const wetTick = () => {
-      // Two gates before movement packets may flow again: the chunks around us must be loaded and
-      // the login must be >2.5 s old. Until then the world model is empty, so the physics engine
-      // cannot resolve a floor and our position sits frozen on the login coordinate while the
-      // server has already moved us - any look/control packet in that window is the packet Paper
-      // rejects. The planner waits on bot._chunksOk for the same reason.
-      // Time-bounded as well as chunk-bounded: if anything in the spawn handler's promise chain
-      // ever fails to settle, this still opens, because a permanently closed gate parks the planner
-      // in a silent sleep loop and looks exactly like a healthy idle bot.
       const ok = (chunksReady || Date.now() - loginAt > 15000) && Date.now() - loginAt >= 2500;
       bot._chunksOk = ok;
       if (!ok) return;
       const wet = wetHere();
       setWet(wet, wet ? 'in water' : 'standing dry');
+      // Keep mov.canDig / mov.liquidCost synced whenever picks break or are newly crafted.
+      try { syncPathfinderPolicy(bot, mov, { wet, dryNear: wet ? dryGroundNear(12) : true }); } catch {}
     };
     bot._chunksOk = false;
     bot.on('spawn', () => {
@@ -673,4 +731,4 @@ function createBot() {
   return bot;
 }
 
-module.exports = { createBot, goals };
+module.exports = { createBot, goals, selectConservativeTool, syncPathfinderPolicy, hasUsableBulkPick };

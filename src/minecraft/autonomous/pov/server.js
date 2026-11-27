@@ -87,7 +87,8 @@ function fromFiles() {
   const cur = (live.milestones && live.milestones.current) || null;
   const st = (lock.stages || {})[cur] || {};
   const lastObs = st.lastObs || '';
-  const last = (st.history || [])[st.history.length - 1] || {};
+  const hist = Array.isArray(st.history) ? st.history : [];
+  const last = hist.length ? hist[hist.length - 1] : {};
   const invNow = (() => { try { return JSON.parse(live.inv || '{}'); } catch { return {}; } })();
 
   const s = summarize({
