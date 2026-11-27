@@ -267,6 +267,44 @@ function makeBot(overrides = {}) {
     assert.ok(dedup.includes('1/23'), `should show milestone progress: ${dedup}`);
   }
 
+  // 8. find_diamonds iron-pick shortage math: with iron_ingot=2 + raw_iron=2 (total 4 >= 3),
+  //    must NOT waste 180s calling mine(iron_ore); must go straight to smelt -> iron_pickaxe.
+  {
+    const origMine = reg.get('mine').run;
+    const origSmelt = reg.get('smelt').run;
+    let mineIronCalled = 0;
+    let smeltCalled = 0;
+    reg.get('mine').run = async (b, a) => {
+      if (a && Array.isArray(a.names) && a.names.includes('iron_ore')) mineIronCalled++;
+      return { ok: false, observation: 'stub-mine' };
+    };
+    reg.get('smelt').run = async () => {
+      smeltCalled++;
+      return { ok: false, observation: 'stub-smelt-stop' };
+    };
+    try {
+      const bot = makeBot({
+        entity: { position: new Vec3(-45, 20, -260) },
+        inventory: {
+          slots: new Array(46).fill(null),
+          items: () => [
+            { name: 'stone_pickaxe', count: 1, maxDurability: 131, durabilityUsed: 5 },
+            { name: 'iron_ingot', count: 2 },
+            { name: 'raw_iron', count: 2 },
+            { name: 'diamond', count: 2 },
+          ],
+        },
+        equip: async () => {},
+      });
+      await reg.get('find_diamonds').run(bot, { count: 3 });
+      assert.equal(mineIronCalled, 0, 'must NOT mine iron_ore when iron_ingot(2)+raw_iron(2) >= 3');
+      assert.equal(smeltCalled, 1, 'must go straight to smelt when raw_iron covers the remaining ingot deficit');
+    } finally {
+      reg.get('mine').run = origMine;
+      reg.get('smelt').run = origSmelt;
+    }
+  }
+
   fs.rmSync(tmp, { recursive: true, force: true });
   console.log('PASS minecraft-autonomous: deadline helper, survive anti-spin, victory halt, chat/MC_TALK guards, gridcraft tableWin count, bridge + streamer factual narration');
 })().catch(e => {

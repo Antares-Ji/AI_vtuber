@@ -1190,12 +1190,17 @@ reg.define('find_diamonds', {
         // closed and sticky), so this is the only place that can pay for the tier the ore needs:
         // mine the ore, smelt it, craft the pick. A stone pick on diamond ore looks like an empty vein.
         if (countItem(bot, 'iron_ingot') < 3) {
-          if (countItem(bot, 'raw_iron') < 3) {
-            const om = await reg.get('mine').run(bot, { names: ['iron_ore', 'deepslate_iron_ore'], count: 4 });
-            log.info(`fd: mining iron for a pick -> (${String(om.observation).slice(0, 120)})`);
+          // Only mine the ACTUAL deficit: with iron_ingot=2 and raw_iron=2 the pack already holds
+          // 4 iron (enough for an iron pickaxe after a 10s smelt). Checking `raw_iron < 3` sent the
+          // bot climbing caves for 180s to mine 4 more iron ore instead of smelting 1 raw_iron.
+          const shortIron = 3 - countItem(bot, 'iron_ingot');
+          if (countItem(bot, 'raw_iron') < shortIron) {
+            const needOre = Math.max(2, shortIron - countItem(bot, 'raw_iron') + 1);
+            const om = await reg.get('mine').run(bot, { names: ['iron_ore', 'deepslate_iron_ore'], count: needOre });
+            log.info(`fd: mining iron for a pick (need ${needOre}) -> (${String(om.observation).slice(0, 120)})`);
           }
-          if (countItem(bot, 'raw_iron') > 0) {
-            const sm = await reg.get('smelt').run(bot, { item: 'raw_iron', count: 4 });
+          if (countItem(bot, 'raw_iron') > 0 && countItem(bot, 'iron_ingot') < 3) {
+            const sm = await reg.get('smelt').run(bot, { item: 'raw_iron', count: Math.min(countItem(bot, 'raw_iron'), Math.max(shortIron, 3)) });
             log.info(`fd: smelted raw_iron to pay for an iron pick -> (${String(sm.observation).slice(0, 100)})`);
           }
         }

@@ -78,7 +78,7 @@ reg.define('smelt', {
       try { await bot.pathfinder.goto(new (g())(furnace.position.x, furnace.position.y, furnace.position.z, 2)); break; }
       catch (e) { log.skill(`walk to furnace try ${t + 1} failed: ${e.message}`); await sleep(700); }
     }
-    const FUELS = [fuel, 'coal', 'charcoal', 'oak_planks', 'spruce_planks', 'birch_planks', 'jungle_planks', 'dark_oak_planks', 'acacia_planks', 'cherry_planks', 'oak_log', 'birch_log', 'spruce_log', 'jungle_log', 'dark_oak_log'].filter(Boolean);
+    const FUELS = [fuel, 'coal', 'charcoal', 'oak_planks', 'spruce_planks', 'birch_planks', 'jungle_planks', 'dark_oak_planks', 'acacia_planks', 'cherry_planks', 'oak_log', 'birch_log', 'spruce_log', 'jungle_log', 'dark_oak_log', 'stick'].filter(Boolean);
     fuel = FUELS.find(n => countItem(bot, n) > 0) || null;
     if (!fuel) { await reg.get('mine').run(bot, { names: ['coal_ore', 'deepslate_coal_ore'], count: 4 }); fuel = FUELS.find(n => countItem(bot, n) > 0) || 'coal'; }
     if (P.freeSlots(bot) < 3) {
@@ -702,7 +702,7 @@ const LADDER = [
       const spareChest = b.inventory.items().some(i => /_chestplate$/.test(i.name));
       return { ok: worn.includes('chestplate') && worn.length >= 2, observation: `worn=[${worn.join(',') || 'none'}${spareChest ? ' +chest spare in pack' : ''}] ingots=${countItem(b, 'iron_ingot') + countItem(b, 'diamond')} raw_iron=${countItem(b, 'raw_iron')} coal=${countItem(b, 'coal')}; gate wants a worn chestplate + one more piece (costs: chestplate 8, leggings 7, helmet 5, boots 4 ingots - EMPTY slot first)` };
     } },
-  { id: 'diamond_pick', done: b => countItem(b, 'diamond_pickaxe') >= 1,
+  { id: 'diamond_pick', budgetMs: 360000, done: b => countItem(b, 'diamond_pickaxe') >= 1,
     run: async b => {
       if (countItem(b, 'diamond') < 3) { await reg.get('find_diamonds').run(b, { count: 3 }); }
       await reg.get('smelt').run(b, { item: 'raw_iron', count: countItem(b, 'raw_iron') });

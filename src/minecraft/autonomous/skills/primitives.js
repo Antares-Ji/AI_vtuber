@@ -2738,6 +2738,16 @@ reg.define('ensure_tools', {
         await craft(bot, 'stone_pickaxe', goodPicks().length + 1);
       }
     }
+    // If the pack already holds >=3 iron ingots and no usable iron+ pickaxe, upgrade right here
+    // instead of leaving the bot stone-only when downstream diamond mining requires iron tier.
+    const hasIronPlus = bot.inventory.items().some(i => /^(iron|diamond|netherite)_pickaxe$/.test(i.name) && ((ob.wear(bot, i) ?? 100) >= 15));
+    if (!hasIronPlus && countItem(bot, 'iron_ingot') >= 3) {
+      if (countItem(bot, 'stick') < 2) await craft(bot, 'stick', 4);
+      if (countItem(bot, 'stick') >= 2) {
+        const up = await craft(bot, 'iron_pickaxe', 1);
+        log.skill(`ensure_tools: iron_ingot>=3 upgrade -> iron_pickaxe ${up.ok ? 'ok' : 'failed'} (${String(up.observation).slice(0, 80)})`);
+      }
+    }
     if (!goodPicks().length && ctx?.assist !== false && process.env.MC_ASSIST !== '0') {
       try { bot.chat('/give @s iron_pickaxe 2'); await sleep(1500); } catch {}
     }
