@@ -519,7 +519,7 @@ reg.define('fish', {
       if (allowIceBreak) {
         // Frozen ocean/river: break 1-2 adjacent ice blocks covering water to open a clear sky-lit ice-fishing hole.
         for (const [dx, dz] of [[1, 0], [-1, 0], [0, 1], [0, -1], [2, 0], [-2, 0], [0, 2], [0, -2]]) {
-          for (const dy of [-1, 0, -2]) {
+          for (const dy of [0, -1, 1, -2]) {
             const ice = bot.blockAt(f.offset(dx, dy, dz));
             if (!ice || ice.name !== 'ice') continue;
             const under = bot.blockAt(ice.position.offset(0, -1, 0));

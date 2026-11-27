@@ -1197,7 +1197,50 @@ reg.define('roam', {
     const total = Math.max(48, Math.min(600, parseInt(a.distance, 10) || 240));
     const start = bot.entity.position.floored();
     let [dx, dz] = DIRS[String(a.dir).toUpperCase()] || DIRS[['N', 'S', 'E', 'W'][Math.floor(Math.random() * 4)]];
-    let walked = 0, legs = 0, turned = 0, stuckLegs = 0, waterTurns = 0, bridgesTried = 0, digsTried = 0;
+    let walked = 0, legs = 0, turned = 0, stuckLegs = 0, waterTurns = 0, bridgesTried = 0, digsTried = 0, pillarsTried = 0;
+    // Immediate sky-pillar rescue on roam entry: if the bot is perched atop an isolated 1x1 pillar in
+    // open air (solid directly underfoot, air on all 4 cardinal sides down 4 blocks), safely dig straight
+    // down the pillar back to ground level BEFORE spinning on gy===null or pathing in mid-air!
+    const tryDescendSkyPillar = async () => {
+      const u1 = bot.entity.position.floored();
+      const isSolidAt = (dx, dy, dz) => {
+        const b = bot.blockAt(u1.offset(dx, dy, dz));
+        return !!(b && !isAir(b.name) && !/water|lava/.test(b.name));
+      };
+      const perched = isSolidAt(0, -1, 0)
+        && [[1, 0], [-1, 0], [0, 1], [0, -1]].every(([dx, dz]) =>
+          [0, -1, -2, -3].every(dy => !isSolidAt(dx, dy, dz)));
+      if (!perched) return 0;
+      let descended = 0;
+      log.warn(`roam: perched atop isolated 1x1 pillar at ${u1.x},${u1.y},${u1.z} - digging straight down pillar safely instead of pillaring higher`);
+      for (let step = 0; step < 90 && Date.now() < (bot._stepDeadline || Infinity) && !lease.stale(); step++) {
+        const pf = bot.entity.position.floored();
+        const hasRim = [[1, 0], [-1, 0], [0, 1], [0, -1]].some(([dx, dz]) =>
+          [-1, 0, -2].some(dy => {
+            const nb = bot.blockAt(pf.offset(dx, dy, dz));
+            const na = bot.blockAt(pf.offset(dx, dy + 1, dz));
+            return nb && !isAir(nb.name) && !/water|lava/.test(nb.name) && (!na || isAir(na.name));
+          }));
+        if (hasRim && descended > 0) break;
+        const under = bot.blockAt(pf.offset(0, -1, 0));
+        const under2 = bot.blockAt(pf.offset(0, -2, 0));
+        if (!under || isAir(under.name) || /bedrock|lava|water/.test(under.name)) break;
+        if (under2 && /lava|water/.test(under2.name)) break;
+        try {
+          await equipBestToolFor(bot, under);
+          await bot.dig(under);
+          descended++;
+          await sleep(180);
+        } catch { break; }
+      }
+      if (descended > 0) {
+        const afterD = bot.entity.position.floored();
+        start.x = afterD.x; start.y = afterD.y; start.z = afterD.z;
+        log.warn(`roam: descended ${descended} block(s) off 1x1 pillar -> now ${afterD.x},${afterD.y},${afterD.z}`);
+      }
+      return descended;
+    };
+    await tryDescendSkyPillar();
     // Animals seen to be unreachable are dropped for the rest of this call. Six `roam approach`
     // attempts in two minutes all targeted the SAME cow on the far side of a lake: the bot has 110
     // blocks of eyesight but pathfinder will not cross open water, so re-picking it burned the whole
@@ -1472,13 +1515,29 @@ reg.define('roam', {
             // recover_surface` was advice the bot could not always take: at -53,3,211 the depth guard
             // (rightly) refused to sink below the Nether floor and the sides were lava, so roam returned a
             // recommendation with no executable move behind it - and the caller retried it for 40 minutes.
+            // Guard against the sky-elevator trap: if perched atop a 1x1 pillar, descend instead of pillaring!
             const u1 = bot.entity.position.floored();
-            let upObs = 'not attempted';
-            try { upObs = String((await reg.get('pillar_up').run(bot, { up: 10 })).observation); } catch (e) { upObs = `threw ${e.message}`; }
-            const u2 = bot.entity.position.floored();
-            if (Math.abs(u2.y - u1.y) >= 2) {
-              log.warn(`roam: ${f.x},${f.y},${f.z} had no lateral route - pillar_up gained ${u2.y - u1.y} cells, continuing the roam from ${u2.x},${u2.y},${u2.z}`);
-              stuckLegs = 0; bridgesTried = 0; digsTried = 0; continue;
+            const isSolidAt = (dx, dy, dz) => {
+              const b = bot.blockAt(u1.offset(dx, dy, dz));
+              return !!(b && !isAir(b.name) && !/water|lava/.test(b.name));
+            };
+            if ((await tryDescendSkyPillar()) > 0) {
+              stuckLegs = 0; bridgesTried = 0; continue;
+            }
+            // Only pillar_up when trapped inside an actual enclosed pit/wall (solid wall nearby at y+1..y+3)
+            // OR in the Nether, and at most ONCE per roam call (never build a sky tower in open air!).
+            const hasWallAbove = [[1, 0], [-1, 0], [0, 1], [0, -1], [2, 0], [-2, 0], [0, 2], [0, -2]]
+              .some(([dx, dz]) => [1, 2, 3].some(dy => isSolidAt(dx, dy, dz)));
+            const allowPillar = pillarsTried < 1 && ((bot.game && bot.game.dimension === 'the_nether') || hasWallAbove);
+            let upObs = allowPillar ? 'not attempted' : (pillarsTried >= 1 ? 'pillar limit reached (1 per roam)' : 'refused in open air (no surrounding pit wall to climb out of)');
+            if (allowPillar) {
+              pillarsTried++;
+              try { upObs = String((await reg.get('pillar_up').run(bot, { up: 10 })).observation); } catch (e) { upObs = `threw ${e.message}`; }
+              const u2 = bot.entity.position.floored();
+              if (Math.abs(u2.y - u1.y) >= 2) {
+                log.warn(`roam: ${f.x},${f.y},${f.z} had no lateral route - pillar_up gained ${u2.y - u1.y} cells, continuing the roam from ${u2.x},${u2.y},${u2.z}`);
+                stuckLegs = 0; bridgesTried = 0; digsTried = 0; continue;
+              }
             }
             return { ok: false, observation: `pinned at ${f.x},${f.y},${f.z} - ${stuckLegs} legs in a row moved <3 blocks. All three directions failed: sideways (${bo.why}), down (${downObs.slice(0, 110)}), up (${upObs.slice(0, 140)}). This cell has no route out that a bot can build; it needs a teleport-level recovery (recover_surface), not another roam` };
           }

@@ -3309,8 +3309,62 @@ function makeBot(overrides = {}) {
     assert.equal(activateCalls61, 2, `fish must cast once and reel in once on bite (got ${activateCalls61})`);
   }
 
+  // 62. roam refuses to call pillar_up in Overworld open air (no space-elevator towers) AND safely digs
+  //     straight down its own 1x1 pillar if already perched high above open air
+  {
+    const origPillar62 = reg.get('pillar_up').run;
+    const origBridge62 = reg.get('bridge_to').run;
+    let pillarCalls62 = 0;
+    let dugPillar62 = 0;
+    try {
+      reg.get('pillar_up').run = async () => { pillarCalls62++; return { ok: true, observation: 'should not pillar in open air' }; };
+      reg.get('bridge_to').run = async () => ({ ok: false, observation: 'no bridge' });
+      // Perched atop a 1x1 cobblestone pillar from y=64..109 (feet at y=110), open air all around!
+      const botSky62 = makeBot({
+        entity: { position: new Vec3(129, 110, -518), yaw: 0, pitch: 0 },
+        game: { dimension: 'overworld' },
+        inventory: { slots: new Array(46).fill(null), items: () => [{ name: 'stone_pickaxe', count: 1, slot: 36, maxDurability: 131, durabilityUsed: 5 }] },
+        heldItem: { name: 'stone_pickaxe', count: 1, slot: 36, maxDurability: 131, durabilityUsed: 5 },
+        equip: async (it) => { botSky62.heldItem = it; },
+        entities: {},
+        nearestEntity: () => null,
+        findBlocks: () => [],
+        findBlock: () => null,
+        pathfinder: {
+          stop: () => {},
+          goto: async () => { throw new Error('no path from sky pillar'); },
+        },
+        dig: async (blk) => {
+          dugPillar62++;
+          // Simulate dropping 1 block down our 1x1 pillar after breaking underfoot block
+          botSky62.entity.position = new Vec3(129, blk.position.y, -518);
+        },
+        blockAt: (p) => {
+          if (!p) return { name: 'air', boundingBox: 'none' };
+          const x = Math.floor(p.x), y = Math.floor(p.y), z = Math.floor(p.z);
+          // Flat ground at y<=63 everywhere
+          if (y <= 63) return { name: 'grass_block', position: new Vec3(x, y, z), boundingBox: 'block' };
+          // Isolated 1x1 pillar at (129, 64..109, -518)
+          if (x === 129 && z === -518 && y >= 64 && y < Math.floor(botSky62.entity.position.y)) {
+            return { name: 'cobblestone', position: new Vec3(x, y, z), boundingBox: 'block' };
+          }
+          return { name: 'air', position: new Vec3(x, y, z), boundingBox: 'none' };
+        },
+      });
+      // Give roam a short step deadline so it exits promptly after descending to ground
+      botSky62._stepDeadline = Date.now() + 15000;
+      await reg.get('roam').run(botSky62, { target: 'cow', distance: 40 });
+      assert.equal(pillarCalls62, 0, `roam must NEVER call pillar_up in Overworld open air (called ${pillarCalls62}x)`);
+      assert.ok(dugPillar62 >= 40 && botSky62.entity.position.y <= 66,
+        `roam must safely dig down isolated 1x1 pillar back to ground y<=66 (dug=${dugPillar62}, y=${botSky62.entity.position.y})`);
+    } finally {
+      reg.get('pillar_up').run = origPillar62;
+      reg.get('bridge_to').run = origBridge62;
+    }
+  }
+
   fs.rmSync(tmp, { recursive: true, force: true });
-  console.log('PASS minecraft-autonomous: all 61 regression groups passed');
+  console.log('PASS minecraft-autonomous: all 62 regression groups passed');
 })().catch(e => {
   console.error(e);
   process.exitCode = 1;
