@@ -14,6 +14,7 @@ const oreCache = require('../oreCache');
 const shaftRecord = require('../shaftRecord');
 const P = require('./primitives');
 const log = require('../log');
+const lease = require('../stepLease');
 const { countItem, craft, itemId, blockIds, sleep, data } = P;
 function GN() { const pf = require('mineflayer-pathfinder'); return (pf.goals && pf.goals.GoalNear) || pf.pathfinder.Goals.GoalNear; }
 function GB() { const pf = require('mineflayer-pathfinder'); return (pf.goals && pf.goals.GoalBlock) || pf.pathfinder.Goals.GoalBlock; }
@@ -1661,7 +1662,37 @@ async function climbOut(bot, targetY) {
   // not this worker, and an abandoned climb that keeps placing blocks outrides the step that replaced it.
   let why = '200-round loop budget used up';
   for (let i = 0; i < 200 && bot.entity.position.y < goal && Date.now() < (bot._stepDeadline || Infinity); i++) {
+    if (lease.stale()) { why = 'lease revoked'; break; }
     const f = bot.entity.position.floored();
+    // In flowing/standing water, jump-pillaring cannot clear y+1.02 in 700ms and pathfinder pauses!
+    // If standing in water, swim-step directly onto any adjacent dry ledge (or carve a dry side pocket) first.
+    const feetInWater = (() => { const fb = bot.blockAt(f); return !!fb && /water/.test(fb.name); })();
+    if (feetInWater) {
+      let climbedDry = false;
+      for (const [dx, dz] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+        const fl = bot.blockAt(f.offset(dx, 0, dz));
+        const a1 = bot.blockAt(f.offset(dx, 1, dz));
+        const a2 = bot.blockAt(f.offset(dx, 2, dz));
+        if (!fl || fl.boundingBox !== 'block' || /water|lava/.test(fl.name)) continue;
+        if ((a1 && /water|lava|bedrock/.test(a1.name)) || (a2 && /water|lava|bedrock/.test(a2.name))) continue;
+        if (a1 && a1.boundingBox === 'block') { try { if (!(await equipBulkPick(bot, false))) await equipPick(bot); await bot.dig(a1); } catch {} }
+        if (a2 && a2.boundingBox === 'block') { try { await bot.dig(a2); } catch {} }
+        const a1After = bot.blockAt(f.offset(dx, 1, dz));
+        if (a1After && a1After.boundingBox === 'block') continue;
+        try {
+          await bot.lookAt(new Vec3(f.x + dx + 0.5, f.y + 1.5, f.z + dz + 0.5), true);
+          bot.setControlState('jump', true);
+          bot.setControlState('forward', true);
+          await sleep(850);
+          bot.setControlState('forward', false);
+          bot.setControlState('jump', false);
+          if (bot.entity.position.y >= f.y + 0.7) { climbedDry = true; break; }
+        } catch {
+          try { bot.setControlState('forward', false); bot.setControlState('jump', false); } catch {}
+        }
+      }
+      if (climbedDry) { stalled = 0; lastY = bot.entity.position.y; continue; }
+    }
     // Embedded? Dig the cell we are standing in first. A block placed into our own body (the
     // pillar case) leaves the player inside solid rock, and from then on every login is rejected
     // ~0.5 s later - nothing else in this loop can ever run again.
@@ -4615,17 +4646,33 @@ reg.define('build_nether_portal', {
       return true;
     };
     const findSpot = (origin) => {
-      outer: for (let dz = 1; dz <= 4; dz++) {
+      // Score every valid 4x5 site by how few solid blocks need clearing + reject/penalize adjacent water,
+      // so we pick an open dry cavern/surface spot (0s clear) instead of spending >64s digging solid rock next to cave water!
+      let best = null;
+      for (let dz = 1; dz <= 4; dz++) {
         for (let dy = 0; dy >= -2; dy--) {
           for (let dx = -4; dx <= 4; dx++) {
-            const cx = origin.x + dx, cy = origin.y + dy, cz = origin.z + dz;
-            if (spotOk(cx, cy, cz)) return { cx, cy, cz };
-            const cz2 = origin.z - dz;
-            if (spotOk(cx, cy, cz2)) return { cx, cy, cz: cz2 };
+            for (const cz of [origin.z + dz, origin.z - dz]) {
+              const cx = origin.x + dx, cy = origin.y + dy;
+              if (!spotOk(cx, cy, cz)) continue;
+              let solid = 0, waterAdj = 0;
+              for (let x = 0; x <= 3; x++) {
+                for (let y = 0; y <= 4; y++) {
+                  const b = bot.blockAt(new Vec3(cx + x, cy + y, cz));
+                  if (b && !isAir(b.name) && b.name !== 'obsidian') solid++;
+                  for (const oz2 of [-1, 1]) {
+                    const nb = bot.blockAt(new Vec3(cx + x, cy + y, cz + oz2));
+                    if (nb && /water/.test(nb.name)) waterAdj++;
+                  }
+                }
+              }
+              const score = solid + waterAdj * 15 + Math.abs(dx) * 0.2 + dz * 0.2;
+              if (!best || score < best.score) best = { cx, cy, cz, score, solid };
+            }
           }
         }
       }
-      return null;
+      return best;
     };
     // Refusing because "this shore is a lake" is not an answer a companion can act on, so
     // wander a few times and look again - the bot's own feet are the only site it can judge.
@@ -4686,20 +4733,39 @@ reg.define('build_nether_portal', {
     for (let x = 0; x < 4; x++) for (let dy = 0; dy <= 4; dy++) clear.push([x, dy]);
     log.info(`portal: clearing ${clear.length} cells at ${ox},${bottomY},${oz}`);
     for (const [dx, dy] of clear) {
+      if (lease.stale()) return { ok: false, observation: 'portal clear lease revoked' };
       const p = new Vec3(ox + dx, bottomY + dy, oz);
       const b = bot.blockAt(p);
       if (b && b.name !== 'obsidian' && !isAir(b.name) && !b.name.includes('bedrock') && !b.name.includes('lava') && !b.name.includes('water') && !b.name.includes('portal')) {
         try { if (!(await equipBulkPick(bot, false))) await equipPick(bot); await withReach(bot, b); } catch (e) { log.warn(`portal: clear ${b.name} threw ${e.message}`); }
       }
     }
+    if (lease.stale()) return { ok: false, observation: 'portal build lease revoked before frame' };
     log.info('portal: cells cleared, placing frame');
+    const essentialKeySet = new Set(essentials.map(([x, y]) => `${x},${y}`));
+    const remainingEssentialObs = () => essentials.filter(([x, y]) => {
+      const b = bot.blockAt(new Vec3(ox + x, bottomY + y, oz));
+      return !(b && b.name === 'obsidian');
+    }).length;
     const placedAt = async (dx, dy) => {
+      if (lease.stale()) return false;
+      const isCorner = !essentialKeySet.has(`${dx},${dy}`);
       const p = new Vec3(ox + dx, bottomY + dy, oz);
       const cur = bot.blockAt(p);
-      if (cur && cur.name === 'obsidian') return true;
-      const obs = bot.inventory.items().find(i => i.name === 'obsidian');
-      if (!obs) { log.warn(`portal: no obsidian item left (target ${p.x},${p.y},${p.z}) inv=${require('../observe').invSummary(bot).slots}`); return false; }
-      await capped(bot.equip(obs, 'hand'), 4000, 'equip obsidian');
+      if (isCorner) {
+        // Optional corners only serve as solid scaffolding faces for adjacent columns/top-bar;
+        // any solid non-liquid block already there suffices, and when carrying <14 obsidian (e.g. 10-12),
+        // use cheap rock (cobblestone/deepslate/dirt) instead of burning precious obsidian on corners!
+        if (cur && cur.boundingBox === 'block' && !/water|lava/.test(cur.name)) return true;
+      } else {
+        if (cur && cur.name === 'obsidian') return true;
+      }
+      const useCheapCorner = isCorner && countItem(bot, 'obsidian') <= remainingEssentialObs();
+      const mat = useCheapCorner
+        ? (P.cheapFill(bot, 1) || bot.inventory.items().find(i => i.name === 'obsidian'))
+        : bot.inventory.items().find(i => i.name === 'obsidian');
+      if (!mat) { log.warn(`portal: no ${useCheapCorner ? 'corner scaffold or ' : ''}obsidian item left (target ${p.x},${p.y},${p.z}) inv=${require('../observe').invSummary(bot).slots}`); return false; }
+      await capped(bot.equip(mat, 'hand'), 4000, `equip ${mat.name}`);
       const refs = [[0, -1, 0, 0, 1, 0], [-1, 0, 0, 1, 0, 0], [1, 0, 0, -1, 0, 0], [0, 0, -1, 0, 0, 1]]
         .map(([rx, ry, rz, vx, vy, vz]) => ({ b: bot.blockAt(p.offset(rx, ry, rz)), v: new Vec3(vx, vy, vz) }))
         // A reference must be a PHYSICAL block. prismarine-block has no isSolid(); the field
@@ -4717,14 +4783,15 @@ reg.define('build_nether_portal', {
         return false;
       }
       for (const r of refs) {
-        if (bot.heldItem && bot.heldItem.name !== 'obsidian') { log.warn(`portal: holding ${bot.heldItem.name}, not obsidian`); refuse('hand would not hold the obsidian'); return false; }
-        await capped(bot.placeBlock(r.b, r.v), 2500, `place obsidian on ${r.b.name}`);
+        if (lease.stale()) return false;
+        if (bot.heldItem && bot.heldItem.name !== mat.name) { log.warn(`portal: holding ${bot.heldItem.name}, not ${mat.name}`); refuse(`hand would not hold ${mat.name}`); return false; }
+        await capped(bot.placeBlock(r.b, r.v), 2500, `place ${mat.name} on ${r.b.name}`);
         const after = bot.blockAt(p);
-        if (after && after.name === 'obsidian') return true;
+        if (isCorner ? (after && after.boundingBox === 'block' && !/water|lava/.test(after.name)) : (after && after.name === 'obsidian')) return true;
       }
       const landedElsewhere = [[0, 1, 0], [1, 0, 0], [-1, 0, 0], [0, 0, 1], [0, 0, -1]]
-        .map(([ax, ay, az]) => { const q = p.offset(ax, ay, az); const bb = bot.blockAt(q); return bb && bb.name === 'obsidian' ? `${q.x},${q.y},${q.z}` : null; }).filter(Boolean).join(' ');
-      refuse(`placed and the cell still reads ${(bot.blockAt(p) || {}).name || 'NULL'}${landedElsewhere ? ` (obsidian appeared beside it at ${landedElsewhere})` : ''}`);
+        .map(([ax, ay, az]) => { const q = p.offset(ax, ay, az); const bb = bot.blockAt(q); return bb && bb.name === mat.name ? `${q.x},${q.y},${q.z}` : null; }).filter(Boolean).join(' ');
+      refuse(`placed and the cell still reads ${(bot.blockAt(p) || {}).name || 'NULL'}${landedElsewhere ? ` (${mat.name} appeared beside it at ${landedElsewhere})` : ''}`);
       return false;
     };
     // Multiple passes from different standing spots: a cell that had nothing to attach to
@@ -4768,12 +4835,14 @@ reg.define('build_nether_portal', {
       return up;
     };
     while (progress && todo.length && pass < 12) {
+      if (lease.stale()) return { ok: false, observation: 'portal frame lease revoked' };
       progress = false;
       if (pass > 0) {
         const [vx, vz, vy] = vantages[(pass - 1) % vantages.length];
         await capped(bot.pathfinder.goto(new (GN())(ox + vx, bottomY + vy, oz + vz, 1)), 12000, `build vantage ${pass}`);
       }
       for (let i = 0; i < todo.length; i++) {
+        if (lease.stale()) return { ok: false, observation: 'portal frame lease revoked' };
         const [dx, dy] = todo[i];
         if (await placedAt(dx, dy)) { todo.splice(i, 1); i--; placed++; progress = true; }
       }

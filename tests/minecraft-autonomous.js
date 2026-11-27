@@ -2739,8 +2739,73 @@ function makeBot(overrides = {}) {
     }
   }
 
+  // 52. build_nether_portal uses cheap cobblestone scaffolding for the 4 optional corners when carrying only
+  //     10-12 obsidian, placing all 10 essential obsidian cells cleanly without running out before the top bar
+  {
+    const WS52 = require('../src/minecraft/autonomous/workshopRecord');
+    WS52.forget('nether_portal_frame');
+    const placed52 = new Map(); // "x,y,z" -> name
+    const inv52 = [
+      { name: 'obsidian', count: 10, slot: 36 },
+      { name: 'cobblestone', count: 20, slot: 37 },
+      { name: 'flint_and_steel', count: 1, slot: 38 },
+    ];
+    const botPortal52 = makeBot({
+      entity: { position: new Vec3(10, 64, 10), yaw: 0, pitch: 0 },
+      game: { dimension: 'overworld' },
+      inventory: { slots: new Array(46).fill(null), items: () => inv52 },
+      heldItem: inv52[0],
+      waitForChunksToLoad: async () => {},
+      lookAt: async () => {},
+      findBlock: () => null,
+      findBlocks: () => [],
+      equip: async (it) => { botPortal52.heldItem = it; },
+      activateBlock: async () => {
+        // Simulate flint_and_steel lighting interior when all 10 essential cells are obsidian
+        botPortal52.game.dimension = 'the_nether';
+      },
+      pathfinder: {
+        stop: () => {},
+        goto: async (goal) => { botPortal52.entity.position = new Vec3(goal.x, goal.y, goal.z); },
+      },
+      placeBlock: async (ref, face) => {
+        const tx = ref.position.x + face.x, ty = ref.position.y + face.y, tz = ref.position.z + face.z;
+        const held = botPortal52.heldItem;
+        if (!held || held.count <= 0) return;
+        placed52.set(`${tx},${ty},${tz}`, held.name);
+        held.count--;
+        if (held.count <= 0) {
+          const idx = inv52.indexOf(held);
+          if (idx >= 0) inv52.splice(idx, 1);
+          botPortal52.heldItem = null;
+        }
+      },
+      blockAt: (p) => {
+        if (!p) return { name: 'air', boundingBox: 'empty' };
+        const x = Math.floor(p.x), y = Math.floor(p.y), z = Math.floor(p.z);
+        const placed = placed52.get(`${x},${y},${z}`);
+        if (placed) return { name: placed, position: new Vec3(x, y, z), boundingBox: 'block' };
+        if (y <= 63) return { name: 'stone', position: new Vec3(x, y, z), boundingBox: 'block' };
+        return { name: 'air', position: new Vec3(x, y, z), boundingBox: 'none' };
+      },
+    });
+    // Stub use_portal so test doesn't wait 30s on portal transition
+    const origUsePortal52 = reg.get('use_portal').run;
+    try {
+      reg.get('use_portal').run = async (b) => { b.game.dimension = 'the_nether'; return { ok: true, observation: 'entered' }; };
+      await reg.get('build_nether_portal').run(botPortal52, {});
+      const obsPlaced = [...placed52.values()].filter(n => n === 'obsidian').length;
+      const cobPlaced = [...placed52.values()].filter(n => n === 'cobblestone').length;
+      assert.equal(obsPlaced, 10, `build_nether_portal must place all 10 essential obsidian cells using only 10 obsidian (got obs=${obsPlaced}, cob=${cobPlaced})`);
+      assert.ok(cobPlaced >= 4, `build_nether_portal must scaffold all 4 optional corners with cheap rock instead of burning obsidian (got cob=${cobPlaced})`);
+    } finally {
+      reg.get('use_portal').run = origUsePortal52;
+      WS52.forget('nether_portal_frame');
+    }
+  }
+
   fs.rmSync(tmp, { recursive: true, force: true });
-  console.log('PASS minecraft-autonomous: all 51 regression groups passed');
+  console.log('PASS minecraft-autonomous: all 52 regression groups passed');
 })().catch(e => {
   console.error(e);
   process.exitCode = 1;
