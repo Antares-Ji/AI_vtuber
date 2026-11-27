@@ -1745,8 +1745,144 @@ function makeBot(overrides = {}) {
     }
   }
 
+  // 37. make_obsidian & relocateToHighGround skip FLOODED dryLand/hills, skip 220m ruined-portal roam when bucket+pick ready,
+  //     and abort cleanly when food<10 instead of digging into sea level
+  {
+    const origDS5 = reg.get('deep_shaft').run;
+    const origRoam5 = reg.get('roam').run;
+    const origWalk5 = reg.get('walk_to').run;
+    let ruinedPortalRoams = 0;
+    let walkedToFlooded = false;
+    let walkedToSafeHill = false;
+    let hungryShaftCalls = 0;
+    let hungryProbes = 0;
+    try {
+      reg.get('deep_shaft').run = async () => ({ ok: false, observation: 'stub-stop' });
+      reg.get('roam').run = async (b, a) => {
+        if (a && a.block === 'obsidian') ruinedPortalRoams++;
+        return { ok: false, observation: 'stub-stop' };
+      };
+      reg.get('walk_to').run = async (b, a) => {
+        if (a && Math.abs(a.x - 800) <= 6 && Math.abs(a.z - 800) <= 6) walkedToFlooded = true;
+        if (b && typeof b.food === 'number' && b.food < 10) hungryProbes++;
+        return { ok: false, observation: 'EMERGENCY (food 6)' };
+      };
+      // Part A: bot starts on a flooded column (800, 68, 800) with _dryLand also pinned to that flooded column,
+      // another closer flooded hill at (808, 72, 800), and a genuinely unflooded dry hilltop at (824, 70, 800).
+      const botFl = makeBot({
+        entity: { position: new Vec3(800, 68, 800), yaw: 0, pitch: 0 },
+        food: 20,
+        _dryLand: new Vec3(800, 68, 800),
+        _floods: [{ x: 800, z: 800, y: 40 }, { x: 808, z: 800, y: 40 }],
+        inventory: {
+          slots: new Array(46).fill(null),
+          items: () => [
+            { name: 'diamond_pickaxe', count: 1, slot: 36, maxDurability: 1561, durabilityUsed: 0 },
+            { name: 'water_bucket', count: 1, slot: 37 },
+          ],
+        },
+        findBlocks: () => [],
+        pathfinder: {
+          stop: () => {},
+          goto: async (goal) => {
+            if (goal && Math.abs(goal.x - 808) <= 4) walkedToFlooded = true;
+            if (goal && goal.x >= 818 && goal.x <= 832 && goal.y >= 69) {
+              walkedToSafeHill = true;
+              botFl.entity.position = new Vec3(goal.x, goal.y, goal.z);
+            }
+          },
+        },
+        blockAt: (p) => {
+          if (!p) return { name: 'air', boundingBox: 'none' };
+          const x = Math.floor(p.x), y = Math.floor(p.y), z = Math.floor(p.z);
+          if (x >= 804 && x <= 812 && z >= 796 && z <= 804 && y <= 71) return { name: 'stone', position: new Vec3(x, y, z), boundingBox: 'block' };
+          if (x >= 818 && x <= 832 && z >= 792 && z <= 808 && y <= 69) return { name: 'stone', position: new Vec3(x, y, z), boundingBox: 'block' };
+          if (y <= 67) return { name: 'stone', position: new Vec3(x, y, z), boundingBox: 'block' };
+          return { name: 'air', position: new Vec3(x, y, z), boundingBox: 'none' };
+        },
+      });
+      await reg.get('make_obsidian').run(botFl, { count: 1 });
+      assert.equal(ruinedPortalRoams, 0, 'make_obsidian must skip 220m ruined-portal roam when water_bucket + diamond_pickaxe are ready');
+      assert.equal(walkedToFlooded, false, 'relocateToHighGround must discard flooded _dryLand and skip flooded hills');
+      assert.equal(walkedToSafeHill, true, 'relocateToHighGround must walk to the unflooded dry hilltop instead');
+
+      // Part B: hungry bot (food=6) at sea level y=63 must abort immediately without probes or digging into ocean
+      reg.get('deep_shaft').run = async () => { hungryShaftCalls++; return { ok: false, observation: 'stub-stop' }; };
+      const botHungry = makeBot({
+        entity: { position: new Vec3(900, 63, 900), yaw: 0, pitch: 0 },
+        food: 6,
+        _floods: [],
+        inventory: {
+          slots: new Array(46).fill(null),
+          items: () => [
+            { name: 'diamond_pickaxe', count: 1, slot: 36, maxDurability: 1561, durabilityUsed: 0 },
+            { name: 'water_bucket', count: 1, slot: 37 },
+          ],
+        },
+        findBlocks: () => [],
+        blockAt: (p) => {
+          if (!p) return { name: 'air', boundingBox: 'none' };
+          const y = Math.floor(p.y);
+          if (y === 61 || y === 62) return { name: 'water', position: p, boundingBox: 'empty' };
+          return { name: 'air', position: p, boundingBox: 'none' };
+        },
+      });
+      const rHungry = await reg.get('make_obsidian').run(botHungry, { count: 1 });
+      assert.equal(rHungry.ok, false, 'hungry make_obsidian must return ok=false');
+      assert.ok(/FOOD LOW/i.test(rHungry.observation), `hungry make_obsidian must report FOOD LOW (got ${rHungry.observation})`);
+      assert.equal(hungryProbes, 0, 'hungry make_obsidian must not run overland walk_to probes');
+      assert.equal(hungryShaftCalls, 0, 'hungry make_obsidian must not call deep_shaft at sea level');
+
+      // Part C: fish walks to open water shoreline up to 36 blocks away instead of failing at maxDistance=3
+      const P12 = require('../src/minecraft/autonomous/skills/primitives');
+      const waterId2 = P12.blockIds(makeBot(), ['water'])[0];
+      let walkedShore = false;
+      let fishedCast = false;
+      const fishItems = [{ name: 'fishing_rod', count: 1, slot: 36 }];
+      const botFish = makeBot({
+        entity: { position: new Vec3(0, 65, 0), yaw: 0, pitch: 0 },
+        health: 18,
+        inventory: { slots: new Array(46).fill(null), items: () => fishItems },
+        equip: async (it) => { botFish.heldItem = it; },
+        lookAt: async () => {},
+        findBlocks: ({ matching }) => {
+          const m = Array.isArray(matching) ? matching : [matching];
+          return m.includes(waterId2) ? [new Vec3(10, 62, 0)] : [];
+        },
+        pathfinder: {
+          stop: () => {},
+          goto: async (goal) => {
+            if (goal && Math.abs(goal.x - 9) <= 2 && Math.abs(goal.y - 63) <= 2) {
+              walkedShore = true;
+              botFish.entity.position = new Vec3(9, 63, 0);
+            }
+          },
+        },
+        blockAt: (p) => {
+          if (!p) return { name: 'air', boundingBox: 'none' };
+          const x = Math.floor(p.x), y = Math.floor(p.y), z = Math.floor(p.z);
+          if (x === 10 && y === 62 && z === 0) return { name: 'water', position: new Vec3(10, 62, 0), boundingBox: 'empty' };
+          if (x === 9 && y === 62 && z === 0) return { name: 'grass_block', position: new Vec3(9, 62, 0), boundingBox: 'block' };
+          return { name: 'air', position: new Vec3(x, y, z), boundingBox: 'none' };
+        },
+        fish: async () => {
+          fishedCast = true;
+          fishItems.push({ name: 'cod', count: 2, slot: 37 });
+        },
+      });
+      const rFish = await reg.get('fish').run(botFish, { count: 2, timeoutSec: 25 });
+      assert.equal(walkedShore, true, 'fish must walk to nearby open shoreline water (within 36 blocks)');
+      assert.equal(fishedCast, true, 'fish must cast after reaching shoreline');
+      assert.equal(rFish.ok, true, 'fish must succeed once target fish caught');
+    } finally {
+      reg.get('deep_shaft').run = origDS5;
+      reg.get('roam').run = origRoam5;
+      reg.get('walk_to').run = origWalk5;
+    }
+  }
+
   fs.rmSync(tmp, { recursive: true, force: true });
-  console.log('PASS minecraft-autonomous: all 36 regression groups passed');
+  console.log('PASS minecraft-autonomous: all 37 regression groups passed');
 })().catch(e => {
   console.error(e);
   process.exitCode = 1;

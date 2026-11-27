@@ -427,22 +427,23 @@ const LADDER = [
           log.skill(`hunt said: ${h.observation}`);
           const kk = await reg.get('harvest_kelp').run(b, { count: 12 });
           if (kk.ok) log.skill(`harvest_kelp said: ${kk.observation}`);
-          else if (starvedFor() > VILLAGE_AFTER_MS) {
-            // If standing beside open water with a rod (or string+sticks to make one), fish right from shore!
-            const canFish = countItem(b, 'fishing_rod') >= 1 || (countItem(b, 'string') >= 2 && countItem(b, 'stick') >= 3);
+          else {
+            // If we already have a fishing rod (or string+sticks after 10 min) and open water is nearby,
+            // walk to shore and fish right away instead of roaming into open ocean repeatedly.
+            const hasRod = countItem(b, 'fishing_rod') >= 1;
+            const canFish = hasRod || (starvedFor() > VILLAGE_AFTER_MS && countItem(b, 'string') >= 2 && countItem(b, 'stick') >= 3);
             let fishedOk = false;
             if (canFish) {
               try {
-                const waterNear = b.findBlock({ matching: blockIds(b, ['water']), maxDistance: 12 });
+                const waterNear = b.findBlock({ matching: blockIds(b, ['water']), maxDistance: 36 });
                 if (waterNear) {
-                  await b.pathfinder.goto(new (g())(waterNear.position.x, b.entity.position.y, waterNear.position.z, 2)).catch(() => {});
-                  const fr = await reg.get('fish').run(b, { count: 3, timeoutSec: 45 });
+                  const fr = await reg.get('fish').run(b, { count: 3, timeoutSec: 55 });
                   log.skill(`food: shore fishing said (${String(fr.observation).slice(0, 120)})`);
                   fishedOk = fr.ok || have() >= 3;
                 }
               } catch {}
             }
-            if (!fishedOk && have() < 3) {
+            if (!fishedOk && have() < 3 && starvedFor() > VILLAGE_AFTER_MS) {
               log.skill(`nothing edible for ${Math.round(starvedFor() / 60000)} min (kelp: ${String(kk.observation).slice(0, 80)}) - raiding a village for hay instead of roaming for a cow`);
               const rv = await reg.get('raid_village').run(b, { need: 3 });
               log.skill(`raid_village said: ${rv.observation}`);
@@ -450,11 +451,11 @@ const LADDER = [
                 await reg.get('roam').run(b, { look_for: 'cow,pig,sheep,chicken,rabbit', distance: 300 });
                 await reg.get('hunt').run(b, { count: 3 });
               }
+            } else if (!fishedOk && have() < 3) {
+              await reg.get('roam').run(b, { look_for: 'cow,pig,sheep,chicken,rabbit', distance: 300 });
+              await harvestNearbyBerries();
+              if (have() < 3) await reg.get('hunt').run(b, { count: 3 });
             }
-          } else {
-            await reg.get('roam').run(b, { look_for: 'cow,pig,sheep,chicken,rabbit', distance: 300 });
-            await harvestNearbyBerries();
-            if (have() < 3) await reg.get('hunt').run(b, { count: 3 });
           }
         }
       }

@@ -291,7 +291,7 @@ const rememberPair = (lv, wv) => {
 const markSiteFail = (e, why, ms = SITE_COOLDOWN_MS) => { siteFails.set(siteKey(e), Date.now() + ms); siteFails.set(`${siteKey(e)}#n`, siteStrikes(e) + 1); saveSiteFails(); log.warn(`obsidian_farm: site ${e.x},${e.y},${e.z} is off the menu for ${Math.round(ms / 60000)} min (${why}) - strike ${siteStrikes(e)}${siteStrikes(e) >= 3 ? ' [proven pool has now failed 3 ways: the override below will NOT re-arm it until something succeeds]' : ''}`); };
 
 async function relocateToHighGround(bot, why) {
-  const dl = bot._dryLand;
+  let dl = bot._dryLand;
   log.skill(`${why}: surface y=${Math.round(bot.entity.position.y)}, pinned dry land = ${dl ? `${dl.x},${dl.y},${dl.z}` : 'none'}`);
   // Unless we are already standing on the thing we came for. At 14:14:15 the hop had just delivered
   // the bot 2 blocks from a remembered lava pool's column and this function was about to walk it tens
@@ -301,21 +301,33 @@ async function relocateToHighGround(bot, why) {
     log.skill(`${why}: standing above remembered ${overPool.name} at ${overPool.x},${overPool.y},${overPool.z} - digging here instead of walking away`);
     return false;
   }
+  // Never burn remaining food (7 -> 1) on multi-hundred-block overland walks when hungry: walk_to
+  // immediately refuses on food < 10 anyway, so hand control back for eating first.
+  if (typeof bot.food === 'number' && bot.food < 10) {
+    log.warn(`${why}: food=${bot.food} too low for high-ground relocation - returning to eat first`);
+    return false;
+  }
+  // Never walk back onto a pinned column that has already been recorded FLOODED!
+  if (dl && nearFlood(bot, dl.x, dl.z, 6)) {
+    log.warn(`${why}: pinned dry land ${dl.x},${dl.y},${dl.z} is near a FLOODED column - clearing it`);
+    bot._dryLand = null;
+    dl = null;
+  }
   // The pinned value is a MEASUREMENT (recover_surface stood there and called it dry), so it outranks my
-  // fixed 68 guess. With dl.y=66 the old check failed by two blocks and the bot, holding 1 diamond and no
-  // pick, spent three rounds (21:30, 21:36, 21:40) surfacing onto that same dry land and then roaming
-  // away from it instead of digging the shaft - which is how "get the pick back" never started.
-  if (dl && dl.y >= MIN_HIGH_Y - 4) {
+  // fixed 68 guess — but only when it is nearby (<= 80m), not 250m away across frozen ocean after a roam.
+  const dlDist = dl ? Math.hypot(dl.x - bot.entity.position.x, dl.z - bot.entity.position.z) : Infinity;
+  if (dl && dl.y >= MIN_HIGH_Y - 4 && dlDist <= 80) {
     log.skill(`${why}: at sea level - moving to known high ground ${dl.x},${dl.y},${dl.z} before digging`);
     const w = await reg.get('walk_to').run(bot, { x: dl.x, y: dl.y, z: dl.z, tolerance: 8 });
     // Arrival is "got onto the pinned column", not "crossed my arbitrary height line" - the walk target
     // IS dl, so standing within a few blocks of its y means the relocation did its job.
-    if (Math.abs(bot.entity.position.y - dl.y) <= 4) return true;
+    if (Math.abs(bot.entity.position.y - dl.y) <= 4 && !nearFlood(bot, Math.floor(bot.entity.position.x), Math.floor(bot.entity.position.z), 5)) return true;
     log.skill(`${why}: high-ground hop said (${String(w.observation).slice(0, 140)})`);
+    if (/EMERGENCY/i.test(String(w && w.observation || ''))) return false;
   }
-  // Scan loaded terrain within 36 blocks for a genuine INLAND dry hilltop (solid ground y >= 65 AND
-  // no water/ice within 4 blocks horizontally at sea level y=61..62) before blind 90-block probes.
-  // Previously a 1-block beach tile at y=63-65 flooded immediately on the first dig from the side ocean.
+  // Scan loaded terrain within 44 blocks for a genuine INLAND dry hilltop (solid ground y >= 65,
+  // NOT near any recorded FLOODED column, AND no water/ice within 4 blocks horizontally at sea level
+  // y=61..62) before blind 90-block probes.
   try {
     const f0 = bot.entity.position.floored();
     const isDrySea = (cx, cz) => {
@@ -331,9 +343,10 @@ async function relocateToHighGround(bot, why) {
     };
     let bestHill = null, bestScore = -Infinity;
     const maxScanY = Math.min(110, Math.max(84, f0.y + 20));
-    for (let dx = -36; dx <= 36; dx += 4) {
-      for (let dz = -36; dz <= 36; dz += 4) {
+    for (let dx = -44; dx <= 44; dx += 4) {
+      for (let dz = -44; dz <= 44; dz += 4) {
         const cx = f0.x + dx, cz = f0.z + dz;
+        if (nearFlood(bot, cx, cz, 6)) continue;
         if (!isDrySea(cx, cz)) continue;
         let topY = null;
         for (let sy = maxScanY; sy >= 64; sy--) {
@@ -352,9 +365,10 @@ async function relocateToHighGround(bot, why) {
       }
     }
     if (bestHill) {
-      log.skill(`${why}: found inland dry hill at ${bestHill.x},${bestHill.y},${bestHill.z} (${bestHill.dist}m away, 4+m clear of water) - walking there before digging`);
+      log.skill(`${why}: found inland dry hill at ${bestHill.x},${bestHill.y},${bestHill.z} (${bestHill.dist}m away, 4+m clear of water & unflooded) - walking there before digging`);
       try { await capped(bot.pathfinder.goto(new (GN())(bestHill.x, bestHill.y, bestHill.z, 2)), 18000, 'walk to inland hill'); } catch {}
-      if (bot.entity.position.y >= 65 && isDrySea(Math.floor(bot.entity.position.x), Math.floor(bot.entity.position.z))) {
+      const fx = Math.floor(bot.entity.position.x), fz = Math.floor(bot.entity.position.z);
+      if (bot.entity.position.y >= 65 && !nearFlood(bot, fx, fz, 5) && isDrySea(fx, fz)) {
         bot._dryLand = bot.entity.position.floored();
         return true;
       }
@@ -365,19 +379,23 @@ async function relocateToHighGround(bot, why) {
   // whichever one actually gains height, instead of roaming to another random puddle.
   const tProbe = Date.now();
   for (const [dx, dz] of [[90, 0], [-90, 0], [0, 90], [0, -90]]) {
+    if (typeof bot.food === 'number' && bot.food < 10) return false;
     // A probe is not allowed to eat the expedition: four directions with a stalled leg each would
     // spend the whole 720 s round walking instead of digging.
     if (Date.now() - tProbe > 90000) { log.skill(`${why}: high-ground probe out of time (${Math.round((Date.now() - tProbe) / 1000)}s)`); break; }
     const f = bot.entity.position.floored();
-    await reg.get('walk_to').run(bot, { x: f.x + dx, y: f.y, z: f.z + dz, tolerance: 6 });
-    if (bot.entity.position.y >= MIN_HIGH_Y) {
+    const pw = await reg.get('walk_to').run(bot, { x: f.x + dx, y: f.y, z: f.z + dz, tolerance: 6 });
+    if (/EMERGENCY/i.test(String(pw && pw.observation || ''))) return false;
+    const fAfter = bot.entity.position.floored();
+    if (bot.entity.position.y >= MIN_HIGH_Y && !nearFlood(bot, fAfter.x, fAfter.z, 5)) {
       log.skill(`${why}: climbed to y=${Math.round(bot.entity.position.y)} heading ${dx},${dz}`);
-      bot._dryLand = bot.entity.position.floored();
+      bot._dryLand = fAfter;
       return true;
     }
   }
+  if (typeof bot.food === 'number' && bot.food < 10) return false;
   try { await reg.get('roam').run(bot, { distance: 140 }); } catch {}
-  return bot.entity.position.y >= MIN_HIGH_Y;
+  return bot.entity.position.y >= MIN_HIGH_Y && !nearFlood(bot, Math.floor(bot.entity.position.x), Math.floor(bot.entity.position.z), 5);
 }
 
 reg.define('deep_shaft', {
@@ -451,11 +469,43 @@ reg.define('deep_shaft', {
     if (bot.health <= 8 && p0.y < 40) {
       return { ok: false, observation: `HP CRITICAL (${Math.round(bot.health * 10) / 10}) at y=${p0.y} with worn=${['helmet', 'chestplate', 'leggings', 'boots'].filter(pt => { const it = bot.inventory.slots[5 + ['helmet', 'chestplate', 'leggings', 'boots'].indexOf(pt)]; return !!it; }).length}/4 - surface and heal before digging any deeper` };
     }
-    // Same self-dug-pit rule as dig_to_y: never sink the shaft in the pinned respawn column.
+    // Same self-dug-pit rule as dig_to_y: never sink the shaft in the pinned respawn column,
+    // but pick a verified dry, unflooded offset on the same hilltop instead of jumping blind
+    // +18,-14 into an ocean or previously flooded column.
     const dl = bot._dryLand;
     if (dl && bot.entity.position.y > 20 && Math.abs(bot.entity.position.x - dl.x) <= 3 && Math.abs(bot.entity.position.z - dl.z) <= 3) {
-      try { await bot.pathfinder.goto(new (GN())(dl.x + 18, bot.entity.position.y, dl.z - 14, 2)); } catch {}
-      await sleep(500);
+      let safeOff = null;
+      try {
+        for (const [ox, oz] of [[6, 0], [-6, 0], [0, 6], [0, -6], [8, 6], [-8, 6], [8, -6], [-8, -6], [12, 0], [-12, 0], [0, 12], [0, -12]]) {
+          const cx = dl.x + ox, cz = dl.z + oz;
+          if (nearFlood(bot, cx, cz, 5)) continue;
+          let wetSea = false;
+          for (const sx of [-2, 0, 2]) {
+            for (const sz of [-2, 0, 2]) {
+              for (const sy of [61, 62]) {
+                const sb = bot.blockAt(new Vec3(cx + sx, sy, cz + sz));
+                if (sb && /water|ice/.test(sb.name)) { wetSea = true; break; }
+              }
+              if (wetSea) break;
+            }
+            if (wetSea) break;
+          }
+          if (wetSea) continue;
+          for (let sy = Math.min(100, Math.floor(bot.entity.position.y) + 8); sy >= 64; sy--) {
+            const gb = bot.blockAt(new Vec3(cx, sy, cz));
+            if (!gb || isAir(gb.name) || /leaves|log|snow$|grass|fern|flower|sapling/.test(gb.name)) continue;
+            if (gb.boundingBox === 'block' && !/water|lava|ice/.test(gb.name)) {
+              safeOff = { x: cx, y: sy + 1, z: cz };
+            }
+            break;
+          }
+          if (safeOff) break;
+        }
+      } catch {}
+      if (safeOff) {
+        try { await capped(bot.pathfinder.goto(new (GN())(safeOff.x, safeOff.y, safeOff.z, 1)), 10000, 'step off dryLand'); } catch {}
+        await sleep(300);
+      }
     }
     // A shaft is 100% stone/deepslate/dirt until an ore is in front of it, so the entry equip must
     // not take the diamond pick: at 10:01:16 it came in at 87% to grind the first block, and the
@@ -3217,11 +3267,16 @@ reg.define('make_obsidian', {
       // it wandered 400 blocks away from the resources it had found, and every round since has spent
       // itself travelling. And the radius is halved so even a real search stays recoverable.
       const known = oreCache.nearest(['obsidian', 'lava'], bot.entity.position);
-      if (!seenObs.length && !known) {
+      const readyToPour = countItem(bot, 'water_bucket') >= 1
+        && ['diamond_pickaxe', 'netherite_pickaxe'].some(n => countItem(bot, n) > 0);
+      const hungry = typeof bot.food === 'number' && bot.food < 12;
+      if (!seenObs.length && !known && !readyToPour && !hungry) {
         log.skill('make_obsidian: no obsidian in sight and nothing remembered - roaming for a ruined portal (surface obsidian needs no bucket at all)');
         try { await reg.get('roam').run(bot, { block: 'obsidian', distance: 220 }); } catch (e) { log.warn(`make_obsidian: obsidian roam threw ${e.message}`); }
       } else if (!seenObs.length && known) {
         log.info(`make_obsidian: not roaming - ${known.name} is already remembered at ${known.x},${known.y},${known.z} (${Math.round(known.dist)} blocks)`);
+      } else if (!seenObs.length && readyToPour) {
+        log.info('make_obsidian: water_bucket + diamond pickaxe ready - skipping 220-block ruined-portal roam to descend straight to y=-52 lava lakes');
       }
       // Drops need somewhere to land: at 16:47 the pack held 111 cobblestone + 121 deepslate with
       // four free slots, and a broken block with no slot is a lost block.
@@ -3481,11 +3536,45 @@ reg.define('make_obsidian', {
       }
     }
     if (!lavaTarget) {
+      // Never start a blind surface-to-deepslate shaft while starving: surface survival/food gate
+      // needs the turn back to refuel first (measured 23:06: food=7 -> 1 digging into ocean at y=63).
+      if (typeof bot.food === 'number' && bot.food < 10 && bot.entity.position.y >= 58) {
+        return { ok: false, observation: `FOOD LOW (${bot.food}) at y=${Math.round(bot.entity.position.y)} before descending for lava - eat first` };
+      }
       // In Minecraft 1.21.1, flat level-0 source lava lakes generate abundantly at y=-54.
       // Dig down in stages all the way to y=-52, checking for true level-0 lava sources after each stage.
       let highGroundTries = 0;
+      const isSeaFloorHere = () => {
+        if (bot.entity.position.y > 64 || bot.entity.position.y < 58) return false;
+        const fx = Math.floor(bot.entity.position.x), fz = Math.floor(bot.entity.position.z);
+        for (const ox of [-2, 0, 2]) {
+          for (const oz of [-2, 0, 2]) {
+            for (const sy of [61, 62]) {
+              const sb = bot.blockAt(new Vec3(fx + ox, sy, fz + oz));
+              if (sb && /water|ice/.test(sb.name)) return true;
+            }
+          }
+        }
+        return false;
+      };
       for (const toY of [12, 0, -20, -40, -52]) {
-        if (highGroundTries < 2 && bot.entity.position.y >= 60 && bot.entity.position.y < MIN_HIGH_Y) { highGroundTries++; await relocateToHighGround(bot, 'make_obsidian'); }
+        if (typeof bot.food === 'number' && bot.food < 10 && bot.entity.position.y >= 58) {
+          log.warn(`make_obsidian: food=${bot.food} too low at surface - stopping descent to eat first`);
+          break;
+        }
+        const curF = bot.entity.position.floored();
+        if (highGroundTries < 2 && bot.entity.position.y >= 60 && (bot.entity.position.y < MIN_HIGH_Y || nearFlood(bot, curF.x, curF.z, 5))) {
+          highGroundTries++;
+          await relocateToHighGround(bot, 'make_obsidian');
+        }
+        if (typeof bot.food === 'number' && bot.food < 10 && bot.entity.position.y >= 58) {
+          log.warn(`make_obsidian: food=${bot.food} dropped during relocation - stopping descent to eat first`);
+          break;
+        }
+        if (isSeaFloorHere()) {
+          log.warn(`make_obsidian: still on sea-level coast/ice at ${Math.floor(bot.entity.position.x)},${Math.floor(bot.entity.position.y)},${Math.floor(bot.entity.position.z)} - refusing to sink a shaft into the ocean`);
+          break;
+        }
         if (bot.entity.position.y <= toY + 2) continue;
         log.skill(`no source lava within 40 blocks at y=${Math.round(bot.entity.position.y)} - descending to y=${toY} looking for a lava lake`);
         const yB = Math.round(bot.entity.position.y);
@@ -3501,6 +3590,10 @@ reg.define('make_obsidian', {
         // (35,-55,763) were only ever noticed from the surface scan, where they are 90 blocks away.
         await mineObsidianField(24, 'mid-descent');
         if (countItem(bot, 'obsidian') >= need) return { ok: true, observation: `obsidian=${countItem(bot, 'obsidian')} collected from fields passed on the way down (no pour needed)` };
+        if (/FOOD LOW|HP CRITICAL/i.test(String(ds && ds.observation || ''))) {
+          log.warn(`make_obsidian: stopping descent on survival guard (${String(ds.observation).slice(0, 90)})`);
+          break;
+        }
         // An unusable column answers in milliseconds ("this column is recorded as FLOODED" / standing
         // in water), so all four stages used to burn 1 s each and the milestone failed at y=62 while
         // claiming it had searched to y=-40. Move to dry ground before the next stage.
@@ -3516,17 +3609,39 @@ reg.define('make_obsidian', {
             break;
           }
           const f = bot.entity.position.floored();
-          // A blind +22/-16 offset moved the bot out of one pond and straight into another at
-          // 10:45:46 (-40,62,743), where every stage then no-oped. Ask the world which columns are
-          // solid at feet level and walk to the first one that is.
-          let spot = null;
-          for (const [dx, dz] of [[22, -16], [18, 20], [-20, 14], [-14, -22], [26, 6], [-8, 26], [30, -30]]) {
-            const bl = bot.blockAt(new Vec3(f.x + dx, f.y, f.z + dz));
-            if (bl && !isAir(bl.name) && !/water|lava/.test(bl.name)) { spot = { x: f.x + dx, z: f.z + dz }; break; }
+          if (/FLOOD/i.test(String(ds && ds.observation || '')) && bot._dryLand && (nearFlood(bot, bot._dryLand.x, bot._dryLand.z, 6) || Math.hypot(bot._dryLand.x - f.x, bot._dryLand.z - f.z) <= 10)) {
+            bot._dryLand = null;
           }
-          if (!spot) spot = { x: f.x + 22, z: f.z - 16 };
+          // Pick a nearby column that is NOT flooded, NOT ocean-capped at y=61..62, and has solid ground.
+          let spot = null;
+          for (const [dx, dz] of [[22, -16], [18, 20], [-20, 14], [-14, -22], [26, 6], [-8, 26], [30, -30], [-28, -20], [0, -28], [28, 0]]) {
+            const cx = f.x + dx, cz = f.z + dz;
+            if (nearFlood(bot, cx, cz, 6)) continue;
+            if (f.y >= 58) {
+              let seaWet = false;
+              for (const sx of [-3, 0, 3]) {
+                for (const sz of [-3, 0, 3]) {
+                  for (const sy of [61, 62]) {
+                    const sb = bot.blockAt(new Vec3(cx + sx, sy, cz + sz));
+                    if (sb && /water|ice/.test(sb.name)) { seaWet = true; break; }
+                  }
+                  if (seaWet) break;
+                }
+                if (seaWet) break;
+              }
+              if (seaWet) continue;
+            }
+            for (let sy = Math.min(100, f.y + 8); sy >= Math.max(f.y >= 58 ? 64 : -58, f.y - 6); sy--) {
+              const bl = bot.blockAt(new Vec3(cx, sy, cz));
+              if (!bl || isAir(bl.name) || /leaves|log|snow$|grass|fern|flower|sapling/.test(bl.name)) continue;
+              if (bl.boundingBox === 'block' && !/water|lava|ice/.test(bl.name)) spot = { x: cx, y: sy + 1, z: cz };
+              break;
+            }
+            if (spot) break;
+          }
+          if (!spot) spot = { x: f.x + 22, y: f.y, z: f.z - 16 };
           log.skill(`descent made no progress at y=${yB} (${String(ds.observation).slice(0, 90)}) - stepping to column ${spot.x},${spot.z}`);
-          await reg.get('walk_to').run(bot, { x: spot.x, y: f.y, z: spot.z, tolerance: 5 });
+          await reg.get('walk_to').run(bot, { x: spot.x, y: spot.y, z: spot.z, tolerance: 5 });
         }
       }
     }

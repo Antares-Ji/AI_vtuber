@@ -506,14 +506,65 @@ reg.define('fish', {
       rod = bot.inventory.items().find(i => i.name === 'fishing_rod');
       if (!rod) return { ok: false, observation: `no fishing_rod and could not make one (sticks=${countItem(bot, 'stick')} string=${countItem(bot, 'string')}; the recipe wants 3 sticks + 2 string): ${String(c.observation).slice(0, 120)}` };
     }
-    const f = bot.entity.position.floored();
-    let water = null;
-    outer: for (const [dx, dz] of [[2, 0], [-2, 0], [0, 2], [0, -2], [1, 0], [-1, 0], [0, 1], [0, -1], [3, 0], [-3, 0], [0, 3], [0, -3]]) {
-      for (const dy of [0, 1, -1]) {
-        const b = bot.blockAt(f.offset(dx, dy, dz));
-        if (b && b.name === 'water') { water = b.position; break outer; }
+    const findAdjacentWater = () => {
+      const f = bot.entity.position.floored();
+      for (const [dx, dz] of [[2, 0], [-2, 0], [0, 2], [0, -2], [1, 0], [-1, 0], [0, 1], [0, -1], [3, 0], [-3, 0], [0, 3], [0, -3]]) {
+        for (const dy of [0, 1, -1, -2]) {
+          const b = bot.blockAt(f.offset(dx, dy, dz));
+          if (!b || b.name !== 'water') continue;
+          const above = bot.blockAt(b.position.offset(0, 1, 0));
+          if (!above || isAir(above.name)) return b.position;
+        }
       }
+      return null;
+    };
+    let water = findAdjacentWater();
+    if (!water) {
+      // Water is often 8-30 blocks away on coastal islands (live 23:10: bot stood at 155,65,-324
+      // holding a rod while open ocean sat 10 blocks away at 155,-334). Walk to a dry shoreline cell
+      // next to open surface water instead of failing on the 3-block check.
+      try {
+        const GN = (require('mineflayer-pathfinder').goals || require('mineflayer-pathfinder').pathfinder.Goals).GoalNear;
+        const pts = (bot.findBlocks({ matching: blockIds(bot, ['water']), maxDistance: 36, count: 64 }) || [])
+          .map(p => bot.blockAt(p))
+          .filter(b => {
+            if (!b || b.name !== 'water') return false;
+            const ab = bot.blockAt(b.position.offset(0, 1, 0));
+            return !ab || isAir(ab.name);
+          })
+          .sort((a, b) => (b.position.y >= 56 ? 0 : 1) - (a.position.y >= 56 ? 0 : 1)
+            || bot.entity.position.distanceTo(a.position) - bot.entity.position.distanceTo(b.position));
+        if (pts.length) {
+          // Prefer a dry solid bank cell 1-2 blocks beside the open water so we cast from shore instead of swimming.
+          let target = null;
+          for (const w of pts.slice(0, 12)) {
+            for (const [ox, oz] of [[1, 0], [-1, 0], [0, 1], [0, -1], [2, 0], [-2, 0], [0, 2], [0, -2]]) {
+              const bank = bot.blockAt(w.position.offset(ox, 0, oz));
+              const head1 = bot.blockAt(w.position.offset(ox, 1, oz));
+              const head2 = bot.blockAt(w.position.offset(ox, 2, oz));
+              if (isFloor(bank) && (!head1 || isAir(head1.name) || head1.name === 'snow') && (!head2 || isAir(head2.name))) {
+                target = { x: bank.position.x, y: bank.position.y + 1, z: bank.position.z, r: 1 };
+                break;
+              }
+            }
+            if (target) break;
+          }
+          if (!target) target = { x: pts[0].position.x, y: pts[0].position.y + 1, z: pts[0].position.z, r: 2 };
+          log.skill(`fish: walking to shoreline ${target.x},${target.y},${target.z} to cast into open water at ${pts[0].position.x},${pts[0].position.y},${pts[0].position.z}`);
+          let shoreTimer = null;
+          try {
+            await Promise.race([
+              bot.pathfinder.goto(new GN(target.x, target.y, target.z, target.r)),
+              new Promise((_, rej) => { shoreTimer = setTimeout(() => rej(new Error('goto shore timed out')), 18000); }),
+            ]);
+          } catch {} finally {
+            if (shoreTimer) clearTimeout(shoreTimer);
+          }
+          water = findAdjacentWater();
+        }
+      } catch {}
     }
+    const f = bot.entity.position.floored();
     if (!water) return { ok: false, observation: `no water cell within 3 blocks to cast into (standing at ${f.x},${f.y},${f.z}) - this is a land spot, hunt or find kelp instead` };
     try { await bot.equip(rod, 'hand'); } catch {}
     if (!bot.heldItem || bot.heldItem.name !== 'fishing_rod') {
@@ -524,9 +575,12 @@ reg.define('fish', {
     while (before + caught < want && Date.now() - t0 < capMs && Date.now() < (bot._stepDeadline || Infinity)) {
       casts++;
       try { await bot.lookAt(water.offset(0.5, 0.5, 0.5), true); } catch {}
+      let fishTimer = null;
       try {
-        await Promise.race([bot.fish(), new Promise((_, rej) => setTimeout(() => rej(new Error('no bite within 60s')), 60000))]);
-      } catch (e) { lastErr = String(e.message).slice(0, 60); }
+        await Promise.race([bot.fish(), new Promise((_, rej) => { fishTimer = setTimeout(() => rej(new Error('no bite within 60s')), 60000); })]);
+      } catch (e) { lastErr = String(e.message).slice(0, 60); } finally {
+        if (fishTimer) clearTimeout(fishTimer);
+      }
       // The catch is an ITEM entity drifting at the bobber, several blocks out: in open water it does not
       // fly into the inventory, so an uncollected fish is not food (same lesson as the kelp columns).
       for (let t = 0; t < 8 && fishCount() <= before + caught; t++) {
