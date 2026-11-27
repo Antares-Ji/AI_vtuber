@@ -6177,7 +6177,8 @@ async function descendToStronghold(bot, p) {
         for (const dy of [0, 1]) {
           const b = bot.blockAt(p.offset(d[0], dy, d[1]));
           if (b && !isAir(b.name) && !b.name.includes('bedrock') && !b.name.includes('lava')) {
-            await capped(equipPick(bot).then(() => bot.dig(b)), 6000, 'tunnel for portal room');
+            const capMs = Math.max(8000, ((typeof bot.digTime === 'function' ? Number(bot.digTime(b)) : 3000) || 3000) + 2500);
+            await capped(equipPick(bot).then(() => bot.dig(b)), capMs, 'tunnel for portal room');
           }
         }
         await capped(bot.pathfinder.goto(new (GN())(p.x + d[0], p.y, p.z + d[1], 0)), 6000, 'tunnel hop');

@@ -523,8 +523,50 @@ function makeBot(overrides = {}) {
     assert.equal(placeBlockCalls, 0, 'dry_escape must NOT spam refused placeBlock into own feet when a dry ledge is right next to it');
   }
 
+  // 14. installSafeDig: 0ms overhead when block breaks immediately, waits for delayed blockUpdate, retries once on early-stop snapback
+  {
+    const { installSafeDig } = require('../src/minecraft/autonomous/bot');
+    // Case A: delayed blockUpdate (70ms after origDig resolves) -> waits cleanly without retrying
+    let digCallsA = 0;
+    let blkA = { name: 'stone', type: 1, position: new Vec3(1, 64, 1) };
+    const botA = makeBot({
+      entity: { position: new Vec3(0, 64, 0) },
+      blockAt: () => blkA,
+      dig: async () => {
+        digCallsA++;
+        setTimeout(() => {
+          blkA = { name: 'air', type: 0, position: new Vec3(1, 64, 1) };
+          botA.emit('blockUpdate:(1, 64, 1)');
+        }, 70);
+      },
+    });
+    installSafeDig(botA);
+    const t0 = Date.now();
+    await botA.dig(blkA);
+    const dtA = Date.now() - t0;
+    assert.equal(digCallsA, 1, 'must NOT retry when server confirms break via delayed blockUpdate');
+    assert.ok(dtA >= 50 && dtA < 260, `must return immediately on blockUpdate instead of blind 500ms sleep (took ${dtA}ms)`);
+
+    // Case B: Paper rejects early stop (block stays solid past 320ms) -> retries once and confirms break
+    let digCallsB = 0;
+    let blkB = { name: 'stone', type: 1, position: new Vec3(1, 64, 1) };
+    const botB = makeBot({
+      entity: { position: new Vec3(0, 64, 0) },
+      blockAt: () => blkB,
+      dig: async () => {
+        digCallsB++;
+        if (digCallsB === 2) {
+          blkB = { name: 'air', type: 0, position: new Vec3(1, 64, 1) };
+        }
+      },
+    });
+    installSafeDig(botB);
+    await botB.dig(blkB);
+    assert.equal(digCallsB, 2, 'must retry once when block snaps back solid after local dig timer');
+  }
+
   fs.rmSync(tmp, { recursive: true, force: true });
-  console.log('PASS minecraft-autonomous: all 13 regression groups passed');
+  console.log('PASS minecraft-autonomous: all 14 regression groups passed');
 })().catch(e => {
   console.error(e);
   process.exitCode = 1;

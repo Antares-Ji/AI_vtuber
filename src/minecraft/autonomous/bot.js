@@ -96,6 +96,70 @@ function syncPathfinderPolicy(bot, mov, opts = {}) {
   mov.digCost = bulkPick ? 4 : 40;
 }
 
+// Event-driven dig confirmation wrapper:
+// Mineflayer's bot.dig() resolves on a local client-side digTime() timer, NOT on Paper's server-side
+// blockUpdate confirmation. A 50-200ms client/server tick or RTT drift causes Paper to reject the
+// early STOP_DESTROY_BLOCK while the caller immediately rotates its head ("挖没完就转头").
+// Instead of adding a blind 500ms sleep to every action (which slows combat/movement), we:
+//   1. Return in 0ms when the block is already air/replaced.
+//   2. Wait up to 320ms for Paper's actual blockUpdate event (resolves immediately on arrival).
+//   3. If the block is STILL intact after 320ms (early-stop rejected), settle 150ms and retry ONCE.
+function installSafeDig(bot) {
+  if (!bot || typeof bot.dig !== 'function' || bot._safeDigInstalled) return;
+  bot._safeDigInstalled = true;
+  const origDig = bot.dig.bind(bot);
+  const waitMs = (ms) => new Promise(r => setTimeout(r, ms));
+  const isGone = (pos, origType) => {
+    try {
+      const now = bot.blockAt(pos);
+      if (!now) return true;
+      if (now.name === 'air' || now.name === 'cave_air' || now.name === 'void_air') return true;
+      return origType !== undefined && now.type !== origType;
+    } catch { return true; }
+  };
+  const waitForBreak = (pos, origType, maxMs = 320) => new Promise((resolve) => {
+    if (isGone(pos, origType)) return resolve(true);
+    const ev = `blockUpdate:(${pos.x}, ${pos.y}, ${pos.z})`;
+    let done = false;
+    const finish = (ok) => {
+      if (done) return;
+      done = true;
+      clearTimeout(timer);
+      clearInterval(poll);
+      try { bot.removeListener(ev, onUpd); } catch {}
+      resolve(ok);
+    };
+    const onUpd = () => { if (isGone(pos, origType)) finish(true); };
+    try { bot.on(ev, onUpd); } catch {}
+    const poll = setInterval(() => { if (isGone(pos, origType)) finish(true); }, 40);
+    const timer = setTimeout(() => finish(isGone(pos, origType)), maxMs);
+  });
+
+  bot.dig = async (block, ...rest) => {
+    if (!block || !block.position) return origDig(block, ...rest);
+    const pos = block.position;
+    const origType = block.type;
+    const ae = bot.autoEat || bot.autoeat;
+    const pauseEat = !!(ae && typeof ae.disableAuto === 'function' && typeof ae.enableAuto === 'function' && ae.enabled);
+    if (pauseEat) { try { ae.disableAuto(); } catch {} }
+    try {
+      await origDig(block, ...rest);
+      const broke = await waitForBreak(pos, origType, 320);
+      if (broke) return;
+      // Block snapped back intact after local timer expired (RTT/tick/airborne drift) — retry once cleanly.
+      if (bot._stepDeadline && Date.now() >= bot._stepDeadline - 1500) return;
+      const fresh = typeof bot.blockAt === 'function' ? bot.blockAt(pos) : null;
+      if (!fresh || isGone(pos, origType) || (fresh.name && /bedrock|water|lava/.test(fresh.name))) return;
+      if (bot.entity && bot.entity.position && bot.entity.position.distanceTo(pos) > 5.5) return;
+      await waitMs(150);
+      await origDig(fresh, ...rest);
+      await waitForBreak(pos, origType, 320);
+    } finally {
+      if (pauseEat) { try { ae.enableAuto(true); } catch {} }
+    }
+  };
+}
+
 function createBot() {
   const bot = mineflayer.createBot({
     host: cfg.mc.host,
@@ -487,6 +551,7 @@ function createBot() {
       };
     };
     instrument(bot.pathfinder, 'goto');
+    installSafeDig(bot);
     instrument(bot, 'dig');
     instrument(bot, 'placeBlock');
     instrument(bot, 'equip');
@@ -731,4 +796,4 @@ function createBot() {
   return bot;
 }
 
-module.exports = { createBot, goals, selectConservativeTool, syncPathfinderPolicy, hasUsableBulkPick };
+module.exports = { createBot, goals, selectConservativeTool, syncPathfinderPolicy, hasUsableBulkPick, installSafeDig };

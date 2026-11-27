@@ -2077,8 +2077,11 @@ async function trashDisposal(bot) {
       const b = bot.blockAt(pos);
       if (!b || b.boundingBox === 'none' || /air/.test(b.name)) { dug++; continue; }
       if (/lava|water|bedrock/.test(b.name)) { blocked = true; break; }
+      // Never bare-hand dig hard stone/deepslate for a trash pit (takes 7.5s-15s and aborts mid-dig).
+      if ((b.hardness || 0) >= 1.2 && usablePickCount(bot) === 0) { blocked = true; break; }
       try { await equipBestToolFor(bot, b); } catch {}
-      try { await Promise.race([Promise.resolve(bot.dig(b)).catch(() => {}), sleep(7000)]); } catch {}
+      const digTimeout = Math.max(8500, ((typeof bot.digTime === 'function' ? Number(bot.digTime(b)) : 3000) || 3000) + 3000);
+      try { await Promise.race([Promise.resolve(bot.dig(b)).catch(() => {}), sleep(digTimeout)]); } catch {}
       const after = bot.blockAt(pos);
       if (after && after.boundingBox !== 'none' && !/air/.test(after.name)) { blocked = true; break; }
       dug++;

@@ -628,7 +628,7 @@ async function run(bot) {
         bot._wetLoopFails = 0;
       }
       ph('survive'); if (await runHelper(bot, 90000, 'survive', () => survive(bot, state))) { await sleep(2000); continue; }
-      await cap(P.dropJunk(bot), 25000, 'dropJunk');
+      await runHelper(bot, 25000, 'dropJunk', () => P.dropJunk(bot));
       const m = nextMilestone(bot, state);
       const isVictory = !m && Boolean((state.done && state.done.kill_dragon) || bot._dragonKilled);
       if (m) pov.setMilestone(m.id);
