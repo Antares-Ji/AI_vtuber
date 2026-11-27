@@ -4,13 +4,13 @@ ai主播项目
 
 ## MC Player Agent 架构整合版
 
-已完整纳入用户提供的 MC Player Agent 0.4.0-alpha.1：原生 Java Harness、Fabric/NeoForge、文档、示例和许可证位于 [mc-player-agent](mc-player-agent/README.md)。本地 Minecraft 兼容后端、杀戮尖塔 2 的学习与原生视觉执行、原神/BetterGI 探索、主播能力通过 14 个具名 Skill 汇合。
+已完整纳入用户提供的 MC Player Agent 0.4.0-alpha.1：原生 Java Harness、Fabric/NeoForge、文档、示例和许可证位于 [mc-player-agent](mc-player-agent/README.md)。本地 Minecraft 兼容后端、杀戮尖塔 2 的学习与原生视觉执行、原神/BetterGI 探索、主播能力通过具名 Skill 汇合，完整清单由实际注册表生成。
 
 - [架构分析与功能取舍](docs/integration/ARCHITECTURE.md)
 - [统一使用入口和扩展契约](docs/integration/USAGE.md) · [Skill 清单](docs/integration/SKILLS.md)
 - [验证范围与已知限制](docs/integration/VALIDATION.md)
 
-运行 `npm run skills:list` 查看能力，`npm run skills:demo` 验证不操作游戏的模拟闭环。原生 MC 仍通过原项目 F8/F9 控制；BetterGI 实机桥接仍在探索，当前不会把模拟或程序存在误报为已接通游戏。
+运行 `npm run skills:list` 查看能力，`npm run skills:demo` 验证不操作游戏的模拟闭环。原生 MC 保留 F8/F9，并新增默认关闭的[导演任务 API](mc-player-agent/docs/DIRECTOR_API.md)；客户端实机接管待验证。BetterGI 实机桥接仍在探索，不把模拟或程序存在误报为已接通游戏。
 
 ## 项目交接入口
 

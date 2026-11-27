@@ -94,7 +94,8 @@ if (Test-ListeningPort 9880) {
 if (Test-ListeningPort 3000) {
   Write-Host "Main server is already listening on port 3000."
 } else {
-  $node = (Get-Command node -ErrorAction Stop).Source
+  $node = if ($env:AI_VTUBER_NODE) { $env:AI_VTUBER_NODE } elseif (Test-Path (Join-Path $projectRoot 'runtime\node\node.exe')) { Join-Path $projectRoot 'runtime\node\node.exe' } else { (Get-Command node -ErrorAction Stop).Source }
+  if (!(Test-Path -LiteralPath $node)) { throw 'Node runtime unavailable; check AI_VTUBER_NODE.' }
   $serverProcess = Start-Process `
     -FilePath $node `
     -ArgumentList @($serverScript) `

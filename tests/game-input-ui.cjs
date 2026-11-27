@@ -25,9 +25,10 @@ const assert = require('node:assert/strict');
     await page.waitForFunction(() => document.querySelector('#gi-result').textContent.includes('UI contract test'));
     assert.equal(calls, 1); assert.deepEqual(errors, []);
     let starts = 0, stops = 0;
-    await page.route('**/api/game-input/agent/start', async route => {
-      assert.equal(route.request().postDataJSON().maxSteps, 300); starts++;
-      await route.fulfill({status:202,contentType:'application/json',body:JSON.stringify({running:true})});
+    await page.route('**/api/skills/run', async route => {
+      const body=route.request().postDataJSON();
+      assert.equal(body.skill,'sts2:native-play');assert.equal(body.args.maxSteps,300);assert.equal(body.allowLive,true); starts++;
+      await route.fulfill({status:202,contentType:'application/json',body:JSON.stringify({id:'00000000-0000-4000-8000-000000000001',state:'RUNNING'})});
     });
     await page.route('**/api/game-input/stop', async route => {
       stops++; await route.fulfill({status:200,contentType:'application/json',body:JSON.stringify({stopRequested:true})});

@@ -1,0 +1,19 @@
+{
+  "name": "astra-jev-minecraft",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test",
+    "probe": "node probe.mjs",
+    "postinstall": "node patch-pathfinder.mjs && node prepare-viewer.mjs"
+  },
+  "dependencies": {
+    "canvas": "^3.2.3",
+    "minecraft-assets": "^1.19.0",
+    "mineflayer": "latest",
+    "mineflayer-pathfinder": "latest",
+    "prismarine-viewer": "latest",
+    "vec3": "latest"
+  }
+}

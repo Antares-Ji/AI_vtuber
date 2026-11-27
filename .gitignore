@@ -16,6 +16,9 @@ data/story-state.json
 data/osu-observations.json
 data/runtime-settings.json
 data/minecraft-engine.local.json*
+data/genshin.local.json*
+data/mcplayer.local.json*
+**/director-token.txt
 data/sts2/
 data/singing-catalog.json
 

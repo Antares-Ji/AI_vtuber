@@ -1,0 +1,35 @@
+{
+  "date": "2026-10-30",
+  "scope": "Local director task API; no live Minecraft client run",
+  "node_tests": 127,
+  "import_guard_tests": 3,
+  "upstream_tool_tests": 17,
+  "registered_skills": 18,
+  "core": {
+    "harness": {
+      "tests": 125,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "collect_return": {
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  },
+  "loaders": {
+    "fabric": {
+      "gametests_passed": 3,
+      "log_sha256": "6fe5230a291bf676faa5c0420a69432d127266f5b579a9bf5c914f2f3952ea5a",
+      "jar_sha256": "356d7cbe525e73d28beb8c7cf6d9a526fa0e1cb25f0dc84135792422fd175d8a"
+    },
+    "neoforge": {
+      "gametests_passed": 3,
+      "log_sha256": "f430f9d1e980290fe0c4b4219ab1c49596491dcddfcd412a068c9e32b88198f7",
+      "jar_sha256": "c240fd4228e620a579f9932b14b37b8761643ca7014228c333f339df35d6156b"
+    }
+  },
+  "live_client_verified": false
+}

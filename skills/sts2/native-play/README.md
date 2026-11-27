@@ -10,7 +10,8 @@
 
 ```json
 {
-  "maxSteps": "1..1000"
+  "maxSteps": "1..1000",
+  "continueAfterDefeat": "boolean; allow current defeat settlement (up to 3 confirmed clicks), revoked on new adventure"
 }
 ```
 

@@ -3,6 +3,33 @@
   "trustedCodeOnly": true,
   "skills": [
     {
+      "id": "mcplayer:native-status",
+      "version": "1",
+      "game": "minecraft",
+      "mode": "read",
+      "description": "读取原生 MC 导演任务 API、当前存档标识及任务占用状态。",
+      "resources": [],
+      "enabled": true,
+      "arguments": {}
+    },
+    {
+      "id": "mcplayer:native-play",
+      "version": "1",
+      "game": "minecraft",
+      "mode": "live",
+      "description": "导演控制台通过本地 API 提交目标，由原版 DeepSeek、AgentHarness、原生动作及服务端回执完成任务。",
+      "resources": [
+        "desktop",
+        "minecraft"
+      ],
+      "enabled": true,
+      "arguments": {
+        "goal": "string",
+        "worldId": "native-status 返回的当前存档 SHA256",
+        "durationMinutes": "1..20"
+      }
+    },
+    {
       "id": "mcplayer:harness-demo",
       "version": "1",
       "game": "minecraft",
@@ -19,7 +46,7 @@
       "version": "1",
       "game": "minecraft",
       "mode": "read",
-      "description": "查看 ZIP 的版本化示例配置与原生 Skill 清单；实际 MC 继续使用 F8/F9。",
+      "description": "查看 ZIP 的版本化示例配置与原生 Skill 清单。",
       "resources": [],
       "enabled": true,
       "arguments": {}
@@ -91,7 +118,8 @@
       ],
       "enabled": true,
       "arguments": {
-        "maxSteps": "1..1000"
+        "maxSteps": "1..1000",
+        "continueAfterDefeat": "boolean; allow current defeat settlement (up to 3 confirmed clicks), revoked on new adventure"
       }
     },
     {
@@ -122,11 +150,39 @@
       }
     },
     {
+      "id": "genshin:launch",
+      "version": "1",
+      "game": "genshin",
+      "mode": "live",
+      "description": "启动本地配置的原神程序；不登录、不发送键鼠，不重复启动已有进程。",
+      "resources": [
+        "desktop",
+        "genshin"
+      ],
+      "enabled": true,
+      "arguments": {}
+    },
+    {
+      "id": "genshin:observe",
+      "version": "1",
+      "game": "genshin",
+      "mode": "read",
+      "description": "原神前台窗口原生截图，再调用本地视觉 API；不切换窗口、不发送键鼠、不启动 BetterGI 任务。",
+      "resources": [
+        "desktop",
+        "genshin"
+      ],
+      "enabled": true,
+      "arguments": {
+        "target": "YuanShen.exe | GenshinImpact.exe (default YuanShen.exe)"
+      }
+    },
+    {
       "id": "genshin:plan",
       "version": "1",
       "game": "genshin",
       "mode": "read",
-      "description": "复用原神有限技能规划；生成计划不发送游戏输入。",
+      "description": "通过 DeepSeek API 规划原神有限技能；生成计划不发送游戏输入。",
       "resources": [],
       "enabled": true,
       "arguments": {
@@ -167,7 +223,7 @@
       "version": "1",
       "game": "genshin",
       "mode": "read",
-      "description": "诊断 BGI 路径与桥接成熟度；程序存在不代表已连接游戏。",
+      "description": "通过本机 IPC 检查 BetterGI 实例及路径；在线不代表游戏或执行桥接就绪。",
       "resources": [],
       "enabled": true,
       "arguments": {}
